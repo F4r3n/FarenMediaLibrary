@@ -28,11 +28,11 @@ namespace fm {
 		unsigned int indicesSize;
 		std::string nameShader;
 		
-
+		int scaleX = 1, scaleY = 1;
 	private:
 		glm::mat4 model;
 		int posX = 0, posY = 0;
-		int scaleX = 1, scaleY = 1;
+		
 		float rotateAngle = 0;
 	};
 }

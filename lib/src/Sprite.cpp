@@ -3,11 +3,11 @@
 #include "ResourcesManager.h"
 using namespace fm;
 
-Sprite::Sprite(const std::string &textureName)
+Sprite::Sprite(const std::string &textureName, const Color &color)
 {
 	this->textureName = textureName;
 	ResourcesManager::loadTexture(textureName, textureName);
-	initVertices(1, 1, 1);
+	initVertices(color.r/255.0f, color.g/255.0f, color.b/255.0f);
 	initBuffer();
 }
 
