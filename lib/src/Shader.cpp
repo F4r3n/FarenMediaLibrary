@@ -132,6 +132,31 @@ void Shader::Use()
 	glUseProgram(this->Program);
 }
 
+void Shader::setMatrix(const std::string &name, glm::mat4 matrix) {
+	GLint projLoc = glGetUniformLocation(Program, name.c_str());
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::setVector2f(const std::string &name, glm::vec2 vector) {
+	GLint projLoc = glGetUniformLocation(Program, name.c_str());
+	glUniform2f(projLoc, vector.x, vector.y);
+}
+
+void Shader::setVector3f(const std::string &name, glm::vec3 vector) {
+	GLint projLoc = glGetUniformLocation(Program, name.c_str());
+	glUniform3f(projLoc, vector.x, vector.y, vector.z);
+}
+
+void Shader::setFloat(const std::string &name, float val) {
+	GLint projLoc = glGetUniformLocation(Program, name.c_str());
+	glUniform1f(projLoc, val);
+}
+
+void Shader::setVector4f(const std::string &name, glm::vec4 vector) {
+	GLint projLoc = glGetUniformLocation(Program, name.c_str());
+	glUniform4f(projLoc, vector.x, vector.y, vector.z, vector.w);
+}
+
 Shader::~Shader()
 {
 }

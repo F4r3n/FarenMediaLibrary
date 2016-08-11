@@ -3,10 +3,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Shader.h"
+#include "Drawable.h"
 #include "Tag.h"
 namespace fm {
-	class Shape
+	class Shape : public Drawable
 	{
 	public:
 		Shape();

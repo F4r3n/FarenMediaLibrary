@@ -59,8 +59,36 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 		+ std::string("color = texture(texture, ourTexCoord)*ourColor;\n")
 		+ std::string("}");
 
+
+	std::string default_vertex_particle = "#version 330 core\n"
+		+ std::string("layout (location = 0) in vec4 vertex;\n")
+		+ std::string("uniform mat4 view;\n")
+		+ std::string("uniform mat4 projection;\n")
+		+ std::string("uniform float scale;\n")
+		+ std::string("uniform vec2 offset;\n")
+		+ std::string("uniform vec4 particleColor;\n")
+
+		+ std::string("out vec4 ourColor;\n")
+		+ std::string("out vec2 ourTexCoord;\n")
+		+ std::string("void main(){\n")
+		+ std::string("gl_Position = projection*view*vec4((vertex.xy*scale) + offset, 0.0f, 1.0f);\n")
+		+ std::string("ourTexCoord = vertex.zw;")
+		+ std::string("ourColor = particleColor;}");
+
+
+	std::string default_fragement_particle = "#version 330 core\n"
+		+ std::string("in vec4 ourColor;\n")
+		+ std::string("in vec2 ourTexCoord;\n")
+		+ std::string("uniform sampler2D texture;\n")
+		+ std::string("out vec4 color;\n")
+		+ std::string("void main(){\n")
+		+ std::string("color = texture(texture, ourTexCoord)*ourColor;\n")
+		+ std::string("}");
+
 	ResourcesManager::loadShader("default", default_vertex, default_fragement);
 	ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragement_sprite);
+	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragement_particle);
+
 	camera = Camera(width, height);
 }
 

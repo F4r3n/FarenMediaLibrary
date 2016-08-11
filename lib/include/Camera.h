@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Shape.h"
 #include "Tag.h"
+#include "ParticleGenerator.h"
 namespace fm {
 	struct ViewPort {
 		float x;
@@ -19,7 +20,7 @@ namespace fm {
 		Camera(int width, int height);
 		Camera(int width, int height, const ViewPort &view, float zoom = 1);
 		glm::mat4 getProjection() const;
-		void draw(Shape &shape);
+		void draw(Drawable &drawable);
 
 		void view();
 		~Camera();

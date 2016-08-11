@@ -31,17 +31,17 @@ void Camera::view() {
 	glViewport(viewPort.x, viewPort.y, viewPort.width, viewPort.height);
 }
 
-void Camera::draw(Shape &shape)
+void Camera::draw(Drawable &shape)
 {
 	//if (!Tag::checkTag(shape.tag, tag)) return;
 	Shader s = ResourcesManager::getShader(shape.getNameShader());
 	s.Use();
-	GLint projLoc = glGetUniformLocation(s.Program, "projection");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(getProjection()));
-	GLint view = glGetUniformLocation(s.Program, "view");
-	glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	s.setMatrix("projection", projection);
+	s.setMatrix("view", viewMatrix);
 	shape.draw(s);
 }
+
+
 
 glm::mat4 Camera::getProjection() const{
 	return projection;

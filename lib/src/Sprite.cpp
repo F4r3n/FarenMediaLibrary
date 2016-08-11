@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "Sprite.h"
-#include "ResourcesManager.h"
 using namespace fm;
 
-Sprite::Sprite(const std::string &textureName, const Color &color)
+Sprite::Sprite(Texture &texture, const Color &color)
 {
-	this->textureName = textureName;
-	ResourcesManager::loadTexture(textureName, textureName);
+	this->texture = texture;
+	
 	initVertices(color.r/255.0f, color.g/255.0f, color.b/255.0f);
 	initBuffer();
 }
@@ -56,28 +55,11 @@ void Sprite::initBuffer() {
 	glBindVertexArray(0); // Unbind VAO
 
 
-						  // Load and create a texture 
-	
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
-										   // Set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Load image, create texture and generate mipmaps
-	int width, height;
-	//unsigned char* image = SOIL_load_image("container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
-	Texture2D texture2d = ResourcesManager::getTexture(textureName);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture2d.width, texture2d.height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture2d.image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	//SOIL_free_image_data(texture2dimage);
-	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
 }
 
 void Sprite::draw(Shader &shader) {
-	glBindTexture(GL_TEXTURE_2D, texture);
+	texture.bind();
 	Shape::draw(shader);
 }
 
