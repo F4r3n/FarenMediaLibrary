@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Window.h"
 
 using namespace fm;

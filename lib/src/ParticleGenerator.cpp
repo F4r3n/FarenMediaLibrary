@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "ParticleGenerator.h"
 #include "ResourcesManager.h"
 using namespace fm;

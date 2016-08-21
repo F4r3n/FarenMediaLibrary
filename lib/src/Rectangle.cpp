@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Rectangle.h"
 
 using namespace fm;

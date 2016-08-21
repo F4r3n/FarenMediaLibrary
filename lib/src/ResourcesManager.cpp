@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "ResourcesManager.h"
 #include "SOIL.h"
 using namespace fm;

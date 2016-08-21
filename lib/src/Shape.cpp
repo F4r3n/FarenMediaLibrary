@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Shape.h"
 using namespace fm;
 Shape::Shape()

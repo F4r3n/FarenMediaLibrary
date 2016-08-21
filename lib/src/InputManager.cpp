@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "InputManager.h"
 #include <stdarg.h>
 using namespace fm;

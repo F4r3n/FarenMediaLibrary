@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Camera.h"
 #include "ResourcesManager.h"
 #include "Tag.h"

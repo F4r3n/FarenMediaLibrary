@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Drawable.h"
 
 using namespace fm;

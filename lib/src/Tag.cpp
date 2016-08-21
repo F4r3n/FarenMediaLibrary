@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Tag.h"
 
 using namespace fm;

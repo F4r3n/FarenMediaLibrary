@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Circle.h"
 
 using namespace fm;
