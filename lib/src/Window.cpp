@@ -16,7 +16,7 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	// Create a GLFWwindow object that we can use for GLFW's functions
 	window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
 	init(window);
-	
+	//glEnable (GL_BLEND);
 	std::string default_vertex = "#version 330 core\n"
 		+ std::string("layout(location = 0) in vec2 position;\n")
 		+ std::string("layout(location = 1) in vec3 color;\n")
@@ -128,6 +128,11 @@ int Window::init(GLFWwindow *window) {
 
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
+
+	glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    return 1;
 }
 
 void Window::clear() {

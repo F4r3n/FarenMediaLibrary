@@ -9,14 +9,14 @@ namespace fm {
 	class Texture
 	{
 	public:
-		Texture(const std::string &name, const std::string &path);
+		Texture(const std::string &path, bool alpha = true);
 		Texture();
 		~Texture();
 		void bind();
 	private:
 		int width;
 		int height;
-		std::string name;
+		int format;
 		std::string path;
 
 		unsigned char* image;
