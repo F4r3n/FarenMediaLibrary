@@ -53,10 +53,10 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	std::string default_fragement_sprite = "#version 330 core\n"
 		+ std::string("in vec3 ourColor;\n")
 		+ std::string("in vec2 ourTexCoord;\n")
-		+ std::string("uniform sampler2D texture;\n")
+		+ std::string("uniform sampler2D texture2d;\n")
 		+ std::string("out vec4 color;\n")
 		+ std::string("void main(){\n")
-		+ std::string("color = texture(texture, ourTexCoord)*ourColor;\n")
+		+ std::string("color = texture(texture2d, ourTexCoord)*vec4(ourColor,1.0f);\n")
 		+ std::string("}");
 
 
@@ -79,10 +79,10 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	std::string default_fragement_particle = "#version 330 core\n"
 		+ std::string("in vec4 ourColor;\n")
 		+ std::string("in vec2 ourTexCoord;\n")
-		+ std::string("uniform sampler2D texture;\n")
+		+ std::string("uniform sampler2D texture2d;\n")
 		+ std::string("out vec4 color;\n")
 		+ std::string("void main(){\n")
-		+ std::string("color = texture(texture, ourTexCoord)*ourColor;\n")
+		+ std::string("color = texture(texture2d, ourTexCoord)*ourColor;\n")
 		+ std::string("}");
 
 	ResourcesManager::loadShader("default", default_vertex, default_fragement);
