@@ -5,13 +5,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
+if(COMPILER_SUPPORTS_CXX14)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g -Wall")
-elseif(COMPILER_SUPPORTS_CXX0X)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g -Wall")
 else()
-	message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+	message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 endif()
 
 
@@ -22,9 +19,14 @@ find_package(SOIL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLFW REQUIRED)
 
-
+set( SOL_INCLUDE_DIR "../sol2")
+set( LUA_INCLUDE_DIR "/usr/local/include")
+set( LUA_LIBRARY_DIR "/usr/local/lib")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
+include_directories(${SOL_INCLUDE_DIR})
+include_directories(${LUA_INCLUDE_DIR})
+target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARY} lua)
 
 if (SOIL_FOUND)
   include_directories(${SOIL_INCLUDE_DIRS})

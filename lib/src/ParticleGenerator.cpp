@@ -64,6 +64,25 @@ void ParticleGenerator::initParticles() {
 	}
 }
 
+void ParticleGenerator::reset() {
+	int i = 0;
+	for (Particle &p : particles) {
+
+		p.color = { 1,1,1,1 };
+		p.life = 100;
+		p.position = { positionX, positionY };
+
+		if(shape == SHAPE::CIRCLE) {
+			p.velocity.x = velocityMaxX*glm::cos(i*2*glm::pi<float>()/this->numberParticles);
+			p.velocity.y = velocityMaxY*glm::sin(i*2*glm::pi<float>()/this->numberParticles);
+		}
+
+		p.offset = { 0,0 };
+		p.scale = 100;
+		i++;
+	}
+}
+
 const std::string ParticleGenerator::getNameShader() const{
 	return nameShader;
 }

@@ -24,6 +24,9 @@ bool InputManager::multipleKeysPressed(int number,...) {
 	va_end(ap);
 	return val;
 }
+void InputManager::getMousePosition(Vector2<double> &pos) {
+	glfwGetCursorPos(window, &pos.x, &pos.y);
+}
 
 bool InputManager::keyIsPressed(int key) {
 	return glfwGetKey(window, key);

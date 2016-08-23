@@ -36,6 +36,7 @@ namespace fm {
 		void setVelocity(float fx, float fy);
 		void setShape(pa::SHAPE shape);
 		void initParticles();
+		void reset();
 	private:
 		GLuint VAO;
 		Texture texture;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Window.h"
 #include <map>
-
+#include "Vector2.h"
 
 
 namespace fm {
@@ -143,6 +143,7 @@ namespace fm {
 		bool keyIsPressed(int key);
 		bool keyIsReleased(int key);
 		bool multipleKeysPressed(int key, ...);
+		void getMousePosition(Vector2<double> &pos);
 	private:
 		static std::map <int, bool> keys;
 		static std::map <int, bool> keysReleased;
