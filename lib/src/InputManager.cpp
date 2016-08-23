@@ -5,11 +5,23 @@ using namespace fm;
 
 std::map<int, bool> InputManager::keys;
 std::map<int, bool> InputManager::keysReleased;
+InputManager InputManager::_instance;
 InputManager::InputManager(Window &window)
 {
-	
+	init(window);
+}
+
+void InputManager::init(Window &window) {
 	glfwSetKeyCallback(window.window, InputManager::key_callback);
 	this->window = window.window;
+}
+
+InputManager::InputManager() {
+
+}
+
+InputManager& InputManager::getInstance() {
+	return _instance;
 }
 
 bool InputManager::multipleKeysPressed(int number,...) {
@@ -44,7 +56,10 @@ void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int a
 		keysReleased[key] = true;
 	}
 	keys[key] = (action == GLFW_PRESS) ? true: false;
-	
+}
+
+bool InputManager::test() {
+	return true;
 }
 
 void InputManager::pollEvents(Window &window) {

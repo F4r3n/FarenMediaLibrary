@@ -20,6 +20,7 @@ namespace fm {
 		bool isClosed();
 
 		void draw(Shape &shape);
+		void frameLimit(unsigned short fps);
 	private:
 		void events();
 		int init(GLFWwindow *window);
@@ -27,6 +28,11 @@ namespace fm {
 		int width;
 		int height;
 		Camera camera;
+
+		double wait_time = 1/60.0f;
+		double curr_frame_time = 0;
+		double dur = 0;
+		double frame_start = 0;
 	};
 }
 

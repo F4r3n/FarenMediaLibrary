@@ -1,6 +1,8 @@
 
 #include "Window.h"
-
+#include "Time.h"
+#include <chrono>
+#include <thread>
 using namespace fm;
 
 
@@ -37,27 +39,30 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 		+ std::string("}");
 
 	std::string default_vertex_sprite = "#version 330 core\n"
-		+ std::string("layout(location = 0) in vec2 position;\n")
-		+ std::string("layout(location = 1) in vec3 color;\n")
-		+ std::string("uniform mat4 view;\n")
-		+ std::string("uniform mat4 model;\n")
-		+ std::string("uniform mat4 projection;\n")
-		+ std::string("out vec3 ourColor;\n")
-		+ std::string("out vec2 ourTexCoord;\n")
-		+ std::string("void main(){\n")
-		+ std::string("gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n")
-		+ std::string("ourTexCoord = position;")
-		+ std::string("ourColor = color;}");
+		"layout(location = 0) in vec2 position;\n"
+		"layout(location = 1) in vec3 color;\n"
+		"uniform mat4 view;\n"
+		"uniform mat4 model;\n"
+		"uniform mat4 projection;\n"
+		"out vec3 ourColor;\n"
+		"out vec2 ourTexCoord;\n"
+		"void main(){\n"
+		"gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n"
+		"ourTexCoord = position;"
+		"ourColor = color;}";
 
 
 	std::string default_fragement_sprite = "#version 330 core\n"
-		+ std::string("in vec3 ourColor;\n")
-		+ std::string("in vec2 ourTexCoord;\n")
-		+ std::string("uniform sampler2D texture2d;\n")
-		+ std::string("out vec4 color;\n")
-		+ std::string("void main(){\n")
-		+ std::string("color = texture(texture2d, ourTexCoord)*vec4(ourColor,1.0f);\n")
-		+ std::string("}");
+		"in vec3 ourColor;\n"
+		"in vec2 ourTexCoord;\n"
+		"uniform sampler2D texture2d;\n"
+		"out vec4 color;\n"
+		"void main(){\n"
+		"color = texture(texture2d, ourTexCoord)*vec4(ourColor,1.0f);\n"
+		"if(color.z == 0.0f) discard;\n"
+		"}";
+
+		//std::string test = "R"
 
 
 	std::string default_vertex_particle = "#version 330 core\n"
@@ -90,6 +95,21 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragement_particle);
 
 	camera = Camera(width, height);
+}
+
+void Window::frameLimit(unsigned short fps) {
+	
+	curr_frame_time = glfwGetTime() - frame_start;
+	double dur = 1000.0 * ( wait_time - curr_frame_time ) + 0.5;
+	if( dur > 0 ) // ensures that we don't have a dur > 0.0 which converts to a durDW of 0.
+	{
+	    std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
+	}
+	
+	double frame_end = glfwGetTime();
+	Time::dt = frame_end - frame_start;
+	// here you could print to file or OutputDebugStream curr_frame_time, frame_end - frame_start and dur.
+	frame_start = frame_end;
 }
 
 void Window::swapBuffers() {
@@ -136,8 +156,9 @@ int Window::init(GLFWwindow *window) {
 }
 
 void Window::clear() {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
 void Window::draw(Shape &shape) {
