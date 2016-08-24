@@ -16,8 +16,8 @@ typedef struct Transform {
 		GameObject();
 		~GameObject();
 		bool attachScript(const std::string &script);
-		bool test();
 		void update(float dt);
+		void start();
 		Transform getTransform() const;
 	private:
 		sol::state lua;

@@ -11,13 +11,28 @@ InputManager::InputManager(Window &window)
 	init(window);
 }
 
+
 void InputManager::init(Window &window) {
 	glfwSetKeyCallback(window.window, InputManager::key_callback);
 	this->window = window.window;
 }
 
+void InputManager::init(GLFWwindow *window) {
+	glfwSetKeyCallback(window, InputManager::key_callback);
+	this->window = window;
+}
+
 InputManager::InputManager() {
 
+}
+
+int InputManager::worldKeyboard(int key) {
+	if(!typeKeyboard) return key;
+	if(key ==  FM_KEY_A) return FM_KEY_Q;
+	if(key ==  FM_KEY_Z) return FM_KEY_W;
+	if(key ==  FM_KEY_W) return FM_KEY_Z;
+	if(key ==  FM_KEY_Q) return FM_KEY_A;
+	return key;
 }
 
 InputManager& InputManager::getInstance() {
@@ -41,7 +56,7 @@ void InputManager::getMousePosition(Vector2<double> &pos) {
 }
 
 bool InputManager::keyIsPressed(int key) {
-	return glfwGetKey(window, key);
+	return glfwGetKey(window, worldKeyboard(key));
 }
 
 bool InputManager::keyIsReleased(int key) {
@@ -65,6 +80,7 @@ bool InputManager::test() {
 void InputManager::pollEvents(Window &window) {
 	window.events();
 }
+
 
 InputManager::~InputManager()
 {

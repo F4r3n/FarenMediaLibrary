@@ -35,16 +35,23 @@ namespace fm {
 		void setGravity(float fx, float fy);
 		void setVelocity(float fx, float fy);
 		void setShape(pa::SHAPE shape);
+		void setLifeGenerator(float lifeGenerator);
+		void setLifeParticle(float life);
 		void initParticles();
 		void reset();
 	private:
+		void resetParticle(Particle &p, int indice);
+
+
 		GLuint VAO;
 		Texture texture;
 		unsigned int numberParticles;
 		std::vector<Particle> particles;
+		float lifeGenerator = 10;
+		float lifeGeneratorMax = 10;
 
 		float velocityMaxX, velocityMaxY;
-		float lifeMax;
+		float lifeMax = 1;
 		float positionX, positionY;
 		float gravityX = 0, gravityY = 0;
 

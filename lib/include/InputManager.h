@@ -26,7 +26,7 @@ namespace fm {
 		FM_KEY_9			 =  GLFW_KEY_9,
 		FM_KEY_SEMICOLON	 =  GLFW_KEY_SEMICOLON,
 		FM_KEY_EQUAL		 =  GLFW_KEY_EQUAL,
-		FM_KEY_A			 =  GLFW_KEY_Q,
+		FM_KEY_A			 =  GLFW_KEY_A,
 		FM_KEY_B			 =  GLFW_KEY_B,
 		FM_KEY_C			 =  GLFW_KEY_C,
 		FM_KEY_D			 =  GLFW_KEY_D,
@@ -42,16 +42,16 @@ namespace fm {
 		FM_KEY_N			 =  GLFW_KEY_N,
 		FM_KEY_O			 =  GLFW_KEY_O,
 		FM_KEY_P			 =  GLFW_KEY_P,
-		FM_KEY_Q			 =  GLFW_KEY_A,
+		FM_KEY_Q			 =  GLFW_KEY_Q,
 		FM_KEY_R			 =  GLFW_KEY_R,
 		FM_KEY_S			 =  GLFW_KEY_S,
 		FM_KEY_T			 =  GLFW_KEY_T,
 		FM_KEY_U			 =  GLFW_KEY_U,
 		FM_KEY_V			 =  GLFW_KEY_V,
-		FM_KEY_W			 =  GLFW_KEY_Z,
+		FM_KEY_W			 =  GLFW_KEY_W,
 		FM_KEY_X			 =  GLFW_KEY_X,
 		FM_KEY_Y			 =  GLFW_KEY_Y,
-		FM_KEY_Z			 =  GLFW_KEY_W,
+		FM_KEY_Z			 =  GLFW_KEY_Z,
 		FM_KEY_LEFT_BRACKET  =  GLFW_KEY_LEFT_BRACKET,
 		FM_KEY_BACKSLASH     =  GLFW_KEY_BACKSLASH,
 		FM_KEY_RIGHT_BRACKET =  GLFW_KEY_RIGHT_BRACKET,
@@ -140,6 +140,7 @@ namespace fm {
 		InputManager(Window &window);
 		InputManager();
 		void pollEvents(Window &window);
+
 		~InputManager();
 		bool keyIsPressed(int key);
 		bool keyIsReleased(int key);
@@ -148,6 +149,10 @@ namespace fm {
 		void getMousePosition(Vector2<double> &pos);
 		static InputManager& getInstance();
 		void init(Window &window);
+		void init(GLFWwindow *window);
+
+
+		int worldKeyboard(int key);
 	private:
 		static std::map <int, bool> keys;
 		static std::map <int, bool> keysReleased;
@@ -157,6 +162,7 @@ namespace fm {
 		//static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 		//static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		GLFWwindow* window;
+		bool typeKeyboard = true; /*false = querty | true = azerty*/
 
 	};
 }

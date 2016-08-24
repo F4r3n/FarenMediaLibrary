@@ -3,6 +3,7 @@
 #include "Time.h"
 #include <chrono>
 #include <thread>
+#include "InputManager.h"
 using namespace fm;
 
 
@@ -18,6 +19,7 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	// Create a GLFWwindow object that we can use for GLFW's functions
 	window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
 	init(window);
+	
 	//glEnable (GL_BLEND);
 	std::string default_vertex = "#version 330 core\n"
 		+ std::string("layout(location = 0) in vec2 position;\n")
@@ -95,6 +97,12 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragement_particle);
 
 	camera = Camera(width, height);
+}
+
+void Window::update(float fps) {
+	events();
+	frameLimit(fps);
+	clear();
 }
 
 void Window::frameLimit(unsigned short fps) {

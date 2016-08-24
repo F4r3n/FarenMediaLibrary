@@ -46,41 +46,44 @@ void ParticleGenerator::init() {
 	
 }
 
-void ParticleGenerator::initParticles() {
-	for (GLuint i = 0; i < this->numberParticles; ++i) {
-		Particle p;
+void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		p.color = { 1,1,1,1 };
-		p.life = 100;
+		p.life = lifeMax;
 		p.position = { positionX, positionY };
 
 		if(shape == SHAPE::CIRCLE) {
-			p.velocity.x = velocityMaxX*glm::cos(i*2*glm::pi<float>()/this->numberParticles);
-			p.velocity.y = velocityMaxY*glm::sin(i*2*glm::pi<float>()/this->numberParticles);
+			p.velocity.x = velocityMaxX*glm::cos(indice*2*glm::pi<float>()/this->numberParticles);
+			p.velocity.y = velocityMaxY*glm::sin(indice*2*glm::pi<float>()/this->numberParticles);
 		}
 
 		p.offset = { 0,0 };
 		p.scale = 100;
+}
+
+void ParticleGenerator::initParticles() {
+	for (GLuint i = 0; i < this->numberParticles; ++i) {
+
+		Particle p;
+		resetParticle(p, i);
 		this->particles.push_back(p);
 	}
 }
 
 void ParticleGenerator::reset() {
 	int i = 0;
+	lifeGenerator = lifeGeneratorMax;
 	for (Particle &p : particles) {
-
-		p.color = { 1,1,1,1 };
-		p.life = 100;
-		p.position = { positionX, positionY };
-
-		if(shape == SHAPE::CIRCLE) {
-			p.velocity.x = velocityMaxX*glm::cos(i*2*glm::pi<float>()/this->numberParticles);
-			p.velocity.y = velocityMaxY*glm::sin(i*2*glm::pi<float>()/this->numberParticles);
-		}
-
-		p.offset = { 0,0 };
-		p.scale = 100;
+		resetParticle(p, i);
 		i++;
 	}
+}
+
+void ParticleGenerator::setLifeGenerator(float lifeGenerator) {
+	this->lifeGeneratorMax = lifeGenerator;
+}
+
+void ParticleGenerator::setLifeParticle(float life) {
+	this->lifeMax = life;
 }
 
 const std::string ParticleGenerator::getNameShader() const{
@@ -88,7 +91,11 @@ const std::string ParticleGenerator::getNameShader() const{
 }
 
 void ParticleGenerator::update(float dt) {
+	int i = 0;
+	if(lifeGenerator < 0.0) return;
+
 	for (Particle &p : particles) {
+
 		if (p.life > 0.0f) {
 			p.velocity.x += gravityX*dt*10;
 			p.velocity.y += gravityY*dt*10;
@@ -98,8 +105,15 @@ void ParticleGenerator::update(float dt) {
 
 			if(p.scale > 0)
 				p.scale -= 1;
+			p.life -= dt;
+		} else {
+			if(lifeGenerator > 0.0) {
+				resetParticle(p, i);
+			}
 		}
+		i++;
 	}
+	lifeGenerator -= dt;
 }
 
 void ParticleGenerator::setVelocity(float fx, float fy) {
@@ -114,6 +128,7 @@ void ParticleGenerator::setGravity(float fx, float fy) {
 
 void ParticleGenerator::draw(Shader &shader) {
 	//std::cout << "Called" << std::endl;
+	if(lifeGenerator < 0.0) return;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	texture.bind();
 	for (Particle p : particles) {

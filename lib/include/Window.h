@@ -21,6 +21,7 @@ namespace fm {
 
 		void draw(Shape &shape);
 		void frameLimit(unsigned short fps);
+		void update(float fps);
 	private:
 		void events();
 		int init(GLFWwindow *window);

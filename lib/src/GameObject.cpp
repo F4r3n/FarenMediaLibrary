@@ -4,11 +4,17 @@ using namespace fm;
 int idKey = 0;
 
 GameObject::GameObject() {
-lua.open_libraries( sol::lib::base );
+lua.open_libraries( sol::lib::base, sol::lib::coroutine, sol::lib::string, sol::lib::io, sol::lib::package);
 }
 
 GameObject::~GameObject() {
 
+}
+
+void GameObject::start() {
+    lua["start"]();
+    transform.position.x = lua["transform"]["position"]["x"];
+    transform.position.y = lua["transform"]["position"]["y"];
 }
 
 void GameObject::update(float dt) {
@@ -19,13 +25,9 @@ void GameObject::update(float dt) {
 }
 
 int keyboard(int id) {
-
-	return fm::InputManager::getInstance().keyIsPressed(id);
+    return fm::InputManager::getInstance().keyIsPressed(id);
 }
 
-bool GameObject::test() {
-	return true;
-}
 
 Transform GameObject::getTransform() const {
 	return transform;
@@ -34,7 +36,7 @@ Transform GameObject::getTransform() const {
 
 bool GameObject::attachScript(const std::string &script){
 	lua.script_file(script);
-
+   
 	
 
 	lua.set_function("keyIsPressed", keyboard);
