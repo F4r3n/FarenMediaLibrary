@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Drawable.h"
 #include "Tag.h"
+#include "Vector2.h"
 namespace fm {
 	class Shape : public Drawable
 	{
@@ -17,6 +18,11 @@ namespace fm {
 
 
 		void move(int x, int y);
+		template <typename T>
+		void move(Vector2<T> v) {
+			posX = v.x;
+			posY = v.y;
+		}
 		void scale(int width, int height);
 		void rotate(float angle);
 		const std::string getNameShader() const;

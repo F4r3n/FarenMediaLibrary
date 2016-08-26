@@ -26,8 +26,6 @@ set( LUA_LIBRARY_DIR "/usr/local/lib")
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 include_directories(${SOL_INCLUDE_DIR})
 include_directories(${LUA_INCLUDE_DIR})
-include_directories(${ENTITY_INCLUDE_DIR})
-message(${ENTITY_LIBRARY_DIR})
 target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARY} lua)
 
 if (SOIL_FOUND)

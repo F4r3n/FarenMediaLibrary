@@ -6,8 +6,9 @@ using namespace fm::pa;
 ParticleGenerator::ParticleGenerator(float posX, float posY, unsigned int numberParticles, Texture &texture)
 {
 	nameShader = "particle";
-	this->positionX = posX;
-	this->positionY = posY;
+	position.x = posX;
+	position.y = posY;
+
 	this->numberParticles = numberParticles;
 	this->textureName = textureName;
 	this->texture = texture;
@@ -47,17 +48,25 @@ void ParticleGenerator::init() {
 }
 
 void ParticleGenerator::resetParticle(Particle &p, int indice) {
+		std::mt19937 engine(seeder());
+
 		p.color = { 1,1,1,1 };
-		p.life = lifeMax;
-		p.position = { positionX, positionY };
+		std::uniform_int_distribution<int> dist3(life.x, life.y);
+
+		p.life = dist3(engine);
+		p.position = { position.x, position.y };
+
+		std::uniform_int_distribution<int> dist(velocityMin.x, velocityMax.x);
+		std::uniform_int_distribution<int> dist2(velocityMin.y, velocityMax.y);
+
 
 		if(shape == SHAPE::CIRCLE) {
-			p.velocity.x = velocityMaxX*glm::cos(indice*2*glm::pi<float>()/this->numberParticles);
-			p.velocity.y = velocityMaxY*glm::sin(indice*2*glm::pi<float>()/this->numberParticles);
+			p.velocity.x = dist(engine)*glm::cos(indice*2*glm::pi<float>()/this->numberParticles);
+			p.velocity.y = dist2(engine)*glm::sin(indice*2*glm::pi<float>()/this->numberParticles);
 		}
 
 		p.offset = { 0,0 };
-		p.scale = 100;
+		p.scale = 10;
 }
 
 void ParticleGenerator::initParticles() {
@@ -83,7 +92,8 @@ void ParticleGenerator::setLifeGenerator(float lifeGenerator) {
 }
 
 void ParticleGenerator::setLifeParticle(float life) {
-	this->lifeMax = life;
+	this->life.x = life;
+	this->life.y = life;
 }
 
 const std::string ParticleGenerator::getNameShader() const{
@@ -97,14 +107,14 @@ void ParticleGenerator::update(float dt) {
 	for (Particle &p : particles) {
 
 		if (p.life > 0.0f) {
-			p.velocity.x += gravityX*dt*10;
-			p.velocity.y += gravityY*dt*10;
+			p.velocity.x += gravity.x*dt*10;
+			p.velocity.y += gravity.y*dt*10;
 
 			p.position.x += p.velocity.x*dt;
 			p.position.y += p.velocity.y*dt;
 
-			if(p.scale > 0)
-				p.scale -= 1;
+			//if(p.scale > 0)
+			//	p.scale -= 1;
 			p.life -= dt;
 		} else {
 			if(lifeGenerator > 0.0) {
@@ -117,13 +127,15 @@ void ParticleGenerator::update(float dt) {
 }
 
 void ParticleGenerator::setVelocity(float fx, float fy) {
-	velocityMaxX = fx;
-	velocityMaxY = fy;
+	velocityMax.x = velocityMin.x = fx;
+	velocityMax.y = velocityMin.y = fy;
+
 }
 
 void ParticleGenerator::setGravity(float fx, float fy) {
-	gravityX = fx;
-	gravityY = fy;
+
+	gravity.x = fx;
+	gravity.y = fy;
 }
 
 void ParticleGenerator::draw(Shader &shader) {

@@ -2,6 +2,9 @@
 #include "Drawable.h"
 #include <vector>
 #include "Texture.h"
+#include "Vector2.h"
+#include <random>
+
 namespace fm {
 	struct Particle {
 		float life;
@@ -34,6 +37,16 @@ namespace fm {
 		void update(float dt);
 		void setGravity(float fx, float fy);
 		void setVelocity(float fx, float fy);
+
+		template <typename T>
+		void setVelocity(Vector2<T> min, Vector2<T> max) {
+			velocityMin = min;
+			velocityMax = max;
+		}
+		template <typename T>
+		void setLife(Vector2<T> min_max ) {
+			life = min_max;
+		}
 		void setShape(pa::SHAPE shape);
 		void setLifeGenerator(float lifeGenerator);
 		void setLifeParticle(float life);
@@ -50,15 +63,19 @@ namespace fm {
 		float lifeGenerator = 10;
 		float lifeGeneratorMax = 10;
 
-		float velocityMaxX, velocityMaxY;
-		float lifeMax = 1;
-		float positionX, positionY;
-		float gravityX = 0, gravityY = 0;
+		Vector2<float> velocityMax;
+		Vector2<float> velocityMin;
+		
+		Vector2<float> life;
+		Vector2<float> position;
+		Vector2<float> gravity;
 
 		pa::SHAPE shape = pa::SHAPE::NONE;
 
 		std::string nameShader;
 		std::string textureName;
+
+		std::random_device seeder;
 
 	};
 }
