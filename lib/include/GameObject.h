@@ -1,31 +1,14 @@
 #pragma once
-#include <sol.hpp>
-#include "Vector2.h"
-#include "InputManager.h"
+
 namespace fm {
+class GameObject {
+public:
+	GameObject();
+	virtual ~GameObject();
+	virtual void update(float dt) = 0;
+	virtual void init() = 0;
+private:
 
 
-typedef struct Transform {
-	Vector2<float> position;
-	Vector2<float> scale;
-	float rotation;
-}Transform;
-
-	class GameObject {
-	public:
-		GameObject();
-		~GameObject();
-		bool attachScript(const std::string &script);
-		void update(float dt);
-		void start();
-		Transform getTransform() const;
-	private:
-		sol::state lua;
-
-		Transform transform;
-
-		bool isDrawable = false;
-	};
-
-
+};
 }
