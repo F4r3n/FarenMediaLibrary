@@ -8,8 +8,9 @@
 #include "ResourcesManager.h"
 #include "Camera.h"
 #include "Shape.h"
+#include "NonCopyable.h"
 namespace fm {
-	class Window
+	class Window : public fm_system::NonCopyable
 	{
 		friend class InputManager;
 	public:

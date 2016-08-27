@@ -77,6 +77,8 @@ namespace fm {
 
 		std::random_device seeder;
 
+		bool over = false;
+
 	};
 }
 

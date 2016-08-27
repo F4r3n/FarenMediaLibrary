@@ -22,20 +22,12 @@ set( SOL_INCLUDE_DIR "extlib/sol2")
 set( STB_INCLUDE_DIR "extlib/stb")
 set( LUA_INCLUDE_DIR "/usr/local/include")
 set( LUA_LIBRARY_DIR "/usr/local/lib")
-
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
 include_directories(${SOL_INCLUDE_DIR})
 include_directories(${STB_INCLUDE_DIR})
 include_directories(${LUA_INCLUDE_DIR})
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
 target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARY} lua)
-
-if (SOIL_FOUND)
-  include_directories(${SOIL_INCLUDE_DIRS})
-    target_link_libraries (${PROJECT_NAME} ${SOIL_LIBRARIES})
-
-elseif(NOT SOIL_FOUND) 
-message("error soil not found") 
-endif (SOIL_FOUND)
 
 if(NOT GLEW_FOUND)
 message(FATAL_ERROR "GLEW not found!")

@@ -2,11 +2,12 @@
 #include "Shader.h"
 #include "Texture.h"
 #include <map>
+#include "NonCopyable.h"
 namespace fm {
 
 
 
-	class ResourcesManager
+	class ResourcesManager : protected fm_system::NonCopyable
 	{
 		
 	public:

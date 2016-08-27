@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include "Image.h"
 namespace fm {
 	class Texture
 	{
@@ -19,7 +19,7 @@ namespace fm {
 		int format;
 		std::string path;
 
-		unsigned char* image;
+		Image image;
 
 		GLuint id;
 	};

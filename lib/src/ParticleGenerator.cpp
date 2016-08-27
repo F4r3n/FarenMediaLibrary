@@ -76,6 +76,7 @@ void ParticleGenerator::initParticles() {
 		resetParticle(p, i);
 		this->particles.push_back(p);
 	}
+	over = false;
 }
 
 void ParticleGenerator::reset() {
@@ -85,6 +86,7 @@ void ParticleGenerator::reset() {
 		resetParticle(p, i);
 		i++;
 	}
+	over = false;
 }
 
 void ParticleGenerator::setLifeGenerator(float lifeGenerator) {
@@ -102,7 +104,8 @@ const std::string ParticleGenerator::getNameShader() const{
 
 void ParticleGenerator::update(float dt) {
 	int i = 0;
-	if(lifeGenerator < 0.0) return;
+	int j = 0;
+	if(over) return;
 
 	for (Particle &p : particles) {
 
@@ -115,6 +118,8 @@ void ParticleGenerator::update(float dt) {
 
 
 			p.life -= dt;
+			j++;
+
 		} else {
 			if(lifeGenerator > 0.0) {
 				resetParticle(p, i);
@@ -122,6 +127,7 @@ void ParticleGenerator::update(float dt) {
 		}
 		i++;
 	}
+	if(j == 0) over = true;
 	lifeGenerator -= dt;
 }
 
@@ -139,7 +145,9 @@ void ParticleGenerator::setGravity(float fx, float fy) {
 
 void ParticleGenerator::draw(Shader &shader) {
 	//std::cout << "Called" << std::endl;
-	if(lifeGenerator < 0.0) return;
+	//if(lifeGenerator < 0.0) return;
+	if(over) return;
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	texture.bind();
 	for (Particle p : particles) {
