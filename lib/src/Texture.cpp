@@ -1,7 +1,7 @@
 
 #include "Texture.h"
 #include "ResourcesManager.h"
-#include <SOIL.h>
+#include <stb_image.h>
 using namespace fm;
 Texture::Texture(const std::string &path, bool alpha)
 	:  path(path)
@@ -11,7 +11,7 @@ Texture::Texture(const std::string &path, bool alpha)
 	} else format = GL_RGB;
 
 
-	image = SOIL_load_image(path.c_str(), &width, &height, 0, format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	image = stbi_load(path.c_str(), &width, &height, 0, format == GL_RGBA ? STBI_rgb_alpha : STBI_rgb);
 	//std::cout << "Texture " << texture.path << " Loaded " << texture.width << " " << texture.height << std::endl;
 
 	glGenTextures(1, &id);
@@ -27,7 +27,7 @@ Texture::Texture(const std::string &path, bool alpha)
 	// Load image, create texture and generate mipmaps
 	//unsigned char* image = SOIL_load_image("container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 
-	SOIL_free_image_data(image);
+	stbi_image_free(image);
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 }
 

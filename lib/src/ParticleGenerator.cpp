@@ -3,6 +3,7 @@
 #include "ResourcesManager.h"
 using namespace fm;
 using namespace fm::pa;
+
 ParticleGenerator::ParticleGenerator(float posX, float posY, unsigned int numberParticles, Texture &texture)
 {
 	nameShader = "particle";
@@ -12,8 +13,7 @@ ParticleGenerator::ParticleGenerator(float posX, float posY, unsigned int number
 	this->numberParticles = numberParticles;
 	this->textureName = textureName;
 	this->texture = texture;
-//	ResourcesManager::loadTexture(textureName, textureName);
-	//particles = std::vector<Particle>{ numberParticles };
+
 	init();
 }
 
@@ -43,7 +43,6 @@ void ParticleGenerator::init() {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
 	glBindVertexArray(0);
 
-	// Create this->amount default particle instances
 	
 }
 
@@ -51,13 +50,13 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		std::mt19937 engine(seeder());
 
 		p.color = { 1,1,1,1 };
-		std::uniform_int_distribution<int> dist3(life.x, life.y);
+		std::uniform_real_distribution<float> dist3(life.x, life.y);
 
 		p.life = dist3(engine);
 		p.position = { position.x, position.y };
 
-		std::uniform_int_distribution<int> dist(velocityMin.x, velocityMax.x);
-		std::uniform_int_distribution<int> dist2(velocityMin.y, velocityMax.y);
+		std::uniform_real_distribution<float> dist(velocityMin.x, velocityMax.x);
+		std::uniform_real_distribution<float> dist2(velocityMin.y, velocityMax.y);
 
 
 		if(shape == SHAPE::CIRCLE) {
@@ -73,6 +72,7 @@ void ParticleGenerator::initParticles() {
 	for (GLuint i = 0; i < this->numberParticles; ++i) {
 
 		Particle p;
+
 		resetParticle(p, i);
 		this->particles.push_back(p);
 	}
@@ -113,8 +113,7 @@ void ParticleGenerator::update(float dt) {
 			p.position.x += p.velocity.x*dt;
 			p.position.y += p.velocity.y*dt;
 
-			//if(p.scale > 0)
-			//	p.scale -= 1;
+
 			p.life -= dt;
 		} else {
 			if(lifeGenerator > 0.0) {

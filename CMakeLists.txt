@@ -15,16 +15,17 @@ endif()
 file(GLOB SOURCES "lib/src/*.cpp")
 include_directories(lib/include)
 
-find_package(SOIL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLFW REQUIRED)
 
-set( SOL_INCLUDE_DIR "../sol2")
+set( SOL_INCLUDE_DIR "extlib/sol2")
+set( STB_INCLUDE_DIR "extlib/stb")
 set( LUA_INCLUDE_DIR "/usr/local/include")
 set( LUA_LIBRARY_DIR "/usr/local/lib")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 include_directories(${SOL_INCLUDE_DIR})
+include_directories(${STB_INCLUDE_DIR})
 include_directories(${LUA_INCLUDE_DIR})
 target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARY} lua)
 

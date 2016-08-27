@@ -1,6 +1,6 @@
 
 #include "ResourcesManager.h"
-#include "SOIL.h"
+
 using namespace fm;
 std::map<std::string, Shader> ResourcesManager::shaders;
 std::map<std::string, Texture> ResourcesManager::textures;

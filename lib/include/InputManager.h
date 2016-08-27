@@ -2,7 +2,7 @@
 #include "Window.h"
 #include <map>
 #include "Vector2.h"
-
+#include "NonCopyable.h"
 
 namespace fm {
 
@@ -132,7 +132,7 @@ namespace fm {
      
 	};
 
-	class InputManager
+	class InputManager : protected fm_system::NonCopyable
 	{
 
 
