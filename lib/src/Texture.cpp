@@ -12,7 +12,7 @@ Texture::Texture(const std::string &path, bool alpha)
 	} else format = GL_RGB;
 
 
-	image.loadImage(path);
+	image.loadImage(path, {0,5});
 	//std::cout << "Texture " << texture.path << " Loaded " << texture.width << " " << texture.height << std::endl;
 
 	glGenTextures(1, &id);
@@ -34,6 +34,10 @@ Texture::Texture(const std::string &path, bool alpha)
 
 Texture::Texture() {
 
+}
+
+void Texture::clear() {
+	image.clear();
 }
 
 void Texture::bind() {

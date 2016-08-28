@@ -50,6 +50,8 @@ glm::mat4 Camera::getProjection() const{
 void Camera::moveTo(int x, int y) {
 	this->x = -x;
 	this->y = -y;
+	viewPort.x = this->x;
+	viewPort.y = this->y;
 }
 
 void Camera::rotate(float angle) {

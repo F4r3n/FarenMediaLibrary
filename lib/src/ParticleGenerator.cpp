@@ -53,6 +53,7 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		std::uniform_real_distribution<float> dist3(life.x, life.y);
 
 		p.life = dist3(engine);
+		p.lifeMax = p.life;
 		p.position = { position.x, position.y };
 
 		std::uniform_real_distribution<float> dist(velocityMin.x, velocityMax.x);
@@ -143,6 +144,10 @@ void ParticleGenerator::setGravity(float fx, float fy) {
 	gravity.y = fy;
 }
 
+void ParticleGenerator::setFading(bool value) {
+	this->fading = value;
+}
+
 void ParticleGenerator::draw(Shader &shader) {
 	//std::cout << "Called" << std::endl;
 	//if(lifeGenerator < 0.0) return;
@@ -153,6 +158,8 @@ void ParticleGenerator::draw(Shader &shader) {
 	for (Particle p : particles) {
 		if (p.life > 0.0f) {
 			//std::cout << "life " << p.life << std::endl;
+			if(fading)
+				p.color.w = p.life/p.lifeMax;
 			shader.setFloat("scale", p.scale);
 			shader.setVector2f("offset", p.position);
 			shader.setVector4f("particleColor", p.color);

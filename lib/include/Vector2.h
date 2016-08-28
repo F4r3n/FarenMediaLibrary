@@ -16,9 +16,16 @@ class Vector2 {
 			a.y += b.y;
 			return a;
 		}
+		void reset() {
+			x = 0;
+			y = 0;
+		}
 
 		T x = 0, y = 0;
 
 
 };
+typedef Vector2<float> Vector2f; 
+typedef Vector2<int> Vector2i;
+typedef Vector2<unsigned int> Vector2ui; 
 }

@@ -13,6 +13,7 @@ namespace fm {
 		Texture();
 		~Texture();
 		void bind();
+		void clear();
 	private:
 		int width;
 		int height;

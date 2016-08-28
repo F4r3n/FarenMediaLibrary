@@ -13,6 +13,8 @@ namespace fm {
 		glm::vec4 color;
 		float scale;
 		glm::vec2 velocity;
+		float alpha = 1;
+		float lifeMax;
 	};
 
 	namespace pa {
@@ -52,6 +54,7 @@ namespace fm {
 		void setLifeParticle(float life);
 		void initParticles();
 		void reset();
+		void setFading(bool value);
 	private:
 		void resetParticle(Particle &p, int indice);
 
@@ -78,6 +81,7 @@ namespace fm {
 		std::random_device seeder;
 
 		bool over = false;
+		bool fading = false;
 
 	};
 }
