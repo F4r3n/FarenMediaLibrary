@@ -5,11 +5,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Image.h"
+#include "Rect.h"
 namespace fm {
 	class Texture
 	{
 	public:
-		Texture(const std::string &path, bool alpha = true);
+		Texture(const std::string &path, Recti rect = {0,0,-1,-1}, bool alpha = true);
 		Texture();
 		~Texture();
 		void bind();
@@ -19,8 +20,7 @@ namespace fm {
 		int height;
 		int format;
 		std::string path;
-
-		Image image;
+		std::vector<unsigned char> content;
 
 		GLuint id;
 	};

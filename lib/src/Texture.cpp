@@ -4,20 +4,32 @@
 
 
 using namespace fm;
-Texture::Texture(const std::string &path, bool alpha)
+Texture::Texture(const std::string &path, Recti rect, bool alpha)
 	:  path(path)
 {
 	if(alpha) {
 		format = GL_RGBA;
 	} else format = GL_RGB;
 
-
-	image.loadImage(path, {0,5});
+	Image image;
+	image.loadImage(path);
 	//std::cout << "Texture " << texture.path << " Loaded " << texture.width << " " << texture.height << std::endl;
 
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
-	glTexImage2D(GL_TEXTURE_2D, 0, format, image.getSize().x, image.getSize().y, 0, format, GL_UNSIGNED_BYTE, image.getImagePtr());
+
+	if(rect.w == -1 && rect.h == -1) {
+		rect.w = image.getSize().x - rect.x;
+		rect.h = image.getSize().y - rect.y;
+	} else if( rect.x > image.getSize().x) {
+		rect.x = 0;
+	}
+	else if( rect.y > image.getSize().y) {
+		rect.y = 0;
+	}
+	image.getPart(content, rect);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, rect.w, rect.h, 0, format, GL_UNSIGNED_BYTE, content.data());
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -30,6 +42,7 @@ Texture::Texture(const std::string &path, bool alpha)
 
 	//stbi_image_free(image);
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+	image.clear();
 }
 
 Texture::Texture() {
@@ -37,7 +50,7 @@ Texture::Texture() {
 }
 
 void Texture::clear() {
-	image.clear();
+	//image.clear();
 }
 
 void Texture::bind() {

@@ -22,30 +22,30 @@ void Image::clear() {
 }
 
 Vector2<int> Image::getSize() {
-	return _realSize;
+	return _size;
 }
 
-unsigned char* Image::getImagePtr() { return pixels.data();}
+void Image::getPart(std::vector<unsigned char> &imagePart, Recti rect) {
+	imagePart.resize((rect.w)*(rect.h)*IMAGE_RGBA, 255);
+	unsigned int sizeByte = (rect.w)*IMAGE_RGBA;
+
+	unsigned char* ptr = imagePart.data();
+	for(int i = 0; i < rect.h; i++){
+
+		std::memcpy(ptr + i*sizeByte, 
+					_pixel + rect.x*IMAGE_RGBA + i*_size.x*IMAGE_RGBA, 
+					sizeByte);
+
+	}
+}
+
+unsigned char* Image::getImagePtr() { return _pixel;}
 
 void Image::loadImage(const std::string &path, const Vector2i &offset) {
 	pixels.clear();
 	_offset = offset;
 
 	_pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
-	pixels.resize((_size.x - offset.x)*(_size.y - offset.y)*IMAGE_RGBA, 200);
-	int sizeByte = (_size.x - offset.x)*4;
-
-	_realSize.x = _size.x - _offset.x;
-	_realSize.y = _size.y - _offset.y;
-
-
-	unsigned char* ptr = pixels.data();
-	for(int i = 0; i < _size.y - offset.y; i++){
-		std::memcpy(ptr + i*sizeByte, 
-			_pixel + offset.x*4 + i*_size.x*4 , 
-				sizeByte);
-
-	}
 	
 }
 
