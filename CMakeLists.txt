@@ -12,23 +12,28 @@ include_directories(lib/include)
 
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
+FIND_PACKAGE( PkgConfig REQUIRED )
+pkg_search_module( GLFW3 3.3 REQUIRED glfw3 ) # sets GLFW3 as prefix for glfw vars
 
 set( SOL_INCLUDE_DIR "extlib/sol2")
 set( STB_INCLUDE_DIR "extlib/stb")
 set( LUA_INCLUDE_DIR "/usr/local/include")
 set( LUA_LIBRARY_DIR "/usr/local/lib")
 
-include_directories(${GLFW_INCLUDE_DIR})
+include_directories(${GLFW3_INCLUDE_DIR} )
 include_directories(${SOL_INCLUDE_DIR})
 include_directories(${STB_INCLUDE_DIR})
 include_directories(${LUA_INCLUDE_DIR})
 include_directories(${GLEW_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
+target_link_libraries(${PROJECT_NAME} gcc gcc_s )
 target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARY} lua)
-target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARIES})
+target_link_libraries( ${PROJECT_NAME} ${GLFW3_LIBRARIES} )
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
+
+
 
 
 

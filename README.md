@@ -4,7 +4,7 @@ It's a library to create 2D games with lua scripts.
 You need to compile lua lib https://www.lua.org/download.html (64Bits need to add -fPIC in the Makefile).
 To bind with lua, FML use sol2 https://github.com/ThePhD/sol2
 ### Ubuntu
-To compile the library please use GCC or Clang.
+GLFW 3.3 is required
 ```
  sudo apt-get install libglew-dev libglfw-dev
 ```

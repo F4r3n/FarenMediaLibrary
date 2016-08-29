@@ -43,6 +43,7 @@ Texture::Texture(const std::string &path, Recti rect, bool alpha)
 	//stbi_image_free(image);
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 	image.clear();
+	content.clear();
 }
 
 Texture::Texture() {
@@ -60,4 +61,5 @@ void Texture::bind() {
 
 Texture::~Texture()
 {
+	
 }
