@@ -97,6 +97,7 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragement_particle);
 
 	camera = Camera(width, height);
+	fm::InputManager::getInstance().init(this->window);
 }
 
 void Window::update(float fps) {

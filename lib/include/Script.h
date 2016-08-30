@@ -1,5 +1,5 @@
 #pragma once
-#include <sol.hpp>
+#include <single/sol/sol.hpp>
 #include "Vector2.h"
 #include "InputManager.h"
 namespace fm {

@@ -1,5 +1,5 @@
 #include "ScriptManager.h"
-
+#include "Input.h"
 using namespace fm;
 ScriptManager::ScriptManager() {
 	lua.open_libraries( sol::lib::base, sol::lib::coroutine, sol::lib::string, sol::lib::io, sol::lib::package);
