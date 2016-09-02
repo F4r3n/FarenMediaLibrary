@@ -11,7 +11,6 @@ int keyboard(int id) {
 
 void ScriptManager::init() {
 	lua.set_function("keyIsPressed", &Input::keyIsPressed);
-	registerComponent<CTest>("CTest", "test", &CTest::test);
 	for(auto &s : scripts) {
 		s.second->init(lua);
 	}

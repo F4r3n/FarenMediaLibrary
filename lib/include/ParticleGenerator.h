@@ -4,18 +4,10 @@
 #include "Texture.h"
 #include "Vector2.h"
 #include <random>
-
+#include <map>
+#include <array>
 namespace fm {
-	struct Particle {
-		float life;
-		glm::vec2 offset;
-		glm::vec2 position;
-		glm::vec4 color;
-		float scale;
-		glm::vec2 velocity;
-		float alpha = 1;
-		float lifeMax;
-	};
+
 
 	namespace pa {
 
@@ -26,7 +18,72 @@ namespace fm {
 			NONE
 				
 		};
+
+		enum COMPONENT {
+			SCALE,
+			ALPHA,
+			LAST_COMPONENT
+		};
+
+namespace function {
+		enum FUNCTION 
+		{
+			LINEAR,
+			SQUARE,
+			NONE
+		};
 	}
+
+		class ComponentParticle {
+		public:
+			ComponentParticle() {}
+			ComponentParticle(float min, float max, pa::COMPONENT name,function::FUNCTION f = function::FUNCTION::NONE) {
+				min_max.x = min;
+				min_max.y = max;
+				current = min;
+				function = f;
+				this->name = name;
+			}
+			void setFunction(function::FUNCTION f) {
+				function = f;
+			}
+			void random(std::mt19937 &engine, float &current) {
+				std::uniform_real_distribution<float> dist(min_max.x, min_max.y);
+				this->current = dist(engine);
+				current = this->current;
+			}
+			 ~ComponentParticle() {}
+			pa::COMPONENT name;
+			
+			void update(float &current, float dt, float life) {//Life should be between 0 and 1
+				this->current = current;
+				if(function == function::FUNCTION::LINEAR) {
+					this->current = (min_max.x - min_max.y)*life + min_max.y;
+				}
+				if(function == function::FUNCTION::NONE) {
+
+				}
+			}
+			float getCurrent() { return current;}
+		private:
+			Vector2f min_max;
+			float current;
+			function::FUNCTION function;
+
+		};
+	}
+
+		struct Particle {
+		float life;
+		glm::vec2 offset;
+		glm::vec2 position;
+		glm::vec4 color;
+		float scale;
+		glm::vec2 velocity;
+		float alpha = 1;
+		float lifeMax;
+		std::array<float, pa::COMPONENT::LAST_COMPONENT> c;
+	};
 
 	class ParticleGenerator : public Drawable
 	{
@@ -55,6 +112,16 @@ namespace fm {
 		void initParticles();
 		void reset();
 		void setFading(bool value);
+
+		
+		void addComponent(pa::COMPONENT name, pa::ComponentParticle &&c) {
+			cparticles[name] = c;
+		}
+
+		float getComponentValue(pa::COMPONENT name) {
+			if(cparticles.find(name) !=  cparticles.end()) return cparticles[name].getCurrent();
+			return -1;
+		}
 	private:
 		void resetParticle(Particle &p, int indice);
 
@@ -79,9 +146,12 @@ namespace fm {
 		std::string textureName;
 
 		std::random_device seeder;
+		
 
 		bool over = false;
 		bool fading = false;
+
+		std::map<pa::COMPONENT, pa::ComponentParticle> cparticles;
 
 	};
 }

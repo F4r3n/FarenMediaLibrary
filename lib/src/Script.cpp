@@ -3,7 +3,7 @@ using namespace fm;
 
 std::string getFileName(const std::string& s) {
 
-   char sep = '/';
+  char sep = '/';
 
 #ifdef _WIN32
    sep = '\\';
@@ -41,7 +41,6 @@ void Script::setName(const std::string &name) {
 
 void Script::start(sol::state &lua) {
   lua[nameVariable]["start"]();
-  //std::cout << lua[nameVariable]["components"]["transform"].name() << std::endl;
   transform.position.x = lua[nameVariable]["components"]["transform"]["position"]["x"];
   transform.position.y = lua[nameVariable]["components"]["transform"]["position"]["y"];
    
@@ -53,8 +52,6 @@ void Script::update(sol::state &lua, float dt) {
 
   transform.position.x = lua[nameVariable]["components"]["transform"]["position"]["x"];
   transform.position.y = lua[nameVariable]["components"]["transform"]["position"]["y"];
-  //vector &v = lua[nameVariable]["vector"];
-  //std::cout << v[0] << std::endl;
   
 }
 
@@ -79,11 +76,6 @@ bool Script::init(sol::state &lua){
 
   lua.script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") 
         + nameVariable + std::string("= ") + m + std::string(".new()"));
-  //lua[nameVariable]["components"] = lua.create_table_with("CTest", std::make_shared<CTest>());
-  //lua[nameVariable]["CTest"] = std::ref(ctest);
-
-
-  //lua.named_table("variable", lua.create_table("t",0))
 
       return true;
 }

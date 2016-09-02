@@ -13,6 +13,7 @@ ParticleGenerator::ParticleGenerator(float posX, float posY, unsigned int number
 	this->numberParticles = numberParticles;
 	this->textureName = textureName;
 	this->texture = texture;
+	
 
 	init();
 }
@@ -49,6 +50,9 @@ void ParticleGenerator::init() {
 void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		std::mt19937 engine(seeder());
 
+		for(auto &cp : cparticles) {
+			cp.second.random(engine, p.c[cp.first]);
+		}
 		p.color = { 1,1,1,1 };
 		std::uniform_real_distribution<float> dist3(life.x, life.y);
 
@@ -66,7 +70,7 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		}
 
 		p.offset = { 0,0 };
-		p.scale = 10;
+		//p.scale = 10;
 }
 
 void ParticleGenerator::initParticles() {
@@ -117,8 +121,14 @@ void ParticleGenerator::update(float dt) {
 			p.position.x += p.velocity.x*dt;
 			p.position.y += p.velocity.y*dt;
 
-
+			for(auto &cp : cparticles) {
+				cp.second.update(p.c[cp.first], dt, p.life/p.lifeMax);
+			}
 			p.life -= dt;
+
+			float s = getComponentValue(pa::COMPONENT::SCALE);
+			if(s != -1)
+				p.scale = s;
 			j++;
 
 		} else {
@@ -160,7 +170,7 @@ void ParticleGenerator::draw(Shader &shader) {
 			//std::cout << "life " << p.life << std::endl;
 			if(fading)
 				p.color.w = p.life/p.lifeMax;
-			shader.setFloat("scale", p.scale);
+			shader.setFloat("scale", p.c[pa::COMPONENT::SCALE]);
 			shader.setVector2f("offset", p.position);
 			shader.setVector4f("particleColor", p.color);
 			

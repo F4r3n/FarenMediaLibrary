@@ -5,12 +5,7 @@
 #include <typeinfo>
 #include "Component.h"
 
-	class CTest : public Component<CTest>{
-public:
-	CTest() {}
-	~CTest() {}
-	float test = 0;
-};
+
 namespace fm {
 
 
