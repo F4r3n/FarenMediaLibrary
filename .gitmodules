@@ -1,3 +1,6 @@
 [submodule "extlib/glm"]
 	path = extlib/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "extlib/sol2"]
+	path = extlib/sol2
+	url = https://github.com/ThePhD/sol2.git
