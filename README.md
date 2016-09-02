@@ -1,7 +1,14 @@
 # FarenMediaLibrary
+[![Build Status](https://travis-ci.org/F4r3n/FarenMediaLibrary.svg?branch=master)](https://travis-ci.org/F4r3n/FarenMediaLibrary)
 It's a library to create 2D games with lua scripts.
 ## Dependencies
 You need to compile lua lib https://www.lua.org/download.html (64Bits need to add -fPIC in the Makefile).
+```
+- tar zxf lua-5.3.3.tar.gz
+- cd lua-5.3.3
+- sudo make linux install MYCFLAGS='-fPIC'
+
+```
 To bind with lua, FML use sol2 https://github.com/ThePhD/sol2
 ### Ubuntu
 GLFW 3.3 is required
