@@ -13,7 +13,15 @@ To bind with lua, FML use sol2 https://github.com/ThePhD/sol2
 ### Ubuntu
 GLFW 3.3 is required
 ```
- sudo apt-get install libglew-dev libglfw-dev
+ sudo apt-get install libglew-dev
+ cd extlib/glfw
+ cmake .
+ sudo make install
+ cd ../../
+ mkdir build
+ cd build
+ cmake ..
+ make
 ```
 ## How to use ?
 After compiling the library, you can use it as any library.

@@ -4,3 +4,6 @@
 [submodule "extlib/sol2"]
 	path = extlib/sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "extlib/glfw"]
+	path = extlib/glfw
+	url = https://github.com/glfw/glfw.git

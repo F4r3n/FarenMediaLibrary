@@ -22,11 +22,10 @@ before_install:
 - cd lua-5.3.3
 - sudo make linux install MYCFLAGS='-fPIC'
 - cd ../
-- git clone https://github.com/glfw/glfw.git
-- cd glfw
+- cd extlib/glfw
 - cmake .
 - sudo make install
-- cd ../
+- cd ../../
 
 
 compiler :
