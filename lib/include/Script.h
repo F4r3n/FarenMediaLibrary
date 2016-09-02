@@ -2,6 +2,8 @@
 #include <single/sol/sol.hpp>
 #include "Vector2.h"
 #include "InputManager.h"
+#include <vector>
+#include "Component.h"
 namespace fm {
 
 
@@ -10,6 +12,7 @@ typedef struct Transform {
 	Vector2<float> scale;
 	float rotation;
 }Transform;
+
 
 	class Script {
 	public:
@@ -24,13 +27,21 @@ typedef struct Transform {
 		std::string getName() const;
 		void setName(const std::string &name);
 
-	private:
-		std::string scriptName;
-		std::string nameVariable;
-		std::string nameFile;
-		Transform transform;
+		template <typename T>
+		T getComponent(sol::state &lua, const std::string name) {
+			return (T)lua[nameVariable][name];
+		}
 
-		bool isDrawable = false;
+        private:
+			std::string scriptName;
+			std::string nameVariable;
+			std::string nameFile;
+			Transform transform;
+
+
+			bool isDrawable = false;
+	
+
 	};
 
 

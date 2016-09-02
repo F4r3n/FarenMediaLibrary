@@ -2,6 +2,8 @@
 
 using namespace fm;
 bool Input::keyIsPressed(int key) {
+	//std::cout << "Called " << key << std::endl;
+	//std::cout << InputManager::getInstance().keyIsPressed(key) << std::endl;
 	return InputManager::getInstance().keyIsPressed(key);
 }
 

@@ -2,7 +2,7 @@
 #include "Input.h"
 using namespace fm;
 ScriptManager::ScriptManager() {
-	lua.open_libraries( sol::lib::base, sol::lib::coroutine, sol::lib::string, sol::lib::io, sol::lib::package);
+	lua.open_libraries();
 }
 
 int keyboard(int id) {
@@ -10,8 +10,8 @@ int keyboard(int id) {
 }
 
 void ScriptManager::init() {
-	lua.set_function("keyIsPressed", keyboard);
-
+	lua.set_function("keyIsPressed", &Input::keyIsPressed);
+	registerComponent<CTest>("CTest", "test", &CTest::test);
 	for(auto &s : scripts) {
 		s.second->init(lua);
 	}
