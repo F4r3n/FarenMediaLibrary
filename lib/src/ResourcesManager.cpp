@@ -17,6 +17,7 @@ void ResourcesManager::loadShader(const std::string &name, std::string &vertexCo
 Shader& ResourcesManager::getShader(const std::string &name) {
 	if(shaders.find(name) != shaders.end())
 		return shaders[name];
+	//return nullptr;
 }
 
 ResourcesManager::~ResourcesManager()

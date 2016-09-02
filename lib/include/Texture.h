@@ -16,8 +16,7 @@ namespace fm {
 		void bind();
 		void clear();
 	private:
-		int width;
-		int height;
+
 		int format;
 		std::string path;
 		std::vector<unsigned char> content;
