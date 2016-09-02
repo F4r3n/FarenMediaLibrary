@@ -1,6 +1,7 @@
 
 #include "ParticleGenerator.h"
 #include "ResourcesManager.h"
+#include <glm/gtc/constants.hpp>
 using namespace fm;
 using namespace fm::pa;
 
@@ -53,7 +54,7 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		for(auto &cp : cparticles) {
 			cp.second.random(engine, p.c[cp.first]);
 		}
-		p.color = { 1,1,1,1 };
+		p.color = glm::vec4(1);
 		std::uniform_real_distribution<float> dist3(life.x, life.y);
 
 		p.life = dist3(engine);
@@ -69,7 +70,7 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 			p.velocity.y = dist2(engine)*glm::sin(indice*2*glm::pi<float>()/this->numberParticles);
 		}
 
-		p.offset = { 0,0 };
+		p.offset = glm::vec2(0);
 		//p.scale = 10;
 }
 
