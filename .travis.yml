@@ -1,7 +1,11 @@
 language : c++
 before_install:
 - sudo apt-get update -qq
-- sudo apt-get install -qq libglew-dev libglfw-dev liblua-dev liblua5.3-0 liblua5.3-dev lua5.3
+- sudo apt-get install -qq libglew-dev libglfw-dev
+- curl -R -O http://www.lua.org/ftp/lua-5.3.3.tar.gz
+- tar zxf lua-5.3.3.tar.gz
+- cd lua-5.3.3
+- sudo make linux install
 
 addons:
   apt:
@@ -12,8 +16,7 @@ addons:
       - cmake-data
 compiler :
   - g++
-  - gcc
-  - clang++
+
 
 script : 
   - mkdir build
