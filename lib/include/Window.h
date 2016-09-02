@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Shape.h"
 #include "NonCopyable.h"
+
 namespace fm {
 	class Window : public fm_system::NonCopyable
 	{
@@ -23,9 +24,14 @@ namespace fm {
 		void draw(Shape &shape);
 		void frameLimit(unsigned short fps);
 		void update(float fps);
+		
 	private:
+		void initFrameBuffer();
 		void events();
+		int generateAttachmentTexture(bool depth, bool stencil);
 		int init(GLFWwindow *window);
+		void createQuadScreen();
+
 		GLFWwindow* window;
 		int width;
 		int height;
@@ -35,6 +41,10 @@ namespace fm {
 		double curr_frame_time = 0;
 		double dur = 0;
 		double frame_start = 0;
+
+		GLuint framebuffer;
+		GLuint quadVAO;
+		GLuint textureColorbuffer;
 	};
 }
 
