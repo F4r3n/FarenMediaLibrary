@@ -18,9 +18,10 @@ pkg_search_module( GLFW3 3.3 REQUIRED glfw3 ) # sets GLFW3 as prefix for glfw va
 
 set( SOL_INCLUDE_DIR "extlib/sol2")
 set( STB_INCLUDE_DIR "extlib/stb")
+set( GLM_INCLUDE_DIR "extlib/glm")
+
 set( LUA_INCLUDE_DIR "/usr/local/include")
 set( LUA_LIBRARY_DIR "/usr/local/lib")
-set( GLM_INCLUDE_DIR "/usr/include")
 
 include_directories(${GLFW3_INCLUDE_DIR} )
 include_directories(${SOL_INCLUDE_DIR})
