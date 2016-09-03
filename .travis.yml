@@ -29,7 +29,7 @@ before_install:
 - mkdir build
 - cd build
 - cmake -D BUILD_SHARED_LIBS:BOOL=true .. && make
-- cd ../../ 
+- cd ../../../ 
 
 
 compiler :
