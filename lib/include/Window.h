@@ -31,6 +31,7 @@ namespace fm {
 		int generateAttachmentTexture(bool depth, bool stencil);
 		int init(GLFWwindow *window);
 		void createQuadScreen();
+		void createShaders();
 
 		GLFWwindow* window;
 		int width;

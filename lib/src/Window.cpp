@@ -22,43 +22,47 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 
 	initFrameBuffer();
 	createQuadScreen();
-	
+	createShaders();
 	//glEnable (GL_BLEND);
-	std::string simple_vertex = "#version 330 core\n"
-		+ std::string("layout(location = 0) in vec2 position;\n")
-		+ std::string("layout(location = 1) in vec2 texCoords;\n")
-		+ std::string("out vec2 TexCoords;\n")
-		+ std::string("void main(){\n")
-		+ std::string("gl_Position = vec4(position, 0.0f, 1.0f);\n")
-		+ std::string("TexCoords = texCoords;}");
+	
+	camera = Camera(width, height);
+	fm::InputManager::getInstance().init(this->window);
+}
 
+void Window::createShaders() {
+	std::string simple_vertex = "#version 330 core\n"
+		"layout(location = 0) in vec2 position;\n"
+		"layout(location = 1) in vec2 texCoords;\n"
+		"out vec2 TexCoords;\n"
+		"void main(){\n"
+		"gl_Position = vec4(position, 0.0f, 1.0f);\n"
+		"TexCoords = texCoords;}";
 
 	std::string simple_fragement = "#version 330 core\n"
-		+ std::string("in vec2 TexCoords;\n")
-		+ std::string("out vec4 color;\n")
-		+ std::string("uniform sampler2D screenTexture;")
-		+ std::string("void main(){\n")
-		+ std::string("color = texture(screenTexture, TexCoords);\n")
-		+ std::string("}");
+		"in vec2 TexCoords;\n"
+		"out vec4 color;\n"
+		"uniform sampler2D screenTexture;"
+		"void main(){\n"
+		"color = texture(screenTexture, TexCoords);\n"
+		"}";
 
 	std::string default_vertex = "#version 330 core\n"
-		+ std::string("layout(location = 0) in vec2 position;\n")
-		+ std::string("layout(location = 1) in vec3 color;\n")
-		+ std::string("uniform mat4 view;\n")
-		+ std::string("uniform mat4 model;\n")
-		+ std::string("uniform mat4 projection;\n")
-		+ std::string("out vec3 ourColor;\n")
-		+ std::string("void main(){\n")
-		+ std::string("gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n")
-		+ std::string("ourColor = color;}");
-
+		"layout(location = 0) in vec2 position;\n"
+		"layout(location = 1) in vec3 color;\n"
+		"uniform mat4 view;\n"
+		"uniform mat4 model;\n"
+		"uniform mat4 projection;\n"
+		"out vec3 ourColor;\n"
+		"void main(){\n"
+		"gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n"
+		"ourColor = color;}";
 
 	std::string default_fragement = "#version 330 core\n"
-		+ std::string("in vec3 ourColor;\n")
-		+ std::string("out vec4 color;\n")
-		+ std::string("void main(){\n")
-		+ std::string("color = vec4(ourColor, 1.0f);\n")
-		+ std::string("}");
+		"in vec3 ourColor;\n"
+		"out vec4 color;\n"
+		"void main(){\n"
+		"color = vec4(ourColor, 1.0f);\n"
+		"}";
 
 	std::string default_vertex_sprite = "#version 330 core\n"
 		"layout(location = 0) in vec2 position;\n"
@@ -84,41 +88,34 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 		"if(color.z == 0.0f) discard;\n"
 		"}";
 
-		//std::string test = "R"
-
-
 	std::string default_vertex_particle = "#version 330 core\n"
-		+ std::string("layout (location = 0) in vec4 vertex;\n")
-		+ std::string("uniform mat4 view;\n")
-		+ std::string("uniform mat4 projection;\n")
-		+ std::string("uniform float scale;\n")
-		+ std::string("uniform vec2 offset;\n")
-		+ std::string("uniform vec4 particleColor;\n")
-
-		+ std::string("out vec4 ourColor;\n")
-		+ std::string("out vec2 ourTexCoord;\n")
-		+ std::string("void main(){\n")
-		+ std::string("gl_Position = projection*view*vec4((vertex.xy*scale) + offset, 0.0f, 1.0f);\n")
-		+ std::string("ourTexCoord = vertex.zw;")
-		+ std::string("ourColor = particleColor;}");
-
+		"layout (location = 0) in vec4 vertex;\n"
+		"uniform mat4 view;\n"
+		"uniform mat4 projection;\n"
+		"uniform float scale;\n"
+		"uniform vec2 offset;\n"
+		"uniform vec4 particleColor;\n"
+		"out vec4 ourColor;\n"
+		"out vec2 ourTexCoord;\n"
+		"void main(){\n"
+		"gl_Position = projection*view*vec4((vertex.xy*scale) + offset, 0.0f, 1.0f);\n"
+		"ourTexCoord = vertex.zw;"
+		"ourColor = particleColor;}";
 
 	std::string default_fragement_particle = "#version 330 core\n"
-		+ std::string("in vec4 ourColor;\n")
-		+ std::string("in vec2 ourTexCoord;\n")
-		+ std::string("uniform sampler2D texture2d;\n")
-		+ std::string("out vec4 color;\n")
-		+ std::string("void main(){\n")
-		+ std::string("color = texture(texture2d, ourTexCoord)*ourColor;\n")
-		+ std::string("}");
+		"in vec4 ourColor;\n"
+		"in vec2 ourTexCoord;\n"
+		"uniform sampler2D texture2d;\n"
+		"out vec4 color;\n"
+		"void main(){\n"
+		"color = texture(texture2d, ourTexCoord)*ourColor;\n"
+		"}";
 
 	ResourcesManager::loadShader("default", default_vertex, default_fragement);
 	ResourcesManager::loadShader("simple", simple_vertex, simple_fragement);
 	ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragement_sprite);
 	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragement_particle);
 
-	camera = Camera(width, height);
-	fm::InputManager::getInstance().init(this->window);
 }
 
 void Window::update(float fps) {

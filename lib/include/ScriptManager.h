@@ -20,8 +20,6 @@ namespace fm {
 
 		template <typename T, typename ...Args>
 		void registerComponent(const std::string &name, Args&&... args) {
-
-	
 			lua.new_usertype<T>(name, args...
              );
 		}

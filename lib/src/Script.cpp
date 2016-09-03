@@ -21,7 +21,6 @@ Script::Script(const std::string &name) {
     this->scriptName = name;
     nameFile = getFileName(name);
     nameVariable = std::string("FM_") + nameFile;
-    std::cout << nameVariable << std::endl;
 }
 
 
@@ -56,8 +55,6 @@ void Script::update(sol::state &lua, float dt) {
 }
 
 
-
-
 Transform Script::getTransform() const {
 	return transform;
 }
@@ -67,15 +64,13 @@ std::string Script::getName() const {
 }
 
 
-
-
 bool Script::init(sol::state &lua){
 	lua.script_file(scriptName);
   std::string m = std::string("f_") + nameFile;
 
 
   lua.script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") 
-        + nameVariable + std::string("= ") + m + std::string(".new()"));
+              + nameVariable + std::string("= ") + m + std::string(".new()"));
 
       return true;
 }

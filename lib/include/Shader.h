@@ -24,6 +24,8 @@ namespace fm {
 		void Use();
 
 		~Shader();
+	private:
+		void init(const std::string &vertexCode, const std::string &fragmentCode);
 	};
 }
 
