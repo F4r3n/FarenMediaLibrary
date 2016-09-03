@@ -48,8 +48,10 @@ namespace function {
 				function = f;
 			}
 			void random(std::mt19937 &engine, float &current) {
-				std::uniform_real_distribution<float> dist(min_max.x, min_max.y);
-				this->current = dist(engine);
+				if(randomStart) {
+					std::uniform_real_distribution<float> dist(min_max.x, min_max.y);
+					this->current = dist(engine);
+				} else this->current = min_max.x;
 				current = this->current;
 			}
 			 ~ComponentParticle() {}
@@ -59,16 +61,22 @@ namespace function {
 				this->current = current;
 				if(function == function::FUNCTION::LINEAR) {
 					this->current = (min_max.x - min_max.y)*life + min_max.y;
+					//std::cout << life << " " << this->current << std::endl;
+					current = this->current;
 				}
 				if(function == function::FUNCTION::NONE) {
 
 				}
 			}
 			float getCurrent() { return current;}
+			void setRandomStart(bool value) {
+				randomStart = value;
+			}
 		private:
 			Vector2f min_max;
 			float current;
 			function::FUNCTION function;
+			bool randomStart = false;
 
 		};
 	}
@@ -82,7 +90,9 @@ namespace function {
 		glm::vec2 velocity;
 		float alpha = 1;
 		float lifeMax;
+		float startTime = 0;
 		std::array<float, pa::COMPONENT::LAST_COMPONENT> c;
+		float time;
 	};
 
 	class ParticleGenerator : public Drawable
@@ -112,6 +122,7 @@ namespace function {
 		void initParticles();
 		void reset();
 		void setFading(bool value);
+		void setStartTime(Vector2f offsetLife);
 
 		
 		void addComponent(pa::COMPONENT name, pa::ComponentParticle &&c) {
@@ -130,8 +141,8 @@ namespace function {
 		Texture texture;
 		unsigned int numberParticles;
 		std::vector<Particle> particles;
-		float lifeGenerator = 10;
-		float lifeGeneratorMax = 10;
+		float lifeGenerator = 5;
+		float lifeGeneratorMax = 5;
 
 		Vector2<float> velocityMax;
 		Vector2<float> velocityMin;
@@ -139,6 +150,7 @@ namespace function {
 		Vector2<float> life;
 		Vector2<float> position;
 		Vector2<float> gravity;
+		Vector2f offsetStartTime;
 
 		pa::SHAPE shape = pa::SHAPE::NONE;
 

@@ -56,7 +56,9 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		}
 		p.color = glm::vec4(1);
 		std::uniform_real_distribution<float> dist3(life.x, life.y);
+		std::uniform_real_distribution<float> dist4(offsetStartTime.x, offsetStartTime.y);
 
+		p.startTime = dist4(engine);
 		p.life = dist3(engine);
 		p.lifeMax = p.life;
 		p.position = { position.x, position.y };
@@ -71,6 +73,7 @@ void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		}
 
 		p.offset = glm::vec2(0);
+		p.time = 0;
 		//p.scale = 10;
 }
 
@@ -108,14 +111,22 @@ const std::string ParticleGenerator::getNameShader() const{
 	return nameShader;
 }
 
+void ParticleGenerator::setStartTime(Vector2f offsetTime) {
+	offsetStartTime = offsetTime;
+}
+
 void ParticleGenerator::update(float dt) {
 	int i = 0;
 	int j = 0;
+	//std::cout << over << std::endl;
 	if(over) return;
 
 	for (Particle &p : particles) {
+		p.time += dt;
+		if(p.startTime > p.time) j = 1;
+		//std::cout << p.time << " " << p.startTime << std::endl;
 
-		if (p.life > 0.0f) {
+		if (p.life > 0.0f  && p.startTime < p.time) {
 			p.velocity.x += gravity.x*dt*10;
 			p.velocity.y += gravity.y*dt*10;
 
@@ -132,7 +143,7 @@ void ParticleGenerator::update(float dt) {
 				p.scale = s;
 			j++;
 
-		} else {
+		} else if(p.life <= 0.0f) {
 			if(lifeGenerator > 0.0) {
 				resetParticle(p, i);
 			}
@@ -150,7 +161,6 @@ void ParticleGenerator::setVelocity(float fx, float fy) {
 }
 
 void ParticleGenerator::setGravity(float fx, float fy) {
-
 	gravity.x = fx;
 	gravity.y = fy;
 }
@@ -167,7 +177,8 @@ void ParticleGenerator::draw(Shader &shader) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	texture.bind();
 	for (Particle p : particles) {
-		if (p.life > 0.0f) {
+		if (p.life > 0.0f && p.startTime < p.time) {
+			//std::cout << "Draw" << std::endl;
 			//std::cout << "life " << p.life << std::endl;
 			if(fading)
 				p.color.w = p.life/p.lifeMax;

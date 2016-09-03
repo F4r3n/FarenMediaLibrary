@@ -16,10 +16,12 @@ struct Character {
 
 class Text : public Drawable{
 public:
-	Text(const std::string &path, int width, int height);
+	Text(int width, int height);
+	void loadFont(const std::string &path, unsigned short size);
+	void setText(const std::string &text);
+	void setPosition(Vector2f pos);
+	void setColor(float r, float g, float b);
 	~Text();
-	void setFontSize(unsigned short size);
-
 
 	void draw(Shader &shader);
 	const std::string getNameShader() const;
@@ -27,8 +29,7 @@ private:
 	std::map<GLchar, Character> Characters;
 	GLuint VAO, VBO;
 
-	FT_Face face;
-	FT_Library ft;
+	
 
 	std::string nameShader = "text";
 
