@@ -18,6 +18,7 @@ namespace fm {
 		static Shader& getShader(const std::string &name);
 		
 		static void loadShader(const std::string &name, std::string &vertexCode, std::string &fragementCode);
+		static void loadShader(const std::string &name, Shader &shader);
 	private:
 		static std::map<std::string, Shader> shaders;
 		static std::map<std::string, Texture> textures;

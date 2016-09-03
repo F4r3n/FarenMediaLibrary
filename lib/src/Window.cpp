@@ -218,14 +218,18 @@ void Window::swapBuffers() {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	postProcess();
+
+	glfwSwapBuffers(window);
+}
+
+void Window::postProcess() {
 	Shader s = ResourcesManager::getShader("simple");
 	s.Use();
 	glBindVertexArray(quadVAO);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// Use the color attachment texture as the texture of the quad plane
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-
-	glfwSwapBuffers(window);
 }
 
 bool Window::isClosed() {

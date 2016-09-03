@@ -32,7 +32,7 @@ namespace fm {
 		int init(GLFWwindow *window);
 		void createQuadScreen();
 		void createShaders();
-
+		void postProcess();
 		GLFWwindow* window;
 		int width;
 		int height;

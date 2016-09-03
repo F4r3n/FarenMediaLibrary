@@ -16,16 +16,17 @@ namespace fm {
 		Shader();
 		Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
 		Shader(const std::string &vertexCode, const std::string &fragmentCode);
-		void setMatrix(const std::string &name, glm::mat4 matrix);
-		void setVector2f(const std::string &name, glm::vec2 vector);
-		void setVector3f(const std::string &name, glm::vec3 vector);
-		void setVector4f(const std::string &name, glm::vec4 vector);
-		void setFloat(const std::string &name, float val);
-		void Use();
-
+		Shader* setMatrix(const std::string &name, glm::mat4 matrix);
+		Shader* setVector2f(const std::string &name, glm::vec2 vector);
+		Shader* setVector3f(const std::string &name, glm::vec3 vector);
+		Shader* setVector4f(const std::string &name, glm::vec4 vector);
+		Shader* setFloat(const std::string &name, float val);
+		Shader* Use();
+		bool compile();
 		~Shader();
 	private:
-		void init(const std::string &vertexCode, const std::string &fragmentCode);
+		
+		std::string vertex, fragment;
 	};
 }
 
