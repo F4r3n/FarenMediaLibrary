@@ -13,6 +13,7 @@ PostProcessor::PostProcessor() {
 
 	simple_fragement = "#version 330 core\n"
 		"in vec2 TexCoords;\n"
+		"uniform vec2 screenSize;\n"
 		"out vec4 color;\n"
 		"uniform sampler2D screenTexture;"
 		"void main(){\n"

@@ -7,3 +7,6 @@
 [submodule "extlib/glfw"]
 	path = extlib/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "extlib/freetype2"]
+	path = extlib/freetype2
+	url = git://git.sv.nongnu.org/freetype/freetype2.git

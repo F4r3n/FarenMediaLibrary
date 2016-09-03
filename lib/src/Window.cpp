@@ -30,6 +30,23 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 }
 
 void Window::createShaders() {
+	std::string text_vertex = "#version 330 core\n"
+							  "layout (location = 0) in vec4 vertex;\n"
+							  "out vec2 TexCoords;\n"
+							  "uniform mat4 projection;\n"
+							  "void main(){\n"
+							  "gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
+							  "TexCoords = vertex.zw;}\n";
+						
+	std::string text_fragment = "#version 330 core\n"
+								"in vec2 TexCoords;\n"
+								"out vec4 color;\n"
+								"uniform sampler2D text;\n"
+								"uniform vec3 textColor;\n"
+								"void main(){\n"
+								"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
+								"color = vec4(textColor, 1.0) * sampled;}";					
+
 	std::string simple_vertex = "#version 330 core\n"
 		"layout(location = 0) in vec2 position;\n"
 		"layout(location = 1) in vec2 texCoords;\n"
@@ -38,9 +55,10 @@ void Window::createShaders() {
 		"gl_Position = vec4(position, 0.0f, 1.0f);\n"
 		"TexCoords = texCoords;}";
 
-	std::string simple_fragement = "#version 330 core\n"
+	std::string simple_fragment = "#version 330 core\n"
 		"in vec2 TexCoords;\n"
 		"out vec4 color;\n"
+		"uniform vec2 screenSize;\n"
 		"uniform sampler2D screenTexture;"
 		"void main(){\n"
 		"color = texture(screenTexture, TexCoords);\n"
@@ -57,7 +75,7 @@ void Window::createShaders() {
 		"gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n"
 		"ourColor = color;}";
 
-	std::string default_fragement = "#version 330 core\n"
+	std::string default_fragment = "#version 330 core\n"
 		"in vec3 ourColor;\n"
 		"out vec4 color;\n"
 		"void main(){\n"
@@ -78,7 +96,7 @@ void Window::createShaders() {
 		"ourColor = color;}";
 
 
-	std::string default_fragement_sprite = "#version 330 core\n"
+	std::string default_fragment_sprite = "#version 330 core\n"
 		"in vec3 ourColor;\n"
 		"in vec2 ourTexCoord;\n"
 		"uniform sampler2D texture2d;\n"
@@ -102,7 +120,7 @@ void Window::createShaders() {
 		"ourTexCoord = vertex.zw;"
 		"ourColor = particleColor;}";
 
-	std::string default_fragement_particle = "#version 330 core\n"
+	std::string default_fragment_particle = "#version 330 core\n"
 		"in vec4 ourColor;\n"
 		"in vec2 ourTexCoord;\n"
 		"uniform sampler2D texture2d;\n"
@@ -111,10 +129,11 @@ void Window::createShaders() {
 		"color = texture(texture2d, ourTexCoord)*ourColor;\n"
 		"}";
 
-	ResourcesManager::loadShader("default", default_vertex, default_fragement);
-	ResourcesManager::loadShader("simple", simple_vertex, simple_fragement);
-	ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragement_sprite);
-	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragement_particle);
+	ResourcesManager::loadShader("text", text_vertex, text_fragment);
+	ResourcesManager::loadShader("default", default_vertex, default_fragment);
+	ResourcesManager::loadShader("simple", simple_vertex, simple_fragment);
+	ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
+	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragment_particle);
 
 }
 
@@ -225,7 +244,7 @@ void Window::swapBuffers() {
 
 void Window::postProcess() {
 	Shader s = ResourcesManager::getShader("simple");
-	s.Use();
+	s.Use()->setVector2f("screenSize", glm::vec2(width, height));
 	glBindVertexArray(quadVAO);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// Use the color attachment texture as the texture of the quad plane
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -280,10 +299,6 @@ void Window::clear() {
 
 void Window::draw(Shape &shape) {
 	Shader s = ResourcesManager::getShader("default");
-	s.Use();
-	GLint projLoc = glGetUniformLocation(s.Program, "projection");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera.getProjection()));
-	GLint view = glGetUniformLocation(s.Program, "view");
-	glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+	s.Use()->setMatrix("projection", camera.getProjection())->setMatrix("view", glm::mat4());
 	shape.draw(s);
 }

@@ -25,7 +25,11 @@ before_install:
 - cd extlib/glfw
 - cmake .
 - sudo make install
-- cd ../../
+- cd ../freetype2
+- mkdir build
+- cd build
+- cmake -D BUILD_SHARED_LIBS:BOOL=true .. && make
+- cd ../../ 
 
 
 compiler :
