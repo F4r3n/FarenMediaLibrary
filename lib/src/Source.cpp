@@ -4,17 +4,15 @@
 using namespace fm;
 Source::Source() {
 	alGenSources((ALuint)1, &source);
-// check for errors
+	alSourcef(source, AL_PITCH, 1);
+	alSourcef(source, AL_GAIN, 1);
+	alSource3f(source, AL_POSITION, 0, 0, 0);
+	alSource3f(source, AL_VELOCITY, 0, 0, 0);
+	alSourcei(source, AL_LOOPING, AL_FALSE);
+}
 
-alSourcef(source, AL_PITCH, 1);
-// check for errors
-alSourcef(source, AL_GAIN, 1);
-// check for errors
-alSource3f(source, AL_POSITION, 0, 0, 0);
-// check for errors
-alSource3f(source, AL_VELOCITY, 0, 0, 0);
-// check for errors
-alSourcei(source, AL_LOOPING, AL_FALSE);
+void Source::setPosition(Vector2f pos) {
+	alSource3f(source, AL_POSITION, pos.x, pos.y, 0);
 }
 
 void Source::loadAudio(const std::string &path) {
@@ -26,34 +24,50 @@ void Source::loadAudio(const std::string &path) {
 		data.insert(data.end(), read_buf.begin(), read_buf.begin() + read_size);
 	}
 	alGenBuffers(1, &buf);
-
-	std::cout << "channel number: " << info.channels << std::endl;
-	std::cout << "Sample rate: " << info.samplerate << std::endl;
-
-	ALfloat const PITCH = 1.0f;
-
 	alBufferData(buf, info.channels == 1? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
 				 &data.front(), data.size() * sizeof(uint16_t), info.samplerate);
 	alSourcei(source, AL_BUFFER, buf);
-	// alSourcei(src, AL_LOOPING, AL_TRUE);
-	alSourcef(source, AL_PITCH, PITCH);
-	
+	 
+}
+
+void Source::setLoop(bool value) {
+	isLooping = value;
+	if(value)
+		alSourcei(source, AL_LOOPING, AL_TRUE);
+	else alSourcei(source, AL_LOOPING, AL_FALSE);
+}
+
+void Source::setPitch(float pitchValue) {
+	this->pitch = pitchValue;
+	alSourcef(source, AL_PITCH, this->pitch);
+}
+
+void Source::setVolume(float volume) {
+	this->volume = volume;
+	alSourcef(source, AL_GAIN, volume);
+}
+
+AUDIO_STATUS Source::getStatus() {
+	ALint source_state;
+	alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+	return static_cast<AUDIO_STATUS>(source_state);
 }
 
 void Source::play() {
+	alGetError();
 	alSourcePlay(source);
-
+	ALenum error;
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+ 		std::cerr << "Source error " << __LINE__ << " " << __FILE__ << " " << error << std::endl;
+ 		return;
+	} 
 	ALint source_state;
 
-	alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-// check for errors
-	
-		
-        //alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-        // check for errors
-	
+	alGetSourcei(source, AL_SOURCE_STATE, &source_state);	
 }
 
 Source::~Source() {
-
+	alDeleteSources(1, &source);
+	alDeleteBuffers(1, &buf);
 }

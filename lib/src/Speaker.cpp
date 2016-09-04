@@ -14,4 +14,9 @@ Speaker::Speaker() {
 	alGetError();
 }
 
-Speaker::~Speaker() {}
+Speaker::~Speaker() {
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(context);
+	alcCloseDevice(device);
+
+}
