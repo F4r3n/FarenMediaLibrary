@@ -44,7 +44,7 @@ target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY} lua)
 target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
-target_link_libraries(${PROJECT_NAME} freetype)
+target_link_libraries(${PROJECT_NAME} freetype openal sndfile)
 
 
 

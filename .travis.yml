@@ -22,6 +22,12 @@ before_install:
 - cd lua-5.3.3
 - sudo make linux install MYCFLAGS='-fPIC'
 - cd ../
+- wget http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.27.tar.gz
+- tar zxf libsndfile-1.0.27.tar.gz
+- cd libsndfile-1.0.27
+- ./configure
+- sudo make install
+- cd ../
 - cd extlib/glfw
 - cmake .
 - sudo make install
