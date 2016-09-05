@@ -5,6 +5,7 @@
 #include "Shape.h"
 #include "Tag.h"
 #include "ParticleGenerator.h"
+#include "Vector2.h"
 namespace fm {
 	struct ViewPort {
 		float x;
@@ -28,6 +29,7 @@ namespace fm {
 		int tag = tg::ALL;
 
 		void moveTo(int x, int y);
+		void moveTo(Vector2f pos);
 		void rotate(float angle);
 		void apply();
 	private:

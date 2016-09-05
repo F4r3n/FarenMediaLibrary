@@ -45,7 +45,26 @@ void Window::createShaders() {
 								"uniform vec3 textColor;\n"
 								"void main(){\n"
 								"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-								"color = vec4(textColor, 1.0) * sampled;}";					
+								"color = vec4(textColor, 1.0) * sampled;}";
+
+	std::string instancing_vertex = "#version 330 core\n"
+							  "layout (location = 0) in vec2 position;\n"
+							  "layout (location = 1) in vec3 color;\n"
+							  "layout (location = 3) in mat4 instanceMatrix;\n"
+							  "out vec2 TexCoords;\n"
+							  "uniform mat4 view;\n"
+							  "uniform mat4 projection;\n"
+							  "void main(){\n"
+							  "vec2 colorTest = vec2(1);"
+							  "gl_Position = instanceMatrix*vec4(position, 0.0f, 1.0f);\n"
+							  "if(instanceMatrix[3][0] == -1) colorTest.x = 0;"
+							  "TexCoords = colorTest;}\n";
+						
+	std::string instancing_fragment = "#version 330 core\n"
+								"in vec2 TexCoords;\n"
+								"out vec4 color;\n"
+								"void main(){\n"
+								"color = vec4(TexCoords,1,1);}";					
 
 	std::string simple_vertex = "#version 330 core\n"
 		"layout(location = 0) in vec2 position;\n"
@@ -130,6 +149,7 @@ void Window::createShaders() {
 		"}";
 
 	ResourcesManager::loadShader("text", text_vertex, text_fragment);
+	ResourcesManager::loadShader("instancing", instancing_vertex, instancing_fragment);
 	ResourcesManager::loadShader("default", default_vertex, default_fragment);
 	ResourcesManager::loadShader("simple", simple_vertex, simple_fragment);
 	ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragment_sprite);

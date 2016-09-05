@@ -34,6 +34,7 @@ void Camera::view() {
 void Camera::draw(Drawable &shape)
 {
 	//if (!Tag::checkTag(shape.tag, tag)) return;
+	//std::cout << projection[0][0] << std::endl;
 	Shader s = ResourcesManager::getShader(shape.getNameShader());
 	s.Use();
 	s.setMatrix("projection", projection);
@@ -47,11 +48,13 @@ glm::mat4 Camera::getProjection() const{
 	return projection;
 }
 
+void Camera::moveTo(Vector2f pos) {
+	moveTo(pos.x, pos.y);
+}
+
 void Camera::moveTo(int x, int y) {
 	this->x = -x;
 	this->y = -y;
-	viewPort.x = this->x;
-	viewPort.y = this->y;
 }
 
 void Camera::rotate(float angle) {
