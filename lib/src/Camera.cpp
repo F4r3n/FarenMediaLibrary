@@ -19,6 +19,13 @@ Camera::Camera(int width, int height, const ViewPort &view, float zoom) : width(
 	viewPort.height = view.height;
 	viewPort.x = view.x;
 	viewPort.y = view.y;
+	std::cout << "Projection" << std::endl;
+	for(int i = 0; i < 4; ++i) {
+    	for(int j = 0; j < 4; ++j) {
+    		std::cout << projection[i][j] << " ";
+    	}
+    	std::cout << std::endl;
+    }
 }
 
 Camera::Camera() {}
@@ -33,12 +40,8 @@ void Camera::view() {
 
 void Camera::draw(Drawable &shape)
 {
-	//if (!Tag::checkTag(shape.tag, tag)) return;
-	//std::cout << projection[0][0] << std::endl;
 	Shader s = ResourcesManager::getShader(shape.getNameShader());
-	s.Use();
-	s.setMatrix("projection", projection);
-	s.setMatrix("view", viewMatrix);
+	s.Use()->setMatrix("projection", projection)->setMatrix("view", viewMatrix);
 	shape.draw(s);
 }
 

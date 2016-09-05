@@ -36,21 +36,27 @@ void SpriteBatch::init() {
         1.0f,  1.0f,  0.0f, 1.0f, 1.0f	
     };
 
-    glm::mat4 test[1];
-    float scaleX = 1000;
-    float scaleY = 1000;
-    float posX = -1;
-    float posY = 0;
-	test[0] = glm::mat4();
-	test[0] = glm::translate(test[0], glm::vec3(posX, posY,  0.0f));
+    std::vector<glm::mat4> v;
 
+    for(InfoSprite s : sprites) {
 
-	test[0] = glm::translate(test[0], glm::vec3(0.5f * scaleX, 0.5f * scaleY, 0.0f));
-	//test[0] = glm::rotate(test[0], rotateAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-	test[0] = glm::translate(test[0], glm::vec3(-0.5f * scaleX, -0.5f * scaleY, 0.0f));
+   		glm::mat4 model;
+    	float scaleX = s.scale.x;
+    	float scaleY = s.scale.y;
+    	float posX = s.pos.x;
+    	float posY = s.pos.y;
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(posX, posY,  0.0f));
+	
+	
+		model = glm::translate(model, glm::vec3(0.5f * scaleX, 0.5f * scaleY, 0.0f));
+			//test[0] = glm::rotate(test[0], rotateAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(-0.5f * scaleX, -0.5f * scaleY, 0.0f));
+	
+		model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+		v.push_back(model);
 
-	test[0] = glm::scale(test[0], glm::vec3(scaleX, scaleY, 1.0f));
-	std::cout << test[0][3][0] << std::endl;
+	}
     //test[0] = glm::mat4(1);
 
 	glGenVertexArrays(1, &quadVAO);
@@ -67,9 +73,8 @@ void SpriteBatch::init() {
 
     GLuint instanceVBO;
     glGenBuffers(1, &instanceVBO);
-    std::cout << sizeof(InfoSprite) << " " << sprites.size() <<" " << std::endl;
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * sprites.size(), &test[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * v.size(), v.data(), GL_STATIC_DRAW);
     
 
     GLsizei vec4Size = sizeof(glm::vec4);
@@ -87,14 +92,6 @@ void SpriteBatch::init() {
     glVertexAttribDivisor(5, 1);
     glVertexAttribDivisor(6, 1);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glGenBuffers(1, &EBO);
-
-    
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Also set instance data
 
     glBindVertexArray(0);
 }

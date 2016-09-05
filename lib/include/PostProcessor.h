@@ -8,6 +8,7 @@ class PostProcessor {
 		PostProcessor();
 		~PostProcessor();
 		bool setShader(const std::string &name, const std::string &newFrag);
+		bool loadShader(const std::string &name, const std::string &newFrag);
 		bool activate(const std::string &name);
 		Shader& getShader(const std::string &name);
 		//void setFloat(const std::string &name, float value);

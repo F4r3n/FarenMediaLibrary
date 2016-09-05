@@ -8,6 +8,7 @@ namespace fm {
 
 	struct InfoSprite {
 		Vector2f pos = {0,0};
+		Vector2f scale = {100,100};
 		//glm::vec3 color = {1,1,1};
 		//Vector2 size = {100,100}
 	};

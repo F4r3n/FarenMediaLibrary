@@ -21,6 +21,14 @@ PostProcessor::PostProcessor() {
 		"}";
 }
 
+bool PostProcessor::loadShader(const std::string &name, const std::string &newFrag) {
+	 std::ifstream ifs(newFrag);
+  	 std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                       (std::istreambuf_iterator<char>()    ) );
+  	 return setShader(name, content);
+
+}
+
 PostProcessor::~PostProcessor() {}
 
 bool PostProcessor::activate(const std::string &name) {
@@ -40,12 +48,12 @@ bool PostProcessor::setShader(const std::string &name, const std::string &newFra
 	simple_fragement = "#version 330 core\n"
 		+std::string("in vec2 TexCoords;\n")
 		+std::string("out vec4 color;\n")
+		+std::string("uniform vec2 screenSize;")
 		+std::string("uniform sampler2D screenTexture;")
 
 			+ newFrag
 		+std::string("void main(){\n")
-		+std::string("color = texture(screenTexture, TexCoords);\n")
-		+std::string("color = effect(color, TexCoords);")
+		+std::string("color = effect(color, screenTexture, TexCoords, screenSize);")
 		+std::string("}");
 
 	Shader shader(simple_vertex, simple_fragement);
