@@ -27,14 +27,13 @@ void Source::loadAudio(const std::string &path) {
 	alBufferData(buf, info.channels == 1? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
 				 &data.front(), data.size() * sizeof(uint16_t), info.samplerate);
 	alSourcei(source, AL_BUFFER, buf);
+	sf_close(file);
 	 
 }
 
 void Source::setLoop(bool value) {
 	isLooping = value;
-	if(value)
-		alSourcei(source, AL_LOOPING, AL_TRUE);
-	else alSourcei(source, AL_LOOPING, AL_FALSE);
+	alSourcei(source, AL_LOOPING, (value) ? AL_TRUE : AL_FALSE);
 }
 
 void Source::setPitch(float pitchValue) {
