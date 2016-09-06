@@ -21,6 +21,7 @@ namespace fm {
 		Shader* setVector3f(const std::string &name, glm::vec3 vector);
 		Shader* setVector4f(const std::string &name, glm::vec4 vector);
 		Shader* setFloat(const std::string &name, float val);
+		Shader* setInt(const std::string &name, int val);
 		Shader* Use();
 		bool compile();
 		~Shader();

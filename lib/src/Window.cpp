@@ -21,6 +21,8 @@ Window::Window(int width, int height, const std::string &name):width(width), hei
 	init(window);
 
 	initFrameBuffer();
+
+
 	createQuadScreen();
 	createShaders();
 	//glEnable (GL_BLEND);
@@ -39,13 +41,14 @@ void Window::createShaders() {
 							  "TexCoords = vertex.zw;}\n";
 						
 	std::string text_fragment = "#version 330 core\n"
+								"layout (location = 0) out vec4 FragColor;\n"
+								"layout (location = 1) out vec4 BrightColor;\n"
 								"in vec2 TexCoords;\n"
-								"out vec4 color;\n"
 								"uniform sampler2D text;\n"
 								"uniform vec3 textColor;\n"
 								"void main(){\n"
 								"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-								"color = vec4(textColor, 1.0) * sampled;}";
+								"FragColor = vec4(textColor, 1.0) * sampled;}";
 
 	std::string instancing_vertex = "#version 330 core\n"
 							  		"layout (location = 0) in vec2 position;\n"
@@ -66,8 +69,42 @@ void Window::createShaders() {
 								"in vec3 Color;"
 								"out vec4 color;\n"
 								"void main(){\n"
-								"color = vec4(1);}";	
-	std::cout << instancing_vertex << std::endl;				
+								"color = vec4(1);}";
+
+	std::string blur_vertex ="";
+
+	std::string blur_fragment="#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"in vec2 TexCoords;\n"
+		"\n"
+		"uniform sampler2D image;\n"
+		"uniform bool horizontal;\n"
+		"\n"
+		"uniform float weight[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);\n"
+		"\n"
+		"void main()\n"
+		"{             \n"
+		"     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel\n"
+		"     vec3 result = texture(image, TexCoords).rgb * weight[0];\n"
+		"     if(horizontal)\n"
+		"     {\n"
+		"         for(int i = 1; i < 5; ++i)\n"
+		"         {\n"
+		"            result += texture(image, TexCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];\n"
+		"            result += texture(image, TexCoords - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];\n"
+		"         }\n"
+		"     }\n"
+		"     else\n"
+		"     {\n"
+		"         for(int i = 1; i < 5; ++i)\n"
+		"         {\n"
+		"             result += texture(image, TexCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];\n"
+		"             result += texture(image, TexCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];\n"
+		"         }\n"
+		"     }\n"
+		"     FragColor = vec4(result, 1.0);\n"
+		"}";
+				
 
 	std::string simple_vertex = "#version 330 core\n"
 		"layout(location = 0) in vec2 position;\n"
@@ -78,12 +115,20 @@ void Window::createShaders() {
 		"TexCoords = texCoords;}";
 
 	std::string simple_fragment = "#version 330 core\n"
+		"out vec4 FragColor;\n"
 		"in vec2 TexCoords;\n"
-		"out vec4 color;\n"
+		"uniform sampler2D screenTexture;\n"
+		"uniform sampler2D bloomBlur;\n"
 		"uniform vec2 screenSize;\n"
-		"uniform sampler2D screenTexture;"
 		"void main(){\n"
-		"color = texture(screenTexture, TexCoords);\n"
+		"const float gamma = 2.2;\n"
+		"const float exposure = 1;"
+    	"vec3 hdrColor = texture(screenTexture, TexCoords).rgb;      \n"
+    	"vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;\n"
+    	"hdrColor += bloomColor; // additive blending\n"
+    	"vec3 result = vec3(1.0) - exp(-hdrColor * exposure);\n"
+    	"result = pow(result, vec3(1.0 / gamma));\n"
+    	"FragColor = vec4(result, 1.0f);\n"
 		"}";
 
 	std::string default_vertex = "#version 330 core\n"
@@ -119,13 +164,15 @@ void Window::createShaders() {
 
 
 	std::string default_fragment_sprite = "#version 330 core\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"layout (location = 1) out vec4 BrightColor;\n"
 		"in vec3 ourColor;\n"
 		"in vec2 ourTexCoord;\n"
 		"uniform sampler2D texture2d;\n"
-		"out vec4 color;\n"
 		"void main(){\n"
-		"color = texture(texture2d, ourTexCoord)*vec4(ourColor,1.0f);\n"
+		"vec4 color = texture(texture2d, ourTexCoord)*vec4(ourColor,1.0f);\n"
 		"if(color.z == 0.0f) discard;\n"
+		"BrightColor = color;"
 		"}";
 
 	std::string default_vertex_particle = "#version 330 core\n"
@@ -146,11 +193,13 @@ void Window::createShaders() {
 		"in vec4 ourColor;\n"
 		"in vec2 ourTexCoord;\n"
 		"uniform sampler2D texture2d;\n"
-		"out vec4 color;\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"layout (location = 1) out vec4 BrightColor;\n"
 		"void main(){\n"
-		"color = texture(texture2d, ourTexCoord)*ourColor;\n"
+		"FragColor = texture(texture2d, ourTexCoord)*ourColor;\n"
 		"}";
 
+	ResourcesManager::loadShader("blur", simple_vertex, blur_fragment);
 	ResourcesManager::loadShader("text", text_vertex, text_fragment);
 	ResourcesManager::loadShader("instancing", instancing_vertex, instancing_fragment);
 	ResourcesManager::loadShader("default", default_vertex, default_fragment);
@@ -158,43 +207,78 @@ void Window::createShaders() {
 	ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
 	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragment_particle);
 
+
+	Shader s = ResourcesManager::getShader("simple");
+	s.Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+
 }
 
 void Window::update(float fps) {
 
 	events();
 	frameLimit(fps);
-	
+
+
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
 	clear();
 }
 
 void Window::initFrameBuffer() {
-	 // Framebuffers
     
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);  
     // Create a color attachment texture
-    textureColorbuffer = generateAttachmentTexture(false, false);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-    // Create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-    GLuint rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // Use a single renderbuffer object for both a depth AND stencil buffer.
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // Now actually attach it
-    // Now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	glGenTextures(2, textureColorbuffer);
+    for(int i = 0; i < 2; i++) {
+    	glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  // We clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // attach texture to framebuffer
+    	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
+	}
+
+    GLuint rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+
+	GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);     
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Ping pong framebuffer for blurring
+
+    glGenFramebuffers(2, pingpongFBO);
+    glGenTextures(2, pingpongColorbuffers);
+    for (GLuint i = 0; i < 2; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // We clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
+        // Also check if framebuffers are complete (no need for depth buffer)
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            std::cout << "Framebuffer not complete!" << std::endl;
+    }
+ 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 }
 
 int Window::generateAttachmentTexture(bool depth, bool stencil) {
 
     GLenum attachment_type;
     if(!depth && !stencil)
-        attachment_type = GL_RGB;
+        attachment_type = GL_RGB16F;
     else if(depth && !stencil)
         attachment_type = GL_DEPTH_COMPONENT;
     else if(!depth && stencil)
@@ -204,7 +288,7 @@ int Window::generateAttachmentTexture(bool depth, bool stencil) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     if(!depth && !stencil)
-        glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, width, height, 0, attachment_type, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, width, height, 0, attachment_type, GL_FLOAT, NULL);
     else 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -257,19 +341,45 @@ void Window::frameLimit(unsigned short fps) {
 
 void Window::swapBuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 
-	postProcess();
+  	GLboolean horizontal = true, first_iteration = true;
+    GLuint amount = 10;
+    Shader s = ResourcesManager::getShader("blur");
+    s.Use();
+    for (GLuint i = 0; i < amount; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+        s.setFloat("horizontal", horizontal);
+        glBindTexture(GL_TEXTURE_2D, first_iteration ? textureColorbuffer[1] : pingpongColorbuffers[!horizontal]);
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+        horizontal = !horizontal;
+        if (first_iteration)
+            first_iteration = false;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+  	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	postProcess(true);
+	errorDisplay();
 	glfwSwapBuffers(window);
 }
 
-void Window::postProcess() {
+void Window::errorDisplay() {
+	int error = glGetError();
+	if(error != 0) std::cout << error << std::endl;
+}
+
+void Window::postProcess(bool horizontal) {
 	Shader s = ResourcesManager::getShader("simple");
 	s.Use()->setVector2f("screenSize", glm::vec2(width, height));
+	glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+
 	glBindVertexArray(quadVAO);
-    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// Use the color attachment texture as the texture of the quad plane
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
@@ -298,23 +408,31 @@ int Window::init(GLFWwindow *window) {
 	glfwMakeContextCurrent(window);
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
+
 	// Initialize GLEW to setup the OpenGL Function pointers
 	if (glewInit() != GLEW_OK)
 	{
 		return -1;
 	}
+	glGetError();
+	errorDisplay();
+
 
 	glfwGetFramebufferSize(window, &width, &height);
+
 	glViewport(0, 0, width, height);
 
 	glEnable(GL_CULL_FACE);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
     return 1;
 }
 
 void Window::clear() {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+ 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	

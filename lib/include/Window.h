@@ -32,7 +32,8 @@ namespace fm {
 		int init(GLFWwindow *window);
 		void createQuadScreen();
 		void createShaders();
-		void postProcess();
+		void postProcess(bool horizontal);
+		void errorDisplay();
 		GLFWwindow* window;
 		int width;
 		int height;
@@ -45,7 +46,10 @@ namespace fm {
 
 		GLuint framebuffer;
 		GLuint quadVAO;
-		GLuint textureColorbuffer;
+		GLuint textureColorbuffer[2];
+
+		GLuint pingpongFBO[2];
+    	GLuint pingpongColorbuffers[2];
 	};
 }
 

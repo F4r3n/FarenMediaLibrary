@@ -35,7 +35,7 @@ private:
 
 	std::string text = "Ab";
 
-	Vector2f pos = {300,300};
+	Vector2f pos = {0,0};
 	GLfloat scale = 1;
 	glm::vec3 color = glm::vec3(1);
 	glm::mat4 projection;
