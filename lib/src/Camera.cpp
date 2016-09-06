@@ -38,10 +38,9 @@ void Camera::view() {
 	glViewport(viewPort.x, viewPort.y, viewPort.width, viewPort.height);
 }
 
-void Camera::draw(Drawable &shape)
-{
+void Camera::draw(Drawable &shape) {
 	Shader s = ResourcesManager::getShader(shape.getNameShader());
-	s.Use()->setMatrix("projection", projection)->setMatrix("view", viewMatrix);
+	s.Use()->setMatrix("projection", projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect", shape.isBlooming());
 	shape.draw(s);
 }
 

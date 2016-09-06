@@ -1,7 +1,8 @@
 #pragma once
 #include "Shader.h"
+#include "Effect.h"
 namespace fm {
-	class Drawable
+	class Drawable : public Effect
 	{
 	public:
 		Drawable();

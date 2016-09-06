@@ -46,9 +46,13 @@ void Window::createShaders() {
 								"in vec2 TexCoords;\n"
 								"uniform sampler2D text;\n"
 								"uniform vec3 textColor;\n"
+								"uniform float BloomEffect;\n"
 								"void main(){\n"
+								"BrightColor = vec4(0);FragColor = vec4(0);\n"
 								"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-								"FragColor = vec4(textColor, 1.0) * sampled;}";
+								"vec4 color = vec4(textColor, 1.0) * sampled;"
+								"if(BloomEffect <= 0) {FragColor = color; }\n"
+								"else {BrightColor = color;}}";
 
 	std::string instancing_vertex = "#version 330 core\n"
 							  		"layout (location = 0) in vec2 position;\n"
@@ -126,9 +130,9 @@ void Window::createShaders() {
     	"vec3 hdrColor = texture(screenTexture, TexCoords).rgb;      \n"
     	"vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;\n"
     	"hdrColor += bloomColor; // additive blending\n"
-    	"vec3 result = vec3(1.0) - exp(-hdrColor * exposure);\n"
-    	"result = pow(result, vec3(1.0 / gamma));\n"
-    	"FragColor = vec4(result, 1.0f);\n"
+    	//"vec3 result = vec3(1.0) - exp(-hdrColor * exposure);\n"
+    	//"result = pow(result, vec3(1.0 / gamma));\n"
+    	"FragColor = vec4(hdrColor, 1.0f);\n"
 		"}";
 
 	std::string default_vertex = "#version 330 core\n"
@@ -143,10 +147,14 @@ void Window::createShaders() {
 		"ourColor = color;}";
 
 	std::string default_fragment = "#version 330 core\n"
+		"layout (location = 0) out vec4 FragColor;\n"
+		"layout (location = 1) out vec4 BrightColor;\n"
 		"in vec3 ourColor;\n"
-		"out vec4 color;\n"
+		"uniform float BloomEffect;\n"
 		"void main(){\n"
-		"color = vec4(ourColor, 1.0f);\n"
+		"vec4 color = vec4(ourColor, 1.0f);\n"
+		"FragColor = vec4(0); BrightColor = vec4(0);\n"
+		"if(BloomEffect <= 0) FragColor = color;\n else BrightColor = color;"
 		"}";
 
 	std::string default_vertex_sprite = "#version 330 core\n"
@@ -155,6 +163,7 @@ void Window::createShaders() {
 		"uniform mat4 view;\n"
 		"uniform mat4 model;\n"
 		"uniform mat4 projection;\n"
+		"uniform float bloomEffect;\n"
 		"out vec3 ourColor;\n"
 		"out vec2 ourTexCoord;\n"
 		"void main(){\n"
@@ -168,11 +177,14 @@ void Window::createShaders() {
 		"layout (location = 1) out vec4 BrightColor;\n"
 		"in vec3 ourColor;\n"
 		"in vec2 ourTexCoord;\n"
+		"uniform float BloomEffect;"
 		"uniform sampler2D texture2d;\n"
 		"void main(){\n"
 		"vec4 color = texture(texture2d, ourTexCoord)*vec4(ourColor,1.0f);\n"
 		"if(color.z == 0.0f) discard;\n"
-		"BrightColor = color;"
+		"BrightColor = vec4(0);FragColor = vec4(0);\n"
+		"if(BloomEffect <= 0) {FragColor = color; }\n"
+		"else {BrightColor = color;}\n"
 		"}";
 
 	std::string default_vertex_particle = "#version 330 core\n"

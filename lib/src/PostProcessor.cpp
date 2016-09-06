@@ -45,20 +45,30 @@ Shader& PostProcessor::getShader(const std::string &name) {
 
 bool PostProcessor::setShader(const std::string &name, const std::string &newFrag) {
 
-	simple_fragement = "#version 330 core\n"
-		+std::string("in vec2 TexCoords;\n")
-		+std::string("out vec4 color;\n")
-		+std::string("uniform vec2 screenSize;")
-		+std::string("uniform sampler2D screenTexture;")
 
-			+ newFrag
-		+std::string("void main(){\n")
-		+std::string("color = effect(color, screenTexture, TexCoords, screenSize);")
-		+std::string("}");
+	simple_fragement = "#version 330 core\n"
+		+ std::string("out vec4 FragColor;\n")
+		+ std::string("in vec2 TexCoords;\n")
+		+ std::string("uniform sampler2D screenTexture;\n")
+		+ std::string("uniform sampler2D bloomBlur;\n")
+		+ std::string("uniform vec2 screenSize;\n")
+		+ newFrag
+		+ std::string("void main(){\n")
+		+ std::string("const float gamma = 2.2;\n")
+		+ std::string("const float exposure = 1;")
+    	+ std::string("vec3 hdrColor = texture(screenTexture, TexCoords).rgb;      \n")
+    	+ std::string("vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;\n")
+    	+ std::string("hdrColor += bloomColor; // additive blending\n")
+    	
+    	+ std::string("vec4 color = effect(vec4(hdrColor,1), screenTexture, bloomBlur, TexCoords, screenSize);\n")
+    	+ std::string("FragColor = color;\n")
+		+ std::string("}");
 
 	Shader shader(simple_vertex, simple_fragement);
 	if(shader.compile()) {
+	 	shader.Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
 	 	post_shaders[name] = shader;
+
 	 	return true;
 	}
 	 return false;
