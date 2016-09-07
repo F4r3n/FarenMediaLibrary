@@ -15,8 +15,9 @@ void Line::init(const Vector2f &startPoint, const Vector2f &endPoint) {
 
 	float degree = acos((float)std::abs(startPoint.x - endPoint.x)/distance);
 	rect.move(startPoint);
-	rect.scale(distance, 3);
+	rect.scale(distance, 1);
 	rect.rotate(degree);
+	rect.setColor({10, 10,10});
 	float moveY = (float)(distance/2)*sin(degree);
 	float moveX = (float)(distance/2) - cos(degree)*distance/2;
 	rect.move(Vector2i{rect.getPosition().x - (int)moveX,rect.getPosition().y + (int)moveY});

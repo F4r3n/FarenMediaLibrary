@@ -5,6 +5,8 @@ using namespace fm;
 
 Rectangle::Rectangle()
 {
+	nameShader = "default";
+
 	initVertices(1, 1, 1);
 
 	initBuffer();
@@ -14,8 +16,6 @@ Rectangle::Rectangle()
 void Rectangle::initBuffer() {
 	unsigned int indices[] = { 0,1,2,0,3,1 };
 	indicesSize = 6;
-	nameShader = "default";
-
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -41,7 +41,10 @@ void Rectangle::initBuffer() {
 }
 
 Rectangle::Rectangle(Color color) {
-	initVertices(color.r / 255, color.g / 255, color.b / 255);
+	nameShader = "default";
+
+	initVertices(color.r, color.g, color.b);
+	setColor(color);
 	initBuffer();
 }
 void Rectangle::initVertices(float r, float g, float b) {
@@ -61,7 +64,10 @@ void Rectangle::initVertices(float r, float g, float b) {
 
 
 Rectangle::Rectangle(float r, float g, float b) {
-	initVertices(r / 255, g / 255, b / 255);
+	nameShader = "default";
+
+	initVertices(r, g, b);
+	setColor({r, g, b});
 	initBuffer();
 	
 }

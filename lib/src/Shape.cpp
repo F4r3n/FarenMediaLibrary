@@ -23,7 +23,12 @@ void Shape::draw(Shader &shader) {
 	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	glBindVertexArray(VAO);
+ResourcesManager::getShader(nameShader).Use()->setVector3f("mainColor", glm::vec3(color.r, color.g, color.b));
 	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+}
+
+void Shape::setColor(const Color &color) {
+	this->color = color;
 }
 
 Vector2i Shape::getPosition() const {

@@ -6,6 +6,8 @@
 #include "Drawable.h"
 #include "Tag.h"
 #include "Vector2.h"
+#include "Color.h"
+#include "ResourcesManager.h"
 namespace fm {
 	class Shape : public Drawable
 	{
@@ -27,7 +29,9 @@ namespace fm {
 		void rotate(float angle);
 		const std::string getNameShader() const;
 		Vector2i getPosition() const;
+		void setColor(const Color &color);
 		
+		Color getColor() const {return color;}
 	protected:
 		GLuint VBO, VAO, EBO;
 		unsigned int verticesSize;
@@ -40,6 +44,7 @@ namespace fm {
 		int posX = 0, posY = 0;
 		
 		float rotateAngle = 0;
+		Color color = {1,1,1};
 	};
 }
 
