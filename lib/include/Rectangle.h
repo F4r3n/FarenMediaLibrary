@@ -9,7 +9,7 @@ namespace fm {
 		Rectangle();
 		Rectangle(Color color);
 		Rectangle(float r, float g, float b);
-		~Rectangle();
+		virtual ~Rectangle();
 		void draw(Shader &shader);
 	private:
 		

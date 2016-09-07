@@ -26,7 +26,7 @@ namespace fm {
 		void scale(int width, int height);
 		void rotate(float angle);
 		const std::string getNameShader() const;
-		
+		Vector2i getPosition() const;
 		
 	protected:
 		GLuint VBO, VAO, EBO;

@@ -154,7 +154,11 @@ void Window::createShaders() {
 		"void main(){\n"
 		"vec4 color = vec4(ourColor, 1.0f);\n"
 		"FragColor = vec4(0); BrightColor = vec4(0);\n"
-		"if(BloomEffect <= 0) FragColor = color;\n else BrightColor = color;"
+		"FragColor = color\n;"
+		"float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
+    	"if(brightness >= 0.0 && BloomEffect == 1)\n"
+        "BrightColor = vec4(FragColor.rgb, 1.0);"
+		//"if(BloomEffect <= 0) FragColor = color;\n else BrightColor = color;"
 		"}";
 
 	std::string default_vertex_sprite = "#version 330 core\n"
@@ -262,7 +266,7 @@ void Window::initFrameBuffer() {
 	GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	glDrawBuffers(2, attachments);     
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Ping pong framebuffer for blurring
@@ -281,7 +285,7 @@ void Window::initFrameBuffer() {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
         // Also check if framebuffers are complete (no need for depth buffer)
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            std::cout << "Framebuffer not complete!" << std::endl;
+            std::cerr << "Framebuffer not complete!" << std::endl;
     }
  	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 }
@@ -380,7 +384,7 @@ void Window::swapBuffers() {
 
 void Window::errorDisplay() {
 	int error = glGetError();
-	if(error != 0) std::cout << error << std::endl;
+	if(error != 0) std::cerr << error << std::endl;
 }
 
 void Window::postProcess(bool horizontal) {

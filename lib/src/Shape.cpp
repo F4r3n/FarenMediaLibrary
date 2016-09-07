@@ -26,7 +26,13 @@ void Shape::draw(Shader &shader) {
 	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
 }
 
+Vector2i Shape::getPosition() const {
+	return {posX, posY};
+}
+
+
 void Shape::rotate(float angle) {
+	if(angle != angle) return;
 	rotateAngle = angle;
 }
 
