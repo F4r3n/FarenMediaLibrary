@@ -11,6 +11,7 @@ class Line : public Drawable {
 		~Line();
 		const std::string getNameShader() const;
 		void draw(Shader &shader);
+		void setColor(const Color &color);
 	private:
 		Line();
 		void init(const Vector2f &startPoint, const Vector2f &endPoint);

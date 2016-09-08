@@ -65,6 +65,10 @@ bool InputManager::keyIsReleased(int key) {
 	return v;
 }
 
+int InputManager::getMouseButton(int id) {
+	return glfwGetMouseButton(window, id);
+}
+
 void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (keys[key] && action == GLFW_RELEASE) {
@@ -73,9 +77,6 @@ void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int a
 	keys[key] = (action == GLFW_PRESS) ? true: false;
 }
 
-bool InputManager::test() {
-	return true;
-}
 
 void InputManager::pollEvents(Window &window) {
 	window.events();

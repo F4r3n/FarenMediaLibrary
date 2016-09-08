@@ -12,7 +12,7 @@ class Segment {
 	 	~Segment();
 	 	float length();
 	 	Vector2f half();
-
+	 	Vector2f direction();
 	 	void print();
 	private:
 		Vector2f start;

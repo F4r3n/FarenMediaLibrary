@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cmath>
 namespace fm {
 template <class T>
 class Vector2 {
@@ -16,9 +16,25 @@ class Vector2 {
 			a.y += b.y;
 			return a;
 		}
+
+		Vector2 operator=(const Vector2 &b) {
+			x = b.x;
+			y = b.y;
+			return *this;
+		}
+
+		Vector2 operator+(const Vector2 &b) {
+			x += b.x;
+			y += b.y;
+			return *this; 
+		}
 		void reset() {
 			x = 0;
 			y = 0;
+		}
+
+		T norme() {
+			return sqrt(x*x + y*y);
 		}
 
 		T x = 0, y = 0;

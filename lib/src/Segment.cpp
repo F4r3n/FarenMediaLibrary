@@ -14,6 +14,11 @@ Vector2f Segment::half() {
 	return {(end.x + start.x)/2, (end.y + start.y)/2};
 }
 
+Vector2f Segment::direction() {
+	return {(end.x - start.x), (end.y - start.y)};
+}
+
+
 void Segment::print() {
 	std::cout << "[ " <<getStart().x << " , " << getStart().y;
 	std::cout << " ] -> [ " << getEnd().x << " , " << getEnd().y << " ]" << std::endl;
