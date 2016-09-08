@@ -24,9 +24,10 @@ class Vector2 {
 		}
 
 		Vector2 operator+(const Vector2 &b) {
-			x += b.x;
-			y += b.y;
-			return *this; 
+			Vector2 v;
+			v.x = x + b.x;
+			v.y = y + b.y;
+			return v; 
 		}
 		void reset() {
 			x = 0;

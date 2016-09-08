@@ -152,10 +152,10 @@ void Window::createShaders() {
 		"layout (location = 0) out vec4 FragColor;\n"
 		"layout (location = 1) out vec4 BrightColor;\n"
 		"in vec3 ourColor;\n"
-		"uniform vec3 mainColor;"
+		"uniform vec4 mainColor;"
 		"uniform float BloomEffect;\n"
 		"void main(){\n"
-		"vec4 color = vec4(mainColor, 1.0f);\n"
+		"vec4 color = mainColor;\n"
 		"FragColor = vec4(0); BrightColor = vec4(0);\n"
 		"FragColor = color\n;"
 		"float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
@@ -388,7 +388,10 @@ void Window::swapBuffers() {
 
 void Window::errorDisplay() {
 	int error = glGetError();
-	if(error != 0) std::cerr << error << std::endl;
+	if(error != 0) {
+		std::cerr <<"ERROR OPENGL " << error << std::endl;
+		exit(-1);
+	}
 }
 
 void Window::postProcess(bool horizontal) {

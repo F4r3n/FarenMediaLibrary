@@ -80,4 +80,8 @@ void Rectangle::draw(Shader &shader) {
 
 Rectangle::~Rectangle()
 {
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
+
 }

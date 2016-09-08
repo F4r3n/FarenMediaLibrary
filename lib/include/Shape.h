@@ -13,7 +13,7 @@ namespace fm {
 	{
 	public:
 		Shape();
-		~Shape();
+		virtual ~Shape();
 		virtual void draw(Shader &shader);
 		int tag = tg::TAG_DEFAULT;
 		void setTag(int tag);
