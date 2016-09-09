@@ -1,15 +1,19 @@
 # FarenMediaLibrary
-[![Build Status](https://travis-ci.org/F4r3n/FarenMediaLibrary.svg?branch=master)](https://travis-ci.org/F4r3n/FarenMediaLibrary)
+![Build Status](https://travis-ci.org/F4r3n/FarenMediaLibrary.svg?branch=master)](https://travis-ci.org/F4r3n/FarenMediaLibrary)
+
 It's a library to create 2D games with lua scripts.
 ## Dependencies
 You need to compile lua lib https://www.lua.org/download.html (64Bits need to add -fPIC in the Makefile).
+
 ```
 tar zxf lua-5.3.3.tar.gz
 cd lua-5.3.3
 sudo make linux install MYCFLAGS='-fPIC'
 
 ```
+
 To bind with lua, FML use sol2 https://github.com/ThePhD/sol2
+
 ### Ubuntu
 GLFW 3.3 is required
 ```
@@ -23,14 +27,16 @@ GLFW 3.3 is required
  cmake ..
  make
 ```
+
 ## How to use ?
 After compiling the library, you can use it as any library.
 
 ## Sample
 
 ### Glow
-![Bolt](http://imgur.com/a/eZWyP)
+![Bolt](http://i.imgur.com/60LuH4z.png)
 Possibility to make an object glow with one line, the image shows a lightning effect.
+
 ```
 setBloom(true)
 ```
@@ -59,8 +65,10 @@ int main() {
 	return 0;
 }
 ```
+
 ### Manage particles
 To create a funtain like particle
+
 ```
 fm::ParticleGenerator particle(100,100, 100, texture);
 	particle.setGravity(0,10);
@@ -77,6 +85,7 @@ Then in the main loop
 ```
 
 ###Manage lua scripts
+
 ```
 	fm::ScriptManager scriptManager;
 	scriptManager.registerScript("../assets/test.lua");
