@@ -35,13 +35,13 @@ void Circle::initBuffer(std::vector<unsigned int> &indices) {
 	glBindVertexArray(0); // Unbind VAO
 }
 
-Circle::Circle(Color color, int radius, int number) {
+Circle::Circle(const Color &color, int radius, int number) {
 	this->numberVertices = number;
 	this->radius = radius;
 	scaleX = radius;
 	scaleY = radius;
-
-	initVertices(color.r / 255, color.g / 255, color.b / 255);
+	setColor(color);
+	initVertices(color.r, color.g, color.b);
 	
 	
 }

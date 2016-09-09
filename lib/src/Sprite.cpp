@@ -71,4 +71,7 @@ void Sprite::draw(Shader &shader) {
 
 Sprite::~Sprite()
 {
+	glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
 }

@@ -22,7 +22,11 @@ void Shape::draw(Shader &shader) {
 
 	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+
 	glBindVertexArray(VAO);
+	//std::cout << indicesSize << std::endl;
+	//std::cout << "Color " << color.r << " "  << color.g << " " << color.b << " " << color.a << std::endl;
 	ResourcesManager::getShader(nameShader).Use()->setVector4f("mainColor", glm::vec4(color.r, color.g, color.b, color.a));
 	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0); // Unbind VAO

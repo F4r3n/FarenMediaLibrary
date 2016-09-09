@@ -24,7 +24,6 @@ void ParticleGenerator::setShape(pa::SHAPE shape) {
 }
 
 void ParticleGenerator::init() {
-	GLuint VBO;
 	GLfloat particle_quad[] = {
 		0.0f, 1.0f, 0.0f, 1.0f,
 		1.0f, 0.0f, 1.0f, 0.0f,
@@ -200,4 +199,6 @@ void ParticleGenerator::draw(Shader &shader) {
 
 ParticleGenerator::~ParticleGenerator()
 {
+	glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
 }

@@ -138,6 +138,8 @@ namespace function {
 
 
 		GLuint VAO;
+		GLuint VBO;
+
 		Texture texture;
 		unsigned int numberParticles;
 		std::vector<Particle> particles;

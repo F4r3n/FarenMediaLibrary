@@ -445,7 +445,7 @@ int Window::init(GLFWwindow *window) {
 
 	glViewport(0, 0, width, height);
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -466,3 +466,5 @@ void Window::draw(Shape &shape) {
 	s.Use()->setMatrix("projection", camera.getProjection())->setMatrix("view", glm::mat4());
 	shape.draw(s);
 }
+//TODO if problem, face culling
+//TODO vertex creator
