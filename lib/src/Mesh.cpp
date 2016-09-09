@@ -17,12 +17,9 @@ void Mesh::create() {
 
 	if(!listIndices.empty())
 		glGenBuffers(1, &EBO);
-	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//std::cout << sizeof(Vertex) << std::endl;
-	for(Vertex v : vertices) {std::cout << v.uv.x << " " << v.uv.y << std::endl;}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
 	if(!listIndices.empty()) {
@@ -33,7 +30,8 @@ void Mesh::create() {
 	// Position attribute
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	// Color attribute
+
+	// UV attribute
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 

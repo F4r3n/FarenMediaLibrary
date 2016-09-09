@@ -50,8 +50,8 @@ void ParticleGenerator::init() {
 void ParticleGenerator::resetParticle(Particle &p, int indice) {
 		std::mt19937 engine(seeder());
 
-		for(auto &cp : cparticles) {
-			cp.second.random(engine, p.c[cp.first]);
+		for(int i = 0; i < pa::COMPONENT::LAST_COMPONENT; ++i) {
+			cparticles[i].random(engine, p.c[i]);
 		}
 		p.color = glm::vec4(1);
 		std::uniform_real_distribution<float> dist3(life.x, life.y);
@@ -132,8 +132,9 @@ void ParticleGenerator::update(float dt) {
 			p.position.x += p.velocity.x*dt;
 			p.position.y += p.velocity.y*dt;
 
-			for(auto &cp : cparticles) {
-				cp.second.update(p.c[cp.first], dt, p.life/p.lifeMax);
+
+			for(int i = 0; i < pa::COMPONENT::LAST_COMPONENT; ++i) {
+				cparticles[i].update(p.c[i], dt, p.life/p.lifeMax);
 			}
 			p.life -= dt;
 

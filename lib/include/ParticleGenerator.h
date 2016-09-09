@@ -21,7 +21,7 @@ namespace fm {
 
 		enum COMPONENT {
 			SCALE,
-			ALPHA,
+			//ALPHA,
 			LAST_COMPONENT
 		};
 
@@ -130,8 +130,7 @@ namespace function {
 		}
 
 		float getComponentValue(pa::COMPONENT name) {
-			if(cparticles.find(name) !=  cparticles.end()) return cparticles[name].getCurrent();
-			return -1;
+			return cparticles[name].getCurrent();
 		}
 	private:
 		void resetParticle(Particle &p, int indice);
@@ -165,7 +164,7 @@ namespace function {
 		bool over = false;
 		bool fading = false;
 
-		std::map<pa::COMPONENT, pa::ComponentParticle> cparticles;
+		std::array<pa::ComponentParticle, pa::COMPONENT::LAST_COMPONENT> cparticles;
 
 	};
 }
