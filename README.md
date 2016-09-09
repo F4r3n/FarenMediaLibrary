@@ -4,9 +4,9 @@ It's a library to create 2D games with lua scripts.
 ## Dependencies
 You need to compile lua lib https://www.lua.org/download.html (64Bits need to add -fPIC in the Makefile).
 ```
-- tar zxf lua-5.3.3.tar.gz
-- cd lua-5.3.3
-- sudo make linux install MYCFLAGS='-fPIC'
+tar zxf lua-5.3.3.tar.gz
+cd lua-5.3.3
+sudo make linux install MYCFLAGS='-fPIC'
 
 ```
 To bind with lua, FML use sol2 https://github.com/ThePhD/sol2
@@ -27,6 +27,13 @@ GLFW 3.3 is required
 After compiling the library, you can use it as any library.
 
 ## Sample
+
+### Glow
+![Bolt](http://imgur.com/a/eZWyP)
+Possibility to make an object glow with one line, the image shows a lightning effect.
+```
+setBloom(true)
+```
 
 ### To draw a simple white rect
 ```
