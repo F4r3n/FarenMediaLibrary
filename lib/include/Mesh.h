@@ -3,6 +3,7 @@
 #include <vector>
 #include "Vector2.h"
 #include <GL/glew.h>
+#include <iostream>
 namespace fm {
 
 	class Mesh {
@@ -16,10 +17,10 @@ namespace fm {
 	public:
 		Mesh();
 		~Mesh();
-		void addVertex(const Vector2f &position, const Vector2f &uv);
+		void addVertex(const Vector2f &position, const Vector2f &uv = {0,0});
 		void create();
 		void setShaderName(const std::string &name);
-		void setIndices(std::vector<unsigned int> &&listIndices);
+		void setIndices(const std::vector<unsigned int> &listIndices);
 		void draw();
 		const std::string getShaderName() const;
 	private:

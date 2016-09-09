@@ -11,7 +11,6 @@ Shape::Shape()
 }
 
 void Shape::draw(Shader &shader) {
-	GLint modelLoc = glGetUniformLocation(shader.Program, "model");
 	model = glm::mat4();
 	model = glm::translate(model, glm::vec3(posX, posY,  0.0f));
 
@@ -21,15 +20,8 @@ void Shape::draw(Shader &shader) {
 	model = glm::translate(model, glm::vec3(-0.5f * scaleX, -0.5f * scaleY, 0.0f));
 
 	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-
-	glBindVertexArray(VAO);
-	//std::cout << indicesSize << std::endl;
-	//std::cout << "Color " << color.r << " "  << color.g << " " << color.b << " " << color.a << std::endl;
-	ResourcesManager::getShader(nameShader).Use()->setVector4f("mainColor", glm::vec4(color.r, color.g, color.b, color.a));
-	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0); // Unbind VAO
+	shader.setMatrix("model", model)->setVector4f("mainColor", glm::vec4(color.r, color.g, color.b, color.a));
+	mesh.draw();
 
 }
 
@@ -60,7 +52,7 @@ void Shape::setTag(int tag) {
 }
 
 const std::string Shape::getNameShader() const {
-	return nameShader;
+	return mesh.getShaderName();
 }
 
 Shape::~Shape()

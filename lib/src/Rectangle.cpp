@@ -5,7 +5,6 @@ using namespace fm;
 
 Rectangle::Rectangle()
 {
-	nameShader = "default";
 
 	initVertices(1, 1, 1);
 
@@ -14,7 +13,9 @@ Rectangle::Rectangle()
 }
 
 void Rectangle::initBuffer() {
-	unsigned int indices[] = { 0,1,2,0,3,1 };
+
+	mesh.create();
+	/*unsigned int indices[] = { 0,1,2,0,3,1 };
 	indicesSize = 6;
 
 	glGenVertexArrays(1, &VAO);
@@ -37,34 +38,39 @@ void Rectangle::initBuffer() {
 	glEnableVertexAttribArray(1);
 
 	verticesSize = 6;
-	glBindVertexArray(0); // Unbind VAO
+	glBindVertexArray(0); // Unbind VAO*/
 }
 
 Rectangle::Rectangle(Color color) {
-	nameShader = "default";
-
 	initVertices(color.r, color.g, color.b);
 	setColor(color);
 	initBuffer();
 }
 void Rectangle::initVertices(float r, float g, float b) {
-	vertices[0] = 0.0f; vertices[1] = 1.0f;
-	vertices[2] = r; vertices[3] = g; vertices[4] = b;
+	mesh.setShaderName("default");
 
-	vertices[5] = 1.0f; vertices[6] = 0.0f;
-	vertices[7] = r; vertices[8] = g; vertices[9] = b;
-
-	vertices[10] = 0.0f; vertices[11] = 0.0f;
-	vertices[12] = r; vertices[13] = g; vertices[14] =b;
-
-
-	vertices[15] = 1.0f; vertices[16] = 1.0f;
-	vertices[17] = r; vertices[18] = g; vertices[19] = b;
+	mesh.addVertex({0.0,1.0}, {0.0,1.0});
+	mesh.addVertex({0.0,0.0}, {1.0,0.0});
+	mesh.addVertex({1.0,0.0}, {0.0,0.0});
+	mesh.addVertex({1.0,1.0}, {1.0,1.0});
+	std::vector<unsigned int> v = { 0,1,2,0,2,3 };
+	mesh.setIndices(v);
+	//vertices[0] = 0.0f; vertices[1] = 1.0f;
+	//vertices[2] = r; vertices[3] = g; vertices[4] = b;
+//
+//	//vertices[5] = 1.0f; vertices[6] = 0.0f;
+//	//vertices[7] = r; vertices[8] = g; vertices[9] = b;
+//
+//	//vertices[10] = 0.0f; vertices[11] = 0.0f;
+//	//vertices[12] = r; vertices[13] = g; vertices[14] =b;
+//
+//
+//	//vertices[15] = 1.0f; vertices[16] = 1.0f;
+	//vertices[17] = r; vertices[18] = g; vertices[19] = b;
 }
 
 
 Rectangle::Rectangle(float r, float g, float b) {
-	nameShader = "default";
 
 	initVertices(r, g, b);
 	setColor({r, g, b});
@@ -79,9 +85,4 @@ void Rectangle::draw(Shader &shader) {
 
 
 Rectangle::~Rectangle()
-{
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteVertexArrays(1, &VAO);
-
-}
+{}

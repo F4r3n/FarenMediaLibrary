@@ -8,6 +8,7 @@
 #include "Vector2.h"
 #include "Color.h"
 #include "ResourcesManager.h"
+#include "Mesh.h"
 namespace fm {
 	class Shape : public Drawable
 	{
@@ -33,10 +34,7 @@ namespace fm {
 		
 		Color getColor() const {return color;}
 	protected:
-		GLuint VBO, VAO, EBO;
-		unsigned int verticesSize;
-		unsigned int indicesSize;
-		std::string nameShader;
+		Mesh mesh;
 		
 		int scaleX = 1, scaleY = 1;
 	private:

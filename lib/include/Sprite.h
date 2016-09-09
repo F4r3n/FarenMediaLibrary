@@ -6,13 +6,13 @@ namespace fm {
 	class Sprite : public Shape
 	{
 	public:
-		Sprite(Texture &texture, const Color &color = { 255, 255, 255});
+		Sprite(Texture &texture, const Color &color = { 1, 1, 1});
 		~Sprite();
 		void draw(Shader &shader);
 	private:
 		Texture texture;
 
-		GLfloat vertices[20];
+		
 		void initVertices(float r, float g, float b);
 		void initBuffer();
 	};

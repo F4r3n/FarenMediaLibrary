@@ -14,7 +14,6 @@ namespace fm {
 		void initBuffer(std::vector<unsigned int> &indices);
 		void initVertices(float r, float g, float b);
 		
-		std::vector<float> vertices;
 		int numberVertices = 10;
 		int radius = 10;
 	};

@@ -13,11 +13,8 @@ namespace fm {
 		void draw(Shader &shader);
 
 	private:
-		
 		void initBuffer();
 		void initVertices(float r, float g, float b);
-
-		GLfloat vertices[20];
 		
 	};
 }

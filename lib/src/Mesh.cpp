@@ -21,6 +21,8 @@ void Mesh::create() {
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//std::cout << sizeof(Vertex) << std::endl;
+	for(Vertex v : vertices) {std::cout << v.uv.x << " " << v.uv.y << std::endl;}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
 	if(!listIndices.empty()) {
@@ -42,7 +44,9 @@ void Mesh::draw() {
 	glBindVertexArray(VAO);
 	if(!listIndices.empty())
 		glDrawElements(GL_TRIANGLES, listIndices.size(), GL_UNSIGNED_INT, 0);
-	else glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	else {
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	}
 	glBindVertexArray(0); // Unbind VAO
 }
 
@@ -59,6 +63,6 @@ const std::string Mesh::getShaderName() const {
 	return shaderName;
 }
 
-void Mesh::setIndices(std::vector<unsigned int> &&listIndices) {
+void Mesh::setIndices(const std::vector<unsigned int> &listIndices) {
 	this->listIndices = listIndices;
 }
