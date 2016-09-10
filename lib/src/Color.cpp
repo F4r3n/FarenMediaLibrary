@@ -39,7 +39,7 @@ void Color::RGB2HSV(Color &color) {
     if(delta < 0.00001) {
         color.r = 0;
     } else if(cmax == Rp) {
-        color.r = 60*((Gp - Bp)/delta)%6;
+        color.r = (int)(60*((Gp - Bp)/delta))%6;
     }
     else if(cmax == Gp) {
         color.r = 60*((Bp - Rp)/delta)+2;
