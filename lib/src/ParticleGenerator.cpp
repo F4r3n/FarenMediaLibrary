@@ -172,9 +172,11 @@ void ParticleGenerator::setFading(bool value) {
 void ParticleGenerator::draw(Shader &shader) {
 	//std::cout << "Called" << std::endl;
 	//if(lifeGenerator < 0.0) return;
+	
 	if(over) return;
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glActiveTexture(GL_TEXTURE0);
 	texture.bind();
 	for (Particle p : particles) {
 		if (p.life > 0.0f && p.startTime < p.time) {

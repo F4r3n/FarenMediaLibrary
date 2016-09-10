@@ -6,6 +6,10 @@ using namespace fm;
 std::map<int, bool> InputManager::keys;
 std::map<int, bool> InputManager::keysReleased;
 InputManager InputManager::_instance;
+
+float InputManager::posX = 0;
+float InputManager::posY = 0;
+
 InputManager::InputManager(Window &window)
 {
 	init(window);
@@ -14,16 +18,35 @@ InputManager::InputManager(Window &window)
 
 void InputManager::init(Window &window) {
 	glfwSetKeyCallback(window.window, InputManager::key_callback);
+    glfwSetCursorPosCallback(window.window, InputManager::cursor_position_callback);
 	this->window = window.window;
+}
+
+void InputManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    posX = xpos;
+    posY = ypos;
 }
 
 void InputManager::init(GLFWwindow *window) {
 	glfwSetKeyCallback(window, InputManager::key_callback);
+    glfwSetCursorPosCallback(window, InputManager::cursor_position_callback);
 	this->window = window;
 }
 
 InputManager::InputManager() {
 
+}
+
+void InputManager::getMousePosition(double &posX, double &posY) {
+    glfwGetCursorPos(window, &posX, &posY);
+}
+
+float InputManager::getMousePositionX() {
+    return posX;
+}
+
+float InputManager::getMousePositionY() {
+    return posY;
 }
 
 int InputManager::worldKeyboard(int key) {

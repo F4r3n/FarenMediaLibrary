@@ -28,7 +28,7 @@ Vector2<int> Image::getSize() {
 void Image::getPart(std::vector<unsigned char> &imagePart, Recti rect) {
 	imagePart.resize((rect.w)*(rect.h)*IMAGE_RGBA, 255);
 	unsigned int sizeByte = (rect.w)*IMAGE_RGBA;
-
+    
 	unsigned char* ptr = imagePart.data();
 	for(int i = 0; i < rect.h; i++){
 

@@ -22,7 +22,6 @@ void Shape::draw(Shader &shader) {
 	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
 	shader.setMatrix("model", model)->setVector4f("mainColor", glm::vec4(color.r, color.g, color.b, color.a));
 	mesh.draw();
-
 }
 
 void Shape::setColor(const Color &color) {

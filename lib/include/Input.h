@@ -6,6 +6,10 @@ namespace fm {
 		static bool keyIsPressed(int key);
 		static bool keyIsReleased(int key);
 		static void getMousePosition(Vector2<double> &pos);
+        static void getMousePosition(double &posX, double &posY);
+        static double getMousePositionX();
+        static double getMousePositionY();
+
 		static int getMouseButton(int id);
 	};
 }

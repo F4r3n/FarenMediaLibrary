@@ -29,6 +29,8 @@ namespace fm {
 		T getComponent(const std::string nameScript, const std::string nameComponent) {
 			return scripts[nameScript]->getComponent<T>(lua, nameComponent);
 		}
+        
+        
 	private:
 		std::map<std::string, std::shared_ptr<Script>> scripts;
 		sol::state lua;

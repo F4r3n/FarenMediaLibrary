@@ -146,23 +146,31 @@ namespace fm {
 		bool keyIsReleased(int key);
 		bool multipleKeysPressed(int key, ...);
 		void getMousePosition(Vector2<double> &pos);
+        void getMousePosition(double &posX, double &posY);
+        static float getMousePositionX();
+        static float getMousePositionY();
+
 		int getMouseButton(int id);
 		static InputManager& getInstance();
 		void init(Window &window);
 		void init(GLFWwindow *window);
-
+        
 
 		int worldKeyboard(int key);
 	private:
 		static std::map <int, bool> keys;
 		static std::map <int, bool> keysReleased;
 		static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+        static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+
 
 		static InputManager _instance;
 		//static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 		//static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		GLFWwindow* window;
 		bool typeKeyboard = true; /*false = querty | true = azerty*/
+        static float posX;
+        static float posY;
 
 	};
 }

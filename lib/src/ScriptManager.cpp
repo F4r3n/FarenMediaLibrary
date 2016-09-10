@@ -11,6 +11,11 @@ int keyboard(int id) {
 
 void ScriptManager::init() {
 	lua.set_function("keyIsPressed", &Input::keyIsPressed);
+    lua.set_function("getMousePositionX", &Input::getMousePositionX);
+    lua.set_function("getMousePositionY", &Input::getMousePositionY);
+
+    //lua.set_function("getMousePosition", &Input::getMousePosition);
+
 	for(auto &s : scripts) {
 		s.second->init(lua);
 	}
