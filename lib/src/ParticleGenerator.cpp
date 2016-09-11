@@ -169,7 +169,7 @@ void ParticleGenerator::setFading(bool value) {
 	this->fading = value;
 }
 
-void ParticleGenerator::draw(Shader &shader) {
+void ParticleGenerator::draw(std::shared_ptr<Shader> shader) {
 	//std::cout << "Called" << std::endl;
 	//if(lifeGenerator < 0.0) return;
 	
@@ -184,9 +184,9 @@ void ParticleGenerator::draw(Shader &shader) {
 			//std::cout << "life " << p.life << std::endl;
 			if(fading)
 				p.color.w = p.life/p.lifeMax;
-			shader.setFloat("scale", p.c[pa::COMPONENT::SCALE]);
-			shader.setVector2f("offset", p.position);
-			shader.setVector4f("particleColor", p.color);
+			shader->setFloat("scale", p.c[pa::COMPONENT::SCALE]);
+			shader->setVector2f("offset", p.position);
+			shader->setVector4f("particleColor", p.color);
 			
 
 			glBindVertexArray(VAO);

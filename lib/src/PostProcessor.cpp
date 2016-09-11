@@ -39,7 +39,7 @@ bool PostProcessor::activate(const std::string &name) {
 	return false;
 }
 
-Shader& PostProcessor::getShader(const std::string &name) {
+std::shared_ptr<Shader> PostProcessor::getShader(const std::string &name) {
 	return post_shaders[name];
 }
 
@@ -64,9 +64,9 @@ bool PostProcessor::setShader(const std::string &name, const std::string &newFra
     	+ std::string("FragColor = color;\n")
 		+ std::string("}");
 
-	Shader shader(simple_vertex, simple_fragement);
-	if(shader.compile()) {
-	 	shader.Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+	std::shared_ptr<Shader> shader = std::make_shared<Shader>(simple_vertex, simple_fragement);
+	if(shader->compile()) {
+	 	shader->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
 	 	post_shaders[name] = shader;
 
 	 	return true;

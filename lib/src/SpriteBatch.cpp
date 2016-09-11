@@ -6,7 +6,7 @@ SpriteBatch::SpriteBatch(Texture &texture) {
 }
 SpriteBatch::~SpriteBatch() {}
 
-void SpriteBatch::draw(Shader &shader) {
+void SpriteBatch::draw(std::shared_ptr<Shader> shader) {
 
    		//shader.Use();
    		//glActiveTexture(GL_TEXTURE0);

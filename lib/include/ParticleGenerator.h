@@ -100,7 +100,7 @@ namespace function {
 	public:
 		ParticleGenerator(float posX, float posY, unsigned int numberParticles, Texture &texture);
 		~ParticleGenerator();
-		void draw(Shader &shader);
+		void draw(std::shared_ptr<Shader> shader);
 		void init();
 		const std::string getNameShader() const;
 		void update(float dt);

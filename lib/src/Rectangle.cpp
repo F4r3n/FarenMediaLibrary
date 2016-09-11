@@ -42,7 +42,7 @@ Rectangle::Rectangle(float r, float g, float b) {
 	
 }
 
-void Rectangle::draw(Shader &shader) {
+void Rectangle::draw(std::shared_ptr<Shader> shader) {
 	
 	Shape::draw(shader);
 }

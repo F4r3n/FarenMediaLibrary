@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Resource.h"
+
 namespace fm {
 	class Shader
 	{
@@ -25,9 +27,12 @@ namespace fm {
 		Shader* Use();
 		bool compile();
 		~Shader();
+        
+
 	private:
 		
 		std::string vertex, fragment;
+        
 	};
 }
 

@@ -23,7 +23,7 @@ public:
 	void setColor(float r, float g, float b);
 	~Text();
 
-	void draw(Shader &shader);
+	void draw(std::shared_ptr<Shader> shader);
 	const std::string getNameShader() const;
 private:
 	std::map<GLchar, Character> Characters;

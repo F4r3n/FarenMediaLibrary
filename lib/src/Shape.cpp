@@ -10,7 +10,7 @@ Shape::Shape()
 	scaleY = 100;
 }
 
-void Shape::draw(Shader &shader) {
+void Shape::draw(std::shared_ptr<Shader> shader) {
 	model = glm::mat4();
 	model = glm::translate(model, glm::vec3(posX, posY,  0.0f));
 
@@ -20,7 +20,7 @@ void Shape::draw(Shader &shader) {
 	model = glm::translate(model, glm::vec3(-0.5f * scaleX, -0.5f * scaleY, 0.0f));
 
 	model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
-	shader.setMatrix("model", model)->setVector4f("mainColor", glm::vec4(color.r, color.g, color.b, color.a));
+	shader->setMatrix("model", model)->setVector4f("mainColor", glm::vec4(color.r, color.g, color.b, color.a));
 	mesh.draw();
 }
 

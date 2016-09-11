@@ -17,7 +17,7 @@ namespace fm {
 		public:
 			SpriteBatch(Texture &texture);
 			~SpriteBatch();
-			void draw(Shader &shader);
+			void draw(std::shared_ptr<Shader> shader);
 			const std::string getNameShader() const;
 			void addSprite(InfoSprite &inf);
 			void init();

@@ -8,7 +8,7 @@ namespace fm {
 	public:
 		Sprite(Texture &texture, const Color &color = { 1, 1, 1});
 		~Sprite();
-		void draw(Shader &shader);
+		void draw(std::shared_ptr<Shader> shader);
 	private:
 		Texture texture;
 

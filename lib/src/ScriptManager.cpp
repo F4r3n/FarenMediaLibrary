@@ -1,27 +1,25 @@
 #include "ScriptManager.h"
 #include "Input.h"
+#include "Source.h"//TEST
 using namespace fm;
 ScriptManager::ScriptManager()
 {
     lua.open_libraries();
 }
 
-int keyboard(int id)
-{
-    return fm::InputManager::getInstance().keyIsPressed(id);
-}
 
 void ScriptManager::init()
 {
+    registerComponent<Source>("source", "loadAudio", &Source::loadAudio, "play", &Source::play);
     lua.set_function("keyIsPressed", &Input::keyIsPressed);
     lua.set_function("getMousePositionX", &Input::getMousePositionX);
     lua.set_function("getMousePositionY", &Input::getMousePositionY);
 
-    // lua.set_function("getMousePosition", &Input::getMousePosition);
-
     for(auto& s : scripts) {
         s.second->init(lua);
     }
+    
+
 }
 
 void ScriptManager::update(float dt)

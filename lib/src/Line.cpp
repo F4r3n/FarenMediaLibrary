@@ -51,6 +51,6 @@ const std::string Line::getNameShader() const {
 	return "default";
 }
 
-void Line::draw(Shader &shader) {
+void Line::draw(std::shared_ptr<Shader> shader) {
 	rect.draw(shader);
 }

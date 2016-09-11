@@ -119,7 +119,8 @@ local Input = {
  	FM_KEY_RIGHT_CONTROL = 345,
  	FM_KEY_RIGHT_ALT  = 346,
  	FM_KEY_RIGHT_SUPER =  347,
- 	FM_KEY_MENU  = 348
+ 	FM_KEY_MENU  = 348,
+    keyIsPressed = nil
  }
  
  Input.__index = Input
@@ -130,7 +131,6 @@ local Input = {
  
   function Input.getMousePosition()
     return getMousePositionX(), getMousePositionY()
-   -- return getMousePosition(posX, posY);
  end
 
  return Input

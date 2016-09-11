@@ -32,5 +32,6 @@ public:
 private:
     std::map<std::string, std::shared_ptr<Script> > scripts;
     sol::state lua;
+    std::string pathFolderFiles = "";
 };
 }

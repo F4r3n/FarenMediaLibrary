@@ -39,8 +39,8 @@ void Camera::view() {
 }
 
 void Camera::draw(Drawable &shape) {
-	Shader s = ResourcesManager::getShader(shape.getNameShader());
-	s.Use()->setMatrix("projection", projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect", shape.isBlooming());
+	std::shared_ptr<Shader> s = ResourcesManager::getShader(shape.getNameShader());
+	s->Use()->setMatrix("projection", projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect", shape.isBlooming());
 	shape.draw(s);
 }
 

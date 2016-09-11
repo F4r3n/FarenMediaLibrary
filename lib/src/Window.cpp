@@ -226,8 +226,8 @@ void Window::createShaders() {
 	ResourcesManager::loadShader("particle", default_vertex_particle, default_fragment_particle);
 
 
-	Shader s = ResourcesManager::getShader("simple");
-	s.Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+	std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
+	s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
 
 }
 
@@ -362,12 +362,12 @@ void Window::swapBuffers() {
 
   	GLboolean horizontal = true, first_iteration = true;
     GLuint amount = 10;
-    Shader s = ResourcesManager::getShader("blur");
-    s.Use();
+    std::shared_ptr<Shader> s = ResourcesManager::getShader("blur");
+    s->Use();
     for (GLuint i = 0; i < amount; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        s.setFloat("horizontal", horizontal);
+        s->setFloat("horizontal", horizontal);
         glBindTexture(GL_TEXTURE_2D, first_iteration ? textureColorbuffer[1] : pingpongColorbuffers[!horizontal]);
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -393,8 +393,8 @@ void Window::errorDisplay() {
 }
 
 void Window::postProcess(bool horizontal) {
-	Shader s = ResourcesManager::getShader("simple");
-	s.Use()->setVector2f("screenSize", glm::vec2(width, height));
+	std::shared_ptr<Shader> s =  ResourcesManager::getShader("simple");
+	s->Use()->setVector2f("screenSize", glm::vec2(width, height));
 	glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
     glActiveTexture(GL_TEXTURE1);
@@ -460,8 +460,8 @@ void Window::clear() {
 }
 
 void Window::draw(Shape &shape) {
-	Shader s = ResourcesManager::getShader("default");
-	s.Use()->setMatrix("projection", camera.getProjection())->setMatrix("view", glm::mat4());
+	std::shared_ptr<Shader> s = ResourcesManager::getShader("default");
+	s->Use()->setMatrix("projection", camera.getProjection())->setMatrix("view", glm::mat4());
 	shape.draw(s);
 }
 //TODO if problem, face culling

@@ -10,7 +10,7 @@ class Line : public Drawable {
 		Line(const Segment &Segment);
 		~Line();
 		const std::string getNameShader() const;
-		void draw(Shader &shader);
+		void draw(std::shared_ptr<Shader> shader);
 		void setColor(const Color &color);
 	private:
 		Line();

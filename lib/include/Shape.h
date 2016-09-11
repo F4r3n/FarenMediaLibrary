@@ -15,7 +15,7 @@ namespace fm {
 	public:
 		Shape();
 		virtual ~Shape();
-		virtual void draw(Shader &shader);
+		virtual void draw(std::shared_ptr<Shader> shader);
 		int tag = tg::TAG_DEFAULT;
 		void setTag(int tag);
 

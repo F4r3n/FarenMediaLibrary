@@ -3,12 +3,15 @@
 #include <iostream>
 using namespace fm;
 Source::Source() {
+    std::cout << "Init" << std::endl;
 	alGenSources((ALuint)1, &source);
 	alSourcef(source, AL_PITCH, 1);
 	alSourcef(source, AL_GAIN, 1);
 	alSource3f(source, AL_POSITION, 0, 0, 0);
 	alSource3f(source, AL_VELOCITY, 0, 0, 0);
 	alSourcei(source, AL_LOOPING, AL_FALSE);
+    std::cout << "End Init" << std::endl;
+
 }
 
 void Source::setPosition(Vector2f pos) {
@@ -16,6 +19,7 @@ void Source::setPosition(Vector2f pos) {
 }
 
 void Source::loadAudio(const std::string &path) {
+    std::cout << "LoadAudio "<< path << std::endl;
 	SF_INFO info;
 	SNDFILE* file = sf_open(path.c_str(), SFM_READ, &info);
 	

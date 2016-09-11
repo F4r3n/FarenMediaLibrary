@@ -83,13 +83,13 @@ void Text::loadFont(const std::string &path, unsigned short size) {
 	FT_Done_FreeType(ft);
 }
 
-void Text::draw(Shader &shader) {
+void Text::draw(std::shared_ptr<Shader> shader) {
 	float x = pos.x;
 	float y = pos.y;
 	//shader.Use();
 	
-	shader.setMatrix("projection", projection);
-	shader.setVector3f("textColor", color);
+	shader->setMatrix("projection", projection);
+	shader->setVector3f("textColor", color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 

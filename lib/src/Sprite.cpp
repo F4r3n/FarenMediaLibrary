@@ -25,7 +25,7 @@ void Sprite::initBuffer() {
 	mesh.create();
 }
 
-void Sprite::draw(Shader &shader) {
+void Sprite::draw(std::shared_ptr<Shader> shader) {
 	glActiveTexture(GL_TEXTURE0);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	texture.bind();
