@@ -2,64 +2,87 @@
 #include "Texture.h"
 #include "ResourcesManager.h"
 
-
 using namespace fm;
-Texture::Texture(const std::string &path, Recti rect, bool alpha)
-	:  path(path)
+Texture::Texture(const std::string& path, Recti rect, bool alpha)
+    : path(path)
 {
-	if(alpha) {
-		format = GL_RGBA;
-	} else format = GL_RGB;
+    if(alpha) {
+        format = GL_RGBA;
+    } else
+        format = GL_RGB;
 
-	Image image;
-	image.loadImage(path);
-	//std::cout << "Texture " << texture.path << " Loaded " << texture.width << " " << texture.height << std::endl;
+    Image image;
+    image.loadImage(path);
+    // std::cout << "Texture " << texture.path << " Loaded " << texture.width << " " << texture.height << std::endl;
 
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
 
-	if(rect.w == -1 && rect.h == -1) {
-		rect.w = image.getSize().x - rect.x;
-		rect.h = image.getSize().y - rect.y;
-	} else if( rect.x > image.getSize().x) {
-		rect.x = 0;
-	}
-	else if( rect.y > image.getSize().y) {
-		rect.y = 0;
-	}
-	image.getPart(content, rect);
+    if(rect.w == -1 && rect.h == -1) {
+        rect.w = image.getSize().x - rect.x;
+        rect.h = image.getSize().y - rect.y;
+    } else if(rect.x > image.getSize().x) {
+        rect.x = 0;
+    } else if(rect.y > image.getSize().y) {
+        rect.y = 0;
+    }
+    image.getPart(content, rect);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, rect.w, rect.h, 0, format, GL_UNSIGNED_BYTE, content.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, format, rect.w, rect.h, 0, format, GL_UNSIGNED_BYTE, content.data());
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	// Load image, create texture and generate mipmaps
-	//unsigned char* image = SOIL_load_image("container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S,
+                    GL_REPEAT); // Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	//stbi_image_free(image);
-	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
-	image.clear();
-	content.clear();
+    // stbi_image_free(image);
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+    image.clear();
+    content.clear();
 }
 
-Texture::Texture() {
-
+Texture::Texture(std::vector<unsigned char> &data, Recti &rect, bool alpha) {
+    init(data, rect);
 }
 
-void Texture::clear() {
-	//image.clear();
+void Texture::init(std::vector<unsigned char> &data, Recti &rect) {
+
+    
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
+
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect.w, rect.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S,
+                    GL_REPEAT); // Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 }
 
-void Texture::bind() {
-	glBindTexture(GL_TEXTURE_2D, id);
+
+Texture::Texture()
+{
 }
 
+void Texture::clear()
+{
+    // image.clear();
+}
+
+void Texture::bind()
+{
+    glBindTexture(GL_TEXTURE_2D, id);
+}
 
 Texture::~Texture()
 {
-	
 }
