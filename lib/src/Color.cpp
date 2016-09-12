@@ -16,6 +16,12 @@ Color::Color(float r, float g, float b, float a)
 {
 }
 
+Color::Color(int hex) {
+    r = (hex >> 16) & 0xFF;
+    g = (hex >> 8) & 0xFF;
+    b = (hex & 0xFF);
+}
+
 float Color::mean()
 {
     return (r + g + b) / 255;

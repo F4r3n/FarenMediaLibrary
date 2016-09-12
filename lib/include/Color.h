@@ -7,12 +7,14 @@ class Color
 {
 public:
     Color(float r, float g, float b);
+    Color(int hex);
     Color(float r, float g, float b, float a);
     ~Color();
     float r = 0, g = 0, b = 0;
     float a = 1;
     float mean();
     void RGB2HSV(Color& color);
+    
 
 private:
     template <typename T> T max(std::vector<T> vals)
