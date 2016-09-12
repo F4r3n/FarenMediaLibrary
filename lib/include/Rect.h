@@ -32,7 +32,7 @@ public:
     }
     
     template <typename U> 
-    bool hasTouched(const Rect<U>& rect2)
+    bool contains(const Rect<U>& rect2)
     {
         if(x < rect2.x + rect2.w 
             && x + w > rect2.x 
