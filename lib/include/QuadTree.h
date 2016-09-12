@@ -3,6 +3,7 @@
 #include <memory>
 #include <array>
 #include <vector>
+#include <iostream>
 #define MAX_LEVELS 10
 #define MAX_OBJECTS 100
 namespace fm
@@ -25,7 +26,7 @@ public:
         : rect(rect)
         , level(level)
     {
-
+        setRect(rect);
         std::shared_ptr<QuadTree> n0 = std::make_shared<QuadTree<T> >();
         n0->setDataQuadTree(level + 1, rects[0]);
         nodes[0] = n0;
@@ -41,6 +42,7 @@ public:
         std::shared_ptr<QuadTree> n3 = std::make_shared<QuadTree<T> >();
         n3->setDataQuadTree(level + 1, rects[3]);
         nodes[3] = n3;
+        ready = true;
     }
 
     void setLevel(unsigned int level)
@@ -61,32 +63,34 @@ public:
         setLevel(level);
         setRect(rect);
     }
-    void insert(std::shared_ptr<T> object, const Recti& rect)
+    bool insert(std::shared_ptr<Object<T>> object)
     {
         for(int i = 0; i < rects.size(); ++i) {
-            if(rects[i].contains(rect)) {
-                if(nodes[i] != nullptr) {
-                    nodes[i]->insert(object, rect);
-                } else if(nodes[i] == nullptr && getNumberElements() < MAX_OBJECTS) {
+            if(rects[i].contains(object->rect)) {
+                if(nodes[i]->ready) {
+                    return nodes[i]->insert(object);
+                } else if(!nodes[i]->ready && getNumberElements() < MAX_OBJECTS) {
                     data.push_back(object);
-                    return;
-                } else if(nodes[i] == nullptr && getNumberElements() >= MAX_OBJECTS) {
-                    nodes[i] = std::make_shared<QuadTree<T> >();
+                    return true;
+                } else if(!nodes[i]->ready && getNumberElements() >= MAX_OBJECTS) {
+                    nodes[i] = std::make_shared<QuadTree<T> >();//Check pas obligatoire
                     nodes[i]->setDataQuadTree(level + 1, this->rect);
-                    nodes[i]->insert(object, rect);
+                    return nodes[i]->insert(object);
                     
-                    for(Object<T> o : data) {
-                        insert(o->object, o->rect);
+                    for(std::shared_ptr<Object<T>> o : data) {
+                        return insert(o);
                     }
                 }
             }
         }
+        return false;
     }
 
     int getNumberElements() const
     {
         return data.size();
     }
+    bool ready = false;
 
 private:
     Recti rect;
