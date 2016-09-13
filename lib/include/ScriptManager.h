@@ -4,7 +4,7 @@
 #include <memory>
 #include <typeinfo>
 #include "Component.h"
-
+#include "Transform.h"
 namespace fm
 {
 

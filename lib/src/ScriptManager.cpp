@@ -10,6 +10,10 @@ ScriptManager::ScriptManager()
 
 void ScriptManager::init()
 {
+    registerComponent<Transform>("Transform",sol::constructors<sol::types<>,sol::types<float, float>>(),
+    "setPosition", &Transform::setPosition,
+ "x", sol::property(&Transform::getPositionX, &Transform::setPositionX),
+ "y", sol::property(&Transform::getPositionY, &Transform::setPositionY));
     registerComponent<Source>("source", "loadAudio", &Source::loadAudio, "play", &Source::play);
     lua.set_function("keyIsPressed", &Input::keyIsPressed);
     lua.set_function("getMousePositionX", &Input::getMousePositionX);
