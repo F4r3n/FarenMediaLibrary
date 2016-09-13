@@ -8,14 +8,13 @@
 #define MAX_OBJECTS 100
 namespace fm
 {
-template <typename U>
-class Object {
-    public:
+template <typename U> class Object
+{
+public:
     U object;
     Recti rect;
-};    
-    
-    
+};
+
 template <class T> class QuadTree
 {
 public:
@@ -42,7 +41,6 @@ public:
         std::shared_ptr<QuadTree> n3 = std::make_shared<QuadTree<T> >();
         n3->setDataQuadTree(level + 1, rects[3]);
         nodes[3] = n3;
-        ready = true;
     }
 
     void setLevel(unsigned int level)
@@ -63,23 +61,42 @@ public:
         setLevel(level);
         setRect(rect);
     }
-    bool insert(std::shared_ptr<Object<T>> object)
+
+    bool insert(std::shared_ptr<Object<T> > object)
     {
+        if(level == MAX_LEVELS) return false;
+        std::cout << "Called " << object << std::endl;
         for(int i = 0; i < rects.size(); ++i) {
+            
             if(rects[i].contains(object->rect)) {
-                if(nodes[i]->ready) {
+                std::cout << rects[i] << std::endl;
+                if(level == 0) {
+                    std::cout << "Insert1 " << level << std::endl;
                     return nodes[i]->insert(object);
-                } else if(!nodes[i]->ready && getNumberElements() < MAX_OBJECTS) {
+                }
+
+                else if(level != 0 && getNumberElements() < MAX_OBJECTS) {
+                    std::cout << "Insert " << level << std::endl;
+                   // std::cout << "Yop " << nodes[i]->rect << std::endl;
                     data.push_back(object);
                     return true;
-                } else if(!nodes[i]->ready && getNumberElements() >= MAX_OBJECTS) {
-                    nodes[i] = std::make_shared<QuadTree<T> >();//Check pas obligatoire
-                    nodes[i]->setDataQuadTree(level + 1, this->rect);
-                    return nodes[i]->insert(object);
+                }
+
+                else if(getNumberElements() >= MAX_OBJECTS) {
+
+                    std::cout << "InsertSplit" << std::endl;
+                    nodes[i] = std::make_shared<QuadTree<T> >(level + 1, this->rect); // Check pas obligatoire
+                    nodes[i]->insert(object);
+                    std::cout << "Data " << data.size() << std::endl;
                     
-                    for(std::shared_ptr<Object<T>> o : data) {
-                        return insert(o);
+                    int j = 0;
+                    for(std::shared_ptr<Object<T> > o : data) {
+                        std::cout <<"j "<< j <<" " << object << std::endl;
+                        nodes[i]->insert(o);
+                        j++;
                     }
+                    data.clear();
+                    return true;
                 }
             }
         }
@@ -90,13 +107,12 @@ public:
     {
         return data.size();
     }
-    bool ready = false;
 
 private:
     Recti rect;
     unsigned int level;
     std::array<std::shared_ptr<QuadTree<T> >, 4> nodes;
     std::array<Recti, 4> rects;
-    std::vector<std::shared_ptr<Object<T>> > data;
+    std::vector<std::shared_ptr<Object<T> > > data;
 };
 }

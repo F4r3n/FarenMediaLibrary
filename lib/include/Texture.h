@@ -13,6 +13,8 @@ class Texture
 public:
     Texture(const std::string& path, Recti rect = { 0, 0, -1, -1 }, bool alpha = true);
     Texture(std::vector<unsigned char> &data, Recti &rect, bool alpha = true);
+    Texture(unsigned int width, unsigned int height);
+    void setData(unsigned char *image, bool alpha);
     Texture();
     ~Texture();
     void bind();
@@ -25,6 +27,8 @@ public:
     std::vector<unsigned char> content;
     
     GLuint id;
+    int width;
+    int height;
 };
 }
 
