@@ -2,10 +2,11 @@
 #include "Camera.h"
 #include "ResourcesManager.h"
 #include "Tag.h"
+#include "Renderer.h"
 using namespace fm;
 Camera::Camera(int width, int height):width(width), height(height) {
 	projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
-
+    renderTexture = Texture(width, height);
 	viewPort.width = width;
 	viewPort.height = height;
 	viewPort.x = 0;
@@ -14,7 +15,7 @@ Camera::Camera(int width, int height):width(width), height(height) {
 
 Camera::Camera(int width, int height, const ViewPort &view, float zoom) : width(width), height(height) {
 	projection = glm::ortho(0.0f, (float)width*zoom, (float)height*zoom, 0.0f);
-
+    renderTexture = Texture(width, height);
 	viewPort.width = view.width;
 	viewPort.height = view.height;
 	viewPort.x = view.x;
@@ -36,6 +37,7 @@ void Camera::setTag(int tag) {
 
 void Camera::view() {
 	glViewport(viewPort.x, viewPort.y, viewPort.width, viewPort.height);
+    Renderer::getInstance().bindFrameBuffer();
 }
 
 void Camera::draw(Drawable &shape) {
@@ -44,7 +46,25 @@ void Camera::draw(Drawable &shape) {
 	shape.draw(s);
 }
 
+Texture& Camera::getRenderTexture() {
+    return renderTexture;
+}
 
+void Camera::process(bool bloom) {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if(bloom)
+        Renderer::getInstance().blur();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
+    s->Use()->setVector2f("screenSize", glm::vec2(width, height));
+
+    Renderer::getInstance().postProcess(true);
+    Renderer::getInstance().bindFrameBuffer();
+
+}
 
 glm::mat4 Camera::getProjection() const{
 	return projection;

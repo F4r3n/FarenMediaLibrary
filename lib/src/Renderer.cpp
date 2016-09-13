@@ -4,15 +4,18 @@ using namespace fm;
 
 Renderer Renderer::_instance;
 
-Renderer::Renderer() {
+Renderer::Renderer()
+{
 }
 
-Renderer& Renderer::getInstance() {
+Renderer& Renderer::getInstance()
+{
     return _instance;
 }
 
-void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
-    
+void Renderer::initFrameBuffer(unsigned int width, unsigned int height)
+{
+
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     // Create a color attachment texture
@@ -69,31 +72,9 @@ void Renderer::createQuadScreen()
     GLfloat quadVertices[] = {
         // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // Positions   // TexCoords
-        -1.0f,
-        1.0f,
-        0.0f,
-        1.0f,
-        -1.0f,
-        -1.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-        -1.0f,
-        1.0f,
-        0.0f,
+        -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
-        -1.0f,
-        1.0f,
-        0.0f,
-        1.0f,
-        1.0f,
-        -1.0f,
-        1.0f,
-        0.0f,
-        1.0f,
-        1.0f,
-        1.0f,
-        1.0f
+        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f
     };
 
     GLuint quadVBO;
@@ -109,8 +90,9 @@ void Renderer::createQuadScreen()
     glBindVertexArray(0);
 }
 
-void Renderer::blur() {
-         GLboolean horizontal = true, first_iteration = true;
+void Renderer::blur()
+{
+    GLboolean horizontal = true, first_iteration = true;
     GLuint amount = 10;
     std::shared_ptr<Shader> s = ResourcesManager::getShader("blur");
     s->Use();
@@ -127,10 +109,11 @@ void Renderer::blur() {
     }
 }
 
-void Renderer::postProcess(bool horizontal) {
-      
+void Renderer::postProcess(bool horizontal)
+{
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
+    
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
 
@@ -139,9 +122,17 @@ void Renderer::postProcess(bool horizontal) {
     glBindVertexArray(0);
 }
 
-void Renderer::bindFrameBuffer() {
+void Renderer::bindFrameBuffer()
+{
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 }
 
-Renderer::~Renderer() {
+void Renderer::clear()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+Renderer::~Renderer()
+{
 }

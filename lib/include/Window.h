@@ -5,8 +5,6 @@
 // GLFW
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "ResourcesManager.h"
-#include "Shape.h"
 #include "NonCopyable.h"
 
 namespace fm
@@ -18,25 +16,26 @@ class Window : public fm_system::NonCopyable
 public:
     Window(int width, int height, const std::string& name);
     ~Window();
+    
     void swapBuffers();
     void clear();
     bool isClosed();
-
-    void draw(Shape& shape);
     void frameLimit(unsigned short fps);
     void update(float fps);
     void bindFrameBuffer();
     Window& getInstance();
+    
 private:
     void initFrameBuffer();
     void events();
-    int generateAttachmentTexture(bool depth, bool stencil);
     int init(GLFWwindow* window);
     void createQuadScreen();
     void createShaders();
     void postProcess(bool horizontal);
     void errorDisplay();
     void blur();
+    
+    
     GLFWwindow* window;
     int width;
     int height;
@@ -46,12 +45,6 @@ private:
     double dur = 0;
     double frame_start = 0;
 
-    /*GLuint framebuffer;
-    GLuint quadVAO;
-    GLuint textureColorbuffer[2];
-
-    GLuint pingpongFBO[2];
-    GLuint pingpongColorbuffers[2];*/
     
 };
 }

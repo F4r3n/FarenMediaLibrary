@@ -5,8 +5,9 @@
 #include <thread>
 #include "Renderer.h"
 #include "InputManager.h"
-using namespace fm;
+#include "ResourcesManager.h"
 
+using namespace fm;
 
 Window::Window(int width, int height, const std::string& name)
     : width(width)
@@ -30,9 +31,6 @@ Window::Window(int width, int height, const std::string& name)
 
     fm::InputManager::getInstance().init(this->window);
 }
-
-
-
 
 void Window::createShaders()
 {
@@ -233,8 +231,9 @@ void Window::createShaders()
     s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
 }
 
-void Window::bindFrameBuffer() {
-   Renderer::getInstance().bindFrameBuffer();
+void Window::bindFrameBuffer()
+{
+    Renderer::getInstance().bindFrameBuffer();
 }
 
 void Window::update(float fps)
@@ -250,38 +249,14 @@ void Window::update(float fps)
 
 void Window::initFrameBuffer()
 {
-Renderer::getInstance().initFrameBuffer(width, height);
+    Renderer::getInstance().initFrameBuffer(width, height);
 }
 
-int Window::generateAttachmentTexture(bool depth, bool stencil)
-{
 
-    GLenum attachment_type;
-    if(!depth && !stencil)
-        attachment_type = GL_RGB16F;
-    else if(depth && !stencil)
-        attachment_type = GL_DEPTH_COMPONENT;
-    else if(!depth && stencil)
-        attachment_type = GL_STENCIL_INDEX;
-
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    if(!depth && !stencil)
-        glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, width, height, 0, attachment_type, GL_FLOAT, NULL);
-    else
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    return textureID;
-}
 
 void Window::createQuadScreen()
 {
-   Renderer::getInstance().createQuadScreen();
+    Renderer::getInstance().createQuadScreen();
 }
 
 void Window::frameLimit(unsigned short fps)
@@ -300,20 +275,20 @@ void Window::frameLimit(unsigned short fps)
     frame_start = frame_end;
 }
 
-void Window::blur() {
-Renderer::getInstance().blur();
+void Window::blur()
+{
+    Renderer::getInstance().blur();
 }
 
 void Window::swapBuffers()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //
+    //blur();
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    blur();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    postProcess(true);
-    Renderer::getInstance().bindFrameBuffer();
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //postProcess(true);
 
     clear();
     errorDisplay();
@@ -331,12 +306,10 @@ void Window::errorDisplay()
 
 void Window::postProcess(bool horizontal)
 {
-     std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
+    std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
     s->Use()->setVector2f("screenSize", glm::vec2(width, height));
- Renderer::getInstance().postProcess(horizontal);
+    Renderer::getInstance().postProcess(horizontal);
 }
-
-
 
 bool Window::isClosed()
 {
@@ -385,10 +358,8 @@ int Window::init(GLFWwindow* window)
 
 void Window::clear()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Renderer::getInstance().clear();
 }
-
 
 // TODO if problem, face culling
 // TODO vertex creator

@@ -14,6 +14,7 @@ public:
     void createQuadScreen();
     void blur();
     void postProcess(bool horizontal);
+    void clear();
 private:
     static Renderer _instance;
     

@@ -6,6 +6,7 @@
 #include "Tag.h"
 #include "ParticleGenerator.h"
 #include "Vector2.h"
+#include "Texture.h"
 namespace fm
 {
 struct ViewPort
@@ -65,6 +66,8 @@ public:
      * @brief After each movement applied to the camera, you need to confirm them
      */
     void apply();
+    void process(bool bloom);
+   Texture& getRenderTexture();
 
 private:
     int width;
@@ -78,5 +81,7 @@ private:
     ViewPort viewPort;
 
     glm::mat4 viewMatrix;
+    
+    Texture renderTexture;
 };
 }
