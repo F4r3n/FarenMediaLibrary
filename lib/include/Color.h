@@ -5,7 +5,8 @@ namespace fm
 
 class Color
 {
-public:
+    public:
+Color() {r = 1; g = 1; b = 1; a = 1;}
     Color(float r, float g, float b);
     Color(int hex);
     Color(float r, float g, float b, float a);
