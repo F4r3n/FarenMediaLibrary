@@ -37,7 +37,7 @@ include_directories(${GLM_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIR})
 
 link_directories(${FREETYPE_LIBRARY_DIR} freetype)
-link_directories(${ENTITY_INCLUDE_DIR}/ECS/lib)
+link_directories(${ENTITY_INCLUDE_DIR}/bin/lib)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -47,7 +47,7 @@ target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY} lua)
 target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
-target_link_libraries(${PROJECT_NAME} freetype openal sndfile ECS)
+target_link_libraries(${PROJECT_NAME} ECS freetype openal sndfile)
 
 
 

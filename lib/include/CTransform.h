@@ -6,8 +6,8 @@ namespace fmc
 class CTransform : public Component<CTransform>
 {
     public:
-    fm::Vector2f position;
-    fm::Vector2f scale;
-    float rotation;
+    fm::Vector2f position = {0,0};
+    fm::Vector2f scale = {100,100};
+    float rotation = 0;
 };
 }

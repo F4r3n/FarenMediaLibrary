@@ -5,6 +5,10 @@
 #include <GL/glew.h>
 #include <Component.h>
 #include "Color.h"
+#include <glm/gtc/constants.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 namespace fmc
 {
 enum SHAPE { RECTANGLE, CIRCLE };
@@ -17,43 +21,18 @@ class CMesh : public Component<CMesh>
     };
 
 public:
-    CMesh()
-    {
-        shaderName = "default";
+    CMesh();
 
-        addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
-        addVertex({ 0.0, 0.0 }, { 1.0, 0.0 });
-        addVertex({ 1.0, 0.0 }, { 0.0, 0.0 });
-        addVertex({ 1.0, 1.0 }, { 1.0, 1.0 });
-        // std::vector<unsigned int> v = { 0, 1, 2, 0, 2, 3 };
-        listIndices = { 0, 1, 2, 0, 2, 3 };
-    }
-    CMesh(SHAPE shape)
-    {
-        if(shape == RECTANGLE) {
-            shaderName = "default";
+    CMesh(SHAPE shape);
 
-            addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
-            addVertex({ 0.0, 0.0 }, { 1.0, 0.0 });
-            addVertex({ 1.0, 0.0 }, { 0.0, 0.0 });
-            addVertex({ 1.0, 1.0 }, { 1.0, 1.0 });
-            // std::vector<unsigned int> v = { 0, 1, 2, 0, 2, 3 };
-            listIndices = { 0, 1, 2, 0, 2, 3 };
-        }
-    }
+    void addVertex(const fm::Vector2f& position, const fm::Vector2f& uv = { 0, 0 });
+    void create();
 
-    void addVertex(const fm::Vector2f& position, const fm::Vector2f& uv = { 0, 0 })
-    {
-        Vertex v{ { position.x, position.y }, { uv.x, uv.y } };
-        vertices.push_back(v);
-    }
-
-    // void construct()
     std::vector<Vertex> vertices;
     std::string shaderName = "default";
     std::vector<unsigned int> listIndices;
 
     GLuint VAO, VBO, EBO;
-    fm::Color color;
+    fm::Color color = { 1, 1, 1, 1 };
 };
 }
