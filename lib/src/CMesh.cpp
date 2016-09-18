@@ -1,11 +1,8 @@
 #include "CMesh.h"
 using namespace fmc;
 
-CMesh::CMesh(SHAPE shape)
-{
-    shaderName = "default";
+CMesh::CMesh(SHAPE shape) {
     if(shape == RECTANGLE) {
-        shaderName = "default";
 
         addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
         addVertex({ 0.0, 0.0 }, { 1.0, 0.0 });
@@ -17,10 +14,10 @@ CMesh::CMesh(SHAPE shape)
         unsigned int numberVertices = 100;
         float intervall = 2 * glm::pi<float>() / numberVertices;
 
-        addVertex({ 0, 0 });
+        addVertex({ 0, 0 }, { 0, 0 });
 
         for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
-            addVertex({ glm::cos(teta), glm::sin(teta) });
+            addVertex({ glm::cos(teta), glm::sin(teta) }, {(glm::cos(teta)), (glm::sin(teta)) });
         }
 
         int j = 0;
@@ -37,15 +34,12 @@ CMesh::CMesh(SHAPE shape)
     create();
 }
 
-void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv)
-{
+void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
     Vertex v{ { position.x, position.y }, { uv.x, uv.y } };
     vertices.push_back(v);
 }
 
-CMesh::CMesh()
-{
-    shaderName = "default";
+CMesh::CMesh() {
 
     addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
     addVertex({ 0.0, 0.0 }, { 1.0, 0.0 });
@@ -56,8 +50,7 @@ CMesh::CMesh()
     create();
 }
 
-void CMesh::create()
-{
+void CMesh::create() {
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

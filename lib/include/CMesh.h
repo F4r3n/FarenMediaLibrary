@@ -29,7 +29,6 @@ public:
     void create();
 
     std::vector<Vertex> vertices;
-    std::string shaderName = "default";
     std::vector<unsigned int> listIndices;
 
     GLuint VAO, VBO, EBO;

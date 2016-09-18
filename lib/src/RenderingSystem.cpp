@@ -5,12 +5,14 @@
 using namespace fms;
 #include "Renderer.h"
 #include "Shader.h"
+#include "CMaterial.h"
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
     , height(height)
 {
     addComponent<fmc::CMesh>();
     addComponent<fmc::CTransform>();
+    addComponent<fmc::CMaterial>();
 }
 
 RenderingSystem::~RenderingSystem()
@@ -47,14 +49,16 @@ void RenderingSystem::update(float dt, std::shared_ptr<Entity> e)
 
         std::shared_ptr<fmc::CMesh> cmesh = e->get<fmc::CMesh>();
         std::shared_ptr<fmc::CTransform> transform = e->get<fmc::CTransform>();
-        std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::getShader(cmesh->shaderName);
+        std::shared_ptr<fmc::CMaterial> material = e->get<fmc::CMaterial>();
+        std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::getShader(material->shaderName);
         shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect",
                                                                                                          1);
 
         glm::mat4 model = glm::mat4();
         setModel(model, transform);
         shader->setMatrix("model", model)
-            ->setVector4f("mainColor", glm::vec4(cmesh->color.r, cmesh->color.g, cmesh->color.b, cmesh->color.a));
+            ->setVector4f("mainColor", 
+            glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
 
         draw(cmesh);
     }
