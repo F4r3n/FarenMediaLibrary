@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <memory>
 #define MAX_LEVELS 10
 #define MAX_OBJECTS 100
 namespace fm
@@ -11,7 +12,7 @@ namespace fm
 template <typename U> class Object
 {
 public:
-    U object;
+    std::shared_ptr<U> object;
     Recti rect;
 };
 
