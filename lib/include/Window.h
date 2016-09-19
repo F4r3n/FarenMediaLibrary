@@ -39,8 +39,8 @@ private:
     GLFWwindow* window;
     int width;
     int height;
-
-    double wait_time = 1 / 60.0f;
+    int fpsMax = 60;
+    double wait_time = 1.0f / (float)fpsMax;
     double curr_frame_time = 0;
     double dur = 0;
     double frame_start = 0;

@@ -14,6 +14,7 @@ public:
         systems.addSystem(system);
     }
     void update(float dt);
+    void init();
 
 private:
     SystemManager systems;

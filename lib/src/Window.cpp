@@ -236,6 +236,8 @@ void Window::bindFrameBuffer() {
 void Window::update(float fps) {
 
     events();
+    this->fpsMax = fps;
+    wait_time = 1.0f / (float)fpsMax;
     frameLimit(fps);
 
     bindFrameBuffer();

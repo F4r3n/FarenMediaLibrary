@@ -17,7 +17,7 @@ RenderingSystem::RenderingSystem(int width, int height)
 RenderingSystem::~RenderingSystem() {
 }
 
-void RenderingSystem::init() {
+void RenderingSystem::init(std::shared_ptr<Entity> e) {
 }
 
 void RenderingSystem::addCamera(std::shared_ptr<Entity> camera) {

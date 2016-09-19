@@ -14,7 +14,7 @@ public:
   
     void update(float dt, std::shared_ptr<Entity> e);
     void over();
-    void init();
+    void init(std::shared_ptr<Entity> e);
   
     void draw(std::shared_ptr<fmc::CMesh>& cmesh);
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);

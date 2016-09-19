@@ -40,24 +40,14 @@ void Script::setName(const std::string &name) {
 
 void Script::start(sol::state &lua) {
   lua[nameVariable]["start"]();
-  //transform.position.x = lua[nameVariable]["components"]["transform"]["position"]["x"];
-  //transform.position.y = lua[nameVariable]["components"]["transform"]["position"]["y"];
-   
 }
 
 void Script::update(sol::state &lua, float dt) {
 
   lua[nameVariable]["update"](lua[nameVariable], dt);
-
-  //transform.position.x = lua[nameVariable]["components"]["transform"]["position"]["x"];
-  //transform.position.y = lua[nameVariable]["components"]["transform"]["position"]["y"];
   
 }
 
-
-//Transform Script::getTransform() const {
-//	return transform;
-//}
 
 std::string Script::getName() const {
     return scriptName;

@@ -9,6 +9,10 @@ Engine::~Engine() {
     
 }
 
+void Engine::init() {
+    systems.init(EntityManager::get());
+}
+
 void Engine::update(float dt) {
     systems.update(dt, EntityManager::get());
 }
