@@ -8,29 +8,24 @@ using namespace fms;
 #include "CMaterial.h"
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
-    , height(height)
-{
+    , height(height) {
     addComponent<fmc::CMesh>();
     addComponent<fmc::CTransform>();
     addComponent<fmc::CMaterial>();
 }
 
-RenderingSystem::~RenderingSystem()
-{
+RenderingSystem::~RenderingSystem() {
 }
 
-void RenderingSystem::init()
-{
+void RenderingSystem::init() {
 }
 
-void RenderingSystem::addCamera(std::shared_ptr<Entity> camera)
-{
+void RenderingSystem::addCamera(std::shared_ptr<Entity> camera) {
     cameras.push_back(camera);
 }
 
 void
-RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const fm::Vector2f& size, float rotation)
-{
+RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const fm::Vector2f& size, float rotation) {
     viewMatrix = glm::translate(viewMatrix, glm::vec3(position.x, position.y, 0));
 
     viewMatrix = glm::translate(viewMatrix, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
@@ -38,8 +33,7 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
     viewMatrix = glm::translate(viewMatrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 }
 
-void RenderingSystem::update(float dt, std::shared_ptr<Entity> e)
-{
+void RenderingSystem::update(float dt, std::shared_ptr<Entity> e) {
     for(auto camera : cameras) {
         std::shared_ptr<fmc::CTransform> ct = camera->get<fmc::CTransform>();
         std::shared_ptr<fmc::CCamera> cam = camera->get<fmc::CCamera>();
@@ -52,20 +46,24 @@ void RenderingSystem::update(float dt, std::shared_ptr<Entity> e)
         std::shared_ptr<fmc::CMaterial> material = e->get<fmc::CMaterial>();
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::getShader(material->shaderName);
         shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect",
-                                                                                                         1);
+                                                                                                         0);
 
         glm::mat4 model = glm::mat4();
         setModel(model, transform);
-        shader->setMatrix("model", model)
-            ->setVector4f("mainColor", 
-            glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
+        shader->setMatrix("model", model)->setVector4f(
+            "mainColor", glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
+
+        if(material->textureReady) {
+            glActiveTexture(GL_TEXTURE0);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            material->getTexture().bind();
+        }
 
         draw(cmesh);
     }
 }
 
-void RenderingSystem::over()
-{
+void RenderingSystem::over() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     fm::Renderer::getInstance().blur();
@@ -79,8 +77,7 @@ void RenderingSystem::over()
     fm::Renderer::getInstance().bindFrameBuffer();
 }
 
-void RenderingSystem::setModel(glm::mat4& model, std::shared_ptr<fmc::CTransform> transform)
-{
+void RenderingSystem::setModel(glm::mat4& model, std::shared_ptr<fmc::CTransform> transform) {
     model = glm::translate(model, glm::vec3(transform->position.x, transform->position.y, 0.0f));
     model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -88,8 +85,8 @@ void RenderingSystem::setModel(glm::mat4& model, std::shared_ptr<fmc::CTransform
     model = glm::scale(model, glm::vec3(transform->scale.x, transform->scale.y, 1.0f));
 }
 
-void RenderingSystem::draw(std::shared_ptr<fmc::CMesh>& cmesh)
-{
+void RenderingSystem::draw(std::shared_ptr<fmc::CMesh>& cmesh) {
+
     glBindVertexArray(cmesh->VAO);
     if(!cmesh->listIndices.empty()) {
         glDrawElements(GL_TRIANGLES, cmesh->listIndices.size(), GL_UNSIGNED_INT, 0);

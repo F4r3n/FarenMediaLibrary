@@ -1,10 +1,11 @@
 #pragma once
-#include "Shape.h"
-#include "Color.h"
+
 #include <vector>
 #include <glm/gtc/constants.hpp>
+#include "Shape.h"
 namespace fm
 {
+    
 class Circle : public Shape
 {
 public:

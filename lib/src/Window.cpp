@@ -11,8 +11,7 @@ using namespace fm;
 
 Window::Window(int width, int height, const std::string& name)
     : width(width)
-    , height(height)
-{
+    , height(height) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -32,8 +31,7 @@ Window::Window(int width, int height, const std::string& name)
     fm::InputManager::getInstance().init(this->window);
 }
 
-void Window::createShaders()
-{
+void Window::createShaders() {
     std::string text_vertex = "#version 330 core\n"
                               "layout (location = 0) in vec4 vertex;\n"
                               "out vec2 TexCoords;\n"
@@ -89,8 +87,8 @@ void Window::createShaders()
         "uniform sampler2D image;\n"
         "uniform bool horizontal;\n"
         "\n"
-"uniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );\n"
-"uniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703); \n"
+        "uniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );\n"
+        "uniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703); \n"
         "void main()\n"
         "{             \n"
         "     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel\n"
@@ -231,13 +229,11 @@ void Window::createShaders()
     s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
 }
 
-void Window::bindFrameBuffer()
-{
+void Window::bindFrameBuffer() {
     Renderer::getInstance().bindFrameBuffer();
 }
 
-void Window::update(float fps)
-{
+void Window::update(float fps) {
 
     events();
     frameLimit(fps);
@@ -247,20 +243,15 @@ void Window::update(float fps)
     clear();
 }
 
-void Window::initFrameBuffer()
-{
+void Window::initFrameBuffer() {
     Renderer::getInstance().initFrameBuffer(width, height);
 }
 
-
-
-void Window::createQuadScreen()
-{
+void Window::createQuadScreen() {
     Renderer::getInstance().createQuadScreen();
 }
 
-void Window::frameLimit(unsigned short fps)
-{
+void Window::frameLimit(unsigned short fps) {
 
     curr_frame_time = glfwGetTime() - frame_start;
     double dur = 1000.0 * (wait_time - curr_frame_time) + 0.5;
@@ -275,28 +266,25 @@ void Window::frameLimit(unsigned short fps)
     frame_start = frame_end;
 }
 
-void Window::blur()
-{
+void Window::blur() {
     Renderer::getInstance().blur();
 }
 
-void Window::swapBuffers()
-{
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+void Window::swapBuffers() {
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //
-    //blur();
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // blur();
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //postProcess(true);
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // postProcess(true);
 
     clear();
     errorDisplay();
     glfwSwapBuffers(window);
 }
 
-void Window::errorDisplay()
-{
+void Window::errorDisplay() {
     int error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << std::endl;
@@ -304,30 +292,25 @@ void Window::errorDisplay()
     }
 }
 
-void Window::postProcess(bool horizontal)
-{
+void Window::postProcess(bool horizontal) {
     std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
     s->Use()->setVector2f("screenSize", glm::vec2(width, height));
     Renderer::getInstance().postProcess(horizontal);
 }
 
-bool Window::isClosed()
-{
+bool Window::isClosed() {
     return glfwWindowShouldClose(window);
 }
 
-void Window::events()
-{
+void Window::events() {
     glfwPollEvents();
 }
 
-Window::~Window()
-{
+Window::~Window() {
     glfwTerminate();
 }
 
-int Window::init(GLFWwindow* window)
-{
+int Window::init(GLFWwindow* window) {
     if(window == nullptr) {
 
         glfwTerminate();
@@ -356,8 +339,7 @@ int Window::init(GLFWwindow* window)
     return 1;
 }
 
-void Window::clear()
-{
+void Window::clear() {
     Renderer::getInstance().clear();
 }
 

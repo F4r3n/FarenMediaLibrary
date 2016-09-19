@@ -3,10 +3,8 @@
 #include <vector>
 #include <string>
 #include "Rect.h"
-namespace fm
-{
-class Image
-{
+namespace fm {
+class Image {
 public:
     Image();
     ~Image();

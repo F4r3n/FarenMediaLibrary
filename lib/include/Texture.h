@@ -16,7 +16,7 @@ class Texture {
     void setData(unsigned char* image, bool alpha);
     Texture();
     ~Texture();
-    void bind();
+    void bind() const;
     void clear();
 
 private:

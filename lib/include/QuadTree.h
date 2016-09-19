@@ -65,33 +65,26 @@ public:
     bool insert(std::shared_ptr<Object<T> > object)
     {
         if(level == MAX_LEVELS) return false;
-        std::cout << "Called " << object << std::endl;
         for(int i = 0; i < rects.size(); ++i) {
             
             if(rects[i].contains(object->rect)) {
                 std::cout << rects[i] << std::endl;
                 if(level == 0) {
-                    std::cout << "Insert1 " << level << std::endl;
                     return nodes[i]->insert(object);
                 }
 
                 else if(level != 0 && getNumberElements() < MAX_OBJECTS) {
-                    std::cout << "Insert " << level << std::endl;
-                   // std::cout << "Yop " << nodes[i]->rect << std::endl;
                     data.push_back(object);
                     return true;
                 }
 
                 else if(getNumberElements() >= MAX_OBJECTS) {
 
-                    std::cout << "InsertSplit" << std::endl;
                     nodes[i] = std::make_shared<QuadTree<T> >(level + 1, this->rect); // Check pas obligatoire
                     nodes[i]->insert(object);
-                    std::cout << "Data " << data.size() << std::endl;
                     
                     int j = 0;
                     for(std::shared_ptr<Object<T> > o : data) {
-                        std::cout <<"j "<< j <<" " << object << std::endl;
                         nodes[i]->insert(o);
                         j++;
                     }

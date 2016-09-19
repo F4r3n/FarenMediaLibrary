@@ -1,4 +1,5 @@
 #include "CMesh.h"
+#include <iostream>
 using namespace fmc;
 
 CMesh::CMesh(SHAPE shape) {
@@ -14,10 +15,12 @@ CMesh::CMesh(SHAPE shape) {
         unsigned int numberVertices = 100;
         float intervall = 2 * glm::pi<float>() / numberVertices;
 
-        addVertex({ 0, 0 }, { 0, 0 });
+        addVertex({ 0, 0 }, { 0.5, 0.5 });
 
         for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
-            addVertex({ glm::cos(teta), glm::sin(teta) }, {(glm::cos(teta)), (glm::sin(teta)) });
+            fm::Vector2f uv(0.5 + glm::cos(teta)/2, 
+                            0.5 + glm::sin(teta)/2);
+            addVertex({ glm::cos(teta), glm::sin(teta) }, uv);
         }
 
         int j = 0;
