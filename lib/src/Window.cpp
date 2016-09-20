@@ -257,7 +257,7 @@ void Window::frameLimit(unsigned short fps) {
 
     curr_frame_time = glfwGetTime() - frame_start;
     double dur = 1000.0 * (wait_time - curr_frame_time) + 0.5;
-    if(dur > 0) // ensures that we don't have a dur > 0.0 which converts to a durDW of 0.
+    if(dur > 0) 
     {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
     }
@@ -273,13 +273,6 @@ void Window::blur() {
 }
 
 void Window::swapBuffers() {
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //
-    // blur();
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // postProcess(true);
 
     clear();
     errorDisplay();
@@ -319,10 +312,8 @@ int Window::init(GLFWwindow* window) {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    // Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
     glewExperimental = GL_TRUE;
 
-    // Initialize GLEW to setup the OpenGL Function pointers
     if(glewInit() != GLEW_OK) {
         return -1;
     }
@@ -332,8 +323,6 @@ int Window::init(GLFWwindow* window) {
     glfwGetFramebufferSize(window, &width, &height);
 
     glViewport(0, 0, width, height);
-
-    // glEnable(GL_CULL_FACE);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -345,5 +334,3 @@ void Window::clear() {
     Renderer::getInstance().clear();
 }
 
-// TODO if problem, face culling
-// TODO vertex creator

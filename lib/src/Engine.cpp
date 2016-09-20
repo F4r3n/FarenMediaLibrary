@@ -17,6 +17,6 @@ void Engine::update(float dt) {
     systems.update(dt, EntityManager::get());
 }
 
-std::shared_ptr<Entity> Engine::createEntity() {
+Entity* Engine::createEntity() {
     return EntityManager::get().createEntity();
 }

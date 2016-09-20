@@ -8,8 +8,8 @@ public:
     ScriptManagerSystem();
     ~ScriptManagerSystem();
 
-    void update(float dt, std::shared_ptr<Entity> e);
-    void init(std::shared_ptr<Entity> e);
+    void update(float dt, Entity* e);
+    void init(Entity* e);
     void over() {
     }
    

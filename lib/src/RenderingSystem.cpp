@@ -17,10 +17,14 @@ RenderingSystem::RenderingSystem(int width, int height)
 RenderingSystem::~RenderingSystem() {
 }
 
-void RenderingSystem::init(std::shared_ptr<Entity> e) {
+void RenderingSystem::init(Entity* e) {
 }
 
-void RenderingSystem::addCamera(std::shared_ptr<Entity> camera) {
+void RenderingSystem::addCamera(Entity* camera) {
+    fmc::CCamera* cam = camera->get<fmc::CCamera>();
+    fmc::CTransform* ct = camera->get<fmc::CTransform>();
+    cam->viewMatrix = glm::mat4();
+    view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
     cameras.push_back(camera);
 }
 
@@ -33,20 +37,18 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
     viewMatrix = glm::translate(viewMatrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 }
 
-void RenderingSystem::update(float dt, std::shared_ptr<Entity> e) {
+void RenderingSystem::update(float dt, Entity* e) {
+
     for(auto camera : cameras) {
-        std::shared_ptr<fmc::CTransform> ct = camera->get<fmc::CTransform>();
-        std::shared_ptr<fmc::CCamera> cam = camera->get<fmc::CCamera>();
+        fmc::CCamera *cam = camera->get<fmc::CCamera>();
+        // std::cout << "Update" << std::endl;
 
-        glm::mat4 viewMatrix = glm::mat4();
-        view(viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
-
-        std::shared_ptr<fmc::CMesh> cmesh = e->get<fmc::CMesh>();
-        std::shared_ptr<fmc::CTransform> transform = e->get<fmc::CTransform>();
-        std::shared_ptr<fmc::CMaterial> material = e->get<fmc::CMaterial>();
+        fmc::CMesh* cmesh = e->get<fmc::CMesh>();
+        fmc::CTransform* transform = e->get<fmc::CTransform>();
+        fmc::CMaterial* material = e->get<fmc::CMaterial>();
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::getShader(material->shaderName);
-        shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect",
-                                                                                                         0);
+        shader->Use()->setMatrix("projection", cam->projection)
+        ->setMatrix("view", cam->viewMatrix)->setFloat("BloomEffect", 0);
 
         glm::mat4 model = glm::mat4();
         setModel(model, transform);
@@ -66,7 +68,7 @@ void RenderingSystem::update(float dt, std::shared_ptr<Entity> e) {
 void RenderingSystem::over() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    fm::Renderer::getInstance().blur();
+    // fm::Renderer::getInstance().blur();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -77,7 +79,7 @@ void RenderingSystem::over() {
     fm::Renderer::getInstance().bindFrameBuffer();
 }
 
-void RenderingSystem::setModel(glm::mat4& model, std::shared_ptr<fmc::CTransform> transform) {
+void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform) {
     model = glm::translate(model, glm::vec3(transform->position.x, transform->position.y, 0.0f));
     model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -85,7 +87,7 @@ void RenderingSystem::setModel(glm::mat4& model, std::shared_ptr<fmc::CTransform
     model = glm::scale(model, glm::vec3(transform->scale.x, transform->scale.y, 1.0f));
 }
 
-void RenderingSystem::draw(std::shared_ptr<fmc::CMesh>& cmesh) {
+void RenderingSystem::draw(const fmc::CMesh* cmesh) {
 
     glBindVertexArray(cmesh->VAO);
     if(!cmesh->listIndices.empty()) {
@@ -93,5 +95,5 @@ void RenderingSystem::draw(std::shared_ptr<fmc::CMesh>& cmesh) {
     } else {
         glDrawArrays(GL_TRIANGLES, 0, cmesh->vertices.size());
     }
-    glBindVertexArray(0); // Unbind VAO
+    glBindVertexArray(0);
 }

@@ -8,7 +8,7 @@ class Engine
 public:
     Engine();
     ~Engine();
-    static std::shared_ptr<Entity> createEntity();
+    static Entity* createEntity();
     void addSystem(std::shared_ptr<System> system)
     {
         systems.addSystem(system);

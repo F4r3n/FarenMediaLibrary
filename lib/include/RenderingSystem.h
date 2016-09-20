@@ -10,19 +10,19 @@ class RenderingSystem : public System
 {
 public:
     RenderingSystem(int width, int height);
-    void addCamera(std::shared_ptr<Entity> camera);
+    void addCamera(Entity* camera);
   
-    void update(float dt, std::shared_ptr<Entity> e);
+    void update(float dt, Entity*  e);
     void over();
-    void init(std::shared_ptr<Entity> e);
+    void init(Entity*  e);
   
-    void draw(std::shared_ptr<fmc::CMesh>& cmesh);
+    void draw(const fmc::CMesh* cmesh);
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
-    void setModel(glm::mat4& model, std::shared_ptr<fmc::CTransform> transform);
+    void setModel(glm::mat4& model, fmc::CTransform* transform);
     ~RenderingSystem();
 
 private:
-    std::vector<std::shared_ptr<Entity> > cameras;
+    std::vector<Entity*> cameras;
     int width;
     int height;
 };

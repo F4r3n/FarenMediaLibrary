@@ -7,8 +7,8 @@
 using namespace fms;
 using namespace fmc;
 using namespace fm;
-std::shared_ptr<Entity> currentEntity = nullptr;
-template <typename T> std::shared_ptr<T> get() {
+Entity* currentEntity = nullptr;
+template <typename T> T* get() {
     //std::cout << currentEntity << std::endl;
     if(currentEntity)
     return currentEntity->get<T>();
@@ -39,17 +39,20 @@ ScriptManagerSystem::ScriptManagerSystem() {
 ScriptManagerSystem::~ScriptManagerSystem() {
 }
 
-void ScriptManagerSystem::init(std::shared_ptr<Entity> e) {
-    std::shared_ptr<CScriptManager> scriptManager = e->get<CScriptManager>();
+void ScriptManagerSystem::init(Entity* e) {
+    // std::cout << "Script" << std::endl;
+    fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
     currentEntity = e;
     scriptManager->init(lua);
 }
 
-void ScriptManagerSystem::update(float dt, std::shared_ptr<Entity> e) {
-    std::shared_ptr<CScriptManager> scriptManager = e->get<CScriptManager>();
-    //currentEntity = e;
+void ScriptManagerSystem::update(float dt, Entity* e) {
+    //std::cout << "Script" << std::endl;
+    fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
+    currentEntity = e;
              //auto start = std::chrono::system_clock::now();
-            scriptManager->update(dt, lua);
+    //e->get<fmc::CTransform>()->position.x += 40*dt;
+    scriptManager->update(dt, lua);
 
        // auto end = std::chrono::system_clock::now();
        // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

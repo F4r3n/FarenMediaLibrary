@@ -12,13 +12,14 @@ ColliderSystem::~ColliderSystem() {
     
 }
 void ColliderSystem::update(float dt, std::shared_ptr<Entity> e) {
-    std::shared_ptr<fmc::CCollider> collider = e->get<fmc::CCollider>();
+    fmc::CCollider *collider = e->get<fmc::CCollider>();
     collider->idCollision = e->ID;
-    std::shared_ptr<fmc::CTransform> transform = e->get<fmc::CTransform>();
+    fmc::CTransform *transform = e->get<fmc::CTransform>();
     std::shared_ptr<fm::Object<fmc::CCollider>> object = std::make_shared<fm::Object<fmc::CCollider>>();
     object->rect = fm::Recti(transform->position.x, transform->position.y, 
                              transform->scale.x, transform->scale.y);
-    object->object = collider;
+    //object->object = collider;
+    //object->object = collider;
     
 }
 void ColliderSystem::init(std::shared_ptr<Entity> e) {

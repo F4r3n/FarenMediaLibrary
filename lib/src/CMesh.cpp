@@ -20,7 +20,7 @@ CMesh::CMesh(SHAPE shape) {
         for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
             fm::Vector2f uv(0.5 + glm::cos(teta)/2, 
                             0.5 + glm::sin(teta)/2);
-            addVertex({ glm::cos(teta), glm::sin(teta) }, uv);
+            addVertex({ glm::cos(teta)/2, glm::sin(teta)/2 }, uv);
         }
 
         int j = 0;
@@ -44,9 +44,9 @@ void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
 
 CMesh::CMesh() {
 
-    addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
-    addVertex({ 0.0, 0.0 }, { 1.0, 0.0 });
-    addVertex({ 1.0, 0.0 }, { 0.0, 0.0 });
+    addVertex({ -1.0, 1.0 }, { 0.0, 1.0 });
+    addVertex({ -1.0, -1.0 }, { 1.0, 0.0 });
+    addVertex({ 1.0, -1.0 }, { 0.0, 0.0 });
     addVertex({ 1.0, 1.0 }, { 1.0, 1.0 });
     // std::vector<unsigned int> v = { 0, 1, 2, 0, 2, 3 };
     listIndices = { 0, 1, 2, 0, 2, 3 };
