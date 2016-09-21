@@ -144,22 +144,23 @@ void Window::createShaders() {
                                  "uniform mat4 model;\n"
                                  "uniform mat4 projection;\n"
                                  "void main(){\n"
-                                 "gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n"
+                                 "gl_Position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
                                  "}";
 
     std::string default_fragment = "#version 330 core\n"
                                    "layout (location = 0) out vec4 FragColor;\n"
                                    "layout (location = 1) out vec4 BrightColor;\n"
-                                   "uniform vec4 mainColor;"
+                                   "out vec4 Color;\n"
+                                   "uniform vec4 mainColor;\n"
                                    "uniform float BloomEffect;\n"
                                    "void main(){\n"
                                    "vec4 color = mainColor;\n"
                                    "BrightColor = vec4(0,0,0,1);FragColor = vec4(0);\n"
-                                   "FragColor = color\n;"
+                                   //"Color = vec4(1)\n;"
                                    "float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
                                    "if(brightness > 1.0 && BloomEffect == 1)\n"
                                    "BrightColor = vec4(FragColor.rgb, 1.0);"
-                                   //"if(BloomEffect <= 0) FragColor = color;\n else BrightColor = color;"
+                                   "if(BloomEffect <= 0) FragColor = color;\n else BrightColor = color;"
                                    "}";
 
     std::string default_vertex_sprite = "#version 330 core\n"
@@ -172,7 +173,7 @@ void Window::createShaders() {
                                         "out vec4 ourColor;\n"
                                         "out vec2 ourTexCoord;\n"
                                         "void main(){\n"
-                                        "gl_Position = projection*view*model*vec4(position, 0.0f, 1.0f);\n"
+                                        "gl_Position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
                                         "ourTexCoord = texCoords;"
                                         "}";
 
@@ -183,10 +184,12 @@ void Window::createShaders() {
                                           "in vec2 ourTexCoord;\n"
                                           "uniform float BloomEffect;"
                                           "uniform sampler2D texture2d;\n"
+                                          //"out vec4 Color;\n"
                                           "void main(){\n"
                                           "vec4 color = texture(texture2d, ourTexCoord)*mainColor;\n"
-                                          //"BrightColor = vec4(0,0,0,1);"
+                                          "BrightColor = vec4(0,0,0,1);"
                                           "if(color.w == 0.0f) discard;\n"
+                                          //"Color = color;"
                                           "BrightColor = vec4(0,0,0,1);FragColor = vec4(0);\n"
                                           "if(BloomEffect <= 0) {FragColor = color; }\n"
                                           "else {BrightColor = color;}\n"
@@ -256,7 +259,7 @@ void Window::createQuadScreen() {
 void Window::frameLimit(unsigned short fps) {
 
     curr_frame_time = glfwGetTime() - frame_start;
-    double dur = 1000.0 * (wait_time - curr_frame_time) + 0.5;
+    double dur = 1000.0 * ( wait_time - curr_frame_time ) + 0.5;
     if(dur > 0) 
     {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
@@ -274,7 +277,7 @@ void Window::blur() {
 
 void Window::swapBuffers() {
 
-    clear();
+    //clear();
     errorDisplay();
     glfwSwapBuffers(window);
 }
@@ -326,7 +329,9 @@ int Window::init(GLFWwindow* window) {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
+    //glCullFace( GL_FRONT_AND_BACK);
     return 1;
 }
 

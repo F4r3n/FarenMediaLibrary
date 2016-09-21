@@ -20,7 +20,7 @@ class CCamera : public Component<CCamera>
     }
     CCamera(int width, int height)
     {
-        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
+        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;

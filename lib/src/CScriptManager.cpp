@@ -8,9 +8,10 @@ CScriptManager::CScriptManager() {
 CScriptManager::~CScriptManager() {
 }
 
-void CScriptManager::init(sol::state& lua) {
+void CScriptManager::init(sol::state& lua, Entity *e) {
     for(auto s : scripts) {
-        s->init(lua);
+        s->init(lua, e);
+        s->start(lua);
     }
 }
 

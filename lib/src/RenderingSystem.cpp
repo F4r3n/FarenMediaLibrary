@@ -6,6 +6,7 @@ using namespace fms;
 #include "Renderer.h"
 #include "Shader.h"
 #include "CMaterial.h"
+#include <chrono>
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
     , height(height) {
@@ -18,6 +19,7 @@ RenderingSystem::~RenderingSystem() {
 }
 
 void RenderingSystem::init(Entity* e) {
+     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void RenderingSystem::addCamera(Entity* camera) {
@@ -40,47 +42,53 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
 void RenderingSystem::update(float dt, Entity* e) {
 
     for(auto camera : cameras) {
-        fmc::CCamera *cam = camera->get<fmc::CCamera>();
-        // std::cout << "Update" << std::endl;
+        fmc::CCamera* cam = camera->get<fmc::CCamera>();
 
+        auto start = std::chrono::system_clock::now();
         fmc::CMesh* cmesh = e->get<fmc::CMesh>();
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
+
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::getShader(material->shaderName);
-        shader->Use()->setMatrix("projection", cam->projection)
-        ->setMatrix("view", cam->viewMatrix)->setFloat("BloomEffect", 0);
+        shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", cam->viewMatrix)->setFloat(
+            "BloomEffect", 0);
 
         glm::mat4 model = glm::mat4();
         setModel(model, transform);
         shader->setMatrix("model", model)->setVector4f(
             "mainColor", glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
-
+       
         if(material->textureReady) {
             glActiveTexture(GL_TEXTURE0);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             material->getTexture().bind();
         }
-
+        
         draw(cmesh);
+        auto end = std::chrono::system_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+        float time = elapsed.count();
+        //std::cout << "Time measure " << time << std::endl;
     }
 }
 
 void RenderingSystem::over() {
+   
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    
     // fm::Renderer::getInstance().blur();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     std::shared_ptr<fm::Shader> s = fm::ResourcesManager::getShader("simple");
     s->Use()->setVector2f("screenSize", glm::vec2(width, height));
-
+    
     fm::Renderer::getInstance().postProcess(true);
     fm::Renderer::getInstance().bindFrameBuffer();
 }
 
 void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform) {
-    model = glm::translate(model, glm::vec3(transform->position.x, transform->position.y, 0.0f));
+    model = glm::translate(model, glm::vec3(transform->position.x, transform->position.y, -transform->layer));
     model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));

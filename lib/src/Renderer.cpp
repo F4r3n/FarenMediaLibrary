@@ -16,7 +16,7 @@ Renderer& Renderer::getInstance()
 void Renderer::initFrameBuffer(unsigned int width, unsigned int height)
 {
 
-    glGenFramebuffers(1, &framebuffer);
+   glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     // Create a color attachment texture
     glGenTextures(2, textureColorbuffer);
@@ -129,8 +129,8 @@ void Renderer::bindFrameBuffer()
 
 void Renderer::clear()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 }
 
 Renderer::~Renderer()

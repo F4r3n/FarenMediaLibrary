@@ -4,6 +4,7 @@
 #include <memory>
 #include <typeinfo>
 #include "Transform.h"
+#include "Entity.h"
 namespace fm
 {
 
@@ -12,7 +13,7 @@ class ScriptManager
 public:
     ScriptManager();
     ~ScriptManager();
-    void init();
+    void init(Entity *e);
     void update(float dt);
     void start();
     void registerScript(const std::string& name);

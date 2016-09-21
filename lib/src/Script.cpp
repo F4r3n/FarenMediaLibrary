@@ -1,4 +1,6 @@
 #include "Script.h"
+#include "ScriptRegister.h"
+#include "CTransform.h"
 using namespace fm;
 
 std::string getFileName(const std::string& s) {
@@ -18,9 +20,10 @@ std::string getFileName(const std::string& s) {
 }
 
 Script::Script(const std::string &name) {
+    unsigned int value = ScriptRegister::addScript(name);
     this->scriptName = name;
     nameFile = getFileName(name);
-    nameVariable = std::string("FM_") + nameFile;
+    nameVariable = std::string("FM")+std::to_string(value)+std::string("_") + nameFile;
 }
 
 
@@ -39,7 +42,7 @@ void Script::setName(const std::string &name) {
 
 
 void Script::start(sol::state &lua) {
-  lua[nameVariable]["start"]();
+  lua[nameVariable]["start"](lua[nameVariable]);
 }
 
 void Script::update(sol::state &lua, float dt) {
@@ -54,13 +57,15 @@ std::string Script::getName() const {
 }
 
 
-bool Script::init(sol::state &lua){
+bool Script::init(sol::state &lua, Entity *e){
 	lua.script_file(scriptName);
   std::string m = std::string("f_") + nameFile;
 
 
   lua.script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") 
               + nameVariable + std::string("= ") + m + std::string(".new()"));
-
+    lua[nameVariable]["gameObject"] = e;
+    Entity *e2 = lua[nameVariable]["gameObject"];
+    std::cout << e2->get<fmc::CTransform>()->position.x << std::endl;
       return true;
 }

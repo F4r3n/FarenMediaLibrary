@@ -8,7 +8,7 @@ ScriptManager::ScriptManager()
 }
 
 
-void ScriptManager::init()
+void ScriptManager::init(Entity *e)
 {
     registerComponent<Vector2f>("Vector", "x", &Vector2f::x, "y", &Vector2f::y);
     
@@ -22,7 +22,7 @@ void ScriptManager::init()
     lua.set_function("getMousePositionY", &Input::getMousePositionY);
 
     for(auto& s : scripts) {
-        s.second->init(lua);
+        s.second->init(lua, e);
     }
     
 
