@@ -44,7 +44,6 @@ ScriptManagerSystem::~ScriptManagerSystem() {
 }
 
 void ScriptManagerSystem::init(Entity* e) {
-    // std::cout << "Script" << std::endl;
     fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
     scriptManager->init(lua, e);
     

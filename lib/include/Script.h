@@ -9,14 +9,18 @@ namespace fm
 class Script
 {
 public:
-    Script(const std::string& script);
+    Script(const std::string& script, const std::string& nameVariable ="");
     Script();
     ~Script();
     bool attachScript(const std::string& script);
     void update(sol::state& lua, float dt);
     void start(sol::state& lua);
     bool init(sol::state& lua, Entity *e);
-    //Transform getTransform() const;
+  
+    void setGameObjects(const std::string &name, Entity* var) {
+        objects[name] = var;
+        
+    }
     std::string getName() const;
     void setName(const std::string& name);
 
@@ -30,7 +34,8 @@ private:
     std::string nameVariable;
     std::string nameFile;
     //Transform transform;
-
+    sol::state tempLua;
     bool isDrawable = false;
+    std::unordered_map<std::string, Entity*> objects;
 };
 }
