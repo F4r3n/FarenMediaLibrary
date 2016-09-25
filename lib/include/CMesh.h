@@ -12,17 +12,18 @@
 namespace fmc
 {
 enum SHAPE { RECTANGLE, CIRCLE };
-class CMesh : public Component<CMesh>
-{
     struct Vertex
     {
         fm::Vector2f position;
         fm::Vector2f uv;
     };
+class CMesh : public Component<CMesh>
+{
+
 
 public:
     CMesh();
-
+    void setShape(int shape);
     CMesh(SHAPE shape);
 
     void addVertex(const fm::Vector2f& position, const fm::Vector2f& uv = { 0, 0 });
@@ -33,5 +34,7 @@ public:
 
     GLuint VAO, VBO, EBO;
     fm::Color color = { 1, 1, 1, 1 };
+    private:
+    void init(SHAPE shape);
 };
 }

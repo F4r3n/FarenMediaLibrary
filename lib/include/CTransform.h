@@ -9,6 +9,7 @@ class CTransform : public Component<CTransform>
     CTransform(const fm::Vector2f &position, const fm::Vector2f &scale,
                const float &rotation, const int &layer = 1); 
     CTransform();
+    ~CTransform() {}
     fm::Vector2f position = {0,0};
     fm::Vector2f scale = {100,100};
     float rotation = 0;

@@ -9,10 +9,5 @@ function GameObject.new()
     return self
 end
 
-function getValueScript(nameScript, nameVariable)
-    assert(nameScript ~= "")
-    assert(nameVariable ~= "")
-    return load("return "..nameScript.."."..nameVariable)()
-end
 
 return GameObject;

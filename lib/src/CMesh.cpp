@@ -3,6 +3,11 @@
 using namespace fmc;
 
 CMesh::CMesh(SHAPE shape) {
+    init(shape);
+    create();
+}
+
+void CMesh::init(SHAPE shape) {
     if(shape == RECTANGLE) {
 
         addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
@@ -18,9 +23,8 @@ CMesh::CMesh(SHAPE shape) {
         addVertex({ 0, 0 }, { 0.5, 0.5 });
 
         for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
-            fm::Vector2f uv(0.5 + glm::cos(teta)/2, 
-                            0.5 + glm::sin(teta)/2);
-            addVertex({ glm::cos(teta)/2, glm::sin(teta)/2 }, uv);
+            fm::Vector2f uv(0.5 + glm::cos(teta) / 2, 0.5 + glm::sin(teta) / 2);
+            addVertex({ glm::cos(teta) / 2, glm::sin(teta) / 2 }, uv);
         }
 
         int j = 0;
@@ -34,6 +38,10 @@ CMesh::CMesh(SHAPE shape) {
         listIndices.push_back(1);
         listIndices.push_back(0);
     }
+}
+
+void CMesh::setShape(int shape) {
+    init((SHAPE)shape);
     create();
 }
 

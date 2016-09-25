@@ -25,6 +25,10 @@ void ColliderSystem::update(float dt, std::shared_ptr<Entity> e) {
 void ColliderSystem::init(std::shared_ptr<Entity> e) {
     
 }
+
+void ColliderSystem::pre_update() {
+    
+}
 void ColliderSystem::over() {
     
 }

@@ -13,13 +13,17 @@ RenderingSystem::RenderingSystem(int width, int height)
     addComponent<fmc::CMesh>();
     addComponent<fmc::CTransform>();
     addComponent<fmc::CMaterial>();
+
+    finalShader = fm::ResourcesManager::getShader("simple");
 }
 
 RenderingSystem::~RenderingSystem() {
 }
 
 void RenderingSystem::init(Entity* e) {
-     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    finalShader->Use()->setVector2f("screenSize", glm::vec2(width, height));
 }
 
 void RenderingSystem::addCamera(Entity* camera) {
@@ -39,12 +43,22 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
     viewMatrix = glm::translate(viewMatrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 }
 
+void RenderingSystem::pre_update() {
+    start = std::chrono::system_clock::now();
+    for(auto camera : cameras) {
+        fmc::CCamera* cam = camera->get<fmc::CCamera>();
+        fmc::CTransform* ct = camera->get<fmc::CTransform>();
+        cam->viewMatrix = glm::mat4();
+        view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
+        // cameras.push_back(camera);
+    }
+}
+
 void RenderingSystem::update(float dt, Entity* e) {
 
     for(auto camera : cameras) {
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
 
-        auto start = std::chrono::system_clock::now();
         fmc::CMesh* cmesh = e->get<fmc::CMesh>();
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
@@ -57,34 +71,42 @@ void RenderingSystem::update(float dt, Entity* e) {
         setModel(model, transform);
         shader->setMatrix("model", model)->setVector4f(
             "mainColor", glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
-       
+
         if(material->textureReady) {
             glActiveTexture(GL_TEXTURE0);
-            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             material->getTexture().bind();
         }
-        
+
         draw(cmesh);
-        auto end = std::chrono::system_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-        float time = elapsed.count();
-        //std::cout << "Time measure " << time << std::endl;
+
+        // std::cout << "Time measure " << time << std::endl;
     }
 }
 
 void RenderingSystem::over() {
-   
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
+
     // fm::Renderer::getInstance().blur();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    std::shared_ptr<fm::Shader> s = fm::ResourcesManager::getShader("simple");
-    s->Use()->setVector2f("screenSize", glm::vec2(width, height));
-    
+
+    finalShader->Use();
     fm::Renderer::getInstance().postProcess(true);
     fm::Renderer::getInstance().bindFrameBuffer();
+
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    timer += elapsed_seconds.count();
+    // std::cout << "Time rendering " << elapsed_seconds.count() << " " <<timer/(double)frame << std::endl;
+    if(frame == 100) {
+        std::cout << timer << " " << frame << " " << timer / (double)frame << std::endl;
+        frame = 0;
+        timer = 0;
+    }
+    frame++;
 }
 
 void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform) {

@@ -10,6 +10,7 @@ public:
     void update(float dt, std::shared_ptr<Entity> e);
     void init(std::shared_ptr<Entity> e);
     void over();
+    void pre_update();
 
 private:
     std::unique_ptr<fm::QuadTree<fmc::CCollider>> quadTree;
