@@ -41,7 +41,7 @@ void Camera::view() {
 }
 
 void Camera::draw(Drawable &shape) {
-	std::shared_ptr<Shader> s = ResourcesManager::getShader(shape.getNameShader());
+	std::shared_ptr<Shader> s = ResourcesManager::get().getShader(shape.getNameShader());
 	s->Use()->setMatrix("projection", projection)->setMatrix("view", viewMatrix)->setFloat("BloomEffect", shape.isBlooming());
 	shape.draw(s);
 }
@@ -58,7 +58,7 @@ void Camera::process(bool bloom) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
+    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
     s->Use()->setVector2f("screenSize", glm::vec2(width, height));
 
     Renderer::getInstance().postProcess(true);

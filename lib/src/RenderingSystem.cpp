@@ -14,15 +14,14 @@ RenderingSystem::RenderingSystem(int width, int height)
     addComponent<fmc::CTransform>();
     addComponent<fmc::CMaterial>();
 
-    finalShader = fm::ResourcesManager::getShader("simple");
+    finalShader = fm::ResourcesManager::get().getShader("simple");
 }
 
 RenderingSystem::~RenderingSystem() {
 }
 
-void RenderingSystem::init(Entity* e) {
+void RenderingSystem::init(EntityManager& em, EventManager &event) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     finalShader->Use()->setVector2f("screenSize", glm::vec2(width, height));
 }
 
@@ -43,7 +42,7 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
     viewMatrix = glm::translate(viewMatrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 }
 
-void RenderingSystem::pre_update() {
+void RenderingSystem::pre_update(EntityManager& em) {
     start = std::chrono::system_clock::now();
     for(auto camera : cameras) {
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
@@ -54,33 +53,35 @@ void RenderingSystem::pre_update() {
     }
 }
 
-void RenderingSystem::update(float dt, Entity* e) {
+void RenderingSystem::update(float dt, EntityManager& em, EventManager &event) {
 
     for(auto camera : cameras) {
+
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
+        for(auto e : em.iterate<fmc::CMesh, fmc::CTransform, fmc::CMaterial>()) {
+            fmc::CMesh* cmesh = e->get<fmc::CMesh>();
+            fmc::CTransform* transform = e->get<fmc::CTransform>();
+            fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
-        fmc::CMesh* cmesh = e->get<fmc::CMesh>();
-        fmc::CTransform* transform = e->get<fmc::CTransform>();
-        fmc::CMaterial* material = e->get<fmc::CMaterial>();
+            std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
+            shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", cam->viewMatrix)->setFloat(
+                "BloomEffect", 0);
 
-        std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::getShader(material->shaderName);
-        shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", cam->viewMatrix)->setFloat(
-            "BloomEffect", 0);
+            glm::mat4 model = glm::mat4();
+            setModel(model, transform);
+            shader->setMatrix("model", model)->setVector4f(
+                "mainColor", glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
 
-        glm::mat4 model = glm::mat4();
-        setModel(model, transform);
-        shader->setMatrix("model", model)->setVector4f(
-            "mainColor", glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
+            if(material->textureReady) {
+                glActiveTexture(GL_TEXTURE0);
+                // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                material->getTexture().bind();
+            }
 
-        if(material->textureReady) {
-            glActiveTexture(GL_TEXTURE0);
-            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            material->getTexture().bind();
+            draw(cmesh);
+
+            // std::cout << "Time measure " << time << std::endl;
         }
-
-        draw(cmesh);
-
-        // std::cout << "Time measure " << time << std::endl;
     }
 }
 
@@ -120,10 +121,6 @@ void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform) {
 void RenderingSystem::draw(const fmc::CMesh* cmesh) {
 
     glBindVertexArray(cmesh->VAO);
-    if(!cmesh->listIndices.empty()) {
-        glDrawElements(GL_TRIANGLES, cmesh->listIndices.size(), GL_UNSIGNED_INT, 0);
-    } else {
-        glDrawArrays(GL_TRIANGLES, 0, cmesh->vertices.size());
-    }
+    glDrawElements(GL_TRIANGLES, cmesh->size, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

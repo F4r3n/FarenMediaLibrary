@@ -9,17 +9,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-namespace fmc
-{
+namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE };
-    struct Vertex
-    {
-        fm::Vector2f position;
-        fm::Vector2f uv;
-    };
-class CMesh : public Component<CMesh>
-{
-
+struct Vertex {
+    fm::Vector2f position;
+    fm::Vector2f uv;
+};
+class CMesh : public Component<CMesh> {
 
 public:
     CMesh();
@@ -31,10 +27,10 @@ public:
 
     std::vector<Vertex> vertices;
     std::vector<unsigned int> listIndices;
-
+    unsigned int size = 4;
     GLuint VAO, VBO, EBO;
-    fm::Color color = { 1, 1, 1, 1 };
-    private:
-    void init(SHAPE shape);
+    // fm::Color color = { 1, 1, 1, 1 };
+private:
+    bool init(SHAPE shape);
 };
 }

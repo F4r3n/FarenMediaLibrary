@@ -1,13 +1,23 @@
 #include "CMesh.h"
 #include <iostream>
+#include "ResourcesManager.h"
+#include <memory>
 using namespace fmc;
 
 CMesh::CMesh(SHAPE shape) {
-    init(shape);
-    create();
+    if(init(shape))
+        create();
 }
 
-void CMesh::init(SHAPE shape) {
+bool CMesh::init(SHAPE shape) {
+    fm::MeshData* m = fm::ResourcesManager::get().getMeshData((int)shape);
+    if(m) {
+        VAO = m->VAO;
+        VBO = m->VBO;
+        EBO = m->EBO;
+        size = m->size;
+        return false;
+    }
     if(shape == RECTANGLE) {
 
         addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
@@ -38,11 +48,12 @@ void CMesh::init(SHAPE shape) {
         listIndices.push_back(1);
         listIndices.push_back(0);
     }
+    return true;
 }
 
 void CMesh::setShape(int shape) {
-    init((SHAPE)shape);
-    create();
+    if(init((SHAPE)shape))
+        create();
 }
 
 void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
@@ -52,17 +63,17 @@ void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
 
 CMesh::CMesh() {
 
-    addVertex({ -1.0, 1.0 }, { 0.0, 1.0 });
+    /*addVertex({ -1.0, 1.0 }, { 0.0, 1.0 });
     addVertex({ -1.0, -1.0 }, { 1.0, 0.0 });
     addVertex({ 1.0, -1.0 }, { 0.0, 0.0 });
     addVertex({ 1.0, 1.0 }, { 1.0, 1.0 });
     // std::vector<unsigned int> v = { 0, 1, 2, 0, 2, 3 };
     listIndices = { 0, 1, 2, 0, 2, 3 };
-    create();
+    create();*/
 }
 
 void CMesh::create() {
-
+    assert(!vertices.empty());
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -87,5 +98,7 @@ void CMesh::create() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
+    fm::ResourcesManager::get().registerMesh(
+    new fm::MeshData(VAO, VBO, EBO, listIndices.size()));
     glBindVertexArray(0); // Unbind VAO
 }

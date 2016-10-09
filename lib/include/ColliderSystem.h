@@ -7,12 +7,12 @@ class ColliderSystem : public System {
 public:
     ColliderSystem();
     ~ColliderSystem();
-    void update(float dt, std::shared_ptr<Entity> e);
-    void init(std::shared_ptr<Entity> e);
+    void update(float dt, EntityManager& em, EventManager &event);
+    void init(EntityManager& em, EventManager &event);
     void over();
-    void pre_update();
+    void pre_update(EntityManager& em);
 
 private:
-    std::unique_ptr<fm::QuadTree<fmc::CCollider>> quadTree;
+    std::unique_ptr<fm::QuadTree> quadTree;
 };
 }

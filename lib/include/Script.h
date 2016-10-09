@@ -19,8 +19,16 @@ public:
   
     void setGameObjects(const std::string &name, Entity* var) {
         objects[name] = var;
-        
     }
+    
+    template <typename T>
+    void event(std::string name, sol::state& lua, const T &t) {
+        if(lua[nameVariable][name]) {
+            lua[nameVariable][name](lua[nameVariable], t);
+        
+        }
+    }
+    
     std::string getName() const;
     void setName(const std::string& name);
 
@@ -28,7 +36,7 @@ public:
     {
         return (T)lua[nameVariable][name];
     }
-
+    bool hasStarted = false;
 private:
     std::string scriptName;
     std::string nameVariable;

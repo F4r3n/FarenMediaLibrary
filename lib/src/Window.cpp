@@ -6,7 +6,7 @@
 #include "Renderer.h"
 #include "InputManager.h"
 #include "ResourcesManager.h"
-
+#include "CMesh.h"
 using namespace fm;
 
 Window::Window(int width, int height, const std::string& name)
@@ -220,16 +220,22 @@ void Window::createShaders() {
                                             "FragColor = texture(texture2d, ourTexCoord)*ourColor;\n"
                                             "}";
 
-    ResourcesManager::loadShader("blur", simple_vertex, blur_fragment);
-    ResourcesManager::loadShader("text", text_vertex, text_fragment);
-    ResourcesManager::loadShader("instancing", instancing_vertex, instancing_fragment);
-    ResourcesManager::loadShader("default", default_vertex, default_fragment);
-    ResourcesManager::loadShader("simple", simple_vertex, simple_fragment);
-    ResourcesManager::loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
-    ResourcesManager::loadShader("particle", default_vertex_particle, default_fragment_particle);
+    ResourcesManager::get().loadShader("blur", simple_vertex, blur_fragment);
+    ResourcesManager::get().loadShader("text", text_vertex, text_fragment);
+    ResourcesManager::get().loadShader("instancing", instancing_vertex, instancing_fragment);
+    ResourcesManager::get().loadShader("default", default_vertex, default_fragment);
+    ResourcesManager::get().loadShader("simple", simple_vertex, simple_fragment);
+    ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
+    ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
 
-    std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
+    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
     s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+    
+    fmc::CMesh rect;
+    rect.setShape(0);
+    
+    fmc::CMesh circle;
+    circle.setShape(1);
 }
 
 void Window::bindFrameBuffer() {
@@ -291,7 +297,7 @@ void Window::errorDisplay() {
 }
 
 void Window::postProcess(bool horizontal) {
-    std::shared_ptr<Shader> s = ResourcesManager::getShader("simple");
+    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
     s->Use()->setVector2f("screenSize", glm::vec2(width, height));
     Renderer::getInstance().postProcess(horizontal);
 }

@@ -4,9 +4,11 @@
 namespace fmc {
 class CCollider : public Component<CCollider> {
 public:
-    CCollider() {}
-    ~CCollider() {}
-    size_t idCollision;
+    CCollider(fm::Recti rect) {
+        this->rect = rect;
+    }
+    ~CCollider() {
+    }
     fm::Recti rect;
 };
 }

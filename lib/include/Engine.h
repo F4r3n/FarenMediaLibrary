@@ -1,6 +1,5 @@
 #pragma once
-#include <Entity.h>
-#include <SystemManager.h>
+#include <ECS.h>
 namespace fm
 {
 class Engine

@@ -2,8 +2,8 @@
 #include "ResourcesManager.h"
 
 using namespace fm;
-std::array<std::unordered_map<std::string, std::shared_ptr<Resource>>, RESOURCE_TYPE::LAST_RESOURCE> ResourcesManager::resources;
-std::unordered_map<std::string, std::shared_ptr<Shader>> ResourcesManager::shaders;
+ResourcesManager ResourcesManager::_instance;
+
 ResourcesManager::ResourcesManager()
 {
 }

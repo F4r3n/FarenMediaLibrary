@@ -33,7 +33,7 @@ PostProcessor::~PostProcessor() {}
 
 bool PostProcessor::activate(const std::string &name) {
 	if(post_shaders.find(name) !=  post_shaders.end()) {
-		ResourcesManager::loadShader("simple", post_shaders[name]);
+		ResourcesManager::get().loadShader("simple", post_shaders[name]);
 		return true;
 	}
 	return false;

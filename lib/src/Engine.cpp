@@ -10,11 +10,11 @@ Engine::~Engine() {
 }
 
 void Engine::init() {
-    systems.init(EntityManager::get());
+    systems.init(EntityManager::get(), EventManager::get());
 }
 
 void Engine::update(float dt) {
-    systems.update(dt, EntityManager::get());
+    systems.update(dt, EntityManager::get(),  EventManager::get());
 }
 
 Entity* Engine::createEntity() {

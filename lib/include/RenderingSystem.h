@@ -14,10 +14,10 @@ public:
     RenderingSystem(int width, int height);
     void addCamera(Entity* camera);
   
-    void update(float dt, Entity*  e);
+    void update(float dt, EntityManager& em, EventManager &event);
     void over();
-    void init(Entity*  e);
-    void pre_update();
+    void init(EntityManager& em, EventManager &event);
+    void pre_update(EntityManager& em);
     void draw(const fmc::CMesh* cmesh);
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
     void setModel(glm::mat4& model, fmc::CTransform* transform);

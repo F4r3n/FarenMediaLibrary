@@ -43,6 +43,7 @@ void Script::start(sol::state& lua) {
     lua[nameVariable]["start"](lua[nameVariable]);
 }
 
+
 void Script::update(sol::state& lua, float dt) {
 
     lua[nameVariable]["update"](lua[nameVariable], dt);

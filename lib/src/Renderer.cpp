@@ -94,7 +94,7 @@ void Renderer::blur()
 {
     GLboolean horizontal = true, first_iteration = true;
     GLuint amount = 10;
-    std::shared_ptr<Shader> s = ResourcesManager::getShader("blur");
+    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("blur");
     s->Use();
     for(GLuint i = 0; i < amount; i++) {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);

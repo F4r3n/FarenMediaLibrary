@@ -1,6 +1,4 @@
-
 #include "Color.h"
-
 using namespace fm;
 Color::Color(float r, float g, float b)
     : r(r)

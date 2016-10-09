@@ -62,7 +62,6 @@ Texture::Texture(const Image& image, Recti rect) {
     image.getPart(content, rect);
     this->width = rect.w;
     this->height = rect.h;
-    std::cout << "Texture " << content.size() << std::endl;
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rect.w, rect.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, content.data());
 
