@@ -6,6 +6,7 @@ using namespace fms;
 #include "Renderer.h"
 #include "Shader.h"
 #include "CMaterial.h"
+#include "CPointLight.h"
 #include <chrono>
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
@@ -64,13 +65,15 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager &event) {
             fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
             std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-            shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", cam->viewMatrix)->setFloat(
-                "BloomEffect", 0);
+            shader->Use()
+            ->setMatrix("projection", cam->projection)
+            ->setMatrix("view", cam->viewMatrix)
+            ->setFloat("BloomEffect", 0);
 
             glm::mat4 model = glm::mat4();
             setModel(model, transform);
-            shader->setMatrix("model", model)->setVector4f(
-                "mainColor", glm::vec4(material->color.r, material->color.g, material->color.b, material->color.a));
+            shader->setMatrix("model", model)
+            ->setColor("mainColor", material->color);
 
             if(material->textureReady) {
                 glActiveTexture(GL_TEXTURE0);
@@ -82,6 +85,15 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager &event) {
 
             // std::cout << "Time measure " << time << std::endl;
         }
+    }
+    
+    for(auto e : em.iterate<fmc::CPointLight, fmc::CTransform>()) {
+        fmc::CTransform *transformLight = e->get<fmc::CTransform>();
+        finalShader->Use()->setVector3f("light.position", 
+        glm::vec3(transformLight->position.x, transformLight->position.y, transformLight->layer))
+        ->setColor("light.color", e->get<fmc::CPointLight>()->color)
+        ->setInt("light.ready", 1);
+        
     }
 }
 
@@ -95,6 +107,7 @@ void RenderingSystem::over() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     finalShader->Use();
+    finalShader->setVector2f("viewPos", cameras[0]->get<fmc::CTransform>()->position);
     fm::Renderer::getInstance().postProcess(true);
     fm::Renderer::getInstance().bindFrameBuffer();
 

@@ -125,16 +125,43 @@ void Window::createShaders() {
                                   "in vec2 TexCoords;\n"
                                   "uniform sampler2D screenTexture;\n"
                                   "uniform sampler2D bloomBlur;\n"
+                                  "uniform sampler2D posTexture;\n"
+                                  
                                   "uniform vec2 screenSize;\n"
+                                  "uniform vec2 viewPos;\n"
+                                  "struct PointLight {\n"
+                                  "vec3 position;\n"
+                                  "vec4 color;\n"
+                                  "int ready;\n"
+                                  "float radius;\n};\n"
+                                  
+                                  "uniform PointLight light;"
+                                  
                                   "void main(){\n"
                                   "const float gamma = 2.2;\n"
                                   "const float exposure = 1;"
-                                  "vec4 hdrColor = texture(screenTexture, TexCoords);      \n"
+                                  "vec4 hdrColor = texture(screenTexture, TexCoords);\n"
                                   "vec4 bloomColor = texture(bloomBlur, TexCoords);\n"
-                                  "hdrColor.rgb += bloomColor.rgb; // additive blending\n"
+                                  "vec4 pos = texture(posTexture, TexCoords);\n"
+                                  "hdrColor.rgb += bloomColor.rgb;\n"
+                                  
                                   //"vec3 result = vec3(1.0) - exp(-hdrColor.rgb * exposure);\n"
                                   //"result = pow(result, vec3(1.0 / gamma));\n"
-                                  "FragColor = vec4(hdrColor.rgb, 1.0f);\n"
+                                  "vec3 dir = vec3(1);\n"
+                                  "if(light.ready == 1) {\n"
+                                  "dir = normalize(normalize(light.position) - normalize(pos.rgb));\n"
+                                  "}\n"
+                                  "float ambientStrength = 0.1f;\n"
+                                  "vec3 ambient = ambientStrength * light.color.rgb;\n"
+                                  
+                                  "vec3 norm = normalize(vec3(0,0,1));\n"
+                                  
+                                  "float diff = max(dot(norm, dir), 0.0);\n"
+                                  "vec3 diffuse = diff * light.color.rgb;\n"
+                                  "float distance    = length(normalize(light.position) - pos.rgb);\n"
+                                  "float attenuation = 1.0f / (1.09 * distance + 0.032 * (distance * distance));\n"
+                                  "vec3 result = (ambient*attenuation + diffuse*attenuation)*hdrColor.rgb;\n"
+                                  "FragColor = vec4(result, 1);\n"
                                   "}";
 
     std::string default_vertex = "#version 330 core\n"
@@ -143,18 +170,26 @@ void Window::createShaders() {
                                  "uniform mat4 view;\n"
                                  "uniform mat4 model;\n"
                                  "uniform mat4 projection;\n"
+                                 "out vec3 ourPosition;\n"
                                  "void main(){\n"
-                                 "gl_Position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
+                                 "vec4 temp_position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
+                                 "gl_Position = temp_position;\n"
+                                 "ourPosition = temp_position.xyz;\n"
                                  "}";
 
     std::string default_fragment = "#version 330 core\n"
                                    "layout (location = 0) out vec4 FragColor;\n"
                                    "layout (location = 1) out vec4 BrightColor;\n"
+                                   "layout (location = 2) out vec4 posTexture;\n"
+                                   
                                    "out vec4 Color;\n"
                                    "uniform vec4 mainColor;\n"
                                    "uniform float BloomEffect;\n"
+                                   "in vec3 ourPosition;\n"
+                                   
                                    "void main(){\n"
                                    "vec4 color = mainColor;\n"
+                                   "posTexture = vec4(ourPosition, 1);\n"
                                    "BrightColor = vec4(0,0,0,1);FragColor = vec4(0);\n"
                                    //"Color = vec4(1)\n;"
                                    "float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
@@ -166,28 +201,37 @@ void Window::createShaders() {
     std::string default_vertex_sprite = "#version 330 core\n"
                                         "layout(location = 0) in vec2 position;\n"
                                         "layout(location = 1) in vec2 texCoords;\n"
+                                        
                                         "uniform mat4 view;\n"
                                         "uniform mat4 model;\n"
                                         "uniform mat4 projection;\n"
                                         "uniform float bloomEffect;\n"
+                                        
                                         "out vec4 ourColor;\n"
                                         "out vec2 ourTexCoord;\n"
+                                        "out vec3 ourPosition;\n"
+                                        
                                         "void main(){\n"
-                                        "gl_Position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
+                                        "vec4 position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
+                                        "gl_Position = position;\n"
+                                        "ourPosition = position.xyz;\n"
                                         "ourTexCoord = texCoords;"
                                         "}";
 
     std::string default_fragment_sprite = "#version 330 core\n"
                                           "layout (location = 0) out vec4 FragColor;\n"
                                           "layout (location = 1) out vec4 BrightColor;\n"
+                                          "layout (location = 2) out vec4 posTexture;\n"
                                           "uniform vec4 mainColor;"
                                           "in vec2 ourTexCoord;\n"
+                                          "in vec3 ourPosition;\n"
                                           "uniform float BloomEffect;"
                                           "uniform sampler2D texture2d;\n"
                                           //"out vec4 Color;\n"
                                           "void main(){\n"
                                           "vec4 color = texture(texture2d, ourTexCoord)*mainColor;\n"
                                           "BrightColor = vec4(0,0,0,1);"
+                                          "posTexture = vec4(ourPosition, 0);\n"
                                           "if(color.w == 0.0f) discard;\n"
                                           //"Color = color;"
                                           "BrightColor = vec4(0,0,0,1);FragColor = vec4(0);\n"
@@ -229,7 +273,7 @@ void Window::createShaders() {
     ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
 
     std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
-    s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+    s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1)->setInt("posTexture", 2);
     
     fmc::CMesh rect;
     rect.setShape(0);

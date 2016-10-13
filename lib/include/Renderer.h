@@ -21,7 +21,7 @@ private:
     
     GLuint framebuffer;
     GLuint quadVAO;
-    GLuint textureColorbuffer[2];
+    GLuint textureColorbuffer[3];
 
     GLuint pingpongFBO[2];
     GLuint pingpongColorbuffers[2];

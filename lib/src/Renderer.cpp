@@ -4,22 +4,19 @@ using namespace fm;
 
 Renderer Renderer::_instance;
 
-Renderer::Renderer()
-{
+Renderer::Renderer() {
 }
 
-Renderer& Renderer::getInstance()
-{
+Renderer& Renderer::getInstance() {
     return _instance;
 }
 
-void Renderer::initFrameBuffer(unsigned int width, unsigned int height)
-{
+void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
 
-   glGenFramebuffers(1, &framebuffer);
+    glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     // Create a color attachment texture
-    glGenTextures(2, textureColorbuffer);
+    glGenTextures(3, textureColorbuffer);
     for(int i = 0; i < 2; i++) {
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
@@ -33,14 +30,20 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height)
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
     }
 
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + 2, GL_TEXTURE_2D, textureColorbuffer[2], 0);
+
     GLuint rboDepth;
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 
-    GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers(2, attachments);
+    GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -67,8 +70,7 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void Renderer::createQuadScreen()
-{
+void Renderer::createQuadScreen() {
     GLfloat quadVertices[] = {
         // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // Positions   // TexCoords
@@ -90,8 +92,7 @@ void Renderer::createQuadScreen()
     glBindVertexArray(0);
 }
 
-void Renderer::blur()
-{
+void Renderer::blur() {
     GLboolean horizontal = true, first_iteration = true;
     GLuint amount = 10;
     std::shared_ptr<Shader> s = ResourcesManager::get().getShader("blur");
@@ -109,30 +110,29 @@ void Renderer::blur()
     }
 }
 
-void Renderer::postProcess(bool horizontal)
-{
+void Renderer::postProcess(bool horizontal) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
-    
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
 
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
 
-void Renderer::bindFrameBuffer()
-{
+void Renderer::bindFrameBuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 }
 
-void Renderer::clear()
-{
+void Renderer::clear() {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-Renderer::~Renderer()
-{
+Renderer::~Renderer() {
 }

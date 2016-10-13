@@ -20,7 +20,7 @@ public:
     void setGameObjects(const std::string &name, Entity* var) {
         objects[name] = var;
     }
-    
+    //void test() {}
     template <typename T>
     void event(std::string name, sol::state& lua, const T &t) {
         if(lua[nameVariable][name]) {

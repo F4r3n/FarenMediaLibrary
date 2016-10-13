@@ -9,30 +9,30 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Resource.h"
-
+#include "Vector2.h"
+#include "Color.h"
 namespace fm {
-	class Shader
-	{
-	public:
-		GLuint Program;
-		Shader();
-		Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
-		Shader(const std::string &vertexCode, const std::string &fragmentCode);
-		Shader* setMatrix(const std::string &name, glm::mat4 matrix);
-		Shader* setVector2f(const std::string &name, glm::vec2 vector);
-		Shader* setVector3f(const std::string &name, glm::vec3 vector);
-		Shader* setVector4f(const std::string &name, glm::vec4 vector);
-		Shader* setFloat(const std::string &name, float val);
-		Shader* setInt(const std::string &name, int val);
-		Shader* Use();
-		bool compile();
-		~Shader();
-        
+class Shader {
+public:
+    GLuint Program;
+    Shader();
+    Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+    Shader(const std::string& vertexCode, const std::string& fragmentCode);
+    Shader* setMatrix(const std::string& name, glm::mat4 matrix);
+    Shader* setVector2f(const std::string& name, glm::vec2 vector);
+    Shader* setVector3f(const std::string& name, glm::vec3 vector);
+    Shader* setVector4f(const std::string& name, glm::vec4 vector);
+    Shader* setFloat(const std::string& name, float val);
+    Shader* setInt(const std::string& name, int val);
+    
+    Shader* setVector2f(const std::string& name, Vector2f vector);
+    Shader* setColor(const std::string& name, Color vector);
+    
+    Shader* Use();
+    bool compile();
+    ~Shader();
 
-	private:
-		
-		std::string vertex, fragment;
-        
-	};
+private:
+    std::string vertex, fragment;
+};
 }
-
