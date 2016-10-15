@@ -43,7 +43,7 @@ ScriptManagerSystem::ScriptManagerSystem() {
                                   "scale",
                                   &CTransform::scale,
                                   "rotation",
-                                  &CTransform::rotation);
+                                  &CTransform::rotation, "layer", &CTransform::layer);
     registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
     registerComponent<CMesh>("CMesh", "setShape", &CMesh::setShape, "create", &CMesh::create);
 

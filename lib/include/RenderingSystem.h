@@ -34,5 +34,6 @@ private:
     std::chrono::duration<double> elapsed_seconds;
     
     std::shared_ptr<fm::Shader> finalShader;
+    std::shared_ptr<fm::Shader> lightShader;
 };
 }

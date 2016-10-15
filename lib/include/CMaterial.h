@@ -7,12 +7,13 @@ class CMaterial : public Component<CMaterial> {
 public:
     CMaterial();
     ~CMaterial();
+    CMaterial(const fm::Color &color, bool bloom);
     void setTexture(const fm::Texture& texture);
     const fm::Texture& getTexture();
     bool textureReady = false;
     std::string shaderName = "default";
     fm::Color color;
-
+    bool bloom = false;
 private:
     fm::Texture texture;
 };

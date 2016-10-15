@@ -27,7 +27,7 @@ void Line::init(const Vector2f &startPoint, const Vector2f &endPoint) {
 	rect.move(startPoint);
 	rect.scale(distance, 1);
 	rect.rotate(degree);
-	rect.setColor({10, 10,10});
+	rect.setColor({10, 10,10,1});
 	float moveY = (float)(distance/2.0f)*sin(degree);
 	float moveX = (float)(distance/2.0f) - cos(degree)*distance/2.0f;
 

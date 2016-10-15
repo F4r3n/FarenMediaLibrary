@@ -37,7 +37,7 @@ void Rectangle::initVertices(float r, float g, float b) {
 Rectangle::Rectangle(float r, float g, float b) {
 
 	initVertices(r, g, b);
-	setColor({r, g, b});
+	setColor({r, g, b,1});
 	initBuffer();
 	
 }

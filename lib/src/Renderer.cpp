@@ -15,21 +15,19 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
 
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    // Create a color attachment texture
+    // Create a color attachment texture [FragColor and BrightColor]
     glGenTextures(3, textureColorbuffer);
     for(int i = 0; i < 2; i++) {
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // We clamp to the edge as the blur filter
-                                                                             // would otherwise sample repeated texture
-                                                                             // values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        // attach texture to framebuffer
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
     }
 
+    //Position texture
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -47,9 +45,22 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    
+    //FBO to compute lights
+    glGenFramebuffers(1, &lightShadowFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, lightShadowFBO);
+    for(GLuint i = 0; i < 2; i++) {
+        glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            std::cerr << "Framebuffer not complete!" << std::endl;
+    }
+    GLuint attachments2[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, attachments2);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Ping pong framebuffer for blurring
-
     glGenFramebuffers(2, pingpongFBO);
     glGenTextures(2, pingpongColorbuffers);
     for(GLuint i = 0; i < 2; i++) {
@@ -58,15 +69,13 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // We clamp to the edge as the blur filter
-                                                                             // would otherwise sample repeated texture
-                                                                             // values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
-        // Also check if framebuffers are complete (no need for depth buffer)
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            std::cerr << "Framebuffer not complete!" << std::endl;
+            std::cout << "Framebuffer not complete!" << std::endl;
     }
+glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
@@ -99,7 +108,7 @@ void Renderer::blur() {
     s->Use();
     for(GLuint i = 0; i < amount; i++) {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        s->setFloat("horizontal", horizontal);
+        s->setInt("horizontal", horizontal);
         glBindTexture(GL_TEXTURE_2D, first_iteration ? textureColorbuffer[1] : pingpongColorbuffers[!horizontal]);
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -108,6 +117,24 @@ void Renderer::blur() {
         if(first_iteration)
             first_iteration = false;
     }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::lightComputation() {
+
+    std::shared_ptr<Shader> light = ResourcesManager::get().getShader("light");
+    light->Use();
+    glBindFramebuffer(GL_FRAMEBUFFER, lightShadowFBO);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
+
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }
 
 void Renderer::postProcess(bool horizontal) {
@@ -115,10 +142,7 @@ void Renderer::postProcess(bool horizontal) {
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[1]);
 
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

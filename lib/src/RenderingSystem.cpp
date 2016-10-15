@@ -16,13 +16,15 @@ RenderingSystem::RenderingSystem(int width, int height)
     addComponent<fmc::CMaterial>();
 
     finalShader = fm::ResourcesManager::get().getShader("simple");
+    lightShader = fm::ResourcesManager::get().getShader("light");
 }
 
 RenderingSystem::~RenderingSystem() {
 }
 
-void RenderingSystem::init(EntityManager& em, EventManager &event) {
+void RenderingSystem::init(EntityManager& em, EventManager& event) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    std::cout << width << " " << height << std::endl;
     finalShader->Use()->setVector2f("screenSize", glm::vec2(width, height));
 }
 
@@ -54,62 +56,62 @@ void RenderingSystem::pre_update(EntityManager& em) {
     }
 }
 
-void RenderingSystem::update(float dt, EntityManager& em, EventManager &event) {
+void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
+    fm::Renderer::getInstance().bindFrameBuffer();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto camera : cameras) {
 
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        for(auto e : em.iterate<fmc::CMesh, fmc::CTransform, fmc::CMaterial>()) {
-            fmc::CMesh* cmesh = e->get<fmc::CMesh>();
-            fmc::CTransform* transform = e->get<fmc::CTransform>();
-            fmc::CMaterial* material = e->get<fmc::CMaterial>();
+        for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
+                fmc::CTransform* transform = e->get<fmc::CTransform>();
+                fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
-            std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-            shader->Use()
-            ->setMatrix("projection", cam->projection)
-            ->setMatrix("view", cam->viewMatrix)
-            ->setFloat("BloomEffect", 0);
+            if(e->has<fmc::CMesh>()) {
+                fmc::CMesh* cmesh = e->get<fmc::CMesh>();
 
-            glm::mat4 model = glm::mat4();
-            setModel(model, transform);
-            shader->setMatrix("model", model)
-            ->setColor("mainColor", material->color);
+                std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
+                shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", cam->viewMatrix)->setInt(
+                    "BloomEffect", material->bloom);
 
-            if(material->textureReady) {
-                glActiveTexture(GL_TEXTURE0);
-                // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                material->getTexture().bind();
+                glm::mat4 model = glm::mat4();
+                setModel(model, transform);
+
+                shader->setMatrix("model", model)->setColor("mainColor", material->color);
+
+                if(material->textureReady) {
+                    glActiveTexture(GL_TEXTURE0);
+                    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    material->getTexture().bind();
+                }
+
+                draw(cmesh);
             }
 
-            draw(cmesh);
-
-            // std::cout << "Time measure " << time << std::endl;
+            if(e->has<fmc::CPointLight>()) {
+                lightShader->Use()
+                    ->setVector3f("light.position",
+                                  glm::vec3(transform->position.x, transform->position.y, transform->layer))
+                    ->setColor("light.color", e->get<fmc::CPointLight>()->color)
+                    ->setInt("light.ready", 1);
+            }
         }
     }
-    
-    for(auto e : em.iterate<fmc::CPointLight, fmc::CTransform>()) {
-        fmc::CTransform *transformLight = e->get<fmc::CTransform>();
-        finalShader->Use()->setVector3f("light.position", 
-        glm::vec3(transformLight->position.x, transformLight->position.y, transformLight->layer))
-        ->setColor("light.color", e->get<fmc::CPointLight>()->color)
-        ->setInt("light.ready", 1);
-        
-    }
+
+    fm::Renderer::getInstance().lightComputation();
 }
 
 void RenderingSystem::over() {
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     // fm::Renderer::getInstance().blur();
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     finalShader->Use();
     finalShader->setVector2f("viewPos", cameras[0]->get<fmc::CTransform>()->position);
     fm::Renderer::getInstance().postProcess(true);
-    fm::Renderer::getInstance().bindFrameBuffer();
+    // fm::Renderer::getInstance().bindFrameBuffer();
 
     end = std::chrono::system_clock::now();
     elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

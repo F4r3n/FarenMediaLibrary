@@ -42,7 +42,7 @@ namespace fm {
 		int posX = 0, posY = 0;
 		
 		float rotateAngle = 0;
-		Color color = {1,1,1};
+		Color color;
 	};
 }
 

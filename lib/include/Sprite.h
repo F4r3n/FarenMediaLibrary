@@ -7,7 +7,7 @@ namespace fm
 class Sprite : public Shape
 {
 public:
-    Sprite(Texture& texture, const Color& color = { 1, 1, 1 });
+    Sprite(Texture& texture, const Color& color);
     ~Sprite();
     void draw(std::shared_ptr<Shader> shader);
     void setTexture(const Texture &texture) {this->texture = texture;}

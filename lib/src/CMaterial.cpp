@@ -4,6 +4,11 @@ CMaterial::CMaterial() {
     color = fm::Color(1, 1, 1, 1);
 }
 
+CMaterial::CMaterial(const fm::Color &color, bool bloom) {
+    this->color = color;
+    this->bloom = bloom;
+}
+
 CMaterial::~CMaterial() {
 }
 

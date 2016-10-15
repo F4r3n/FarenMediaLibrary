@@ -13,6 +13,7 @@ public:
     void bindFrameBuffer();
     void createQuadScreen();
     void blur();
+    void lightComputation();
     void postProcess(bool horizontal);
     void clear();
 private:
@@ -25,6 +26,9 @@ private:
 
     GLuint pingpongFBO[2];
     GLuint pingpongColorbuffers[2];
+    
+    GLuint lightShadowFBO;
+    GLuint lightShadowBuffer[2];
     
 };
 }
