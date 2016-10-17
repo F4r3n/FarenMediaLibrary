@@ -134,32 +134,35 @@ void Window::createShaders() {
                                  "int ready;\n"
                                  "float radius;\n};\n"
 
-                                 "uniform PointLight light;"
+                                 "const int MAX_LIGHTS = 32;\n"
 
+                                 "uniform PointLight light[MAX_LIGHTS];\n"
                                  "void main(){\n"
 
                                  "vec4 hdrColor = texture(screenTexture, TexCoords);\n"
                                  "vec4 pos = texture(posTexture, TexCoords);\n"
-
-                                 "vec3 dir = vec3(1);\n"
-                                 "if(light.ready == 1) {\n"
-                                 "dir = normalize(light.position - pos.rgb);\n"
-                                 "}\n"
-                                 "float ambientStrength = 0.2f;\n"
-                                 "vec3 ambient = ambientStrength * light.color.rgb;\n"
-
-                                 "vec3 norm = normalize(vec3(0,0,1));\n"
-
-                                 "float diff = max(dot(norm, dir), 0.0);\n"
-                                 "vec3 diffuse = diff * light.color.rgb;\n"
-                                 "BrightColor = vec4(0,0,0,1);"
-                                 "float distance    = length(dir);\n"
-                                 "float attenuation = 1.0f / (0.5 * distance + 0.0032 * (distance * distance));\n"
-                                 "vec3 result = (ambient*attenuation + diffuse*attenuation)*hdrColor.rgb;\n"
+                                 "vec3 result = vec3(0);\n"
+                                 "for(int i = 0; i < MAX_LIGHTS; i++){\n"
+                                    "vec3 dir = vec3(1);\n"
+                                    "if(light[i].ready == 1) {\n"
+                                    "dir = normalize(light[i].position - pos.rgb);\n"
+                                    "}\n"
+                                    "float ambientStrength = 0.2f;\n"
+                                    "vec3 ambient = ambientStrength * light[i].color.rgb;\n"
+    
+                                    "vec3 norm = normalize(vec3(0,0,1));\n"
+    
+                                    "float diff = max(dot(norm, dir), 0.0);\n"
+                                    "vec3 diffuse = diff * light[i].color.rgb;\n"
+                                    "BrightColor = vec4(0,0,0,1);"
+                                    "float distance    = length(light[i].position - pos.rgb);\n"
+                                    "float attenuation = 1.0f / (0.5 * distance + 0.0032 * (distance * distance));\n"
+                                    "result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;}\n"
                                  "FragColor = vec4(result, 1);\n"
                                  "float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
                                  "if(brightness >= 0.5)\n"
-                                 "BrightColor = vec4(FragColor.rgb, 1.0);}";
+                                 "BrightColor = vec4(FragColor.rgb, 1.0);\n"
+                                 "}";
 
 
     std::string simple_fragment = "#version 330 core\n"
@@ -170,7 +173,6 @@ void Window::createShaders() {
 
                                   "uniform vec2 screenSize;\n"
                                   "uniform vec2 viewPos;\n"
-
                                   "void main(){\n"
                                   "const float gamma = 2.2;\n"
                                   "const float exposure = 1;"
@@ -187,11 +189,13 @@ void Window::createShaders() {
                                  "uniform mat4 view;\n"
                                  "uniform mat4 model;\n"
                                  "uniform mat4 projection;\n"
+                                 "uniform mat4 FM_PV;\n"
+
                                  "out vec3 ourPosition;\n"
                                  "void main(){\n"
-                                 "vec4 temp_position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
-                                 "gl_Position = temp_position;\n"
-                                 "ourPosition = vec3(model*vec4(position, 1.0f, 1.0f));\n"
+                                 "vec4 worldPos = model*vec4(position, 1.0f, 1.0f);\n"
+                                 "gl_Position = FM_PV*worldPos;\n"
+                                 "ourPosition = worldPos.xyz;\n"
                                  "}";
 
     std::string default_fragment = "#version 330 core\n"
@@ -222,15 +226,15 @@ void Window::createShaders() {
                                         "uniform mat4 model;\n"
                                         "uniform mat4 projection;\n"
                                         "uniform float bloomEffect;\n"
-
+                                        "uniform mat4 FM_PV;\n"
                                         "out vec4 ourColor;\n"
                                         "out vec2 ourTexCoord;\n"
                                         "out vec3 ourPosition;\n"
 
                                         "void main(){\n"
-                                        "vec4 position = projection*view*model*vec4(position, 1.0f, 1.0f);\n"
-                                        "gl_Position = position;\n"
-                                        "ourPosition = position.xyz;\n"
+                                        "vec4 worldPos = model*vec4(position, 1.0f, 1.0f);\n"
+                                        "gl_Position = FM_PV*worldPos;\n"
+                                        "ourPosition = worldPos.xyz;\n"
                                         "ourTexCoord = texCoords;"
                                         "}";
 

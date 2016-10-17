@@ -1,5 +1,6 @@
 #pragma once
 #include <ECS.h>
+#include "Window.h"
 namespace fm
 {
 class Engine
@@ -14,7 +15,7 @@ public:
     }
     void update(float dt);
     void init();
-
+    void run(Window &window);
 private:
     SystemManager systems;
 };

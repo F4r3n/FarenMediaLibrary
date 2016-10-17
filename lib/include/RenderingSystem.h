@@ -18,6 +18,7 @@ public:
     void over();
     void init(EntityManager& em, EventManager &event);
     void pre_update(EntityManager& em);
+    
     void draw(const fmc::CMesh* cmesh);
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
     void setModel(glm::mat4& model, fmc::CTransform* transform);

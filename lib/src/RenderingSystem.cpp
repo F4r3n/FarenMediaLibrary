@@ -63,6 +63,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     for(auto camera : cameras) {
 
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
+        glm::mat4 FM_PV = cam->projection*cam->viewMatrix;
+        
+        int lightNumber = 0;
         for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
                 fmc::CTransform* transform = e->get<fmc::CTransform>();
                 fmc::CMaterial* material = e->get<fmc::CMaterial>();
@@ -71,8 +74,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 fmc::CMesh* cmesh = e->get<fmc::CMesh>();
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-                shader->Use()->setMatrix("projection", cam->projection)->setMatrix("view", cam->viewMatrix)->setInt(
-                    "BloomEffect", material->bloom);
+                shader->Use()->setMatrix("FM_PV", FM_PV)->setInt("BloomEffect", material->bloom);
 
                 glm::mat4 model = glm::mat4();
                 setModel(model, transform);
@@ -87,13 +89,15 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 draw(cmesh);
             }
-
+            
             if(e->has<fmc::CPointLight>()) {
-                lightShader->Use()
-                    ->setVector3f("light.position",
+                std::string ln = "light["+std::to_string(lightNumber)+"]";
+
+                lightShader->Use()->setVector3f(ln + ".position",
                                   glm::vec3(transform->position.x, transform->position.y, transform->layer))
-                    ->setColor("light.color", e->get<fmc::CPointLight>()->color)
-                    ->setInt("light.ready", 1);
+                    ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
+                    ->setInt(ln + ".ready", 1);
+                lightNumber++;
             }
         }
     }
