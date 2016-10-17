@@ -7,6 +7,7 @@ using namespace fms;
 #include "Shader.h"
 #include "CMaterial.h"
 #include "CPointLight.h"
+#include "CText.h"
 #include <chrono>
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
@@ -63,12 +64,12 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     for(auto camera : cameras) {
 
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        glm::mat4 FM_PV = cam->projection*cam->viewMatrix;
-        
+        glm::mat4 FM_PV = cam->projection * cam->viewMatrix;
+
         int lightNumber = 0;
         for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
-                fmc::CTransform* transform = e->get<fmc::CTransform>();
-                fmc::CMaterial* material = e->get<fmc::CMaterial>();
+            fmc::CTransform* transform = e->get<fmc::CTransform>();
+            fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
             if(e->has<fmc::CMesh>()) {
                 fmc::CMesh* cmesh = e->get<fmc::CMesh>();
@@ -89,15 +90,29 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 draw(cmesh);
             }
-            
-            if(e->has<fmc::CPointLight>()) {
-                std::string ln = "light["+std::to_string(lightNumber)+"]";
 
-                lightShader->Use()->setVector3f(ln + ".position",
+            if(e->has<fmc::CPointLight>()) {
+                std::string ln = "light[" + std::to_string(lightNumber) + "]";
+
+                lightShader->Use()
+                    ->setVector3f(ln + ".position",
                                   glm::vec3(transform->position.x, transform->position.y, transform->layer))
                     ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
                     ->setInt(ln + ".ready", 1);
                 lightNumber++;
+            }
+
+            if(e->has<fmc::CText>()) {
+                fmc::CText *text = e->get<fmc::CText>();
+                std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
+                shader->Use();
+                
+                shader->setMatrix("projection", text->projection);
+                shader->setColor("textColor", material->color);
+                drawText(transform->position.x, transform->position.y, 
+                fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
+                std::cout << "Text " << material->shaderName << std::endl;
+
             }
         }
     }
@@ -135,6 +150,54 @@ void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform) {
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
     model = glm::scale(model, glm::vec3(transform->scale.x, transform->scale.y, 1.0f));
+}
+
+void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText* ctext) {
+     float x = posX;
+    float y = posY;
+    // shader.Use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(ctext->VAO);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Iterate through all characters
+    std::string::const_iterator c;
+    for(c = ctext->text.begin(); c != ctext->text.end(); c++) {
+        Character ch = font->Characters[*c];
+        GLfloat xpos = x + ch.Bearing.x * ctext->scale;
+        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * ctext->scale;
+
+        GLfloat w = ch.Size.x * ctext->scale;
+        GLfloat h = ch.Size.y * ctext->scale;
+        std::cout << xpos << " " << ypos << " " << w << " " << h << std::endl;
+       
+        // Update VBO for each character
+        GLfloat vertices[6][4] = { { xpos, ypos + h, 0.0, 0.0 },
+                                   { xpos, ypos, 0.0, 1.0 },
+                                   { xpos + w, ypos, 1.0, 1.0 },
+
+                                   { xpos, ypos + h, 0.0, 0.0 },
+                                   { xpos + w, ypos, 1.0, 1.0 },
+                                   { xpos + w, ypos + h, 1.0, 0.0 } };
+        // std::cout << ch.TextureID << std::endl;
+        // Render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        // Update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, ctext->VBO);
+        glBufferSubData(
+            GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // Render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * ctext->scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th
+                                        // pixels by 64 to get amount of pixels))
+        //std::cout << *c << std::endl;
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RenderingSystem::draw(const fmc::CMesh* cmesh) {

@@ -7,6 +7,7 @@
 #include "InputManager.h"
 #include "ResourcesManager.h"
 #include "CMesh.h"
+#include "RFont.h"
 using namespace fm;
 
 Window::Window(int width, int height, const std::string& name)
@@ -37,24 +38,25 @@ void Window::createShaders() {
                               "out vec2 TexCoords;\n"
                               "uniform mat4 projection;\n"
                               "void main(){\n"
-                              "gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
+                              "gl_Position = projection*vec4(vertex.xy, 1.0, 1.0);\n"
                               "TexCoords = vertex.zw;}\n";
 
     std::string text_fragment = "#version 330 core\n"
                                 "layout (location = 0) out vec4 FragColor;\n"
                                 "layout (location = 1) out vec4 BrightColor;\n"
+                                "layout (location = 2) out vec4 posTexture;\n"
+
                                 "in vec2 TexCoords;\n"
                                 "uniform sampler2D text;\n"
-                                "uniform vec3 textColor;\n"
-                                "uniform float BloomEffect;\n"
+                                "uniform vec4 textColor;\n"
+                                
                                 "void main(){\n"
-                                "BrightColor = vec4(0);FragColor = vec4(0);\n"
                                 "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-                                "vec4 color = vec4(textColor, 1.0) * sampled;"
-                                "FragColor = color\n;"
-                                "float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
-                                "if(brightness >= 0.0 && BloomEffect == 1)\n"
-                                "BrightColor = vec4(FragColor.rgb, 1.0);}";
+                                
+                                "vec4 color = textColor * sampled;"
+                                "if(color.a == 0) discard;\n"
+                                "FragColor = color;\n"
+                                "}";
 
     std::string instancing_vertex = "#version 330 core\n"
                                     "layout (location = 0) in vec2 position;\n"
@@ -304,6 +306,9 @@ void Window::createShaders() {
 
     fmc::CMesh circle;
     circle.setShape(1);
+    
+    
+    ResourcesManager::get().load("dejavu", std::make_unique<RFont>("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"));
 }
 
 void Window::bindFrameBuffer() {

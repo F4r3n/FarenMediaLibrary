@@ -1,4 +1,4 @@
-    
+    #pragma once
  namespace fm {   
          enum RESOURCE_TYPE {
         TEXTURE,

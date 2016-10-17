@@ -31,6 +31,10 @@ public:
     template <typename T> std::shared_ptr<T> getResource(const std::string& name) {
         return std::dynamic_pointer_cast<T>(resources[T::type][name]);
     }
+    
+    template <typename T> void load(const std::string &name, std::unique_ptr<T> resource) {
+        resources[T::type][name] = std::move(resource);
+    }
 
     void loadShader(const std::string& name, std::string& vertexCode, std::string& fragementCode);
     void loadShader(const std::string& name, std::shared_ptr<Shader> shader);

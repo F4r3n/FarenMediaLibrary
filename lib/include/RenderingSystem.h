@@ -6,6 +6,11 @@
 #include "CTransform.h"
 #include <chrono>
 #include "Shader.h"
+#include "RFont.h"
+
+namespace fmc {
+    class CText;
+}
 namespace fms
 {
 class RenderingSystem : public System
@@ -20,6 +25,8 @@ public:
     void pre_update(EntityManager& em);
     
     void draw(const fmc::CMesh* cmesh);
+    void drawText(int posX, int posY, RFont* font, const fmc::CText* ctext);
+    
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
     void setModel(glm::mat4& model, fmc::CTransform* transform);
     ~RenderingSystem();

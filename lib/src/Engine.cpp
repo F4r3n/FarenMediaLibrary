@@ -3,6 +3,8 @@
 #include "Window.h"
 #include "Time.h"
 #include "PhysicSystem.h"
+#include "RenderingSystem.h"
+#include "ScriptManagerSystem.h"
 using namespace fm;
 Engine::Engine() {
     //systems.addSystem();
@@ -16,7 +18,7 @@ void Engine::run(Window &window) {
      while(!window.isClosed()) {
 
         window.update(60);
-
+        std::cout << 1/fm::Time::dt << std::endl;
         // auto start = std::chrono::system_clock::now();
         update(fm::Time::dt);
 
@@ -30,7 +32,19 @@ void Engine::run(Window &window) {
 }
 
 void Engine::init() {
+    
     addSystem(std::make_shared<fms::PhysicSystem>());
+    
+    Entity* cam = fm::Engine::createEntity();
+    cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
+    cam->addComponent<fmc::CTransform>();
+
+    std::shared_ptr<fms::RenderingSystem> rendering = std::make_shared<fms::RenderingSystem>(800, 600);
+    std::shared_ptr<fms::ScriptManagerSystem> scriptSystem = std::make_shared<fms::ScriptManagerSystem>();
+
+    rendering->addCamera(cam);
+    addSystem(scriptSystem);
+    addSystem(rendering);
     systems.init(EntityManager::get(), EventManager::get());
 }
 
