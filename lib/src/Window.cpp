@@ -41,22 +41,58 @@ void Window::createShaders() {
                               "gl_Position = projection*vec4(vertex.xy, 1.0, 1.0);\n"
                               "TexCoords = vertex.zw;}\n";
 
-    std::string text_fragment = "#version 330 core\n"
-                                "layout (location = 0) out vec4 FragColor;\n"
-                                "layout (location = 1) out vec4 BrightColor;\n"
-                                "layout (location = 2) out vec4 posTexture;\n"
+    std::string text_fragment =
+        "#version 330 core\n"
+        "layout (location = 0) out vec4 FragColor;\n"
+        "layout (location = 1) out vec4 BrightColor;\n"
+        "layout (location = 2) out vec4 posTexture;\n"
 
-                                "in vec2 TexCoords;\n"
-                                "uniform sampler2D text;\n"
-                                "uniform vec4 textColor;\n"
-                                
-                                "void main(){\n"
-                                "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-                                
-                                "vec4 color = textColor * sampled;"
-                                //"if(color.a == 0) discard;\n"
-                                "FragColor = color;\n"
-                                "}";
+        "in vec2 TexCoords;\n"
+        "uniform sampler2D text;\n"
+        "uniform vec4 textColor;\n"
+        "uniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );\n"
+        "uniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703);\n"
+
+        "uniform bool outline;\n"
+        "uniform vec2 outline_min;\n"
+        "uniform vec2 outline_max;\n"
+        "uniform vec3 outline_color;\n"
+        
+        "uniform bool soft_edges;\n"
+        "uniform vec2 soft_edge_values;\n"
+
+        "void main(){\n"
+        "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
+
+        "vec4 color = textColor * sampled;"
+
+        "vec2 tex_offset = 1.0 / textureSize(text, 0); // gets size of single texel\n"
+        "float result = texture(text, TexCoords).r * weight[0];\n"
+        "if(soft_edges || outline){\n"
+        "for(int i = 1; i < 3; ++i)\n"
+        "{\n"
+        "   result += texture(text, TexCoords + vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];\n"
+        "   result += texture(text, TexCoords - vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];\n"
+
+        "    result += texture(text, TexCoords + vec2(0.0, tex_offset.y * offset[i])).r * weight[i];\n"
+        "    result += texture(text, TexCoords - vec2(0.0, tex_offset.y * offset[i])).r * weight[i];\n"
+        "}}\n"
+        "float oFactor = 1.0f;"
+
+        "if(outline && result >= outline_min.x && result <= outline_max.y) {\n"
+        "    if(result <= outline_min.y) {\n"
+        "        oFactor = smoothstep(outline_min.x, outline_min.y, result);\n"
+        "\n"
+        "    } else {\n"
+        "        oFactor = smoothstep(outline_max.x, outline_max.y, result);\n"
+        "    }\n"
+        "color = mix(color, vec4(outline_color,1), oFactor);\n"
+        "}\n"
+        "if(soft_edges)\n{"
+        "color.a += smoothstep(soft_edge_values.x,soft_edge_values.y, result);}\n "
+
+        "FragColor = color;\n"
+        "}";
 
     std::string instancing_vertex = "#version 330 core\n"
                                     "layout (location = 0) in vec2 position;\n"
@@ -145,27 +181,26 @@ void Window::createShaders() {
                                  "vec4 pos = texture(posTexture, TexCoords);\n"
                                  "vec3 result = vec3(0);\n"
                                  "for(int i = 0; i < MAX_LIGHTS; i++){\n"
-                                    "vec3 dir = vec3(1);\n"
-                                    "if(light[i].ready == 1) {\n"
-                                    "dir = normalize(light[i].position - pos.rgb);\n"
-                                    "}\n"
-                                    "float ambientStrength = 0.2f;\n"
-                                    "vec3 ambient = ambientStrength * light[i].color.rgb;\n"
-    
-                                    "vec3 norm = normalize(vec3(0,0,1));\n"
-    
-                                    "float diff = max(dot(norm, dir), 0.0);\n"
-                                    "vec3 diffuse = diff * light[i].color.rgb;\n"
-                                    "BrightColor = vec4(0,0,0,1);"
-                                    "float distance    = length(light[i].position - pos.rgb);\n"
-                                    "float attenuation = 1.0f / (0.5 * distance + 0.0032 * (distance * distance));\n"
-                                    "result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;}\n"
+                                 "vec3 dir = vec3(1);\n"
+                                 "if(light[i].ready == 1) {\n"
+                                 "dir = normalize(light[i].position - pos.rgb);\n"
+                                 "}\n"
+                                 "float ambientStrength = 0.2f;\n"
+                                 "vec3 ambient = ambientStrength * light[i].color.rgb;\n"
+
+                                 "vec3 norm = normalize(vec3(0,0,1));\n"
+
+                                 "float diff = max(dot(norm, dir), 0.0);\n"
+                                 "vec3 diffuse = diff * light[i].color.rgb;\n"
+                                 "BrightColor = vec4(0,0,0,1);"
+                                 "float distance    = length(light[i].position - pos.rgb);\n"
+                                 "float attenuation = 1.0f / (0.5 * distance + 0.0032 * (distance * distance));\n"
+                                 "result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;}\n"
                                  "FragColor = vec4(result, 1);\n"
                                  "float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
                                  "if(brightness >= 0.5)\n"
                                  "BrightColor = vec4(FragColor.rgb, 1.0);\n"
                                  "}";
-
 
     std::string simple_fragment = "#version 330 core\n"
                                   "out vec4 FragColor;\n"
@@ -306,10 +341,11 @@ void Window::createShaders() {
 
     fmc::CMesh circle;
     circle.setShape(1);
-    
-    #ifdef __linux__
-    ResourcesManager::get().load("dejavu", std::make_unique<RFont>("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"));
-    #endif
+
+#ifdef __linux__
+    ResourcesManager::get().load("dejavu",
+                                 std::make_unique<RFont>("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"));
+#endif
 }
 
 void Window::bindFrameBuffer() {

@@ -25,6 +25,14 @@ public:
 
     std::string text = "Ab";
     GLfloat scale = 1;
+    
+    bool outline = false;
+    fm::Color outline_color;
+    fm::Vector2f outline_min;
+    fm::Vector2f outline_max;
+    
+    bool soft_edges = false;
+    fm::Vector2f soft_edge_values;
 
 private:
     fm::Vector2f pos = { 0, 0 };

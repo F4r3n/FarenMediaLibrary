@@ -113,9 +113,12 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CText* text = e->get<fmc::CText>();
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
         shader->Use();
-
-        shader->setMatrix("projection", text->projection);
-        shader->setColor("textColor", material->color);
+        shader->setInt("outline", text->outline)->setVector2f("outline_min", text->outline_min)
+        ->setVector2f("outline_max", text->outline_max)
+        ->setVector3f("outline_color", glm::vec3(text->outline_color.r, text->outline_color.g, text->outline_color.b))
+        ->setMatrix("projection", text->projection)
+        ->setColor("textColor", material->color)
+        ->setInt("soft_edges", text->soft_edges)->setVector2f("soft_edge_values", text->soft_edge_values);
         drawText(transform->position.x,
                  transform->position.y,
                  fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(),
