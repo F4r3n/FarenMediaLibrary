@@ -54,7 +54,7 @@ void Window::createShaders() {
                                 "vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
                                 
                                 "vec4 color = textColor * sampled;"
-                                "if(color.a == 0) discard;\n"
+                                //"if(color.a == 0) discard;\n"
                                 "FragColor = color;\n"
                                 "}";
 
@@ -307,8 +307,9 @@ void Window::createShaders() {
     fmc::CMesh circle;
     circle.setShape(1);
     
-    
+    #ifdef __linux__
     ResourcesManager::get().load("dejavu", std::make_unique<RFont>("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"));
+    #endif
 }
 
 void Window::bindFrameBuffer() {
