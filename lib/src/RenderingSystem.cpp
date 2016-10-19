@@ -70,7 +70,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
             fmc::CTransform* transform = e->get<fmc::CTransform>();
             fmc::CMaterial* material = e->get<fmc::CMaterial>();
-
+            fm::Vector2f worldPos = transform->getWorldPos(em);
             if(e->has<fmc::CMesh>()) {
                 fmc::CMesh* cmesh = e->get<fmc::CMesh>();
 
@@ -78,7 +78,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 shader->Use()->setMatrix("FM_PV", FM_PV)->setInt("BloomEffect", material->bloom);
 
                 glm::mat4 model = glm::mat4();
-                setModel(model, transform);
+                setModel(model, transform, worldPos);
 
                 shader->setMatrix("model", model)->setColor("mainColor", material->color);
 
@@ -96,7 +96,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 lightShader->Use()
                     ->setVector3f(ln + ".position",
-                                  glm::vec3(transform->position.x, transform->position.y, transform->layer))
+                                  glm::vec3(worldPos.x, worldPos.y, transform->layer))
                     ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
                     ->setInt(ln + ".ready", 1);
                 lightNumber++;
@@ -111,6 +111,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
         fmc::CText* text = e->get<fmc::CText>();
+        fm::Vector2f worldPos = transform->getWorldPos(em);
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
         shader->Use();
         shader->setInt("outline", text->outline)->setVector2f("outline_min", text->outline_min)
@@ -119,8 +120,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         ->setMatrix("projection", text->projection)
         ->setColor("textColor", material->color)
         ->setInt("soft_edges", text->soft_edges)->setVector2f("soft_edge_values", text->soft_edge_values);
-        drawText(transform->position.x,
-                 transform->position.y,
+        drawText(worldPos.x,
+                 worldPos.y,
                  fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(),
                  text);
     }
@@ -150,8 +151,8 @@ void RenderingSystem::over() {
     frame++;
 }
 
-void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform) {
-    model = glm::translate(model, glm::vec3(transform->position.x, transform->position.y, -transform->layer));
+void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f &worldPos) {
+    model = glm::translate(model, glm::vec3(worldPos.x, worldPos.y, -transform->layer));
     model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));

@@ -28,7 +28,7 @@ public:
     void drawText(int posX, int posY, RFont* font, const fmc::CText* ctext);
     
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
-    void setModel(glm::mat4& model, fmc::CTransform* transform);
+    void setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f &worldPos);
     ~RenderingSystem();
 
 private:
