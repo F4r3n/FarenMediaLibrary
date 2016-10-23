@@ -13,6 +13,7 @@ public:
     
     }
     
+    
     void init(b2World* world) {
         if(isDynamic)
             bodyDef.type = b2_dynamicBody;

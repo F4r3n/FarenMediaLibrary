@@ -24,7 +24,9 @@ public:
     void update(float fps);
     void bindFrameBuffer();
     Window& getInstance();
-    
+    GLFWwindow* getWindow() {
+        return window;
+    }
 private:
     void initFrameBuffer();
     void events();
