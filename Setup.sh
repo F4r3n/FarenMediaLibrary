@@ -25,6 +25,7 @@ else
     sudo make linux install MYCFLAGS='-fPIC'
     cd ../
 fi
+cd ../
 echo $PWD
 git submodule init && git submodule update
 cd extlib/glfw
