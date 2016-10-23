@@ -8,12 +8,12 @@ if [ -a "/usr/local/lib/libsndfile.so" ]
 then
     echo "Lib sndfile found"
 else
-    cd ../
     wget http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.27.tar.gz
     tar zxf libsndfile-1.0.27.tar.gz
     cd libsndfile-1.0.27
     ./configure
     sudo make install
+    cd ../
 fi
 if [ -a "/usr/local/lib/liblua.a" ]
 then
@@ -23,8 +23,8 @@ else
     tar zxf lua-5.3.3.tar.gz
     cd lua-5.3.3
     sudo make linux install MYCFLAGS='-fPIC'
+    cd ../
 fi
-cd ../
 echo $PWD
 git submodule init && git submodule update
 cd extlib/glfw
