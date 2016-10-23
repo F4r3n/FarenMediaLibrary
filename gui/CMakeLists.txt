@@ -17,11 +17,11 @@ include_directories(${FML_INCLUDE})
 include_directories(${FML_INCLUDE_STB})
 include_directories(${FML_INCLUDE_SOL})
 include_directories(${FML_INCLUDE_FREETYPE})
-link_directories(${ENTITY_INCLUDE_DIR}/bin/lib)
+
 include_directories("include")
 include_directories("/usr/local/include")
 link_directories(${FML_LIB})
-link_directories(../../../ecs/bin/lib)
+link_directories(${FML_DIR}/extlib/ECS/build/lib)
 link_directories(${GLFW3_LIBRARIES})
 
 

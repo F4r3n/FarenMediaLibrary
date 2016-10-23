@@ -13,3 +13,6 @@
 [submodule "extlib/Box2D"]
 	path = extlib/Box2D
 	url = https://github.com/erincatto/Box2D.git
+[submodule "extlib/ECS"]
+	path = extlib/ECS
+	url = git@github.com:F4r3n/ECS.git

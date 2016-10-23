@@ -38,5 +38,11 @@ cmake -D BUILD_SHARED_LIBS:BOOL=true .. && make
 cd ../../Box2D/Box2D/Build
 cmake .. -DCMAKE_CXX_FLAGS="-std=c++11" -DBOX2D_BUILD_SHARED=ON -DBOX2D_BUILD_EXAMPLES=OFF
 sudo make install
+cd ../../../ECS/
+echo $PWD
+mkdir build
+cd build
+cmake ..
+make
 cd ../../../../ 
 
