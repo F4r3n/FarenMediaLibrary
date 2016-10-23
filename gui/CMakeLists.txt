@@ -1,6 +1,7 @@
 file(GLOB SOURCES "src/*.cpp")
 
 FIND_PACKAGE( PkgConfig REQUIRED )
+find_package(glfw3 REQUIRED)
 set(${PROJECT_NAME} FarenEngine)
 
 set(FML_DIR "../")
@@ -21,11 +22,11 @@ include_directories("include")
 include_directories("/usr/local/include")
 link_directories(${FML_LIB})
 link_directories(../../../ecs/bin/lib)
-
+link_directories(${GLFW3_LIBRARIES})
 
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 
-target_link_libraries(${PROJECT_NAME} ECS Box2D FarenMediaLibrary )
+target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} ECS Box2D FarenMediaLibrary )
 

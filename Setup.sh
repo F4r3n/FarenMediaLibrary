@@ -29,7 +29,7 @@ cd ../
 echo $PWD
 git submodule init && git submodule update
 cd extlib/glfw
-cmake .
+cmake . -DBUILD_SHARED_LIBS=ON
 sudo make install
 cd ../freetype2
 mkdir build

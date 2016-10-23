@@ -12,9 +12,9 @@ include_directories(include)
 
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-
 FIND_PACKAGE( PkgConfig REQUIRED )
 pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
+
 
 
 set( SOL_INCLUDE_DIR "../extlib/sol2")
