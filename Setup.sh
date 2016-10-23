@@ -1,6 +1,7 @@
 sudo rm -rf temp_build
 mkdir temp_build
 cd temp_build
+sudo apt-get update -qq
 sudo apt-get install -qq libglew-dev libopenal-dev
 
 if [ -a "/usr/local/lib/libsndfile.so" ]
