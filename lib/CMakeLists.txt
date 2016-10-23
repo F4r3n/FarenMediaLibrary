@@ -15,7 +15,7 @@ find_package(OpenGL REQUIRED)
 
 FIND_PACKAGE( PkgConfig REQUIRED )
 pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
-pkg_search_module( BOX2D REQUIRED box2d)
+
 
 set( SOL_INCLUDE_DIR "../extlib/sol2")
 set( STB_INCLUDE_DIR "../extlib/stb")
@@ -48,7 +48,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 target_link_libraries(${PROJECT_NAME} gcc gcc_s )
 endif()
 target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY} lua)
-target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} Box2D)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
 target_link_libraries(${PROJECT_NAME} ECS freetype openal sndfile)

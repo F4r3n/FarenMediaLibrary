@@ -18,14 +18,14 @@ include_directories(${FML_INCLUDE_SOL})
 include_directories(${FML_INCLUDE_FREETYPE})
 link_directories(${ENTITY_INCLUDE_DIR}/bin/lib)
 include_directories("include")
-
+include_directories("/usr/local/include")
 link_directories(${FML_LIB})
 link_directories(../../../ecs/bin/lib)
 
 
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-message(${BOX2D_LIBRARIES})
+
 
 target_link_libraries(${PROJECT_NAME} ECS Box2D FarenMediaLibrary )
 
