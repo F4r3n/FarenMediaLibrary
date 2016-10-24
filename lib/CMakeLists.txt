@@ -28,7 +28,7 @@ set( LUA_LIBRARY_DIR "/usr/local/lib")
 
 set(FREETYPE_INCLUDE_DIR "../extlib/freetype2/include")
 set(FREETYPE_LIBRARY_DIR "../extlib/freetype2/build")
-
+set(IMGUI_INCLUDE_DIR "../extlib/imgui")
 
 include_directories(${GLFW3_INCLUDE_DIR} )
 include_directories(${ENTITY_INCLUDE_DIR}/lib/include )
@@ -43,6 +43,8 @@ include_directories(${IMGUI_INCLUDE_DIR})
 link_directories(${FREETYPE_LIBRARY_DIR} freetype)
 link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
 
+
+
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 if(CMAKE_COMPILER_IS_GNUCXX)
 target_link_libraries(${PROJECT_NAME} gcc gcc_s )
@@ -52,6 +54,8 @@ target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} Box2D)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
 target_link_libraries(${PROJECT_NAME} ECS freetype openal sndfile)
+
+
 
 
 

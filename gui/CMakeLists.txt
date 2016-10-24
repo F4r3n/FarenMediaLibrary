@@ -33,7 +33,7 @@ include_directories(${BOX2D_INCLUDE_DIR})
 include_directories(${IMGUI_INCLUDE_DIR})
 
 include_directories(${FML_PATH}/lib/include)
-
+include_directories(include)
 link_directories(${FREETYPE_LIBRARY_DIR} freetype)
 link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
 link_directories(${FML_PATH}/build/lib)

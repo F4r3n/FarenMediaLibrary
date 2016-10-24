@@ -8,6 +8,7 @@ using namespace fms;
 #include "CMaterial.h"
 #include "CPointLight.h"
 #include "CText.h"
+#include "CMesh.h"
 #include <chrono>
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)

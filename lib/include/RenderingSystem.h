@@ -2,14 +2,16 @@
 #include <System.h>
 #include <Entity.h>
 #include "CCamera.h"
-#include "CMesh.h"
-#include "CTransform.h"
+
+
 #include <chrono>
 #include "Shader.h"
 #include "RFont.h"
 
 namespace fmc {
     class CText;
+    class CTransform;
+    class CMesh;
 }
 namespace fms
 {
