@@ -38,8 +38,8 @@ public:
     T norme() {
         return sqrt(x * x + y * y);
     }
-    template <typename U>
-    friend std::ostream& operator<<(std::ostream &stream, const Vector2<U> vector) {
+   
+    friend std::ostream& operator<<(std::ostream &stream, const Vector2<T> vector) {
         stream << vector.x << " " << vector.y;
         return stream;
     }

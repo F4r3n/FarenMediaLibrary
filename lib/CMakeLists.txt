@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 set(PROJECT_NAME "FarenMediaLibrary")
-project(${PROJECT_NAME})
+project(${PROJECT_NAME} CXX)
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 
