@@ -12,7 +12,6 @@
 namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE, LAST_SHAPE };
 static const char* ShapeNames[] = { "Rectangle", "Circle" };
-
 struct Vertex {
     fm::Vector2f position;
     fm::Vector2f uv;
@@ -39,15 +38,19 @@ std::string names = "\0";
 
     int previous = 0;
     int current = 0;
+   
+
     void display() {
         if(ImGui::CollapsingHeader("Mesh")) {
             
             ImGui::PushItemWidth(120);
             ImGui::Combo("##Shape", &current, ShapeNames, SHAPE::LAST_SHAPE);
             ImGui::PopItemWidth();
-            if(previous != current && current != -1) {
+            
+            if(previous != current && current < LAST_SHAPE) {
                
                 setShape(current);
+                previous = current;
             }
         }
         // if(previous_item != listbox_item_current) {

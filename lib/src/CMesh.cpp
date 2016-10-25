@@ -5,49 +5,44 @@
 using namespace fmc;
 
 CMesh::CMesh(SHAPE shape) {
-    #ifdef GUI
-    names = "";
-    for(int i = 0; i < SHAPE::LAST_SHAPE; ++i) {
-        names += ShapeNames[i] + "\0";
-    }
-    #endif
+   
     if(init(shape))
         create();
 }
 
 bool CMesh::init(SHAPE shape) {
-#ifdef GUI
-    previous = (int)shape;
-#endif
-    fm::MeshData* m = fm::ResourcesManager::get().getMeshData((int)shape);
+    std::cout << "Init" << std::endl;
+
+    fm::MeshData* m = fm::ResourcesManager::get().getMeshData((size_t)shape);
+    
     if(m) {
         VAO = m->VAO;
         VBO = m->VBO;
         EBO = m->EBO;
         size = m->size;
         return false;
-    }
+    } 
     if(shape == RECTANGLE) {
 
-        addVertex({ 0.0, 1.0 }, { 0.0, 1.0 });
-        addVertex({ 0.0, 0.0 }, { 1.0, 0.0 });
-        addVertex({ 1.0, 0.0 }, { 0.0, 0.0 });
-        addVertex({ 1.0, 1.0 }, { 1.0, 1.0 });
+        addVertex({ 0, 1 }, { 0.0, 1.0 });
+        addVertex({ 0, 0 }, { 1.0, 0.0 });
+        addVertex({ 1, 0 }, { 0.0, 0.0 });
+        addVertex({ 1, 1 }, { 1.0, 1.0 });
         listIndices = { 0, 1, 2, 0, 2, 3 };
 
     } else if(shape == CIRCLE) {
         unsigned int numberVertices = 100;
         float intervall = 2 * glm::pi<float>() / numberVertices;
 
-        addVertex({ 0, 0 }, { 0.5, 0.5 });
+        addVertex({ 0.5, 0.5 }, { 0.5, 0.5 });
 
         for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
             fm::Vector2f uv(0.5 + glm::cos(teta) / 2, 0.5 + glm::sin(teta) / 2);
-            addVertex({ glm::cos(teta) / 2, glm::sin(teta) / 2 }, uv);
+            addVertex(uv, uv);
         }
 
         int j = 0;
-        for(int i = 1; i < numberVertices; ++i) {
+        for(unsigned int i = 1; i < numberVertices; ++i) {
             j = i;
             listIndices.push_back(j++);
             listIndices.push_back(j);
@@ -71,12 +66,7 @@ void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
 }
 
 CMesh::CMesh() {
-  #ifdef GUI
-  names ="";
-    for(int i = 0; i < SHAPE::LAST_SHAPE; ++i) {
-        names += ShapeNames[i] + "\0";
-    }
-    #endif
+  
 }
 
 void CMesh::create() {

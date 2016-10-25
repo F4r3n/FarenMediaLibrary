@@ -7,16 +7,14 @@
 #include <iostream>
 #include "NonCopyable.h"
 
-namespace fm
-{
-class Window : public fm_system::NonCopyable
-{
+namespace fm {
+class Window : public fm_system::NonCopyable {
     friend class InputManager;
 
 public:
     Window(int width, int height, const std::string& name);
     ~Window();
-    
+
     void swapBuffers();
     void clear();
     bool isClosed();
@@ -27,6 +25,7 @@ public:
     GLFWwindow* getWindow() {
         return window;
     }
+
 private:
     void initFrameBuffer();
     void events();
@@ -36,8 +35,7 @@ private:
     void postProcess(bool horizontal);
     void errorDisplay();
     void blur();
-    
-    
+
     GLFWwindow* window;
     int width;
     int height;
@@ -46,7 +44,5 @@ private:
     double curr_frame_time = 0;
     double dur = 0;
     double frame_start = 0;
-
-    
 };
 }

@@ -52,7 +52,7 @@ link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 if(CMAKE_COMPILER_IS_GNUCXX)
-	target_link_libraries(${PROJECT_NAME} gcc gcc_s )
+	target_link_libraries(${PROJECT_NAME} gcc gcc_s stdc++)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} ${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ECS freetype openal sndfile)

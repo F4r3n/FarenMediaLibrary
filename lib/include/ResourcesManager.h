@@ -48,7 +48,7 @@ public:
         return meshes.size() - 1;
     }
     
-    MeshData* getMeshData(int id) {
+    MeshData* getMeshData(size_t id) {
         if(meshes.size() <= id ) return nullptr;
         return meshes[id].get();
     }
