@@ -20,7 +20,7 @@ void Engine::run(Window& window) {
        
 
         window.update(60);
-        std::cout << 1 / fm::Time::dt << std::endl;
+        //std::cout << 1 / fm::Time::dt << std::endl;
         // auto start = std::chrono::system_clock::now();
         update(fm::Time::dt);
 

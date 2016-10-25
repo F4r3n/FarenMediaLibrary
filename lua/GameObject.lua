@@ -1,11 +1,13 @@
 local GameObject  = {
-    gameObject = nil
+    gameObject = nil,
+    Input = nil
 }
 
 GameObject.__index = GameObject
 
 function GameObject.new() 
     local self = setmetatable({}, GameObject)
+    self.Input = Input.new()
     return self
 end
 

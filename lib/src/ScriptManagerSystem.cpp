@@ -35,6 +35,7 @@ ScriptManagerSystem::ScriptManagerSystem() {
     lua.open_libraries();
 
     registerComponent<Vector2f>("Vector2f", "x", &Vector2f::x, "y", &Vector2f::y);
+    registerComponent<Vector2d>("Vector2d", "x", &Vector2d::x, "y", &Vector2d::y);
     registerComponent<Vertex>("Vertex", "position", &Vertex::position, "uv", &Vertex::uv);
 
     registerComponent<Color>("Color", "r", &Color::r, "g", &Color::g, "b", &Color::b, "a", &Color::a);
@@ -44,9 +45,11 @@ ScriptManagerSystem::ScriptManagerSystem() {
                                   "scale",
                                   &CTransform::scale,
                                   "rotation",
-                                  &CTransform::rotation, "layer", &CTransform::layer);
+                                  &CTransform::rotation,
+                                  "layer",
+                                  &CTransform::layer);
     registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
-    registerComponent<CSource>("CSource", "play", &CSource::play);
+    registerComponent<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
     registerComponent<CMesh>("CMesh", "setShape", &CMesh::setShape, "create", &CMesh::create);
 
     registerComponent<Entity>("Entity",
@@ -55,36 +58,42 @@ ScriptManagerSystem::ScriptManagerSystem() {
                               "getTransform",
                               &Entity::get<CTransform>,
                               "getMaterial",
-                              &Entity::get<CMaterial>
-
-                              );
+                              &Entity::get<CMaterial>,
+                              "getSource",
+                              &Entity::get<CSource>);
     registerComponent<Collision>("Collision", "ID", sol::readonly(&Collision::id));
 
-    lua.set_function("keyIsPressed", &Input::keyIsPressed);
-    lua.set_function("getMousePositionX", &Input::getMousePositionX);
-    lua.set_function("getMousePositionY", &Input::getMousePositionY);
+    registerComponent<Input>("Input",
+                             "getMouseButton",
+                             &Input::getMouseButton,
+                             "keyIsPressed",
+                             &Input::keyIsPressed,
+                             "getMousePosition",
+                             &Input::getMousePositionVector,
+                             "getMouseButton", &Input::getMouseButton
+                             );
+
+ 
     lua.set_function("add_Transform", &add<CTransform>);
     lua.set_function("add_Mesh", &add<CMesh>);
     lua.set_function("add_Material", &add<CMaterial>);
 
     lua.set_function("createEntity", &createEntity);
-    
-    
 }
 
- void ScriptManagerSystem::receive(const Collision &collision) {
-     Entity *e = EntityManager::get().getEntity(e->ID);
-     
-     if( e && e->has<fmc::CScriptManager>() && e->ID == collision.owner) {
-         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
-         scriptManager->event("CollisionEvent", lua, collision);
-     }
- }
+void ScriptManagerSystem::receive(const Collision& collision) {
+    Entity* e = EntityManager::get().getEntity(e->ID);
+
+    if(e && e->has<fmc::CScriptManager>() && e->ID == collision.owner) {
+        fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
+        scriptManager->event("CollisionEvent", lua, collision);
+    }
+}
 
 ScriptManagerSystem::~ScriptManagerSystem() {
 }
 
-void ScriptManagerSystem::init(EntityManager& em, EventManager &event) {
+void ScriptManagerSystem::init(EntityManager& em, EventManager& event) {
     event.subscribe<Collision>(*this);
     for(auto e : em.iterate<CScriptManager>()) {
         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
@@ -92,7 +101,7 @@ void ScriptManagerSystem::init(EntityManager& em, EventManager &event) {
     }
 }
 
-void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager &event) {
+void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager& event) {
     for(auto e : em.iterate<CScriptManager>()) {
         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
         scriptManager->update(dt, lua);

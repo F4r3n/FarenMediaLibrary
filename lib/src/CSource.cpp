@@ -4,10 +4,11 @@
 using namespace fmc;
 
 CSource::CSource() {
-    
+     alGenSources((ALuint)1, &source);
 }
 
 CSource::CSource(const std::string& path) {
+     alGenSources((ALuint)1, &source);
     loadAudio(path);
 }
 
@@ -17,7 +18,6 @@ CSource::~CSource() {
 }
 
 void CSource::loadAudio(const std::string& path) {
-    std::cout << "LoadAudio " << path << std::endl;
     SF_INFO info;
     SNDFILE* file = sf_open(path.c_str(), SFM_READ, &info);
 
@@ -26,13 +26,16 @@ void CSource::loadAudio(const std::string& path) {
         data.insert(data.end(), read_buf.begin(), read_buf.begin() + read_size);
     }
     alGenBuffers(1, &buf);
+
     alBufferData(buf,
                  info.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
                  &data.front(),
                  data.size() * sizeof(uint16_t),
                  info.samplerate);
+    
     alSourcei(source, AL_BUFFER, buf);
     sf_close(file);
+    
 }
 
 void CSource::setLoop(bool value) {
@@ -57,7 +60,6 @@ AUDIO_STATUS CSource::getStatus() {
 }
 
 void CSource::play() {
-    alGetError();
     alSourcePlay(source);
     ALenum error;
     if((error = alGetError()) != AL_NO_ERROR) {
