@@ -37,9 +37,9 @@ public:
 #ifdef GUI
     void display() {
         if(ImGui::CollapsingHeader("Transform")) {
-            ImGui::PushItemWidth(50);
-            ImGui::DragFloat("X", &position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
-            ImGui::DragFloat("Y", &position.y, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
+            ImGui::PushItemWidth(100);
+            ImGui::DragFloat2("Position", &position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
+            ImGui::DragFloat2("Size", &scale.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
 
             ImGui::PopItemWidth();
         }

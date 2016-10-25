@@ -30,7 +30,11 @@ class CCamera : public Component<CCamera>
     {
     }
     
-    
+    #ifdef GUI
+    void display() {
+        
+    }
+    #endif
   
     ViewPortCamera viewPort;
     glm::mat4 projection;

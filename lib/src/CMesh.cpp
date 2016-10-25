@@ -5,11 +5,20 @@
 using namespace fmc;
 
 CMesh::CMesh(SHAPE shape) {
+    #ifdef GUI
+    names = "";
+    for(int i = 0; i < SHAPE::LAST_SHAPE; ++i) {
+        names += ShapeNames[i] + "\0";
+    }
+    #endif
     if(init(shape))
         create();
 }
 
 bool CMesh::init(SHAPE shape) {
+#ifdef GUI
+    previous = (int)shape;
+#endif
     fm::MeshData* m = fm::ResourcesManager::get().getMeshData((int)shape);
     if(m) {
         VAO = m->VAO;
@@ -62,14 +71,12 @@ void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
 }
 
 CMesh::CMesh() {
-
-    /*addVertex({ -1.0, 1.0 }, { 0.0, 1.0 });
-    addVertex({ -1.0, -1.0 }, { 1.0, 0.0 });
-    addVertex({ 1.0, -1.0 }, { 0.0, 0.0 });
-    addVertex({ 1.0, 1.0 }, { 1.0, 1.0 });
-    // std::vector<unsigned int> v = { 0, 1, 2, 0, 2, 3 };
-    listIndices = { 0, 1, 2, 0, 2, 3 };
-    create();*/
+  #ifdef GUI
+  names ="";
+    for(int i = 0; i < SHAPE::LAST_SHAPE; ++i) {
+        names += ShapeNames[i] + "\0";
+    }
+    #endif
 }
 
 void CMesh::create() {
@@ -98,7 +105,6 @@ void CMesh::create() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
-    fm::ResourcesManager::get().registerMesh(
-    new fm::MeshData(VAO, VBO, EBO, listIndices.size()));
+    fm::ResourcesManager::get().registerMesh(new fm::MeshData(VAO, VBO, EBO, listIndices.size()));
     glBindVertexArray(0); // Unbind VAO
 }

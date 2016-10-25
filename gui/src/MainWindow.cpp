@@ -1,11 +1,13 @@
 #include "MainWindow.h"
-
+#include "CCamera.h"
 MainWindow::MainWindow() {
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
 
     displayComponent<fmc::CTransform>(currentEntity);
+    displayComponent<fmc::CCamera>(currentEntity);
+    displayComponent<fmc::CMesh>(currentEntity);
 }
 
 void MainWindow::menu() {
@@ -59,6 +61,9 @@ void MainWindow::menuEntity() {
 }
 
 void MainWindow::draw() {
+    bool show_test_window = true;
     menu();
     menuEntity();
+    ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+            ImGui::ShowTestWindow(&show_test_window);
 }
