@@ -6,7 +6,7 @@
 #include "RenderingSystem.h"
 #include "ScriptManagerSystem.h"
 #include "CTransform.h"
-
+#include "SoundSystem.h"
 using namespace fm;
 Engine::Engine() {
     // systems.addSystem();
@@ -36,7 +36,7 @@ void Engine::run(Window& window) {
 void Engine::init() {
 
     addSystem(std::make_shared<fms::PhysicSystem>());
-
+    addSystem(std::make_shared<fms::SoundSystem>());
     Entity* cam = fm::Engine::createEntity();
     cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
     cam->addComponent<fmc::CTransform>();

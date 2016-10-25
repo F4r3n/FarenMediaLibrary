@@ -9,6 +9,7 @@
 #include "EntityManager.h"
 #include <cassert>
 #include "CMesh.h"
+#include "CSource.h"
 using namespace fms;
 using namespace fmc;
 using namespace fm;
@@ -45,6 +46,7 @@ ScriptManagerSystem::ScriptManagerSystem() {
                                   "rotation",
                                   &CTransform::rotation, "layer", &CTransform::layer);
     registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
+    registerComponent<CSource>("CSource", "play", &CSource::play);
     registerComponent<CMesh>("CMesh", "setShape", &CMesh::setShape, "create", &CMesh::create);
 
     registerComponent<Entity>("Entity",
