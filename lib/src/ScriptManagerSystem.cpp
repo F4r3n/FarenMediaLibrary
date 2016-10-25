@@ -82,9 +82,9 @@ ScriptManagerSystem::ScriptManagerSystem() {
 }
 
 void ScriptManagerSystem::receive(const Collision& collision) {
-    Entity* e = EntityManager::get().getEntity(e->ID);
+    Entity* e = EntityManager::get().getEntity(collision.owner);
 
-    if(e && e->has<fmc::CScriptManager>() && e->ID == collision.owner) {
+    if(e && e->has<fmc::CScriptManager>() && e->ID != collision.owner) {
         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
         scriptManager->event("CollisionEvent", lua, collision);
     }

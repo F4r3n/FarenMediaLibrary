@@ -20,14 +20,16 @@ For the moment, the FarenEngine can :
 
 ### Installation
 
-#### Linux system
 
-To install the project under linux just go in the main directory and execute the `Setup.sh` which will install all the dependencies.
+
+##### Ubuntu System
+To install the project under Ubuntu just go in the main directory and execute the `Setup.sh` which will install all the dependencies.
 Then go inside a `build` directory created and execute the cmake and makefile generated.
 
-#### Windows System
+#### Other systems
+The other systems should install the dependencies one by one. Most of the dependencies are in submodules.
 
-Under windows, no script have been made.
+
 
 ### List of dependencies
 
@@ -38,6 +40,7 @@ The engine needs different libraries to work
 + glew
 + openal
 + glfw
++ lua 5.1
 
 ### How to use it ?
 

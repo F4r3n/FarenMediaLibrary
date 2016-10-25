@@ -28,7 +28,7 @@ private:
     GLuint pingpongColorbuffers[2];
     
     GLuint lightShadowFBO;
-    GLuint lightShadowBuffer[2];
+   
     
 };
 }

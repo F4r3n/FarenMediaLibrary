@@ -12,9 +12,16 @@ include_directories(include)
 
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Lua 5.3 REQUIRED)
+find_package(Box2D REQUIRED)
+if(UNIX)
 FIND_PACKAGE( PkgConfig REQUIRED )
-pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
+pkg_search_module( GLFW3 3.3 REQUIRED glfw3 ) 
+endif(UNIX)
+if(WIN32)
 
+find_package(GLFW3 3.3 REQUIRED glfw3)
+endif(WIN32)
 
 
 set( SOL_INCLUDE_DIR "../extlib/sol2")
@@ -22,9 +29,6 @@ set( STB_INCLUDE_DIR "../extlib/stb")
 set( GLM_INCLUDE_DIR "../extlib/glm")
 
 set( ENTITY_INCLUDE_DIR "../extlib/ECS")
-
-set( LUA_INCLUDE_DIR "/usr/local/include")
-set( LUA_LIBRARY_DIR "/usr/local/lib")
 
 set(FREETYPE_INCLUDE_DIR "../extlib/freetype2/include")
 set(FREETYPE_LIBRARY_DIR "../extlib/freetype2/build")
@@ -40,6 +44,7 @@ include_directories(${GLM_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIR})
 include_directories(${BOX2D_INCLUDE_DIR})
 include_directories(${IMGUI_INCLUDE_DIR})
+
 link_directories(${FREETYPE_LIBRARY_DIR} freetype)
 link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
 
@@ -47,13 +52,11 @@ link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 if(CMAKE_COMPILER_IS_GNUCXX)
-target_link_libraries(${PROJECT_NAME} gcc gcc_s )
-endif()
-target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY} lua)
-target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} Box2D)
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
-target_link_libraries(${PROJECT_NAME} ECS freetype openal sndfile)
+	target_link_libraries(${PROJECT_NAME} gcc gcc_s )
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} ${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ECS freetype openal sndfile)
+
 
 
 

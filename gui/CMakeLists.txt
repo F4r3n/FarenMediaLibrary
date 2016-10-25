@@ -1,11 +1,20 @@
 file(GLOB SOURCES "src/*.cpp")
 
 
+include_directories(include)
+
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Lua 5.3 REQUIRED)
+find_package(Box2D REQUIRED)
+if(UNIX)
 FIND_PACKAGE( PkgConfig REQUIRED )
-pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
+pkg_search_module( GLFW3 3.3 REQUIRED glfw3 ) 
+endif(UNIX)
+if(WIN32)
 
+find_package(GLFW3 3.3 REQUIRED glfw3)
+endif(WIN32)
 
 set( FML_PATH "../")
 set( SOL_INCLUDE_DIR ${FML_PATH}extlib/sol2)
@@ -14,8 +23,6 @@ set( GLM_INCLUDE_DIR ${FML_PATH}extlib/glm)
 
 set( ENTITY_INCLUDE_DIR ${FML_PATH}extlib/ECS)
 
-set( LUA_INCLUDE_DIR "/usr/local/include")
-set( LUA_LIBRARY_DIR "/usr/local/lib")
 
 set(FREETYPE_INCLUDE_DIR ${FML_PATH}extlib/freetype2/include)
 set(FREETYPE_LIBRARY_DIR ${FML_PATH}extlib/freetype2/build)
@@ -44,9 +51,8 @@ include_directories(${FML_PATH}/extlib/imgui)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 
-target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY} lua)
-target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} Box2D)
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARY})
-target_link_libraries(${PROJECT_NAME} ECS freetype openal sndfile FarenMediaLibrary)
+target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} 
+	${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} 
+	${GLEW_LIBRARY} ECS freetype openal sndfile FarenMediaLibrary)
+
 
