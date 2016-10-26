@@ -40,7 +40,7 @@ The engine needs different libraries to work
 + glew
 + openal
 + glfw
-+ lua 5.1
++ lua 5.3
 
 ### How to use it ?
 

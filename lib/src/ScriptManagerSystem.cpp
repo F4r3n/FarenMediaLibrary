@@ -62,6 +62,7 @@ ScriptManagerSystem::ScriptManagerSystem() {
                               "getSource",
                               &Entity::get<CSource>);
     registerComponent<Collision>("Collision", "ID", sol::readonly(&Collision::id));
+    registerComponent<ColliderInfo>("ColliderInfo", "ID", sol::readonly(&ColliderInfo::idOther));
 
     registerComponent<Input>("Input",
                              "getMouseButton",
@@ -70,10 +71,9 @@ ScriptManagerSystem::ScriptManagerSystem() {
                              &Input::keyIsPressed,
                              "getMousePosition",
                              &Input::getMousePositionVector,
-                             "getMouseButton", &Input::getMouseButton
-                             );
+                             "getMouseButton",
+                             &Input::getMouseButton);
 
- 
     lua.set_function("add_Transform", &add<CTransform>);
     lua.set_function("add_Mesh", &add<CMesh>);
     lua.set_function("add_Material", &add<CMaterial>);
@@ -90,11 +90,28 @@ void ScriptManagerSystem::receive(const Collision& collision) {
     }
 }
 
+void ScriptManagerSystem::receive(const Collider& collider) {
+   processCollision(collider.idA, collider.idB);
+   processCollision(collider.idB, collider.idA);
+}
+
+void ScriptManagerSystem::processCollision(size_t idA, size_t idB) {
+     Entity* e = EntityManager::get().getEntity(idB);
+
+    if(e && e->has<fmc::CScriptManager>()) {
+        ColliderInfo info;
+        info.idOther = idA;
+        fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
+        scriptManager->event("CollisionEvent", lua, info);
+    }
+}
+
 ScriptManagerSystem::~ScriptManagerSystem() {
 }
 
 void ScriptManagerSystem::init(EntityManager& em, EventManager& event) {
     event.subscribe<Collision>(*this);
+    event.subscribe<Collider>(*this);
     for(auto e : em.iterate<CScriptManager>()) {
         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
         scriptManager->init(lua, e);

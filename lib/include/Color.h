@@ -22,7 +22,7 @@ public:
 private:
     template <typename T> T max(std::vector<T> vals) {
         T result = vals[0];
-        for(int i = 1; i < vals.size(); ++i) {
+        for(unsigned int i = 1; i < vals.size(); ++i) {
             if(vals[i] > result)
                 result = vals[i];
         }
@@ -31,7 +31,7 @@ private:
 
     template <typename T> T min(std::vector<T> vals) {
         T result = vals[0];
-        for(int i = 1; i < vals.size(); ++i) {
+        for(unsigned int i = 1; i < vals.size(); ++i) {
             if(vals[i] < result)
                 result = vals[i];
         }

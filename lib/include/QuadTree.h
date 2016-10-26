@@ -52,7 +52,7 @@ public:
        // std::cout << object.rect.x << " " << object.idObject << " " << level << std::endl;
         if(level == MAX_LEVELS)
             return false;
-        for(int i = 0; i < rects.size(); ++i) {
+        for(unsigned int i = 0; i < rects.size(); ++i) {
             if(rects[i].contains(object.rect)) {
                 if(level == 0) {
                     return nodes[i]->insert(object);
@@ -84,7 +84,7 @@ public:
     }
 
     const std::vector<Object>* getData(Recti rect) {
-        for(int i = 0; i < rects.size(); ++i) {
+        for(unsigned int i = 0; i < rects.size(); ++i) {
 
             if(rects[i].contains(rect)) {
                 if(level == 0) {

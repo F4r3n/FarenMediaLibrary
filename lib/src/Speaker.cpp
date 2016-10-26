@@ -11,7 +11,7 @@ Speaker::Speaker() {
     if(!alcMakeContextCurrent(context)) {
         std::cerr << "Error init context" << std::endl;
     }
-    std::cout << "Error openal"<< alGetError() << std::endl;
+    
 }
 
 Speaker::~Speaker() {
