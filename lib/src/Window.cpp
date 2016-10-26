@@ -349,7 +349,7 @@ void Window::createShaders() {
 
 #ifdef __linux__
     ResourcesManager::get().load("dejavu",
-                                 std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
+                                 std::make_unique<RFont>("fonts/dejavu/DejaVuSansMono.ttf"));
 #endif
 }
 
