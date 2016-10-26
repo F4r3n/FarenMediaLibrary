@@ -24,7 +24,7 @@ private:
     template <typename T, typename... Args> void registerComponent(const std::string& name, Args&&... args) {
         lua.new_usertype<T>(name, args...);
     }
-    void processCollision(size_t idA, size_t idB);
+    void processCollision(size_t idA, size_t idB, EVENT_COLLISION event);
     sol::state lua;
 };
 }

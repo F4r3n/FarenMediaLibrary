@@ -57,7 +57,7 @@ void Window::createShaders() {
         "uniform vec2 outline_min;\n"
         "uniform vec2 outline_max;\n"
         "uniform vec3 outline_color;\n"
-        
+
         "uniform bool soft_edges;\n"
         "uniform vec2 soft_edge_values;\n"
 
@@ -336,11 +336,11 @@ void Window::createShaders() {
     std::shared_ptr<Shader> light = ResourcesManager::get().getShader("light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
 
-    fmc::CMesh rect;
-    rect.setShape(0);
-
-    fmc::CMesh circle;
-    circle.setShape(1);
+    // Initialize all the shapes
+    for(int i = 0; i < fmc::SHAPE::LAST_SHAPE; ++i) {
+        fmc::CMesh rect;
+        rect.setShape(i);
+    }
 
 #ifdef __linux__
     ResourcesManager::get().load("dejavu",

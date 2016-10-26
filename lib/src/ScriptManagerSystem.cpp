@@ -10,6 +10,8 @@
 #include <cassert>
 #include "CMesh.h"
 #include "CSource.h"
+#include "Body2D.h"
+
 using namespace fms;
 using namespace fmc;
 using namespace fm;
@@ -34,7 +36,8 @@ ScriptManagerSystem::ScriptManagerSystem() {
     addComponent<CScriptManager>();
     lua.open_libraries();
 
-    registerComponent<Vector2f>("Vector2f", "x", &Vector2f::x, "y", &Vector2f::y);
+    registerComponent<Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),
+ "x", &Vector2f::x, "y", &Vector2f::y);
     registerComponent<Vector2d>("Vector2d", "x", &Vector2d::x, "y", &Vector2d::y);
     registerComponent<Vertex>("Vertex", "position", &Vertex::position, "uv", &Vertex::uv);
 
@@ -51,6 +54,9 @@ ScriptManagerSystem::ScriptManagerSystem() {
     registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
     registerComponent<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
     registerComponent<CMesh>("CMesh", "setShape", &CMesh::setShape, "create", &CMesh::create);
+    registerComponent<Body2D>("Body2D", 
+    "applyForceCenter", &Body2D::applyForceCenter2, 
+    "friction", &Body2D::friction);
 
     registerComponent<Entity>("Entity",
                               "ID",
@@ -60,7 +66,10 @@ ScriptManagerSystem::ScriptManagerSystem() {
                               "getMaterial",
                               &Entity::get<CMaterial>,
                               "getSource",
-                              &Entity::get<CSource>);
+                              &Entity::get<CSource>,
+                              "getBody",
+                              &Entity::get<Body2D>
+                              );
     registerComponent<Collision>("Collision", "ID", sol::readonly(&Collision::id));
     registerComponent<ColliderInfo>("ColliderInfo", "ID", sol::readonly(&ColliderInfo::idOther));
 
@@ -91,18 +100,24 @@ void ScriptManagerSystem::receive(const Collision& collision) {
 }
 
 void ScriptManagerSystem::receive(const Collider& collider) {
-   processCollision(collider.idA, collider.idB);
-   processCollision(collider.idB, collider.idA);
+
+    processCollision(collider.idA, collider.idB, collider.event);
+    processCollision(collider.idB, collider.idA, collider.event);
 }
 
-void ScriptManagerSystem::processCollision(size_t idA, size_t idB) {
-     Entity* e = EntityManager::get().getEntity(idB);
+void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISION event) {
+    Entity* e = EntityManager::get().getEntity(idB);
 
     if(e && e->has<fmc::CScriptManager>()) {
         ColliderInfo info;
         info.idOther = idA;
         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
-        scriptManager->event("CollisionEvent", lua, info);
+        if(event == EVENT_COLLISION::BEGIN) {
+            scriptManager->event("CollisionEventEnter", lua, info);
+
+        } else if(event == EVENT_COLLISION::END) {
+            scriptManager->event("CollisionEventExit", lua, info);
+        }
     }
 }
 

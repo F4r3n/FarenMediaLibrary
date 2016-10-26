@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <ostream>
+#include <Box2D/Common/b2Math.h>
 namespace fm {
 template <class T> class Vector2 {
 public:
@@ -11,32 +12,42 @@ public:
         this->y = y;
     }
 
-    Vector2 operator+=(Vector2&& b) {
+    inline Vector2 operator+=(Vector2&& b){
         Vector2 a;
         a.x += b.x;
         a.y += b.y;
         return a;
     }
 
-    Vector2 operator=(const Vector2& b) {
+    inline Vector2 operator=(const Vector2& b) {
         x = b.x;
         y = b.y;
         return *this;
     }
+    
+    inline Vector2 operator*(float value) {
+        x *= value;
+        y *= value;
+        return *this;
+    }
 
-    Vector2 operator+(const Vector2& b) {
+    inline Vector2 operator+(const Vector2& b) {
         Vector2 v;
         v.x = x + b.x;
         v.y = y + b.y;
         return v;
     }
-    void reset() {
+    inline void reset() {
         x = 0;
         y = 0;
     }
 
-    T norme() {
+    inline T norme(){
         return sqrt(x * x + y * y);
+    }
+    
+    inline operator b2Vec2() {
+        return b2Vec2(x, y);
     }
    
     friend std::ostream& operator<<(std::ostream &stream, const Vector2<T> vector) {

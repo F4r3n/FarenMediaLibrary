@@ -17,14 +17,12 @@ public:
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
     ~PhysicSystem();
-    
+
     static void beginEvent(size_t idA, size_t idB) {
-        std::cout << idA << " " << idB << std::endl;
         EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::BEGIN);
     }
-    
+
     static void endEvent(size_t idA, size_t idB) {
-        std::cout << idA << " " << idB << std::endl;
         EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::END);
     }
     class ContactListener : public b2ContactListener {
@@ -42,7 +40,7 @@ public:
             // check if fixture B was a ball
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
-                  fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
                 b->startContact();
                 idB = *b->identity;
             }
@@ -55,7 +53,7 @@ public:
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
             size_t idA = -1, idB = -1;
             if(bodyUserData) {
-                  fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
                 b->endContact();
                 idA = *b->identity;
             }
@@ -63,7 +61,7 @@ public:
             // check if fixture B was a ball
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
-                   fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
                 b->endContact();
                 idB = *b->identity;
             }
@@ -76,6 +74,7 @@ private:
     std::unique_ptr<b2World> world;
     ContactListener contactListener;
     
-    static std::queue<Collider> collisions;
+    const float M2P = 60.0f;
+    const float P2M = 1/M2P;
 };
 }
