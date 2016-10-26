@@ -41,11 +41,11 @@ public:
     float friction = 0.0f;
     int number_contact = 0;
     size_t *identity = nullptr;
-    
+    float width;
+    float height;
 private:
     bool isDynamic = false;
-    unsigned int width;
-    unsigned int height;
+    
 };
 
 

@@ -10,6 +10,7 @@ using namespace fms;
 #include "CText.h"
 #include "CMesh.h"
 #include <chrono>
+#include <CDirectionalLight.h>
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
     , height(height) {
@@ -96,17 +97,22 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 std::string ln = "light[" + std::to_string(lightNumber) + "]";
 
                 lightShader->Use()
-                    ->setVector3f(ln + ".position",
-                                  glm::vec3(worldPos.x, worldPos.y, transform->layer))
+                    ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
                     ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
                     ->setInt(ln + ".ready", 1);
                 lightNumber++;
+            }
+
+            if(e->has<fmc::CDirectionalLight>()) {
+
+                lightShader->Use()
+                ->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
             }
         }
     }
 
     fm::Renderer::getInstance().lightComputation();
-    
+
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
@@ -115,16 +121,16 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fm::Vector2f worldPos = transform->getWorldPos(em);
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
         shader->Use();
-        shader->setInt("outline", text->outline)->setVector2f("outline_min", text->outline_min)
-        ->setVector2f("outline_max", text->outline_max)
-        ->setVector3f("outline_color", glm::vec3(text->outline_color.r, text->outline_color.g, text->outline_color.b))
-        ->setMatrix("projection", text->projection)
-        ->setColor("textColor", material->color)
-        ->setInt("soft_edges", text->soft_edges)->setVector2f("soft_edge_values", text->soft_edge_values);
-        drawText(worldPos.x,
-                 worldPos.y,
-                 fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(),
-                 text);
+        shader->setInt("outline", text->outline)
+            ->setVector2f("outline_min", text->outline_min)
+            ->setVector2f("outline_max", text->outline_max)
+            ->setVector3f("outline_color",
+                          glm::vec3(text->outline_color.r, text->outline_color.g, text->outline_color.b))
+            ->setMatrix("projection", text->projection)
+            ->setColor("textColor", material->color)
+            ->setInt("soft_edges", text->soft_edges)
+            ->setVector2f("soft_edge_values", text->soft_edge_values);
+        drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
     }
 }
 
@@ -152,7 +158,7 @@ void RenderingSystem::over() {
     frame++;
 }
 
-void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f &worldPos) {
+void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f& worldPos) {
     model = glm::translate(model, glm::vec3(worldPos.x, worldPos.y, -transform->layer));
     model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -202,7 +208,7 @@ void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText
         x +=
             (ch.Advance >> 6) * ctext->scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th
                                               // pixels by 64 to get amount of pixels))
-        // std::cout << *c << std::endl;
+                                              // std::cout << *c << std::endl;
     }
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);

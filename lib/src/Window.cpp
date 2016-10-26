@@ -166,20 +166,25 @@ void Window::createShaders() {
 
                                  "uniform vec2 screenSize;\n"
                                  "uniform vec2 viewPos;\n"
+                                 
                                  "struct PointLight {\n"
                                  "vec3 position;\n"
                                  "vec4 color;\n"
                                  "int ready;\n"
                                  "float radius;\n};\n"
+                                 
+                                 "struct DirectionalLight {\n"
+                                 "vec4 color;\n};\n"
 
                                  "const int MAX_LIGHTS = 32;\n"
 
                                  "uniform PointLight light[MAX_LIGHTS];\n"
+                                 "uniform DirectionalLight dlight;\n"
                                  "void main(){\n"
 
                                  "vec4 hdrColor = texture(screenTexture, TexCoords);\n"
                                  "vec4 pos = texture(posTexture, TexCoords);\n"
-                                 "vec3 result = vec3(0);\n"
+                                 "vec3 result = dlight.color.rgb*hdrColor.rgb;\n"
                                  "for(int i = 0; i < MAX_LIGHTS; i++){\n"
                                  "vec3 dir = vec3(1);\n"
                                  "if(light[i].ready == 1) {\n"
@@ -194,7 +199,7 @@ void Window::createShaders() {
                                  "vec3 diffuse = diff * light[i].color.rgb;\n"
                                  "BrightColor = vec4(0,0,0,1);"
                                  "float distance    = length(light[i].position - pos.rgb);\n"
-                                 "float attenuation = 1.0f / (0.5 * distance + 0.0032 * (distance * distance));\n"
+                                 "float attenuation = 1.0f / (0.9 * distance + 0.0032 * (distance * distance));\n"
                                  "result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;}\n"
                                  "FragColor = vec4(result, 1);\n"
                                  "float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n"
@@ -344,7 +349,7 @@ void Window::createShaders() {
 
 #ifdef __linux__
     ResourcesManager::get().load("dejavu",
-                                 std::make_unique<RFont>("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"));
+                                 std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
 #endif
 }
 
