@@ -55,8 +55,6 @@ target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES}
 	${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} 
 	${GLEW_LIBRARY} ECS freetype openal sndfile FarenMediaLibrary)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)
 
 
