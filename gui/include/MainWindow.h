@@ -14,6 +14,12 @@
 
 
 class MainWindow {
+    
+    struct EntityDisplay {
+        std::string name;
+        size_t id;
+    };
+    
 public:
     MainWindow();
     template <typename T> void displayComponent(Entity* currentEntity) {
@@ -24,9 +30,14 @@ public:
     void displayComponents(Entity* currentEntity);
     void menu();
     void menuEntity();
+    void listEntity();
     void draw();
 
 private:
     Entity* currentEntity;
     bool windowCurrentEntity = false;
+    bool windowListEntity = false;
+    
+    int currentEntitySelected = 0;
+    int previousEntitySelected = 0;
 };

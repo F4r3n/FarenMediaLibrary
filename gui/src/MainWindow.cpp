@@ -39,6 +39,9 @@ void MainWindow::menu() {
                 currentEntity->addComponent<fmc::CMesh>(new fmc::CMesh(fmc::SHAPE::RECTANGLE));
                 currentEntity->addComponent<fmc::CMaterial>()->color = fm::Color(1, 0, 0, 1);
             }
+            if(ImGui::MenuItem("List entity")) {
+                windowListEntity = true;
+            }
 
             ImGui::EndMenu();
         }
@@ -60,10 +63,47 @@ void MainWindow::menuEntity() {
     }
 }
 
+void MainWindow::listEntity() {
+    if(windowListEntity) {
+        ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+        std::cout << "Inside " << std::endl;
+        ImGui::Begin("List entities", &windowListEntity);
+        std::vector<const char*> entitiesName;
+        std::vector<EntityDisplay> entityDisplay;
+        
+        
+        
+        std::string name = std::string("Entity");
+        for(auto e : EntityManager::get().iterate<fmc::CTransform>()) {
+            EntityDisplay ed;
+            ed.id = e->ID;
+            ed.name = name + std::to_string(e->ID);
+            entityDisplay.push_back(ed);
+            
+        }
+        
+        for(EntityDisplay &s : entityDisplay) {
+            entitiesName.push_back(s.name.c_str());
+        }
+        ImGui::ListBox("List entities", 
+        &previousEntitySelected, &entitiesName[0], (int)entitiesName.size(), -1);
+        if(currentEntitySelected != previousEntitySelected) {
+            currentEntitySelected = previousEntitySelected;
+            currentEntity = EntityManager::get().getEntity(entityDisplay[previousEntitySelected].id);
+            windowCurrentEntity = true;
+        }
+        
+        if(ImGui::Button("Add Entity")) {
+        }
+        ImGui::End();
+    }
+}
+
 void MainWindow::draw() {
     bool show_test_window = true;
     menu();
     menuEntity();
+    listEntity();
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
             ImGui::ShowTestWindow(&show_test_window);
 }

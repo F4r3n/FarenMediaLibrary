@@ -9,7 +9,7 @@
 #include "SoundSystem.h"
 using namespace fm;
 Engine::Engine() {
-    // systems.addSystem();
+    systems = SystemManager(SYSTEMS::LAST_SYSTEM);
 }
 
 Engine::~Engine() {
@@ -17,10 +17,9 @@ Engine::~Engine() {
 
 void Engine::run(Window& window) {
     while(!window.isClosed()) {
-       
 
         window.update(60);
-        //std::cout << 1 / fm::Time::dt << std::endl;
+        // std::cout << 1 / fm::Time::dt << std::endl;
         // auto start = std::chrono::system_clock::now();
         update(fm::Time::dt);
 
@@ -33,21 +32,31 @@ void Engine::run(Window& window) {
     }
 }
 
-void Engine::init() {
+void Engine::start() {
+    systems.addSystem((unsigned int)PHYSIC, 
+    std::make_shared<fms::PhysicSystem>());
+    systems.addSystem((unsigned int)SCRIPTER, 
+    std::make_shared<fms::ScriptManagerSystem>());
+    
+    systems.getSystem(PHYSIC)->init(EntityManager::get(), EventManager::get());
+    systems.getSystem(SCRIPTER)->init(EntityManager::get(), EventManager::get());
+}
 
-    addSystem(std::make_shared<fms::PhysicSystem>());
-    addSystem(std::make_shared<fms::SoundSystem>());
+void Engine::init() {
+    systems.addSystem(SOUND, std::make_shared<fms::SoundSystem>());
+
     Entity* cam = fm::Engine::createEntity();
     cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
     cam->addComponent<fmc::CTransform>();
-
-    std::shared_ptr<fms::RenderingSystem> rendering = std::make_shared<fms::RenderingSystem>(800, 600);
-    std::shared_ptr<fms::ScriptManagerSystem> scriptSystem = std::make_shared<fms::ScriptManagerSystem>();
-
-    rendering->addCamera(cam);
-    addSystem(scriptSystem);
-    addSystem(rendering);
+    std::shared_ptr<fms::RenderingSystem> renderer = std::make_shared<fms::RenderingSystem>(800,600);
+    renderer->addCamera(cam);
+    systems.addSystem((unsigned int)RENDERER, renderer);
+    
+    //dynamic_cast<fms::RenderingSystem*>(systems[RENDERER])->addCamera(cam);
     systems.init(EntityManager::get(), EventManager::get());
+    
+    //systems.getSystem(SOUND)->init(EntityManager::get(), EventManager::get());
+    //systems.getSystem(RENDERER)->init(EntityManager::get(), EventManager::get());
 }
 
 void Engine::update(float dt) {

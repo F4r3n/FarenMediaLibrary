@@ -135,7 +135,6 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 }
 
 void RenderingSystem::over() {
-
     // fm::Renderer::getInstance().blur();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
