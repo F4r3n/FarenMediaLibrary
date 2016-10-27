@@ -66,7 +66,8 @@ void CMesh::addVertex(const fm::Vector2f& position, const fm::Vector2f& uv) {
 }
 
 CMesh::CMesh() {
-  
+  if(init((SHAPE)0))
+        create();
 }
 
 void CMesh::create() {

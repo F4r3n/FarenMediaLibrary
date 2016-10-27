@@ -40,8 +40,8 @@ std::string names = "\0";
     int current = 0;
    
 
-    void display() {
-        if(ImGui::CollapsingHeader("Mesh")) {
+    void display(bool *value) {
+        if(ImGui::CollapsingHeader("Mesh", value)) {
             
             ImGui::PushItemWidth(120);
             ImGui::Combo("##Shape", &current, ShapeNames, SHAPE::LAST_SHAPE);

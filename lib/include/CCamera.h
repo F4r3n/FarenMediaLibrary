@@ -31,7 +31,7 @@ class CCamera : public Component<CCamera>
     }
     
     #ifdef GUI
-    void display() {
+    void display(bool *value) {
         
     }
     #endif

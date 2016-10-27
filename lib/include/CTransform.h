@@ -35,7 +35,7 @@ public:
     int layer = 1;
 
 #ifdef GUI
-    void display() {
+    void display(bool *value) {
         if(ImGui::CollapsingHeader("Transform")) {
             ImGui::PushItemWidth(100);
             ImGui::DragFloat2("Position", &position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
