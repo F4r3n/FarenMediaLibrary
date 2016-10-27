@@ -7,9 +7,7 @@ Renderer Renderer::_instance;
 Renderer::Renderer() {
 }
 
-Renderer& Renderer::getInstance() {
-    return _instance;
-}
+
 
 void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
 
@@ -22,19 +20,18 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
     }
 
-    //Position texture
+    // Position texture
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + 2, GL_TEXTURE_2D, textureColorbuffer[2], 0);
 
-    GLuint rboDepth;
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
@@ -45,9 +42,8 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    
-    //FBO to compute lights
+
+    // FBO to compute lights
     glGenFramebuffers(1, &lightShadowFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, lightShadowFBO);
     for(GLuint i = 0; i < 2; i++) {
@@ -69,14 +65,26 @@ void Renderer::initFrameBuffer(unsigned int width, unsigned int height) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "Framebuffer not complete!" << std::endl;
     }
-glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void Renderer::clearFBO() {
+
+    glDeleteTextures(3, textureColorbuffer);
+    glDeleteTextures(2, pingpongColorbuffers);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteRenderbuffers(1, &rboDepth);
+    glDeleteRenderbuffers(1, &framebuffer);
+    // Bind 0, which means render to back buffer, as a result, fb is unbound
+    glDeleteFramebuffers(2, pingpongFBO);
 }
 
 void Renderer::createQuadScreen() {

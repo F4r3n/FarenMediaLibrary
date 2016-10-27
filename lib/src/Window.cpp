@@ -9,16 +9,17 @@
 #include "CMesh.h"
 #include "RFont.h"
 using namespace fm;
+int Window::width;
+int Window::height;
+Window::Window(int width, int height, const std::string& name) {
 
-Window::Window(int width, int height, const std::string& name)
-    : width(width)
-    , height(height) {
+    Window::width = width;
+    Window::height = height;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
     // Create a GLFWwindow object that we can use for GLFW's functions
     window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     init(window);
@@ -28,7 +29,7 @@ Window::Window(int width, int height, const std::string& name)
     createQuadScreen();
     createShaders();
     // glEnable (GL_BLEND);
-
+    glfwSetWindowSizeCallback(window, window_size_callback);
     fm::InputManager::getInstance().init(this->window);
 }
 
@@ -166,13 +167,13 @@ void Window::createShaders() {
 
                                  "uniform vec2 screenSize;\n"
                                  "uniform vec2 viewPos;\n"
-                                 
+
                                  "struct PointLight {\n"
                                  "vec3 position;\n"
                                  "vec4 color;\n"
                                  "int ready;\n"
                                  "float radius;\n};\n"
-                                 
+
                                  "struct DirectionalLight {\n"
                                  "vec4 color;\n};\n"
 
@@ -348,8 +349,7 @@ void Window::createShaders() {
     }
 
 #ifdef __linux__
-    ResourcesManager::get().load("dejavu",
-                                 std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
+    ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
 #endif
 }
 

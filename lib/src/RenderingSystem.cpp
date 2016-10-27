@@ -11,6 +11,7 @@ using namespace fms;
 #include "CMesh.h"
 #include <chrono>
 #include <CDirectionalLight.h>
+#include "Window.h"
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
     , height(height) {
@@ -52,6 +53,11 @@ void RenderingSystem::pre_update(EntityManager& em) {
     start = std::chrono::system_clock::now();
     for(auto camera : cameras) {
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
+        if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
+            cam->setNewProjection(fm::Window::width, fm::Window::height);
+            fm::Renderer::getInstance().clearFBO();
+            fm::Renderer::getInstance().initFrameBuffer(fm::Window::width, fm::Window::height);
+        }
         fmc::CTransform* ct = camera->get<fmc::CTransform>();
         cam->viewMatrix = glm::mat4();
         view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
@@ -105,8 +111,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
             if(e->has<fmc::CDirectionalLight>()) {
 
-                lightShader->Use()
-                ->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
+                lightShader->Use()->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
             }
         }
     }

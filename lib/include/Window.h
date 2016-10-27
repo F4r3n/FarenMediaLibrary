@@ -25,6 +25,8 @@ public:
     GLFWwindow* getWindow() {
         return window;
     }
+    static int width;
+    static int height;
 
 private:
     void initFrameBuffer();
@@ -35,10 +37,13 @@ private:
     void postProcess(bool horizontal);
     void errorDisplay();
     void blur();
-
+    static void window_size_callback(GLFWwindow* window, int width, int height) {
+        glViewport(0, 0, width, height);
+        Window::width = width;
+        Window::height = height;
+    }
     GLFWwindow* window;
-    int width;
-    int height;
+
     int fpsMax = 60;
     double wait_time = 1.0f / (float)fpsMax;
     double curr_frame_time = 0;

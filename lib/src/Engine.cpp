@@ -48,7 +48,7 @@ void Engine::init() {
     Entity* cam = fm::Engine::createEntity();
     cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
     cam->addComponent<fmc::CTransform>();
-    std::shared_ptr<fms::RenderingSystem> renderer = std::make_shared<fms::RenderingSystem>(800,600);
+    std::shared_ptr<fms::RenderingSystem> renderer = std::make_shared<fms::RenderingSystem>(fm::Window::width,fm::Window::height);
     renderer->addCamera(cam);
     systems.addSystem((unsigned int)RENDERER, renderer);
     

@@ -8,7 +8,9 @@ class Renderer
 public:
     Renderer();
     ~Renderer();
-    static Renderer& getInstance();
+    static inline Renderer& getInstance() {
+        return _instance;
+    }
     void initFrameBuffer(unsigned int width, unsigned int height);
     void bindFrameBuffer();
     void createQuadScreen();
@@ -16,6 +18,7 @@ public:
     void lightComputation();
     void postProcess(bool horizontal);
     void clear();
+    void clearFBO();
 private:
     static Renderer _instance;
     
@@ -29,6 +32,6 @@ private:
     
     GLuint lightShadowFBO;
    
-    
+    GLuint rboDepth;
 };
 }
