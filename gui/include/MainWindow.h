@@ -56,4 +56,8 @@ private:
     bool choiceComponent = false;
     std::array<std::string, COMPONENTS_GUI::LAST_COMPONENT> components;
     
+    ImVec2 FirstPosMouseRightClick;
+    float coeffMouseSpeed = 0.8f;
+    bool firstRightClick = false;
+    fmc::CTransform* mainCameraPosition;
 };

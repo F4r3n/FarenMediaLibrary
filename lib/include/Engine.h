@@ -19,9 +19,15 @@ public:
     void init();
     void start();
     void run(Window &window);
+    
+    void stop();
+    void resume();
+    void reset();
 private:
     SystemManager systems;
     Speaker speaker;
     Listener listener;
+    
+    bool hasStopped = false;
 };
 }

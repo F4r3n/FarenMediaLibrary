@@ -33,11 +33,9 @@ void Engine::run(Window& window) {
 }
 
 void Engine::start() {
-    systems.addSystem((unsigned int)PHYSIC, 
-    std::make_shared<fms::PhysicSystem>());
-    systems.addSystem((unsigned int)SCRIPTER, 
-    std::make_shared<fms::ScriptManagerSystem>());
-    
+    systems.addSystem((unsigned int)PHYSIC, std::make_shared<fms::PhysicSystem>());
+    systems.addSystem((unsigned int)SCRIPTER, std::make_shared<fms::ScriptManagerSystem>());
+
     systems.getSystem(PHYSIC)->init(EntityManager::get(), EventManager::get());
     systems.getSystem(SCRIPTER)->init(EntityManager::get(), EventManager::get());
 }
@@ -48,19 +46,30 @@ void Engine::init() {
     Entity* cam = fm::Engine::createEntity();
     cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
     cam->addComponent<fmc::CTransform>();
-    std::shared_ptr<fms::RenderingSystem> renderer = std::make_shared<fms::RenderingSystem>(fm::Window::width,fm::Window::height);
+    std::shared_ptr<fms::RenderingSystem> renderer =
+        std::make_shared<fms::RenderingSystem>(fm::Window::width, fm::Window::height);
     renderer->addCamera(cam);
     systems.addSystem((unsigned int)RENDERER, renderer);
-    
-    //dynamic_cast<fms::RenderingSystem*>(systems[RENDERER])->addCamera(cam);
+
+    // dynamic_cast<fms::RenderingSystem*>(systems[RENDERER])->addCamera(cam);
     systems.init(EntityManager::get(), EventManager::get());
-    
-    //systems.getSystem(SOUND)->init(EntityManager::get(), EventManager::get());
-    //systems.getSystem(RENDERER)->init(EntityManager::get(), EventManager::get());
+}
+
+void Engine::stop() {
+    hasStopped = true;
+}
+void Engine::resume() {
+    hasStopped = false;
+}
+void Engine::reset() { 
+    systems.addSystem((unsigned int)PHYSIC, std::make_shared<fms::PhysicSystem>());
+    systems.addSystem((unsigned int)SCRIPTER, std::make_shared<fms::ScriptManagerSystem>());
 }
 
 void Engine::update(float dt) {
-    systems.update(dt, EntityManager::get(), EventManager::get());
+    if(hasStopped)
+        systems.update(0, EntityManager::get(), EventManager::get());
+    else systems.update(dt, EntityManager::get(), EventManager::get());
 }
 
 Entity* Engine::createEntity() {
