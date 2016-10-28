@@ -8,9 +8,13 @@ class Body2D : public Component<Body2D> {
 public:
     Body2D(unsigned int w, unsigned int h, bool isDynamic = false) {
         this->isDynamic = isDynamic;
-        this->width = w;
-        this->height = h;
+        size.x = w;
+        size.y = h;
     }
+    Body2D() {
+        
+    }
+    
     ~Body2D() {
     }
 
@@ -18,19 +22,19 @@ public:
         if(isDynamic)
             bodyDef.type = b2_dynamicBody;
         body = world->CreateBody(&bodyDef);
-        box.SetAsBox(width*P2M, height*P2M);
+        box.SetAsBox(size.x * P2M, size.y * P2M);
         fixture.shape = &box;
         fixture.density = density;
         fixture.friction = friction;
         body->CreateFixture(&fixture);
         body->SetUserData(this);
     }
-    
+
     void startContact();
     void endContact();
-    
+
     void applyForceCenter(fm::Vector2f power);
-    void applyForce(fm::Vector2f &&power, fm::Vector2f &&pos);
+    void applyForce(fm::Vector2f&& power, fm::Vector2f&& pos);
     void applyForceCenter2(float x, float y);
     b2BodyDef bodyDef;
     b2Body* body;
@@ -40,13 +44,19 @@ public:
     float density = 0.0f;
     float friction = 0.0f;
     int number_contact = 0;
-    size_t *identity = nullptr;
-    float width;
-    float height;
-private:
-    bool isDynamic = false;
-    
-};
+    size_t* identity = nullptr;
+    fm::Vector2f size;
+bool isDynamic = false;
+#ifdef GUI
+    void display(bool* value) {
+        if(ImGui::CollapsingHeader("Body2D", value)) {
+            ImGui::DragFloat2("Size##Body", &size.x, 0.02f, 0, FLT_MAX, NULL, 2.0f);
+            ImGui::Checkbox("Is dynamic", &isDynamic);
+           
+        }
+    }
 
-
+#endif
+        
+    };
 }

@@ -2,7 +2,10 @@
 #include "CCamera.h"
 #include <Time.h>
 #include "CMaterial.h"
-MainWindow::MainWindow() {
+#include "Body2D.h"
+#include "Engine.h"
+MainWindow::MainWindow(fm::Engine* engine) {
+    this->engine = engine;
     // From    https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
     // Some colors may have changed
     ImGuiStyle& style = ImGui::GetStyle();
@@ -58,9 +61,9 @@ MainWindow::MainWindow() {
     components[COMPONENTS_GUI::MESH] = "Mesh";
     components[COMPONENTS_GUI::MATERIAL] = "Material";
     components[COMPONENTS_GUI::CAMERA] = "Camera";
-    
-    mainCameraPosition = EntityManager::get().getEntity(0)->get<fmc::CTransform>();
+    components[COMPONENTS_GUI::BODY] = "Body2D";
 
+    mainCameraPosition = EntityManager::get().getEntity(0)->get<fmc::CTransform>();
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
@@ -69,12 +72,21 @@ void MainWindow::displayComponents(Entity* currentEntity) {
     displayComponent<fmc::CCamera>(currentEntity);
     displayComponent<fmc::CMesh>(currentEntity);
     displayComponent<fmc::CMaterial>(currentEntity);
+    displayComponent<fmc::Body2D>(currentEntity);
 }
 
 void MainWindow::menu() {
     if(ImGui::BeginMainMenuBar()) {
         if(ImGui::BeginMenu("File")) {
-
+            if(ImGui::MenuItem("Start")) {
+                engine->start();
+            }
+            if(ImGui::MenuItem("Pause")) {
+                engine->stop();
+            }
+            if(ImGui::MenuItem("Resume")) {
+                engine->resume();
+            }
             ImGui::EndMenu();
         }
         if(ImGui::BeginMenu("Edit")) {
@@ -126,6 +138,10 @@ void MainWindow::menuEntity() {
                     if(i == MATERIAL) {
                         if(!currentEntity->has<fmc::CMaterial>())
                             currentEntity->addComponent<fmc::CMaterial>();
+                    }
+                    if(i == BODY) {
+                        if(!currentEntity->has<fmc::Body2D>())
+                            currentEntity->addComponent<fmc::Body2D>();
                     }
                 }
             }
@@ -193,16 +209,15 @@ void MainWindow::draw() {
             firstRightClick = true;
         }
     }
-    
+
     if(ImGui::GetIO().MouseDown[1]) {
         if(firstRightClick) {
-            mainCameraPosition->position.x += (FirstPosMouseRightClick.x - ImGui::GetIO().MousePos.x)*coeffMouseSpeed;
-            mainCameraPosition->position.y += (FirstPosMouseRightClick.y - ImGui::GetIO().MousePos.y)*coeffMouseSpeed;
+            mainCameraPosition->position.x += (FirstPosMouseRightClick.x - ImGui::GetIO().MousePos.x) * coeffMouseSpeed;
+            mainCameraPosition->position.y += (FirstPosMouseRightClick.y - ImGui::GetIO().MousePos.y) * coeffMouseSpeed;
 
             FirstPosMouseRightClick = ImGui::GetIO().MousePos;
         }
-    }
-    else {
+    } else {
         firstRightClick = false;
     }
 }

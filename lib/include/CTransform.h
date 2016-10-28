@@ -40,7 +40,7 @@ public:
             ImGui::PushItemWidth(100);
             ImGui::DragFloat2("Position", &position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
             ImGui::DragFloat2("Size", &scale.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
-
+            ImGui::DragInt("Layer", &layer, 1, 0, 99);
             ImGui::PopItemWidth();
         }
     }

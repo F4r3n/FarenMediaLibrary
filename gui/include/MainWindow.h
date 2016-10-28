@@ -10,11 +10,13 @@
 #include <CPointLight.h>
 #include "imgui_impl_glfw_gl3.h"
  
-
+namespace fm {
+    class Engine;
+}
 class MainWindow {
     
     enum COMPONENTS_GUI {
-        TRANSFORM, MESH, MATERIAL, CAMERA, LAST_COMPONENT
+        TRANSFORM, MESH, MATERIAL, CAMERA, BODY, LAST_COMPONENT
     };
     
     struct EntityDisplay {
@@ -23,7 +25,7 @@ class MainWindow {
     };
 
 public:
-    MainWindow();
+    MainWindow(fm::Engine *engine);
     template <typename T> void displayComponent(Entity* currentEntity) {
         bool value = true;
         if(currentEntity->has<T>())
@@ -60,4 +62,6 @@ private:
     float coeffMouseSpeed = 0.8f;
     bool firstRightClick = false;
     fmc::CTransform* mainCameraPosition;
+    
+    fm::Engine *engine;
 };

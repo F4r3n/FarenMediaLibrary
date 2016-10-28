@@ -17,8 +17,8 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::Body2D* body = e->get<fmc::Body2D>();
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         //std::cout << body->body->GetPosition().y << std::endl;
-        transform->position = fm::Vector2f(body->body->GetPosition().x - (body->width)*P2M, 
-        body->body->GetPosition().y - (body->height)*P2M)*M2P;
+        transform->position = fm::Vector2f(body->body->GetPosition().x - (body->size.x)*P2M, 
+        body->body->GetPosition().y - (body->size.y)*P2M)*M2P;
         transform->rotation = body->body->GetAngle();
         
     }

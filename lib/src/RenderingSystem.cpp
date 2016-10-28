@@ -12,6 +12,13 @@ using namespace fms;
 #include <chrono>
 #include <CDirectionalLight.h>
 #include "Window.h"
+
+ struct PointText {
+        GLfloat x;
+        GLfloat y;
+        GLfloat s;
+        GLfloat t;
+    };
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
     , height(height) {
@@ -172,12 +179,9 @@ void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, con
 }
 
 void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText* ctext) {
-    struct point {
-        GLfloat x;
-        GLfloat y;
-        GLfloat s;
-        GLfloat t;
-    } coords[6 * ctext->text.size()];
+    PointText coords[6*ctext->text.size()];
+    
+    
     float x = posX;
     float y = posY;
 
@@ -204,15 +208,15 @@ void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText
         if(!w || !h)
             continue;
 
-        coords[n++] = (point){ x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y };
-        coords[n++] = (point){ x2, -y2, ch.t.x, ch.t.y };
+        coords[n++] = (PointText){ x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y };
+        coords[n++] = (PointText){ x2, -y2, ch.t.x, ch.t.y };
 
-        coords[n++] = (point){ x2, -y2 - h, ch.t.x, ch.b_wh.y / font->atlas_height };
-        coords[n++] = (point){ x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y };
-        coords[n++] = (point){ x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height };
+        coords[n++] = (PointText){ x2, -y2 - h, ch.t.x, ch.b_wh.y / font->atlas_height };
+        coords[n++] = (PointText){ x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y };
+        coords[n++] = (PointText){ x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height };
 
         coords[n++] =
-            (point){ x2 + w, -y2 - h, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y + ch.b_wh.y / font->atlas_height };
+            (PointText){ x2 + w, -y2 - h, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y + ch.b_wh.y / font->atlas_height };
     }
     glBufferData(GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW);
     glDrawArrays(GL_TRIANGLES, 0, n);

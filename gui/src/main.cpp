@@ -26,7 +26,7 @@ int main() {
     light->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
     light->addComponent<fmc::CMaterial>();
     
-    MainWindow mainWindow;
+    MainWindow mainWindow(&engine);
 
     while(!window.isClosed()) {
 

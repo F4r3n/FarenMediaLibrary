@@ -11,7 +11,6 @@ CMesh::CMesh(SHAPE shape) {
 }
 
 bool CMesh::init(SHAPE shape) {
-    std::cout << "Init" << std::endl;
 
     fm::MeshData* m = fm::ResourcesManager::get().getMeshData((size_t)shape);
     
