@@ -135,6 +135,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             ->setColor("textColor", material->color)
             ->setInt("soft_edges", text->soft_edges)
             ->setVector2f("soft_edge_values", text->soft_edge_values);
+
         drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
     }
 }
@@ -171,49 +172,51 @@ void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, con
 }
 
 void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText* ctext) {
+    struct point {
+        GLfloat x;
+        GLfloat y;
+        GLfloat s;
+        GLfloat t;
+    } coords[6 * ctext->text.size()];
     float x = posX;
     float y = posY;
+
     // shader.Use();
     glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, font->tex);
     glBindVertexArray(ctext->VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, ctext->VBO);
+   
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Iterate through all characters
     std::string::const_iterator c;
+    int n = 0;
     for(c = ctext->text.begin(); c != ctext->text.end(); c++) {
-
         Character ch = font->Characters[*c];
-        GLfloat xpos = x + ch.Bearing.x * ctext->scale;
-        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * ctext->scale;
+        float x2 = x + ch.b_lt.x * ctext->scale;
+        float y2 = -y - ch.b_lt.y * ctext->scale;
+        float w = ch.b_wh.x * ctext->scale;
+        float h = ch.b_wh.y * ctext->scale;
+        x += ch.advance.x * ctext->scale;
+        y += ch.advance.y * ctext->scale;
+        if(!w || !h)
+            continue;
 
-        GLfloat w = ch.Size.x * ctext->scale;
-        GLfloat h = ch.Size.y * ctext->scale;
+        coords[n++] = (point){ x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y };
+        coords[n++] = (point){ x2, -y2, ch.t.x, ch.t.y };
 
-        // Update VBO for each character
-        GLfloat vertices[6][4] = { { xpos, ypos + h, 0.0, 0.0 },
-                                   { xpos, ypos, 0.0, 1.0 },
-                                   { xpos + w, ypos, 1.0, 1.0 },
+        coords[n++] = (point){ x2, -y2 - h, ch.t.x, ch.b_wh.y / font->atlas_height };
+        coords[n++] = (point){ x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y };
+        coords[n++] = (point){ x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height };
 
-                                   { xpos, ypos + h, 0.0, 0.0 },
-                                   { xpos + w, ypos, 1.0, 1.0 },
-                                   { xpos + w, ypos + h, 1.0, 0.0 } };
-        // std::cout << ch.TextureID << std::endl;
-        // Render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // Update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, ctext->VBO);
-        glBufferSubData(
-            GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // Render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x +=
-            (ch.Advance >> 6) * ctext->scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th
-                                              // pixels by 64 to get amount of pixels))
-                                              // std::cout << *c << std::endl;
+        coords[n++] =
+            (point){ x2 + w, -y2 - h, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y + ch.b_wh.y / font->atlas_height };
     }
+    glBufferData(GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW);
+    glDrawArrays(GL_TRIANGLES, 0, n);
+
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }

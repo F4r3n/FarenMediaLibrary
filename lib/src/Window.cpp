@@ -74,12 +74,12 @@ void Window::createShaders() {
         "{\n"
         "   result += texture(text, TexCoords + vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];\n"
         "   result += texture(text, TexCoords - vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];\n"
-
+        
         "    result += texture(text, TexCoords + vec2(0.0, tex_offset.y * offset[i])).r * weight[i];\n"
         "    result += texture(text, TexCoords - vec2(0.0, tex_offset.y * offset[i])).r * weight[i];\n"
         "}}\n"
         "float oFactor = 1.0f;"
-
+        
         "if(outline && result >= outline_min.x && result <= outline_max.y) {\n"
         "    if(result <= outline_min.y) {\n"
         "        oFactor = smoothstep(outline_min.x, outline_min.y, result);\n"
