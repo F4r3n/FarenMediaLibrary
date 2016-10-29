@@ -1,0 +1,6 @@
+
+COMPONENT(CTransform)
+COMPONENT(CMesh)
+COMPONENT(CMaterial)
+COMPONENT(CCamera)
+COMPONENT(Body)

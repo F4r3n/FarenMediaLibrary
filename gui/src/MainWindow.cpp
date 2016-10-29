@@ -4,6 +4,13 @@
 #include "CMaterial.h"
 #include "Body2D.h"
 #include "Engine.h"
+#define COMPONENT(x) #x,
+static const char* components[COMPONENTS_GUI::LAST_COMPONENT] = {
+    #include "Component_GUI.h" 
+};
+#undef COMPONENT
+#define COMPONENT(x) x
+
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
     // From    https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
@@ -57,22 +64,19 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.FrameRounding = 4;
     style.IndentSpacing = 12.0f;
 
-    components[COMPONENTS_GUI::TRANSFORM] = "Transform";
-    components[COMPONENTS_GUI::MESH] = "Mesh";
-    components[COMPONENTS_GUI::MATERIAL] = "Material";
-    components[COMPONENTS_GUI::CAMERA] = "Camera";
-    components[COMPONENTS_GUI::BODY] = "Body2D";
-
+    
     mainCameraPosition = EntityManager::get().getEntity(0)->get<fmc::CTransform>();
+    
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
 
-    displayComponent<fmc::CTransform>(currentEntity);
-    displayComponent<fmc::CCamera>(currentEntity);
-    displayComponent<fmc::CMesh>(currentEntity);
-    displayComponent<fmc::CMaterial>(currentEntity);
-    displayComponent<fmc::Body2D>(currentEntity);
+    displayComponent<LIST_COMPONENT>(currentEntity);
+    //displayComponent<fmc::CTransform>(currentEntity);
+    //displayComponent<fmc::CCamera>(currentEntity);
+    //displayComponent<fmc::CMesh>(currentEntity);
+    //displayComponent<fmc::CMaterial>(currentEntity);
+    //displayComponent<fmc::Body2D>(currentEntity);
 }
 
 void MainWindow::menu() {
@@ -128,18 +132,18 @@ void MainWindow::menuEntity() {
         if(ImGui::BeginPopup("popup from button")) {
             ImGui::MenuItem("Components", NULL, false, false);
 
-            for(unsigned int i = 1; i < components.size(); ++i) {
-
-                if(ImGui::MenuItem(components[i].c_str())) {
-                    if(i == MESH) {
+            for(unsigned int i = 1; i < COMPONENTS_GUI::LAST_COMPONENT; ++i) {
+                std::cout << LAST_COMPONENT << components[0] << std::endl;
+                if(ImGui::MenuItem(components[i])) {
+                    if(i == CMesh) {
                         if(!currentEntity->has<fmc::CMesh>())
                             currentEntity->addComponent<fmc::CMesh>();
                     }
-                    if(i == MATERIAL) {
+                    if(i == CMaterial) {
                         if(!currentEntity->has<fmc::CMaterial>())
                             currentEntity->addComponent<fmc::CMaterial>();
                     }
-                    if(i == BODY) {
+                    if(i == Body) {
                         if(!currentEntity->has<fmc::Body2D>())
                             currentEntity->addComponent<fmc::Body2D>();
                     }

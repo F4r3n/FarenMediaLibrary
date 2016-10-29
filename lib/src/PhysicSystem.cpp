@@ -33,7 +33,7 @@ void PhysicSystem::init(EntityManager& em, EventManager& event) {
         fmc::Body2D* body = e->get<fmc::Body2D>();
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         body->identity = &e->ID;
-        body->bodyDef.position.Set((transform->position.x + transform->scale.x/2)*P2M, (transform->position.y + transform->scale.y/2)*P2M);
+        body->bodyDef.position.Set((transform->position.x + body->size.x)*P2M, (transform->position.y + body->size.y)*P2M);
         body->bodyDef.angle = transform->rotation;
         body->init(world.get(), P2M);
     }
