@@ -9,5 +9,6 @@ public:
     CDirectionalLight(const fm::Color &color);
     ~CDirectionalLight();
     fm::Color color;
+    static const std::string name;
 };
 }

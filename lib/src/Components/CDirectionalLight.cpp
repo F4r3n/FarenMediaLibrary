@@ -1,6 +1,8 @@
-#include "CDirectionalLight.h"
+#include "Components/CDirectionalLight.h"
 
 using namespace fmc;
+const std::string CDirectionalLight::name = "Directional Light";
+
 CDirectionalLight::CDirectionalLight() {
     
 }

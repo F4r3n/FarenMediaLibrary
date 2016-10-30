@@ -1,6 +1,6 @@
 #include "Script.h"
 #include "ScriptRegister.h"
-#include "CTransform.h"
+#include "Components/CTransform.h"
 using namespace fm;
 
 std::string getFileName(const std::string& s) {

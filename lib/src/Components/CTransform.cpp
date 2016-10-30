@@ -1,7 +1,8 @@
-#include "CTransform.h"
+#include "Components/CTransform.h"
 #include "Entity.h"
 #include <EntityManager.h>
 using namespace fmc;
+const std::string CTransform::name = "Transform";
 
 CTransform::CTransform() {
 }

@@ -6,7 +6,7 @@
 #include "Renderer.h"
 #include "InputManager.h"
 #include "ResourcesManager.h"
-#include "CMesh.h"
+#include "Components/CMesh.h"
 #include "RFont.h"
 using namespace fm;
 int Window::width;

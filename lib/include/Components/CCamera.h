@@ -31,7 +31,7 @@ public:
         viewPort.x = 0;
         viewPort.y = 0;
     }
-
+static const std::string name;
 #ifdef GUI
     void display(bool* value) {
     }

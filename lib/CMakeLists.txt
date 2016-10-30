@@ -7,7 +7,9 @@ CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++14 -g -Wall -O3")
 
 
-file(GLOB SOURCES "src/*.cpp")
+
+file(GLOB_RECURSE SOURCES src/*.cpp)
+
 include_directories(include)
 
 find_package(GLEW REQUIRED)

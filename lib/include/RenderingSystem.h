@@ -1,7 +1,7 @@
 #pragma once
 #include <System.h>
 #include <Entity.h>
-#include "CCamera.h"
+#include "Components/CCamera.h"
 
 
 #include <chrono>

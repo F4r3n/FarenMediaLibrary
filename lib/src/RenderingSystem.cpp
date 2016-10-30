@@ -1,16 +1,16 @@
 #include "RenderingSystem.h"
-#include "CTransform.h"
+#include "Components/CTransform.h"
 #include "ResourcesManager.h"
 #include <iostream>
 using namespace fms;
 #include "Renderer.h"
 #include "Shader.h"
-#include "CMaterial.h"
-#include "CPointLight.h"
-#include "CText.h"
-#include "CMesh.h"
+#include "Components/CMaterial.h"
+#include "Components/CPointLight.h"
+#include "Components/CText.h"
+#include "Components/CMesh.h"
 #include <chrono>
-#include <CDirectionalLight.h>
+#include <Components/CDirectionalLight.h>
 #include "Window.h"
 
  struct PointText {

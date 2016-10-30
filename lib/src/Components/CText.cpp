@@ -1,6 +1,6 @@
-#include "CText.h"
-#include <iostream>
+#include "Components/CText.h"
 using namespace fmc;
+const std::string CText::name = "Text renderer";
 
 CText::CText(const std::string& text, const std::string& fontName, unsigned int width, unsigned int height) {
     this->text = text;

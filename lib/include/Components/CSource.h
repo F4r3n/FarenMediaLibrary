@@ -29,6 +29,7 @@ public:
     ALuint buf;
     
     bool toUpdate = false;
+    static const std::string name;
 private:
     
     std::vector<uint16_t> data;

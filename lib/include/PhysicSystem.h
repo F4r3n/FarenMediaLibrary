@@ -2,7 +2,7 @@
 #include <System.h>
 #include <Entity.h>
 #include <Box2D/Box2D.h>
-#include "Body2D.h"
+#include "Components/Body2D.h"
 #include <iostream>
 #include "Collider.h"
 #include <queue>

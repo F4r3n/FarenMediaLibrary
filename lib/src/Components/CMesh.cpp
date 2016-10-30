@@ -1,8 +1,9 @@
-#include "CMesh.h"
+#include "Components/CMesh.h"
 #include <iostream>
 #include "ResourcesManager.h"
 #include <memory>
 using namespace fmc;
+const std::string CMesh::name = "Mesh";
 
 CMesh::CMesh(SHAPE shape) {
    

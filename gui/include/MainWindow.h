@@ -3,17 +3,17 @@
 
 #include <imgui.h>
 #include <ECS.h>
-#include <CTransform.h>
-#include <CMaterial.h>
-#include <CMesh.h>
-#include <CText.h>
-#include <CPointLight.h>
+#include <Components/CTransform.h>
+#include <Components/CMaterial.h>
+#include <Components/CMesh.h>
+#include <Components/CText.h>
+#include <Components/CPointLight.h>
 #include "imgui_impl_glfw_gl3.h"
 #include <type_traits>
 #define COMPONENT(x) x,
 enum COMPONENTS_GUI {
 #include "Component_GUI.h"
- LAST_COMPONENT
+    LAST_COMPONENT
 };
 #undef COMPONENT
 
@@ -33,22 +33,30 @@ class MainWindow {
 public:
     MainWindow(fm::Engine* engine);
 
-        
-        template <typename... Ts>
-typename std::enable_if<sizeof...(Ts) == 0>::type displayComponent(Entity* currentEntity) {
+    template <typename... Ts>
+    typename std::enable_if<sizeof...(Ts) == 0>::type displayComponent(Entity* currentEntity) {
+    }
 
-}
-
-template <typename T, typename ...Args>
- void displayComponent(Entity* currentEntity) {
-      bool value = true;
+    template <typename T, typename... Args> void displayComponent(Entity* currentEntity) {
+        bool value = true;
         if(currentEntity->has<T>())
             currentEntity->get<T>()->display(&value);
         if(!value) {
             currentEntity->remove<T>();
         }
-     displayComponent<Args...>(currentEntity);
- }
+        displayComponent<Args...>(currentEntity);
+    }
+ template <typename... Ts>
+    typename std::enable_if<sizeof...(Ts) == 0>::type displayComponentMenu(Entity* currentEntity) {
+    }
+
+    template <typename T, typename... Args> void displayComponentMenu(Entity* currentEntity) {
+        if(ImGui::MenuItem(T::name.c_str())) {
+        if(!currentEntity->has<T>())
+            currentEntity->addComponent<T>();
+        }
+        displayComponentMenu<Args...>(currentEntity);
+    }
 
     void displayComponents(Entity* currentEntity);
     void menu();
@@ -70,7 +78,6 @@ private:
     std::vector<EntityDisplay> entityDisplay;
 
     bool choiceComponent = false;
-    
 
     ImVec2 FirstPosMouseRightClick;
     float coeffMouseSpeed = -0.8f;

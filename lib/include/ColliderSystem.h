@@ -1,7 +1,7 @@
 #pragma once
 #include "System.h"
 #include "QuadTree.h"
-#include "CCollider.h"
+#include "Components/CCollider.h"
 namespace fms {
 class ColliderSystem : public System {
 public:

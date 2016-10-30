@@ -1,6 +1,9 @@
-#include "Body2D.h"
+#include "Components/Body2D.h"
 #include <iostream>
 using namespace fmc;
+
+
+const std::string Body2D::name = "Body2D";
 void Body2D::startContact() {
     number_contact++;
 }

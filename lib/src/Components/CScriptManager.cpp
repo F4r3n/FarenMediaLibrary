@@ -1,6 +1,7 @@
-#include "CScriptManager.h"
+#include "Components/CScriptManager.h"
 
 using namespace fmc;
+const std::string CScriptManager::name = "Script Manager";
 
 CScriptManager::CScriptManager() {
 }

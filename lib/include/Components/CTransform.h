@@ -33,7 +33,7 @@ public:
     fm::Vector2f scale = { 100, 100 };
     float rotation = 0;
     int layer = 1;
-
+static const std::string name;
 #ifdef GUI
     void display(bool *value) {
         if(ImGui::CollapsingHeader("Transform")) {

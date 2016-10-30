@@ -22,6 +22,7 @@ public:
         }
     }
     #endif
+    static const std::string name;
 private:
     fm::Texture texture;
 };

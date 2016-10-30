@@ -1,16 +1,16 @@
 #include "ScriptManagerSystem.h"
 #include "Input.h"
 #include "Vector2.h"
-#include "CTransform.h"
-#include "CScriptManager.h"
+#include "Components/CTransform.h"
+#include "Components/CScriptManager.h"
 #include "Color.h"
-#include "CMaterial.h"
+#include "Components/CMaterial.h"
 #include <chrono>
 #include "EntityManager.h"
 #include <cassert>
-#include "CMesh.h"
-#include "CSource.h"
-#include "Body2D.h"
+#include "Components/CMesh.h"
+#include "Components/CSource.h"
+#include "Components/Body2D.h"
 
 using namespace fms;
 using namespace fmc;

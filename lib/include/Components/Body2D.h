@@ -1,7 +1,8 @@
 #pragma once
 #include "Component.h"
 #include <Box2D/Box2D.h>
-#include "Vector2.h"
+#include "../Vector2.h"
+#include <string>
 namespace fmc {
 
 class Body2D : public Component<Body2D> {
@@ -12,9 +13,8 @@ public:
         size.y = h;
     }
     Body2D() {
-        
     }
-    
+
     ~Body2D() {
     }
 
@@ -46,17 +46,18 @@ public:
     int number_contact = 0;
     size_t* identity = nullptr;
     fm::Vector2f size;
-bool isDynamic = false;
+    bool isDynamic = false;
+    
+    static const std::string name;
+    //static int i;
 #ifdef GUI
     void display(bool* value) {
         if(ImGui::CollapsingHeader("Body2D", value)) {
             ImGui::DragFloat2("Size##Body", &size.x, 0.02f, 0, FLT_MAX, NULL, 2.0f);
             ImGui::Checkbox("Is dynamic", &isDynamic);
-           
         }
     }
 
 #endif
-        
-    };
+};
 }

@@ -18,7 +18,7 @@ public:
             s->event(name, lua, t);
         }
     }
-
+static const std::string name;
 private:
     std::vector<std::shared_ptr<fm::Script> > scripts;
 };

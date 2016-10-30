@@ -1,6 +1,6 @@
 #include "PhysicSystem.h"
-#include "Body2D.h"
-#include "CTransform.h"
+#include "Components/Body2D.h"
+#include "Components/CTransform.h"
 #include "Event.h"
 using namespace fms;
 PhysicSystem::PhysicSystem() {

@@ -1,8 +1,8 @@
 #include "MainWindow.h"
-#include "CCamera.h"
+#include "Components/CCamera.h"
 #include <Time.h>
-#include "CMaterial.h"
-#include "Body2D.h"
+#include "Components/CMaterial.h"
+#include "Components/Body2D.h"
 #include "Engine.h"
 #define COMPONENT(x) #x,
 static const char* components[COMPONENTS_GUI::LAST_COMPONENT] = {
@@ -132,23 +132,7 @@ void MainWindow::menuEntity() {
         if(ImGui::BeginPopup("popup from button")) {
             ImGui::MenuItem("Components", NULL, false, false);
 
-            for(unsigned int i = 1; i < COMPONENTS_GUI::LAST_COMPONENT; ++i) {
-                std::cout << LAST_COMPONENT << components[0] << std::endl;
-                if(ImGui::MenuItem(components[i])) {
-                    if(i == CMesh) {
-                        if(!currentEntity->has<fmc::CMesh>())
-                            currentEntity->addComponent<fmc::CMesh>();
-                    }
-                    if(i == CMaterial) {
-                        if(!currentEntity->has<fmc::CMaterial>())
-                            currentEntity->addComponent<fmc::CMaterial>();
-                    }
-                    if(i == Body) {
-                        if(!currentEntity->has<fmc::Body2D>())
-                            currentEntity->addComponent<fmc::Body2D>();
-                    }
-                }
-            }
+            displayComponentMenu<LIST_COMPONENT>(currentEntity);
 
             ImGui::EndPopup();
         }

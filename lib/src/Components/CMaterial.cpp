@@ -1,5 +1,7 @@
-#include "CMaterial.h"
+#include "Components/CMaterial.h"
 using namespace fmc;
+const std::string CMaterial::name = "Material";
+
 CMaterial::CMaterial() {
     color = fm::Color(1, 1, 1, 1);
 }

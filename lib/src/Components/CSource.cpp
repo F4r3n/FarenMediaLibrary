@@ -1,7 +1,8 @@
-#include "CSource.h"
+#include "Components/CSource.h"
 #include <sndfile.h>
 #include <iostream>
 using namespace fmc;
+const std::string CSource::name = "Sound";
 
 CSource::CSource() {
      alGenSources((ALuint)1, &source);

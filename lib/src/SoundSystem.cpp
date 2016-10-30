@@ -1,6 +1,6 @@
 #include "SoundSystem.h"
-#include "CTransform.h"
-#include "CSource.h"
+#include "Components/CTransform.h"
+#include "Components/CSource.h"
 
 using namespace fms;
 SoundSystem::SoundSystem() {

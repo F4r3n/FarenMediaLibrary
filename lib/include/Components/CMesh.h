@@ -32,7 +32,7 @@ public:
     unsigned int size = 4;
     GLuint VAO, VBO, EBO;
 // fm::Color color = { 1, 1, 1, 1 };
-
+static const std::string name;
 #ifdef GUI
 std::string names = "\0";
 
