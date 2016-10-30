@@ -31,32 +31,27 @@ public:
     std::vector<unsigned int> listIndices;
     unsigned int size = 4;
     GLuint VAO, VBO, EBO;
-// fm::Color color = { 1, 1, 1, 1 };
-static const std::string name;
+    // fm::Color color = { 1, 1, 1, 1 };
+    static const std::string name;
 #ifdef GUI
-std::string names = "\0";
+    std::string names = "\0";
 
     int previous = 0;
     int current = 0;
-   
 
-    void display(bool *value) {
+    void display(bool* value) {
         if(ImGui::CollapsingHeader("Mesh", value)) {
-            
+
             ImGui::PushItemWidth(120);
             ImGui::Combo("##Shape", &current, ShapeNames, SHAPE::LAST_SHAPE);
             ImGui::PopItemWidth();
-            
+
             if(previous != current && current < LAST_SHAPE) {
-               
+
                 setShape(current);
                 previous = current;
             }
         }
-        // if(previous_item != listbox_item_current) {
-        //    previous_item = listbox_item_current;
-        //    setShape(previous_item);
-        //}
     }
 #endif
 private:

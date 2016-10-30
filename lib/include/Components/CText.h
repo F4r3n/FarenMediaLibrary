@@ -16,14 +16,15 @@ namespace fmc {
 
 class CText : public Component<CText> {
 public:
-    CText(const std::string& text, const std::string& fontName, unsigned int width, unsigned int height);
+    CText(const std::string& text, const std::string& fontName);
+    CText();
     ~CText();
     
-    glm::mat4 projection;
-    std::string fontName;
+    
+    std::string fontName = "dejavu";
     GLuint VAO, VBO;
 
-    std::string text = "Ab";
+    std::string text = "";
     GLfloat scale = 1;
     
     bool outline = false;
@@ -34,6 +35,18 @@ public:
     bool soft_edges = false;
     fm::Vector2f soft_edge_values;
     static const std::string name;
+    
+    #ifdef GUI
+    
+    char textToRender_GUI[256];
+    void display(bool* value) {
+        if(ImGui::CollapsingHeader(name.c_str(), value)) {
+            ImGui::InputText("Text", textToRender_GUI, 256);
+            text = std::string(textToRender_GUI);
+           
+        }
+    }
+#endif
 
 private:
     fm::Vector2f pos = { 0, 0 };

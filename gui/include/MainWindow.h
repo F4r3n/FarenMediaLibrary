@@ -10,14 +10,9 @@
 #include <Components/CPointLight.h>
 #include "imgui_impl_glfw_gl3.h"
 #include <type_traits>
-#define COMPONENT(x) x,
-enum COMPONENTS_GUI {
-#include "Component_GUI.h"
-    LAST_COMPONENT
-};
-#undef COMPONENT
 
-#define LIST_COMPONENT fmc::CTransform, fmc::CMesh, fmc::CMaterial, fmc::Body2D
+
+#define LIST_COMPONENT fmc::CTransform, fmc::CMesh, fmc::CMaterial, fmc::Body2D, fmc::CText
 
 namespace fm {
 class Engine;

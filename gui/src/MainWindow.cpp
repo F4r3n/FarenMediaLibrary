@@ -4,12 +4,7 @@
 #include "Components/CMaterial.h"
 #include "Components/Body2D.h"
 #include "Engine.h"
-#define COMPONENT(x) #x,
-static const char* components[COMPONENTS_GUI::LAST_COMPONENT] = {
-    #include "Component_GUI.h" 
-};
-#undef COMPONENT
-#define COMPONENT(x) x
+
 
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;

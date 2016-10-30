@@ -13,6 +13,13 @@ namespace fmc {
     class CTransform;
     class CMesh;
 }
+
+struct TextDef {
+    GLuint VAO;
+    GLuint VBO;
+    glm::mat4 projection;
+};
+
 namespace fms
 {
 class RenderingSystem : public System
@@ -45,5 +52,7 @@ private:
     
     std::shared_ptr<fm::Shader> finalShader;
     std::shared_ptr<fm::Shader> lightShader;
+    
+    TextDef textdef;
 };
 }

@@ -28,6 +28,18 @@ RenderingSystem::RenderingSystem(int width, int height)
 
     finalShader = fm::ResourcesManager::get().getShader("simple");
     lightShader = fm::ResourcesManager::get().getShader("light");
+    
+    textdef.projection = glm::ortho(0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
+
+    glGenVertexArrays(1, &textdef.VAO);
+    glGenBuffers(1, &textdef.VBO);
+    glBindVertexArray(textdef.VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, textdef.VBO);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 RenderingSystem::~RenderingSystem() {
@@ -138,7 +150,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             ->setVector2f("outline_max", text->outline_max)
             ->setVector3f("outline_color",
                           glm::vec3(text->outline_color.r, text->outline_color.g, text->outline_color.b))
-            ->setMatrix("projection", text->projection)
+            ->setMatrix("projection", textdef.projection)
             ->setColor("textColor", material->color)
             ->setInt("soft_edges", text->soft_edges)
             ->setVector2f("soft_edge_values", text->soft_edge_values);
@@ -188,8 +200,8 @@ void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText
     // shader.Use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, font->tex);
-    glBindVertexArray(ctext->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, ctext->VBO);
+    glBindVertexArray(textdef.VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, textdef.VBO);
    
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
