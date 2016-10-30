@@ -19,12 +19,6 @@ int main() {
     engine.init();
 
 
-    Entity* light = fm::Engine::createEntity();
-    fmc::CPointLight* p = light->addComponent<fmc::CPointLight>();
-    p->color = fm::Color(1, 1, 1, 1);
-
-    light->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
-    light->addComponent<fmc::CMaterial>();
     
     MainWindow mainWindow(&engine);
 

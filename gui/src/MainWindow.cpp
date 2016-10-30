@@ -3,8 +3,8 @@
 #include <Time.h>
 #include "Components/CMaterial.h"
 #include "Components/Body2D.h"
+#include "Components/CDirectionalLight.h"
 #include "Engine.h"
-
 
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
@@ -59,19 +59,18 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.FrameRounding = 4;
     style.IndentSpacing = 12.0f;
 
-    
     mainCameraPosition = EntityManager::get().getEntity(0)->get<fmc::CTransform>();
     
+    dlight = fm::Engine::createEntity();
+    dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3,0.3,0.3,1)));
+    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
+    dlight->addComponent<fmc::CMaterial>();
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
 
     displayComponent<LIST_COMPONENT>(currentEntity);
-    //displayComponent<fmc::CTransform>(currentEntity);
-    //displayComponent<fmc::CCamera>(currentEntity);
-    //displayComponent<fmc::CMesh>(currentEntity);
-    //displayComponent<fmc::CMaterial>(currentEntity);
-    //displayComponent<fmc::Body2D>(currentEntity);
+    
 }
 
 void MainWindow::menu() {
@@ -88,8 +87,10 @@ void MainWindow::menu() {
             }
             ImGui::EndMenu();
         }
-        if(ImGui::BeginMenu("Edit")) {
-
+        if(ImGui::BeginMenu("World")) {
+            if(ImGui::MenuItem("Light")) {
+                window_WorldLightEdit = true;
+            }
             ImGui::EndMenu();
         }
         if(ImGui::BeginMenu("Entity")) {
@@ -98,8 +99,7 @@ void MainWindow::menu() {
                 currentEntity = EntityManager::get().createEntity();
                 currentEntity->addComponent<fmc::CTransform>(
                     new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
-                // currentEntity->addComponent<fmc::CMesh>(new fmc::CMesh(fmc::SHAPE::RECTANGLE));
-                // currentEntity->addComponent<fmc::CMaterial>()->color = fm::Color(1, 0, 0, 1);
+                
             }
             if(ImGui::MenuItem("List entity")) {
                 windowListEntity = true;
@@ -167,6 +167,7 @@ void MainWindow::getAllEntities() {
     entityDisplay.clear();
     std::string name = std::string("Entity");
     for(auto e : EntityManager::get().iterate<fmc::CTransform>()) {
+        if(e->has<fmc::CDirectionalLight>()) continue;
         EntityDisplay ed;
         ed.id = e->ID;
         ed.name = name + std::to_string(e->ID);
@@ -178,6 +179,14 @@ void MainWindow::getAllEntities() {
     }
 }
 
+void MainWindow::window_WorldLightEditDisplay() {
+    bool value = true;
+    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+    ImGui::Begin("World light", &window_WorldLightEdit);
+    dlight->get<fmc::CDirectionalLight>()->display(&value);
+    ImGui::End();
+}
+
 void MainWindow::draw() {
     bool show_test_window = true;
     menu();
@@ -185,6 +194,8 @@ void MainWindow::draw() {
     listEntity();
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
     ImGui::ShowTestWindow(&show_test_window);
+    if(window_WorldLightEdit)
+    window_WorldLightEditDisplay();
 
     if(ImGui::GetIO().MouseClicked[1]) {
         if(!firstRightClick) {

@@ -41,7 +41,9 @@ public:
     char textToRender_GUI[256];
     void display(bool* value) {
         if(ImGui::CollapsingHeader(name.c_str(), value)) {
+            
             ImGui::InputText("Text", textToRender_GUI, 256);
+            ImGui::DragFloat("Size Text", &scale, 0.1, 0, 1);
             text = std::string(textToRender_GUI);
            
         }
