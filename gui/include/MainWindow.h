@@ -41,8 +41,6 @@ class MainWindow {
 public:
     MainWindow(fm::Engine* engine);
 
-   
-    
     template <typename... Ts>
     typename std::enable_if<sizeof...(Ts) == 0>::type displayComponentMenu(Entity* currentEntity) {
     }
@@ -88,6 +86,9 @@ public:
     void display(fmc::CDirectionalLight* t, bool *value);
     template <typename T>
     void display(T *t, bool *value) {
+         if(ImGui::CollapsingHeader(T::name, value)) {
+             
+         }
         
     }
 

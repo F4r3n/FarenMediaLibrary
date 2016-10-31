@@ -69,6 +69,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
     dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
     dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
+    dlight->addComponent<fmc::CIdentity>()->display = false;
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
@@ -160,6 +161,7 @@ void MainWindow::listEntity() {
             currentEntity = EntityManager::get().createEntity();
             currentEntity->addComponent<fmc::CTransform>(
                 new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
+            currentEntity->addComponent<fmc::CIdentity>();
         }
         ImGui::End();
     }
@@ -168,17 +170,19 @@ void MainWindow::listEntity() {
 void MainWindow::getAllEntities() {
     entitiesName.clear();
     entityDisplay.clear();
-    std::string name = std::string("Entity");
-    for(auto e : EntityManager::get().iterate<fmc::CTransform>()) {
-        if(e->has<fmc::CDirectionalLight>())
+
+    for(auto e : EntityManager::get().iterate<fmc::CIdentity>()) {
+        fmc::CIdentity* identity = e->get<fmc::CIdentity>();
+        if(!identity->display)
             continue;
         EntityDisplay ed;
         ed.id = e->ID;
-        ed.name = name + std::to_string(e->ID);
+        ed.name = identity->name + std::to_string(e->ID);
         entityDisplay.push_back(ed);
     }
 
     for(EntityDisplay& s : entityDisplay) {
+        // std::cout << s.name << std::endl;
         entitiesName.push_back(s.name.c_str());
     }
 }
@@ -254,16 +258,16 @@ void MainWindow::display(fmc::CMesh* t, bool* value) {
     }
 }
 void MainWindow::display(fmc::CText* t, bool* value) {
-    static char textToRender_GUI[256];
-    if(ImGui::CollapsingHeader("Text", value)) {
-
-        ImGui::InputText("Text", textToRender_GUI, 256);
+    
+    if(ImGui::CollapsingHeader("Text Renderer", value)) {
+        static char textToRender[256];
+        ImGui::InputText("Text", textToRender, 256);
         ImGui::DragFloat("Size Text", &t->scale, 0.1, 0, 1);
-        t->text = std::string(textToRender_GUI);
+        t->text = std::string(textToRender);
     }
 }
 void MainWindow::display(fmc::CDirectionalLight* t, bool* value) {
-     if(ImGui::CollapsingHeader("Directional Light")) {
-              ImGui::ColorEdit3("Color", &t->color.r);
-         }
+    if(ImGui::CollapsingHeader("Directional Light")) {
+        ImGui::ColorEdit3("Color", &t->color.r);
+    }
 }

@@ -7,6 +7,7 @@
 #include "ScriptManagerSystem.h"
 #include "Components/CTransform.h"
 #include "SoundSystem.h"
+#include "Components/CIdentity.h"
 using namespace fm;
 Engine::Engine() {
     systems = SystemManager(SYSTEMS::LAST_SYSTEM);
@@ -46,6 +47,8 @@ void Engine::init() {
     Entity* cam = fm::Engine::createEntity();
     cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
     cam->addComponent<fmc::CTransform>();
+    fmc::CIdentity* identity = cam->addComponent<fmc::CIdentity>();
+    identity->name = "Camera";
     std::shared_ptr<fms::RenderingSystem> renderer =
         std::make_shared<fms::RenderingSystem>(fm::Window::width, fm::Window::height);
     renderer->addCamera(cam);

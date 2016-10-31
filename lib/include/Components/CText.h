@@ -35,8 +35,6 @@ public:
     bool soft_edges = false;
     fm::Vector2f soft_edge_values;
     static const std::string name;
-    
-   
 
 private:
     fm::Vector2f pos = { 0, 0 };

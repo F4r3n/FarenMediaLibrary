@@ -6,7 +6,8 @@ class CIdentity : public Component<CIdentity> {
     public:
     CIdentity() {}
     ~CIdentity() {}
-    std::string name;
+    std::string name = "Entity";
     bool toSerialize = true;
+    bool display = true;
     };
 }
