@@ -12,7 +12,7 @@ CMesh::CMesh(SHAPE shape) {
 }
 
 bool CMesh::init(SHAPE shape) {
-
+    if(currentShape == (int)shape) return false;
     fm::MeshData* m = fm::ResourcesManager::get().getMeshData((size_t)shape);
     
     if(m) {
@@ -20,6 +20,7 @@ bool CMesh::init(SHAPE shape) {
         VBO = m->VBO;
         EBO = m->EBO;
         size = m->size;
+        currentShape = (int)shape;
         return false;
     } 
     if(shape == RECTANGLE) {
@@ -52,6 +53,7 @@ bool CMesh::init(SHAPE shape) {
         listIndices.push_back(1);
         listIndices.push_back(0);
     }
+    currentShape = (int)shape;
     return true;
 }
 

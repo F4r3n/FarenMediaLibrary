@@ -15,13 +15,7 @@ public:
     fm::Color color;
     bool bloom = false;
     
-    #ifdef GUI
-    void display(bool *value) {
-        if(ImGui::CollapsingHeader("Material", value)) {
-            ImGui::ColorEdit3("Color", &color.r);
-        }
-    }
-    #endif
+
     static const std::string name;
 private:
     fm::Texture texture;

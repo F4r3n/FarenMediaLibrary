@@ -32,10 +32,7 @@ public:
         viewPort.y = 0;
     }
 static const std::string name;
-#ifdef GUI
-    void display(bool* value) {
-    }
-#endif
+
 
     ViewPortCamera viewPort;
     glm::mat4 projection;

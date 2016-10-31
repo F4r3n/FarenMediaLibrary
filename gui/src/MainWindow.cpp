@@ -5,7 +5,11 @@
 #include "Components/Body2D.h"
 #include "Components/CDirectionalLight.h"
 #include "Engine.h"
+#include "Components/CIdentity.h"
+#include <Components/CTransform.h>
+#include <Components/CMaterial.h>
 
+#include <Components/CPointLight.h>
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
     // From    https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
@@ -60,9 +64,9 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.IndentSpacing = 12.0f;
 
     mainCameraPosition = EntityManager::get().getEntity(0)->get<fmc::CTransform>();
-    
+
     dlight = fm::Engine::createEntity();
-    dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3,0.3,0.3,1)));
+    dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
     dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
 }
@@ -70,7 +74,6 @@ MainWindow::MainWindow(fm::Engine* engine) {
 void MainWindow::displayComponents(Entity* currentEntity) {
 
     displayComponent<LIST_COMPONENT>(currentEntity);
-    
 }
 
 void MainWindow::menu() {
@@ -99,7 +102,7 @@ void MainWindow::menu() {
                 currentEntity = EntityManager::get().createEntity();
                 currentEntity->addComponent<fmc::CTransform>(
                     new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
-                
+                currentEntity->addComponent<fmc::CIdentity>();
             }
             if(ImGui::MenuItem("List entity")) {
                 windowListEntity = true;
@@ -167,7 +170,8 @@ void MainWindow::getAllEntities() {
     entityDisplay.clear();
     std::string name = std::string("Entity");
     for(auto e : EntityManager::get().iterate<fmc::CTransform>()) {
-        if(e->has<fmc::CDirectionalLight>()) continue;
+        if(e->has<fmc::CDirectionalLight>())
+            continue;
         EntityDisplay ed;
         ed.id = e->ID;
         ed.name = name + std::to_string(e->ID);
@@ -183,7 +187,7 @@ void MainWindow::window_WorldLightEditDisplay() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
     ImGui::Begin("World light", &window_WorldLightEdit);
-    dlight->get<fmc::CDirectionalLight>()->display(&value);
+    display(dlight->get<fmc::CDirectionalLight>(), &value);
     ImGui::End();
 }
 
@@ -195,7 +199,7 @@ void MainWindow::draw() {
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
     ImGui::ShowTestWindow(&show_test_window);
     if(window_WorldLightEdit)
-    window_WorldLightEditDisplay();
+        window_WorldLightEditDisplay();
 
     if(ImGui::GetIO().MouseClicked[1]) {
         if(!firstRightClick) {
@@ -214,4 +218,52 @@ void MainWindow::draw() {
     } else {
         firstRightClick = false;
     }
+}
+
+void MainWindow::display(fmc::CTransform* t, bool* value) {
+    if(ImGui::CollapsingHeader("Transform")) {
+        ImGui::PushItemWidth(100);
+        ImGui::DragFloat2("Position", &t->position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
+        ImGui::DragFloat2("Size", &t->scale.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
+        ImGui::DragInt("Layer", &t->layer, 1, 0, 99);
+        ImGui::PopItemWidth();
+    }
+}
+
+void MainWindow::display(fmc::Body2D* t, bool* value) {
+    if(ImGui::CollapsingHeader("Body2D", value)) {
+        ImGui::DragFloat2("Size##Body", &t->size.x, 0.02f, 0, FLT_MAX, NULL, 2.0f);
+        ImGui::Checkbox("Is dynamic", &t->isDynamic);
+    }
+}
+void MainWindow::display(fmc::CMaterial* t, bool* value) {
+    if(ImGui::CollapsingHeader("Material", value)) {
+        ImGui::ColorEdit3("Color", &t->color.r);
+    }
+}
+void MainWindow::display(fmc::CMesh* t, bool* value) {
+    static int current = 0;
+    static const char* ShapeNames[] = { "Rectangle", "Circle" };
+
+    if(ImGui::CollapsingHeader("Mesh", value)) {
+
+        ImGui::PushItemWidth(120);
+        ImGui::Combo("##Shape", &current, ShapeNames, 2);
+        ImGui::PopItemWidth();
+        t->setShape(current);
+    }
+}
+void MainWindow::display(fmc::CText* t, bool* value) {
+    static char textToRender_GUI[256];
+    if(ImGui::CollapsingHeader("Text", value)) {
+
+        ImGui::InputText("Text", textToRender_GUI, 256);
+        ImGui::DragFloat("Size Text", &t->scale, 0.1, 0, 1);
+        t->text = std::string(textToRender_GUI);
+    }
+}
+void MainWindow::display(fmc::CDirectionalLight* t, bool* value) {
+     if(ImGui::CollapsingHeader("Directional Light")) {
+              ImGui::ColorEdit3("Color", &t->color.r);
+         }
 }

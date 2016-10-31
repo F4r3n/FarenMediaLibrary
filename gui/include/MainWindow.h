@@ -3,15 +3,19 @@
 
 #include <imgui.h>
 #include <ECS.h>
-#include <Components/CTransform.h>
-#include <Components/CMaterial.h>
-#include <Components/CMesh.h>
-#include <Components/CText.h>
-#include <Components/CPointLight.h>
+
 #include "imgui_impl_glfw_gl3.h"
 #include <type_traits>
-
+#include <Components/CText.h>
+#include <Components/CMesh.h>
 #define LIST_COMPONENT fmc::CTransform, fmc::CMesh, fmc::CMaterial, fmc::Body2D, fmc::CText
+
+namespace fmc {
+    class CTransform;
+    class CMaterial;
+    class Body2D;
+    class CDirectionalLight;
+}
 
 namespace fm {
 class Engine;
@@ -21,6 +25,7 @@ template <typename T> inline void checkComponent(Entity* currentEntity) {
     if(!currentEntity->has<T>())
         currentEntity->addComponent<T>();
 }
+
 template <> inline void checkComponent<fmc::CText>(Entity* currentEntity) {
     if(!currentEntity->has<fmc::CText>() && !currentEntity->has<fmc::CMesh>())
         currentEntity->addComponent<fmc::CText>();
@@ -36,19 +41,8 @@ class MainWindow {
 public:
     MainWindow(fm::Engine* engine);
 
-    template <typename... Ts>
-    typename std::enable_if<sizeof...(Ts) == 0>::type displayComponent(Entity* currentEntity) {
-    }
-
-    template <typename T, typename... Args> void displayComponent(Entity* currentEntity) {
-        bool value = true;
-        if(currentEntity->has<T>())
-            currentEntity->get<T>()->display(&value);
-        if(!value) {
-            currentEntity->remove<T>();
-        }
-        displayComponent<Args...>(currentEntity);
-    }
+   
+    
     template <typename... Ts>
     typename std::enable_if<sizeof...(Ts) == 0>::type displayComponentMenu(Entity* currentEntity) {
     }
@@ -69,6 +63,33 @@ public:
     void displayComponentsAvailable();
     
     void window_WorldLightEditDisplay();
+    
+    
+     template <typename... Ts>
+    typename std::enable_if<sizeof...(Ts) == 0>::type displayComponent(Entity* currentEntity) {
+    }
+
+    template <typename T, typename... Args> void displayComponent(Entity* currentEntity) {
+        bool value = true;
+        if(currentEntity->has<T>())
+            display(currentEntity->get<T>(), &value);
+        if(!value) {
+            currentEntity->remove<T>();
+        }
+        displayComponent<Args...>(currentEntity);
+    }
+    
+    
+    void display(fmc::CTransform* t, bool *value);
+    void display(fmc::Body2D* t, bool *value);
+    void display(fmc::CMaterial* t, bool *value);
+    void display(fmc::CMesh* t, bool *value);
+    void display(fmc::CText* t, bool *value);
+    void display(fmc::CDirectionalLight* t, bool *value);
+    template <typename T>
+    void display(T *t, bool *value) {
+        
+    }
 
 private:
     Entity* currentEntity;

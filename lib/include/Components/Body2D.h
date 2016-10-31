@@ -50,14 +50,6 @@ public:
     
     static const std::string name;
     //static int i;
-#ifdef GUI
-    void display(bool* value) {
-        if(ImGui::CollapsingHeader("Body2D", value)) {
-            ImGui::DragFloat2("Size##Body", &size.x, 0.02f, 0, FLT_MAX, NULL, 2.0f);
-            ImGui::Checkbox("Is dynamic", &isDynamic);
-        }
-    }
 
-#endif
 };
 }

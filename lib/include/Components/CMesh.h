@@ -11,7 +11,6 @@
 #include <glm/gtc/type_ptr.hpp>
 namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE, LAST_SHAPE };
-static const char* ShapeNames[] = { "Rectangle", "Circle" };
 struct Vertex {
     fm::Vector2f position;
     fm::Vector2f uv;
@@ -33,27 +32,8 @@ public:
     GLuint VAO, VBO, EBO;
     // fm::Color color = { 1, 1, 1, 1 };
     static const std::string name;
-#ifdef GUI
-    std::string names = "\0";
+    int currentShape = -1;
 
-    int previous = 0;
-    int current = 0;
-
-    void display(bool* value) {
-        if(ImGui::CollapsingHeader("Mesh", value)) {
-
-            ImGui::PushItemWidth(120);
-            ImGui::Combo("##Shape", &current, ShapeNames, SHAPE::LAST_SHAPE);
-            ImGui::PopItemWidth();
-
-            if(previous != current && current < LAST_SHAPE) {
-
-                setShape(current);
-                previous = current;
-            }
-        }
-    }
-#endif
 private:
     bool init(SHAPE shape);
 };
