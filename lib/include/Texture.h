@@ -18,7 +18,9 @@ class Texture {
     ~Texture();
     void bind() const;
     void clear();
-
+    inline unsigned int getID() {
+        return id;
+    }
 private:
     void init(std::vector<unsigned char>& data, Recti& rect);
     int format;

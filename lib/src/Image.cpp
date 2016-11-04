@@ -41,9 +41,11 @@ unsigned char* Image::getImagePtr() {
     return _pixel;
 }
 
-void Image::loadImage(const std::string& path, const Vector2i& offset) {
+bool Image::loadImage(const std::string& path, const Vector2i& offset) {
     pixels.clear();
     _offset = offset;
-
+   
     _pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
+    if(_pixel == nullptr) return false;
+    return true;
 }

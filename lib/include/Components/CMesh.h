@@ -9,6 +9,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Serializer.h"
 namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE, LAST_SHAPE };
 struct Vertex {
@@ -16,7 +18,7 @@ struct Vertex {
     fm::Vector2f uv;
 };
 
-class CMesh : public Component<CMesh> {
+class CMesh : public Component<CMesh>, public Serializer {
 
 public:
     CMesh();
@@ -33,6 +35,8 @@ public:
     // fm::Color color = { 1, 1, 1, 1 };
     static const std::string name;
     int currentShape = -1;
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {}
+    void parse(rapidjson::Value &value) override {}
 
 private:
     bool init(SHAPE shape);

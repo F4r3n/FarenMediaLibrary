@@ -8,7 +8,7 @@
 #include "Components/CIdentity.h"
 #include <Components/CTransform.h>
 #include <Components/CMaterial.h>
-
+#include "rapidjson/document.h"
 #include <Components/CPointLight.h>
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
@@ -70,6 +70,8 @@ MainWindow::MainWindow(fm::Engine* engine) {
     dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
     dlight->addComponent<fmc::CIdentity>()->display = false;
+    
+    playImage = fm::Texture("assets/images/play_button.png");
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
@@ -77,17 +79,76 @@ void MainWindow::displayComponents(Entity* currentEntity) {
     displayComponent<LIST_COMPONENT>(currentEntity);
 }
 
+void MainWindow::fileSystem_save_window() {
+    ImGui::SetNextWindowPos(ImVec2(200, 20), ImGuiSetCond_FirstUseEver);
+    ImGui::Begin("Save window", &fileSystem_save);
+    static char nameScene[256] = { "scene" };
+    ImGui::InputText("Save name", nameScene, 256);
+
+    if(ImGui::Button("Save")) {
+        nameCurrentScene = std::string(nameScene);
+        fileSystem_save = false;
+    }
+    ImGui::SameLine();
+    if(ImGui::Button("Cancel")) {
+        fileSystem_save = false;
+    }
+    ImGui::End();
+}
+
+void MainWindow::serializeState() {
+    lastState.Clear();
+    if(nameCurrentScene == "")
+        nameCurrentScene = "scene1";
+    rapidjson::Writer<StringBuffer> writer(lastState);
+    writer.StartObject();
+    writer.Key(nameCurrentScene.c_str());
+
+    writer.StartObject();
+    for(auto e : EntityManager::get().iterate<fmc::CIdentity>()) {
+        std::string ID = std::to_string(e->ID);
+        writer.Key(ID.c_str());
+        writer.StartObject();
+
+        serializeComponent<LIST_COMPONENT>(e, writer);
+        writer.EndObject();
+    }
+    writer.EndObject();
+    writer.EndObject();
+    std::cout << lastState.GetString() << std::endl;
+    
+}
+
+void MainWindow::deserializeState() {
+    rapidjson::Document d;
+    d.Parse(lastState.GetString());
+    std::cout << lastState.GetString() << std::endl;
+     for(auto e : EntityManager::get().iterate<fmc::CIdentity>()) {
+        std::string id = std::to_string(e->ID);
+        parseComponent<LIST_COMPONENT>(e, d["scene1"][id.c_str()]);
+    }
+}
+
 void MainWindow::menu() {
     if(ImGui::BeginMainMenuBar()) {
         if(ImGui::BeginMenu("File")) {
-            if(ImGui::MenuItem("Start")) {
-                engine->start();
+
+            if(ImGui::BeginMenu("Run")) {
+                if(ImGui::MenuItem("Start")) {
+                    serializeState();
+                    engine->start();
+                }
+                if(ImGui::MenuItem("Pause")) {
+                    engine->stop();
+                }
+                if(ImGui::MenuItem("Stop")) {
+                    deserializeState();
+                    engine->reset();  
+                }
+                ImGui::EndMenu();
             }
-            if(ImGui::MenuItem("Pause")) {
-                engine->stop();
-            }
-            if(ImGui::MenuItem("Resume")) {
-                engine->resume();
+            if(ImGui::MenuItem("Scene")) {
+                fileSystem_save = true;
             }
             ImGui::EndMenu();
         }
@@ -104,12 +165,18 @@ void MainWindow::menu() {
                 currentEntity->addComponent<fmc::CTransform>(
                     new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
                 currentEntity->addComponent<fmc::CIdentity>();
+               
             }
             if(ImGui::MenuItem("List entity")) {
                 windowListEntity = true;
             }
 
             ImGui::EndMenu();
+        }
+        
+       unsigned int idImagePlay = playImage.getID();
+         if(ImGui::ImageButton((ImTextureID*)idImagePlay, ImVec2(50,50))) {
+            
         }
     }
     ImGui::EndMainMenuBar();
@@ -121,6 +188,7 @@ void MainWindow::displayComponentsAvailable() {
 void MainWindow::menuEntity() {
     if(windowCurrentEntity) {
         ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+        
         ImGui::Begin(std::string("Create entity " + std::to_string(currentEntity->ID)).c_str(), &windowCurrentEntity);
 
         displayComponents(currentEntity);
@@ -182,7 +250,6 @@ void MainWindow::getAllEntities() {
     }
 
     for(EntityDisplay& s : entityDisplay) {
-        // std::cout << s.name << std::endl;
         entitiesName.push_back(s.name.c_str());
     }
 }
@@ -200,6 +267,8 @@ void MainWindow::draw() {
     menu();
     menuEntity();
     listEntity();
+    if(fileSystem_save)
+        fileSystem_save_window();
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
     ImGui::ShowTestWindow(&show_test_window);
     if(window_WorldLightEdit)
@@ -258,11 +327,11 @@ void MainWindow::display(fmc::CMesh* t, bool* value) {
     }
 }
 void MainWindow::display(fmc::CText* t, bool* value) {
-    
+
     if(ImGui::CollapsingHeader("Text Renderer", value)) {
         static char textToRender[256];
         ImGui::InputText("Text", textToRender, 256);
-        ImGui::DragFloat("Size Text", &t->scale, 0.1, 0, 1);
+        ImGui::DragFloat("Size Text", &t->scale, 0.1, 0, 10);
         t->text = std::string(textToRender);
     }
 }
@@ -271,3 +340,6 @@ void MainWindow::display(fmc::CDirectionalLight* t, bool* value) {
         ImGui::ColorEdit3("Color", &t->color.r);
     }
 }
+
+
+

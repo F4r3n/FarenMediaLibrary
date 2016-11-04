@@ -10,7 +10,7 @@ public:
     ~Image();
     void create(float width, float height);
     unsigned char* getImagePtr();
-    void loadImage(const std::string& pathImage, const Vector2i& offset = { 0, 0 });
+    bool loadImage(const std::string& pathImage, const Vector2i& offset = { 0, 0 });
     const Vector2<int>& getSize() const;
     void clear();
     void getPart(std::vector<unsigned char>& imagePart, Recti rect) const;

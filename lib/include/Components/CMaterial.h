@@ -2,8 +2,9 @@
 #include "Component.h"
 #include "Color.h"
 #include "Texture.h"
+#include "Serializer.h"
 namespace fmc {
-class CMaterial : public Component<CMaterial> {
+class CMaterial : public Component<CMaterial>, public Serializer {
 public:
     CMaterial();
     ~CMaterial();
@@ -17,6 +18,8 @@ public:
     
 
     static const std::string name;
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
+    void parse(rapidjson::Value &value) override {}
 private:
     fm::Texture texture;
 };

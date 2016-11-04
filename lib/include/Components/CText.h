@@ -12,9 +12,10 @@
 #include <Resource.h>
 #include "Vector2.h"
 #include "RFont.h"
+#include "Serializer.h"
 namespace fmc {
 
-class CText : public Component<CText> {
+class CText : public Component<CText>, public Serializer {
 public:
     CText(const std::string& text, const std::string& fontName);
     CText();
@@ -35,7 +36,8 @@ public:
     bool soft_edges = false;
     fm::Vector2f soft_edge_values;
     static const std::string name;
-
+void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
+    void parse(rapidjson::Value &value) override {}
 private:
     fm::Vector2f pos = { 0, 0 };
 };

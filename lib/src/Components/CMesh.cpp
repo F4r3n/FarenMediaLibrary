@@ -26,8 +26,8 @@ bool CMesh::init(SHAPE shape) {
     if(shape == RECTANGLE) {
 
         addVertex({ 0, 1 }, { 0.0, 1.0 });
-        addVertex({ 0, 0 }, { 1.0, 0.0 });
-        addVertex({ 1, 0 }, { 0.0, 0.0 });
+        addVertex({ 0, 0 }, { 0.0, 0.0 });
+        addVertex({ 1, 0 }, { 1.0, 0.0 });
         addVertex({ 1, 1 }, { 1.0, 1.0 });
         listIndices = { 0, 1, 2, 0, 2, 3 };
 

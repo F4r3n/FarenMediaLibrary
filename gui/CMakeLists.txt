@@ -9,7 +9,9 @@ find_package(Lua 5.3 REQUIRED)
 find_package(Box2D REQUIRED)
 if(UNIX)
 FIND_PACKAGE( PkgConfig REQUIRED )
-pkg_search_module( GLFW3 3.3 REQUIRED glfw3 ) 
+pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
+
+
 endif(UNIX)
 if(WIN32)
 
@@ -20,14 +22,14 @@ set( FML_PATH "../")
 set( SOL_INCLUDE_DIR ${FML_PATH}extlib/sol2)
 set( STB_INCLUDE_DIR ${FML_PATH}extlib/stb)
 set( GLM_INCLUDE_DIR ${FML_PATH}extlib/glm)
-
+set( JSON_INCLUDE_DIR ${FML_PATH}extlib/rapidjson/include)
 set( ENTITY_INCLUDE_DIR ${FML_PATH}extlib/ECS)
 
 
 set(FREETYPE_INCLUDE_DIR ${FML_PATH}extlib/freetype2/include)
 set(FREETYPE_LIBRARY_DIR ${FML_PATH}extlib/freetype2/build)
 
-
+include_directories(${JSON_INCLUDE_DIR})
 include_directories(${GLFW3_INCLUDE_DIR} )
 include_directories(${ENTITY_INCLUDE_DIR}/lib/include )
 include_directories(${SOL_INCLUDE_DIR})

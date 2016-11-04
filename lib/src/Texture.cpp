@@ -11,7 +11,10 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
         format = GL_RGB;
 
     Image image;
-    image.loadImage(path);
+    if(!image.loadImage(path)) {
+        std::cout << "Error loading image " << path << std::endl;
+    }
+    
     // std::cout << "Texture " << texture.path << " Loaded " << texture.width << " " << texture.height << std::endl;
 
     glGenTextures(1, &id);
@@ -28,7 +31,7 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
     image.getPart(content, rect);
     this->width = rect.w;
     this->height = rect.h;
-
+    std::cout << rect.w << " " << rect.h << std::endl;
     glTexImage2D(GL_TEXTURE_2D, 0, format, rect.w, rect.h, 0, format, GL_UNSIGNED_BYTE, content.data());
 
     glTexParameteri(GL_TEXTURE_2D,
@@ -43,6 +46,8 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
     glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
     image.clear();
     content.clear();
+    if(glGetError() != 0)
+        std::cout << "Error Loading texture from path "<< path <<  std::endl;
 }
 
 Texture::Texture(const Image& image, Recti rect) {

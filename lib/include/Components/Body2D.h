@@ -3,9 +3,10 @@
 #include <Box2D/Box2D.h>
 #include "../Vector2.h"
 #include <string>
+#include "Serializer.h"
 namespace fmc {
 
-class Body2D : public Component<Body2D> {
+class Body2D : public Component<Body2D>, public Serializer {
 public:
     Body2D(unsigned int w, unsigned int h, bool isDynamic = false) {
         this->isDynamic = isDynamic;
@@ -50,6 +51,7 @@ public:
     
     static const std::string name;
     //static int i;
-
+void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
+    void parse(rapidjson::Value &value) override {}
 };
 }

@@ -25,6 +25,10 @@ public:
     GLFWwindow* getWindow() {
         return window;
     }
+    void setName(const std::string &name);
+    inline std::string getName() const {
+        return nameWindow;
+    }
     static int width;
     static int height;
 
@@ -49,5 +53,7 @@ private:
     double curr_frame_time = 0;
     double dur = 0;
     double frame_start = 0;
+    
+    std::string nameWindow;
 };
 }

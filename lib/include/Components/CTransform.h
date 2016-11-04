@@ -3,14 +3,11 @@
 #include "Vector2.h"
 #include "EntityManager.h"
 
-#ifdef GUI
-#include <imgui.h>
-#endif
-
+#include "Serializer.h"
 class Entity;
 
 namespace fmc {
-class CTransform : public Component<CTransform> {
+class CTransform : public Component<CTransform>, public Serializer {
 public:
     CTransform(const fm::Vector2f& position, const fm::Vector2f& scale, const float& rotation, const int& layer = 1);
     CTransform();
@@ -33,17 +30,10 @@ public:
     fm::Vector2f scale = { 100, 100 };
     float rotation = 0;
     int layer = 1;
-static const std::string name;
-#ifdef GUI
-    void display(bool *value) {
-        if(ImGui::CollapsingHeader("Transform")) {
-            ImGui::PushItemWidth(100);
-            ImGui::DragFloat2("Position", &position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
-            ImGui::DragFloat2("Size", &scale.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
-            ImGui::DragInt("Layer", &layer, 1, 0, 99);
-            ImGui::PopItemWidth();
-        }
-    }
-#endif
+    static const std::string name;
+
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override;
+    void parse(rapidjson::Value &value) override;
+     
 };
 }

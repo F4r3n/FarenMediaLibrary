@@ -8,6 +8,10 @@
 #include <type_traits>
 #include <Components/CText.h>
 #include <Components/CMesh.h>
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "Texture.h"
+using namespace rapidjson;
 #define LIST_COMPONENT fmc::CTransform, fmc::CMesh, fmc::CMaterial, fmc::Body2D, fmc::CText
 
 namespace fmc {
@@ -62,7 +66,35 @@ public:
     
     void window_WorldLightEditDisplay();
     
+   
     
+    template <typename... Ts>
+    typename std::enable_if<sizeof...(Ts) == 0>::type serializeComponent(Entity* currentEntity, rapidjson::Writer<StringBuffer> &writer) {
+    }
+
+    template <typename T, typename... Args> void serializeComponent(Entity* currentEntity, rapidjson::Writer<StringBuffer> &writer) {
+        if(currentEntity->has<T>())
+            serialize(currentEntity->get<T>(), writer);
+       serializeComponent<Args...>(currentEntity, writer);
+    }
+    template <typename T>
+    void serialize(T* t, rapidjson::Writer<StringBuffer> &writer) {
+        t->serialize(writer);
+    }
+    
+    template <typename... Ts>
+    typename std::enable_if<sizeof...(Ts) == 0>::type parseComponent(Entity* currentEntity, rapidjson::Value &value) {
+    }
+
+    template <typename T, typename... Args> void parseComponent(Entity* currentEntity, rapidjson::Value &value) {
+        if(currentEntity->has<T>())
+            currentEntity->get<T>()->parse(value);
+       parseComponent<Args...>(currentEntity, value);
+    }
+   
+    void serializeState();
+    void deserializeState();
+
      template <typename... Ts>
     typename std::enable_if<sizeof...(Ts) == 0>::type displayComponent(Entity* currentEntity) {
     }
@@ -76,8 +108,7 @@ public:
         }
         displayComponent<Args...>(currentEntity);
     }
-    
-    
+
     void display(fmc::CTransform* t, bool *value);
     void display(fmc::Body2D* t, bool *value);
     void display(fmc::CMaterial* t, bool *value);
@@ -87,10 +118,11 @@ public:
     template <typename T>
     void display(T *t, bool *value) {
          if(ImGui::CollapsingHeader(T::name, value)) {
-             
          }
-        
     }
+    
+    
+    void fileSystem_save_window();
 
 private:
     Entity* currentEntity;
@@ -114,4 +146,12 @@ private:
     bool window_WorldLightEdit = false;
     
     Entity* dlight;
+    
+    std::string nameWindow;
+    std::string nameCurrentScene = "";
+    bool fileSystem_save = false;
+    
+    rapidjson::StringBuffer lastState;
+    fm::Texture playImage;
+    
 };

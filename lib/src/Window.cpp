@@ -12,7 +12,7 @@ using namespace fm;
 int Window::width;
 int Window::height;
 Window::Window(int width, int height, const std::string& name) {
-
+    this->nameWindow = name;
     Window::width = width;
     Window::height = height;
 
@@ -31,6 +31,11 @@ Window::Window(int width, int height, const std::string& name) {
     // glEnable (GL_BLEND);
     glfwSetWindowSizeCallback(window, window_size_callback);
     fm::InputManager::getInstance().init(this->window);
+}
+
+void Window::setName(const std::string &name) {
+    this->nameWindow = name;
+    glfwSetWindowTitle(window, name.c_str());
 }
 
 void Window::createShaders() {
@@ -265,11 +270,12 @@ void Window::createShaders() {
                                         "layout(location = 0) in vec2 position;\n"
                                         "layout(location = 1) in vec2 texCoords;\n"
 
-                                        "uniform mat4 view;\n"
+                                        
                                         "uniform mat4 model;\n"
-                                        "uniform mat4 projection;\n"
-                                        "uniform float bloomEffect;\n"
+                                        
+
                                         "uniform mat4 FM_PV;\n"
+                                        
                                         "out vec4 ourColor;\n"
                                         "out vec2 ourTexCoord;\n"
                                         "out vec3 ourPosition;\n"
@@ -285,10 +291,11 @@ void Window::createShaders() {
                                           "layout (location = 0) out vec4 FragColor;\n"
                                           "layout (location = 1) out vec4 BrightColor;\n"
                                           "layout (location = 2) out vec4 posTexture;\n"
+                                          
                                           "uniform vec4 mainColor;"
                                           "in vec2 ourTexCoord;\n"
                                           "in vec3 ourPosition;\n"
-                                          "uniform float BloomEffect;"
+                                          "uniform int BloomEffect;"
                                           "uniform sampler2D texture2d;\n"
                                           //"out vec4 Color;\n"
                                           "void main(){\n"
@@ -348,9 +355,9 @@ void Window::createShaders() {
         rect.setShape(i);
     }
 
-#ifdef __linux__
+
     ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
-#endif
+
 }
 
 void Window::bindFrameBuffer() {

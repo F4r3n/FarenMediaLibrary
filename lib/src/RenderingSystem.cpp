@@ -87,9 +87,7 @@ void RenderingSystem::pre_update(EntityManager& em) {
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     fm::Renderer::getInstance().bindFrameBuffer();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     for(auto camera : cameras) {
-
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
         glm::mat4 FM_PV = cam->projection * cam->viewMatrix;
 
@@ -98,17 +96,20 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             fmc::CTransform* transform = e->get<fmc::CTransform>();
             fmc::CMaterial* material = e->get<fmc::CMaterial>();
             fm::Vector2f worldPos = transform->getWorldPos(em);
+            
+
             if(e->has<fmc::CMesh>()) {
                 fmc::CMesh* cmesh = e->get<fmc::CMesh>();
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
+                
                 shader->Use()->setMatrix("FM_PV", FM_PV)->setInt("BloomEffect", material->bloom);
 
                 glm::mat4 model = glm::mat4();
                 setModel(model, transform, worldPos);
 
                 shader->setMatrix("model", model)->setColor("mainColor", material->color);
-
+                
                 if(material->textureReady) {
                     glActiveTexture(GL_TEXTURE0);
                     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -29,6 +29,7 @@ endif(WIN32)
 set( SOL_INCLUDE_DIR "../extlib/sol2")
 set( STB_INCLUDE_DIR "../extlib/stb")
 set( GLM_INCLUDE_DIR "../extlib/glm")
+set( JSON_INCLUDE_DIR ../extlib/rapidjson/include)
 
 set( ENTITY_INCLUDE_DIR "../extlib/ECS")
 
@@ -46,7 +47,7 @@ include_directories(${GLM_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIR})
 include_directories(${BOX2D_INCLUDE_DIR})
 include_directories(${IMGUI_INCLUDE_DIR})
-
+include_directories(${JSON_INCLUDE_DIR})
 link_directories(${FREETYPE_LIBRARY_DIR} freetype)
 link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
 
