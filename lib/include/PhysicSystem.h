@@ -9,7 +9,7 @@
 #include "Event.h"
 namespace fms {
 
-class PhysicSystem : public System {
+class PhysicSystem : public System<PhysicSystem> {
 public:
     PhysicSystem();
     void update(float dt, EntityManager& em, EventManager& event);

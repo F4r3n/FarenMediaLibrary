@@ -121,7 +121,7 @@ public:
          }
     }
     
-    
+    void displayListCamera();
     void fileSystem_save_window();
 
 private:
@@ -153,5 +153,7 @@ private:
     
     rapidjson::StringBuffer lastState;
     fm::Texture playImage;
+    
+    Entity* cameraEditor;
     
 };

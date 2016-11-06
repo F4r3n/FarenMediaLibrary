@@ -33,7 +33,7 @@ Entity* createEntity() {
 }
 
 ScriptManagerSystem::ScriptManagerSystem() {
-    addComponent<CScriptManager>();
+    
     lua.open_libraries();
 
     registerComponent<Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),

@@ -10,6 +10,7 @@
 #include <Components/CMaterial.h>
 #include "rapidjson/document.h"
 #include <Components/CPointLight.h>
+#include "RenderingSystem.h"
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
     // From    https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
@@ -63,7 +64,6 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.FrameRounding = 4;
     style.IndentSpacing = 12.0f;
 
-    mainCameraPosition = EntityManager::get().getEntity(0)->get<fmc::CTransform>();
 
     dlight = fm::Engine::createEntity();
     dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
@@ -72,6 +72,15 @@ MainWindow::MainWindow(fm::Engine* engine) {
     dlight->addComponent<fmc::CIdentity>()->display = false;
     
     playImage = fm::Texture("assets/images/play_button.png");
+    
+    cameraEditor = fm::Engine::createEntity();
+    cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
+    mainCameraPosition = cameraEditor->addComponent<fmc::CTransform>();
+    fmc::CIdentity* identity = cameraEditor->addComponent<fmc::CIdentity>();
+    identity->name = "CameraEditor";
+    identity->display = false;
+    engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
+    
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
@@ -158,6 +167,11 @@ void MainWindow::menu() {
             }
             ImGui::EndMenu();
         }
+        
+         if(ImGui::BeginMenu("Cameras")) {
+          displayListCamera();
+            ImGui::EndMenu();
+        }
         if(ImGui::BeginMenu("Entity")) {
             if(ImGui::MenuItem("Create")) {
                 windowCurrentEntity = true;
@@ -173,13 +187,21 @@ void MainWindow::menu() {
 
             ImGui::EndMenu();
         }
-        
-       unsigned int idImagePlay = playImage.getID();
-         if(ImGui::ImageButton((ImTextureID*)idImagePlay, ImVec2(50,50))) {
-            
-        }
     }
     ImGui::EndMainMenuBar();
+}
+
+void MainWindow::displayListCamera() {
+    static bool value1 = true;
+    static bool value2 = false;
+    if(ImGui::MenuItem("Camera editor", "", &value1)) {
+        value2 = false;
+        engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
+    }
+    if(ImGui::MenuItem("Second Camera", "", &value2)) {
+        value1 = false;
+        engine->setMainCamera();
+    }
 }
 
 void MainWindow::displayComponentsAvailable() {

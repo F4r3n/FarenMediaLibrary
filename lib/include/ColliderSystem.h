@@ -3,7 +3,7 @@
 #include "QuadTree.h"
 #include "Components/CCollider.h"
 namespace fms {
-class ColliderSystem : public System {
+class ColliderSystem : public System<ColliderSystem> {
 public:
     ColliderSystem();
     ~ColliderSystem();

@@ -7,7 +7,7 @@
 namespace fm
 {
     
-    enum SYSTEMS {RENDERER, SCRIPTER, PHYSIC, SOUND, LAST_SYSTEM};
+  
 class Engine
 {
 public:
@@ -23,11 +23,19 @@ public:
     void stop();
     void resume();
     void reset();
+    
+    template <typename T>
+    inline T* getSystem() {
+       return systems.getSystem<T>(); 
+    }
+    
+    void setMainCamera();
 private:
     SystemManager systems;
     Speaker speaker;
     Listener listener;
-    
+    Entity* camera;
     bool hasStopped = false;
+    
 };
 }

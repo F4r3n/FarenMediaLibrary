@@ -7,8 +7,7 @@
 using namespace fms;
 
 ColliderSystem::ColliderSystem() {
-    addComponent<fmc::CCollider>();
-    addComponent<fmc::CTransform>();
+    
     quadTree = std::make_unique<fm::QuadTree>(0, fm::Recti(0, 0, 800, 600));
 }
 ColliderSystem::~ColliderSystem() {

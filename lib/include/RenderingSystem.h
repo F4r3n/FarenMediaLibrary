@@ -22,11 +22,11 @@ struct TextDef {
 
 namespace fms
 {
-class RenderingSystem : public System
+class RenderingSystem : public System<RenderingSystem>
 {
 public:
     RenderingSystem(int width, int height);
-    void addCamera(Entity* camera);
+    void setCamera(Entity* camera);
   
     void update(float dt, EntityManager& em, EventManager &event);
     void over();
@@ -39,9 +39,9 @@ public:
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
     void setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f &worldPos);
     ~RenderingSystem();
-
+    
 private:
-    std::vector<Entity*> cameras;
+    Entity* camera;
     int width;
     int height;
     

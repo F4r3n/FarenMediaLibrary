@@ -8,7 +8,7 @@ class CSource;
 }
 
 namespace fms {
-class SoundSystem : public System {
+class SoundSystem : public System<SoundSystem> {
 public:
     SoundSystem();
     ~SoundSystem();

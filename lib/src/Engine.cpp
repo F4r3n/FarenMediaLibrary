@@ -10,7 +10,6 @@
 #include "Components/CIdentity.h"
 using namespace fm;
 Engine::Engine() {
-    systems = SystemManager(SYSTEMS::LAST_SYSTEM);
 }
 
 Engine::~Engine() {
@@ -34,27 +33,30 @@ void Engine::run(Window& window) {
 }
 
 void Engine::start() {
-    systems.addSystem((unsigned int)PHYSIC, std::make_shared<fms::PhysicSystem>());
-    systems.addSystem((unsigned int)SCRIPTER, std::make_shared<fms::ScriptManagerSystem>());
-
-    systems.getSystem(PHYSIC)->init(EntityManager::get(), EventManager::get());
-    systems.getSystem(SCRIPTER)->init(EntityManager::get(), EventManager::get());
+    systems.addSystem(new fms::PhysicSystem());
+    systems.addSystem(new fms::ScriptManagerSystem());
+    
+    systems.getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
+    
+    
+    systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
 }
 
+  void Engine::setMainCamera() {
+        systems.getSystem<fms::RenderingSystem>()->setCamera(camera);
+    }
+
 void Engine::init() {
-    systems.addSystem(SOUND, std::make_shared<fms::SoundSystem>());
+    systems.addSystem(new fms::SoundSystem());
 
-    Entity* cam = fm::Engine::createEntity();
-    cam->addComponent<fmc::CCamera>(new fmc::CCamera(800, 600));
-    cam->addComponent<fmc::CTransform>();
-    fmc::CIdentity* identity = cam->addComponent<fmc::CIdentity>();
+    camera = fm::Engine::createEntity();
+    camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
+    camera->addComponent<fmc::CTransform>();
+    fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    std::shared_ptr<fms::RenderingSystem> renderer =
-        std::make_shared<fms::RenderingSystem>(fm::Window::width, fm::Window::height);
-    renderer->addCamera(cam);
-    systems.addSystem((unsigned int)RENDERER, renderer);
-
-    // dynamic_cast<fms::RenderingSystem*>(systems[RENDERER])->addCamera(cam);
+    
+    fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
+    renderer->setCamera(camera);
     systems.init(EntityManager::get(), EventManager::get());
 }
 
@@ -65,8 +67,8 @@ void Engine::resume() {
     hasStopped = false;
 }
 void Engine::reset() { 
-    systems.addSystem((unsigned int)PHYSIC, std::make_shared<fms::PhysicSystem>());
-    systems.addSystem((unsigned int)SCRIPTER, std::make_shared<fms::ScriptManagerSystem>());
+    systems.addSystem(new fms::PhysicSystem());
+    systems.addSystem(new fms::ScriptManagerSystem());
 }
 
 void Engine::update(float dt) {

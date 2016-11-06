@@ -22,9 +22,7 @@ using namespace fms;
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width)
     , height(height) {
-    addComponent<fmc::CMesh>();
-    addComponent<fmc::CTransform>();
-    addComponent<fmc::CMaterial>();
+   
 
     finalShader = fm::ResourcesManager::get().getShader("simple");
     lightShader = fm::ResourcesManager::get().getShader("light");
@@ -51,12 +49,13 @@ void RenderingSystem::init(EntityManager& em, EventManager& event) {
     finalShader->Use()->setVector2f("screenSize", glm::vec2(width, height));
 }
 
-void RenderingSystem::addCamera(Entity* camera) {
+void RenderingSystem::setCamera(Entity* camera) {
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
     cam->viewMatrix = glm::mat4();
     view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
-    cameras.push_back(camera);
+    this->camera = camera;
+    //cameras.push_back(camera);
 }
 
 void
@@ -70,7 +69,7 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
 
 void RenderingSystem::pre_update(EntityManager& em) {
     start = std::chrono::system_clock::now();
-    for(auto camera : cameras) {
+    
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
         if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
             cam->setNewProjection(fm::Window::width, fm::Window::height);
@@ -81,13 +80,13 @@ void RenderingSystem::pre_update(EntityManager& em) {
         cam->viewMatrix = glm::mat4();
         view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
         // cameras.push_back(camera);
-    }
+    
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     fm::Renderer::getInstance().bindFrameBuffer();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for(auto camera : cameras) {
+    
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
         glm::mat4 FM_PV = cam->projection * cam->viewMatrix;
 
@@ -134,7 +133,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 lightShader->Use()->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
             }
         }
-    }
+    
 
     fm::Renderer::getInstance().lightComputation();
 
@@ -167,7 +166,7 @@ void RenderingSystem::over() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     finalShader->Use();
-    finalShader->setVector2f("viewPos", cameras[0]->get<fmc::CTransform>()->position);
+    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     fm::Renderer::getInstance().postProcess(true);
     // fm::Renderer::getInstance().bindFrameBuffer();
 

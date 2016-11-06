@@ -7,7 +7,7 @@
 #include "Collider.h"
 namespace fms {
 
-class ScriptManagerSystem : public System, public Receiver<ScriptManagerSystem> {
+class ScriptManagerSystem : public System<ScriptManagerSystem>, public Receiver<ScriptManagerSystem> {
 public:
     ScriptManagerSystem();
     ~ScriptManagerSystem();
