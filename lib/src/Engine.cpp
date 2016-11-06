@@ -35,16 +35,15 @@ void Engine::run(Window& window) {
 void Engine::start() {
     systems.addSystem(new fms::PhysicSystem());
     systems.addSystem(new fms::ScriptManagerSystem());
-    
+
     systems.getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
-    
-    
+
     systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
 }
 
-  void Engine::setMainCamera() {
-        systems.getSystem<fms::RenderingSystem>()->setCamera(camera);
-    }
+void Engine::setMainCamera() {
+    systems.getSystem<fms::RenderingSystem>()->setCamera(camera);
+}
 
 void Engine::init() {
     systems.addSystem(new fms::SoundSystem());
@@ -54,7 +53,7 @@ void Engine::init() {
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    
+
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     renderer->setCamera(camera);
     systems.init(EntityManager::get(), EventManager::get());
@@ -66,7 +65,7 @@ void Engine::stop() {
 void Engine::resume() {
     hasStopped = false;
 }
-void Engine::reset() { 
+void Engine::reset() {
     systems.addSystem(new fms::PhysicSystem());
     systems.addSystem(new fms::ScriptManagerSystem());
 }
@@ -74,7 +73,8 @@ void Engine::reset() {
 void Engine::update(float dt) {
     if(hasStopped)
         systems.update(0, EntityManager::get(), EventManager::get());
-    else systems.update(dt, EntityManager::get(), EventManager::get());
+    else
+        systems.update(dt, EntityManager::get(), EventManager::get());
 }
 
 Entity* Engine::createEntity() {

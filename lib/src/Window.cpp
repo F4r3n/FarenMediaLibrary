@@ -93,7 +93,6 @@ void Window::frameLimit(unsigned short fps) {
 
     double frame_end = glfwGetTime();
     Time::dt = frame_end - frame_start;
-    // here you could print to file or OutputDebugStream curr_frame_time, frame_end - frame_start and dur.
     frame_start = frame_end;
 }
 
@@ -103,7 +102,6 @@ void Window::blur() {
 
 void Window::swapBuffers() {
 
-    // clear();
     errorDisplay();
     glfwSwapBuffers(window);
 }

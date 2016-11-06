@@ -64,15 +64,14 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.FrameRounding = 4;
     style.IndentSpacing = 12.0f;
 
-
     dlight = fm::Engine::createEntity();
     dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
     dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
     dlight->addComponent<fmc::CIdentity>()->display = false;
-    
+
     playImage = fm::Texture("assets/images/play_button.png");
-    
+
     cameraEditor = fm::Engine::createEntity();
     cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
     mainCameraPosition = cameraEditor->addComponent<fmc::CTransform>();
@@ -80,7 +79,6 @@ MainWindow::MainWindow(fm::Engine* engine) {
     identity->name = "CameraEditor";
     identity->display = false;
     engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
-    
 }
 
 void MainWindow::displayComponents(Entity* currentEntity) {
@@ -125,16 +123,16 @@ void MainWindow::serializeState() {
     writer.EndObject();
     writer.EndObject();
     std::cout << lastState.GetString() << std::endl;
-    
 }
 
 void MainWindow::deserializeState() {
     rapidjson::Document d;
     d.Parse(lastState.GetString());
     std::cout << lastState.GetString() << std::endl;
-     for(auto e : EntityManager::get().iterate<fmc::CIdentity>()) {
+    for(auto e : EntityManager::get().iterate<fmc::CIdentity>()) {
         std::string id = std::to_string(e->ID);
-        parseComponent<LIST_COMPONENT>(e, d["scene1"][id.c_str()]);
+        std::cout << e->ID << std::endl;
+        parseComponent<LIST_COMPONENT>(e, d[nameCurrentScene.c_str()][id.c_str()]);
     }
 }
 
@@ -152,7 +150,7 @@ void MainWindow::menu() {
                 }
                 if(ImGui::MenuItem("Stop")) {
                     deserializeState();
-                    engine->reset();  
+                    engine->reset();
                 }
                 ImGui::EndMenu();
             }
@@ -167,9 +165,9 @@ void MainWindow::menu() {
             }
             ImGui::EndMenu();
         }
-        
-         if(ImGui::BeginMenu("Cameras")) {
-          displayListCamera();
+
+        if(ImGui::BeginMenu("Cameras")) {
+            displayListCamera();
             ImGui::EndMenu();
         }
         if(ImGui::BeginMenu("Entity")) {
@@ -179,7 +177,6 @@ void MainWindow::menu() {
                 currentEntity->addComponent<fmc::CTransform>(
                     new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
                 currentEntity->addComponent<fmc::CIdentity>();
-               
             }
             if(ImGui::MenuItem("List entity")) {
                 windowListEntity = true;
@@ -210,7 +207,7 @@ void MainWindow::displayComponentsAvailable() {
 void MainWindow::menuEntity() {
     if(windowCurrentEntity) {
         ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-        
+
         ImGui::Begin(std::string("Create entity " + std::to_string(currentEntity->ID)).c_str(), &windowCurrentEntity);
 
         displayComponents(currentEntity);
@@ -313,6 +310,21 @@ void MainWindow::draw() {
     } else {
         firstRightClick = false;
     }
+
+    ImGui::SetNextWindowPos(ImVec2(10, 30));
+    static bool v = true;
+    if(!ImGui::Begin("Mouse pos",
+                     &v,
+                     ImVec2(200, 0),
+                     0.8f,
+                     ImGuiWindowFlags_NoTitleBar |
+                         ImGuiWindowFlags_NoSavedSettings)) {
+        ImGui::End();
+        return;
+    }
+   
+    ImGui::Text("Position: (%.1f,%.1f)", mainCameraPosition->position.x, mainCameraPosition->position.y);
+    ImGui::End();
 }
 
 void MainWindow::display(fmc::CTransform* t, bool* value) {
@@ -326,9 +338,17 @@ void MainWindow::display(fmc::CTransform* t, bool* value) {
 }
 
 void MainWindow::display(fmc::Body2D* t, bool* value) {
+    static bool isDynamic = false;
     if(ImGui::CollapsingHeader("Body2D", value)) {
         ImGui::DragFloat2("Size##Body", &t->size.x, 0.02f, 0, FLT_MAX, NULL, 2.0f);
-        ImGui::Checkbox("Is dynamic", &t->isDynamic);
+        if(ImGui::Checkbox("Is dynamic", &isDynamic)) {
+            t->isDynamic = isDynamic;
+            if(isDynamic) {
+                t->bodyDef.type = b2_dynamicBody;
+            } else {
+                t->bodyDef.type = b2_staticBody;
+            }
+        }
     }
 }
 void MainWindow::display(fmc::CMaterial* t, bool* value) {
@@ -362,6 +382,3 @@ void MainWindow::display(fmc::CDirectionalLight* t, bool* value) {
         ImGui::ColorEdit3("Color", &t->color.r);
     }
 }
-
-
-

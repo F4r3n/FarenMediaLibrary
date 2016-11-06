@@ -29,6 +29,7 @@ public:
         fixture.friction = friction;
         body->CreateFixture(&fixture);
         body->SetUserData(this);
+        isReady = true;
     }
 
     void startContact();
@@ -50,7 +51,8 @@ public:
     bool isDynamic = false;
     
     static const std::string name;
-    //static int i;
+    
+    bool isReady = false;
 void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
     void parse(rapidjson::Value &value) override {}
 };

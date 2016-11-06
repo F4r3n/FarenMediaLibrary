@@ -15,6 +15,9 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event) {
     
     for(auto e : em.iterate<fmc::CTransform, fmc::Body2D>()) {
         fmc::Body2D* body = e->get<fmc::Body2D>();
+        if(!body->isReady) {
+            body->init(world.get(), P2M);
+        }
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         //std::cout << body->body->GetPosition().y << std::endl;
         transform->position = fm::Vector2f(body->body->GetPosition().x - (body->size.x)*P2M, 
