@@ -24,7 +24,7 @@ void TextureMapper::addAtlas(SIZE s) {
     maps[s].push_back(atlas);
 }
 
-unsigned int TextureMapper::registerTexture(Image& image, Recti rect) {
+TextureDef TextureMapper::registerTexture(Image& image, Recti rect) {
     checkRect(image, rect);
 
     std::vector<unsigned char> content;
@@ -35,7 +35,9 @@ unsigned int TextureMapper::registerTexture(Image& image, Recti rect) {
 SIZE TextureMapper::findSize(const Recti& rect) {
     size_t size = 32;
     size_t maxSizeRect = (rect.w > rect.h) ? rect.w : rect.h;
-    
+    if(maxSizeRect > (32 << (LAST_SIZE - 1)))
+        return LAST_SIZE;
+
     for(unsigned int i = 0; i < LAST_SIZE; i++) {
         size <<= i;
         if(size - maxSizeRect < 0) {
@@ -62,9 +64,13 @@ TextureAtlas& TextureMapper::getCurrent(SIZE s) {
     return maps[s].back();
 }
 
-unsigned int TextureMapper::fillTextureAtlas(Image& image, Recti rect, std::vector<unsigned char>& content) {
-
-    TextureAtlas atlas = getCurrent(findSize(rect));
+TextureDef TextureMapper::fillTextureAtlas(Image& image, Recti rect, std::vector<unsigned char>& content) {
+    SIZE s = findSize(rect);
+    TextureDef tex;
+    tex.id = -1;
+    if(s == LAST_SIZE)
+        return tex;
+    TextureAtlas atlas = getCurrent(s);
     if((atlas.pos.x + atlas.maxSizeRegion) > maxSize) {
         atlas.pos.x = 0;
         atlas.pos.y += atlas.maxSizeRegion;
@@ -73,12 +79,17 @@ unsigned int TextureMapper::fillTextureAtlas(Image& image, Recti rect, std::vect
             return fillTextureAtlas(image, rect, content);
         }
     }
+    tex.id = atlas.id;
+    tex.rectUV.x = atlas.pos.x/maxSize;
+    tex.rectUV.y = atlas.pos.y/maxSize;
+    tex.rectUV.w = rect.w/maxSize;
+    tex.rectUV.h = rect.h/maxSize;
     glTexSubImage2D(
         GL_TEXTURE_2D, 0, atlas.pos.x, atlas.pos.y, rect.w, rect.h, GL_RGBA, GL_UNSIGNED_BYTE, content.data());
-    return atlas.id;
+    return tex;
 }
 
-unsigned int TextureMapper::registerTexture(const std::string& path, Recti rect) {
+TextureDef TextureMapper::registerTexture(const std::string& path, Recti rect) {
     Image image;
     if(!image.loadImage(path)) {
         std::cout << "Error loading image " << path << std::endl;
