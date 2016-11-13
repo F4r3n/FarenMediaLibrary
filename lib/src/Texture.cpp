@@ -42,7 +42,7 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // stbi_image_free(image);
+    //stbi_image_free(image);
     glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
     image.clear();
     content.clear();
@@ -78,7 +78,7 @@ Texture::Texture(const Image& image, Recti rect) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // stbi_image_free(image);
+    //stbi_image_free(image);
     glBindTexture(GL_TEXTURE_2D, 0);
     content.clear();
 }
