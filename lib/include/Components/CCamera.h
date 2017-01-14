@@ -10,6 +10,13 @@ struct ViewPortCamera {
     float width;
     float height;
 };
+
+struct Shader_data
+{
+    glm::mat4 FM_V;
+    glm::mat4 FM_P;
+    glm::mat4 FM_PV;
+};
 class CCamera : public Component<CCamera> {
 public:
     CCamera() {
@@ -37,5 +44,7 @@ static const std::string name;
     ViewPortCamera viewPort;
     glm::mat4 projection;
     glm::mat4 viewMatrix;
+    
+    Shader_data shader_data;
 };
 }

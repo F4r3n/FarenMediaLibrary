@@ -38,9 +38,32 @@ RenderingSystem::RenderingSystem(int width, int height)
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    
+}
+
+void RenderingSystem::initUniformBufferCamera(fmc::CCamera *camera) {
+    glGenBuffers(1, &gbo);
+    glBindBuffer(GL_UNIFORM_BUFFER, gbo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(camera->shader_data), &camera->shader_data, GL_DYNAMIC_COPY);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+ for( auto shader : fm::ResourcesManager::get().getAllShaders()) {
+        shader.second->Use();
+        unsigned int block_index = glGetUniformBlockIndex(shader.second->Program, "shader_data");
+        GLuint binding_point_index = 2;
+        glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, gbo);
+        glUniformBlockBinding(shader.second->Program, block_index, binding_point_index);
+    }
 }
 
 RenderingSystem::~RenderingSystem() {
+}
+
+void RenderingSystem::updateUniformBufferCamera(fmc::CCamera *camera) {
+    glBindBuffer(GL_UNIFORM_BUFFER, gbo);
+    GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    memcpy(p, &camera->shader_data, sizeof(camera->shader_data));
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager& event) {
@@ -55,6 +78,10 @@ void RenderingSystem::setCamera(Entity* camera) {
     cam->viewMatrix = glm::mat4();
     view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
     this->camera = camera;
+
+    initUniformBufferCamera(cam);
+
+   
     //cameras.push_back(camera);
 }
 
@@ -88,8 +115,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        glm::mat4 FM_PV = cam->projection * cam->viewMatrix;
-
+        cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
+        cam->shader_data.FM_P = cam->projection;
+        cam->shader_data.FM_V = cam->viewMatrix;
+        updateUniformBufferCamera(cam);
         int lightNumber = 0;
         for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
             fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -102,12 +131,11 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
                 
-                shader->Use()->setMatrix("FM_PV", FM_PV)->setInt("BloomEffect", material->bloom);
-
+                shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
                 glm::mat4 model = glm::mat4();
                 setModel(model, transform, worldPos);
-
-                shader->setMatrix("model", model)->setColor("mainColor", material->color);
+                shader->setMatrix("FM_PVM", cam->shader_data.FM_PV*model);
+                shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
                 
                 if(material->textureReady) {
                     glActiveTexture(GL_TEXTURE0);

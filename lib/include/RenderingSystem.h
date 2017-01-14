@@ -20,6 +20,8 @@ struct TextDef {
     glm::mat4 projection;
 };
 
+
+
 namespace fms
 {
 class RenderingSystem : public System<RenderingSystem>
@@ -39,7 +41,8 @@ public:
     void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
     void setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f &worldPos);
     ~RenderingSystem();
-    
+    void initUniformBufferCamera(fmc::CCamera *camera);
+    void updateUniformBufferCamera(fmc::CCamera *camera);
 private:
     Entity* camera;
     int width;
@@ -54,5 +57,7 @@ private:
     std::shared_ptr<fm::Shader> lightShader;
     
     TextDef textdef;
+    
+    GLuint gbo;
 };
 }

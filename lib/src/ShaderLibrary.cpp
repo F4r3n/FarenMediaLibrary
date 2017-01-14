@@ -15,6 +15,12 @@ void ShaderLibrary::loadShaders() {
                               layout (location = 0) in vec4 vertex;
                               out vec2 TexCoords;
                               uniform mat4 projection;
+                                                               layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_VP;
+                                    };
                               void main(){
                                 gl_Position = projection*vec4(vertex.xy, 1.0, 1.0);
                                 TexCoords = vertex.zw;
@@ -82,6 +88,13 @@ void ShaderLibrary::loadShaders() {
                                     out vec3 Color;
                                     uniform mat4 view;
                                     uniform mat4 projection;
+                                    
+                                layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_VP;
+                                    };
                                     void main(){
                                     vec2 colorTest = vec2(1);
                                     gl_Position = projection*view*instanceMatrix*vec4(position, 0.0f, 1.0f);
@@ -132,7 +145,12 @@ void ShaderLibrary::loadShaders() {
                                 layout(location = 0) in vec2 position;
                                 layout(location = 1) in vec2 texCoords;
                                 out vec2 TexCoords;
-                                
+                                 layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_VP;
+                                    };
                                 void main(){
                                     gl_Position = vec4(position, 0.0f, 1.0f);
                                     TexCoords = texCoords;
@@ -211,16 +229,22 @@ void ShaderLibrary::loadShaders() {
     std::string default_vertex = S(
                                  layout(location = 0) in vec2 position;
                                  layout(location = 1) in vec2 texCoords;
-                                 uniform mat4 view;
-                                 uniform mat4 model;
-                                 uniform mat4 projection;
-                                 uniform mat4 FM_PV;
+                                 uniform mat4 FM_M;
+                                 uniform mat4 FM_PVM;
                                  
+                                 layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_PV;
+                                    };
+
                                  out vec3 ourPosition;
                                  void main(){
-                                 vec4 worldPos = model*vec4(position, 1.0f, 1.0f);
-                                 gl_Position = FM_PV*worldPos;
-                                 ourPosition = worldPos.xyz;
+                                     
+                                 vec4 screenPos = vec4(position, 1.0f, 1.0f);
+                                 gl_Position = FM_PVM*screenPos;
+                                 ourPosition = (FM_M*screenPos).xyz;
                                  });
 
     std::string default_fragment = S(
@@ -254,7 +278,12 @@ void ShaderLibrary::loadShaders() {
                                         out vec4 ourColor;
                                         out vec2 ourTexCoord;
                                         out vec3 ourPosition;
-
+                                 layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_VP;
+                                    };
                                         void main(){
                                         vec4 worldPos = model*vec4(position, 1.0f, 1.0f);
                                         gl_Position = FM_PV*worldPos;
@@ -302,6 +331,12 @@ void ShaderLibrary::loadShaders() {
         
         out vec4 ourColor;
         out vec2 ourTexCoord;
+                                         layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_VP;
+                                    };
         void main(){
             gl_Position = projection*view*vec4((vertex.xy*scale) + offset, 0.0f, 1.0f);
             ourTexCoord = vertex.zw;

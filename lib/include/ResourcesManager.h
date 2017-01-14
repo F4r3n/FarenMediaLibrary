@@ -28,6 +28,10 @@ public:
     std::shared_ptr<Shader> getShader(const std::string& name) {
         return shaders[name];
     }
+    
+    std::unordered_map<std::string, std::shared_ptr<Shader> >& getAllShaders() {
+        return shaders;
+    }
     template <typename T> std::shared_ptr<T> getResource(const std::string& name) {
         return std::dynamic_pointer_cast<T>(resources[T::type][name]);
     }
