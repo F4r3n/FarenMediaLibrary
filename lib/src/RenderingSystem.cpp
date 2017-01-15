@@ -96,11 +96,12 @@ void RenderingSystem::pre_update(EntityManager& em) {
     start = std::chrono::system_clock::now();
     
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-       // if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
+        //if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
        //     cam->setNewProjection(fm::Window::width, fm::Window::height);
        //     //fm::Renderer::getInstance().clearFBO();
        //     //fm::Renderer::getInstance().initFrameBuffer(fm::Window::width, fm::Window::height);
-       // }
+        //}
+        cam->updateRenderTexture();
         fmc::CTransform* ct = camera->get<fmc::CTransform>();
         cam->viewMatrix = glm::mat4();
         view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);

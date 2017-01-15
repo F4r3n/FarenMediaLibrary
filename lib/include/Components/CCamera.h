@@ -50,6 +50,14 @@ public:
 
     }
     
+    void updateRenderTexture() {
+        if(viewPort.width != renderTexture.getWidth() 
+        || viewPort.height != renderTexture.getHeight()) {
+            renderTexture.release();
+            renderTexture = fm::RenderTexture(viewPort.width, viewPort.height);
+        }
+    }
+    
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
         projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
