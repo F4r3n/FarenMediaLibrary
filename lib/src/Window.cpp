@@ -12,6 +12,9 @@
 using namespace fm;
 int Window::width;
 int Window::height;
+
+int Window::x = 0;
+int Window::y = 0;
 Window::Window(int width, int height, const std::string& name) {
     this->nameWindow = name;
     Window::width = width;
@@ -25,7 +28,7 @@ Window::Window(int width, int height, const std::string& name) {
     window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     init(window);
 
-    initFrameBuffer();
+    //initFrameBuffer();
 
     createQuadScreen();
     createShaders();
@@ -60,7 +63,7 @@ void Window::createShaders() {
 }
 
 void Window::bindFrameBuffer() {
-    Renderer::getInstance().bindFrameBuffer();
+    //Renderer::getInstance().bindFrameBuffer();
 }
 
 void Window::update(float fps) {
@@ -76,7 +79,7 @@ void Window::update(float fps) {
 }
 
 void Window::initFrameBuffer() {
-    Renderer::getInstance().initFrameBuffer(width, height);
+    //Renderer::getInstance().initFrameBuffer(width, height);
 }
 
 void Window::createQuadScreen() {
@@ -97,7 +100,7 @@ void Window::frameLimit(unsigned short fps) {
 }
 
 void Window::blur() {
-    Renderer::getInstance().blur();
+    //Renderer::getInstance().blur();
 }
 
 void Window::swapBuffers() {
@@ -117,7 +120,7 @@ void Window::errorDisplay() {
 void Window::postProcess(bool horizontal) {
     std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
     s->Use()->setVector2f("screenSize", glm::vec2(width, height));
-    Renderer::getInstance().postProcess(horizontal);
+    //Renderer::getInstance().postProcess(horizontal);
 }
 
 bool Window::isClosed() {
@@ -131,6 +134,9 @@ void Window::events() {
 Window::~Window() {
     glfwTerminate();
 }
+
+
+
 
 int Window::init(GLFWwindow* window) {
     if(window == nullptr) {
@@ -147,9 +153,9 @@ int Window::init(GLFWwindow* window) {
     glGetError();
     errorDisplay();
 
-    glfwGetFramebufferSize(window, &width, &height);
+    //glfwGetFramebufferSize(window, &width, &height);
 
-    glViewport(0, 0, width, height);
+    glViewport(x, y, width, height);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

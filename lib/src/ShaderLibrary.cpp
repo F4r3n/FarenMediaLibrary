@@ -204,6 +204,8 @@ void ShaderLibrary::loadShaders() {
                                     result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;
                                  }
                                  FragColor = vec4(result, 1);
+                                 //FragColor = vec4(1);
+
                                  float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
                                  if(brightness >= 0.5)
                                  BrightColor = vec4(FragColor.rgb, 1.0);

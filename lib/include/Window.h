@@ -31,7 +31,8 @@ public:
     }
     static int width;
     static int height;
-
+    static int x;
+    static int y;
 private:
     void initFrameBuffer();
     void events();
@@ -42,7 +43,7 @@ private:
     void errorDisplay();
     void blur();
     static void window_size_callback(GLFWwindow* window, int width, int height) {
-        glViewport(0, 0, width, height);
+        glViewport(x, y, width, height);
         Window::width = width;
         Window::height = height;
     }

@@ -81,8 +81,6 @@ void RenderingSystem::setCamera(Entity* camera) {
 
     initUniformBufferCamera(cam);
 
-   
-    //cameras.push_back(camera);
 }
 
 void
@@ -98,27 +96,30 @@ void RenderingSystem::pre_update(EntityManager& em) {
     start = std::chrono::system_clock::now();
     
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
-            cam->setNewProjection(fm::Window::width, fm::Window::height);
-            fm::Renderer::getInstance().clearFBO();
-            fm::Renderer::getInstance().initFrameBuffer(fm::Window::width, fm::Window::height);
-        }
+       // if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
+       //     cam->setNewProjection(fm::Window::width, fm::Window::height);
+       //     //fm::Renderer::getInstance().clearFBO();
+       //     //fm::Renderer::getInstance().initFrameBuffer(fm::Window::width, fm::Window::height);
+       // }
         fmc::CTransform* ct = camera->get<fmc::CTransform>();
         cam->viewMatrix = glm::mat4();
         view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
         // cameras.push_back(camera);
-    
+
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
-    fm::Renderer::getInstance().bindFrameBuffer();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+    //fm::Renderer::getInstance().bindFrameBuffer();
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
+        if(!cam->getRenderTexture().isCreated()) return;
+        cam->getRenderTexture().active();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
         cam->shader_data.FM_P = cam->projection;
         cam->shader_data.FM_V = cam->viewMatrix;
         updateUniformBufferCamera(cam);
+        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
         int lightNumber = 0;
         for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
             fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -163,7 +164,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         }
     
 
-    fm::Renderer::getInstance().lightComputation();
+    fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
+                                                 cam->getRenderTexture().getLightBuffer());
 
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -185,17 +187,24 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
         drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //
+    finalShader->Use();
+    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+    fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer(), true);
 }
 
 void RenderingSystem::over() {
     // fm::Renderer::getInstance().blur();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    finalShader->Use();
-    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
-    fm::Renderer::getInstance().postProcess(true);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //
+    //finalShader->Use();
+    //finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+    //fm::Renderer::getInstance().postProcess(true);
     // fm::Renderer::getInstance().bindFrameBuffer();
 
     end = std::chrono::system_clock::now();

@@ -14,7 +14,7 @@ public:
     bool textureReady = false;
     std::string shaderName = "default";
     fm::Color color;
-    bool bloom = false;
+    bool bloom = false;//TODO to remove bloom from material
     
 
     static const std::string name;

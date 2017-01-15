@@ -49,10 +49,11 @@ void Engine::init() {
     systems.addSystem(new fms::SoundSystem());
 
     camera = fm::Engine::createEntity();
-    camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
+    fmc::CCamera *cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
+    //cam->setNewViewPort(10,10, fm::Window::width - 10, fm::Window::height - 10);
 
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     renderer->setCamera(camera);
