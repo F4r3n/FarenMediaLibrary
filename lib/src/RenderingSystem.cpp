@@ -69,7 +69,6 @@ void RenderingSystem::updateUniformBufferCamera(fmc::CCamera *camera) {
 void RenderingSystem::init(EntityManager& em, EventManager& event) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     std::cout << width << " " << height << std::endl;
-    finalShader->Use()->setVector2f("screenSize", glm::vec2(width, height));
 }
 
 void RenderingSystem::setCamera(Entity* camera) {
@@ -113,14 +112,24 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     //fm::Renderer::getInstance().bindFrameBuffer();
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
         if(!cam->getRenderTexture().isCreated()) return;
-        cam->getRenderTexture().active();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+        
+        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+            cam->getRenderTexture().active();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+        if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        
+        }
+        //glClear(GL_COLOR_BUFFER_BIT);
+        //std::cout << "Render texture size " << cam->viewPort.width << std::endl;
         cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
         cam->shader_data.FM_P = cam->projection;
         cam->shader_data.FM_V = cam->viewMatrix;
         updateUniformBufferCamera(cam);
-        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+        
         int lightNumber = 0;
         for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
             fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -148,25 +157,33 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 draw(cmesh);
             }
 
-            if(e->has<fmc::CPointLight>()) {
-                std::string ln = "light[" + std::to_string(lightNumber) + "]";
-
-                lightShader->Use()
-                    ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
-                    ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
-                    ->setInt(ln + ".ready", 1);
-                lightNumber++;
-            }
-
-            if(e->has<fmc::CDirectionalLight>()) {
-
-                lightShader->Use()->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
+           
+    
+            if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+                if(e->has<fmc::CPointLight>()) {
+                        std::string ln = "light[" + std::to_string(lightNumber) + "]";
+        
+                        lightShader->Use()
+                            ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
+                            ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
+                            ->setInt(ln + ".ready", 1);
+                        lightNumber++;
+                    }
+        
+                    if(e->has<fmc::CDirectionalLight>()) {
+        
+                        lightShader->Use()->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
+                    }
+                
             }
         }
+        
+        fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
+                                                     cam->getRenderTexture().getLightBuffer());
+    
+                                                 
     
 
-    fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
-                                                 cam->getRenderTexture().getLightBuffer());
 
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -189,12 +206,18 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //
-    finalShader->Use();
-    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
-    fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer(), true);
+    
+
+    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //std::cout << "yop" << std::endl;
+        finalShader->Use();
+        finalShader->Use()->setVector2f("screenSize", glm::vec2(cam->viewPort.width, cam->viewPort.y));
+    
+        finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+        fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer(), true);
+    }
 }
 
 void RenderingSystem::over() {

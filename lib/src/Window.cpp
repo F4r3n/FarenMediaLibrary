@@ -28,8 +28,6 @@ Window::Window(int width, int height, const std::string& name) {
     window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     init(window);
 
-    //initFrameBuffer();
-
     createQuadScreen();
     createShaders();
     // glEnable (GL_BLEND);
@@ -62,9 +60,6 @@ void Window::createShaders() {
 
 }
 
-void Window::bindFrameBuffer() {
-    //Renderer::getInstance().bindFrameBuffer();
-}
 
 void Window::update(float fps) {
 
@@ -73,14 +68,9 @@ void Window::update(float fps) {
     wait_time = 1.0f / (float)fpsMax;
     frameLimit(fps);
 
-    bindFrameBuffer();
-
     clear();
 }
 
-void Window::initFrameBuffer() {
-    //Renderer::getInstance().initFrameBuffer(width, height);
-}
 
 void Window::createQuadScreen() {
     Renderer::getInstance().createQuadScreen();
@@ -96,12 +86,10 @@ void Window::frameLimit(unsigned short fps) {
 
     double frame_end = glfwGetTime();
     Time::dt = frame_end - frame_start;
+    Time::timeStamp += Time::dt;
     frame_start = frame_end;
 }
 
-void Window::blur() {
-    //Renderer::getInstance().blur();
-}
 
 void Window::swapBuffers() {
 
@@ -152,8 +140,6 @@ int Window::init(GLFWwindow* window) {
     }
     glGetError();
     errorDisplay();
-
-    //glfwGetFramebufferSize(window, &width, &height);
 
     glViewport(x, y, width, height);
 

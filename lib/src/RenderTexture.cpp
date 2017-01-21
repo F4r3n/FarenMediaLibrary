@@ -9,8 +9,6 @@ RenderTexture::RenderTexture(unsigned int width, unsigned int height, unsigned s
     this->depth = depth;
     
     isReady = initFrameBuffer();
-        std::cout << "Called " << width << " " << height << std::endl;
-
 }
 
 RenderTexture::RenderTexture(unsigned int width, unsigned int height) {
@@ -25,13 +23,13 @@ RenderTexture::~RenderTexture() {
 void RenderTexture::release() {
     std::cout << "Release render texture" << std::endl;
     glDeleteTextures(3, textureColorbuffer);
-    glDeleteTextures(2, pingpongColorbuffers);
-
+    //glDeleteTextures(2, pingpongColorbuffers);
+    
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteRenderbuffers(1, &rboDepth);
     glDeleteRenderbuffers(1, &framebuffer);
     // Bind 0, which means render to back buffer, as a result, fb is unbound
-    glDeleteFramebuffers(2, pingpongFBO);
+    //glDeleteFramebuffers(2, pingpongFBO);
     isReady = false;
     
     for(int i = 0; i < 3; i++) textureColorbuffer[i] = 0;
@@ -99,7 +97,7 @@ bool RenderTexture::initFrameBuffer() {
     glDrawBuffers(2, attachments2);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Ping pong framebuffer for blurring
+   /* // Ping pong framebuffer for blurring
     glGenFramebuffers(2, pingpongFBO);
     glGenTextures(2, pingpongColorbuffers);
     for(GLuint i = 0; i < 2; i++) {
@@ -115,7 +113,7 @@ bool RenderTexture::initFrameBuffer() {
             std::cout << "Framebuffer not complete!" << std::endl;
             return false;
         }
-    }
+    }*/
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     return true;

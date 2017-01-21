@@ -15,13 +15,13 @@ void CScriptManager::init(sol::state& lua, Entity* e) {
     }
 }
 
-void CScriptManager::update(float dt, sol::state& lua) {
+void CScriptManager::update(sol::state& lua) {
     for(auto s : scripts) {
         if(!s->hasStarted) {
             s->start(lua);
             s->hasStarted = true;
         }
-        s->update(lua, dt);
+        s->update(lua);
     }
 }
 

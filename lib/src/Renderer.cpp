@@ -33,24 +33,24 @@ void Renderer::createQuadScreen() {
     glBindVertexArray(0);
 }
 
-void Renderer::blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers) {
-    GLboolean horizontal = true, first_iteration = true;
-    GLuint amount = 10;
-    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("blur");
-    s->Use();
-    for(GLuint i = 0; i < amount; i++) {
-        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        s->setInt("horizontal", horizontal);
-        glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffer[1] : pingpongColorbuffers[!horizontal]);
-        glBindVertexArray(quadVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-        horizontal = !horizontal;
-        if(first_iteration)
-            first_iteration = false;
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
+//void Renderer::blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers) {
+//    GLboolean horizontal = true, first_iteration = true;
+//    GLuint amount = 10;
+//    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("blur");
+//    s->Use();
+//    for(GLuint i = 0; i < amount; i++) {
+//        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+//        s->setInt("horizontal", horizontal);
+//        glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffer[1] : pingpongColorbuffers[!horizontal]);
+//        glBindVertexArray(quadVAO);
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//        glBindVertexArray(0);
+//        horizontal = !horizontal;
+//        if(first_iteration)
+//            first_iteration = false;
+//    }
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//}
 
 void Renderer::lightComputation(GLuint *colorBuffer, GLuint lightBuffer) {
 
@@ -84,7 +84,7 @@ void Renderer::postProcess(GLuint *colorBuffer, bool horizontal) {
 
 
 void Renderer::clear() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

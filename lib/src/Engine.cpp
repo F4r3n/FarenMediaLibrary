@@ -53,8 +53,8 @@ void Engine::init() {
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    //cam->setNewViewPort(10,10, fm::Window::width - 10, fm::Window::height - 10);
-
+    cam->setNewViewPort(0, 0, fm::Window::width, fm::Window::height);
+    cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     renderer->setCamera(camera);
     systems.init(EntityManager::get(), EventManager::get());

@@ -13,18 +13,24 @@ struct ViewPortCamera {
     float height;
 };
 
+enum RENDER_MODE {
+    FORWARD,
+    DEFERRED
+};
+
 struct Shader_data
 {
     glm::mat4 FM_V;
     glm::mat4 FM_P;
     glm::mat4 FM_PV;
+    int render_mode = fmc::RENDER_MODE::DEFERRED;
 };
 class CCamera : public Component<CCamera> {
 public:
     CCamera() {
     }
     CCamera(int width, int height) {
-        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+        projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
@@ -39,6 +45,7 @@ public:
     }
 
     void setNewProjection(unsigned int width, unsigned int height) {
+       
         projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
@@ -59,7 +66,7 @@ public:
     }
     
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
-        projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
+        projection = glm::ortho((float)x, (float)x + (float)width,  (float)y + (float)height, (float)y, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = x;
@@ -82,5 +89,6 @@ static const std::string name;
     
     Shader_data shader_data;
     fm::RenderTexture renderTexture;
+    
 };
 }

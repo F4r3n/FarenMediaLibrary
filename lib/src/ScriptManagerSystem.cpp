@@ -11,7 +11,9 @@
 #include "Components/CMesh.h"
 #include "Components/CSource.h"
 #include "Components/Body2D.h"
+#include "Time.h"
 
+#include <iostream>
 using namespace fms;
 using namespace fmc;
 using namespace fm;
@@ -35,7 +37,7 @@ Entity* createEntity() {
 ScriptManagerSystem::ScriptManagerSystem() {
     
     lua.open_libraries();
-
+    
     registerComponent<Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),
  "x", &Vector2f::x, "y", &Vector2f::y);
     registerComponent<Vector2d>("Vector2d", "x", &Vector2d::x, "y", &Vector2d::y);
@@ -82,6 +84,10 @@ ScriptManagerSystem::ScriptManagerSystem() {
                              &Input::getMousePositionVector,
                              "getMouseButton",
                              &Input::getMouseButton);
+       lua.new_usertype<Time>("Time",
+                "dt", sol::var(std::ref(Time::dt)),
+                "timeStamp", sol::var(std::ref(Time::timeStamp))
+        );
 
     lua.set_function("add_Transform", &add<CTransform>);
     lua.set_function("add_Mesh", &add<CMesh>);
@@ -136,6 +142,6 @@ void ScriptManagerSystem::init(EntityManager& em, EventManager& event) {
 void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager& event) {
     for(auto e : em.iterate<CScriptManager>()) {
         fmc::CScriptManager* scriptManager = e->get<CScriptManager>();
-        scriptManager->update(dt, lua);
+        scriptManager->update(lua);
     }
 }

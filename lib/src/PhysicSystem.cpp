@@ -2,6 +2,7 @@
 #include "Components/Body2D.h"
 #include "Components/CTransform.h"
 #include "Event.h"
+#include "Time.h"
 using namespace fms;
 PhysicSystem::PhysicSystem() {
     gravity = b2Vec2(0.0f, 5.0f);
@@ -11,7 +12,7 @@ PhysicSystem::PhysicSystem() {
 
 void PhysicSystem::update(float dt, EntityManager& em, EventManager& event) {
     world->Step(dt, 8, 2);
-
+    
     
     for(auto e : em.iterate<fmc::CTransform, fmc::Body2D>()) {
         fmc::Body2D* body = e->get<fmc::Body2D>();

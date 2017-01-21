@@ -20,7 +20,6 @@ public:
     bool isClosed();
     void frameLimit(unsigned short fps);
     void update(float fps);
-    void bindFrameBuffer();
     Window& getInstance();
     GLFWwindow* getWindow() {
         return window;
@@ -34,7 +33,6 @@ public:
     static int x;
     static int y;
 private:
-    void initFrameBuffer();
     void events();
     int init(GLFWwindow* window);
     void createQuadScreen();

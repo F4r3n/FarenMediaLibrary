@@ -94,6 +94,7 @@ void ShaderLibrary::loadShaders() {
                                     mat4 FM_V;
                                     mat4 FM_P;
                                     mat4 FM_VP;
+                                    int render_mode;
                                     };
                                     void main(){
                                     vec2 colorTest = vec2(1);
@@ -239,6 +240,8 @@ void ShaderLibrary::loadShaders() {
                                     mat4 FM_V;
                                     mat4 FM_P;
                                     mat4 FM_PV;
+                                    int render_mode;
+
                                     };
 
                                  out vec3 ourPosition;
@@ -257,7 +260,7 @@ void ShaderLibrary::loadShaders() {
                                    uniform vec4 mainColor;
                                    uniform int BloomEffect;
                                    in vec3 ourPosition;
-
+                                    
                                    void main(){
                                    vec4 color = mainColor;
                                    posTexture = vec4(ourPosition, 1);

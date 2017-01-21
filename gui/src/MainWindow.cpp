@@ -73,11 +73,12 @@ MainWindow::MainWindow(fm::Engine* engine) {
     playImage = fm::Texture("assets/images/play_button.png");
 
     cameraEditor = fm::Engine::createEntity();
-    cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
+    fmc::CCamera* cam = cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
     mainCameraPosition = cameraEditor->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = cameraEditor->addComponent<fmc::CIdentity>();
     identity->name = "CameraEditor";
     identity->display = false;
+    //cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
     engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
 }
 

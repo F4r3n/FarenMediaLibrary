@@ -13,7 +13,7 @@ public:
     Script();
     ~Script();
     bool attachScript(const std::string& script);
-    void update(sol::state& lua, float dt);
+    void update(sol::state& lua);
     void start(sol::state& lua);
     bool init(sol::state& lua, Entity *e);
   

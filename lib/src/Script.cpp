@@ -44,9 +44,9 @@ void Script::start(sol::state& lua) {
 }
 
 
-void Script::update(sol::state& lua, float dt) {
+void Script::update(sol::state& lua) {
 
-    lua[nameVariable]["update"](lua[nameVariable], dt);
+    lua[nameVariable]["update"](lua[nameVariable]);
 }
 
 std::string Script::getName() const {
