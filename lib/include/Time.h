@@ -7,5 +7,6 @@ namespace fm {
 		static float dt;
         static float timeStamp;
         static float fixedTime;
+        static float scale;
 	};
 }

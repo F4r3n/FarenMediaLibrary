@@ -13,8 +13,8 @@ namespace fm {
         void release();
         bool isCreated();
         
-        unsigned int getWidth() {return width;}
-        unsigned int getHeight() {return height;}
+        inline unsigned int getWidth() {return width;}
+        inline unsigned int getHeight() {return height;}
         GLuint* getColorBuffer() {return textureColorbuffer;}
         GLuint  getLightBuffer() {return lightShadowFBO;}
         //GLuint* getPingPongFBO() {return pingpongFBO;}

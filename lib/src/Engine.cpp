@@ -16,6 +16,7 @@ Engine::~Engine() {
 }
 
 void Engine::run(Window& window) {
+    fm::Window::setMSAA(4);
     while(!window.isClosed()) {
 
         window.update(60);
@@ -61,21 +62,20 @@ void Engine::init() {
 }
 
 void Engine::stop() {
-    hasStopped = true;
+    fm::Time::scale = 0;
 }
+
 void Engine::resume() {
-    hasStopped = false;
+    fm::Time::scale = 1;
 }
+
 void Engine::reset() {
     systems.addSystem(new fms::PhysicSystem());
     systems.addSystem(new fms::ScriptManagerSystem());
 }
 
 void Engine::update(float dt) {
-    if(hasStopped)
-        systems.update(0, EntityManager::get(), EventManager::get());
-    else
-        systems.update(dt, EntityManager::get(), EventManager::get());
+    systems.update(dt*Time::scale, EntityManager::get(), EventManager::get());
 }
 
 Entity* Engine::createEntity() {

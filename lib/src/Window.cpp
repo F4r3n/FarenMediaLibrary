@@ -35,6 +35,11 @@ Window::Window(int width, int height, const std::string& name) {
     fm::InputManager::getInstance().init(this->window);
 }
 
+void Window::setMSAA(int value) {
+    glfwWindowHint(GLFW_SAMPLES, value);
+    glEnable(GL_MULTISAMPLE);  
+}
+
 void Window::setName(const std::string &name) {
     this->nameWindow = name;
     glfwSetWindowTitle(window, name.c_str());

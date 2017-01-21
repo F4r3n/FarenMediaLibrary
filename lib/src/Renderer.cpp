@@ -70,7 +70,7 @@ void Renderer::lightComputation(GLuint *colorBuffer, GLuint lightBuffer) {
     glBindVertexArray(0);
 }
 
-void Renderer::postProcess(GLuint *colorBuffer, bool horizontal) {
+void Renderer::postProcess(GLuint *colorBuffer) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[0]);
 

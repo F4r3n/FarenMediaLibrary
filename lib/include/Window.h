@@ -17,6 +17,7 @@ public:
 
     void swapBuffers();
     void clear();
+    static void setMSAA(int value);
     bool isClosed();
     void frameLimit(unsigned short fps);
     void update(float fps);

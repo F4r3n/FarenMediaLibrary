@@ -14,7 +14,7 @@ public:
     void createQuadScreen();
     //void blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers);
     void lightComputation(GLuint *colorBuffer, GLuint lightBuffer);
-    void postProcess(GLuint *colorBuffer, bool horizontal);
+    void postProcess(GLuint *colorBuffer);
     void clear();
 private:
     static Renderer _instance;

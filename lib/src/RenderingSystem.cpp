@@ -121,10 +121,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-               glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+            glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
         //glClear(GL_COLOR_BUFFER_BIT);
         //std::cout << "Render texture size " << cam->viewPort.width << std::endl;
@@ -190,7 +188,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     
 
 
-    /*for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
+    for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
@@ -209,7 +207,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             ->setVector2f("soft_edge_values", text->soft_edge_values);
 
         drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
-    }*/
+    }
 
     
 
@@ -218,10 +216,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //std::cout << "yop" << std::endl;
         finalShader->Use();
-        finalShader->Use()->setVector2f("screenSize", glm::vec2(cam->viewPort.width, cam->viewPort.y));
+        finalShader->Use()->setVector2f("screenSize", glm::vec2(cam->viewPort.width, cam->viewPort.height));
     
         finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
-        fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer(), true);
+        fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer());
     }
 }
 

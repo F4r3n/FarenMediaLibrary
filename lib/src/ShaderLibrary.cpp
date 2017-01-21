@@ -151,6 +151,7 @@ void ShaderLibrary::loadShaders() {
                                     mat4 FM_V;
                                     mat4 FM_P;
                                     mat4 FM_VP;
+                                    int render_mode;
                                     };
                                 void main(){
                                     gl_Position = vec4(position, 0.0f, 1.0f);
@@ -221,12 +222,12 @@ void ShaderLibrary::loadShaders() {
                                   uniform vec2 screenSize;
                                   uniform vec2 viewPos;
                                   void main(){
-                                  const float gamma = 2.2;
-                                  const float exposure = 1;
-                                  vec4 hdrColor = texture(screenTexture, TexCoords);
-                                  vec4 bloomColor = texture(bloomBlur, TexCoords);
-                                  vec4 result = hdrColor - bloomColor;
-                                  FragColor = vec4(hdrColor.rgb, 1);
+                                    const float gamma = 2.2;
+                                    const float exposure = 1;
+                                    vec4 hdrColor = texture(screenTexture, TexCoords);
+                                    vec4 bloomColor = texture(bloomBlur, TexCoords);
+                                    vec4 result = hdrColor - bloomColor;
+                                    FragColor = vec4(hdrColor.rgb, 1);
                                   });
 
     std::string default_vertex = S(
