@@ -68,7 +68,7 @@ void Window::update(float fps) {
     wait_time = 1.0f / (float)fpsMax;
     frameLimit(fps);
 
-    clear();
+    //clear();
 }
 
 

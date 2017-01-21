@@ -111,7 +111,9 @@ void RenderingSystem::pre_update(EntityManager& em) {
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     //fm::Renderer::getInstance().bindFrameBuffer();
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        if(!cam->getRenderTexture().isCreated()) return;
+        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+            if(!cam->getRenderTexture().isCreated()) return;
+        }
         glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
         
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
@@ -119,9 +121,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        
+            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+               glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         }
         //glClear(GL_COLOR_BUFFER_BIT);
         //std::cout << "Render texture size " << cam->viewPort.width << std::endl;
@@ -141,7 +144,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 fmc::CMesh* cmesh = e->get<fmc::CMesh>();
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-                
+                //std::cout << material->shaderName << std::endl;
                 shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
                 glm::mat4 model = glm::mat4();
                 setModel(model, transform, worldPos);
@@ -178,14 +181,16 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             }
         }
         
-        fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
-                                                     cam->getRenderTexture().getLightBuffer());
+        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+            fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
+                                                        cam->getRenderTexture().getLightBuffer());
+        }
     
                                                  
     
 
 
-    for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
+    /*for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
@@ -204,7 +209,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             ->setVector2f("soft_edge_values", text->soft_edge_values);
 
         drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
-    }
+    }*/
 
     
 

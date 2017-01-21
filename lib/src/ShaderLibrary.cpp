@@ -260,15 +260,27 @@ void ShaderLibrary::loadShaders() {
                                    uniform vec4 mainColor;
                                    uniform int BloomEffect;
                                    in vec3 ourPosition;
-                                    
+                                   
                                    void main(){
                                    vec4 color = mainColor;
                                    posTexture = vec4(ourPosition, 1);
-                                   BrightColor = vec4(0,0,0,1);FragColor = vec4(0);
+                                   BrightColor = vec4(0,0,0,1);
+                                   FragColor = vec4(0);
                                    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
                                
                                    if(BloomEffect <= 0) FragColor = color;
                                    });
+                                   /*                                       if(render_mode == 1) {
+                                   FragColor = mainColor;
+                                   
+                                       } else {
+                                           vec4 color = mainColor;
+                                           posTexture = vec4(ourPosition, 1);
+                                           BrightColor = vec4(0,0,0,1);FragColor = vec4(0);
+                                           float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+                                           
+                                           if(BloomEffect <= 0) FragColor = color;
+                                       }*/
 
     std::string default_vertex_sprite = S(
                                         layout(location = 0) in vec2 position;
