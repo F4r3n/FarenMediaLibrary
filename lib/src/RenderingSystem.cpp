@@ -94,91 +94,87 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
 void RenderingSystem::pre_update(EntityManager& em) {
     start = std::chrono::system_clock::now();
     
-        fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        //if(cam->viewPort.width != fm::Window::width || cam->viewPort.height != fm::Window::height) {
-       //     cam->setNewProjection(fm::Window::width, fm::Window::height);
-       //     //fm::Renderer::getInstance().clearFBO();
-       //     //fm::Renderer::getInstance().initFrameBuffer(fm::Window::width, fm::Window::height);
-        //}
-        cam->updateRenderTexture();
-        fmc::CTransform* ct = camera->get<fmc::CTransform>();
-        cam->viewMatrix = glm::mat4();
-        view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
+    fmc::CCamera* cam = camera->get<fmc::CCamera>();
+
+    cam->updateRenderTexture();
+    fmc::CTransform* ct = camera->get<fmc::CTransform>();
+    cam->viewMatrix = glm::mat4();
+    view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
         // cameras.push_back(camera);
 
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     //fm::Renderer::getInstance().bindFrameBuffer();
-        fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        if(!cam->getRenderTexture().isCreated()) return;
+    fmc::CCamera* cam = camera->get<fmc::CCamera>();
+    if(!cam->getRenderTexture().isCreated()) return;
+    
+    
+    cam->getRenderTexture().active();
+    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
+    cam->shader_data.FM_P = cam->projection;
+    cam->shader_data.FM_V = cam->viewMatrix;
+    updateUniformBufferCamera(cam);
+    
+    int lightNumber = 0;
+    for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
+        fmc::CTransform* transform = e->get<fmc::CTransform>();
+        fmc::CMaterial* material = e->get<fmc::CMaterial>();
+        fm::Vector2f worldPos = transform->getWorldPos(em);
         
+
+        if(e->has<fmc::CMesh>()) {
+            fmc::CMesh* cmesh = e->get<fmc::CMesh>();
+
+            std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
+            //std::cout << material->shaderName << std::endl;
+            shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
+            glm::mat4 model = glm::mat4();
+            setModel(model, transform, worldPos);
+            shader->setMatrix("FM_PVM", cam->shader_data.FM_PV*model);
+            shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
+            
+            if(material->textureReady) {
+                glActiveTexture(GL_TEXTURE0);
+                // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                material->getTexture().bind();
+            }
+
+            draw(cmesh);
+        }
+
         
-        cam->getRenderTexture().active();
+    
+        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+            if(e->has<fmc::CPointLight>()) {
+                    std::string ln = "light[" + std::to_string(lightNumber) + "]";
+    
+                    lightShader->Use()
+                        ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
+                        ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
+                        ->setInt(ln + ".ready", 1);
+                    lightNumber++;
+                }
+    
+                if(e->has<fmc::CDirectionalLight>()) {
+    
+                    lightShader->Use()->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
+                }
+            
+        }
+    }
+    
+    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+        glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture().getLightBuffer());
         glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
-        cam->shader_data.FM_P = cam->projection;
-        cam->shader_data.FM_V = cam->viewMatrix;
-        updateUniformBufferCamera(cam);
-        
-        int lightNumber = 0;
-        for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
-            fmc::CTransform* transform = e->get<fmc::CTransform>();
-            fmc::CMaterial* material = e->get<fmc::CMaterial>();
-            fm::Vector2f worldPos = transform->getWorldPos(em);
-            
-
-            if(e->has<fmc::CMesh>()) {
-                fmc::CMesh* cmesh = e->get<fmc::CMesh>();
-
-                std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-                //std::cout << material->shaderName << std::endl;
-                shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
-                glm::mat4 model = glm::mat4();
-                setModel(model, transform, worldPos);
-                shader->setMatrix("FM_PVM", cam->shader_data.FM_PV*model);
-                shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
-                
-                if(material->textureReady) {
-                    glActiveTexture(GL_TEXTURE0);
-                    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    material->getTexture().bind();
-                }
-
-                draw(cmesh);
-            }
-
-           
-    
-            if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                if(e->has<fmc::CPointLight>()) {
-                        std::string ln = "light[" + std::to_string(lightNumber) + "]";
-        
-                        lightShader->Use()
-                            ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
-                            ->setColor(ln + ".color", e->get<fmc::CPointLight>()->color)
-                            ->setInt(ln + ".ready", 1);
-                        lightNumber++;
-                    }
-        
-                    if(e->has<fmc::CDirectionalLight>()) {
-        
-                        lightShader->Use()->setColor("dlight.color", e->get<fmc::CDirectionalLight>()->color);
-                    }
-                
-            }
-        }
-        //PB read and write the same texture
-        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-             glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture().getLightBuffer());
-             glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
-
-            fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
-                                                        cam->getRenderTexture().getLightBuffer());
-        }
+        fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
+                                                     cam->getRenderTexture().getLightBuffer());
+    }
     
                                                  
     
@@ -191,15 +187,15 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CText* text = e->get<fmc::CText>();
         fm::Vector2f worldPos = transform->getWorldPos(em);
         std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
+        
         shader->Use();
-        shader->setInt("outline", text->outline)
-            ->setVector2f("outline_min", text->outline_min)
-            ->setVector2f("outline_max", text->outline_max)
-            ->setVector3f("outline_color",
-                          glm::vec3(text->outline_color.r, text->outline_color.g, text->outline_color.b))
-            ->setMatrix("projection", textdef.projection)
-            ->setColor("textColor", material->color)
-            ->setInt("soft_edges", text->soft_edges)
+        shader->setInt(   "outline",          text->outline)
+            ->setVector2f("outline_min",      text->outline_min)
+            ->setVector2f("outline_max",      text->outline_max)
+            ->setVector3f("outline_color",    glm::vec3(text->outline_color.r, text->outline_color.g, text->outline_color.b))
+            ->setMatrix(  "projection",       textdef.projection)
+            ->setColor(   "textColor",        material->color)
+            ->setInt(     "soft_edges",       text->soft_edges)
             ->setVector2f("soft_edge_values", text->soft_edge_values);
 
         drawText(worldPos.x, worldPos.y, fm::ResourcesManager::get().getResource<RFont>(text->fontName).get(), text);
@@ -225,15 +221,6 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 }
 
 void RenderingSystem::over() {
-    // fm::Renderer::getInstance().blur();
-
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //
-    //finalShader->Use();
-    //finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
-    //fm::Renderer::getInstance().postProcess(true);
-    // fm::Renderer::getInstance().bindFrameBuffer();
 
     end = std::chrono::system_clock::now();
     elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -295,6 +282,7 @@ void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText
         coords[n++] =
             (PointText){ x2 + w, -y2 - h, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y + ch.b_wh.y / font->atlas_height };
     }
+    
     glBufferData(GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW);
     glDrawArrays(GL_TRIANGLES, 0, n);
 
