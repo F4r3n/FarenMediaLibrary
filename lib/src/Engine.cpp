@@ -54,7 +54,7 @@ void Engine::init() {
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    cam->setNewViewPort(0, 0, fm::Window::width, fm::Window::height);
+    cam->setNewViewPort(50, 0, fm::Window::width, fm::Window::height);
     cam->shader_data.render_mode = fmc::RENDER_MODE::FORWARD;
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     renderer->setCamera(camera);

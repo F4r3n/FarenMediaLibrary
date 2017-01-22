@@ -111,21 +111,14 @@ void RenderingSystem::pre_update(EntityManager& em) {
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     //fm::Renderer::getInstance().bindFrameBuffer();
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
-        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-            if(!cam->getRenderTexture().isCreated()) return;
-        }
-        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+        if(!cam->getRenderTexture().isCreated()) return;
         
-        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-            cam->getRenderTexture().active();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        }
-        if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-            glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        }
-        //glClear(GL_COLOR_BUFFER_BIT);
-        //std::cout << "Render texture size " << cam->viewPort.width << std::endl;
+        
+        cam->getRenderTexture().active();
+        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
         cam->shader_data.FM_P = cam->projection;
         cam->shader_data.FM_V = cam->viewMatrix;
@@ -178,8 +171,11 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 
             }
         }
-        
+        //PB read and write the same texture
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+             glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture().getLightBuffer());
+             glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+
             fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(), 
                                                         cam->getRenderTexture().getLightBuffer());
         }
@@ -211,16 +207,21 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
     
 
-    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //std::cout << "yop" << std::endl;
-        finalShader->Use();
-        finalShader->Use()->setVector2f("screenSize", glm::vec2(cam->viewPort.width, cam->viewPort.height));
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+
+    //std::cout << "yop" << std::endl;
+    finalShader->Use();
+    finalShader->Use()->setVector2f("screenSize", glm::vec2(cam->viewPort.width, cam->viewPort.height));
     
-        finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+        fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getLightTextures());
+    } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer());
     }
+    
 }
 
 void RenderingSystem::over() {

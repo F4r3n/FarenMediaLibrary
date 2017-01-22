@@ -56,9 +56,7 @@ void Renderer::lightComputation(GLuint *colorBuffer, GLuint lightBuffer) {
 
     std::shared_ptr<Shader> light = ResourcesManager::get().getShader("light");
     light->Use();
-    glBindFramebuffer(GL_FRAMEBUFFER, lightBuffer);
-
-
+    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[0]);
     
@@ -67,6 +65,7 @@ void Renderer::lightComputation(GLuint *colorBuffer, GLuint lightBuffer) {
     
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    
     glBindVertexArray(0);
 }
 

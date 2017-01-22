@@ -17,7 +17,7 @@ namespace fm {
         inline unsigned int getHeight() {return height;}
         GLuint* getColorBuffer() {return textureColorbuffer;}
         GLuint  getLightBuffer() {return lightShadowFBO;}
-        //GLuint* getPingPongFBO() {return pingpongFBO;}
+        GLuint* getLightTextures() {return textureLightBuffer;}
         //GLuint* getPingPongBuffer() {return pingpongColorbuffers;}
         bool active();
         
@@ -35,7 +35,7 @@ namespace fm {
         //GLuint pingpongColorbuffers[2];
         
         GLuint lightShadowFBO;
-    
+        GLuint textureLightBuffer[2];
         GLuint rboDepth;
     };
 }

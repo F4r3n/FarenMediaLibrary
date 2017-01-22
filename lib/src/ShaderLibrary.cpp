@@ -170,47 +170,49 @@ void ShaderLibrary::loadShaders() {
                                  uniform vec2 viewPos;
 
                                  struct PointLight {
-                                 vec3 position;
-                                 vec4 color;
-                                 int ready;
-                                 float radius;};
+                                    vec3 position;
+                                    vec4 color;
+                                    int ready;
+                                    float radius;
+                                 };
 
                                  struct DirectionalLight {
-                                 vec4 color;
+                                    vec4 color;
                                  };
 
                                  const int MAX_LIGHTS = 32;
 
                                  uniform PointLight light[MAX_LIGHTS];
                                  uniform DirectionalLight dlight;
-                                 void main(){
+                                 void main() {
 
-                                 vec4 hdrColor = texture(screenTexture, TexCoords);
-                                 vec4 pos = texture(posTexture, TexCoords);
-                                 vec3 result = dlight.color.rgb*hdrColor.rgb;
-                                 for(int i = 0; i < MAX_LIGHTS; i++){
-                                    vec3 dir = vec3(1);
-                                    if(light[i].ready == 1) {
-                                    dir = normalize(light[i].position - pos.rgb);
+                                    vec4 hdrColor = texture(screenTexture, TexCoords);
+                                    vec4 pos = texture(posTexture, TexCoords);
+                                    vec3 result = dlight.color.rgb*hdrColor.rgb;
+                                    
+                                    for(int i = 0; i < MAX_LIGHTS; i++){
+                                        vec3 dir = vec3(1);
+                                        if(light[i].ready == 1) {
+                                        dir = normalize(light[i].position - pos.rgb);
+                                        }
+                                        float ambientStrength = 0.2f;
+                                        vec3 ambient = ambientStrength * light[i].color.rgb;
+        
+                                        vec3 norm = normalize(vec3(0,0,1));
+        
+                                        float diff = max(dot(norm, dir), 0.0);
+                                        vec3 diffuse = diff * light[i].color.rgb;
+                                        BrightColor = vec4(0,0,0,1);
+                                        float distance    = length(light[i].position - pos.rgb);
+                                        float attenuation = 1.0f / (0.9 * distance + 0.0032 * (distance * distance));
+                                        result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;
                                     }
-                                    float ambientStrength = 0.2f;
-                                    vec3 ambient = ambientStrength * light[i].color.rgb;
+                                    FragColor = vec4(result ,1);
+                                    //FragColor = vec4(1);
     
-                                    vec3 norm = normalize(vec3(0,0,1));
-    
-                                    float diff = max(dot(norm, dir), 0.0);
-                                    vec3 diffuse = diff * light[i].color.rgb;
-                                    BrightColor = vec4(0,0,0,1);
-                                    float distance    = length(light[i].position - pos.rgb);
-                                    float attenuation = 1.0f / (0.9 * distance + 0.0032 * (distance * distance));
-                                    result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;
-                                 }
-                                 FragColor = vec4(result, 1);
-                                 //FragColor = vec4(1);
-
-                                 float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-                                 if(brightness >= 0.5)
-                                 BrightColor = vec4(FragColor.rgb, 1.0);
+                                    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+                                    if(brightness >= 0.5)
+                                    BrightColor = vec4(FragColor.rgb, 1.0);
                                  });
 
     std::string simple_fragment = S(
@@ -228,6 +230,8 @@ void ShaderLibrary::loadShaders() {
                                     vec4 bloomColor = texture(bloomBlur, TexCoords);
                                     vec4 result = hdrColor - bloomColor;
                                     FragColor = vec4(hdrColor.rgb, 1);
+                                    //FragColor = vec4(1);
+
                                   });
 
     std::string default_vertex = S(
