@@ -48,16 +48,12 @@ private:
     int width;
     int height;
     
-    double timer = 0;
-    size_t frame = 1;
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds;
-    
     std::shared_ptr<fm::Shader> finalShader;
     std::shared_ptr<fm::Shader> lightShader;
     
     TextDef textdef;
     
-    GLuint gbo;
+    const GLuint bindingPointIndex = 2;
+    GLuint generatedBlockBinding;
 };
 }

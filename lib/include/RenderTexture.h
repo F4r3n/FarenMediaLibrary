@@ -28,11 +28,9 @@ namespace fm {
         unsigned short depth;
         
         bool initFrameBuffer();
+        //main Framebuffer + position fragcolor bright color
         GLuint framebuffer;
         GLuint textureColorbuffer[3];
-    
-        //GLuint pingpongFBO[2];
-        //GLuint pingpongColorbuffers[2];
         
         GLuint lightShadowFBO;
         GLuint textureLightBuffer[2];

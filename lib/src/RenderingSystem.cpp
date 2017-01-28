@@ -39,20 +39,21 @@ RenderingSystem::RenderingSystem(int width, int height)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
+    fm::Renderer::getInstance().createQuadScreen();
 }
 
 void RenderingSystem::initUniformBufferCamera(fmc::CCamera *camera) {
-    glGenBuffers(1, &gbo);
-    glBindBuffer(GL_UNIFORM_BUFFER, gbo);
+    glGenBuffers(1, &generatedBlockBinding);
+    glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(camera->shader_data), &camera->shader_data, GL_DYNAMIC_COPY);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
  for( auto shader : fm::ResourcesManager::get().getAllShaders()) {
         shader.second->Use();
-        unsigned int block_index = glGetUniformBlockIndex(shader.second->Program, "shader_data");
-        GLuint binding_point_index = 2;
-        glBindBufferBase(GL_UNIFORM_BUFFER, binding_point_index, gbo);
-        glUniformBlockBinding(shader.second->Program, block_index, binding_point_index);
+        glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointIndex, generatedBlockBinding);
+        glUniformBlockBinding(shader.second->Program, 
+                              glGetUniformBlockIndex(shader.second->Program, "shader_data"),
+                              bindingPointIndex);
     }
 }
 
@@ -60,7 +61,7 @@ RenderingSystem::~RenderingSystem() {
 }
 
 void RenderingSystem::updateUniformBufferCamera(fmc::CCamera *camera) {
-    glBindBuffer(GL_UNIFORM_BUFFER, gbo);
+    glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &camera->shader_data, sizeof(camera->shader_data));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -79,7 +80,6 @@ void RenderingSystem::setCamera(Entity* camera) {
     this->camera = camera;
 
     initUniformBufferCamera(cam);
-
 }
 
 void
@@ -91,17 +91,13 @@ RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const
     viewMatrix = glm::translate(viewMatrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 }
 
-void RenderingSystem::pre_update(EntityManager& em) {
-    start = std::chrono::system_clock::now();
-    
+void RenderingSystem::pre_update(EntityManager& em) {    
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
 
     cam->updateRenderTexture();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
     cam->viewMatrix = glm::mat4();
     view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
-        // cameras.push_back(camera);
-
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
@@ -177,8 +173,6 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     }
     
                                                  
-    
-
 
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial, fmc::CText>()) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -222,16 +216,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
 void RenderingSystem::over() {
 
-    end = std::chrono::system_clock::now();
-    elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    timer += elapsed_seconds.count();
-    // std::cout << "Time rendering " << elapsed_seconds.count() << " " <<timer/(double)frame << std::endl;
-    if(frame == 100) {
-        std::cout << timer << " " << frame << " " << timer / (double)frame << std::endl;
-        frame = 0;
-        timer = 0;
-    }
-    frame++;
+
 }
 
 void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f& worldPos) {

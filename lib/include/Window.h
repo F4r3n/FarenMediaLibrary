@@ -16,7 +16,6 @@ public:
     ~Window();
 
     void swapBuffers();
-    void clear();
     static void setMSAA(int value);
     bool isClosed();
     void frameLimit(unsigned short fps);
@@ -36,11 +35,8 @@ public:
 private:
     void events();
     int init(GLFWwindow* window);
-    void createQuadScreen();
     void createShaders();
-    void postProcess(bool horizontal);
     void errorDisplay();
-    void blur();
     static void window_size_callback(GLFWwindow* window, int width, int height) {
         glViewport(x, y, width, height);
         Window::width = width;

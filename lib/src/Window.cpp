@@ -28,7 +28,6 @@ Window::Window(int width, int height, const std::string& name) {
     window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     init(window);
 
-    createQuadScreen();
     createShaders();
     // glEnable (GL_BLEND);
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -59,10 +58,7 @@ void Window::createShaders() {
         fmc::CMesh rect;
         rect.setShape(i);
     }
-
-
     ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
-
 }
 
 
@@ -72,13 +68,6 @@ void Window::update(float fps) {
     this->fpsMax = fps;
     wait_time = 1.0f / (float)fpsMax;
     frameLimit(fps);
-
-    //clear();
-}
-
-
-void Window::createQuadScreen() {
-    Renderer::getInstance().createQuadScreen();
 }
 
 void Window::frameLimit(unsigned short fps) {
@@ -97,7 +86,6 @@ void Window::frameLimit(unsigned short fps) {
 
 
 void Window::swapBuffers() {
-
     errorDisplay();
     glfwSwapBuffers(window);
 }
@@ -108,12 +96,6 @@ void Window::errorDisplay() {
         std::cerr << "ERROR OPENGL " << error << std::endl;
         exit(-1);
     }
-}
-
-void Window::postProcess(bool horizontal) {
-    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
-    s->Use()->setVector2f("screenSize", glm::vec2(width, height));
-    //Renderer::getInstance().postProcess(horizontal);
 }
 
 bool Window::isClosed() {
@@ -127,9 +109,6 @@ void Window::events() {
 Window::~Window() {
     glfwTerminate();
 }
-
-
-
 
 int Window::init(GLFWwindow* window) {
     if(window == nullptr) {
@@ -156,6 +135,4 @@ int Window::init(GLFWwindow* window) {
     return 1;
 }
 
-void Window::clear() {
-    Renderer::getInstance().clear();
-}
+

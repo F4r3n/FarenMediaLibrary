@@ -17,19 +17,24 @@ Engine::~Engine() {
 
 void Engine::run(Window& window) {
     fm::Window::setMSAA(4);
+    auto start = std::chrono::system_clock::now();
     while(!window.isClosed()) {
 
         window.update(60);
-        // std::cout << 1 / fm::Time::dt << std::endl;
-        // auto start = std::chrono::system_clock::now();
+         
         update(fm::Time::dt);
 
         window.swapBuffers();
-
-        // auto end = std::chrono::system_clock::now();
-        // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        // float time = elapsed.count();
-        // std::cout << "Time " << 1/fm::Time::dt << '\n';
+        
+        numberFramesTimer++;
+        if(numberFramesTimer == 200) {
+            auto end = std::chrono::system_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            float time = elapsed.count()/(float)numberFramesTimer;
+            start = end;
+            std::cout << "Time per frame " << time << " ms" << std::endl;
+            numberFramesTimer = 0;
+        }
     }
 }
 

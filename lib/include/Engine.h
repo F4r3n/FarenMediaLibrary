@@ -37,5 +37,6 @@ private:
     Entity* camera;
     bool hasStopped = false;
     
+    size_t numberFramesTimer = 0;
 };
 }
