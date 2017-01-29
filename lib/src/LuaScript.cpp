@@ -1,4 +1,4 @@
-#include "Script.h"
+#include "LuaScript.h"
 #include "ScriptRegister.h"
 #include "Components/CTransform.h"
 using namespace fm;
@@ -19,7 +19,7 @@ std::string getFileName(const std::string& s) {
     return ("");
 }
 
-Script::Script(const std::string& name, const std::string& nameVariable) {
+LuaScript::LuaScript(const std::string& name, const std::string& nameVariable) {
     unsigned int value = ScriptRegister::addScript(name);
     this->scriptName = name;
     nameFile = getFileName(name);
@@ -29,40 +29,40 @@ Script::Script(const std::string& name, const std::string& nameVariable) {
         this->nameVariable = nameVariable;
 }
 
-Script::Script() {
+LuaScript::LuaScript() {
 }
 
-Script::~Script() {
+LuaScript::~LuaScript() {
 }
 
-void Script::setName(const std::string& name) {
+void LuaScript::setName(const std::string& name) {
     this->nameVariable = name;
 }
 
-void Script::start(sol::state& lua) {
-    lua[nameVariable]["start"](lua[nameVariable]);
+void LuaScript::start() {
+    LuaManager::get().getState()[nameVariable]["start"](LuaManager::get().getState()[nameVariable]);
 }
 
 
-void Script::update(sol::state& lua) {
+void LuaScript::update() {
 
-    lua[nameVariable]["update"](lua[nameVariable]);
+    LuaManager::get().getState()[nameVariable]["update"](LuaManager::get().getState()[nameVariable]);
 }
 
-std::string Script::getName() const {
+std::string LuaScript::getName() const {
     return nameVariable;
 }
 
-bool Script::init(sol::state& lua, Entity* e) {
+bool LuaScript::init(Entity* e) {
 
-    lua.script_file(scriptName);
+    LuaManager::get().getState().script_file(scriptName);
     std::string m = std::string("f_") + nameFile;
 
-    lua.script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") + nameVariable +
+    LuaManager::get().getState().script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") + nameVariable +
                std::string("= ") + m + std::string(".new()"));
-    lua[nameVariable]["gameObject"] = e;
+    LuaManager::get().getState()[nameVariable]["gameObject"] = e;
     for(auto o : objects) {
-        lua[nameVariable][o.first] = o.second;
+        LuaManager::get().getState()[nameVariable][o.first] = o.second;
     }
     return true;
 }

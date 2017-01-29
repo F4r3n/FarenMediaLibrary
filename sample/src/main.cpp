@@ -5,7 +5,7 @@
 #include <InputManager.h>
 #include <ParticleGenerator.h>
 #include <Sprite.h>
-#include <Script.h>
+#include <LuaScript.h>
 #include <Time.h>
 #include <chrono>
 #include <ScriptManager.h>

@@ -1,5 +1,4 @@
 #include "Components/CScriptManager.h"
-
 using namespace fmc;
 const std::string CScriptManager::name = "Script Manager";
 
@@ -9,19 +8,19 @@ CScriptManager::CScriptManager() {
 CScriptManager::~CScriptManager() {
 }
 
-void CScriptManager::init(sol::state& lua, Entity* e) {
+void CScriptManager::init( Entity* e) {
     for(auto s : scripts) {
-        s->init(lua, e);
+        s->init(e);
     }
 }
 
-void CScriptManager::update(sol::state& lua) {
+void CScriptManager::update() {
     for(auto s : scripts) {
         if(!s->hasStarted) {
-            s->start(lua);
+            s->start();
             s->hasStarted = true;
         }
-        s->update(lua);
+        s->update();
     }
 }
 
