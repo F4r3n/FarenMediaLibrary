@@ -13,10 +13,10 @@ public:
     void update();
     void addScript(std::shared_ptr<fm::Script> file);
 
-    template <typename T> void event(std::string name, const T& t) {
-        //for(auto s : scripts) {
-        //    s->event(name, t);
-        //}
+    void event(std::string name, const ColliderInfo& t) {
+        for(auto s : scripts) {
+            s->event(name, t);
+        }
     }
     static const std::string name;
 

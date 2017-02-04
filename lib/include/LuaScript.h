@@ -22,13 +22,21 @@ public:
         objects[name] = var;
     }
     //void test() {}
-    template <typename T>
-    void event(std::string name, sol::state& lua, const T &t) {
+    
+    void event(std::string name, sol::state& lua, const ColliderInfo &t) {
         if(lua[nameVariable][name]) {
             lua[nameVariable][name](lua[nameVariable], t);
         
         }
     }
+    
+    void event(std::string name, sol::state& lua, const Collider &t) {
+    if(lua[nameVariable][name]) {
+        lua[nameVariable][name](lua[nameVariable], t);
+        
+        }
+    }
+    
     
     std::string getName() const;
     void setName(const std::string& name);

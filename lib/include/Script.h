@@ -1,5 +1,6 @@
 #pragma once
 #include <Entity.h>
+#include "Collider.h"
 namespace fm {
 class Script {
 public:
@@ -16,7 +17,9 @@ public:
     }
     //TODO events
     //template <typename T> 
-    //virtual void event(std::string name, const T& t) {
+    virtual void event(std::string name, const ColliderInfo& collider) {}
+    virtual void event(std::string name, const Collider& collider) {}
+
     //    
     //}
     bool hasStarted = false;

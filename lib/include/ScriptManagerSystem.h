@@ -16,7 +16,6 @@ public:
     void init(EntityManager& em, EventManager& event);
     void over() {
     }
-    void receive(const Collision& collision);
     void receive(const Collider& collider);
     
 private:
