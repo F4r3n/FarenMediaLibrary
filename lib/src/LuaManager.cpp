@@ -58,7 +58,14 @@ void LuaManager::registerComponents() {
                               "getSource",
                               &Entity::get<CSource>,
                               "getBody",
-                              &Entity::get<Body2D>
+                              &Entity::get<Body2D>,
+                              "addTransform",
+                              &Entity::add<CTransform>,
+                              "addMesh",
+                              &Entity::add<CMesh>,
+                              "addMaterial",
+                              &Entity::add<CMaterial>
+                              
                               );
     registerComponent<Collision>("Collision", "ID", sol::readonly(&Collision::id));
     registerComponent<ColliderInfo>("ColliderInfo", "ID", sol::readonly(&ColliderInfo::idOther));
@@ -77,9 +84,9 @@ void LuaManager::registerComponents() {
                 "timeStamp", sol::var(std::ref(Time::timeStamp))
         );
 
-    lua.set_function("add_Transform", &add<CTransform>);
-    lua.set_function("add_Mesh", &add<CMesh>);
-    lua.set_function("add_Material", &add<CMaterial>);
+    //lua.set_function("add_Transform", &add<CTransform>);
+    //lua.set_function("add_Mesh", &add<CMesh>);
+    //lua.set_function("add_Material", &add<CMaterial>);
 
     lua.set_function("createEntity", &createEntity);
 }

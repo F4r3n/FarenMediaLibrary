@@ -23,7 +23,6 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event) {
         transform->position = fm::Vector2f(body->body->GetPosition().x - (body->size.x)*P2M, 
         body->body->GetPosition().y - (body->size.y)*P2M)*M2P;
         transform->rotation = body->body->GetAngle();
-        
     }
 }
 

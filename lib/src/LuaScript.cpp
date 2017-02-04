@@ -40,13 +40,13 @@ void LuaScript::setName(const std::string& name) {
 }
 
 void LuaScript::start() {
-    LuaManager::get().getState()[nameVariable]["start"](LuaManager::get().getState()[nameVariable]);
+    LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
 }
 
 
 void LuaScript::update() {
 
-    LuaManager::get().getState()[nameVariable]["update"](LuaManager::get().getState()[nameVariable]);
+    LuaManager::get()[nameVariable]["update"](LuaManager::get()[nameVariable]);
 }
 
 std::string LuaScript::getName() const {

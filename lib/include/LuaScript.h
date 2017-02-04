@@ -21,18 +21,17 @@ public:
     void setGameObjects(const std::string &name, Entity* var) {
         objects[name] = var;
     }
-    //void test() {}
     
-    void event(std::string name, sol::state& lua, const ColliderInfo &t) {
-        if(lua[nameVariable][name]) {
-            lua[nameVariable][name](lua[nameVariable], t);
+    void event(std::string name, const ColliderInfo &t) {
+        if(LuaManager::get()[nameVariable][name]) {
+            LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
         
         }
     }
     
-    void event(std::string name, sol::state& lua, const Collider &t) {
-    if(lua[nameVariable][name]) {
-        lua[nameVariable][name](lua[nameVariable], t);
+    void event(std::string name, const Collider &t) {
+    if(LuaManager::get()[nameVariable][name]) {
+        LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
         
         }
     }
@@ -41,9 +40,9 @@ public:
     std::string getName() const;
     void setName(const std::string& name);
 
-    template <typename T> T getComponent(sol::state& lua, const std::string name)
+    template <typename T> T getComponent(const std::string name)
     {
-        return (T)lua[nameVariable][name];
+        return (T)LuaManager::get()[nameVariable][name];
     }
     bool hasStarted = false;
 private:

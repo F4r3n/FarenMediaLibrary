@@ -23,6 +23,11 @@ class LuaManager {
         return instance;
     }
     
+    template <typename T>
+    decltype(auto) operator[](T && t) {
+        return lua[t];
+    }
+    
     sol::state& getState() {
         return lua;
     }

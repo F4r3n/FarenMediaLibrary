@@ -18,7 +18,6 @@ void ScriptManagerSystem::receive(const Collider& collider) {
 
 void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISION event) {
     Entity* e = EntityManager::get().getEntity(idB);
-
     if(e && e->has<fmc::CScriptManager>()) {
         ColliderInfo info;
         info.idOther = idA;
@@ -36,7 +35,6 @@ ScriptManagerSystem::~ScriptManagerSystem() {
 }
 
 void ScriptManagerSystem::init(EntityManager& em, EventManager& event) {
-    //event.subscribe<Collision>(*this);
     event.subscribe<Collider>(*this);
     for(auto e : em.iterate<fmc::CScriptManager>()) {
         fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
