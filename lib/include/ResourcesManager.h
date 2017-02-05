@@ -5,6 +5,7 @@
 #include <array>
 #include <memory>
 #include "NonCopyable.h"
+#include "Components/CMesh.h"
 namespace fm {
  class MeshData{
     public:
@@ -15,8 +16,16 @@ namespace fm {
             this->EBO = EBO;
             this->size = size;
         }
+        ~MeshData() {
+            if(VAO != 0) {
+                glDeleteVertexArrays(1, &VAO);
+                glDeleteBuffers(1, &VBO);
+                glDeleteBuffers(1, &EBO);
+            }
+        }
         unsigned int VAO, VBO, EBO, size;
     };
+    
 class ResourcesManager : protected fm_system::NonCopyable {
     
    

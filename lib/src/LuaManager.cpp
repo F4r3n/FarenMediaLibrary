@@ -43,7 +43,18 @@ void LuaManager::registerComponents() {
                                   &CTransform::layer);
     registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
     registerComponent<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
-    registerComponent<CMesh>("CMesh", "setShape", &CMesh::setShape, "create", &CMesh::create);
+    registerComponent<CMesh>("CMesh",
+    "setShape", &CMesh::setShape,
+    "create", &CMesh::create,
+    "clean", &CMesh::clean,
+    "addVertex", sol::overload(&CMesh::addVertexPositionUV,&CMesh::addVertex, &CMesh::addVertexPositionUVVectors),
+    "removeVertex", &CMesh::removeVertex,
+    "removeVertices", &CMesh::removeVertices,
+    "addIndex", &CMesh::addIndex,
+    "removeIndice", &CMesh::removeIndice,
+    "removeIndices", &CMesh::removeIndices,
+    "update", &CMesh::update
+    );
     registerComponent<Body2D>("Body2D", 
     "applyForceCenter", &Body2D::applyForceCenter2, 
     "friction", &Body2D::friction);
@@ -59,13 +70,22 @@ void LuaManager::registerComponents() {
                               &Entity::get<CSource>,
                               "getBody",
                               &Entity::get<Body2D>,
+                              
                               "addTransform",
                               &Entity::add<CTransform>,
                               "addMesh",
                               &Entity::add<CMesh>,
                               "addMaterial",
-                              &Entity::add<CMaterial>
+                              &Entity::add<CMaterial>,
+                                "addBody",
+                              &Entity::add<Body2D>,
                               
+                              "removeTransform",
+                              &Entity::remove<CTransform>,
+                              "removeMesh",
+                              &Entity::remove<CMesh>,
+                              "removeMaterial",
+                              &Entity::remove<CMaterial>
                               );
     registerComponent<Collision>("Collision", "ID", sol::readonly(&Collision::id));
     registerComponent<ColliderInfo>("ColliderInfo", "ID", sol::readonly(&ColliderInfo::idOther));

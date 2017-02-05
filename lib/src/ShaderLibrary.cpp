@@ -383,4 +383,10 @@ void ShaderLibrary::loadShaders() {
     fm::ResourcesManager::get().loadShader("simple", simple_vertex, simple_fragment);
     fm::ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
     fm::ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
+    
+        std::shared_ptr<fm::Shader> s = fm::ResourcesManager::get().getShader("simple");
+    s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+
+    std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("light");
+    light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
 }

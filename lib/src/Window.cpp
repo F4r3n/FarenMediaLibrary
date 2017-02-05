@@ -29,6 +29,8 @@ Window::Window(int width, int height, const std::string& name) {
     init(window);
 
     createShaders();
+    ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
+
     // glEnable (GL_BLEND);
     glfwSetWindowSizeCallback(window, window_size_callback);
     fm::InputManager::getInstance().init(this->window);
@@ -45,20 +47,15 @@ void Window::setName(const std::string &name) {
 }
 
 void Window::createShaders() {
+    //Create, load and set textures shader
     ShaderLibrary::loadShaders();
 
-    std::shared_ptr<Shader> s = ResourcesManager::get().getShader("simple");
-    s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
-
-    std::shared_ptr<Shader> light = ResourcesManager::get().getShader("light");
-    light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
 
     // Initialize all the shapes
     for(int i = 0; i < fmc::SHAPE::LAST_SHAPE; ++i) {
         fmc::CMesh rect;
         rect.setShape(i);
     }
-    ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
 }
 
 
@@ -86,6 +83,7 @@ void Window::frameLimit(unsigned short fps) {
 
 
 void Window::swapBuffers() {
+    //At the end of the current frame check if an error occured
     errorDisplay();
     glfwSwapBuffers(window);
 }

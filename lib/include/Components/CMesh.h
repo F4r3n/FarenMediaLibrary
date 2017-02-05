@@ -23,22 +23,42 @@ class CMesh : public Component<CMesh>, public Serializer {
 public:
     CMesh();
     void setShape(int shape);
-    CMesh(SHAPE shape);
+    ~CMesh();
 
-    void addVertex(const fm::Vector2f& position, const fm::Vector2f& uv = { 0, 0 });
-    void create();
+    void destroy();
 
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> listIndices;
     unsigned int size = 4;
     GLuint VAO, VBO, EBO;
-    // fm::Color color = { 1, 1, 1, 1 };
     static const std::string name;
     int currentShape = -1;
+    
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {}
     void parse(rapidjson::Value &value) override {}
+    void create();
+    inline bool isCreated() {
+        return created;
+    }
+    void update();
+    
+    
+    //Manage indices and vertex
+    void addVertex(const Vertex &vertex);
+    void addVertexPositionUV(float px, float py, float uvx, float uvy);
+
+    void addVertexPositionUVVectors(const fm::Vector2f& position, const fm::Vector2f& uv = { 0, 0 });
+    void addIndex(unsigned int index);
+    void clean();
+    void removeVertices(unsigned int start, unsigned int end);
+    void removeIndices(unsigned int start, unsigned int end);
+    void removeVertex(unsigned int index);
+    void removeIndice(unsigned int index);
 
 private:
     bool init(SHAPE shape);
+    void createAndRegister();
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> listIndices;
+
+    bool created = false;
 };
 }
