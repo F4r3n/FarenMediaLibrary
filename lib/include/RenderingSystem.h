@@ -3,7 +3,7 @@
 #include <Entity.h>
 #include "Components/CCamera.h"
 
-
+#include "RenderQueue.h"
 #include <chrono>
 #include "Shader.h"
 #include "RFont.h"
@@ -55,5 +55,10 @@ private:
     
     const GLuint bindingPointIndex = 2;
     GLuint generatedBlockBinding;
+    fm::RenderQueue queue;
+    
+    bool blendingMode = false;
+    bool computeLightinh = false;
+    int queuePreviousValue = 0;
 };
 }

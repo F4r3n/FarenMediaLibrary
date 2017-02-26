@@ -1,11 +1,10 @@
 #include "Engine.h"
-#include "RenderingSystem.h"
-#include "Window.h"
 #include "Time.h"
+
 #include "PhysicSystem.h"
 #include "RenderingSystem.h"
 #include "ScriptManagerSystem.h"
-#include "Components/CTransform.h"
+
 #include "SoundSystem.h"
 #include "Components/CIdentity.h"
 using namespace fm;
