@@ -135,48 +135,46 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CMesh* mesh = node.mesh;
         fm::Vector2f worldPos = transform->getWorldPos(em);
 
-        if(mesh) {
+        if(node.queue < fm::RENDER_QUEUE::LIGHT) {
+            if(mesh) {
 
-            std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-            // std::cout << material->shaderName << std::endl;
-            shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
-            glm::mat4 model = glm::mat4();
-            setModel(model, transform, worldPos);
-            shader->setMatrix("FM_PVM", cam->shader_data.FM_PV * model);
-            shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
+                std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
+                // std::cout << material->shaderName << std::endl;
+                shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
+                glm::mat4 model = glm::mat4();
+                setModel(model, transform, worldPos);
+                shader->setMatrix("FM_PVM", cam->shader_data.FM_PV * model);
+                shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
 
-            if(material->textureReady) {
-                glActiveTexture(GL_TEXTURE0);
-                // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                material->getTexture().bind();
-            }
+                if(material->textureReady) {
+                    glActiveTexture(GL_TEXTURE0);
+                    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    material->getTexture().bind();
+                }
 
-            draw(mesh);
-        }
-
-        if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-            if(node.plight) {
-                std::string ln = "light[" + std::to_string(lightNumber) + "]";
-
-                lightShader->Use()
-                    ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
-                    ->setColor(ln + ".color", node.plight->color)
-                    ->setInt(ln + ".ready", 1);
-                lightNumber++;
-            }
-
-            if(node.dlight) {
-
-                lightShader->Use()->setColor("dlight.color", node.dlight->color);
+                draw(mesh);
             }
         }
+        if(node.queue >= fm::RENDER_QUEUE::LIGHT && node.queue < fm::RENDER_QUEUE::AFTER_LIGHT) {
+            if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+                if(node.plight) {
+                    std::string ln = "light[" + std::to_string(lightNumber) + "]";
 
-        if(node.queue >= fm::RENDER_QUEUE::TRANSPARENT) {
-            blendingMode = true;
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    lightShader->Use()
+                        ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
+                        ->setColor(ln + ".color", node.plight->color)
+                        ->setInt(ln + ".ready", 1);
+                    lightNumber++;
+                }
+
+                if(node.dlight) {
+
+                    lightShader->Use()->setColor("dlight.color", node.dlight->color);
+                }
+            }
         }
 
+//After all lights, we compute the frame buffer
         if(node.queue >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                 glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture().getLightBuffer());
@@ -187,29 +185,40 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             }
         }
 
-        if(node.text) {
+        if((node.queue >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT)
+|| (node.queue >= fm::RENDER_QUEUE::OVERLAY && queuePreviousValue < fm::RENDER_QUEUE::OVERLAY)){
+            blendingMode = true;
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
 
-            std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
-            shader->Use();
-            shader->setInt("outline", node.text->outline)
-                ->setVector2f("outline_min", node.text->outline_min)
-                ->setVector2f("outline_max", node.text->outline_max)
-                ->setVector3f(
-                      "outline_color",
-                      glm::vec3(node.text->outline_color.r, node.text->outline_color.g, node.text->outline_color.b))
-                ->setMatrix("projection", textdef.projection)
-                ->setColor("textColor", material->color)
-                ->setInt("soft_edges", node.text->soft_edges)
-                ->setVector2f("soft_edge_values", node.text->soft_edge_values);
+        if(node.queue >= fm::RENDER_QUEUE::OVERLAY) {
+            if(node.text) {
 
-            drawText(worldPos.x,
-                     worldPos.y,
-                     fm::ResourcesManager::get().getResource<RFont>(node.text->fontName).get(),
-                     node.text);
+                std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
+                shader->Use();
+                shader->setInt("outline", node.text->outline)
+                    ->setVector2f("outline_min", node.text->outline_min)
+                    ->setVector2f("outline_max", node.text->outline_max)
+                    ->setVector3f(
+                          "outline_color",
+                          glm::vec3(node.text->outline_color.r, node.text->outline_color.g, node.text->outline_color.b))
+                    ->setMatrix("projection", textdef.projection)
+                    ->setColor("textColor", material->color)
+                    ->setInt("soft_edges", node.text->soft_edges)
+                    ->setVector2f("soft_edge_values", node.text->soft_edge_values);
+
+                drawText(worldPos.x,
+                         worldPos.y,
+                         fm::ResourcesManager::get().getResource<RFont>(node.text->fontName).get(),
+                         node.text);
+            }
         }
         queuePreviousValue = node.queue;
         queue.removeFront();
     }
+    glDisable(GL_BLEND);
+    blendingMode = false;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -227,8 +236,6 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 }
 
 void RenderingSystem::over() {
-    glDisable(GL_BLEND);
-    blendingMode = false;
 }
 
 void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f& worldPos) {

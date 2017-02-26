@@ -11,7 +11,8 @@
 #include "Components/CText.h"
 
 namespace fm {
-enum RENDER_QUEUE { BACKGROUND = 1000, OPAQUE = 2000, LIGHT = 3000, AFTER_LIGHT = 3500,TRANSPARENT = 4000, SKYBOX = 5000, OVERLAY = 6000 };
+enum RENDER_QUEUE { BACKGROUND = 1000, OPAQUE = 2000, TRANSPARENT = 3000, 
+LIGHT = 4000, AFTER_LIGHT = 4500, SKYBOX = 5000, OVERLAY = 6000 };
 
 struct RenderNode {
     fmc::CTransform *transform;
