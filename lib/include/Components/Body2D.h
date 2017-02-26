@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 #include <Box2D/Box2D.h>
-#include "../Vector2.h"
+#include "../Core/Vector2.h"
 #include <string>
 #include "Serializer.h"
 namespace fmc {

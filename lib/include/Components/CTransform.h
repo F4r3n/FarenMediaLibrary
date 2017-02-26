@@ -1,6 +1,6 @@
 #pragma once
 #include <Component.h>
-#include "Vector2.h"
+#include "Core/Vector2.h"
 #include "EntityManager.h"
 
 #include "Serializer.h"

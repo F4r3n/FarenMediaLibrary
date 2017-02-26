@@ -1,11 +1,11 @@
 #include "Engine.h"
 #include "Time.h"
 
-#include "PhysicSystem.h"
-#include "RenderingSystem.h"
-#include "ScriptManagerSystem.h"
+#include "Physic/PhysicSystem.h"
+#include "Rendering/RenderingSystem.h"
+#include "Script/ScriptManagerSystem.h"
 
-#include "SoundSystem.h"
+#include "Music/SoundSystem.h"
 #include "Components/CIdentity.h"
 using namespace fm;
 Engine::Engine() {

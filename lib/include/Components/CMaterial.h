@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
-#include "Color.h"
-#include "Texture.h"
+#include "Core/Color.h"
+#include "Rendering/Texture.h"
 #include "Serializer.h"
 namespace fmc {
 class CMaterial : public Component<CMaterial>, public Serializer {

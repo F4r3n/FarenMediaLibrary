@@ -1,8 +1,8 @@
 #pragma once
 #include <ECS.h>
 #include "Window.h"
-#include "Speaker.h"
-#include "Listener.h"
+#include "Music/Speaker.h"
+#include "Music/Listener.h"
 
 namespace fm
 {

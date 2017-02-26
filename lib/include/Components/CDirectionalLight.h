@@ -1,6 +1,6 @@
 #pragma once
 #include <ECS.h>
-#include "Color.h"
+#include "Core/Color.h"
 
 namespace fmc {
 class CDirectionalLight : public Component<CDirectionalLight>{

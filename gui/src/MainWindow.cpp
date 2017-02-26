@@ -10,7 +10,7 @@
 #include <Components/CMaterial.h>
 #include "rapidjson/document.h"
 #include <Components/CPointLight.h>
-#include "RenderingSystem.h"
+#include "Rendering/RenderingSystem.h"
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
     // From    https://github.com/ocornut/imgui/issues/707#issuecomment-254610737

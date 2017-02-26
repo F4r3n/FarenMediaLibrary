@@ -4,14 +4,14 @@
 #include <unordered_map>
 #include <GL/glew.h>
 #include <Component.h>
-#include "Color.h"
+#include "Core/Color.h"
 #include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <Resource.h>
-#include "Vector2.h"
-#include "RFont.h"
+#include "Resource/Resource.h"
+#include "Core/Vector2.h"
+#include "Resource/RFont.h"
 #include "Serializer.h"
 namespace fmc {
 

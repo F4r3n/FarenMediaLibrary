@@ -1,6 +1,6 @@
 #include "Components/CMesh.h"
 #include <iostream>
-#include "ResourcesManager.h"
+#include "Resource/ResourcesManager.h"
 #include <memory>
 using namespace fmc;
 const std::string CMesh::name = "Mesh";

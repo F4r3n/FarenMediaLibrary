@@ -3,12 +3,12 @@
 #include "Time.h"
 #include <chrono>
 #include <thread>
-#include "Renderer.h"
-#include "InputManager.h"
-#include "ResourcesManager.h"
+#include "Rendering/Renderer.h"
+#include "Input/InputManager.h"
+#include "Resource/ResourcesManager.h"
 #include "Components/CMesh.h"
-#include "RFont.h"
-#include "ShaderLibrary.h"
+#include "Resource/RFont.h"
+#include "Rendering/ShaderLibrary.h"
 using namespace fm;
 int Window::width;
 int Window::height;

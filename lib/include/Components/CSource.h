@@ -3,7 +3,7 @@
 #include <map>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include "Vector2.h"
+#include "Core/Vector2.h"
 #include "Component.h"
 
 namespace fmc {

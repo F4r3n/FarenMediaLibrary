@@ -10,7 +10,7 @@
 #include <Components/CMesh.h>
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include "Texture.h"
+#include "Rendering/Texture.h"
 using namespace rapidjson;
 #define LIST_COMPONENT fmc::CTransform, fmc::CMesh, fmc::CMaterial, fmc::Body2D, fmc::CText
 

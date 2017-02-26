@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "Component.h"
-#include "LuaScript.h"
+#include "Script/LuaScript.h"
 #include "Entity.h"
 
 namespace fmc {

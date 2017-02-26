@@ -1,10 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Vector2.h"
+#include "Core/Vector2.h"
 #include <GL/glew.h>
 #include <Component.h>
-#include "Color.h"
+#include "Core/Color.h"
 #include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

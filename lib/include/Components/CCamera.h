@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "RenderTexture.h"
+#include "Rendering/RenderTexture.h"
 #include <iostream>
 namespace fmc {
 struct ViewPortCamera {
