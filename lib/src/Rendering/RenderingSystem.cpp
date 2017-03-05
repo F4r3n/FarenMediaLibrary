@@ -113,21 +113,23 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     cam->shader_data.FM_P = cam->projection;
     cam->shader_data.FM_V = cam->viewMatrix;
     updateUniformBufferCamera(cam);
+    
+    queue.init();
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
         fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
                                 e->get<fmc::CDirectionalLight>(), e->get<fmc::CPointLight>(), e->get<fmc::CText>(),
                                 fm::RENDER_QUEUE::BACKGROUND };
         if(node.dlight || node.plight) {
-            node.queue = fm::RENDER_QUEUE::LIGHT;
+            node.state = fm::RENDER_QUEUE::LIGHT;
         }
         if(node.text) {
-            node.queue = fm::RENDER_QUEUE::OVERLAY;
+            node.state = fm::RENDER_QUEUE::OVERLAY;
         }
-
+        node.queue = 0;
         queue.addElement(node);
     }
     int lightNumber = 0;
-
+    queue.start();
     while(!queue.empty()) {
         fm::RenderNode node = queue.getFrontElement();
         fmc::CTransform* transform = node.transform;
@@ -135,7 +137,11 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CMesh* mesh = node.mesh;
         fm::Vector2f worldPos = transform->getWorldPos(em);
 
-        if(node.queue < fm::RENDER_QUEUE::LIGHT) {
+        int q = node.queue;
+        fm::RENDER_QUEUE state = node.state;
+        
+        
+        if(state < fm::RENDER_QUEUE::LIGHT) {
             if(mesh) {
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
@@ -155,7 +161,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 draw(mesh);
             }
         }
-        if(node.queue >= fm::RENDER_QUEUE::LIGHT && node.queue < fm::RENDER_QUEUE::AFTER_LIGHT) {
+        if(state >= fm::RENDER_QUEUE::LIGHT && state < fm::RENDER_QUEUE::AFTER_LIGHT) {
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                 if(node.plight) {
                     std::string ln = "light[" + std::to_string(lightNumber) + "]";
@@ -175,7 +181,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         }
 
 //After all lights, we compute the frame buffer
-        if(node.queue >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
+        if(state >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                 glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture().getLightBuffer());
                 glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
@@ -185,14 +191,14 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             }
         }
 
-        if((node.queue >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT)
-|| (node.queue >= fm::RENDER_QUEUE::OVERLAY && queuePreviousValue < fm::RENDER_QUEUE::OVERLAY)){
+        if((state >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT)
+|| (state >= fm::RENDER_QUEUE::OVERLAY && queuePreviousValue < fm::RENDER_QUEUE::OVERLAY)){
             blendingMode = true;
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
 
-        if(node.queue >= fm::RENDER_QUEUE::OVERLAY) {
+        if(state >= fm::RENDER_QUEUE::OVERLAY) {
             if(node.text) {
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader("text");
@@ -214,8 +220,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                          node.text);
             }
         }
-        queuePreviousValue = node.queue;
-        queue.removeFront();
+        queuePreviousValue = state;
+        queue.next();
     }
     glDisable(GL_BLEND);
     blendingMode = false;

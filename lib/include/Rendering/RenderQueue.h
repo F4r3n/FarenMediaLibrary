@@ -9,10 +9,10 @@
 #include "Components/CDirectionalLight.h"
 #include "Components/CPointLight.h"
 #include "Components/CText.h"
-
+#include <bitset>
 namespace fm {
-enum RENDER_QUEUE { BACKGROUND = 1000, OPAQUE = 2000, TRANSPARENT = 3000, 
-LIGHT = 4000, AFTER_LIGHT = 4500, SKYBOX = 5000, OVERLAY = 6000 };
+enum RENDER_QUEUE {FIRST_STATE,  BACKGROUND, OPAQUE, TRANSPARENT, 
+LIGHT, AFTER_LIGHT, SKYBOX, OVERLAY, LAST_STATE};
 
 struct RenderNode {
     fmc::CTransform *transform;
@@ -22,7 +22,8 @@ struct RenderNode {
     fmc::CPointLight *plight;
     fmc::CText *text;
     
-    int queue;
+    RENDER_QUEUE state;
+    int queue = 0;
 
 };
     inline bool operator<(const RenderNode& a, const RenderNode &b){
@@ -35,13 +36,31 @@ public:
     void addElement(RenderNode &&node);
     void addElement(const RenderNode &node);
     RenderNode getFrontElement() const;
-    void removeFront();
+    void nextState();
+    void nextQueue();
+    void nextIndex();
+    
+    void next();
+    void init();
+    void start();
     inline bool empty() const{
-        return nodes.empty();
+        return indexElements >= elements.size();
     }
     
-private:
-    std::priority_queue<RenderNode> nodes;
+    private:
+    const static int numberElementsBetweenStates = 10;
+    std::array< std::vector<RenderNode>, RENDER_QUEUE::LAST_STATE * numberElementsBetweenStates> nodes;
+    std::vector<int> elements;
+    std::bitset<RENDER_QUEUE::LAST_STATE * numberElementsBetweenStates> bits;
+    
+    int currentState = FIRST_STATE;
+    int currentQueue = 0;
+    int currentIndex = 0;
+    int currentIndexGlobal = 0;
+    int sizeCurrentVector = 0;
+    
+    int indexElements = 0;
+    bool e = false;
 };
 
 }
