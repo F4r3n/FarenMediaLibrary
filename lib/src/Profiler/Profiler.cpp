@@ -12,7 +12,7 @@ Profiler::~Profiler() {
 void Profiler::addProfile(Profile *profile) {
     mutex.lock();
     
-    times[profile->name] = std::chrono::duration_cast<std::chrono::milliseconds>(profile->end - profile->start).count();
+    times[profile->name] = std::chrono::duration_cast<std::chrono::microseconds>(profile->end - profile->start).count();
 
     mutex.unlock();
 }

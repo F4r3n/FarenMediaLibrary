@@ -16,7 +16,6 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
-    std::cout << Profiler::get().getTime("Test") << " ms" << std::endl;
 }
 
 void Engine::run(Window& window) {
@@ -28,10 +27,10 @@ void Engine::run(Window& window) {
 
         window.update(60);
         {
-          //  PROFILER_MEASURE(TEST)
+            PROFILER_MEASURE(TEST)
             update(fm::Time::dt);
         }
-        //PROFILER_DISPLAY(TEST)
+        PROFILER_DISPLAY(TEST)
         window.swapBuffers();
 
         numberFramesTimer++;

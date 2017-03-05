@@ -53,13 +53,13 @@ public:
     std::vector<int> elements;
     std::bitset<RENDER_QUEUE::LAST_STATE * numberElementsBetweenStates> bits;
     
-    int currentState = FIRST_STATE;
-    int currentQueue = 0;
-    int currentIndex = 0;
-    int currentIndexGlobal = 0;
-    int sizeCurrentVector = 0;
+    unsigned int currentState = FIRST_STATE;
+    unsigned int currentQueue = 0;
+    unsigned int currentIndex = 0;
+    unsigned int currentIndexGlobal = 0;
+    unsigned int sizeCurrentVector = 0;
     
-    int indexElements = 0;
+    unsigned int indexElements = 0;
     bool e = false;
 };
 
