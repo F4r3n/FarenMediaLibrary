@@ -93,7 +93,7 @@ void Texture::generate(int width, int height, Format format, Type type) {
         if(format == Format::RGBA)
             internalFormat = GL_RGBA32F;
         else if(format == Format::RGB)
-            internalFormat = GL_RGB16F;
+            internalFormat = GL_RGB32F;
         else if(format == Format::RED)
             internalFormat = GL_R32F;
     } else if(type == Type::HALF_FLOAT) {

@@ -70,8 +70,12 @@ bool RenderTexture::initFrameBuffer() {
 
     GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, attachments);
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    GLenum statusFrameBuffer = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if( statusFrameBuffer != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete! " << std::endl;
+        if(statusFrameBuffer == GL_FRAMEBUFFER_UNSUPPORTED) {
+            std::cerr << "Error unsupported format" << std::endl;
+        }
         return false;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
