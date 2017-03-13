@@ -26,11 +26,9 @@ void Engine::run(Window& window) {
     while(!window.isClosed()) {
 
         window.update(60);
-        {
-            PROFILER_MEASURE(TEST)
-            update(fm::Time::dt);
-        }
-        PROFILER_DISPLAY(TEST)
+        
+        update(fm::Time::dt);
+        
         window.swapBuffers();
 
         numberFramesTimer++;
@@ -66,7 +64,6 @@ void Engine::init() {
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    cam->setNewViewPort(0, 0, fm::Window::width, fm::Window::height);
     cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     renderer->setCamera(camera);

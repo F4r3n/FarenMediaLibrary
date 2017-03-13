@@ -16,8 +16,10 @@ void RenderQueue::addElement(const RenderNode& node) {
 }
 
 void RenderQueue::init() {
-    for(unsigned int i = 0; i < elements.size(); ++i)
+    for(unsigned int i = 0; i < elements.size(); ++i) {
         nodes[elements[i]].clear();
+    
+    }
     elements.clear();
     currentState = FIRST_STATE;
     currentQueue = 0;
@@ -71,8 +73,4 @@ void RenderQueue::next() {
             currentIndexGlobal = elements[indexElements];
         }
     }
-
-    // if(currentIndexGlobal >= nodes.size) {
-    //    currentIndexGlobal = 0;
-    //}
 }

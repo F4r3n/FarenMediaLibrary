@@ -1,7 +1,7 @@
 #pragma once
 //TODO forward mode
 #include <GL/glew.h>
-
+#include "Rendering/Texture.h"
 namespace fm {
     class RenderTexture {
     public:
@@ -15,10 +15,10 @@ namespace fm {
         
         inline unsigned int getWidth() {return width;}
         inline unsigned int getHeight() {return height;}
-        GLuint* getColorBuffer() {return textureColorbuffer;}
+        Texture* getColorBuffer() {return textureColorbuffer;}
         GLuint  getLightBuffer() {return lightShadowFBO;}
-        GLuint* getLightTextures() {return textureLightBuffer;}
-        //GLuint* getPingPongBuffer() {return pingpongColorbuffers;}
+        Texture* getLightTextures() {return textureLightBuffer;}
+
         bool active();
         
     private:
@@ -30,10 +30,10 @@ namespace fm {
         bool initFrameBuffer();
         //main Framebuffer + position fragcolor bright color
         GLuint framebuffer;
-        GLuint textureColorbuffer[3];
+        Texture textureColorbuffer[3];
         
         GLuint lightShadowFBO;
-        GLuint textureLightBuffer[2];
+        Texture textureLightBuffer[2];
         GLuint rboDepth;
     };
 }

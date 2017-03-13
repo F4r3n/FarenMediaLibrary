@@ -36,7 +36,8 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
 
     glTexParameteri(GL_TEXTURE_2D,
                     GL_TEXTURE_WRAP_S,
-                    GL_REPEAT); // Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+                    GL_REPEAT); 
+                    // Set texture wrapping to GL_REPEAT (usually basic wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -82,6 +83,41 @@ Texture::Texture(const Image& image, Recti rect) {
     glBindTexture(GL_TEXTURE_2D, 0);
     content.clear();
 }
+
+void Texture::generate(int width, int height, Format format, Type type) {
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    
+    GLenum internalFormat;
+    if(type == Type::FLOAT) {
+        if(format == Format::RGBA)
+            internalFormat = GL_RGBA32F;
+        else if(format == Format::RGB)
+            internalFormat = GL_RGB16F;
+        else if(format == Format::RED)
+            internalFormat = GL_R32F;
+    } else if(type == Type::HALF_FLOAT) {
+          if(format == Format::RGBA)
+            internalFormat = GL_RGBA16F;
+        else if(format == Format::RGB)
+            internalFormat = GL_RGB16F;
+        else if(format == Format::RED)
+            internalFormat = GL_R16F;
+    }else if(type == Type::UNSIGNED_BYTE) {
+          internalFormat = format;
+    }
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 
 Texture::Texture(unsigned int width, unsigned int height) {
 
@@ -129,6 +165,11 @@ void Texture::init(std::vector<unsigned char>& data, Recti& rect) {
 }
 
 Texture::Texture() {
+}
+
+void Texture::release() {
+    //image.clear();
+    glDeleteTextures(1, &id);
 }
 
 void Texture::clear() {

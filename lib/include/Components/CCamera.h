@@ -30,54 +30,64 @@ public:
     CCamera() {
     }
     CCamera(int width, int height) {
+
         projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
         viewPort.y = 0;
-        if(renderTexture.isCreated()) {
-            renderTexture.release();
+        if(renderTexture != nullptr&& renderTexture->isCreated()) {
+            renderTexture->release();
         }
-        renderTexture = fm::RenderTexture(width, height,8);
+        renderTexture = std::make_shared<fm::RenderTexture>(width, height,8);
     }
     ~CCamera() {
-        if(renderTexture.isCreated()) renderTexture.release();
+        if(renderTexture != nullptr && renderTexture->isCreated()) {
+            renderTexture->release();
+        }
     }
 
     void setNewProjection(unsigned int width, unsigned int height) {
-       
+
         projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
         viewPort.y = 0;
-        if(renderTexture.isCreated()) renderTexture.release();
+        if(renderTexture != nullptr && renderTexture->isCreated()) {
+            renderTexture->release();
+        }
 
-        renderTexture = fm::RenderTexture(width, height,8);
+        renderTexture = std::make_shared<fm::RenderTexture>(width, height,8);
 
     }
     
     void updateRenderTexture() {
-        if(viewPort.width != renderTexture.getWidth() 
-        || viewPort.height != renderTexture.getHeight()) {
-            renderTexture.release();
-            renderTexture = fm::RenderTexture(viewPort.width, viewPort.height);
+        if(renderTexture != nullptr) {
+            if(viewPort.width != renderTexture->getWidth() 
+            || viewPort.height != renderTexture->getHeight()) {
+                renderTexture->release();
+                renderTexture = std::make_shared<fm::RenderTexture>(viewPort.width, viewPort.height);
+            }
+            
         }
     }
     
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
+
         projection = glm::ortho((float)x, (float)x + (float)width,  (float)y + (float)height, (float)y, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = x;
         viewPort.y = y;
-        if(renderTexture.isCreated()) renderTexture.release();
-
-        renderTexture = fm::RenderTexture(width, height,8);
+        if(renderTexture != nullptr && renderTexture->isCreated()) {
+            renderTexture->release();
+        }
+        renderTexture = std::make_shared<fm::RenderTexture>(width, height,8);
 
     }
     
-    fm::RenderTexture& getRenderTexture() {
+    std::shared_ptr<fm::RenderTexture> getRenderTexture() {
         return renderTexture;
     }
 static const std::string name;
@@ -88,7 +98,7 @@ static const std::string name;
     glm::mat4 viewMatrix;
     
     Shader_data shader_data;
-    fm::RenderTexture renderTexture;
+    std::shared_ptr<fm::RenderTexture> renderTexture = nullptr;
     
 };
 }

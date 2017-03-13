@@ -13,6 +13,9 @@ using namespace fms;
 #include <Components/CDirectionalLight.h>
 #include "Window.h"
 
+#include "Profiler/Profile.hpp"
+#include "Profiler/Profiler.hpp"
+#include "Profiler/ProfilerMacro.h"
 struct PointText {
     GLfloat x;
     GLfloat y;
@@ -101,10 +104,11 @@ void RenderingSystem::pre_update(EntityManager& em) {
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     // fm::Renderer::getInstance().bindFrameBuffer();
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
-    if(!cam->getRenderTexture().isCreated())
+    
+    if(!cam->getRenderTexture()->isCreated())
         return;
 
-    cam->getRenderTexture().active();
+    cam->getRenderTexture()->active();
     glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -114,6 +118,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     cam->shader_data.FM_V = cam->viewMatrix;
     updateUniformBufferCamera(cam);
     
+    //PROFILER_START(Rendering)
+    //PROFILER_START(RenderingSort)
+
     queue.init();
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
         fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
@@ -130,6 +137,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     }
     int lightNumber = 0;
     queue.start();
+    //PROFILER_STOP(RenderingSort)
+    //PROFILER_START(Draw)
+
     while(!queue.empty()) {
         fm::RenderNode node = queue.getFrontElement();
         fmc::CTransform* transform = node.transform;
@@ -183,11 +193,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 //After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture().getLightBuffer());
+                glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture()->getLightBuffer());
                 glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
 
-                fm::Renderer::getInstance().lightComputation(cam->getRenderTexture().getColorBuffer(),
-                                                             cam->getRenderTexture().getLightBuffer());
+                fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer());
             }
         }
 
@@ -223,6 +232,12 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         queuePreviousValue = state;
         queue.next();
     }
+    //PROFILER_STOP(Draw)
+    //PROFILER_STOP(Rendering)
+    //PROFILER_DISPLAY(Rendering)
+    //PROFILER_DISPLAY(RenderingSort)
+    //PROFILER_DISPLAY(Draw)
+    
     glDisable(GL_BLEND);
     blendingMode = false;
 
@@ -235,9 +250,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
     finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-        fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getLightTextures());
+        fm::Renderer::getInstance().postProcess(cam->getRenderTexture()->getLightTextures());
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-        fm::Renderer::getInstance().postProcess(cam->getRenderTexture().getColorBuffer());
+        fm::Renderer::getInstance().postProcess(cam->getRenderTexture()->getColorBuffer());
     }
 }
 

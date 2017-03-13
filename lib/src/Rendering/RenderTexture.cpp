@@ -23,17 +23,18 @@ RenderTexture::~RenderTexture() {
 
 void RenderTexture::release() {
     std::cout << "Release render texture" << std::endl;
-    glDeleteTextures(3, textureColorbuffer);
+    for(int i = 0; i < 3; i++) textureColorbuffer[i].release();
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteRenderbuffers(1, &rboDepth);
     glDeleteRenderbuffers(1, &framebuffer);
     glDeleteRenderbuffers(1, &lightShadowFBO);
 
-    glDeleteTextures(2, textureLightBuffer);
+    for(int i = 0; i < 2; i++) textureLightBuffer[i].release();
+
     isReady = false;
     
-    for(int i = 0; i < 3; i++) textureColorbuffer[i] = 0;
+    
 }
 bool RenderTexture::isCreated() {
     return isReady;
@@ -50,21 +51,15 @@ bool RenderTexture::initFrameBuffer() {
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     // Create a color attachment texture [FragColor and BrightColor]
-    glGenTextures(3, textureColorbuffer);
+    //glGenTextures(3, textureColorbuffer);
     for(int i = 0; i < 2; i++) {
-        glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
+        textureColorbuffer[i].filter = Filter::NEAREST;
+        textureColorbuffer[i].generate(width, height, Format::RGBA, Type::UNSIGNED_BYTE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i].getID(), 0);
     }
-
-    // Position texture
-    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + 2, GL_TEXTURE_2D, textureColorbuffer[2], 0);
+    textureColorbuffer[2].filter = Filter::NEAREST;
+    textureColorbuffer[2].generate(width, height, Format::RGB, Type::HALF_FLOAT);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + 2, GL_TEXTURE_2D, textureColorbuffer[2].getID(), 0);
 
     if(depth != 0) {
         glGenRenderbuffers(1, &rboDepth);
@@ -84,14 +79,11 @@ bool RenderTexture::initFrameBuffer() {
     // FBO to compute lights
     glGenFramebuffers(1, &lightShadowFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, lightShadowFBO);
-    glGenTextures(2, textureLightBuffer);
 
     for(GLuint i = 0; i < 2; i++) {
-        glBindTexture(GL_TEXTURE_2D, textureLightBuffer[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureLightBuffer[i], 0);
+        textureLightBuffer[i].filter = Filter::NEAREST;
+        textureLightBuffer[i].generate(width, height, Format::RGBA, Type::UNSIGNED_BYTE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureLightBuffer[i].getID(), 0);
     }
     GLuint attachments2[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, attachments2);
