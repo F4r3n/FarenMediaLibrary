@@ -60,11 +60,11 @@ void Engine::init() {
     systems.addSystem(new fms::SoundSystem());
 
     camera = fm::Engine::createEntity();
-    fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height));
+    fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::DEFERRED));
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;
+    //cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     renderer->setCamera(camera);
     systems.init(EntityManager::get(), EventManager::get());

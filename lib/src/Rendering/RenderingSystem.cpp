@@ -81,6 +81,15 @@ void RenderingSystem::setCamera(Entity* camera) {
     this->camera = camera;
 
     initUniformBufferCamera(cam);
+    fm::Format formats[] = {fm::Format::RGBA, fm::Format::RGBA};
+    fm::Type types[] = {fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE};
+    lightRenderTexture = std::make_shared<fm::RenderTexture>(cam->getRenderTexture()->getWidth(),
+                                                            cam->getRenderTexture()->getHeight(), 
+                                                            2 , 
+                                                            formats,
+                                                            types,
+                                                            0);
+    
 }
 
 void
@@ -105,8 +114,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     // fm::Renderer::getInstance().bindFrameBuffer();
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     
-    if(!cam->getRenderTexture()->isCreated())
+    if(!cam->getRenderTexture()->isCreated()) {
+        std::cout << "No render texture created" << std::endl;
         return;
+    }
 
     cam->getRenderTexture()->active();
     glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
@@ -193,7 +204,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 //After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                glBindFramebuffer(GL_FRAMEBUFFER, cam->getRenderTexture()->getLightBuffer());
+                lightRenderTexture->bind();
                 glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
 
                 fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer());
@@ -250,7 +261,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
     finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-        fm::Renderer::getInstance().postProcess(cam->getRenderTexture()->getLightTextures());
+        fm::Renderer::getInstance().postProcess(lightRenderTexture->getColorBuffer());
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         fm::Renderer::getInstance().postProcess(cam->getRenderTexture()->getColorBuffer());
     }

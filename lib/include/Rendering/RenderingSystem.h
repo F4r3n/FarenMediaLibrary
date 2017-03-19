@@ -57,5 +57,7 @@ private:
     bool blendingMode = false;
     bool computeLightinh = false;
     int queuePreviousValue = 0;
+    
+    std::shared_ptr<fm::RenderTexture> lightRenderTexture;
 };
 }

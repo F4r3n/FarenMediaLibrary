@@ -13,13 +13,9 @@ struct ViewPortCamera {
     float height;
 };
 
-enum RENDER_MODE {
-    FORWARD,
-    DEFERRED
-};
+enum RENDER_MODE { FORWARD, DEFERRED };
 
-struct Shader_data
-{
+struct Shader_data {
     glm::mat4 FM_V;
     glm::mat4 FM_P;
     glm::mat4 FM_PV;
@@ -29,17 +25,28 @@ class CCamera : public Component<CCamera> {
 public:
     CCamera() {
     }
-    CCamera(int width, int height) {
+    CCamera(int width, int height, fmc::RENDER_MODE mode) {
 
-        projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
+        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
         viewPort.y = 0;
-        if(renderTexture != nullptr&& renderTexture->isCreated()) {
+        if(renderTexture != nullptr && renderTexture->isCreated()) {
             renderTexture->release();
         }
-        renderTexture = std::make_shared<fm::RenderTexture>(width, height,8);
+        shader_data.render_mode = mode;
+        if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+            fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
+
+            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
+            renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
+        } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
+            fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
+
+            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+            renderTexture = std::make_shared<fm::RenderTexture>(width, height, 2, formats, types, 24);
+        }
     }
     ~CCamera() {
         if(renderTexture != nullptr && renderTexture->isCreated()) {
@@ -49,7 +56,7 @@ public:
 
     void setNewProjection(unsigned int width, unsigned int height) {
 
-        projection = glm::ortho(0.0f, (float)width,  (float)height, 0.0f, 0.0f, 100.0f);
+        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
@@ -58,24 +65,31 @@ public:
             renderTexture->release();
         }
 
-        renderTexture = std::make_shared<fm::RenderTexture>(width, height,8);
-
+        renderTexture = std::make_shared<fm::RenderTexture>(width, height, 8);
     }
-    
+
     void updateRenderTexture() {
         if(renderTexture != nullptr) {
-            if(viewPort.width != renderTexture->getWidth() 
-            || viewPort.height != renderTexture->getHeight()) {
+            if(viewPort.width != renderTexture->getWidth() || viewPort.height != renderTexture->getHeight()) {
                 renderTexture->release();
-                renderTexture = std::make_shared<fm::RenderTexture>(viewPort.width, viewPort.height);
+                if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+                    fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
+
+                    fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
+                    renderTexture = std::make_shared<fm::RenderTexture>(viewPort.width, viewPort.height, 3, formats, types, 24);
+                } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
+                    fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
+
+                    fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+                    renderTexture = std::make_shared<fm::RenderTexture>(viewPort.width, viewPort.height, 3, formats, types, 24);
+                }
             }
-            
         }
     }
-    
+
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
 
-        projection = glm::ortho((float)x, (float)x + (float)width,  (float)y + (float)height, (float)y, 0.0f, 100.0f);
+        projection = glm::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = x;
@@ -83,22 +97,29 @@ public:
         if(renderTexture != nullptr && renderTexture->isCreated()) {
             renderTexture->release();
         }
-        renderTexture = std::make_shared<fm::RenderTexture>(width, height,8);
+        if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+            fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 
+            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
+            renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
+        } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
+            fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
+
+            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+            renderTexture = std::make_shared<fm::RenderTexture>(width, height, 2, formats, types, 24);
+        }
     }
-    
+
     std::shared_ptr<fm::RenderTexture> getRenderTexture() {
         return renderTexture;
     }
-static const std::string name;
-
+    static const std::string name;
 
     ViewPortCamera viewPort;
     glm::mat4 projection;
     glm::mat4 viewMatrix;
-    
+
     Shader_data shader_data;
     std::shared_ptr<fm::RenderTexture> renderTexture = nullptr;
-    
 };
 }

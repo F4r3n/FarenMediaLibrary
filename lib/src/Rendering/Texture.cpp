@@ -105,6 +105,13 @@ void Texture::generate(int width, int height, Format format, Type type) {
             internalFormat = GL_R16F;
     }else if(type == Type::UNSIGNED_BYTE) {
           internalFormat = format;
+    } 
+    
+    if(format == Format::DEPTH_STENCIL) {
+        internalFormat = GL_DEPTH24_STENCIL8;
+        if(type != Type::UNSIGNED_24_8) {
+            type = Type::UNSIGNED_24_8;
+        }
     }
     
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, nullptr);
