@@ -1,6 +1,6 @@
 #pragma once
 #include <Component.h>
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include "EntityManager.h"
 
 #include "Serializer.h"
@@ -9,7 +9,7 @@ class Entity;
 namespace fmc {
 class CTransform : public Component<CTransform>, public Serializer {
 public:
-    CTransform(const fm::Vector2f& position, const fm::Vector2f& scale, const float& rotation, const int& layer = 1);
+    CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer = 1);
     CTransform();
     ~CTransform() {
     }
@@ -20,14 +20,14 @@ public:
 
     void setFather(Entity* e);
 
-    fm::Vector2f getWorldPos();
-    fm::Vector2f getWorldPos(EntityManager& manager);
+    fm::math::Vector2f getWorldPos();
+    fm::math::Vector2f getWorldPos(EntityManager& manager);
 
-    fm::Vector2f position = { 0, 0 };
+    fm::math::Vector2f position = { 0, 0 };
 
     size_t idFather = std::numeric_limits<size_t>::max();
 
-    fm::Vector2f scale = { 100, 100 };
+    fm::math::Vector2f scale = { 100, 100 };
     float rotation = 0;
     int layer = 1;
     static const std::string name;

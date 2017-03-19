@@ -1,6 +1,6 @@
 #pragma once
 #include <ostream>
-#include "Vector2.h"
+#include "Math/Vector2.h"
 namespace fm {
 
 template <class T> class Rect {
@@ -13,7 +13,7 @@ public:
         , w(w)
         , h(h) {
     }
-    Rect(Vector2<T> position, Vector2<T> scale) {
+    Rect(math::Vector2<T> position, math::Vector2<T> scale) {
         x = position.x;
         y = position.y;
         w = scale.x;

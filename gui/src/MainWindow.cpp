@@ -66,7 +66,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
 
     dlight = fm::Engine::createEntity();
     dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
-    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::Vector2f(100, 50), fm::Vector2f(20, 20), 0, 1));
+    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
     dlight->addComponent<fmc::CIdentity>()->display = false;
 
@@ -176,7 +176,7 @@ void MainWindow::menu() {
                 windowCurrentEntity = true;
                 currentEntity = EntityManager::get().createEntity();
                 currentEntity->addComponent<fmc::CTransform>(
-                    new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
+                    new fmc::CTransform(fm::math::Vector2f(0, 0), fm::math::Vector2f(100, 100), 0));
                 currentEntity->addComponent<fmc::CIdentity>();
             }
             if(ImGui::MenuItem("List entity")) {
@@ -248,7 +248,7 @@ void MainWindow::listEntity() {
         if(ImGui::Button("Add Entity")) {
             currentEntity = EntityManager::get().createEntity();
             currentEntity->addComponent<fmc::CTransform>(
-                new fmc::CTransform(fm::Vector2f(0, 0), fm::Vector2f(100, 100), 0));
+                new fmc::CTransform(fm::math::Vector2f(0, 0), fm::math::Vector2f(100, 100), 0));
             currentEntity->addComponent<fmc::CIdentity>();
         }
         ImGui::End();

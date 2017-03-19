@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include <vector>
 #include <string>
 #include "Core/Rect.h"
@@ -10,16 +10,16 @@ public:
     ~Image();
     void create(float width, float height);
     unsigned char* getImagePtr();
-    bool loadImage(const std::string& pathImage, const Vector2i& offset = { 0, 0 });
-    const Vector2<int>& getSize() const;
+    bool loadImage(const std::string& pathImage, const math::Vector2i& offset = { 0, 0 });
+    const math::Vector2<int>& getSize() const;
     void clear();
     void getPart(std::vector<unsigned char>& imagePart, Recti rect) const;
 
 private:
     unsigned char* _pixel = nullptr;
-    Vector2<int> _size;
-    Vector2<int> _offset;
-    Vector2<int> _realSize;
+    math::Vector2<int> _size;
+    math::Vector2<int> _offset;
+    math::Vector2<int> _realSize;
     std::vector<unsigned char> pixels;
 };
 }

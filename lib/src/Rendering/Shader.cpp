@@ -126,7 +126,7 @@ Shader* Shader::setInt(const std::string& name, int val) {
     return this;
 }
 
-Shader* Shader::setVector2f(const std::string& name, Vector2f vector) {
+Shader* Shader::setVector2f(const std::string& name, math::Vector2f vector) {
     return setVector2f(name, glm::vec2(vector.x, vector.y));
 }
 

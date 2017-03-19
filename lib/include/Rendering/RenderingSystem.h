@@ -32,14 +32,14 @@ public:
     void pre_update(EntityManager& em);
 
 private:
-    void setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f& worldPos);
+    void setModel(glm::mat4& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
     ~RenderingSystem();
     void initUniformBufferCamera(fmc::CCamera* camera);
     void updateUniformBufferCamera(fmc::CCamera* camera);
     void draw(const fmc::CMesh* cmesh);
     void drawText(int posX, int posY, RFont* font, const fmc::CText* ctext);
 
-    void view(glm::mat4& matrixView, const fm::Vector2f& position, const fm::Vector2f& size, float rotation);
+    void view(glm::mat4& matrixView, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation);
 
     Entity* camera;
     int width;

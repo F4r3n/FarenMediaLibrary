@@ -1,6 +1,5 @@
 #pragma once
 #include "Rendering/Image.h"
-#include "Core/Vector2.h"
 #include "Core/Rect.h"
 #include "NonCopyable.h"
 #include <GL/glew.h>
@@ -12,8 +11,8 @@
 namespace fm {
 enum SIZE { S_32, S_64, S_128, S_256, S_512, S_1024, LAST_SIZE };
 struct TextureAtlas {
-    Vector2ui size;
-    Vector2ui pos;
+    math::Vector2ui size;
+    math::Vector2ui pos;
     SIZE s;
     size_t maxSizeRegion;
     unsigned int id;

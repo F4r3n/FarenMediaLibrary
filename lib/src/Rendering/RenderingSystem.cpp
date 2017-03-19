@@ -93,7 +93,7 @@ void RenderingSystem::setCamera(Entity* camera) {
 }
 
 void
-RenderingSystem::view(glm::mat4& viewMatrix, const fm::Vector2f& position, const fm::Vector2f& size, float rotation) {
+RenderingSystem::view(glm::mat4& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation) {
     viewMatrix = glm::translate(viewMatrix, glm::vec3(position.x, position.y, 0));
 
     viewMatrix = glm::translate(viewMatrix, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
@@ -156,7 +156,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CTransform* transform = node.transform;
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
-        fm::Vector2f worldPos = transform->getWorldPos(em);
+        fm::math::Vector2f worldPos = transform->getWorldPos(em);
 
         int q = node.queue;
         fm::RENDER_QUEUE state = node.state;
@@ -270,7 +270,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 void RenderingSystem::over() {
 }
 
-void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::Vector2f& worldPos) {
+void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos) {
     model = glm::translate(model, glm::vec3(worldPos.x, worldPos.y, -transform->layer));
     model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
     model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));

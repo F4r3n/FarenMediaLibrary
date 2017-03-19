@@ -1,6 +1,6 @@
 #include "Script/LuaManager.h"
 #include "Input/Input.h"
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include "Components/CTransform.h"
 #include "Core/Color.h"
 #include "Components/CMaterial.h"
@@ -26,9 +26,9 @@ LuaManager::LuaManager() {}
 LuaManager::~LuaManager() {}
 
 void LuaManager::registerComponents() {
-    registerComponent<Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),
- "x", &Vector2f::x, "y", &Vector2f::y);
-    registerComponent<Vector2d>("Vector2d", "x", &Vector2d::x, "y", &Vector2d::y);
+    registerComponent<math::Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),
+ "x", &math::Vector2f::x, "y", &math::Vector2f::y);
+    registerComponent<math::Vector2d>("Vector2d", "x", &math::Vector2d::x, "y", &math::Vector2d::y);
     registerComponent<Vertex>("Vertex", "position", &Vertex::position, "uv", &Vertex::uv);
 
     registerComponent<Color>("Color", "r", &Color::r, "g", &Color::g, "b", &Color::b, "a", &Color::a);
@@ -104,9 +104,6 @@ void LuaManager::registerComponents() {
                 "timeStamp", sol::var(std::ref(Time::timeStamp))
         );
 
-    //lua.set_function("add_Transform", &add<CTransform>);
-    //lua.set_function("add_Mesh", &add<CMesh>);
-    //lua.set_function("add_Material", &add<CMaterial>);
 
     lua.set_function("createEntity", &createEntity);
 }

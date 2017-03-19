@@ -1,7 +1,7 @@
 #pragma once
 #include "Window.h"
 #include <map>
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include "NonCopyable.h"
 
 namespace fm
@@ -145,7 +145,7 @@ public:
     bool keyIsPressed(int key);
     bool keyIsReleased(int key);
     bool multipleKeysPressed(int key, ...);
-    void getMousePosition(Vector2<double>& pos);
+    void getMousePosition(math::Vector2<double>& pos);
     void getMousePosition(double& posX, double& posY);
     static float getMousePositionX();
     static float getMousePositionY();

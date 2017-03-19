@@ -12,7 +12,7 @@ bool Input::keyIsReleased(int key) {
 int Input::getMouseButton(int id) {
     return InputManager::getInstance().getMouseButton(id);
 }
-void Input::getMousePosition(Vector2<double>& pos) {
+void Input::getMousePosition(math::Vector2<double>& pos) {
     InputManager::getInstance().getMousePosition(pos);
 }
 
@@ -34,8 +34,8 @@ std::tuple<double, double> Input::getMousePosition() {
     return std::make_tuple(x, y);
 }
 
-Vector2d Input::getMousePositionVector() {
-    Vector2d pos;
+math::Vector2d Input::getMousePositionVector() {
+    math::Vector2d pos;
     InputManager::getInstance().getMousePosition(pos);
     return pos;
 }

@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Resource/Resource.h"
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include "Resource/RFont.h"
 #include "Serializer.h"
 namespace fmc {
@@ -30,15 +30,15 @@ public:
     
     bool outline = false;
     fm::Color outline_color;
-    fm::Vector2f outline_min;
-    fm::Vector2f outline_max;
+    fm::math::Vector2f outline_min;
+    fm::math::Vector2f outline_max;
     
     bool soft_edges = false;
-    fm::Vector2f soft_edge_values;
+    fm::math::Vector2f soft_edge_values;
     static const std::string name;
 void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
     void parse(rapidjson::Value &value) override {}
 private:
-    fm::Vector2f pos = { 0, 0 };
+    fm::math::Vector2f pos = { 0, 0 };
 };
 }

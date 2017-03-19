@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include <GL/glew.h>
 #include <Component.h>
 #include "Core/Color.h"
@@ -14,8 +14,8 @@
 namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE, LAST_SHAPE };
 struct Vertex {
-    fm::Vector2f position;
-    fm::Vector2f uv;
+    fm::math::Vector2f position;
+    fm::math::Vector2f uv;
 };
 
 class CMesh : public Component<CMesh>, public Serializer {
@@ -45,7 +45,7 @@ public:
     void addVertex(const Vertex &vertex);
     void addVertexPositionUV(float px, float py, float uvx, float uvy);
 
-    void addVertexPositionUVVectors(const fm::Vector2f& position, const fm::Vector2f& uv = { 0, 0 });
+    void addVertexPositionUVVectors(const fm::math::Vector2f& position, const fm::math::Vector2f& uv = { 0, 0 });
     void addIndex(unsigned int index);
     void clean();
     void removeVertices(unsigned int start, unsigned int end);

@@ -87,7 +87,7 @@ bool InputManager::multipleKeysPressed(int number, ...)
     va_end(ap);
     return val;
 }
-void InputManager::getMousePosition(Vector2<double>& pos)
+void InputManager::getMousePosition(math::Vector2<double>& pos)
 {
     glfwGetCursorPos(window, &pos.x, &pos.y);
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <single/sol/sol.hpp>
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include "Input/InputManager.h"
 #include <vector>
 #include "Entity.h"

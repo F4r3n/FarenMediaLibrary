@@ -9,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Resource/Resource.h"
-#include "Core/Vector2.h"
+#include "Core/Math/Vector2.h"
 #include "Core/Color.h"
 namespace fm {
 class Shader {
@@ -25,7 +25,7 @@ public:
     Shader* setFloat(const std::string& name, float val);
     Shader* setInt(const std::string& name, int val);
     
-    Shader* setVector2f(const std::string& name, Vector2f vector);
+    Shader* setVector2f(const std::string& name, math::Vector2f vector);
     Shader* setColor(const std::string& name, Color vector);
     
     Shader* Use();

@@ -22,7 +22,7 @@ void Image::clear() {
         stbi_image_free(_pixel);
 }
 
-const Vector2<int>& Image::getSize() const {
+const math::Vector2<int>& Image::getSize() const {
     return _size;
 }
 
@@ -41,7 +41,7 @@ unsigned char* Image::getImagePtr() {
     return _pixel;
 }
 
-bool Image::loadImage(const std::string& path, const Vector2i& offset) {
+bool Image::loadImage(const std::string& path, const math::Vector2i& offset) {
     pixels.clear();
     _offset = offset;
    
