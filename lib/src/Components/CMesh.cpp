@@ -112,7 +112,7 @@ bool CMesh::init(SHAPE shape) {
         addVertexPositionUVVectors({ 0.5, 0.5 }, { 0.5, 0.5 });
 
         for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
-            fm::math::Vector2f uv(0.5 + glm::cos(teta) / 2, 0.5 + glm::sin(teta) / 2);
+            fm::math::Vector2f uv((float)(0.5 + glm::cos(teta) / 2), (float)(0.5 + glm::sin(teta) / 2.0f));
             addVertexPositionUVVectors(uv, uv);
         }
 

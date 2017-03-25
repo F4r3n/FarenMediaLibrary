@@ -11,15 +11,15 @@ public:
     void create(float width, float height);
     unsigned char* getImagePtr();
     bool loadImage(const std::string& pathImage, const math::Vector2i& offset = { 0, 0 });
-    const math::Vector2<int>& getSize() const;
+    const math::Vector2i& getSize() const;
     void clear();
     void getPart(std::vector<unsigned char>& imagePart, Recti rect) const;
 
 private:
     unsigned char* _pixel = nullptr;
-    math::Vector2<int> _size;
-    math::Vector2<int> _offset;
-    math::Vector2<int> _realSize;
+    math::Vector2i _size;
+    math::Vector2i _offset;
+    math::Vector2i _realSize;
     std::vector<unsigned char> pixels;
 };
 }

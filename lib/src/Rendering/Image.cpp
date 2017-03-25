@@ -22,7 +22,7 @@ void Image::clear() {
         stbi_image_free(_pixel);
 }
 
-const math::Vector2<int>& Image::getSize() const {
+const math::Vector2i& Image::getSize() const {
     return _size;
 }
 

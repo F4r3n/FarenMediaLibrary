@@ -12,7 +12,7 @@ bool Input::keyIsReleased(int key) {
 int Input::getMouseButton(int id) {
     return InputManager::getInstance().getMouseButton(id);
 }
-void Input::getMousePosition(math::Vector2<double>& pos) {
+void Input::getMousePosition(math::Vector2d &pos) {
     InputManager::getInstance().getMousePosition(pos);
 }
 

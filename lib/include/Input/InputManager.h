@@ -145,7 +145,7 @@ public:
     bool keyIsPressed(int key);
     bool keyIsReleased(int key);
     bool multipleKeysPressed(int key, ...);
-    void getMousePosition(math::Vector2<double>& pos);
+    void getMousePosition(math::Vector2d & pos);
     void getMousePosition(double& posX, double& posY);
     static float getMousePositionX();
     static float getMousePositionY();

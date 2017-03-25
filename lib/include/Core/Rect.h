@@ -13,7 +13,7 @@ public:
         , w(w)
         , h(h) {
     }
-    Rect(math::Vector2<T> position, math::Vector2<T> scale) {
+    Rect(math::vec<T, 2> position, math::vec<T, 2> scale) {
         x = position.x;
         y = position.y;
         w = scale.x;
