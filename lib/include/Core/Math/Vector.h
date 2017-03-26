@@ -203,9 +203,9 @@ namespace math {
         return vec<T, 3>(a.x * b, a.y * b, a.z * b);
     }
 
-    template <typename T> struct vec<T, 4> { 
-        T x, y, z, w; 
-            vec<T, 4>(T x, T y, T z, T w) {
+    template <typename T> struct vec<T, 4> {
+        T x, y, z, w;
+        vec<T, 4>(T x, T y, T z, T w) {
             this->x = x;
             this->y = y;
             this->z = z;
@@ -237,17 +237,19 @@ namespace math {
         }
 
         inline T norme() {
-            return sqrt(x * x + y * y + z * z + w*w);
+            return sqrt(x * x + y * y + z * z + w * w);
         }
 
         friend std::ostream& operator<<(std::ostream& stream, const vec<T, 4> vector) {
             stream << vector.x << " " << vector.y << " " << vector.z << " " << vector.w;
             return stream;
         }
-    
+
+        T const& operator[](unsigned int index) const;
+        T& operator[](unsigned int index);
     };
-    
-        template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 4>& b) {
+
+    template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 4>& b) {
         return vec<T, 4>(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
     }
 
@@ -306,15 +308,28 @@ namespace math {
         return vec<T, 4>(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
     }
     template <typename T> vec<T, 4> operator*(const vec<T, 4>& a, T b) {
-        return vec<T, 4>(a.x * b, a.y * b, a.z * b, a.w *b);
+        return vec<T, 4>(a.x * b, a.y * b, a.z * b, a.w * b);
     }
-    
-    template <typename T> bool operator==(const vec<T, 4> & a, const vec<T,4> &b) {
+
+    template <typename T, typename P> vec<T, 4> operator*(const vec<T, 4>& a, P b) {
+        return vec<T, 4>(
+            a.x * static_cast<T>(b), a.y * static_cast<T>(b), a.z * static_cast<T>(b), a.w * static_cast<T>(b));
+    }
+
+    template <typename T> bool operator==(const vec<T, 4>& a, const vec<T, 4>& b) {
         return (a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w);
     }
-    
-        template <typename T> bool operator!=(const vec<T, 4> & a, const vec<T,4> &b) {
+
+    template <typename T> bool operator!=(const vec<T, 4>& a, const vec<T, 4>& b) {
         return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+    }
+
+    template <typename T> T const& vec<T,4>::operator[](unsigned int index) const {
+        return (&x)[index];
+    }
+
+    template <typename T> T& vec<T,4>::operator[](unsigned int index) {
+        return (&x)[index];
     }
 }
 }
