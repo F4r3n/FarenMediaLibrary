@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Resource/ResourcesManager.h"
 #include <memory>
+#include "Core/Math/Functions.h"
 using namespace fmc;
 const std::string CMesh::name = "Mesh";
 
@@ -107,12 +108,12 @@ bool CMesh::init(SHAPE shape) {
 
     } else if(shape == CIRCLE) {
         unsigned int numberVertices = 100;
-        float intervall = 2 * glm::pi<float>() / numberVertices;
+        float intervall = 2 * fm::math::pi() / numberVertices;
 
         addVertexPositionUVVectors({ 0.5, 0.5 }, { 0.5, 0.5 });
 
-        for(float teta = 0; teta < 2 * glm::pi<float>(); teta += intervall) {
-            fm::math::Vector2f uv((float)(0.5 + glm::cos(teta) / 2), (float)(0.5 + glm::sin(teta) / 2.0f));
+        for(float teta = 0; teta < 2 * fm::math::pi(); teta += intervall) {
+            fm::math::Vector2f uv((float)(0.5 + cos(teta) / 2), (float)(0.5 + sin(teta) / 2.0f));
             addVertexPositionUVVectors(uv, uv);
         }
 

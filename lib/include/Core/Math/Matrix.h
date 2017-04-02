@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector4.h"
+
 namespace fm {
 
 namespace math {
@@ -19,7 +20,6 @@ namespace math {
     }
     template <typename T> struct Matrix {
         matrix<T> m;
-
 
         col<T> const& operator[](int index) const;
         col<T>& operator[](int index);
@@ -106,6 +106,21 @@ namespace math {
 
         return Result;
     }
+    
+    template <typename T> Matrix<T> ortho
+	(
+		T left, T right,
+		T bottom, T top
+	)
+	{
+		Matrix<T> Result;
+		Result[0][0] = static_cast<T>(2) / (right - left);
+		Result[1][1] = static_cast<T>(2) / (top - bottom);
+		Result[2][2] = - static_cast<T>(1);
+		Result[3][0] = - (right + left) / (right - left);
+		Result[3][1] = - (top + bottom) / (top - bottom);
+		return Result;
+	}
 
     template <typename T>
     Matrix<T>::Matrix(T a00,
@@ -177,46 +192,44 @@ namespace math {
         m[3][2] = 0;
         m[3][3] = 1;
     }
-    
-    template <typename T>
-    Matrix<T> operator*(const Matrix<T> &m1, const Matrix<T> &m2) {
-        return Matrix<T>(
-			m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1] + m1[2][0] * m2[0][2] + m1[3][0] * m2[0][3],
-			m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1] + m1[2][1] * m2[0][2] + m1[3][1] * m2[0][3],
-			m1[0][2] * m2[0][0] + m1[1][2] * m2[0][1] + m1[2][2] * m2[0][2] + m1[3][2] * m2[0][3],
-			m1[0][3] * m2[0][0] + m1[1][3] * m2[0][1] + m1[2][3] * m2[0][2] + m1[3][3] * m2[0][3],
-            
-			m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1] + m1[2][0] * m2[1][2] + m1[3][0] * m2[1][3],
-			m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1] + m1[2][1] * m2[1][2] + m1[3][1] * m2[1][3],
-			m1[0][2] * m2[1][0] + m1[1][2] * m2[1][1] + m1[2][2] * m2[1][2] + m1[3][2] * m2[1][3],
-			m1[0][3] * m2[1][0] + m1[1][3] * m2[1][1] + m1[2][3] * m2[1][2] + m1[3][3] * m2[1][3],
-            
-			m1[0][0] * m2[2][0] + m1[1][0] * m2[2][1] + m1[2][0] * m2[2][2] + m1[3][0] * m2[2][3],
-			m1[0][1] * m2[2][0] + m1[1][1] * m2[2][1] + m1[2][1] * m2[2][2] + m1[3][1] * m2[2][3],
-			m1[0][2] * m2[2][0] + m1[1][2] * m2[2][1] + m1[2][2] * m2[2][2] + m1[3][2] * m2[2][3],
-			m1[0][3] * m2[2][0] + m1[1][3] * m2[2][1] + m1[2][3] * m2[2][2] + m1[3][3] * m2[2][3],
-            
-            m1[0][0] * m2[3][0] + m1[1][0] * m2[3][1] + m1[3][0] * m2[3][2] + m1[3][0] * m2[3][3],
-			m1[0][1] * m2[3][0] + m1[1][1] * m2[3][1] + m1[3][1] * m2[3][2] + m1[3][1] * m2[3][3],
-			m1[0][2] * m2[3][0] + m1[1][2] * m2[3][1] + m1[3][2] * m2[3][2] + m1[3][2] * m2[3][3],
-			m1[0][3] * m2[3][0] + m1[1][3] * m2[3][1] + m1[3][3] * m2[3][2] + m1[3][3] * m2[3][3]
 
-        );
-    }
-    template <typename T>
-    T* value_ptr(Matrix<T> &m) {
-        return &(m[0].x);
-    }
-        template <typename T>
+    template <typename T> Matrix<T> operator*(const Matrix<T>& m1, const Matrix<T>& m2) {
+        return Matrix<T>(m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1] + m1[2][0] * m2[0][2] + m1[3][0] * m2[0][3],
+                         m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1] + m1[2][1] * m2[0][2] + m1[3][1] * m2[0][3],
+                         m1[0][2] * m2[0][0] + m1[1][2] * m2[0][1] + m1[2][2] * m2[0][2] + m1[3][2] * m2[0][3],
+                         m1[0][3] * m2[0][0] + m1[1][3] * m2[0][1] + m1[2][3] * m2[0][2] + m1[3][3] * m2[0][3],
 
-    T const* value_ptr(const Matrix<T> &m) {
+                         m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1] + m1[2][0] * m2[1][2] + m1[3][0] * m2[1][3],
+                         m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1] + m1[2][1] * m2[1][2] + m1[3][1] * m2[1][3],
+                         m1[0][2] * m2[1][0] + m1[1][2] * m2[1][1] + m1[2][2] * m2[1][2] + m1[3][2] * m2[1][3],
+                         m1[0][3] * m2[1][0] + m1[1][3] * m2[1][1] + m1[2][3] * m2[1][2] + m1[3][3] * m2[1][3],
+
+                         m1[0][0] * m2[2][0] + m1[1][0] * m2[2][1] + m1[2][0] * m2[2][2] + m1[3][0] * m2[2][3],
+                         m1[0][1] * m2[2][0] + m1[1][1] * m2[2][1] + m1[2][1] * m2[2][2] + m1[3][1] * m2[2][3],
+                         m1[0][2] * m2[2][0] + m1[1][2] * m2[2][1] + m1[2][2] * m2[2][2] + m1[3][2] * m2[2][3],
+                         m1[0][3] * m2[2][0] + m1[1][3] * m2[2][1] + m1[2][3] * m2[2][2] + m1[3][3] * m2[2][3],
+
+                         m1[0][0] * m2[3][0] + m1[1][0] * m2[3][1] + m1[2][0] * m2[3][2] + m1[3][0] * m2[3][3],
+                         m1[0][1] * m2[3][0] + m1[1][1] * m2[3][1] + m1[2][1] * m2[3][2] + m1[3][1] * m2[3][3],
+                         m1[0][2] * m2[3][0] + m1[1][2] * m2[3][1] + m1[2][2] * m2[3][2] + m1[3][2] * m2[3][3],
+                         m1[0][3] * m2[3][0] + m1[1][3] * m2[3][1] + m1[2][3] * m2[3][2] + m1[3][3] * m2[3][3]
+
+                         );
+    }
+    template <typename T> T* value_ptr(Matrix<T>& m) {
         return &(m[0].x);
     }
     template <typename T>
-    std::ostream& operator<<(std::ostream& stream, const Matrix<T> m) {
+
+    T const* value_ptr(const Matrix<T>& m) {
+        return &(m[0].x);
+    }
+    template <typename T> std::ostream& operator<<(std::ostream& stream, const Matrix<T> m) {
         stream << m[0] << "\n" << m[1] << "\n" << m[2] << "\n" << m[3];
         return stream;
     }
+
+    
     typedef Matrix<float> mat;
 }
 }

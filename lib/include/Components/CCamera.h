@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Rendering/RenderTexture.h"
 #include <iostream>
+#include "Core/Math/Matrix.h"
 namespace fmc {
 struct ViewPortCamera {
     float x;
@@ -16,9 +17,9 @@ struct ViewPortCamera {
 enum RENDER_MODE { FORWARD, DEFERRED };
 
 struct Shader_data {
-    glm::mat4 FM_V;
-    glm::mat4 FM_P;
-    glm::mat4 FM_PV;
+    fm::math::mat FM_V;
+    fm::math::mat FM_P;
+    fm::math::mat FM_PV;
     int render_mode = fmc::RENDER_MODE::DEFERRED;
 };
 class CCamera : public Component<CCamera> {
@@ -27,7 +28,8 @@ public:
     }
     CCamera(int width, int height, fmc::RENDER_MODE mode) {
 
-        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+        //projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+        projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
@@ -56,7 +58,7 @@ public:
 
     void setNewProjection(unsigned int width, unsigned int height) {
 
-        projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+        projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = 0;
@@ -89,7 +91,7 @@ public:
 
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
 
-        projection = glm::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, 0.0f, 100.0f);
+        projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, 0.0f, 100.0f);
         viewPort.width = width;
         viewPort.height = height;
         viewPort.x = x;
@@ -116,8 +118,8 @@ public:
     static const std::string name;
 
     ViewPortCamera viewPort;
-    glm::mat4 projection;
-    glm::mat4 viewMatrix;
+    fm::math::mat projection;
+    fm::math::mat viewMatrix;
 
     Shader_data shader_data;
     std::shared_ptr<fm::RenderTexture> renderTexture = nullptr;

@@ -20,8 +20,8 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event) {
             body->init(world.get(), P2M);
         }
         fmc::CTransform* transform = e->get<fmc::CTransform>();
-        transform->position = fm::math::Vector2f(body->body->GetPosition().x - (body->size.x)*P2M, 
-        body->body->GetPosition().y - (body->size.y)*P2M)*M2P;
+        transform->position = fm::math::vec2(body->body->GetPosition().x - body->size.x*P2M, 
+        body->body->GetPosition().y - body->size.y*P2M)*M2P;
         transform->rotation = body->body->GetAngle();
     }
 }

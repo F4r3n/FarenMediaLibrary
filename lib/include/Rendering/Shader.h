@@ -5,12 +5,12 @@
 #include <iostream>
 
 #include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
 #include "Resource/Resource.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Color.h"
+#include "Core/Math/Matrix.h"
+#include "Core/Math/Vector3.h"
 namespace fm {
 class Shader {
 public:
@@ -18,14 +18,14 @@ public:
     Shader();
     Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
     Shader(const std::string& vertexCode, const std::string& fragmentCode);
-    Shader* setMatrix(const std::string& name, glm::mat4 matrix);
-    Shader* setVector2f(const std::string& name, glm::vec2 vector);
-    Shader* setVector3f(const std::string& name, glm::vec3 vector);
-    Shader* setVector4f(const std::string& name, glm::vec4 vector);
+    Shader* setMatrix(const std::string& name, fm::math::mat matrix);
+
+    Shader* setVector2f(const std::string& name, fm::math::vec2 vector);
+    Shader* setVector3f(const std::string& name, fm::math::vec3 vector);
+    Shader* setVector4f(const std::string& name, fm::math::vec4 vector);
     Shader* setFloat(const std::string& name, float val);
     Shader* setInt(const std::string& name, int val);
     
-    Shader* setVector2f(const std::string& name, math::Vector2f vector);
     Shader* setColor(const std::string& name, Color vector);
     
     Shader* Use();

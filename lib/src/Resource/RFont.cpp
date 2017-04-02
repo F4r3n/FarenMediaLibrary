@@ -71,10 +71,10 @@ RFont::RFont(const std::string& path) {
         glTexSubImage2D(
             GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
-        Character character = { glm::ivec2(g->advance.x >> 6, g->advance.y >> 6),
-                                glm::ivec2(g->bitmap.width, g->bitmap.rows),
-                                glm::ivec2(g->bitmap_left, g->bitmap_top),
-                                glm::vec2(ox/(float)w, oy/(float)h)};
+        Character character = { fm::math::vec2(g->advance.x >> 6, g->advance.y >> 6),
+                                fm::math::vec2(g->bitmap.width, g->bitmap.rows),
+                                fm::math::vec2(g->bitmap_left, g->bitmap_top),
+                                fm::math::vec2(ox/(float)w, oy/(float)h)};
         Characters.insert(std::pair<GLchar, Character>(i, character));
         rowh = std::max(rowh, g->bitmap.rows);
         ox += g->bitmap.width + 1;

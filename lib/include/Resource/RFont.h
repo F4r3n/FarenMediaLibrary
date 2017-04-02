@@ -4,17 +4,14 @@
 #include FT_FREETYPE_H
 #include <GL/glew.h>
 #include <Component.h>
-#include <glm/gtc/constants.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "Core/Math/Vector2.h"
 #include "Resource/Resource.h"
 struct Character {
-    glm::vec2 advance;
-    glm::vec2 b_wh;
-    glm::vec2 b_lt;
+    fm::math::vec2 advance;
+    fm::math::vec2 b_wh;
+    fm::math::vec2 b_lt;
    
-    glm::vec2 t;
+    fm::math::vec2 t;
     
 };
 class RFont : public fm::Resource {

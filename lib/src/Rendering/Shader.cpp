@@ -96,17 +96,20 @@ Shader* Shader::Use() {
     return this;
 }
 
-Shader* Shader::setMatrix(const std::string& name, glm::mat4 matrix) {
-    glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
-    return this;
-}
 
-Shader* Shader::setVector2f(const std::string& name, glm::vec2 vector) {
+
+    Shader* Shader::setMatrix(const std::string& name, fm::math::mat matrix) {
+            glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
+    return this;
+    }
+
+
+Shader* Shader::setVector2f(const std::string& name, fm::math::vec2 vector) {
     glUniform2f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y);
     return this;
 }
 
-Shader* Shader::setVector3f(const std::string& name, glm::vec3 vector) {
+Shader* Shader::setVector3f(const std::string& name, fm::math::vec3 vector) {
     glUniform3f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y, vector.z);
     return this;
 }
@@ -116,7 +119,7 @@ Shader* Shader::setFloat(const std::string& name, float val) {
     return this;
 }
 
-Shader* Shader::setVector4f(const std::string& name, glm::vec4 vector) {
+Shader* Shader::setVector4f(const std::string& name, fm::math::vec4 vector) {
     glUniform4f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y, vector.z, vector.w);
     return this;
 }
@@ -126,12 +129,9 @@ Shader* Shader::setInt(const std::string& name, int val) {
     return this;
 }
 
-Shader* Shader::setVector2f(const std::string& name, math::Vector2f vector) {
-    return setVector2f(name, glm::vec2(vector.x, vector.y));
-}
 
 Shader* Shader::setColor(const std::string& name, Color vector) {
-    return setVector4f(name, glm::vec4(vector.r, vector.g, vector.b, vector.a));
+    return setVector4f(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));
 }
 
 Shader::~Shader() {

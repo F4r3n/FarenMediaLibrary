@@ -5,10 +5,7 @@
 #include <GL/glew.h>
 #include <Component.h>
 #include "Core/Color.h"
-#include <glm/gtc/constants.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
 #include "Resource/Resource.h"
 #include "Core/Math/Vector2.h"
 #include "Resource/RFont.h"

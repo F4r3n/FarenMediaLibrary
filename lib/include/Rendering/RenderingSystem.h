@@ -17,7 +17,7 @@ class CMesh;
 struct TextDef {
     GLuint VAO;
     GLuint VBO;
-    glm::mat4 projection;
+    fm::math::mat projection;
 };
 
 namespace fms {
@@ -32,14 +32,17 @@ public:
     void pre_update(EntityManager& em);
 
 private:
-    void setModel(glm::mat4& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
+    void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
+
     ~RenderingSystem();
     void initUniformBufferCamera(fmc::CCamera* camera);
     void updateUniformBufferCamera(fmc::CCamera* camera);
     void draw(const fmc::CMesh* cmesh);
     void drawText(int posX, int posY, RFont* font, const fmc::CText* ctext);
 
-    void view(glm::mat4& matrixView, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation);
+ 
+    void
+    view(fm::math::mat& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation);
 
     Entity* camera;
     int width;
@@ -57,7 +60,7 @@ private:
     bool blendingMode = false;
     bool computeLightinh = false;
     int queuePreviousValue = 0;
-    
+
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
 };
 }

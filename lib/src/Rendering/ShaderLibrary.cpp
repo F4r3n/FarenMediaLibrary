@@ -15,7 +15,7 @@ void ShaderLibrary::loadShaders() {
                               layout (location = 0) in vec4 vertex;
                               out vec2 TexCoords;
                               uniform mat4 projection;
-                                                               layout (std140) uniform shader_data
+                                    layout (std140) uniform shader_data
                                 { 
                                     mat4 FM_V;
                                     mat4 FM_P;

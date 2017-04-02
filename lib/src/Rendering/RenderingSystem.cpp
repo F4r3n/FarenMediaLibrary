@@ -16,6 +16,10 @@ using namespace fms;
 #include "Profiler/Profile.hpp"
 #include "Profiler/Profiler.hpp"
 #include "Profiler/ProfilerMacro.h"
+
+#include "Core/Math/Matrix.h"
+#include "Core/Math/Vector3.h"
+
 struct PointText {
     GLfloat x;
     GLfloat y;
@@ -29,7 +33,7 @@ RenderingSystem::RenderingSystem(int width, int height)
     finalShader = fm::ResourcesManager::get().getShader("simple");
     lightShader = fm::ResourcesManager::get().getShader("light");
 
-    textdef.projection = glm::ortho(0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
+    textdef.projection = fm::math::ortho(0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
 
     glGenVertexArrays(1, &textdef.VAO);
     glGenBuffers(1, &textdef.VBO);
@@ -76,7 +80,7 @@ void RenderingSystem::init(EntityManager& em, EventManager& event) {
 void RenderingSystem::setCamera(Entity* camera) {
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
-    cam->viewMatrix = glm::mat4();
+    cam->viewMatrix = fm::math::mat();
     view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
     this->camera = camera;
 
@@ -92,13 +96,14 @@ void RenderingSystem::setCamera(Entity* camera) {
     
 }
 
-void
-RenderingSystem::view(glm::mat4& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation) {
-    viewMatrix = glm::translate(viewMatrix, glm::vec3(position.x, position.y, 0));
 
-    viewMatrix = glm::translate(viewMatrix, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
-    viewMatrix = glm::rotate(viewMatrix, rotation, glm::vec3(0, 0, 1));
-    viewMatrix = glm::translate(viewMatrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+void
+RenderingSystem::view(fm::math::mat& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation) {
+    viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(position.x, position.y, 0));
+
+    viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+    viewMatrix = fm::math::rotate(viewMatrix, rotation, fm::math::vec3(0, 0, 1));
+    viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 }
 
 void RenderingSystem::pre_update(EntityManager& em) {
@@ -106,8 +111,10 @@ void RenderingSystem::pre_update(EntityManager& em) {
 
     cam->updateRenderTexture();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
-    cam->viewMatrix = glm::mat4();
-    view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
+    //cam->viewMatrix = glm::mat4();
+    fm::math::mat m;
+    view(m, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
+    cam->viewMatrix = m;
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
@@ -168,8 +175,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
                 // std::cout << material->shaderName << std::endl;
                 shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
-                glm::mat4 model = glm::mat4();
+                //std::cout << cam->shader_data.FM_PV << std::endl;
+                fm::math::mat model = fm::math::mat();
                 setModel(model, transform, worldPos);
+      
                 shader->setMatrix("FM_PVM", cam->shader_data.FM_PV * model);
                 shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
 
@@ -188,7 +197,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                     std::string ln = "light[" + std::to_string(lightNumber) + "]";
 
                     lightShader->Use()
-                        ->setVector3f(ln + ".position", glm::vec3(worldPos.x, worldPos.y, transform->layer))
+                        ->setVector3f(ln + ".position", fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
                         ->setColor(ln + ".color", node.plight->color)
                         ->setInt(ln + ".ready", 1);
                     lightNumber++;
@@ -228,7 +237,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                     ->setVector2f("outline_max", node.text->outline_max)
                     ->setVector3f(
                           "outline_color",
-                          glm::vec3(node.text->outline_color.r, node.text->outline_color.g, node.text->outline_color.b))
+                          fm::math::vec3(node.text->outline_color.r, node.text->outline_color.g, node.text->outline_color.b))
                     ->setMatrix("projection", textdef.projection)
                     ->setColor("textColor", material->color)
                     ->setInt("soft_edges", node.text->soft_edges)
@@ -257,7 +266,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
 
     finalShader->Use();
-    finalShader->Use()->setVector2f("screenSize", glm::vec2(cam->viewPort.width, cam->viewPort.height));
+    finalShader->Use()->setVector2f("screenSize", fm::math::vec2(cam->viewPort.width, cam->viewPort.height));
 
     finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
@@ -270,12 +279,14 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 void RenderingSystem::over() {
 }
 
-void RenderingSystem::setModel(glm::mat4& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos) {
-    model = glm::translate(model, glm::vec3(worldPos.x, worldPos.y, -transform->layer));
-    model = glm::translate(model, glm::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
-    model = glm::rotate(model, transform->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::translate(model, glm::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
-    model = glm::scale(model, glm::vec3(transform->scale.x, transform->scale.y, 1.0f));
+
+
+void RenderingSystem::setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos) {
+    model = fm::math::translate(model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));
+    model = fm::math::translate(model, fm::math::vec3(0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
+    model = fm::math::rotate(model, transform->rotation, fm::math::vec3(0.0f, 0.0f, 1.0f));
+    model = fm::math::translate(model, fm::math::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
+    model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
 }
 
 void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText* ctext) {
