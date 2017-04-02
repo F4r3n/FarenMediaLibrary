@@ -53,6 +53,9 @@ namespace math {
             stream << vector.x << " " << vector.y;
             return stream;
         }
+
+        T const& operator[](unsigned int index) const;
+        T& operator[](unsigned int index);
     };
 
     template <typename T> vec<T, 2> operator+(const vec<T, 2>& a, const vec<T, 2>& b) {
@@ -98,13 +101,6 @@ namespace math {
         return *this;
     }
 
-    template <typename T> vec<T, 2> operator*(const vec<T, 2>& a, const vec<T, 2>& b) {
-        return vec<T, 2>(a.x * b.x, a.y * b.y);
-    }
-    template <typename T> vec<T, 2> operator*(const vec<T, 2>& a, T b) {
-        return vec<T, 2>(a.x * b, a.y * b);
-    }
-
     template <typename T> struct vec<T, 3> {
         T x, y, z;
 
@@ -145,6 +141,9 @@ namespace math {
             stream << vector.x << " " << vector.y << " " << vector.z;
             return stream;
         }
+
+        T const& operator[](unsigned int index) const;
+        T& operator[](unsigned int index);
     };
 
     template <typename T> vec<T, 3> operator+(const vec<T, 3>& a, const vec<T, 3>& b) {
@@ -194,13 +193,6 @@ namespace math {
         this->y *= b.y;
         this->z *= b.z;
         return *this;
-    }
-
-    template <typename T> vec<T, 3> operator*(const vec<T, 3>& a, const vec<T, 3>& b) {
-        return vec<T, 3>(a.x * b.x, a.y * b.y, a.z * b.z);
-    }
-    template <typename T> vec<T, 3> operator*(const vec<T, 3>& a, T b) {
-        return vec<T, 3>(a.x * b, a.y * b, a.z * b);
     }
 
     template <typename T> struct vec<T, 4> {
@@ -304,13 +296,6 @@ namespace math {
         return *this;
     }
 
-    template <typename T> vec<T, 4> operator*(const vec<T, 4>& a, const vec<T, 4>& b) {
-        return vec<T, 4>(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
-    }
-    template <typename T> vec<T, 4> operator*(const vec<T, 4>& a, T b) {
-        return vec<T, 4>(a.x * b, a.y * b, a.z * b, a.w * b);
-    }
-
     template <typename T, typename P> vec<T, 4> operator*(const vec<T, 4>& a, P b) {
         return vec<T, 4>(
             a.x * static_cast<T>(b), a.y * static_cast<T>(b), a.z * static_cast<T>(b), a.w * static_cast<T>(b));
@@ -324,12 +309,83 @@ namespace math {
         return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
     }
 
-    template <typename T> T const& vec<T,4>::operator[](unsigned int index) const {
+    /**************OPERATOR [] **********************/
+    template <typename T> T const& vec<T, 4>::operator[](unsigned int index) const {
         return (&x)[index];
     }
 
-    template <typename T> T& vec<T,4>::operator[](unsigned int index) {
+    template <typename T> T& vec<T, 4>::operator[](unsigned int index) {
         return (&x)[index];
+    }
+
+    template <typename T> T const& vec<T, 3>::operator[](unsigned int index) const {
+        return (&x)[index];
+    }
+
+    template <typename T> T& vec<T, 3>::operator[](unsigned int index) {
+        return (&x)[index];
+    }
+
+    template <typename T> T const& vec<T, 2>::operator[](unsigned int index) const {
+        return (&x)[index];
+    }
+
+    template <typename T> T& vec<T, 2>::operator[](unsigned int index) {
+        return (&x)[index];
+    }
+
+    /**************OPERATOR * ************************/
+
+    template <typename T> vec<T, 4> operator*(const vec<T, 4>& a, const vec<T, 4>& b) {
+        return vec<T, 4>(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+    }
+    template <typename T> vec<T, 4> operator*(const vec<T, 4>& a, T b) {
+        return vec<T, 4>(a.x * b, a.y * b, a.z * b, a.w * b);
+    }
+
+    template <typename T> vec<T, 2> operator*(const vec<T, 2>& a, const vec<T, 2>& b) {
+        return vec<T, 2>(a.x * b.x, a.y * b.y);
+    }
+    template <typename T> vec<T, 2> operator*(const vec<T, 2>& a, T b) {
+        return vec<T, 2>(a.x * b, a.y * b);
+    }
+
+    template <typename T> vec<T, 3> operator*(const vec<T, 3>& a, const vec<T, 3>& b) {
+        return vec<T, 3>(a.x * b.x, a.y * b.y, a.z * b.z);
+    }
+    template <typename T> vec<T, 3> operator*(const vec<T, 3>& a, T b) {
+        return vec<T, 3>(a.x * b, a.y * b, a.z * b);
+    }
+
+    template <typename T> vec<T, 3> operator*(T b, const vec<T, 3>& a) {
+        return vec<T, 3>(a.x * b, a.y * b, a.z * b);
+    }
+    /****************SUM*******************************/
+    template <typename T> T sum(const vec<T, 4>& vector) {
+        return vector.x + vector.y + vector.z + vector.w;
+    }
+
+    template <typename T> T sum(const vec<T, 3>& vector) {
+        return vector.x + vector.y + vector.z;
+    }
+
+    template <typename T> T sum(const vec<T, 2>& vector) {
+        return vector.x + vector.y;
+    }
+    /*****************NORMALIZE*************************/
+    template <typename T> vec<T, 4> normalize(const vec<T, 4>& vector) {
+        T s = sum(vector);
+        return vec<T, 4>(vector.x / s, vector.y / s, vector.z / s, vector.w / s);
+    }
+
+    template <typename T> vec<T, 3> normalize(const vec<T, 3>& vector) {
+        T s = sum(vector);
+        return vec<T, 3>(vector.x / s, vector.y / s, vector.z / s);
+    }
+
+    template <typename T> vec<T, 2> normalize(const vec<T, 2>& vector) {
+        T s = sum(vector);
+        return vec<T, 2>(vector.x / s, vector.y / s);
     }
 }
 }
