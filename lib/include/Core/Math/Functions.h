@@ -15,25 +15,21 @@ namespace math {
     constexpr double twoPi() {
         return 2.0f * M_PI;
     }
-    
-    template <typename T>
-    inline T mod(T a, T b) {
+
+    template <typename T> inline T mod(T a, T b) {
         return a - b * std::floor(a / b);
     }
-    
-    template <typename T>
-    inline T wrapAngle(T angle) {
+
+    template <typename T> inline T wrapAngle(T angle) {
         return std::abs(mod<T>(angle, twoPi()));
     }
 
     // http: // www.ganssle.com/approx/approx.pdf
-        template <typename T>
-    inline T cos_52s(T x) {
+    template <typename T> inline T cos_52s(T x) {
         T x2 = x * x;
         return (T(0.9999932946) + x2 * (T(-0.4999124376) + x2 * (T(0.0414877472) + T(-0.0012712095) * x2)));
     }
-template <typename T>
-    inline T fastCos(T x) {
+    template <typename T> inline T fastCos(T x) {
         T const angle = wrapAngle(x);
 
         if(angle < 3 * halfPi())
@@ -45,17 +41,18 @@ template <typename T>
 
         return cos_52s<T>(twoPi() - angle);
     }
-template <typename T>
-    inline T fastSin(T x) {
+    template <typename T> inline T fastSin(T x) {
         return fastCos<T>(halfPi() - x);
     }
-    template <typename T>
-    inline T cos(T x) {
+    template <typename T> inline T cos(T x) {
         return std::cos(x);
     }
-    template <typename T>
-        inline T sin(T x) {
+    template <typename T> inline T sin(T x) {
         return std::sin(x);
+    }
+
+    template <typename T> inline T tan(T x) {
+        return std::tan(x);
     }
 }
 

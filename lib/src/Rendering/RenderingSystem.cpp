@@ -173,9 +173,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             if(mesh) {
 
                 std::shared_ptr<fm::Shader> shader = fm::ResourcesManager::get().getShader(material->shaderName);
-                // std::cout << material->shaderName << std::endl;
+
                 shader->Use()->setMatrix("FM_PV", cam->shader_data.FM_PV)->setInt("BloomEffect", material->bloom);
-                //std::cout << cam->shader_data.FM_PV << std::endl;
+
                 fm::math::mat model = fm::math::mat();
                 setModel(model, transform, worldPos);
       
@@ -184,7 +184,6 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 if(material->textureReady) {
                     glActiveTexture(GL_TEXTURE0);
-                    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     material->getTexture().bind();
                 }
 
@@ -225,6 +224,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             blendingMode = true;
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            // TODO draw
         }
 
         if(state >= fm::RENDER_QUEUE::OVERLAY) {
@@ -270,7 +270,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
     finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-        fm::Renderer::getInstance().postProcess(lightRenderTexture->getColorBuffer());
+        fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
+        fm::Renderer::getInstance().blit(finalShader);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         fm::Renderer::getInstance().postProcess(cam->getRenderTexture()->getColorBuffer());
     }

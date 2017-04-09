@@ -47,25 +47,10 @@ namespace math {
     };
     template <typename T>
     Matrix<T>::Matrix(const Matrix<T> &m) {
-        this->m[0][0] = m[0][0];
-        this->m[0][1] = m[0][1];
-        this->m[0][2] = m[0][2];
-        this->m[0][3] = m[0][3];
-
-        this->m[1][0] = m[1][0];
-        this->m[1][1] = m[1][1];
-        this->m[1][2] = m[1][2];
-        this->m[1][3] = m[1][3];
-
-        this->m[2][0] = m[2][0];
-        this->m[2][1] = m[2][1];
-        this->m[2][2] = m[2][2];
-        this->m[2][3] = m[2][3];
-
-        this->m[3][0] = m[3][0];
-        this->m[3][1] = m[3][1];
-        this->m[3][2] = m[3][2];
-        this->m[3][3] = m[3][3];
+        this->m[0] = m[0];
+        this->m[1] = m[1];
+        this->m[2] = m[2];
+        this->m[3] = m[3];
     }
     template <typename T> Matrix<T>::Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4) {
         this->m[0] = l1;

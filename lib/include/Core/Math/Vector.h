@@ -105,13 +105,13 @@ namespace math {
         return *this;
     }
 
-    template <typename T> vec<T, 2>& vec<T,2>::operator*=(const T& b) {
+    template <typename T> vec<T, 2>& vec<T, 2>::operator*=(const T& b) {
         this->x *= b;
         this->y *= b;
         return *this;
     }
 
-    template <typename T> template <typename P> vec<T, 2>& vec<T,2>::operator*=(const P& b) {
+    template <typename T> template <typename P> vec<T, 2>& vec<T, 2>::operator*=(const P& b) {
         this->x *= static_cast<T>(b);
         this->y *= static_cast<T>(b);
         return *this;
@@ -255,6 +255,12 @@ namespace math {
 
         T const& operator[](unsigned int index) const;
         T& operator[](unsigned int index);
+        vec<T, 4>(const vec<T, 4>& v) {
+            x = v.x;
+            y = v.y;
+            z = v.z;
+            w = v.w;
+        }
     };
 
     template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 4>& b) {

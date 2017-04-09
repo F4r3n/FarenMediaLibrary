@@ -9,8 +9,6 @@ Renderer Renderer::_instance;
 Renderer::Renderer() {
 }
 
-
-
 void Renderer::createQuadScreen() {
     GLfloat quadVertices[] = {
         // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -33,26 +31,24 @@ void Renderer::createQuadScreen() {
     glBindVertexArray(0);
 }
 
-
-
-void Renderer::lightComputation(Texture *colorBuffer) {
+void Renderer::lightComputation(Texture* colorBuffer) {
 
     std::shared_ptr<Shader> light = ResourcesManager::get().getShader("light");
     light->Use();
-    
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[0].getID());
-    
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[2].getID());
-    
+
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    
+
     glBindVertexArray(0);
 }
 
-void Renderer::postProcess(Texture *colorBuffer) {
+void Renderer::postProcess(Texture* colorBuffer) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[0].getID());
 
@@ -64,6 +60,59 @@ void Renderer::postProcess(Texture *colorBuffer) {
     glBindVertexArray(0);
 }
 
+void Renderer::blit(Texture& texture, std::shared_ptr<Shader> shader) const {
+    shader->Use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture.getID());
+
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+void Renderer::blit(RenderTexture& source, RenderTexture& dest, std::shared_ptr<Shader> shader) const {
+    dest.bind();
+    shader->Use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, source.getColorBuffer()[0].getID());
+
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+void Renderer::SetSources(Texture *textures, int numberIDs) {
+    for(int i = 0; i < numberIDs; ++i) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, textures[i].getID());
+    }
+}
+
+void Renderer::blit(int ID, RenderTexture& dest, std::shared_ptr<Shader> shader) const {
+    dest.bind();
+    shader->Use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, ID);
+
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+void Renderer::blit(RenderTexture& dest, std::shared_ptr<Shader> shader) {
+    dest.bind();
+    shader->Use();
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+void Renderer::blit(std::shared_ptr<Shader> shader) {
+    shader->Use();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
 
 void Renderer::clear() {
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
