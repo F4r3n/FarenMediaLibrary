@@ -33,8 +33,12 @@ namespace math {
         // Operator =
         vec<T, 2>& operator=(const vec<T, 2>& b);
 
-        // Operatot *=
+        // Operator *=
         vec<T, 2>& operator*=(const vec<T, 2>& b);
+
+        vec<T, 2>& operator*=(const T& b);
+
+        template <typename P> vec<T, 2>& operator*=(const P& b);
 
         void reset() {
             x = 0;
@@ -98,6 +102,18 @@ namespace math {
     template <typename T> vec<T, 2>& vec<T, 2>::operator*=(const vec<T, 2>& b) {
         this->x *= b.x;
         this->y *= b.y;
+        return *this;
+    }
+
+    template <typename T> vec<T, 2>& vec<T,2>::operator*=(const T& b) {
+        this->x *= b;
+        this->y *= b;
+        return *this;
+    }
+
+    template <typename T> template <typename P> vec<T, 2>& vec<T,2>::operator*=(const P& b) {
+        this->x *= static_cast<T>(b);
+        this->y *= static_cast<T>(b);
         return *this;
     }
 

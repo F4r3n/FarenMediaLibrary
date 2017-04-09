@@ -1,6 +1,6 @@
 #pragma once
 #include "Vector4.h"
-
+#include "Functions.h"
 namespace fm {
 
 namespace math {
@@ -41,9 +41,32 @@ namespace math {
                T a33);
 
         Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4);
+        Matrix(const Matrix<T> &m);
         void identity();
         Matrix();
     };
+    template <typename T>
+    Matrix<T>::Matrix(const Matrix<T> &m) {
+        this->m[0][0] = m[0][0];
+        this->m[0][1] = m[0][1];
+        this->m[0][2] = m[0][2];
+        this->m[0][3] = m[0][3];
+
+        this->m[1][0] = m[1][0];
+        this->m[1][1] = m[1][1];
+        this->m[1][2] = m[1][2];
+        this->m[1][3] = m[1][3];
+
+        this->m[2][0] = m[2][0];
+        this->m[2][1] = m[2][1];
+        this->m[2][2] = m[2][2];
+        this->m[2][3] = m[2][3];
+
+        this->m[3][0] = m[3][0];
+        this->m[3][1] = m[3][1];
+        this->m[3][2] = m[3][2];
+        this->m[3][3] = m[3][3];
+    }
     template <typename T> Matrix<T>::Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4) {
         this->m[0] = l1;
         this->m[1] = l2;
@@ -52,13 +75,15 @@ namespace math {
     }
 
     template <typename T> Matrix<T> translate(const Matrix<T>& mat, const vec<T, 3>& t) {
-        return Matrix<T>(mat[0], mat[1], mat[2], col<T>(mat[3].x + t.x, mat[3].y + t.y, mat[3].z + t.z, mat[3].w));
+        Matrix<T> m(mat);
+        m[3] = m[0] * t[0] + m[1] * t[1] + m[2] * t[2] + m[3];
+        return m;
     }
 
     template <typename T> Matrix<T> rotate(const Matrix<T>& m, float angle, const vec<T, 3>& v) {
         T const a = angle;
-        T const c = cos(a);
-        T const s = sin(a);
+        T const c = cos<T>(a);
+        T const s = sin<T>(a);
 
         vec<T, 3> axis(normalize(v));
         vec<T, 3> temp((T(1) - c) * axis);
