@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
+
 
 #include <GL/glew.h>
 
@@ -12,7 +12,22 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 namespace fm {
+    
+
 class Shader {
+        enum ZTEST {
+        ALWAYS,
+        GREATER,
+        LESS,
+        EQUAL,
+        NEVER
+    };
+    
+    enum BLEND {
+        ADD,
+        MULT,
+        NONE
+    };
 public:
     GLuint Program;
     Shader();
@@ -34,5 +49,7 @@ public:
 
 private:
     std::string vertex, fragment;
+    ZTEST zTest = ZTEST::LESS;
+    BLEND blendMode = BLEND::NONE;
 };
 }

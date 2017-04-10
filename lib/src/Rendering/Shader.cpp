@@ -1,6 +1,6 @@
 
 #include "Rendering/Shader.h"
-
+#include <iostream>
 using namespace fm;
 
 Shader::Shader() {

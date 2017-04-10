@@ -23,7 +23,7 @@ RenderTexture::~RenderTexture() {
 }
 
 void RenderTexture::release() {
-    std::cout << "Release render texture" << std::endl;
+    //std::cout << "Release render texture" << std::endl;
     for(int i = 0; i < textureColorbuffer.size(); i++) textureColorbuffer[i].release();
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

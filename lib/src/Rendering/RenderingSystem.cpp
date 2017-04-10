@@ -271,9 +271,12 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
         fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
+        //fm::RenderTexture rt = fm::RenderTexture(cam->viewPort.width, cam->viewPort.height, 1);
+        
         fm::Renderer::getInstance().blit(finalShader);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-        fm::Renderer::getInstance().postProcess(cam->getRenderTexture()->getColorBuffer());
+        fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
+        fm::Renderer::getInstance().blit(finalShader);
     }
 }
 

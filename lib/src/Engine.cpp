@@ -50,6 +50,10 @@ void Engine::start() {
     systems.getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
 
     systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
+    
+    if(systems.getSystem<fms::RenderingSystem>() == nullptr) {
+        
+    }
 }
 
 void Engine::setMainCamera() {

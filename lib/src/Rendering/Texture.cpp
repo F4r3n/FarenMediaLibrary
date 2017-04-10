@@ -1,7 +1,7 @@
 
 #include "Rendering/Texture.h"
 #include "Resource/ResourcesManager.h"
-
+#include <iostream>
 using namespace fm;
 Texture::Texture(const std::string& path, Recti rect, bool alpha)
     : path(path) {
@@ -31,7 +31,7 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
     image.getPart(content, rect);
     this->width = rect.w;
     this->height = rect.h;
-    std::cout << rect.w << " " << rect.h << std::endl;
+    //std::cout << rect.w << " " << rect.h << std::endl;
     glTexImage2D(GL_TEXTURE_2D, 0, format, rect.w, rect.h, 0, format, GL_UNSIGNED_BYTE, content.data());
 
     glTexParameteri(GL_TEXTURE_2D,
