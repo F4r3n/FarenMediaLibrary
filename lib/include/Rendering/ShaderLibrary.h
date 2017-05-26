@@ -5,4 +5,5 @@ class ShaderLibrary {
 ShaderLibrary();
 ~ShaderLibrary();
 static void loadShaders();
+static void loadShader(const std::string& name, const std::string &path );
 };

@@ -286,6 +286,8 @@ void ShaderLibrary::loadShaders() {
                                            
                                            if(BloomEffect <= 0) FragColor = color;
                                        }*/
+                                       
+
 
     std::string default_vertex_sprite = S(
                                         layout(location = 0) in vec2 position;
@@ -389,4 +391,9 @@ void ShaderLibrary::loadShaders() {
 
     std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
+}
+
+void ShaderLibrary::loadShader(const std::string& name, const std::string &path ) {
+        fm::ResourcesManager::get().loadShader(name, path);
+
 }

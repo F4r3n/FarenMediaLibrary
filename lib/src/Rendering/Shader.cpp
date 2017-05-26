@@ -6,7 +6,7 @@ using namespace fm;
 Shader::Shader() {
 }
 
-Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
+/*Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
     // 1. Retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -34,7 +34,7 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
     }
     this->vertex = vertexCode;
     this->fragment = fragmentCode;
-}
+}*/
 
 Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode) {
     this->vertex = vertexCode;
