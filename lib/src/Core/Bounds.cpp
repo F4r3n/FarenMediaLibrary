@@ -20,13 +20,16 @@ void Bounds::encapsulate(const Bounds& bounds) {
     center = (center + bounds.center) / 2.0f;
 }
 bool Bounds::intersects(const Bounds& bounds) {
-    return (center.x <= bounds.center.x + bounds.size.x*bounds.scale.x / 2.0f && center.x + size.x*scale.x / 2.0f >= bounds.center.x) &&
-           (center.y <= bounds.center.y + bounds.size.y*bounds.scale.y / 2.0f && center.y + size.y*scale.y / 2.0f >= bounds.center.y) &&
-           (center.z <= bounds.center.z + bounds.size.z*bounds.scale.z / 2.0f && center.z + size.z*scale.z / 2.0f >= bounds.center.z);
+    fm::math::vec3 ac = center;
+    fm::math::vec3 bc = bounds.center;
+    return (ac.x <= bc.x + bounds.size.x*bounds.scale.x*2.0f && ac.x + size.x*scale.x*2.0f >= bc.x) &&
+           (ac.y <= bc.y + bounds.size.y*bounds.scale.y*2.0f && ac.y + size.y*scale.y*2.0f >= bc.y) &&
+           (ac.z <= bc.z + bounds.size.z*bounds.scale.z*2.0f && ac.z + size.z*scale.z*2.0f >= bc.z);
 }
 
 void Bounds::setCenter(const fm::math::vec3& center) {
     this->center = center;
+    
 }
 void Bounds::setSize(const fm::math::vec3& size) {
     this->size = size;
