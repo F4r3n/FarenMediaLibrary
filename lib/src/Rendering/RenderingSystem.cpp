@@ -19,7 +19,8 @@ using namespace fms;
 
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
-
+#include "Event.h"
+#include "Rendering/RenderingEvent.h"
 struct PointText {
     GLfloat x;
     GLfloat y;
@@ -81,24 +82,20 @@ void RenderingSystem::setCamera(Entity* camera) {
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
     cam->viewMatrix = fm::math::mat();
-    view(cam->viewMatrix, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
+    view(cam->viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation);
     this->camera = camera;
 
     initUniformBufferCamera(cam);
-    fm::Format formats[] = {fm::Format::RGBA, fm::Format::RGBA};
-    fm::Type types[] = {fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE};
-    lightRenderTexture = std::make_shared<fm::RenderTexture>(cam->getRenderTexture()->getWidth(),
-                                                            cam->getRenderTexture()->getHeight(), 
-                                                            2 , 
-                                                            formats,
-                                                            types,
-                                                            0);
-    
+    fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
+    fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+    lightRenderTexture = std::make_shared<fm::RenderTexture>(
+        cam->getRenderTexture()->getWidth(), cam->getRenderTexture()->getHeight(), 2, formats, types, 0);
 }
 
-
-void
-RenderingSystem::view(fm::math::mat& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation) {
+void RenderingSystem::view(fm::math::mat& viewMatrix,
+                           const fm::math::Vector2f& position,
+                           const fm::math::Vector2f& size,
+                           float rotation) {
     viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(position.x, position.y, 0));
 
     viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
@@ -111,23 +108,23 @@ void RenderingSystem::pre_update(EntityManager& em) {
 
     cam->updateRenderTexture();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
-    //cam->viewMatrix = glm::mat4();
+
     fm::math::mat m;
-    view(m, ct->position, { cam->viewPort.width, cam->viewPort.height }, ct->rotation);
+    view(m, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation);
     cam->viewMatrix = m;
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     // fm::Renderer::getInstance().bindFrameBuffer();
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
-    
+
     if(!cam->getRenderTexture()->isCreated()) {
         std::cout << "No render texture created" << std::endl;
         return;
     }
 
     cam->getRenderTexture()->active();
-    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -135,15 +132,15 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     cam->shader_data.FM_P = cam->projection;
     cam->shader_data.FM_V = cam->viewMatrix;
     updateUniformBufferCamera(cam);
-    
-    //PROFILER_START(Rendering)
-    //PROFILER_START(RenderingSort)
+
+    // PROFILER_START(Rendering)
+    // PROFILER_START(RenderingSort)
 
     queue.init();
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
         fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
                                 e->get<fmc::CDirectionalLight>(), e->get<fmc::CPointLight>(), e->get<fmc::CText>(),
-                                fm::RENDER_QUEUE::BACKGROUND };
+                                fm::RENDER_QUEUE::BACKGROUND,0,e->ID };
         if(node.dlight || node.plight) {
             node.state = fm::RENDER_QUEUE::LIGHT;
         }
@@ -155,8 +152,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     }
     int lightNumber = 0;
     queue.start();
-    //PROFILER_STOP(RenderingSort)
-    //PROFILER_START(Draw)
+    // PROFILER_STOP(RenderingSort)
+    // PROFILER_START(Draw)
 
     while(!queue.empty()) {
         fm::RenderNode node = queue.getFrontElement();
@@ -164,11 +161,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
         fm::math::Vector2f worldPos = transform->getWorldPos(em);
-
+        EventManager::get().emit<CameraInfo>({node.idEntity, cam});
         int q = node.queue;
         fm::RENDER_QUEUE state = node.state;
-        
-        
+
         if(state < fm::RENDER_QUEUE::LIGHT) {
             if(mesh) {
 
@@ -178,7 +174,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 fm::math::mat model = fm::math::mat();
                 setModel(model, transform, worldPos);
-      
+
                 shader->setMatrix("FM_PVM", cam->shader_data.FM_PV * model);
                 shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);
 
@@ -209,21 +205,24 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
             }
         }
 
-//After all lights, we compute the frame buffer
+        // After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                 lightRenderTexture->bind();
-                glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+                glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
 
                 fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer());
             }
         }
 
-        if((state >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT)
-|| (state >= fm::RENDER_QUEUE::OVERLAY && queuePreviousValue < fm::RENDER_QUEUE::OVERLAY)){
-            blendingMode = true;
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if((state >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT) ||
+           (state >= fm::RENDER_QUEUE::OVERLAY && queuePreviousValue < fm::RENDER_QUEUE::OVERLAY)) {
+            if(!blendingMode) {
+                blendingMode = true;
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }
             // TODO draw
         }
 
@@ -235,9 +234,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
                 shader->setInt("outline", node.text->outline)
                     ->setVector2f("outline_min", node.text->outline_min)
                     ->setVector2f("outline_max", node.text->outline_max)
-                    ->setVector3f(
-                          "outline_color",
-                          fm::math::vec3(node.text->outline_color.r, node.text->outline_color.g, node.text->outline_color.b))
+                    ->setVector3f("outline_color",
+                                  fm::math::vec3(node.text->outline_color.r,
+                                                 node.text->outline_color.g,
+                                                 node.text->outline_color.b))
                     ->setMatrix("projection", textdef.projection)
                     ->setColor("textColor", material->color)
                     ->setInt("soft_edges", node.text->soft_edges)
@@ -252,27 +252,28 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         queuePreviousValue = state;
         queue.next();
     }
-    //PROFILER_STOP(Draw)
-    //PROFILER_STOP(Rendering)
-    //PROFILER_DISPLAY(Rendering)
-    //PROFILER_DISPLAY(RenderingSort)
-    //PROFILER_DISPLAY(Draw)
-    
-    glDisable(GL_BLEND);
+    // PROFILER_STOP(Draw)
+    // PROFILER_STOP(Rendering)
+    // PROFILER_DISPLAY(Rendering)
+    // PROFILER_DISPLAY(RenderingSort)
+    // PROFILER_DISPLAY(Draw)
+    if(blendingMode) {
+        glDisable(GL_BLEND);
+    }
     blendingMode = false;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.width, cam->viewPort.height);
+    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
 
     finalShader->Use();
-    finalShader->Use()->setVector2f("screenSize", fm::math::vec2(cam->viewPort.width, cam->viewPort.height));
+    finalShader->Use()->setVector2f("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
 
     finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
         fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
-        //fm::RenderTexture rt = fm::RenderTexture(cam->viewPort.width, cam->viewPort.height, 1);
-        
+        // fm::RenderTexture rt = fm::RenderTexture(cam->viewPort.width, cam->viewPort.height, 1);
+
         fm::Renderer::getInstance().blit(finalShader);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
@@ -282,8 +283,6 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
 void RenderingSystem::over() {
 }
-
-
 
 void RenderingSystem::setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos) {
     model = fm::math::translate(model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));

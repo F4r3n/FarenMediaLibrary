@@ -56,6 +56,10 @@ void Engine::start() {
     }
 }
 
+Entity* Engine::getMainCamera() {
+    return camera;
+}
+
 void Engine::setMainCamera() {
     systems.getSystem<fms::RenderingSystem>()->setCamera(camera);
 }

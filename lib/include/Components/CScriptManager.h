@@ -16,8 +16,6 @@ public:
 template <typename T>
     void event(std::string name, const T& t) {
         for(auto s : scripts) {
-                    std::cout << "Send " << name << std::endl;
-
             s->event(name, t);
         }
     }

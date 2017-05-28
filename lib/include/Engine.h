@@ -30,6 +30,7 @@ public:
     }
     
     void setMainCamera();
+    Entity* getMainCamera();
 private:
     SystemManager systems;
     Speaker speaker;

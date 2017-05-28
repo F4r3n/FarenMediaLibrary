@@ -43,9 +43,7 @@ void LuaScript::start() {
     LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
 }
 
-
 void LuaScript::update() {
-
     LuaManager::get()[nameVariable]["update"](LuaManager::get()[nameVariable]);
 }
 

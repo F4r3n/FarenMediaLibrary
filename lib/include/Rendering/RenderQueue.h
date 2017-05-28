@@ -24,7 +24,7 @@ struct RenderNode {
     
     RENDER_QUEUE state;
     int queue = 0;
-
+    size_t idEntity;
 };
     inline bool operator<(const RenderNode& a, const RenderNode &b){
         return a.queue > b.queue; //Inverse heap

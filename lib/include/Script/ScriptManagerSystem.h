@@ -4,6 +4,7 @@
 #include <Event.h>
 #include "EventComponents.h"
 #include "Physic/Collider.h"
+#include "Rendering/RenderingEvent.h"
 namespace fms {
 
 class ScriptManagerSystem : public System<ScriptManagerSystem>, public Receiver<ScriptManagerSystem> {
@@ -17,7 +18,7 @@ public:
     void over() {
     }
     void receive(const Collider& collider);
-    
+    void receive(const CameraInfo &cameraInfo);
 private:
 
     void processCollision(size_t idA, size_t idB, EVENT_COLLISION event);
