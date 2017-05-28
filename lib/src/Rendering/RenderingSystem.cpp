@@ -108,7 +108,10 @@ void RenderingSystem::pre_update(EntityManager& em) {
 
     cam->updateRenderTexture();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
-
+    bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, 
+                cam->getFarPlane() - cam->getNearPlane()));
+    bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, cam->getFarPlane()));
+    bounds.setScale(fm::math::vec3(1,1,1));
     fm::math::mat m;
     view(m, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation);
     cam->viewMatrix = m;
@@ -141,6 +144,12 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
                                 e->get<fmc::CDirectionalLight>(), e->get<fmc::CPointLight>(), e->get<fmc::CText>(),
                                 fm::RENDER_QUEUE::BACKGROUND,0,e->ID };
+        if(node.mesh) {
+            //TODO not the scale but the mesh size
+            //node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position));
+            //node.mesh->bounds.setScale (fm::math::vec3(node.transform->scale));
+            //std::cout << node.mesh->bounds.intersects(bounds) << std::endl;
+        }
         if(node.dlight || node.plight) {
             node.state = fm::RENDER_QUEUE::LIGHT;
         }
@@ -174,6 +183,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
                 fm::math::mat model = fm::math::mat();
                 setModel(model, transform, worldPos);
+        //std::cout <<  cam->shader_data.FM_PV * model << std::endl;
 
                 shader->setMatrix("FM_PVM", cam->shader_data.FM_PV * model);
                 shader->setMatrix("FM_M", model)->setColor("mainColor", material->color);

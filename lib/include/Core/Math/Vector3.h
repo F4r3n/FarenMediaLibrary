@@ -1,4 +1,7 @@
 #pragma once
+#include <cmath>
+#include <ostream>
+#include <Box2D/Common/b2Math.h>
 #include "Vector.h"
 namespace fm {
     namespace math {

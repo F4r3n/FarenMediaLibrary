@@ -60,6 +60,10 @@ namespace math {
 
         T const& operator[](unsigned int index) const;
         T& operator[](unsigned int index);
+        
+        operator vec<T,3>() {
+            return vec<T,3>(x,y,0);
+        }
     };
 
     template <typename T> vec<T, 2> operator+(const vec<T, 2>& a, const vec<T, 2>& b) {
@@ -355,6 +359,8 @@ namespace math {
     template <typename T> T& vec<T, 2>::operator[](unsigned int index) {
         return (&x)[index];
     }
+    /***********CAST***************************/
+    
 
     /**************OPERATOR * ************************/
 
@@ -394,6 +400,19 @@ namespace math {
     template <typename T> T sum(const vec<T, 2>& vector) {
         return vector.x + vector.y;
     }
+
+    /***********DIVIDE**************************************/
+
+    template <typename T> vec<T, 2> operator/(const vec<T, 2>& a, T b) {
+        return vec<T, 2>(a.x / b, a.y / b);
+    }
+    template <typename T> vec<T, 3> operator/(const vec<T, 3>& a, T b) {
+        return vec<T, 3>(a.x / b, a.y / b, a.z / b);
+    }
+    template <typename T> vec<T, 4> operator/(const vec<T, 4>& a, T b) {
+        return vec<T, 4>(a.x / b, a.y / b, a.z / b, a.w / b);
+    }
+
     /*****************NORMALIZE*************************/
     template <typename T> vec<T, 4> normalize(const vec<T, 4>& vector) {
         T s = sum(vector);

@@ -24,15 +24,20 @@ class CCamera : public Component<CCamera> {
         return isOrto;
     }
 
+    float getFarPlane() {
+        return farPlane;
+    }
     
+    float getNearPlane() {
+        return nearPlane;
+    }
 
     CCamera() {
     }
     CCamera(int width, int height, fmc::RENDER_MODE mode) {
-        
         isOrto = true;
         //projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
-        projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+        projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, nearPlane, farPlane);
         viewPort.w = width;
         viewPort.h = height;
         viewPort.x = 0;
@@ -62,7 +67,9 @@ class CCamera : public Component<CCamera> {
 
     void setNewProjection(unsigned int width, unsigned int height) {
         isOrto = true;
-        projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+                farPlane = 100.0f;
+
+        projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, nearPlane, farPlane);
         viewPort.w = width;
         viewPort.h = height;
         viewPort.x = 0;
@@ -95,7 +102,7 @@ class CCamera : public Component<CCamera> {
 
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
         isOrto = true;
-        projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, 0.0f, 100.0f);
+        projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, nearPlane, farPlane);
         viewPort.w = width;
         viewPort.h = height;
         viewPort.x = x;
@@ -129,5 +136,7 @@ class CCamera : public Component<CCamera> {
     std::shared_ptr<fm::RenderTexture> renderTexture = nullptr;
     private: 
     bool isOrto = false;
+    float farPlane = 100.0f;
+    float nearPlane = 0.0f;
 };
 }

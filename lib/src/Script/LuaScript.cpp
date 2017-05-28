@@ -51,9 +51,13 @@ std::string LuaScript::getName() const {
     return nameVariable;
 }
 
+void LuaScript::reload() {
+    LuaManager::get().getState().script_file(scriptName);
+}
+
 bool LuaScript::init(Entity* e) {
 
-    LuaManager::get().getState().script_file(scriptName);
+      LuaManager::get().getState().script_file(scriptName);
     std::string m = std::string("f_") + nameFile;
 
     LuaManager::get().getState().script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") + nameVariable +

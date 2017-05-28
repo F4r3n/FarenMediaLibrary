@@ -47,7 +47,7 @@ public:
         return (T)LuaManager::get()[nameVariable][name];
     }
     bool hasStarted = false;
-
+    void reload();
     private:
 
     std::string scriptName;

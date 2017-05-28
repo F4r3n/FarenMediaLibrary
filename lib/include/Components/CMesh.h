@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <Component.h>
 #include "Core/Color.h"
-
+#include "Core/Bounds.h"
 
 #include "Serializer.h"
 namespace fmc {
@@ -49,13 +49,13 @@ public:
     void removeIndices(unsigned int start, unsigned int end);
     void removeVertex(unsigned int index);
     void removeIndice(unsigned int index);
+    fm::Bounds bounds;
 
 private:
     bool init(SHAPE shape);
     void createAndRegister();
     std::vector<Vertex> vertices;
     std::vector<unsigned int> listIndices;
-
     bool created = false;
 };
 }

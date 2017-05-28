@@ -105,7 +105,7 @@ bool CMesh::init(SHAPE shape) {
         addVertexPositionUVVectors({ 1, 0 }, { 1.0, 0.0 });
         addVertexPositionUVVectors({ 1, 1 }, { 1.0, 1.0 });
         listIndices = { 0, 1, 2, 0, 2, 3 };
-
+        bounds.setSize(fm::math::vec3(1,1,0));
     } else if(shape == CIRCLE) {
         unsigned int numberVertices = 100;
         float intervall = 2 * fm::math::pi() / numberVertices;

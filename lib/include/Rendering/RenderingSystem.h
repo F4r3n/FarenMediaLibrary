@@ -7,7 +7,7 @@
 #include <chrono>
 #include "Rendering/Shader.h"
 #include "Resource/RFont.h"
-
+#include "Core/Bounds.h"
 namespace fmc {
 class CText;
 class CTransform;
@@ -31,7 +31,8 @@ public:
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
 
-private:
+    private:
+fm::Bounds bounds;
     void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
 
     ~RenderingSystem();
