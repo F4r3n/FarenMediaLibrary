@@ -108,9 +108,9 @@ void RenderingSystem::pre_update(EntityManager& em) {
 
     cam->updateRenderTexture();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
-    bounds.setSize(fm::math::vec3(cam->viewPort.w/2.0f, cam->viewPort.h/2.0f, 
+    bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, 
                 cam->getFarPlane() - cam->getNearPlane()));
-    bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, 0));
+    bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + bounds.getSize()/2.0f);
     bounds.setScale(fm::math::vec3(1,1,1));
     fm::math::mat m;
     view(m, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation);

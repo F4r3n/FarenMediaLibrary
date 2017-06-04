@@ -49,6 +49,7 @@ public:
     void removeIndices(unsigned int start, unsigned int end);
     void removeVertex(unsigned int index);
     void removeIndice(unsigned int index);
+    void computeBoundingSize();
     fm::Bounds bounds;
 
 private:

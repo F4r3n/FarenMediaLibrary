@@ -1,5 +1,6 @@
 #include "Core/Bounds.h"
 #include <algorithm>
+#include <iostream>
 using namespace fm;
 
 Bounds::Bounds() {
@@ -19,13 +20,47 @@ void Bounds::encapsulate(const Bounds& bounds) {
 
     center = (center + bounds.center) / 2.0f;
 }
-bool Bounds::intersects(const Bounds& bounds) {
+
+bool Bounds::isInside(const fm::math::vec3 &point) {
     fm::math::vec3 ac = center;
-    fm::math::vec3 bc = bounds.center;
-    return (ac.x <= bc.x + bounds.size.x*bounds.scale.x*2.0f && ac.x + size.x*scale.x*2.0f >= bc.x) &&
-           (ac.y <= bc.y + bounds.size.y*bounds.scale.y*2.0f && ac.y + size.y*scale.y*2.0f >= bc.y) &&
-           (ac.z <= bc.z + bounds.size.z*bounds.scale.z*2.0f && ac.z + size.z*scale.z*2.0f >= bc.z);
+    return true;
+    //return (ac.x <= point.x + bounds.size.x*bounds.scale.x*2.0f && ac.x + size.x*scale.x*2.0f >= point.x) &&
+    //       (ac.y <= point.y + bounds.size.y*bounds.scale.y*2.0f && ac.y + size.y*scale.y*2.0f >= point.y) &&
+    //       (ac.z <= point.z + bounds.size.z*bounds.scale.z*2.0f && ac.z + size.z*scale.z*2.0f >= point.z);
 }
+
+fm::math::vec3 Bounds::getSize() const {
+    return size;
+}
+fm::math::vec3 Bounds::getCenter() const {
+    return center;
+}
+fm::math::vec3 Bounds::getScale() const{
+    return scale;
+}
+
+bool Bounds::intersects(const Bounds &bounds) {
+    fm::math::vec3 as = this->size*this->scale;
+    fm::math::vec3 bs = bounds.size*bounds.scale;
+    
+    fm::math::vec3 ac = center - as/2.0f;
+    fm::math::vec3 bc = bounds.center - bs/2.0f;
+    //std::cout << bc << " " << bs << std::endl;
+    //std::cout << ac << " " << as << std::endl;
+    //std::cout << !((bc.x >= ac.x + as.x)
+    //        || (bc.x + bs.x <= ac.x)
+    //        || (bc.y >= ac.y + as.y)
+    //        || (bc.y + bs.y <= ac.y)
+    //) << " \n " << std::endl;
+    return !((  bc.x >= ac.x + as.x)
+            || (bc.x + bs.x <= ac.x)
+            || (bc.y >= ac.y + as.y)
+            || (bc.y + bs.y <= ac.y)
+            || (bc.z >= ac.z + as.z)
+            || (bc.z + bs.z <= ac.z)
+    );
+}
+
 
 void Bounds::setCenter(const fm::math::vec3& center) {
     this->center = center;

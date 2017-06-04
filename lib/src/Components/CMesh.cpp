@@ -59,6 +59,12 @@ void CMesh::create() {
     glEnableVertexAttribArray(1);
     created = true;
     size = listIndices.size();
+    
+    
+}
+
+void CMesh::computeBoundingSize() {
+    
 }
 
 void CMesh::addIndex(unsigned int index) {

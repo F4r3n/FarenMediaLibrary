@@ -165,6 +165,10 @@ namespace math {
         T const& operator[](unsigned int index) const;
         T& operator[](unsigned int index);
     };
+    
+        template <typename T> vec<T, 3> operator-(const vec<T, 3>& a, const vec<T, 3>& b) {
+        return vec<T, 3>(a.x - b.x, a.y - b.y, a.z - b.z);
+    }
 
     template <typename T> vec<T, 3> operator+(const vec<T, 3>& a, const vec<T, 3>& b) {
         return vec<T, 3>(a.x + b.x, a.y + b.y, a.z + b.z);
