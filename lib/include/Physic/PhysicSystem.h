@@ -26,9 +26,23 @@ public:
         EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::END);
     }
     class ContactListener : public b2ContactListener {
-        void BeginContact(b2Contact* contact) {
 
-            // check if fixture A was a ball
+        void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) {
+            void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
+           // size_t idA = -1, idB = -1;
+            if(bodyUserData) {
+                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+                //contact->GetFixtureA()->SetFriction()
+            }
+
+            bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
+            if(bodyUserData) {
+                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+            }
+        }
+
+        void BeginContact(b2Contact* contact) {
+            
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
             size_t idA = -1, idB = -1;
             if(bodyUserData) {
@@ -37,7 +51,6 @@ public:
                 idA = *b->identity;
             }
 
-            // check if fixture B was a ball
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
@@ -49,7 +62,6 @@ public:
 
         void EndContact(b2Contact* contact) {
 
-            // check if fixture A was a ball
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
             size_t idA = -1, idB = -1;
             if(bodyUserData) {
@@ -58,7 +70,6 @@ public:
                 idA = *b->identity;
             }
 
-            // check if fixture B was a ball
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
@@ -67,14 +78,18 @@ public:
             }
             PhysicSystem::endEvent(idA, idB);
         }
+
+        void PostSolve(b2Contact * contact, const b2ContactImpulse * impulse) {
+            
+        }
     };
 
 private:
     b2Vec2 gravity;
     std::unique_ptr<b2World> world;
     ContactListener contactListener;
-    
+
     const float M2P = 60.0f;
-    const float P2M = 1/M2P;
+    const float P2M = 1 / M2P;
 };
 }

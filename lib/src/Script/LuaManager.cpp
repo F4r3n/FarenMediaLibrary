@@ -35,6 +35,7 @@ void LuaManager::registerComponents() {
  "x", &math::vec3::x, "y", &math::vec3::y, "z", &math::vec3::z);
     registerComponent<math::Vector2d>("Vector2d", "x", &math::Vector2d::x, "y", &math::Vector2d::y);
     registerComponent<Rectf>("Rectf", "x", &Rectf::x, "y", &Rectf::y, "w", &Rectf::w, "h", &Rectf::h);
+    
     registerComponent<Vertex>("Vertex", "position", &Vertex::position, "uv", &Vertex::uv);
     registerComponent<Bounds>("Bounds", 
             "center", sol::property(&Bounds::getCenter, &Bounds::setCenter),
@@ -72,7 +73,7 @@ void LuaManager::registerComponents() {
     );
     registerComponent<Body2D>("Body2D", 
     "applyForceCenter", &Body2D::applyForceCenter2, 
-    "friction", &Body2D::friction);
+    "setFriction", &Body2D::SetFriction);
 
     registerComponent<Entity>("Entity",
                               "ID",

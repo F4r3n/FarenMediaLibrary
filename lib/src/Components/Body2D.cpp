@@ -24,3 +24,7 @@ void Body2D::applyForce(fm::math::Vector2f &&power, fm::math::Vector2f &&pos) {
     body->ApplyForce((b2Vec2)power, (b2Vec2)pos, true);
    
 }
+
+void Body2D::SetFriction(float value) {
+    fixture->SetFriction(value);
+}
