@@ -140,6 +140,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     // PROFILER_START(RenderingSort)
 
     queue.init();
+    //int i = 0;
     for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
         fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
                                 e->get<fmc::CDirectionalLight>(), e->get<fmc::CPointLight>(), e->get<fmc::CText>(),
@@ -149,7 +150,11 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
            // std::cout << fm::math::vec3(node.transform->position) + fm::math::vec3(node.transform->scale)/2.0f << std::endl;
             node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) + fm::math::vec3(node.transform->scale)/2.0f);
             node.mesh->bounds.setScale (fm::math::vec3(node.transform->scale));
+            //std::cout << "Center " <<i << " "<< node.mesh->bounds.getCenter() << std::endl;
+            //std::cout << "Scale " << i << " " <<node.mesh->bounds.getScale() << std::endl;
+            //std::cout << node.mesh->bounds.intersects(bounds) << std::endl;
             if(!node.mesh->bounds.intersects(bounds)) continue;
+            //std::cout << "\n" << std::endl;
         }
         if(node.dlight || node.plight) {
             node.state = fm::RENDER_QUEUE::LIGHT;
@@ -159,7 +164,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         }
         node.queue = 0;
         queue.addElement(node);
+
     }
+    
     int lightNumber = 0;
     queue.start();
     // PROFILER_STOP(RenderingSort)

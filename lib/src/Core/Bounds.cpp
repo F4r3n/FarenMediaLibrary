@@ -5,7 +5,7 @@ using namespace fm;
 
 Bounds::Bounds() {
     center = fm::math::vec3(0, 0, 0);
-    size = fm::math::vec3(0, 0, 0);
+    size = fm::math::vec3(1, 1, 1);
 }
 
 Bounds::Bounds(const fm::math::vec3& center, const fm::math::vec3& size) {

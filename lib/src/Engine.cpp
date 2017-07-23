@@ -19,7 +19,7 @@ Engine::~Engine() {
 }
 
 void Engine::run(Window& window) {
-    fm::Window::setMSAA(4);
+    fm::Window::setMSAA(0);
 
     auto start = std::chrono::system_clock::now();
 
@@ -48,12 +48,7 @@ void Engine::start() {
     systems.addSystem(new fms::ScriptManagerSystem());
 
     systems.getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
-
     systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
-    
-    if(systems.getSystem<fms::RenderingSystem>() == nullptr) {
-        
-    }
 }
 
 Entity* Engine::getMainCamera() {
