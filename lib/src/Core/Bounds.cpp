@@ -12,6 +12,7 @@ Bounds::Bounds() {
 Bounds::Bounds(const fm::math::vec3& center, const fm::math::vec3& size) {
     this->center = center;
     this->size = size;
+    scale = fm::math::vec3(1,1,1);
 }
 
 void Bounds::encapsulate(const Bounds& bounds) {
@@ -26,12 +27,23 @@ fm::math::vec3 Bounds::getFinalSize() const {
     return size*scale;
 }
 
+bool Bounds::isInside(const fm::math::vec2 &point) {
+     fm::math::vec3 ac = center;
+     //std::cout << "THIS" << std::endl;
+     //std::cout << center << std::endl;
+     //std::cout << getFinalSize() << std::endl;
+     //std::cout << "END THIS" << std::endl;
+     //
+     //std::cout << point << std::endl;
+    //return true;
+    return point.x < (ac.x + (0.5*getFinalSize().x)) && point.x > (ac.x - (0.5*getFinalSize().x)) &&
+           point.y < (ac.y + (0.5*getFinalSize().y)) && point.y > (ac.y - (0.5*getFinalSize().y));
+}
+
 bool Bounds::isInside(const fm::math::vec3 &point) {
     fm::math::vec3 ac = center;
-    //return true;
-    return (ac.x <= point.x + size.x*scale.x*2.0f && ac.x + size.x*scale.x*2.0f >= point.x) &&
-           (ac.y <= point.y + size.y*scale.y*2.0f && ac.y + size.y*scale.y*2.0f >= point.y) &&
-           (ac.z <= point.z + size.z*scale.z*2.0f && ac.z + size.z*scale.z*2.0f >= point.z);
+    return point.x < (ac.x + (0.5*getFinalSize().x)) && point.x > (ac.x - (0.5*getFinalSize().x)) &&
+           point.y < (ac.y + (0.5*getFinalSize().y)) && point.y > (ac.y - (0.5*getFinalSize().y));
 }
 
 fm::math::vec3 Bounds::getSize() const {
@@ -50,19 +62,27 @@ bool Bounds::intersects(const Bounds &bounds) {
     
     fm::math::vec3 ac = center - as/2.0f;
     fm::math::vec3 bc = bounds.center - bs/2.0f;
-    //std::cout << bc << " " << bs << std::endl;
-    //std::cout << ac << " " << as << std::endl;
-    //std::cout << !((bc.x >= ac.x + as.x)
-    //        || (bc.x + bs.x <= ac.x)
-    //        || (bc.y >= ac.y + as.y)
-    //        || (bc.y + bs.y <= ac.y)
-    //) << " \n " << std::endl;
+
     return !((  bc.x >= ac.x + as.x)
             || (bc.x + bs.x <= ac.x)
             || (bc.y >= ac.y + as.y)
             || (bc.y + bs.y <= ac.y)
             || (bc.z >= ac.z + as.z)
             || (bc.z + bs.z <= ac.z)
+    );
+}
+
+bool Bounds::intersects2D(const Bounds &bounds) {
+    fm::math::vec3 as = this->size*this->scale;
+    fm::math::vec3 bs = bounds.size*bounds.scale;
+    
+    fm::math::vec3 ac = center - as/2.0f;
+    fm::math::vec3 bc = bounds.center - bs/2.0f;
+
+    return !((  bc.x >= ac.x + as.x)
+            || (bc.x + bs.x <= ac.x)
+            || (bc.y >= ac.y + as.y)
+            || (bc.y + bs.y <= ac.y)
     );
 }
 
