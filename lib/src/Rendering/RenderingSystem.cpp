@@ -117,6 +117,7 @@ void RenderingSystem::pre_update(EntityManager& em) {
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
+
     // fm::Renderer::getInstance().bindFrameBuffer();
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
 
@@ -138,48 +139,40 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     // PROFILER_START(Rendering)
     // PROFILER_START(RenderingSort)
 
-    queue.init();
-    // int i = 0;
-    for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
-        fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
-                                e->get<fmc::CDirectionalLight>(), e->get<fmc::CPointLight>(), e->get<fmc::CText>(),
-                                fm::RENDER_QUEUE::BACKGROUND,     0,                          e->ID };
-        bool valid = false;
-        if(node.mesh) {
+    fillQueue(em);
 
-            // TODO not the scale but the mesh size, UNIT TEST BUG with size
-            // std::cout << fm::math::vec3(node.transform->position) + fm::math::vec3(node.transform->scale)/2.0f <<
-            // std::endl;
-            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) +
-                                        fm::math::vec3(node.transform->scale) / 2.0f);
-            node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
-            // std::cout << "Center " <<i << " "<< node.mesh->bounds.getCenter() << std::endl;
-            // std::cout << "Scale " << i << " " <<node.mesh->bounds.getScale() << std::endl;
-            // std::cout << node.mesh->bounds.intersects(bounds) << std::endl;
-            if(!node.mesh->bounds.intersects(bounds))
-                continue;
-            valid = true;
-            // std::cout << "\n" << std::endl;
-        }
-        if(node.dlight || node.plight) {
-            node.state = fm::RENDER_QUEUE::LIGHT;
-            valid = true;
-        }
-        if(node.text) {
-            node.state = fm::RENDER_QUEUE::OVERLAY;
-            valid = true;
-        }
-        node.queue = 0;
-        if(!valid) {
-            continue;
-        }
-        queue.addElement(node);
+    if(!queue.empty()) {
+        queue.start();
+        // PROFILER_STOP(RenderingSort)
+        // PROFILER_START(Draw)
+        draw(cam);
     }
+    // PROFILER_STOP(Draw)
+    // PROFILER_STOP(Rendering)
+    // PROFILER_DISPLAY(Rendering)
+    // PROFILER_DISPLAY(RenderingSort)
+    // PROFILER_DISPLAY(Draw)
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
+
+    finalShader->Use();
+    finalShader->Use()->setVector2f("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
+
+    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+        fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
+        fm::Renderer::getInstance().blit(finalShader);
+    } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
+        fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
+        fm::Renderer::getInstance().blit(finalShader);
+    }
+}
+
+void RenderingSystem::draw(fmc::CCamera* cam) {
 
     int lightNumber = 0;
-    queue.start();
-    // PROFILER_STOP(RenderingSort)
-    // PROFILER_START(Draw)
     bool hasLight = false;
     bool computeLightDone = false;
     while(!queue.empty()) {
@@ -188,7 +181,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CTransform* transform = node.transform;
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
-        fm::math::Vector2f worldPos = transform->getWorldPos(em);
+        fm::math::Vector2f worldPos = transform->getWorldPos();
         EventManager::get().emit<CameraInfo>({ node.idEntity, cam });
         int q = node.queue;
         fm::RENDER_QUEUE state = node.state;
@@ -235,17 +228,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
         // After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
-            if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                lightRenderTexture->bind();
-                glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
-
-                fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), hasLight);
-            } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-                 lightRenderTexture->bind();
-                glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
-
-                fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), false);
-            }
+            computeLighting(lightRenderTexture, cam, hasLight);
         }
 
         if((state >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT) ||
@@ -286,43 +269,62 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         queue.next();
     }
     if(queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT && !computeLightDone) {
-         if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                lightRenderTexture->bind();
-                glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
-
-                fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), hasLight);
-            } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-                 lightRenderTexture->bind();
-                glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
-
-                fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), false);
-            }
+        computeLighting(lightRenderTexture, cam, hasLight);
     }
 
-    // PROFILER_STOP(Draw)
-    // PROFILER_STOP(Rendering)
-    // PROFILER_DISPLAY(Rendering)
-    // PROFILER_DISPLAY(RenderingSort)
-    // PROFILER_DISPLAY(Draw)
     if(blendingMode) {
         glDisable(GL_BLEND);
     }
     blendingMode = false;
+}
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
-
-    finalShader->Use();
-    finalShader->Use()->setVector2f("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
-
-    finalShader->setVector2f("viewPos", camera->get<fmc::CTransform>()->position);
+void RenderingSystem::computeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture,
+                                      fmc::CCamera* cam,
+                                      bool hasLight) {
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-        fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
-        fm::Renderer::getInstance().blit(finalShader);
+        lightRenderTexture->bind();
+        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
+
+        fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), hasLight);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-        fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(), 2);
-        fm::Renderer::getInstance().blit(finalShader);
+        lightRenderTexture->bind();
+        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
+
+        fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), false);
+    }
+}
+
+void RenderingSystem::fillQueue(EntityManager& em) {
+    queue.init();
+    // int i = 0;
+    for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>()) {
+        fm::RenderNode node = { e->get<fmc::CTransform>(),        e->get<fmc::CMaterial>(),   e->get<fmc::CMesh>(),
+                                e->get<fmc::CDirectionalLight>(), e->get<fmc::CPointLight>(), e->get<fmc::CText>(),
+                                fm::RENDER_QUEUE::BACKGROUND,     0,                          e->ID };
+        bool valid = false;
+        if(node.mesh) {
+
+            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) +
+                                        fm::math::vec3(node.transform->scale) / 2.0f);
+            node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
+            if(!node.mesh->bounds.intersects(bounds))
+                continue;
+            valid = true;
+            // std::cout << "\n" << std::endl;
+        }
+        if(node.dlight || node.plight) {
+            node.state = fm::RENDER_QUEUE::LIGHT;
+            valid = true;
+        }
+        if(node.text) {
+            node.state = fm::RENDER_QUEUE::OVERLAY;
+            valid = true;
+        }
+        node.queue = 0;
+        if(!valid) {
+            continue;
+        }
+        queue.addElement(node);
     }
 }
 

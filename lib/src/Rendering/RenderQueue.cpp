@@ -58,6 +58,7 @@ void RenderQueue::nextIndex() {
 }
 
 void RenderQueue::start() {
+    
     std::sort(elements.begin(), elements.end());
     currentIndexGlobal = elements[indexElements];
 }

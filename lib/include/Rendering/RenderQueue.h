@@ -44,7 +44,7 @@ public:
     void init();
     void start();
     inline bool empty() const{
-        return indexElements >= elements.size();
+        return indexElements >= elements.size() || elements.size() == 0;
     }
     
     private:

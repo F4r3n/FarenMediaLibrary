@@ -31,8 +31,8 @@ public:
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
 
-    private:
-fm::Bounds bounds;
+private:
+    fm::Bounds bounds;
     void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
 
     ~RenderingSystem();
@@ -40,8 +40,9 @@ fm::Bounds bounds;
     void updateUniformBufferCamera(fmc::CCamera* camera);
     void draw(const fmc::CMesh* cmesh);
     void drawText(int posX, int posY, RFont* font, const fmc::CText* ctext);
-
- 
+    void computeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
+    void fillQueue(EntityManager& em);
+    void draw(fmc::CCamera *cam);
     void
     view(fm::math::mat& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation);
 
