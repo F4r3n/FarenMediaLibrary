@@ -214,6 +214,27 @@ void ShaderLibrary::loadShaders() {
                                     if(brightness >= 0.5)
                                     BrightColor = vec4(FragColor.rgb, 1.0);
                                  });
+                                 
+                    std::string light_fragment_no_light = S(
+                                 layout (location = 0) out vec4 FragColor;
+                                 layout (location = 1) out vec4 BrightColor;
+
+                                 in vec2 TexCoords;
+                                 uniform sampler2D screenTexture;
+                                 uniform sampler2D posTexture;
+
+                                 uniform vec2 screenSize;
+                                 uniform vec2 viewPos;
+
+                               
+                                 void main() {
+
+                                    vec4 hdrColor = texture(screenTexture, TexCoords);
+                                    vec4 pos = texture(posTexture, TexCoords);
+                                   
+                                    FragColor = hdrColor;
+  
+                                 });                 
 
     std::string simple_fragment = S(
                                   out vec4 FragColor;
@@ -378,6 +399,8 @@ void ShaderLibrary::loadShaders() {
                                             });
 
     fm::ResourcesManager::get().loadShader("light", simple_vertex, light_fragment);
+    fm::ResourcesManager::get().loadShader("no_light", simple_vertex, light_fragment_no_light);
+
     fm::ResourcesManager::get().loadShader("blur", simple_vertex, blur_fragment);
     fm::ResourcesManager::get().loadShader("text", text_vertex, text_fragment);
     fm::ResourcesManager::get().loadShader("instancing", instancing_vertex, instancing_fragment);
@@ -390,6 +413,9 @@ void ShaderLibrary::loadShaders() {
     s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
 
     std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("light");
+    light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
+    
+    light = fm::ResourcesManager::get().getShader("no_light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
 }
 

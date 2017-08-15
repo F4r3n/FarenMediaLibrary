@@ -15,7 +15,7 @@ public:
 
     void createQuadScreen();
     // void blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers);
-    void lightComputation(Texture* colorBuffer);
+    void lightComputation(Texture* colorBuffer, bool compute = false);
     void postProcess(Texture* colorBuffer);
     void clear();
     void blit(Texture& texture, std::shared_ptr<Shader> shader) const;

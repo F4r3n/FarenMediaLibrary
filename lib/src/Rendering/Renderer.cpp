@@ -31,9 +31,13 @@ void Renderer::createQuadScreen() {
     glBindVertexArray(0);
 }
 
-void Renderer::lightComputation(Texture* colorBuffer) {
-
-    std::shared_ptr<Shader> light = ResourcesManager::get().getShader("light");
+void Renderer::lightComputation(Texture* colorBuffer, bool compute) {
+    std::shared_ptr<Shader> light;
+    if(compute)
+        light = ResourcesManager::get().getShader("light");
+        else {
+            light = ResourcesManager::get().getShader("no_light");
+        }
     light->Use();
 
     glActiveTexture(GL_TEXTURE0);
