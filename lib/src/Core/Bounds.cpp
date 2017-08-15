@@ -6,6 +6,7 @@ using namespace fm;
 Bounds::Bounds() {
     center = fm::math::vec3(0, 0, 0);
     size = fm::math::vec3(1, 1, 1);
+    scale = fm::math::vec3(1,1,1);
 }
 
 Bounds::Bounds(const fm::math::vec3& center, const fm::math::vec3& size) {
@@ -21,12 +22,16 @@ void Bounds::encapsulate(const Bounds& bounds) {
     center = (center + bounds.center) / 2.0f;
 }
 
+fm::math::vec3 Bounds::getFinalSize() const {
+    return size*scale;
+}
+
 bool Bounds::isInside(const fm::math::vec3 &point) {
     fm::math::vec3 ac = center;
-    return true;
-    //return (ac.x <= point.x + bounds.size.x*bounds.scale.x*2.0f && ac.x + size.x*scale.x*2.0f >= point.x) &&
-    //       (ac.y <= point.y + bounds.size.y*bounds.scale.y*2.0f && ac.y + size.y*scale.y*2.0f >= point.y) &&
-    //       (ac.z <= point.z + bounds.size.z*bounds.scale.z*2.0f && ac.z + size.z*scale.z*2.0f >= point.z);
+    //return true;
+    return (ac.x <= point.x + size.x*scale.x*2.0f && ac.x + size.x*scale.x*2.0f >= point.x) &&
+           (ac.y <= point.y + size.y*scale.y*2.0f && ac.y + size.y*scale.y*2.0f >= point.y) &&
+           (ac.z <= point.z + size.z*scale.z*2.0f && ac.z + size.z*scale.z*2.0f >= point.z);
 }
 
 fm::math::vec3 Bounds::getSize() const {
