@@ -42,9 +42,11 @@ void Renderer::lightComputation(Texture* colorBuffer, bool compute) {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[0].getID());
-
+if(compute) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, colorBuffer[2].getID());
+
+}
 
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

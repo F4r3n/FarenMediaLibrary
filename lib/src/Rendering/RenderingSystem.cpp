@@ -125,8 +125,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         std::cout << "No render texture created" << std::endl;
         return;
     }
+    lightRenderTexture->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    cam->getRenderTexture()->active();
+    cam->getRenderTexture()->bind();
     glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -229,6 +231,7 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
         // After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT && queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
             computeLighting(lightRenderTexture, cam, hasLight);
+            computeLightDone = true;
         }
 
         if((state >= fm::RENDER_QUEUE::TRANSPARENT && queuePreviousValue < fm::RENDER_QUEUE::TRANSPARENT) ||
@@ -270,6 +273,7 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
     }
     if(queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT && !computeLightDone) {
         computeLighting(lightRenderTexture, cam, hasLight);
+        
     }
 
     if(blendingMode) {
