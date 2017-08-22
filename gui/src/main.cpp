@@ -13,7 +13,7 @@ void menuBar() {
 
 int main() {
     fm::Window window(800, 600, "FML Engine");
-    ImGui_ImplGlfwGL3_Init(window.getWindow(), true);
+    //ImGui_ImplSdlGL3_Init(window.getWindow());
     fm::Engine engine;
 
     engine.init();
@@ -24,7 +24,7 @@ int main() {
     while(!window.isClosed()) {
 
         window.update(60);
-        ImGui_ImplGlfwGL3_NewFrame();
+       // ImGui_ImplSdlGL3_NewFrame();
 
         engine.update(fm::Time::dt);
 
@@ -33,6 +33,6 @@ int main() {
         ImGui::Render();
         window.swapBuffers();
     }
-    ImGui_ImplGlfwGL3_Shutdown();
+    //ImGui_ImplSdlGL3_Shutdown();
     return 0;
 }

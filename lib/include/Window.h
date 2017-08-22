@@ -3,8 +3,10 @@
 //#define GLEW_STATIC
 #include <GL/glew.h>
 // GLFW
-#include <GLFW/glfw3.h>
-#include <iostream>
+#include <SDL2/SDL.h>
+//#include <GLFW/glfw3.h>
+//#include <iostream>
+#include <string>
 #include "NonCopyable.h"
 
 namespace fm {
@@ -21,7 +23,7 @@ public:
     void frameLimit(unsigned short fps);
     void update(float fps);
     Window& getInstance();
-    GLFWwindow* getWindow() {
+    SDL_Window* getWindow() {
         return window;
     }
     void setName(const std::string &name);
@@ -33,16 +35,17 @@ public:
     static int x;
     static int y;
 private:
-    void events();
-    int init(GLFWwindow* window);
+   
+    int init(SDL_Window* window);
     void createShaders();
     void errorDisplay();
-    static void window_size_callback(GLFWwindow* window, int width, int height) {
-        glViewport(x, y, width, height);
-        Window::width = width;
-        Window::height = height;
-    }
-    GLFWwindow* window;
+    //static void window_size_callback(GLFWwindow* window, int width, int height) {
+    //    glViewport(x, y, width, height);
+    //    Window::width = width;
+    //    Window::height = height;
+    //}
+    SDL_Window* window;
+    SDL_GLContext mainContext;
 
     int fpsMax = 60;
     double wait_time = 1.0f / (float)fpsMax;

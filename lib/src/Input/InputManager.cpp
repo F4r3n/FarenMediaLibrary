@@ -1,6 +1,7 @@
 
 #include "Input/InputManager.h"
 #include <stdarg.h>
+#include <iostream>
 using namespace fm;
 
 std::map<int, bool> InputManager::keys;
@@ -10,52 +11,41 @@ InputManager InputManager::_instance;
 float InputManager::posX = 0;
 float InputManager::posY = 0;
 
-InputManager::InputManager(Window& window)
-{
+InputManager::InputManager(Window& window) {
     init(window);
 }
 
-void InputManager::init(Window& window)
-{
-    glfwSetKeyCallback(window.window, InputManager::key_callback);
-    glfwSetCursorPosCallback(window.window, InputManager::cursor_position_callback);
-    this->window = window.window;
+void InputManager::init(Window& window) {
+    // glfwSetKeyCallback(window.window, InputManager::key_callback);
+    // glfwSetCursorPosCallback(window.window, InputManager::cursor_position_callback);
+    // this->window = window.window;
 }
 
-void InputManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    posX = xpos;
-    posY = ypos;
+// void InputManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+//{
+//    posX = xpos;
+//    posY = ypos;
+//}
+
+InputManager::InputManager() {
 }
 
-void InputManager::init(GLFWwindow* window)
-{
-    glfwSetKeyCallback(window, InputManager::key_callback);
-    glfwSetCursorPosCallback(window, InputManager::cursor_position_callback);
-    this->window = window;
+void InputManager::getMousePosition(double& posX, double& posY) {
+    int tempX, tempY;
+    SDL_GetMouseState(&tempX, &tempY);
+    posX = tempX;
+    posY = tempY;
 }
 
-InputManager::InputManager()
-{
-}
-
-void InputManager::getMousePosition(double& posX, double& posY)
-{
-    glfwGetCursorPos(window, &posX, &posY);
-}
-
-float InputManager::getMousePositionX()
-{
+float InputManager::getMousePositionX() {
     return posX;
 }
 
-float InputManager::getMousePositionY()
-{
+float InputManager::getMousePositionY() {
     return posY;
 }
 
-int InputManager::worldKeyboard(int key)
-{
+int InputManager::worldKeyboard(int key) {
     if(!typeKeyboard)
         return key;
     if(key == FM_KEY_A)
@@ -69,59 +59,62 @@ int InputManager::worldKeyboard(int key)
     return key;
 }
 
-InputManager& InputManager::getInstance()
-{
+InputManager& InputManager::getInstance() {
     return _instance;
 }
 
-bool InputManager::multipleKeysPressed(int number, ...)
-{
-    va_list ap;
-    int j;
-    bool val = true;
-    va_start(ap, number); // Requires the last fixed parameter (to get the address)
-    for(j = 0; j < number; j++) {
-        int v = va_arg(ap, int);
-        val &= glfwGetKey(window, v);
-    }
-    va_end(ap);
-    return val;
+bool InputManager::multipleKeysPressed(int number, ...) {
+    // va_list ap;
+    // int j;
+    // bool val = true;
+    // va_start(ap, number); // Requires the last fixed parameter (to get the address)
+    // for(j = 0; j < number; j++) {
+    //     int v = va_arg(ap, int);
+    //     val &= glfwGetKey(window, v);
+    // }
+    // va_end(ap);
+    // return val;
+    return false;
 }
-void InputManager::getMousePosition(math::Vector2d & pos)
-{
-    glfwGetCursorPos(window, &pos.x, &pos.y);
-}
-
-bool InputManager::keyIsPressed(int key)
-{
-    return glfwGetKey(window, worldKeyboard(key));
+void InputManager::getMousePosition(math::Vector2d& pos) {
+    int tempX, tempY;
+    SDL_GetMouseState(&tempX, &tempY);
+    pos.x = tempX;
+    pos.y = tempY;
 }
 
-bool InputManager::keyIsReleased(int key)
-{
+bool InputManager::keyIsPressed(int key) {
+    return event.type == key;
+}
+
+bool InputManager::keyIsReleased(int key) {
     bool v = keysReleased[key];
     keysReleased[key] = false;
     return v;
 }
 
-int InputManager::getMouseButton(int id)
-{
-    return glfwGetMouseButton(window, id);
+int InputManager::getMouseButton(int id) {
+    return event.type == id;
 }
 
-void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if(keys[key] && action == GLFW_RELEASE) {
-        keysReleased[key] = true;
+// void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+//{
+//    if(keys[key] && action == GLFW_RELEASE) {
+//        keysReleased[key] = true;
+//    }
+//    keys[key] = (action == GLFW_PRESS) ? true : false;
+//}
+
+void InputManager::pollEvents() {
+    closed = false;
+    while(SDL_PollEvent(&event)) {
+
+        state = SDL_GetKeyboardState(nullptr);
+        if(event.type == SDL_WINDOWEVENT) {
+            closed = (event.window.event == SDL_WINDOWEVENT_CLOSE);
+        }
     }
-    keys[key] = (action == GLFW_PRESS) ? true : false;
 }
 
-void InputManager::pollEvents(Window& window)
-{
-    window.events();
-}
-
-InputManager::~InputManager()
-{
+InputManager::~InputManager() {
 }

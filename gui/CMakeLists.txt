@@ -7,6 +7,7 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Lua 5.3 REQUIRED)
 find_package(Box2D REQUIRED)
+find_package(SDL2 REQUIRED sdl2)
 if(UNIX)
 FIND_PACKAGE( PkgConfig REQUIRED )
 pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
@@ -49,12 +50,12 @@ link_directories(${FML_PATH}/build/lib)
 
 
 include_directories(${FML_PATH}/extlib/imgui)
-
+string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 
 target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} 
-	${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} 
+	${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES}
 	${GLEW_LIBRARY} ECS freetype openal sndfile FarenMediaLibrary)
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)

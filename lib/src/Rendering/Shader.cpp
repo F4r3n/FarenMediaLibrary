@@ -6,35 +6,7 @@ using namespace fm;
 Shader::Shader() {
 }
 
-/*Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
-    // 1. Retrieve the vertex/fragment source code from filePath
-    std::string vertexCode;
-    std::string fragmentCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
-    // ensures ifstream objects can throw exceptions:
-    vShaderFile.exceptions(std::ifstream::badbit);
-    fShaderFile.exceptions(std::ifstream::badbit);
-    try {
-        // Open files
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragmentPath);
-        std::stringstream vShaderStream, fShaderStream;
-        // Read file's buffer contents into streams
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
-        // close file handlers
-        vShaderFile.close();
-        fShaderFile.close();
-        // Convert stream into string
-        vertexCode = vShaderStream.str();
-        fragmentCode = fShaderStream.str();
-    } catch(std::ifstream::failure e) {
-        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-    }
-    this->vertex = vertexCode;
-    this->fragment = fragmentCode;
-}*/
+
 
 Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode) {
     this->vertex = vertexCode;
@@ -57,6 +29,7 @@ bool Shader::compile() {
     if(!success) {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        //std::cerr << "Shader :" << 
         std::cerr << vShaderCode << std::endl;
         return false;
     }

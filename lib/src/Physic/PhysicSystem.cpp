@@ -3,6 +3,7 @@
 #include "Components/CTransform.h"
 #include "Event.h"
 #include "Time.h"
+
 using namespace fms;
 PhysicSystem::PhysicSystem() {
     gravity = b2Vec2(0.0f, 5.0f);
@@ -19,6 +20,7 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event) {
         if(!body->isReady) {
             body->init(world.get(), P2M);
         }
+        //std::cout << "Body " << dt << std::endl;
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         transform->position = fm::math::vec2(body->body->GetPosition().x - body->size.x*P2M, 
         body->body->GetPosition().y - body->size.y*P2M)*M2P;

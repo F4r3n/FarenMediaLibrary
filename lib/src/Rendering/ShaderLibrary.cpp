@@ -1,7 +1,23 @@
 #include "Rendering/ShaderLibrary.h"
+#include "Core/Config.h"
+
+#if OPENGL_CORE == 1
 #define SHADER_VERSION "#version 330 core\n"
-#define S(...) C(SHADER_VERSION, #__VA_ARGS__)
+#else
+#define SHADER_VERSION "#version 310 es\n"
+#endif
+
+#if OPENGL_CORE == 1
+#define FLOAT 
+#define INT 
+#elif OPENGL_ES
+#define FLOAT highp
+#define INT mediump
+#endif
+
 #define C(v, s) v s 
+#define S(...) C(SHADER_VERSION, #__VA_ARGS__)
+#define STRING(...) S(__VA_ARGS__)
 ShaderLibrary::ShaderLibrary() {
     
 }
@@ -11,7 +27,7 @@ ShaderLibrary::~ShaderLibrary() {
 }
 
 void ShaderLibrary::loadShaders() {
-    std::string text_vertex = S(
+    std::string text_vertex = STRING(
                               layout (location = 0) in vec4 vertex;
                               out vec2 TexCoords;
                               uniform mat4 projection;
@@ -26,61 +42,60 @@ void ShaderLibrary::loadShaders() {
                                 TexCoords = vertex.zw;
                               });
 
-    std::string text_fragment =S(
-        
-        layout (location = 0) out vec4 FragColor;
-        layout (location = 1) out vec4 BrightColor;
-        layout (location = 2) out vec4 posTexture;
+    std::string text_fragment =STRING(
 
-        in vec2 TexCoords;
+        layout (location = 0) out FLOAT vec4 FragColor;
+        layout (location = 1) out FLOAT vec4 BrightColor;
+        layout (location = 2) out FLOAT vec4 posTexture;
+
+        in FLOAT vec2 TexCoords;
         uniform sampler2D text;
-        uniform vec4 textColor;
-        uniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
-        uniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703);
-
+        uniform FLOAT vec4 textColor;
+        
         uniform bool outline;
-        uniform vec2 outline_min;
-        uniform vec2 outline_max;
-        uniform vec3 outline_color;
+        uniform FLOAT vec2 outline_min;
+        uniform FLOAT vec2 outline_max;
+        uniform FLOAT vec3 outline_color;
 
         uniform bool soft_edges;
-        uniform vec2 soft_edge_values;
+        uniform FLOAT vec2 soft_edge_values;
 
         void main(){
-        vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
+                FLOAT vec3 offset = vec3(0.0, 1.3846153846, 3.2307692308);
+                FLOAT vec3 weight = vec3(0.2270270270, 0.3162162162, 0.0702702703);
+                FLOAT vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
+                FLOAT vec4 color = textColor * sampled;
 
-        vec4 color = textColor * sampled;
-
-        vec2 tex_offset = 1.0 / textureSize(text, 0); 
-        float result = texture(text, TexCoords).r * weight[0];
-        if(soft_edges || outline){
-            for(int i = 1; i < 3; ++i)
-            {
-                result += texture(text, TexCoords + vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];
-                result += texture(text, TexCoords - vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];
+                FLOAT vec2 tex_offset = 1.0f / vec2(textureSize(text, 0)); 
+                FLOAT float result = texture(text, TexCoords).r * weight[0];
+                if(soft_edges || outline){
+                    for(INT int i = 1; i < 3; ++i)
+                    {
+                        result += texture(text, TexCoords + vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];
+                        result += texture(text, TexCoords - vec2(tex_offset.x * offset[i], 0.0)).r * weight[i];
+                        
+                        result += texture(text, TexCoords + vec2(0.0, tex_offset.y * offset[i])).r * weight[i];
+                        result += texture(text, TexCoords - vec2(0.0, tex_offset.y * offset[i])).r * weight[i];
+                    }
+                }
+                FLOAT float oFactor = 1.0f;
                 
-                result += texture(text, TexCoords + vec2(0.0, tex_offset.y * offset[i])).r * weight[i];
-                result += texture(text, TexCoords - vec2(0.0, tex_offset.y * offset[i])).r * weight[i];
-            }
-        }
-        float oFactor = 1.0f;
+                if(outline && result >= outline_min.x && result <= outline_max.y) {
+                    if(result <= outline_min.y) {
+                        oFactor = smoothstep(outline_min.x, outline_min.y, result);
+                    } else {
+                        oFactor = smoothstep(outline_max.x, outline_max.y, result);
+                    }
+                color = mix(color, vec4(outline_color,1), oFactor);
+                }
+                if(soft_edges){
+                    color.a += smoothstep(soft_edge_values.x,soft_edge_values.y, result);
+                }
         
-        if(outline && result >= outline_min.x && result <= outline_max.y) {
-            if(result <= outline_min.y) {
-                oFactor = smoothstep(outline_min.x, outline_min.y, result);
-            } else {
-                oFactor = smoothstep(outline_max.x, outline_max.y, result);
-            }
-        color = mix(color, vec4(outline_color,1), oFactor);
-        }
-        if(soft_edges){
-            color.a += smoothstep(soft_edge_values.x,soft_edge_values.y, result);
-        }
-
-        FragColor = color;
+                FragColor = color;
         });
 
-    std::string instancing_vertex = S(
+    std::string instancing_vertex = STRING(
                                     layout (location = 0) in vec2 position;
                                     layout (location = 1) in vec3 color;
                                     layout (location = 3) in mat4 instanceMatrix;
@@ -102,30 +117,34 @@ void ShaderLibrary::loadShaders() {
                                     Color = color;
                                     TexCoords = colorTest;});
 
-    std::string instancing_fragment = "#version 330 core\n"
-                                      "in vec2 TexCoords;\n"
-                                      "in vec3 Color;"
-                                      "out vec4 color;\n"
-                                      "void main(){\n"
-                                      "color = vec4(1);}";
+    std::string instancing_fragment = STRING(
+            #if OPENGL_ES == 1
+        precision highp float;
 
-    std::string blur_fragment =S(
+        #endif
+                                      in vec2 TexCoords;
+                                      in vec3 Color;
+                                      out vec4 color;
+                                      void main(){
+                                      color = vec4(1);});
 
-        out vec4 FragColor;
-        in vec2 TexCoords;
+    std::string blur_fragment =STRING(
+
+        out FLOAT vec4 FragColor;
+        in  FLOAT vec2 TexCoords;
         
         uniform sampler2D image;
-        uniform int horizontal;
-        
-        uniform float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
-        uniform float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703);
+        uniform INT int horizontal;
+
         void main()
         {             
-             vec2 tex_offset = 1.0 / textureSize(image, 0); 
-             vec3 result = texture(image, TexCoords).rgb * weight[0];
+             FLOAT vec3 offset = vec3(0.0, 1.3846153846, 3.2307692308);
+             FLOAT vec3 weight = vec3(0.2270270270, 0.3162162162, 0.0702702703);
+             FLOAT vec2 tex_offset = 1.0f / vec2(textureSize(image, 0)); 
+             FLOAT vec3 result = texture(image, TexCoords).rgb * weight[0];
              if(horizontal == 1)
              {
-                 for(int i = 1; i < 3; ++i)
+                 for(INT int i = 1; i < 3; ++i)
                  {
                     result += texture(image, TexCoords + vec2(tex_offset.x * offset[i], 0.0)).rgb * weight[i];
                     result += texture(image, TexCoords - vec2(tex_offset.x * offset[i], 0.0)).rgb * weight[i];
@@ -133,7 +152,7 @@ void ShaderLibrary::loadShaders() {
              }
              else
              {
-                 for(int i = 1; i < 3; ++i)
+                 for(INT int i = 1; i < 3; ++i)
                  {
                      result += texture(image, TexCoords + vec2(0.0, tex_offset.y * offset[i])).rgb * weight[i];
                      result += texture(image, TexCoords - vec2(0.0, tex_offset.y * offset[i])).rgb * weight[i];
@@ -142,80 +161,71 @@ void ShaderLibrary::loadShaders() {
              FragColor = vec4(result, 1.0);
         });
 
-    std::string simple_vertex = S(
-                                layout(location = 0) in vec2 position;
-                                layout(location = 1) in vec2 texCoords;
-                                out vec2 TexCoords;
-                                 layout (std140) uniform shader_data
-                                { 
-                                    mat4 FM_V;
-                                    mat4 FM_P;
-                                    mat4 FM_VP;
-                                    int render_mode;
-                                    };
-                                void main(){
-                                    gl_Position = vec4(position, 0.0f, 1.0f);
-                                    TexCoords = texCoords;
-                                });
 
-    std::string light_fragment = S(
-                                 layout (location = 0) out vec4 FragColor;
-                                 layout (location = 1) out vec4 BrightColor;
 
-                                 in vec2 TexCoords;
+    std::string light_fragment = STRING(
+
+                                 layout (location = 0) out FLOAT vec4 FragColor;
+                                 layout (location = 1) out FLOAT vec4 BrightColor;
+
+                                 FLOAT in vec2 TexCoords;
                                  uniform sampler2D screenTexture;
                                  uniform sampler2D posTexture;
 
-                                 uniform vec2 screenSize;
-                                 uniform vec2 viewPos;
+                                 INT uniform vec2 screenSize;
+                                 INT uniform vec2 viewPos;
 
                                  struct PointLight {
-                                    vec3 position;
-                                    vec4 color;
-                                    int ready;
-                                    float radius;
+                                    FLOAT vec3 position;
+                                    FLOAT vec4 color;
+                                    INT int ready;
+                                    FLOAT float radius;
                                  };
 
                                  struct DirectionalLight {
-                                    vec4 color;
+                                    FLOAT vec4 color;
                                  };
 
-                                 const int MAX_LIGHTS = 32;
+                                 const INT int MAX_LIGHTS = 32;
 
                                  uniform PointLight light[MAX_LIGHTS];
                                  uniform DirectionalLight dlight;
                                  void main() {
 
-                                    vec4 hdrColor = texture(screenTexture, TexCoords);
-                                    vec4 pos = texture(posTexture, TexCoords);
-                                    vec3 result = dlight.color.rgb*hdrColor.rgb;
+                                    FLOAT vec4 hdrColor = texture(screenTexture, TexCoords);
+                                    FLOAT vec4 pos = texture(posTexture, TexCoords);
+                                    FLOAT vec3 result = dlight.color.rgb*hdrColor.rgb;
                                     
-                                    for(int i = 0; i < MAX_LIGHTS; i++){
-                                        vec3 dir = vec3(1);
+                                    for(INT int i = 0; i < MAX_LIGHTS; i++){
+                                        FLOAT vec3 dir = vec3(1);
                                         if(light[i].ready == 1) {
-                                        dir = normalize(light[i].position - pos.rgb);
+                                            dir = normalize(light[i].position - pos.rgb);
                                         }
-                                        float ambientStrength = 0.2f;
-                                        vec3 ambient = ambientStrength * light[i].color.rgb;
-        
-                                        vec3 norm = normalize(vec3(0,0,1));
-        
-                                        float diff = max(dot(norm, dir), 0.0);
-                                        vec3 diffuse = diff * light[i].color.rgb;
-                                        BrightColor = vec4(0,0,0,1);
-                                        float distance    = length(light[i].position - pos.rgb);
-                                        float attenuation = 1.0f / (0.9 * distance + 0.0032 * (distance * distance));
-                                        result += (ambient*attenuation*255 + diffuse*attenuation*255)*hdrColor.rgb;
+                                        FLOAT float ambientStrength = 0.2f;
+                                        FLOAT vec3 ambient = ambientStrength * light[i].color.rgb;
+                                        
+                                        FLOAT vec3 norm = normalize(vec3(0,0,1));
+                                        
+                                        FLOAT float diff = max(dot(norm, dir), 0.0);
+                                        FLOAT vec3 diffuse = diff * light[i].color.rgb;
+                                        FLOAT float distance    = length(light[i].position - pos.rgb);
+                                        FLOAT float attenuation = 1.0f / (0.9f * distance + 0.0032f * (distance * distance));
+                                        result += (ambient*attenuation*255.0f + diffuse*attenuation*255.0f)*hdrColor.rgb;
                                     }
+                                    BrightColor = vec4(0,0,0,1);
                                     FragColor = vec4(result ,1);
                                     //FragColor = vec4(1);
     
-                                    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+                                    FLOAT float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
                                     if(brightness >= 0.5)
                                     BrightColor = vec4(FragColor.rgb, 1.0);
                                  });
                                  
-                    std::string light_fragment_no_light = S(
+                    std::string light_fragment_no_light = STRING(
+                            #if OPENGL_ES == 1
+        precision highp float;
+
+        #endif
                                  layout (location = 0) out vec4 FragColor;
                                  layout (location = 1) out vec4 BrightColor;
 
@@ -234,28 +244,45 @@ void ShaderLibrary::loadShaders() {
                                    
                                     FragColor = hdrColor;
   
-                                 });                 
+                                 });     
 
-    std::string simple_fragment = S(
-                                  out vec4 FragColor;
-                                  in vec2 TexCoords;
+    std::string simple_vertex = STRING(
+                                layout(location = 0) in vec2 position;
+                                layout(location = 1) in vec2 texCoords;
+                                out vec2 TexCoords;
+                                 layout (std140) uniform shader_data
+                                { 
+                                    mat4 FM_V;
+                                    mat4 FM_P;
+                                    mat4 FM_VP;
+                                    int render_mode;
+                                    };
+                                void main(){
+                                    gl_Position = vec4(position, 0.0f, 1.0f);
+                                    TexCoords = texCoords;
+                                });            
+
+    std::string simple_fragment = STRING(
+
+                                  FLOAT out vec4 FragColor;
+                                  FLOAT in vec2 TexCoords;
                                   uniform sampler2D screenTexture;
                                   uniform sampler2D bloomBlur;
 
-                                  uniform vec2 screenSize;
-                                  uniform vec2 viewPos;
+                                  INT uniform vec2 screenSize;
+                                  INT uniform vec2 viewPos;
                                   void main(){
-                                    const float gamma = 2.2;
-                                    const float exposure = 1;
-                                    vec4 hdrColor = texture(screenTexture, TexCoords);
-                                    vec4 bloomColor = texture(bloomBlur, TexCoords);
-                                    vec4 result = hdrColor - bloomColor;
+                                    const FLOAT float gamma = 2.2f;
+                                    const FLOAT float exposure = 1.0f;
+                                    FLOAT vec4 hdrColor = texture2D(screenTexture, TexCoords);
+                                    FLOAT vec4 bloomColor = texture2D(bloomBlur, TexCoords);
+                                    FLOAT vec4 result = hdrColor - bloomColor;
                                     FragColor = vec4(hdrColor.rgb, 1);
                                     //FragColor = vec4(1);
 
                                   });
 
-    std::string default_vertex = S(
+    std::string default_vertex = STRING(
                                  layout(location = 0) in vec2 position;
                                  layout(location = 1) in vec2 texCoords;
                                  uniform mat4 FM_M;
@@ -278,7 +305,11 @@ void ShaderLibrary::loadShaders() {
                                  ourPosition = (FM_M*screenPos).xyz;
                                  });
 
-    std::string default_fragment = S(
+    std::string default_fragment = STRING(
+            #if OPENGL_ES == 1
+        precision highp float;
+
+        #endif
                                    layout (location = 0) out vec4 FragColor;
                                    layout (location = 1) out vec4 BrightColor;
                                    layout (location = 2) out vec4 posTexture;
@@ -310,7 +341,7 @@ void ShaderLibrary::loadShaders() {
                                        
 
 
-    std::string default_vertex_sprite = S(
+    std::string default_vertex_sprite = STRING(
                                         layout(location = 0) in vec2 position;
                                         layout(location = 1) in vec2 texCoords;
 
@@ -336,7 +367,11 @@ void ShaderLibrary::loadShaders() {
                                         ourTexCoord = texCoords;
                                         });
 
-    std::string default_fragment_sprite = S(
+    std::string default_fragment_sprite = STRING(
+            #if OPENGL_ES == 1
+        precision highp float;
+
+        #endif
                                           layout (location = 0) out vec4 FragColor;
                                           layout (location = 1) out vec4 BrightColor;
                                           layout (location = 2) out vec4 posTexture;
@@ -365,7 +400,7 @@ void ShaderLibrary::loadShaders() {
                                           }
                                           });
 
-    std::string default_vertex_particle = S(
+    std::string default_vertex_particle = STRING(
         
         layout (location = 0) in vec4 vertex;
         uniform mat4 view;
@@ -388,7 +423,10 @@ void ShaderLibrary::loadShaders() {
             ourColor = particleColor;
         });
 
-    std::string default_fragment_particle = S(
+    std::string default_fragment_particle = STRING(
+                #if OPENGL_ES == 1
+        precision highp float;
+        #endif
                                             in vec4 ourColor;
                                             in vec2 ourTexCoord;
                                             uniform sampler2D texture2d;
@@ -400,18 +438,18 @@ void ShaderLibrary::loadShaders() {
 
     fm::ResourcesManager::get().loadShader("light", simple_vertex, light_fragment);
     fm::ResourcesManager::get().loadShader("no_light", simple_vertex, light_fragment_no_light);
-
+  
     fm::ResourcesManager::get().loadShader("blur", simple_vertex, blur_fragment);
     fm::ResourcesManager::get().loadShader("text", text_vertex, text_fragment);
     fm::ResourcesManager::get().loadShader("instancing", instancing_vertex, instancing_fragment);
     fm::ResourcesManager::get().loadShader("default", default_vertex, default_fragment);
     fm::ResourcesManager::get().loadShader("simple", simple_vertex, simple_fragment);
-    fm::ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
-    fm::ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
+    //fm::ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
+    //fm::ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
     
         std::shared_ptr<fm::Shader> s = fm::ResourcesManager::get().getShader("simple");
     s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
-
+  
     std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
     

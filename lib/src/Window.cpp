@@ -9,6 +9,9 @@
 #include "Components/CMesh.h"
 #include "Resource/RFont.h"
 #include "Rendering/ShaderLibrary.h"
+#include <SDL2/SDL.h>
+#include <iostream>
+#include "Core/Config.h"
 using namespace fm;
 int Window::width;
 int Window::height;
@@ -20,35 +23,43 @@ Window::Window(int width, int height, const std::string& name) {
     Window::width = width;
     Window::height = height;
 
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    // Create a GLFWwindow object that we can use for GLFW's functions
-    window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+    SDL_Init(SDL_INIT_EVERYTHING);
+#if OPENGL_CORE == 1
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#elif OPENGL_ES == 1
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
+
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+
+    window = SDL_CreateWindow(
+        name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
     init(window);
 
     createShaders();
     ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
-    
-    glfwSetWindowSizeCallback(window, window_size_callback);
-    fm::InputManager::getInstance().init(this->window);
 }
 
 void Window::setMSAA(int value) {
-    glfwWindowHint(GLFW_SAMPLES, value);
-    glEnable(GL_MULTISAMPLE);  
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, value);
 }
 
-void Window::setName(const std::string &name) {
+void Window::setName(const std::string& name) {
     this->nameWindow = name;
-    glfwSetWindowTitle(window, name.c_str());
+    SDL_SetWindowTitle(window, name.c_str());
 }
 
 void Window::createShaders() {
-    //Create, load and set textures shader
+    // Create, load and set textures shader
     ShaderLibrary::loadShaders();
-
 
     // Initialize all the shapes
     for(int i = 0; i < fmc::SHAPE::LAST_SHAPE; ++i) {
@@ -57,34 +68,32 @@ void Window::createShaders() {
     }
 }
 
-
 void Window::update(float fps) {
-
-    events();
+    // events();
     this->fpsMax = fps;
     wait_time = 1.0f / (float)fpsMax;
     frameLimit(fps);
+    fm::InputManager::getInstance().pollEvents();
 }
 
 void Window::frameLimit(unsigned short fps) {
 
-    curr_frame_time = glfwGetTime() - frame_start;
-    double dur = 1000.0 * (wait_time - curr_frame_time) + 0.5;
+    curr_frame_time = SDL_GetTicks() - frame_start;
+    double dur = (wait_time * 1000 - curr_frame_time);
     if(dur > 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
     }
 
-    double frame_end = glfwGetTime();
-    Time::dt = frame_end - frame_start;
+    double frame_end = SDL_GetTicks();
+    Time::dt = (frame_end - frame_start) / 1000.0f;
     Time::timeStamp += Time::dt;
     frame_start = frame_end;
 }
 
-
 void Window::swapBuffers() {
-    //At the end of the current frame check if an error occured
+    // At the end of the current frame check if an error occured
     errorDisplay();
-    glfwSwapBuffers(window);
+    SDL_GL_SwapWindow(window);
 }
 
 void Window::errorDisplay() {
@@ -96,24 +105,26 @@ void Window::errorDisplay() {
 }
 
 bool Window::isClosed() {
-    return glfwWindowShouldClose(window);
-}
-
-void Window::events() {
-    glfwPollEvents();
+    return InputManager::getInstance().isClosed();
 }
 
 Window::~Window() {
-    glfwTerminate();
+    SDL_GL_DeleteContext(mainContext);
+
+    // Destroy our window
+    SDL_DestroyWindow(window);
+
+    // Shutdown SDL 2
+    SDL_Quit();
 }
 
-int Window::init(GLFWwindow* window) {
+int Window::init(SDL_Window* window) {
     if(window == nullptr) {
 
-        glfwTerminate();
+        // glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
+    mainContext = SDL_GL_CreateContext(window);
     glewExperimental = GL_TRUE;
 
     if(glewInit() != GLEW_OK) {
@@ -130,5 +141,3 @@ int Window::init(GLFWwindow* window) {
 
     return 1;
 }
-
-

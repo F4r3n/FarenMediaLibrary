@@ -11,6 +11,7 @@
 #include "Profiler/Profile.hpp"
 #include "Profiler/Profiler.hpp"
 #include "Profiler/ProfilerMacro.h"
+#include "Core/Config.h"
 using namespace fm;
 Engine::Engine() {
 }
@@ -26,7 +27,7 @@ void Engine::run(Window& window) {
     while(!window.isClosed()) {
 
         window.update(60);
-        
+        //std::cout << fm::Time::dt << std::endl;
         update(fm::Time::dt);
         
         window.swapBuffers();
@@ -44,11 +45,16 @@ void Engine::run(Window& window) {
 }
 
 void Engine::start() {
-    systems.addSystem(new fms::PhysicSystem());
-    systems.addSystem(new fms::ScriptManagerSystem());
 
+#ifdef PHYSIC_SYSTEM
+    systems.addSystem(new fms::PhysicSystem());
     systems.getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
+#endif
+
+#ifdef SCRIPT_SYSTEM
+    systems.addSystem(new fms::ScriptManagerSystem());
     systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
+#endif
 }
 
 Entity* Engine::getMainCamera() {
@@ -63,7 +69,7 @@ void Engine::init() {
     systems.addSystem(new fms::SoundSystem());
 
     camera = fm::Engine::createEntity();
-    fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::DEFERRED));
+    fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
