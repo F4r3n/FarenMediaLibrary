@@ -25,5 +25,5 @@ compiler :
 script : 
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake .. -DBUILD_SHARED=ON
   - make
