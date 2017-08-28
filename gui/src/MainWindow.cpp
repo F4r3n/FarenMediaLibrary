@@ -78,6 +78,8 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fmc::CIdentity* identity = cameraEditor->addComponent<fmc::CIdentity>();
     identity->name = "CameraEditor";
     identity->display = false;
+        fmc::Body2D *b = cameraEditor->addComponent<fmc::Body2D>(new fmc::Body2D(100,100, true));
+
     //cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
     engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
 }

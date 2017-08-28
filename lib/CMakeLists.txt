@@ -4,70 +4,99 @@ project(${PROJECT_NAME} CXX)
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++14 -g -Wall -O3")
-
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g -Wall -O3")
+set(FML_PATH ${CMAKE_SOURCE_DIR})
+set(FML_EXTLIB ${FML_PATH}/extlib) 
+set(FML_EXTLIB_LIB ${FML_PATH}/build/)
+option(FML_BUILD_STATIC ON)
+option(FML_BUILD_SHARED OFF)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
 include_directories(include)
 
-find_package(GLEW REQUIRED)
+
+if(EMSCRIPTEN)
+	add_definitions(-DEMSCRIPTEN)
+	set(FML_BUILD_STATIC ON CACHE BOOL "" FORCE)
+	set(FML_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+	set(LINK_FLAGS "${LINK_FLAGS} -s USE_SDL=2")
+else(EMSCRIPTEN)
+
+endif(EMSCRIPTEN)
+
+#OPENGL
 find_package(OpenGL REQUIRED)
-find_package(Lua 5.3 REQUIRED)
-find_package(Box2D REQUIRED)
-if(UNIX)
-FIND_PACKAGE( PkgConfig REQUIRED )
-pkg_search_module( GLFW3 3.3 REQUIRED glfw3 ) 
-find_package(SDL2 REQUIRED sdl2)
-endif(UNIX)
-if(WIN32)
 
-#find_package(GLFW3 3.3 REQUIRED glfw3)
+#OPENAL
+find_package(OpenAL REQUIRED)
+link_directories(${OPENAL_LIBRARIES_DIR})
+include_directories(${OPENAL_INCLUDE_DIR})
 
-endif(WIN32)
+#SDL2
+include_directories(${FML_EXTLIB}/SDL2/include)
+link_directories(${FML_EXTLIB_LIB}/SDL2)
 
+#GLEW
+include_directories(${FML_EXTLIB}/glew/include)
+link_directories(${FML_EXTLIB_LIB}/glew)
 
-set( SOL_INCLUDE_DIR "../extlib/sol2")
-set( STB_INCLUDE_DIR "../extlib/stb")
-set( GLM_INCLUDE_DIR "../extlib/glm")
-set( JSON_INCLUDE_DIR ../extlib/rapidjson/include)
+#sol2
+include_directories(${FML_EXTLIB}/sol2)
 
-set( ENTITY_INCLUDE_DIR "../extlib/ECS")
+#STB
+include_directories(${FML_EXTLIB}/stb)
 
-set(FREETYPE_INCLUDE_DIR "../extlib/freetype2/include")
-set(FREETYPE_LIBRARY_DIR "../extlib/freetype2/build")
-set(IMGUI_INCLUDE_DIR "../extlib/imgui")
+#RAPID_JSON
+include_directories(${FML_EXTLIB}/rapidjson/include)
 
-#include_directories(${GLFW3_INCLUDE_DIR} )
-include_directories(${ENTITY_INCLUDE_DIR}/lib/include )
-include_directories(${SOL_INCLUDE_DIR})
-include_directories(${STB_INCLUDE_DIR})
-include_directories(${LUA_INCLUDE_DIR})
-include_directories(${GLEW_INCLUDE_DIR})
-include_directories(${GLM_INCLUDE_DIR})
-include_directories(${FREETYPE_INCLUDE_DIR})
-include_directories(${BOX2D_INCLUDE_DIR})
-include_directories(${IMGUI_INCLUDE_DIR})
-include_directories(${JSON_INCLUDE_DIR})
-include_directories(${SDL2_INCLUDE_DIR})
+#ECS
+include_directories(${FML_EXTLIB}/ECS/lib/include)
+link_directories(${FML_EXTLIB_LIB}/ECS)
 
-link_directories(${FREETYPE_LIBRARY_DIR} freetype)
-link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
+#FREETYPE
+include_directories(${FML_EXTLIB}/freetype2/include)
+link_directories(${FML_EXTLIB_LIB}/freetype2)
 
+#LUA
+include_directories(${FML_EXTLIB}/lua-5.3.3/src)
+link_directories(${FML_EXTLIB_LIB}/lua)
 
+if(FML_BUILD_STATIC)
+set(LIB_NAME ${PROJECT_NAME}_s)
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
-if(CMAKE_COMPILER_IS_GNUCXX)
-	target_link_libraries(${PROJECT_NAME} gcc gcc_s stdc++)
-endif(CMAKE_COMPILER_IS_GNUCXX)
-string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
-MESSAGE(STATUS ${SDL2_LIBRARIES})
+	add_library(${LIB_NAME} STATIC ${SOURCES})
+	target_link_libraries(${LIB_NAME} freetype)
+	target_link_libraries(${LIB_NAME} ECS)
+	target_link_libraries(${LIB_NAME} lua)
+	target_link_libraries(${LIB_NAME} SDL2)
+	target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
+	target_link_libraries(${LIB_NAME} glew)
+	target_link_libraries(${LIB_NAME} openal)
+	target_link_libraries(${LIB_NAME} Box2D)
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		target_link_libraries(${LIB_NAME} gcc_s stdc++)
+	endif(CMAKE_COMPILER_IS_GNUCXX)
+endif(FML_BUILD_STATIC)
 
-target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} ${SDL2_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ECS freetype openal sndfile)
+if(FML_BUILD_SHARED)
+set(LIB_NAME ${PROJECT_NAME})
 
+	add_library(${LIB_NAME} SHARED ${SOURCES})
+	target_link_libraries(${LIB_NAME} freetype)
+	target_link_libraries(${LIB_NAME} ECS)
+	target_link_libraries(${LIB_NAME} lua_shared)
+	target_link_libraries(${LIB_NAME} SDL2)
+	target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES})
+	target_link_libraries(${LIB_NAME} glew)
+	target_link_libraries(${LIB_NAME} openal)
+	target_link_libraries(${LIB_NAME} Box2D_shared)
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		target_link_libraries(${LIB_NAME} gcc stdc++)
+	endif(CMAKE_COMPILER_IS_GNUCXX)
+endif(FML_BUILD_SHARED)
 
-
+#INSTALL( DIRECTORY ${LIB_NAME} DESTINATION /usr/local/lib/fml/ )
 
 
 

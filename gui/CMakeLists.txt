@@ -1,3 +1,8 @@
+cmake_minimum_required(VERSION 3.5)
+set(PROJECT_NAME "FarenEngine")
+project(${PROJECT_NAME})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
+
 file(GLOB SOURCES "src/*.cpp")
 
 
@@ -7,17 +12,11 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Lua 5.3 REQUIRED)
 find_package(Box2D REQUIRED)
-find_package(SDL2 REQUIRED sdl2)
-if(UNIX)
-FIND_PACKAGE( PkgConfig REQUIRED )
-pkg_search_module( GLFW3 3.3 REQUIRED glfw3 )
+include(FindPkgConfig)
+pkg_search_module(SDL2 REQUIRED sdl2)
+include_directories(${SDL2_INCLUDE_DIRS})
 
 
-endif(UNIX)
-if(WIN32)
-
-find_package(GLFW3 3.3 REQUIRED glfw3)
-endif(WIN32)
 
 set( FML_PATH "../")
 set( SOL_INCLUDE_DIR ${FML_PATH}extlib/sol2)
@@ -31,32 +30,22 @@ set(FREETYPE_INCLUDE_DIR ${FML_PATH}extlib/freetype2/include)
 set(FREETYPE_LIBRARY_DIR ${FML_PATH}extlib/freetype2/build)
 
 include_directories(${JSON_INCLUDE_DIR})
-include_directories(${GLFW3_INCLUDE_DIR} )
+
 include_directories(${ENTITY_INCLUDE_DIR}/lib/include )
 include_directories(${SOL_INCLUDE_DIR})
 include_directories(${STB_INCLUDE_DIR})
-include_directories(${LUA_INCLUDE_DIR})
 include_directories(${GLEW_INCLUDE_DIR})
-include_directories(${GLM_INCLUDE_DIR})
-include_directories(${FREETYPE_INCLUDE_DIR})
-include_directories(${BOX2D_INCLUDE_DIR})
 include_directories(${IMGUI_INCLUDE_DIR})
-
+include_directories(${FML_PATH}/extlib/imgui)
 include_directories(${FML_PATH}/lib/include)
 include_directories(include)
-link_directories(${FREETYPE_LIBRARY_DIR} freetype)
+
 link_directories(${ENTITY_INCLUDE_DIR}/build/lib)
-link_directories(${FML_PATH}/build/lib)
+link_directories(${FML_PATH}build/lib)
 
-
-include_directories(${FML_PATH}/extlib/imgui)
-string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-
-target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} 
-	${GLFW3_LIBRARIES} ${BOX2D_LIBRARIES}  ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES}
-	${GLEW_LIBRARY} ECS freetype openal sndfile FarenMediaLibrary)
+target_link_libraries(${PROJECT_NAME}  FarenMediaLibrary )
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)
 

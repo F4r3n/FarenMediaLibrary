@@ -9,7 +9,7 @@
 #include "Components/CMesh.h"
 #include "Resource/RFont.h"
 #include "Rendering/ShaderLibrary.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include "Core/Config.h"
 using namespace fm;

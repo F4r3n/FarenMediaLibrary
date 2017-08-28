@@ -1,7 +1,9 @@
+#ifndef __EMSCRIPTEN__
 #include "Profiler/Profiler.hpp"
+
 #include "Profiler/Profile.hpp"
 
-#include <iostream>
+
 Profiler Profiler::instance;
 Profiler::Profiler() {
 }
@@ -16,3 +18,4 @@ void Profiler::addProfile(Profile *profile) {
 
     mutex.unlock();
 }
+#endif

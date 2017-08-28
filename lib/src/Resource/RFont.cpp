@@ -1,3 +1,6 @@
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "Resource/RFont.h"
 #include <iostream>
 #include <algorithm>

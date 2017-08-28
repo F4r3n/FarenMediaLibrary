@@ -3,7 +3,7 @@
 #include <map>
 #include "Core/Math/Vector2.h"
 #include "NonCopyable.h"
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 namespace fm
 {
 

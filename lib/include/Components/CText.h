@@ -1,8 +1,7 @@
 #pragma once
-#include <ft2build.h>
-#include FT_FREETYPE_H
+
 #include <unordered_map>
-#include <GL/glew.h>
+
 #include <Component.h>
 #include "Core/Color.h"
 

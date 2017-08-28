@@ -32,7 +32,7 @@ public:
     static const std::string name;
 private:
     
-    std::vector<uint16_t> data;
-    std::array<int16_t, 4096> read_buf;
+    //std::vector<uint16_t> data;
+    //std::array<int16_t, 4096> read_buf;
 };
 }

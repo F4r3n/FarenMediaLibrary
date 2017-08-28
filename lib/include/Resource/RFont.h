@@ -1,7 +1,6 @@
 #pragma once
 #include <unordered_map>
-#include <ft2build.h>
-#include FT_FREETYPE_H
+
 #include <GL/glew.h>
 #include <Component.h>
 #include "Core/Math/Vector2.h"
