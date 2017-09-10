@@ -1,6 +1,9 @@
 #pragma once
+#ifdef __EMSCRIPTEN__
 #include <Box2D/Common/b2Math.h>
-
+#else
+#include <Box2D/Common/b2Math.h>
+#endif
 namespace fm {
 namespace math {
     template <typename T, std::size_t size> struct vec;

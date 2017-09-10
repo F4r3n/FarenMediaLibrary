@@ -1,5 +1,5 @@
 #pragma once
-#include "Rendering/Shader.h"
+#include "Resource.h"
 #include "Rendering/Texture.h"
 #include <unordered_map>
 #include <array>
@@ -7,6 +7,7 @@
 #include "NonCopyable.h"
 #include "Components/CMesh.h"
 namespace fm {
+    class Shader;
 class MeshData {
 public:
     MeshData() {
@@ -19,7 +20,9 @@ public:
     }
     ~MeshData() {
         if(VAO != 0) {
+            #if OPENGL_ES_VERSION > 2
             glDeleteVertexArrays(1, &VAO);
+            #endif
             glDeleteBuffers(1, &VBO);
             glDeleteBuffers(1, &EBO);
         }

@@ -1,6 +1,17 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <GL/glew.h>
+#ifdef __EMSCRIPTEN__
+#define USE_GLEW 0
+#endif
+
+#ifndef USE_GLEW
+#include "GL/glew.h"
+#endif
+
+
+#ifdef USE_GLEW
+#include "SDL/SDL_opengl.h"
+#endif
 
 #include "Components/CText.h"
 #include "Window.h"

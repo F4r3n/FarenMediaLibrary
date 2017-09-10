@@ -1,6 +1,6 @@
 #pragma once
-//TODO forward mode
-#include <GL/glew.h>
+
+#include <Core/Config.h>
 #include "Rendering/Texture.h"
 
 namespace fm {

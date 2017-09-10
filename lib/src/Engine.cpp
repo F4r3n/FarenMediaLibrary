@@ -12,6 +12,10 @@
 #include "Profiler/Profiler.hpp"
 #include "Profiler/ProfilerMacro.h"
 #include "Core/Config.h"
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 using namespace fm;
 Engine::Engine() {
 }
@@ -19,29 +23,41 @@ Engine::Engine() {
 Engine::~Engine() {
 }
 
+
+
 void Engine::run(Window& window) {
     fm::Window::setMSAA(0);
-
     auto start = std::chrono::system_clock::now();
 
-    while(!window.isClosed()) {
+//#ifdef __EMSCRIPTEN__
+//    emscripten_set_main_loop_arg(loop,&window, 0, true);
+//#else
+   while(!window.isClosed()) {
 
-        window.update(60);
+       loop(&window);
+    }
+//#endif
+
+    
+}
+
+void Engine::loop(void* window) {
+         ((Window *)window)->update(60);
         //std::cout << fm::Time::dt << std::endl;
         update(fm::Time::dt);
         
-        window.swapBuffers();
+        ((Window *)window)->swapBuffers();
 
         numberFramesTimer++;
         if(numberFramesTimer == 200) {
-            auto end = std::chrono::system_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            float time = elapsed.count() / (float)numberFramesTimer;
-            start = end;
-            std::cout << "Time per frame " << time << " ms" << std::endl;
+           // auto end = std::chrono::system_clock::now();
+           // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+           // float time = elapsed.count() / (float)numberFramesTimer;
+           // start = end;
+           // std::cout << "Time per frame " << time << " ms" << std::endl;
             numberFramesTimer = 0;
         }
-    }
+    
 }
 
 void Engine::start() {
@@ -74,8 +90,11 @@ void Engine::init() {
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
     //cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;
+
     fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
+
     renderer->setCamera(camera);
+
     systems.init(EntityManager::get(), EventManager::get());
 }
 

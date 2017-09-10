@@ -59,8 +59,12 @@ include_directories(${FML_EXTLIB}/freetype2/include)
 link_directories(${FML_EXTLIB_LIB}/freetype2)
 
 #LUA
-include_directories(${FML_EXTLIB}/lua-5.3.3/src)
+include_directories(${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
+
+#BOX2D
+include_directories(${FML_EXTLIB}/Box2D/)
+link_directories(${FML_EXTLIB_LIB}/Box2D)
 
 if(FML_BUILD_STATIC)
 set(LIB_NAME ${PROJECT_NAME}_s)

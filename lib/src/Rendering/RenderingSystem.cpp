@@ -57,20 +57,25 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
 
     for(auto shader : fm::ResourcesManager::get().getAllShaders()) {
         shader.second->Use();
+
         glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointIndex, generatedBlockBinding);
         glUniformBlockBinding(
-            shader.second->Program, glGetUniformBlockIndex(shader.second->Program, "shader_data"), bindingPointIndex);
+        shader.second->Program, glGetUniformBlockIndex(shader.second->Program, "shader_data"), bindingPointIndex);
+
     }
+    
 }
 
 RenderingSystem::~RenderingSystem() {
 }
 
 void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
+    #ifndef __EMSCRIPTEN__
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &camera->shader_data, sizeof(camera->shader_data));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
+    #endif
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager& event) {
@@ -84,8 +89,9 @@ void RenderingSystem::setCamera(Entity* camera) {
     cam->viewMatrix = fm::math::mat();
     view(cam->viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation);
     this->camera = camera;
-
+#if OPENGL_ES_VERSION > 2
     initUniformBufferCamera(cam);
+#endif
     fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
     fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
     lightRenderTexture = std::make_shared<fm::RenderTexture>(
@@ -136,8 +142,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
     cam->shader_data.FM_P = cam->projection;
     cam->shader_data.FM_V = cam->viewMatrix;
+    #if OPENGL_ES_VERSION > 2
     updateUniformBufferCamera(cam);
-
+#endif
     // PROFILER_START(Rendering)
     // PROFILER_START(RenderingSort)
 

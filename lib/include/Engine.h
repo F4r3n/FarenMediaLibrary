@@ -6,7 +6,6 @@
 
 namespace fm
 {
-    
   
 class Engine
 {
@@ -31,7 +30,9 @@ public:
     
     void setMainCamera();
     Entity* getMainCamera();
-private:
+    void loop(void *window);
+
+    private:
     SystemManager systems;
     Speaker speaker;
     Listener listener;

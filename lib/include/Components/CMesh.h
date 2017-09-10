@@ -2,7 +2,21 @@
 #include <string>
 #include <vector>
 #include "Core/Math/Vector2.h"
-#include <GL/glew.h>
+/*#ifndef __EMSCRIPTEN__
+#define USE_GLEW 0
+#endif
+
+#if USE_GLEW
+#include "GL/glew.h"
+#endif
+
+#include "SDL/SDL.h"
+#include "SDL/SDL_image.h"
+#if !USE_GLEW
+#include "SDL/SDL_opengl.h"
+#endif*/
+#include <Core/Config.h>
+
 #include <Component.h>
 #include "Core/Color.h"
 #include "Core/Bounds.h"

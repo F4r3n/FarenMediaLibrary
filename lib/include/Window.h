@@ -1,22 +1,18 @@
 #pragma once
-// GLEW
-//#define GLEW_STATIC
-#include <GL/glew.h>
-// GLFW
+
 #include <SDL.h>
-//#include <GLFW/glfw3.h>
-//#include <iostream>
+
 #include <string>
 #include "NonCopyable.h"
 
 namespace fm {
-class Window : public fm_system::NonCopyable {
+class Window   {
     friend class InputManager;
 
 public:
     Window(int width, int height, const std::string& name);
     ~Window();
-
+    Window() {}
     void swapBuffers();
     static void setMSAA(int value);
     bool isClosed();
@@ -35,7 +31,7 @@ public:
     static int x;
     static int y;
 private:
-   
+    bool isInit = false;
     int init(SDL_Window* window);
     void createShaders();
     void errorDisplay();

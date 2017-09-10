@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 
-#include <GL/glew.h>
+#include <Core/Config.h>
 #include <Component.h>
 #include "Core/Math/Vector2.h"
 #include "Resource/Resource.h"

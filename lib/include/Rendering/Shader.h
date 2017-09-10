@@ -4,7 +4,7 @@
 #include <sstream>
 
 
-#include <GL/glew.h>
+#include <Core/Config.h>
 
 #include "Resource/Resource.h"
 #include "Core/Math/Vector2.h"

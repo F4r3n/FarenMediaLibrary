@@ -6,17 +6,20 @@
 #include "Core/Rect.h"
 namespace fmc {
 
+enum RENDER_MODE {
+    FORWARD,
+    DEFERRED
 
-enum RENDER_MODE { FORWARD, DEFERRED };
+};
 
 struct Shader_data {
     fm::math::mat FM_V;
     fm::math::mat FM_P;
     fm::math::mat FM_PV;
-    int render_mode = fmc::RENDER_MODE::DEFERRED;
+    int render_mode = fmc::RENDER_MODE::FORWARD;
 };
 class CCamera : public Component<CCamera> {
-    public:
+public:
     bool isOrthographic() {
         return isOrto;
     }
@@ -24,7 +27,7 @@ class CCamera : public Component<CCamera> {
     float getFarPlane() {
         return farPlane;
     }
-    
+
     float getNearPlane() {
         return nearPlane;
     }
@@ -33,7 +36,7 @@ class CCamera : public Component<CCamera> {
     }
     CCamera(int width, int height, fmc::RENDER_MODE mode) {
         isOrto = true;
-        //projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
+        // projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, nearPlane, farPlane);
         viewPort.w = width;
         viewPort.h = height;
@@ -46,8 +49,11 @@ class CCamera : public Component<CCamera> {
         shader_data.render_mode = mode;
         if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
-
+#if OPENGL_ES_VERSION > 2
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
+#else
+            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+#endif
             renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
         } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
@@ -64,7 +70,7 @@ class CCamera : public Component<CCamera> {
 
     void setNewProjection(unsigned int width, unsigned int height) {
         isOrto = true;
-                farPlane = 100.0f;
+        farPlane = 100.0f;
 
         projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, nearPlane, farPlane);
         viewPort.w = width;
@@ -85,7 +91,11 @@ class CCamera : public Component<CCamera> {
                 if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                     fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 
+#if OPENGL_ES_VERSION > 2
                     fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
+#else
+                    fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+#endif
                     renderTexture = std::make_shared<fm::RenderTexture>(viewPort.w, viewPort.h, 3, formats, types, 24);
                 } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
                     fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
@@ -99,7 +109,8 @@ class CCamera : public Component<CCamera> {
 
     void setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
         isOrto = true;
-        projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, nearPlane, farPlane);
+        projection =
+            fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, nearPlane, farPlane);
         viewPort.w = width;
         viewPort.h = height;
         viewPort.x = x;
@@ -110,7 +121,11 @@ class CCamera : public Component<CCamera> {
         if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 
+#if OPENGL_ES_VERSION > 2
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
+#else
+            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+#endif
             renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
         } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
@@ -131,7 +146,8 @@ class CCamera : public Component<CCamera> {
 
     Shader_data shader_data;
     std::shared_ptr<fm::RenderTexture> renderTexture = nullptr;
-    private: 
+
+private:
     bool isOrto = false;
     float farPlane = 100.0f;
     float nearPlane = 0.0f;

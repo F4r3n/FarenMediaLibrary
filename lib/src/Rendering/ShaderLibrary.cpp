@@ -1,3 +1,4 @@
+#include "Rendering/Shader.h"
 #include "Rendering/ShaderLibrary.h"
 #include "Core/Config.h"
 
@@ -435,8 +436,18 @@ void ShaderLibrary::loadShaders() {
                                             void main(){
                                             FragColor = texture(texture2d, ourTexCoord)*ourColor;
                                             });
-
-    fm::ResourcesManager::get().loadShader("light", simple_vertex, light_fragment);
+/*#if OPENGL_ES_VERSION == 2
+    fm::ResourcesManager::get().loadShader("no_light", simple_vertex, light_fragment_no_light);
+    fm::ResourcesManager::get().loadShader("default", default_vertex, default_fragment);
+    fm::ResourcesManager::get().loadShader("simple", simple_vertex, simple_fragment);
+    
+    std::shared_ptr<fm::Shader> s = fm::ResourcesManager::get().getShader("simple");
+    s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+    
+    std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("no_light");
+    light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
+#else*/
+fm::ResourcesManager::get().loadShader("light", simple_vertex, light_fragment);
     fm::ResourcesManager::get().loadShader("no_light", simple_vertex, light_fragment_no_light);
   
     fm::ResourcesManager::get().loadShader("blur", simple_vertex, blur_fragment);
@@ -455,6 +466,8 @@ void ShaderLibrary::loadShaders() {
     
     light = fm::ResourcesManager::get().getShader("no_light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
+//#endif
+    
 }
 
 void ShaderLibrary::loadShader(const std::string& name, const std::string &path ) {

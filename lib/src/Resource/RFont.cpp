@@ -49,8 +49,9 @@ RFont::RFont(const std::string& path) {
 
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
+    #if OPENGL_ES_VERSION > 2
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
-
+#endif
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     /* Linear filtering usually looks best for text */
@@ -70,10 +71,10 @@ RFont::RFont(const std::string& path) {
             rowh = 0;
             ox = 0;
         }
-
+ #if OPENGL_ES_VERSION > 2
         glTexSubImage2D(
             GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-
+#endif
         Character character = { fm::math::vec2(g->advance.x >> 6, g->advance.y >> 6),
                                 fm::math::vec2(g->bitmap.width, g->bitmap.rows),
                                 fm::math::vec2(g->bitmap_left, g->bitmap_top),

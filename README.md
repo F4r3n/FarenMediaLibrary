@@ -4,7 +4,7 @@
 # FarenEngine
 
 ### Introduction
-This library enables to create 2D games with lua scripts. The engine uses the ECS system to work.
+This library enables to create 2D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
 
 ![Link image](http://i.imgur.com/sL3IehG.png)
@@ -12,35 +12,36 @@ The image below show the possibilities of the library.
 For the moment, the FarenEngine can :
 + Camera system 
 + Display simple shapes
-+ Light effects
 + Sound
 + Text rendering
 + Physics
 + Lua scripting
++ Forward/Deferred
++ Light effects
 
 ### Installation
 
 
-
-##### Ubuntu System
-To install the project under Ubuntu just go in the main directory and execute the `Setup.sh` which will install all the dependencies.
-Then go inside a `build` directory created and execute the cmake and makefile generated.
-
-#### Other systems
-The other systems should install the dependencies one by one. Most of the dependencies are in submodules.
+To install the whole project:
+```
+mkdir build
+cd build
+cmake .. -DFML_BUILD_SHARED=ON
+make
+```
 
 
 
 ### List of dependencies
 
-The engine needs different libraries to work
-+ sndfile
+The engine needs different libraries to work:
+
 + Box2D
-+ glm
 + glew
 + openal
 + glfw
 + lua 5.3
+The dependencies are all in the folder extlib.
 
 ### How to use it ?
 

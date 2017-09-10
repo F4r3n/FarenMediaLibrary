@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
-#include <GL/glew.h>
-
+#include <Core/Config.h>
 #include "Image.h"
 #include "Core/Rect.h"
 namespace fm {
 
+    #if OPENGL_ES_VERSION > 2
 enum Format {
     RED = GL_R,
     RGB = GL_RGB,
@@ -34,6 +34,26 @@ enum Wrapping {
     MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
     CLAMP_EDGE = GL_CLAMP_TO_EDGE
 };
+#else
+enum Format {
+    RGB = GL_RGB,
+    RGBA = GL_RGBA,
+    DEPTH_16 = GL_DEPTH_COMPONENT16,
+};
+
+enum Type {
+    FLOAT = GL_FLOAT,
+    UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+};
+
+enum Filter { NEAREST = GL_NEAREST, LINEAR = GL_LINEAR };
+
+enum Wrapping {
+    REPEAT = GL_REPEAT,
+    MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
+    CLAMP_EDGE = GL_CLAMP_TO_EDGE
+};
+#endif
 
 class Texture {
 
