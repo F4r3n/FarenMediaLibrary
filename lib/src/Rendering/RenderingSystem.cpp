@@ -21,6 +21,7 @@ using namespace fms;
 #include "Core/Math/Vector3.h"
 #include "Event.h"
 #include "Rendering/RenderingEvent.h"
+
 struct PointText {
     GLfloat x;
     GLfloat y;
@@ -60,27 +61,28 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
 
         glBindBufferBase(GL_UNIFORM_BUFFER, bindingPointIndex, generatedBlockBinding);
         glUniformBlockBinding(
-        shader.second->Program, glGetUniformBlockIndex(shader.second->Program, "shader_data"), bindingPointIndex);
-
+            shader.second->Program, glGetUniformBlockIndex(shader.second->Program, "shader_data"), bindingPointIndex);
     }
-    
 }
 
 RenderingSystem::~RenderingSystem() {
 }
 
 void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
-    #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &camera->shader_data, sizeof(camera->shader_data));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
-    #endif
+#endif
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager& event) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     std::cout << width << " " << height << std::endl;
+    
+    quad = fm::rendering::StandardShapes::CreateQuad();
+    circle = fm::rendering::StandardShapes::CreateCircle();
 }
 
 void RenderingSystem::setCamera(Entity* camera) {
@@ -132,17 +134,16 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         return;
     }
     lightRenderTexture->bind();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    graphics.clear(true, true);
 
     cam->getRenderTexture()->bind();
-    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    graphics.setViewPort(cam->viewPort);
+    graphics.clear(true, true);
 
     cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
     cam->shader_data.FM_P = cam->projection;
     cam->shader_data.FM_V = cam->viewMatrix;
-    #if OPENGL_ES_VERSION > 2
+#if OPENGL_ES_VERSION > 2
     updateUniformBufferCamera(cam);
 #endif
     // PROFILER_START(Rendering)
@@ -163,8 +164,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     // PROFILER_DISPLAY(Draw)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
+    graphics.setViewPort(cam->viewPort);
+    graphics.clear(true, true);
 
     finalShader->Use();
     finalShader->Use()->setVector2f("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
@@ -192,7 +193,7 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
         fmc::CMesh* mesh = node.mesh;
         fm::math::Vector2f worldPos = transform->getWorldPos();
         EventManager::get().emit<CameraInfo>({ node.idEntity, cam });
-        int q = node.queue;
+
         fm::RENDER_QUEUE state = node.state;
         if(state < fm::RENDER_QUEUE::LIGHT) {
             if(mesh) {
@@ -246,7 +247,7 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
             if(!blendingMode) {
                 blendingMode = true;
 
-                glEnable(GL_BLEND);
+                graphics.enable(fm::RENDERING_TYPE::BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             }
             // TODO draw
@@ -280,11 +281,10 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
     }
     if(queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT && !computeLightDone) {
         computeLighting(lightRenderTexture, cam, hasLight);
-        
     }
 
     if(blendingMode) {
-        glDisable(GL_BLEND);
+        graphics.disable(fm::RENDERING_TYPE::BLEND);
     }
     blendingMode = false;
 }
@@ -294,12 +294,12 @@ void RenderingSystem::computeLighting(std::shared_ptr<fm::RenderTexture> lightRe
                                       bool hasLight) {
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
         lightRenderTexture->bind();
-        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
+        graphics.setViewPort(cam->viewPort);
 
         fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), hasLight);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         lightRenderTexture->bind();
-        glViewport(cam->viewPort.x, cam->viewPort.y, cam->viewPort.w, cam->viewPort.h);
+        graphics.setViewPort(cam->viewPort);
 
         fm::Renderer::getInstance().lightComputation(cam->getRenderTexture()->getColorBuffer(), false);
     }

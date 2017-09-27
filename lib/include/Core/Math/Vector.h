@@ -4,6 +4,7 @@
 #else
 #include <Box2D/Common/b2Math.h>
 #endif
+#include <ostream>
 namespace fm {
 namespace math {
     template <typename T, std::size_t size> struct vec;

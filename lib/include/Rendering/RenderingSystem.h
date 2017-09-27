@@ -8,6 +8,8 @@
 #include "Rendering/Shader.h"
 #include "Resource/RFont.h"
 #include "Core/Bounds.h"
+#include "Rendering/Graphics.hpp"
+#include "Rendering/StandardShapes.h"
 namespace fmc {
 class CText;
 class CTransform;
@@ -64,5 +66,9 @@ private:
     int queuePreviousValue = 0;
 
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
+    fm::Graphics graphics;
+    
+    fm::rendering::MeshContainer *quad;
+    fm::rendering::MeshContainer *circle;
 };
 }

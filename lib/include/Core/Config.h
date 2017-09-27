@@ -14,7 +14,7 @@
 #define OPENGL_CORE 0
 #define OPENGL_ES 1
 #if OPENGL_ES == 1
-#define OPENGL_ES_VERSION 2
+#define OPENGL_ES_VERSION 3
 #endif
 
 #if ANDROID == 1
@@ -30,8 +30,8 @@
 #endif
 
 #if USE_GLEW
-//#include "GL/glew.h"
-#include "SDL2/SDL_opengles2.h"
+#include "GL/glew.h"
+//#include "SDL2/SDL_opengles2.h"
 #endif
 
 #if !USE_GLEW
