@@ -58,19 +58,19 @@ void LuaManager::registerComponents() {
                                 );
     registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
     registerComponent<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
-    registerComponent<CMesh>("CMesh",
-    "setShape", &CMesh::setShape,
-    "create", &CMesh::create,
-    "clean", &CMesh::clean,
-    "addVertex", sol::overload(&CMesh::addVertexPositionUV,&CMesh::addVertex, &CMesh::addVertexPositionUVVectors),
-    "removeVertex", &CMesh::removeVertex,
-    "removeVertices", &CMesh::removeVertices,
-    "addIndex", &CMesh::addIndex,
-    "removeIndice", &CMesh::removeIndice,
-    "removeIndices", &CMesh::removeIndices,
-    "update", &CMesh::update,
-    "bounds", &CMesh::bounds
-    );
+    //registerComponent<CMesh>("CMesh",
+    //"setShape", &CMesh::setShape,
+    //"create", &CMesh::create,
+    //"clean", &CMesh::clean,
+    //"addVertex", sol::overload(&CMesh::addVertexPositionUV,&CMesh::addVertex, &CMesh::addVertexPositionUVVectors),
+    //"removeVertex", &CMesh::removeVertex,
+    //"removeVertices", &CMesh::removeVertices,
+    //"addIndex", &CMesh::addIndex,
+    //"removeIndice", &CMesh::removeIndice,
+    //"removeIndices", &CMesh::removeIndices,
+    //"update", &CMesh::update,
+    //"bounds", &CMesh::bounds
+    //);
     registerComponent<Body2D>("Body2D", 
     "applyForceCenter", &Body2D::applyForceCenter2, 
     "setFriction", &Body2D::SetFriction);

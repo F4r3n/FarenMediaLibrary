@@ -9,7 +9,8 @@
 #include "Resource/RFont.h"
 #include "Core/Bounds.h"
 #include "Rendering/Graphics.hpp"
-#include "Rendering/StandardShapes.h"
+#include "Rendering/Model.hpp"
+#include <string>
 namespace fmc {
 class CText;
 class CTransform;
@@ -68,7 +69,11 @@ private:
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
     fm::Graphics graphics;
     
-    fm::rendering::MeshContainer *quad;
-    fm::rendering::MeshContainer *circle;
+    //fm::rendering::MeshContainer *quad;
+    //fm::rendering::MeshContainer *circle;
+    fm::Model *quad;
+    fm::Model *circle;
+    
+    std::unordered_map<std::string, int> meshesID;
 };
 }

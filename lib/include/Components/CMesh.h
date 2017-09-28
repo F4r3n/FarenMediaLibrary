@@ -22,6 +22,7 @@
 #include "Core/Bounds.h"
 
 #include "Serializer.h"
+#include <Rendering/Model.hpp>
 namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE, LAST_SHAPE };
 struct Vertex {
@@ -32,45 +33,27 @@ struct Vertex {
 class CMesh : public Component<CMesh>, public Serializer {
 
 public:
+    CMesh(std::string type);
     CMesh();
-    void setShape(int shape);
     ~CMesh();
 
-    void destroy();
-
-    unsigned int size = 4;
-    GLuint VAO, VBO, EBO;
     static const std::string name;
     int currentShape = -1;
-    
-    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {}
-    void parse(rapidjson::Value &value) override {}
-    void create();
-    inline bool isCreated() {
-        return created;
-    }
-    void update();
-    
-    
-    //Manage indices and vertex
-    void addVertex(const Vertex &vertex);
-    void addVertexPositionUV(float px, float py, float uvx, float uvy);
 
-    void addVertexPositionUVVectors(const fm::math::Vector2f& position, const fm::math::Vector2f& uv = { 0, 0 });
-    void addIndex(unsigned int index);
-    void clean();
-    void removeVertices(unsigned int start, unsigned int end);
-    void removeIndices(unsigned int start, unsigned int end);
-    void removeVertex(unsigned int index);
-    void removeIndice(unsigned int index);
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+    }
+    void parse(rapidjson::Value& value) override {
+    }
+
     void computeBoundingSize();
+    void setType(const std::string &type);
     fm::Bounds bounds;
+    bool IsmodelReady();
+    std::string getModelType() {return type;} 
+        fm::Model* model = nullptr;
 
 private:
-    bool init(SHAPE shape);
-    void createAndRegister();
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> listIndices;
     bool created = false;
+    std::string type = "Quad";
 };
 }

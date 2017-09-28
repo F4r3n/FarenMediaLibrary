@@ -6,29 +6,10 @@
 #include <memory>
 #include "NonCopyable.h"
 #include "Components/CMesh.h"
+#include "Rendering/Model.hpp"
 namespace fm {
     class Shader;
-class MeshData {
-public:
-    MeshData() {
-    }
-    MeshData(unsigned int VAO, unsigned int VBO, unsigned int EBO, unsigned int size) {
-        this->VAO = VAO;
-        this->VBO = VBO;
-        this->EBO = EBO;
-        this->size = size;
-    }
-    ~MeshData() {
-        if(VAO != 0) {
-            #if OPENGL_ES_VERSION > 2
-            glDeleteVertexArrays(1, &VAO);
-            #endif
-            glDeleteBuffers(1, &VBO);
-            glDeleteBuffers(1, &EBO);
-        }
-    }
-    unsigned int VAO, VBO, EBO, size;
-};
+
 
 class ResourcesManager : protected fm_system::NonCopyable {
 
@@ -58,21 +39,25 @@ public:
         return _instance;
     }
 
-    int registerMesh(MeshData* m) {
-        meshes.push_back(std::unique_ptr<MeshData>(m));
+    int registerMesh(fm::Model* m) {
+        meshes.push_back(std::unique_ptr<fm::Model>(m));
         return meshes.size() - 1;
     }
 
-    MeshData* getMeshData(size_t id) {
+    fm::Model* getMeshData(size_t id) {
         if(meshes.size() <= id)
             return nullptr;
         return meshes[id].get();
+    }
+    
+    bool isGenerated(size_t id) {
+        return getMeshData(id)->generated;
     }
 
 private:
     std::array<std::unordered_map<std::string, std::shared_ptr<Resource> >, RESOURCE_TYPE::LAST_RESOURCE> resources;
     std::unordered_map<std::string, std::shared_ptr<Shader> > shaders;
-    std::vector<std::unique_ptr<MeshData> > meshes;
+    std::vector<std::unique_ptr<Model> > meshes;
 
     static ResourcesManager _instance;
 

@@ -72,12 +72,6 @@ void Window::setName(const std::string& name) {
 void Window::createShaders() {
     // Create, load and set textures shader
     ShaderLibrary::loadShaders();
-
-    // Initialize all the shapes
-    for(int i = 0; i < fmc::SHAPE::LAST_SHAPE; ++i) {
-        fmc::CMesh rect;
-        rect.setShape(i);
-    }
 }
 
 void Window::update(float fps) {

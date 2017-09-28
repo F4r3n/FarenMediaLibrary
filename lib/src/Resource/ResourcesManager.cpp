@@ -1,7 +1,7 @@
 
 #include "Resource/ResourcesManager.h"
 #include "Rendering/ShaderParser.h"
-#include <iostream>
+
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
 

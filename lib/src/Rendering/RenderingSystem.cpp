@@ -21,7 +21,7 @@ using namespace fms;
 #include "Core/Math/Vector3.h"
 #include "Event.h"
 #include "Rendering/RenderingEvent.h"
-
+#include "Rendering/StandardShapes.h"
 struct PointText {
     GLfloat x;
     GLfloat y;
@@ -46,6 +46,10 @@ RenderingSystem::RenderingSystem(int width, int height)
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    
+    std::cout << "Create" << std::endl;
+    quad = new fm::Model();
+    circle = new fm::Model();
 
     fm::Renderer::getInstance().createQuadScreen();
 }
@@ -81,8 +85,27 @@ void RenderingSystem::init(EntityManager& em, EventManager& event) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     std::cout << width << " " << height << std::endl;
     
-    quad = fm::rendering::StandardShapes::CreateQuad();
-    circle = fm::rendering::StandardShapes::CreateCircle();
+    
+    quad->meshContainer = fm::StandardShapes::CreateQuad();
+    circle->meshContainer = fm::StandardShapes::CreateCircle();
+    
+    quad->generate();
+    circle->generate();
+    
+    meshesID.insert(std::make_pair<std::string, int>("Quad", (int)fm::ResourcesManager::get().registerMesh(quad)));
+    meshesID.insert(std::make_pair<std::string, int>("Circle", fm::ResourcesManager::get().registerMesh(circle)));
+
+    
+    for(auto e : em.iterate<fmc::CMesh>()) {
+        fmc::CMesh* mesh = e->get<fmc::CMesh>();
+        if(meshesID.find(mesh->getModelType()) == meshesID.end()) {
+            //MeshID has no such model registred
+            //TODO
+        } else {
+            mesh->model = fm::ResourcesManager::get().getMeshData(meshesID[mesh->getModelType()]);
+            //TODO generate only the meshes needed
+        }
+    }
 }
 
 void RenderingSystem::setCamera(Entity* camera) {
@@ -122,6 +145,8 @@ void RenderingSystem::pre_update(EntityManager& em) {
     fm::math::mat m;
     view(m, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation);
     cam->viewMatrix = m;
+    
+
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
@@ -212,8 +237,9 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
                     glActiveTexture(GL_TEXTURE0);
                     material->getTexture().bind();
                 }
-
-                draw(mesh);
+                graphics.setIndexBuffer(mesh->model->indexBuffer);
+                graphics.draw(0, mesh->model->meshContainer->listIndices.size(), mesh->model->meshContainer->listIndices.data());
+                //draw(mesh);
             }
         }
         if(state >= fm::RENDER_QUEUE::LIGHT && state < fm::RENDER_QUEUE::AFTER_LIGHT) {
@@ -314,7 +340,8 @@ void RenderingSystem::fillQueue(EntityManager& em) {
                                 fm::RENDER_QUEUE::BACKGROUND,     0,                          e->ID };
         bool valid = false;
         if(node.mesh) {
-
+            
+            
             node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) +
                                         fm::math::vec3(node.transform->scale) / 2.0f);
             node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
@@ -393,11 +420,4 @@ void RenderingSystem::drawText(int posX, int posY, RFont* font, const fmc::CText
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void RenderingSystem::draw(const fmc::CMesh* cmesh) {
-
-    glBindVertexArray(cmesh->VAO);
-    glDrawElements(GL_TRIANGLES, cmesh->size, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
 }
