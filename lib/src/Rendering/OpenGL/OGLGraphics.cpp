@@ -50,3 +50,7 @@ void Graphics::setIndexBuffer(IndexBuffer *indexBuffer) {
     glEnableVertexAttribArray(1);
 }
 
+void Graphics::bindFrameBuffer(unsigned int id) {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+

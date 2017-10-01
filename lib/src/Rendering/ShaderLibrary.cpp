@@ -1,6 +1,7 @@
 #include "Rendering/Shader.h"
 #include "Rendering/ShaderLibrary.h"
 #include "Core/Config.h"
+#include "Rendering/ShaderParser.h"
 
 #if OPENGL_CORE == 1
 #define SHADER_VERSION "#version 330 core\n"
@@ -447,30 +448,40 @@ void ShaderLibrary::loadShaders() {
     std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("no_light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
 #else*/
-fm::ResourcesManager::get().loadShader("light", simple_vertex, light_fragment);
-    fm::ResourcesManager::get().loadShader("no_light", simple_vertex, light_fragment_no_light);
+    
+    fm::ResourcesManager::get().load<fm::Shader>("light", new fm::Shader(simple_vertex, light_fragment));
+    fm::ResourcesManager::get().load<fm::Shader>("no_light", new fm::Shader(simple_vertex, light_fragment_no_light));
   
-    fm::ResourcesManager::get().loadShader("blur", simple_vertex, blur_fragment);
-    fm::ResourcesManager::get().loadShader("text", text_vertex, text_fragment);
-    fm::ResourcesManager::get().loadShader("instancing", instancing_vertex, instancing_fragment);
-    fm::ResourcesManager::get().loadShader("default", default_vertex, default_fragment);
-    fm::ResourcesManager::get().loadShader("simple", simple_vertex, simple_fragment);
+    fm::ResourcesManager::get().load<fm::Shader>("blur", new fm::Shader(simple_vertex, blur_fragment));
+    fm::ResourcesManager::get().load<fm::Shader>("text", new fm::Shader(text_vertex, text_fragment));
+    fm::ResourcesManager::get().load<fm::Shader>("instancing", new fm::Shader(instancing_vertex, instancing_fragment));
+    fm::ResourcesManager::get().load<fm::Shader>("default", new fm::Shader(default_vertex, default_fragment));
+    fm::ResourcesManager::get().load<fm::Shader>("simple", new fm::Shader(simple_vertex, simple_fragment));
     //fm::ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
     //fm::ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
+    for(auto shader : fm::ResourcesManager::get().getAll<fm::Shader>()) {
+        fm::Shader *s = dynamic_cast<fm::Shader*>(shader.second); 
+        if(s != nullptr && !s->IsReady()) {
+            s->compile();
+        }
+    }
     
-        std::shared_ptr<fm::Shader> s = fm::ResourcesManager::get().getShader("simple");
+    
+    fm::Shader *s = fm::ResourcesManager::get().getResource<fm::Shader>("simple");
     s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
   
-    std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("light");
+    fm::Shader *light = fm::ResourcesManager::get().getResource<fm::Shader>("light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
     
-    light = fm::ResourcesManager::get().getShader("no_light");
+    light = fm::ResourcesManager::get().getResource<fm::Shader>("no_light");
     light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
 //#endif
     
 }
 
 void ShaderLibrary::loadShader(const std::string& name, const std::string &path ) {
-        fm::ResourcesManager::get().loadShader(name, path);
+    fm::ShaderParser parser;
 
+    std::tuple<std::string, std::string> partShader = parser.parse(path);
+    fm::ResourcesManager::get().load<fm::Shader>(name, new fm::Shader(std::get<0>(partShader), std::get<1>(partShader)));
 }

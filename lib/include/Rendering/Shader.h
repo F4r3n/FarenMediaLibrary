@@ -11,10 +11,11 @@
 #include "Core/Color.h"
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
+#include <Resource/Resource.h>
 namespace fm {
     
 
-class Shader {
+class Shader : public Resource{
         enum ZTEST {
         ALWAYS,
         GREATER,
@@ -46,10 +47,13 @@ public:
     Shader* Use();
     bool compile();
     ~Shader();
+    bool IsReady() const{return isReady;}
+    static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
 
 private:
     std::string vertex, fragment;
     ZTEST zTest = ZTEST::LESS;
     BLEND blendMode = BLEND::NONE;
+    bool isReady = false;
 };
 }

@@ -5,7 +5,7 @@
 using namespace fm;
 using namespace rendering;
 
-Model::Model() {
+Model::Model(): Resource() {
     indexBuffer = new IndexBuffer();
 }
 

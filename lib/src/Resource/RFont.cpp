@@ -5,8 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #define MAXWIDTH 2048
-RFont::RFont(const std::string& path) {
-    type = fm::RESOURCE_TYPE::FONT;
+RFont::RFont(const std::string& path) : Resource(){
     unsigned int size = 32;
     FT_Face face;
     FT_Library ft;
@@ -98,7 +97,7 @@ RFont::RFont(const std::string& path) {
     std::cout << "Font loaded " << glGetError() << std::endl;
     //exit(-1);
 }
-RFont::RFont() {
+RFont::RFont() : Resource(){
 }
 RFont::~RFont() {
 }

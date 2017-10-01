@@ -18,6 +18,7 @@ namespace fm {
         void disable(RENDERING_TYPE renderingTYPE);
         void draw(int primitiveType, unsigned int vertexCount, unsigned int* indices);
         void setIndexBuffer(rendering::IndexBuffer *indexBuffer);
+        void bindFrameBuffer(unsigned int id);
     };
     
 }

@@ -32,11 +32,11 @@ void Renderer::createQuadScreen() {
 }
 
 void Renderer::lightComputation(Texture* colorBuffer, bool compute) {
-    std::shared_ptr<Shader> light;
+    fm::Shader* light;
     if(compute)
-        light = ResourcesManager::get().getShader("light");
+        light = ResourcesManager::get().getResource<fm::Shader>("light");
         else {
-            light = ResourcesManager::get().getShader("no_light");
+            light = ResourcesManager::get().getResource<fm::Shader>("no_light");
         }
     light->Use();
 
@@ -66,7 +66,7 @@ void Renderer::postProcess(Texture* colorBuffer) {
     glBindVertexArray(0);
 }
 
-void Renderer::blit(Texture& texture, std::shared_ptr<Shader> shader) const {
+void Renderer::blit(Texture& texture, Shader* shader) const {
     shader->Use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture.getID());
@@ -75,7 +75,7 @@ void Renderer::blit(Texture& texture, std::shared_ptr<Shader> shader) const {
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
-void Renderer::blit(RenderTexture& source, RenderTexture& dest, std::shared_ptr<Shader> shader) const {
+void Renderer::blit(RenderTexture& source, RenderTexture& dest, Shader* shader) const {
     dest.bind();
     shader->Use();
     glActiveTexture(GL_TEXTURE0);
@@ -93,7 +93,7 @@ void Renderer::SetSources(Texture *textures, int numberIDs) {
     }
 }
 
-void Renderer::blit(int ID, RenderTexture& dest, std::shared_ptr<Shader> shader) const {
+void Renderer::blit(int ID, RenderTexture& dest, Shader* shader) const {
     dest.bind();
     shader->Use();
     glActiveTexture(GL_TEXTURE0);
@@ -104,14 +104,14 @@ void Renderer::blit(int ID, RenderTexture& dest, std::shared_ptr<Shader> shader)
     glBindVertexArray(0);
 }
 
-void Renderer::blit(RenderTexture& dest, std::shared_ptr<Shader> shader) {
+void Renderer::blit(RenderTexture& dest, Shader* shader) {
     dest.bind();
     shader->Use();
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
-void Renderer::blit(std::shared_ptr<Shader> shader) {
+void Renderer::blit(Shader* shader) {
     shader->Use();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

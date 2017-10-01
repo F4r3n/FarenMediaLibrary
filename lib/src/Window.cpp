@@ -32,19 +32,14 @@ Window::Window(int width, int height, const std::string& name) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return;
     }
-    std::cout << OPENGL_ES_VERSION << std::endl;
-
-
 
     window = SDL_CreateWindow(
         name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 #if OPENGL_CORE == 1
-std::cout << "CORE" << std::endl;
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #elif OPENGL_ES == 1
-std::cout << "ES" << std::endl;
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_ES_VERSION);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -53,11 +48,9 @@ std::cout << "ES" << std::endl;
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     init(window);
-    std::cout << "Create shaders" << std::endl;
     createShaders();
-    std::cout << "Shaders created" << std::endl;
-    ResourcesManager::get().load("dejavu", std::make_unique<RFont>("assets/fonts/dejavu/DejaVuSansMono.ttf"));
-        isInit = true;
+    ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/dejavu/DejaVuSansMono.ttf"));
+    isInit = true;
 }
 
 void Window::setMSAA(int value) {

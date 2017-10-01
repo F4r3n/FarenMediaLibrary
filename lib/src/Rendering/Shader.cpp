@@ -6,8 +6,6 @@ using namespace fm;
 Shader::Shader() {
 }
 
-
-
 Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode) {
     this->vertex = vertexCode;
     this->fragment = fragmentCode;
@@ -16,36 +14,35 @@ Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode) {
 bool Shader::compile() {
     const GLchar* vShaderCode = vertex.c_str();
     const GLchar* fShaderCode = fragment.c_str();
-    // 2. Compile shaders
+
     GLuint vertex, fragment;
     GLint success;
     GLchar infoLog[512];
-    // Vertex Shader
+
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
-    // Print compile errors if any
+
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-        //std::cerr << "Shader :" << 
         std::cerr << vShaderCode << std::endl;
         return false;
     }
-    // Fragment Shader
+
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
-    // Print compile errors if any
+
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(fragment, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         std::cerr << fShaderCode << std::endl;
-
         return false;
     }
+    
     // Shader Program
     this->Program = glCreateProgram();
     glAttachShader(this->Program, vertex);
@@ -61,6 +58,7 @@ bool Shader::compile() {
     // Delete the shaders as they're linked into our program now and no longer necessery
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    isReady = true;
     return true;
 }
 
@@ -69,13 +67,10 @@ Shader* Shader::Use() {
     return this;
 }
 
-
-
-    Shader* Shader::setMatrix(const std::string& name, fm::math::mat matrix) {
-            glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
+Shader* Shader::setMatrix(const std::string& name, fm::math::mat matrix) {
+    glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
     return this;
-    }
-
+}
 
 Shader* Shader::setVector2f(const std::string& name, fm::math::vec2 vector) {
     glUniform2f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y);
@@ -101,7 +96,6 @@ Shader* Shader::setInt(const std::string& name, int val) {
     glUniform1i(glGetUniformLocation(Program, name.c_str()), val);
     return this;
 }
-
 
 Shader* Shader::setColor(const std::string& name, Color vector) {
     return setVector4f(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));

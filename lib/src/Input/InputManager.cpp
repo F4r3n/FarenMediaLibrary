@@ -29,6 +29,7 @@ void InputManager::init(Window& window) {
 
 InputManager::InputManager() {
 }
+//TODO keyboard
 
 void InputManager::getMousePosition(double& posX, double& posY) {
     int tempX, tempY;

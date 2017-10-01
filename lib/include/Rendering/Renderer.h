@@ -18,12 +18,12 @@ public:
     void lightComputation(Texture* colorBuffer, bool compute = false);
     void postProcess(Texture* colorBuffer);
     void clear();
-    void blit(Texture& texture, std::shared_ptr<Shader> shader) const;
-    void blit(RenderTexture& source, RenderTexture& dest, std::shared_ptr<Shader> shader) const;
-    void blit(int ID, RenderTexture& dest, std::shared_ptr<Shader> shader) const;
+    void blit(Texture& texture, Shader* shader) const;
+    void blit(RenderTexture& source, RenderTexture& dest, Shader* shader) const;
+    void blit(int ID, RenderTexture& dest, Shader* shader) const;
     void SetSources(Texture *textures, int numberIDs);
-    void blit(RenderTexture& dest, std::shared_ptr<Shader> shader);
-        void blit(std::shared_ptr<Shader> shader);
+    void blit(RenderTexture& dest, Shader* shader);
+        void blit(Shader* shader);
 
 private:
     static Renderer _instance;

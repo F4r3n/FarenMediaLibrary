@@ -37,7 +37,7 @@ public:
 private:
     fm::Bounds bounds;
     void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
-
+    void initStandardShapes();
     ~RenderingSystem();
     void initUniformBufferCamera(fmc::CCamera* camera);
     void updateUniformBufferCamera(fmc::CCamera* camera);
@@ -53,8 +53,8 @@ private:
     int width;
     int height;
 
-    std::shared_ptr<fm::Shader> finalShader;
-    std::shared_ptr<fm::Shader> lightShader;
+    fm::Shader *finalShader;
+    fm::Shader *lightShader;
 
     TextDef textdef;
 
@@ -69,11 +69,5 @@ private:
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
     fm::Graphics graphics;
     
-    //fm::rendering::MeshContainer *quad;
-    //fm::rendering::MeshContainer *circle;
-    fm::Model *quad;
-    fm::Model *circle;
-    
-    std::unordered_map<std::string, int> meshesID;
 };
 }

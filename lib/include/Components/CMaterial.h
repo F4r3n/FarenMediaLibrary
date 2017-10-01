@@ -3,6 +3,7 @@
 #include "Core/Color.h"
 #include "Rendering/Texture.h"
 #include "Serializer.h"
+#include <Rendering/Shader.h>
 namespace fmc {
 class CMaterial : public Component<CMaterial>, public Serializer {
 public:
@@ -20,6 +21,8 @@ public:
     static const std::string name;
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
     void parse(rapidjson::Value &value) override {}
+        fm::Shader *shader = nullptr;
+
 private:
     fm::Texture texture;
 };
