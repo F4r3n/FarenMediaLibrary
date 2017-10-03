@@ -18,7 +18,7 @@ public:
     RFont(const std::string& name);
     RFont();
     ~RFont();
-    static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::FONT;}
+    static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::FONT;}
     std::unordered_map<GLchar, Character> Characters;
     
     GLuint tex;

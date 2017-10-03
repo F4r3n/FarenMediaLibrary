@@ -13,39 +13,39 @@ Image::~Image() {
 }
 
 void Image::create(float width, float height) {
-    pixels.resize(width * height * IMAGE_RGBA, 255);
+        pixels.resize(width * height * IMAGE_RGBA, 255);
 }
 
 void Image::clear() {
-    _size.reset();
-    if(_pixel)
-        stbi_image_free(_pixel);
+        _size.reset();
+        if(_pixel)
+                stbi_image_free(_pixel);
 }
 
 const math::Vector2i& Image::getSize() const {
-    return _size;
+        return _size;
 }
 
-void Image::getPart(std::vector<unsigned char>& imagePart, Recti rect) const{
-    imagePart.resize((rect.w) * (rect.h) * IMAGE_RGBA, 255);
-    unsigned int sizeByte = (rect.w) * IMAGE_RGBA;
+void Image::getPart(std::vector<unsigned char>& imagePart, Recti rect) const {
+        imagePart.resize((rect.w) * (rect.h) * IMAGE_RGBA, 255);
+        unsigned int sizeByte = (rect.w) * IMAGE_RGBA;
 
-    unsigned char* ptr = imagePart.data();
-    for(int i = 0; i < rect.h; i++) {
+        unsigned char* ptr = imagePart.data();
+        for(int i = 0; i < rect.h; i++) {
 
-        std::memcpy(ptr + i * sizeByte, _pixel + rect.x * IMAGE_RGBA + i * _size.x * IMAGE_RGBA, sizeByte);
-    }
+                std::memcpy(ptr + i * sizeByte, _pixel + rect.x * IMAGE_RGBA + i * _size.x * IMAGE_RGBA, sizeByte);
+        }
 }
 
 unsigned char* Image::getImagePtr() {
-    return _pixel;
+        return _pixel;
 }
 
 bool Image::loadImage(const std::string& path, const math::Vector2i& offset) {
-    pixels.clear();
-    _offset = offset;
-   
-    _pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
-    if(_pixel == nullptr) return false;
-    return true;
+        pixels.clear();
+        _offset = offset;
+
+        _pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
+        if(_pixel == nullptr) return false;
+        return true;
 }

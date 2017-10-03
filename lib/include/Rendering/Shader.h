@@ -13,17 +13,19 @@
 #include "Core/Math/Vector3.h"
 #include <Resource/Resource.h>
 namespace fm {
-    
+
+   
 
 class Shader : public Resource{
-        enum ZTEST {
+    enum ZTEST {
         ALWAYS,
         GREATER,
         LESS,
         EQUAL,
         NEVER
     };
-    
+
+
     enum BLEND {
         ADD,
         MULT,
@@ -34,21 +36,19 @@ public:
     Shader();
     //Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
     Shader(const std::string& vertexCode, const std::string& fragmentCode);
-    Shader* setMatrix(const std::string& name, fm::math::mat matrix);
+    Shader* setValue(const std::string& name, fm::math::mat matrix);
+    Shader* setValue(const std::string& name, fm::math::vec2 vector);
+    Shader* setValue(const std::string& name, fm::math::vec3 vector);
+    Shader* setValue(const std::string& name, fm::math::vec4 vector);
+    Shader* setValue(const std::string& name, float val);
+    Shader* setValue(const std::string& name, int val);
+    Shader* setValue(const std::string& name, Color vector);
 
-    Shader* setVector2f(const std::string& name, fm::math::vec2 vector);
-    Shader* setVector3f(const std::string& name, fm::math::vec3 vector);
-    Shader* setVector4f(const std::string& name, fm::math::vec4 vector);
-    Shader* setFloat(const std::string& name, float val);
-    Shader* setInt(const std::string& name, int val);
-    
-    Shader* setColor(const std::string& name, Color vector);
-    
     Shader* Use();
     bool compile();
     ~Shader();
     bool IsReady() const{return isReady;}
-    static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
+    static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
 
 private:
     std::string vertex, fragment;

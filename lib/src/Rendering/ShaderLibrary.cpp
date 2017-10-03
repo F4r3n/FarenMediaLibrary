@@ -468,13 +468,13 @@ void ShaderLibrary::loadShaders() {
     
     
     fm::Shader *s = fm::ResourcesManager::get().getResource<fm::Shader>("simple");
-    s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
+    s->Use()->setValue("screenTexture", 0)->setValue("bloomBlur", 1);
   
     fm::Shader *light = fm::ResourcesManager::get().getResource<fm::Shader>("light");
-    light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
+    light->Use()->setValue("screenTexture", 0)->setValue("posTexture", 1);
     
     light = fm::ResourcesManager::get().getResource<fm::Shader>("no_light");
-    light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
+    light->Use()->setValue("screenTexture", 0)->setValue("posTexture", 1);
 //#endif
     
 }

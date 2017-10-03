@@ -12,7 +12,7 @@ public:
     Model();
     ~Model();
     void generate();
-    static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
+    static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
 
     rendering::MeshContainer* meshContainer;
     rendering::IndexBuffer* indexBuffer;

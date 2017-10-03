@@ -27,6 +27,7 @@ public:
 
     template <typename T>
     void load(const std::string& name, Resource* resource) {
+        if(T::getType() > RESOURCE_TYPE::LAST_RESOURCE) return;
         resources[T::getType()].insert(std::pair<std::string, Resource*>(name, resource));
     }
     
@@ -42,9 +43,6 @@ public:
 
 private:
     std::array<std::map<std::string, Resource* >, RESOURCE_TYPE::LAST_RESOURCE> resources;
-
     static ResourcesManager _instance;
-
-    // Shader not a resource to avoid dynamic_cast, because it's called lot more than other resources
 };
 }
