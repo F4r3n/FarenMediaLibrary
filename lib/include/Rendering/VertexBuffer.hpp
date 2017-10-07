@@ -6,10 +6,10 @@ namespace fm {
 namespace rendering { 
 
     
-    class IndexBuffer {
+    class VertexBuffer {
     public :
-        IndexBuffer();
-        ~IndexBuffer();
+        VertexBuffer();
+        ~VertexBuffer();
         void generate(const std::vector<Vertex> &vertices);
         void destroy();
                 //Used by opengl

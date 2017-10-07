@@ -12,6 +12,7 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 #include <Resource/Resource.h>
+#include "Rendering/MaterialValue.h"
 namespace fm {
 
    
@@ -49,6 +50,7 @@ public:
     ~Shader();
     bool IsReady() const{return isReady;}
     static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
+    void  setValue(const std::string &name, const fm::MaterialValue &value);
 
 private:
     std::string vertex, fragment;

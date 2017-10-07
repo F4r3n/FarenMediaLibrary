@@ -34,6 +34,10 @@ namespace fmc {
         values.insert(std::pair<std::string, fm::MaterialValue>(name, value));
     }
 
+    const std::map<std::string, fm::MaterialValue>& getValues() const{
+        return values;
+    }
+
 private:
     fm::Texture texture;
     std::map<std::string, fm::MaterialValue> values;

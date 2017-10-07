@@ -1,20 +1,20 @@
-#include <Rendering/IndexBuffer.hpp>
+#include <Rendering/VertexBuffer.hpp>
 #include <Core/Config.h>
 using namespace fm;
 using namespace rendering;
-IndexBuffer::IndexBuffer() {
+VertexBuffer::VertexBuffer() {
     
 }
 
-IndexBuffer::~IndexBuffer() {
+VertexBuffer::~VertexBuffer() {
     
 }
 
-void IndexBuffer::destroy() {
+void VertexBuffer::destroy() {
     glDeleteBuffers(1, &index);
 }
 
-void IndexBuffer::generate(const std::vector<Vertex> &vertices) {
+void VertexBuffer::generate(const std::vector<Vertex> &vertices) {
     glGenBuffers(1, &index);
     glBindBuffer(GL_ARRAY_BUFFER, index);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);

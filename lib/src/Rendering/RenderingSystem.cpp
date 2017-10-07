@@ -40,12 +40,11 @@ RenderingSystem::RenderingSystem(int width, int height)
         textdef.projection = fm::math::ortho(
                 0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
 
-        glGenVertexArrays(1, &textdef.VAO);
+        //glGenVertexArrays(1, &textdef.VAO);
         glGenBuffers(1, &textdef.VBO);
-        glBindVertexArray(textdef.VAO);
+        //glBindVertexArray(textdef.VAO);
         glBindBuffer(GL_ARRAY_BUFFER, textdef.VBO);
-        // glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL,
-        // GL_DYNAMIC_DRAW);
+
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -90,7 +89,7 @@ void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
 }
 
 void RenderingSystem::initStandardShapes() {
-        fm::Model* quad = new fm::Model();
+        fm::Model *quad = new fm::Model();
         fm::Model* circle = new fm::Model();
         quad->meshContainer = fm::StandardShapes::CreateQuad();
         circle->meshContainer = fm::StandardShapes::CreateCircle();
@@ -266,7 +265,12 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
                                         glActiveTexture(GL_TEXTURE0);
                                         material->getTexture().bind();
                                 }
-                                graphics.setIndexBuffer(mesh->model->indexBuffer);
+                                
+                                for(auto const& value : material->getValues()) {
+                                    shader->setValue(value.first, value.second);
+                                }
+                                
+                                graphics.setIndexBuffer(mesh->model->vertexBuffer);
                                 graphics.draw(0,
                                               mesh->model->meshContainer->listIndices.size(),
                                               mesh->model->meshContainer->listIndices.data());
@@ -454,9 +458,10 @@ void RenderingSystem::drawText(int posX,
         // shader.Use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, font->tex);
-        glBindVertexArray(textdef.VAO);
+        //glBindVertexArray(textdef.VAO);
         glBindBuffer(GL_ARRAY_BUFFER, textdef.VBO);
-
+glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
         // Iterate through all characters
         std::string::const_iterator c;
         int n = 0;
@@ -490,11 +495,16 @@ void RenderingSystem::drawText(int posX,
                                           ch.t.x + ch.b_wh.x / font->atlas_width,
                                           ch.t.y + ch.b_wh.y / font->atlas_height};
         }
-        // std::cout << n << std::endl;
+        //std::cout << n << std::endl;
         glBufferData(GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_TRIANGLES, 0, n);
-
-        glBindVertexArray(0);
+        //glDrawArrays(GL_TRIANGLES, 0, n);
+        graphics.draw(0, 0, n);
+        //glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+
+
+
+
 } // namespace fms

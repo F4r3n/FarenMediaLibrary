@@ -4,7 +4,7 @@ namespace fm {
 
 namespace rendering {
     class MeshContainer;
-    class IndexBuffer;
+    class VertexBuffer;
 }
 
 class Model : public Resource{
@@ -15,7 +15,7 @@ public:
     static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
 
     rendering::MeshContainer* meshContainer;
-    rendering::IndexBuffer* indexBuffer;
+    rendering::VertexBuffer* vertexBuffer;
     bool generated = false;
 };
 }

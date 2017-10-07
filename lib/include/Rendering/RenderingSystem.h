@@ -11,6 +11,7 @@
 #include "Rendering/Graphics.hpp"
 #include "Rendering/Model.hpp"
 #include <string>
+#include "Rendering/MaterialValue.h"
 namespace fmc {
 class CText;
 class CTransform;
@@ -18,7 +19,6 @@ class CMesh;
 }
 
 struct TextDef {
-    GLuint VAO;
     GLuint VBO;
     fm::math::mat projection;
 };
@@ -34,7 +34,7 @@ public:
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
 
-private:
+    private:
     fm::Bounds bounds;
     void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
     void initStandardShapes();
@@ -68,6 +68,7 @@ private:
 
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
     fm::Graphics graphics;
+//    fm::Model *quad;
     
 };
 }

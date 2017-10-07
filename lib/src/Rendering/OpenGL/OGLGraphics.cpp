@@ -37,10 +37,16 @@ void Graphics::disable(RENDERING_TYPE r) {
 
 void Graphics::draw(int primitiveType, unsigned int vertexCount, unsigned int* indices) {
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, indices);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Graphics::setIndexBuffer(IndexBuffer *indexBuffer) {
-    glBindBuffer(GL_ARRAY_BUFFER, indexBuffer->index);
+void Graphics::draw(int primitiveType, unsigned int vertexStart, unsigned int vertexCount) {
+    glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
+}
+
+
+void Graphics::setIndexBuffer(VertexBuffer *vertexBuffer) {
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->index);
         // Position attribute
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);

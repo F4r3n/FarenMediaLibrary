@@ -101,5 +101,21 @@ Shader* Shader::setValue(const std::string& name, Color vector) {
     return setValue(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));
 }
 
+void Shader::setValue(const std::string &name, const fm::MaterialValue &value) {
+    if(value.getType() == fm::ValuesType::VALUE_FLOAT) {
+        setValue(name, value.getFloat());
+    }else if(value.getType() == fm::ValuesType::VALUE_INT) {
+        setValue(name, value.getInt());
+    }else if(value.getType() == fm::VALUE_VECTOR2_FLOAT) {
+        setValue(name, value.getVector2());
+    }else if(value.getType() == fm::VALUE_VECTOR3_FLOAT) {
+        setValue(name, value.getVector3());
+    }else if(value.getType() == fm::VALUE_VECTOR4_FLOAT) {
+        setValue(name, value.getVector4());
+    }else if(value.getType() == fm::ValuesType::VALUE_MATRIX_FLOAT) {
+        setValue(name, value.getMatrix());
+    }
+}
+
 Shader::~Shader() {
 }

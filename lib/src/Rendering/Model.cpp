@@ -1,4 +1,4 @@
-#include <Rendering/IndexBuffer.hpp>
+#include <Rendering/VertexBuffer.hpp>
 #include <Rendering/StandardShapes.h>
 #include <Rendering/Model.hpp>
 
@@ -6,19 +6,19 @@ using namespace fm;
 using namespace rendering;
 
 Model::Model(): Resource() {
-    indexBuffer = new IndexBuffer();
+    vertexBuffer = new VertexBuffer();
 }
 
 Model::~Model() {
-    if(indexBuffer != nullptr) {
-        delete indexBuffer;
-        indexBuffer = nullptr;
+    if(vertexBuffer != nullptr) {
+        delete vertexBuffer;
+        vertexBuffer = nullptr;
     }
 }
 
 void Model::generate() {
-    if(indexBuffer != nullptr) {
-        indexBuffer->generate(meshContainer->vertices);
+    if(vertexBuffer != nullptr) {
+        vertexBuffer->generate(meshContainer->vertices);
         generated = true;
     }
 }

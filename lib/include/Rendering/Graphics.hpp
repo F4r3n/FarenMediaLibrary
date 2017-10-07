@@ -1,7 +1,7 @@
 
 #include <Core/Math/Vector4.h>
 #include <Core/Rect.h>
-#include <Rendering/IndexBuffer.hpp>
+#include <Rendering/VertexBuffer.hpp>
 namespace fm {
     enum RENDERING_TYPE : unsigned int{
         BLEND,
@@ -17,7 +17,8 @@ namespace fm {
         void enable(RENDERING_TYPE renderingTYPE);
         void disable(RENDERING_TYPE renderingTYPE);
         void draw(int primitiveType, unsigned int vertexCount, unsigned int* indices);
-        void setIndexBuffer(rendering::IndexBuffer *indexBuffer);
+        void draw(int primitiveType, unsigned int vertexStart, unsigned int vertexCount);
+        void setIndexBuffer(rendering::VertexBuffer *vertexBuffer);
         void bindFrameBuffer(unsigned int id);
     };
     
