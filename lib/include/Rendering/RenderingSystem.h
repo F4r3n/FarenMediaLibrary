@@ -68,6 +68,7 @@ public:
 
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
     fm::Graphics graphics;
+    fm::rendering::VertexBuffer* textVertexBuffer;
 //    fm::Model *quad;
     
 };

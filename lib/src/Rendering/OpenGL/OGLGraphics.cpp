@@ -8,7 +8,9 @@ Graphics::Graphics() {
 Graphics::~Graphics() {
 }
 
-void Graphics::clear(bool colorBuffer, bool depthBuffer, bool replaceColor) const{
+void Graphics::clear(bool colorBuffer,
+                     bool depthBuffer,
+                     bool replaceColor) const {
     if(replaceColor) {
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     }
@@ -20,11 +22,11 @@ void Graphics::clear(bool colorBuffer, bool depthBuffer, bool replaceColor) cons
     glClear(mask);
 }
 
-void Graphics::setViewPort(const fm::math::vec4i& rect) const{
+void Graphics::setViewPort(const fm::math::vec4i& rect) const {
     glViewport(rect.x, rect.y, rect.z, rect.w);
 }
 
-void Graphics::setViewPort(const fm::Rect<float> &rect) const{
+void Graphics::setViewPort(const fm::Rect<float>& rect) const {
     glViewport(rect.x, rect.y, rect.w, rect.h);
 }
 
@@ -35,28 +37,43 @@ void Graphics::disable(RENDERING_TYPE r) {
     glDisable(renderingType[r]);
 }
 
-void Graphics::draw(int primitiveType, unsigned int vertexCount, unsigned int* indices) {
+void Graphics::draw(int primitiveType,
+                    unsigned int vertexCount,
+                    unsigned int* indices) {
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, indices);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Graphics::draw(int primitiveType, unsigned int vertexStart, unsigned int vertexCount) {
+void Graphics::draw(int primitiveType,
+                    unsigned int vertexStart,
+                    unsigned int vertexCount) {
     glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
 }
 
-
-void Graphics::setIndexBuffer(VertexBuffer *vertexBuffer) {
+void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) {
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->index);
-        // Position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+    // Position attribute
+        glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(
+        0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
 
     // UV attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(1,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          4 * sizeof(GLfloat),
+                          (GLvoid*)(2 * sizeof(GLfloat)));
 }
 
 void Graphics::bindFrameBuffer(unsigned int id) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Graphics::bindTexture2D(int number, int idTexture) {
+    glActiveTexture(GL_TEXTURE0 + number);
+    glBindTexture(GL_TEXTURE_2D, idTexture);
+}

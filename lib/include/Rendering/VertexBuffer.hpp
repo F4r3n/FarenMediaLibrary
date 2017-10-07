@@ -11,9 +11,12 @@ namespace rendering {
         VertexBuffer();
         ~VertexBuffer();
         void generate(const std::vector<Vertex> &vertices);
+        void generate();
+        void setBufferData(void* data, unsigned int size, bool staticData = true);
         void destroy();
                 //Used by opengl
         unsigned int index;
+        
     private:
 
     };

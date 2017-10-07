@@ -24,12 +24,6 @@
 #include "Event.h"
 #include "Window.h"
 
-struct PointText {
-        GLfloat x;
-        GLfloat y;
-        GLfloat s;
-        GLfloat t;
-};
 
 namespace fms {
 RenderingSystem::RenderingSystem(int width, int height)
@@ -40,15 +34,9 @@ RenderingSystem::RenderingSystem(int width, int height)
         textdef.projection = fm::math::ortho(
                 0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
 
-        //glGenVertexArrays(1, &textdef.VAO);
-        glGenBuffers(1, &textdef.VBO);
-        //glBindVertexArray(textdef.VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, textdef.VBO);
+        textVertexBuffer = new fm::rendering::VertexBuffer();
+        textVertexBuffer->generate();
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
 
         std::cout << "Create" << std::endl;
 
@@ -270,7 +258,7 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
                                     shader->setValue(value.first, value.second);
                                 }
                                 
-                                graphics.setIndexBuffer(mesh->model->vertexBuffer);
+                                graphics.setVertexBuffer(mesh->model->vertexBuffer);
                                 graphics.draw(0,
                                               mesh->model->meshContainer->listIndices.size(),
                                               mesh->model->meshContainer->listIndices.data());
@@ -450,19 +438,13 @@ void RenderingSystem::drawText(int posX,
                 // std::cout << "Font not found" << std::endl;
                 return;
         }
-        PointText coords[6 * ctext->text.size()];
+        fm::math::vec4 coords[6 * ctext->text.size()];
 
         float x = posX;
         float y = posY;
 
-        // shader.Use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, font->tex);
-        //glBindVertexArray(textdef.VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, textdef.VBO);
-glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        // Iterate through all characters
+        graphics.bindTexture2D(0, font->tex);
+        
         std::string::const_iterator c;
         int n = 0;
         for(c = ctext->text.begin(); c != ctext->text.end(); c++) {
@@ -476,30 +458,29 @@ glEnableVertexAttribArray(0);
                 if(!w || !h)
                         continue;
 
-                coords[n++] = (PointText){
+                coords[n++] = (fm::math::vec4){
                         x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y
                 };
-                coords[n++] = (PointText){x2, -y2, ch.t.x, ch.t.y};
+                coords[n++] = (fm::math::vec4){x2, -y2, ch.t.x, ch.t.y};
 
                 coords[n++] =
-                        (PointText){x2, -y2 - h, ch.t.x, ch.b_wh.y / font->atlas_height};
-                coords[n++] = (PointText){
+                        (fm::math::vec4){x2, -y2 - h, ch.t.x, ch.b_wh.y / font->atlas_height};
+                coords[n++] = (fm::math::vec4){
                         x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y
                 };
-                coords[n++] = (PointText){
+                coords[n++] = (fm::math::vec4){
                         x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height
                 };
 
-                coords[n++] = (PointText){x2 + w,
+                coords[n++] = (fm::math::vec4){x2 + w,
                                           -y2 - h,
                                           ch.t.x + ch.b_wh.x / font->atlas_width,
                                           ch.t.y + ch.b_wh.y / font->atlas_height};
         }
         //std::cout << n << std::endl;
-        glBufferData(GL_ARRAY_BUFFER, sizeof(coords), &coords[0], GL_DYNAMIC_DRAW);
-        //glDrawArrays(GL_TRIANGLES, 0, n);
+        textVertexBuffer->setBufferData(&coords[0], n*sizeof(float)*4, false);
+        graphics.setVertexBuffer(textVertexBuffer);
         graphics.draw(0, 0, n);
-        //glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
 }
 

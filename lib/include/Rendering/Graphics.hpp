@@ -18,8 +18,9 @@ namespace fm {
         void disable(RENDERING_TYPE renderingTYPE);
         void draw(int primitiveType, unsigned int vertexCount, unsigned int* indices);
         void draw(int primitiveType, unsigned int vertexStart, unsigned int vertexCount);
-        void setIndexBuffer(rendering::VertexBuffer *vertexBuffer);
+        void setVertexBuffer(rendering::VertexBuffer *vertexBuffer);
         void bindFrameBuffer(unsigned int id);
+        void bindTexture2D(int number, int idTexture);
     };
     
 }
