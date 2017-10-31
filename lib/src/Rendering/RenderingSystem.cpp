@@ -35,10 +35,10 @@ RenderingSystem::RenderingSystem(int width, int height)
 
     std::cout << "Create" << std::endl;
 
-    fm::Renderer::getInstance().createQuadScreen();
 }
 
 void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
+#if OPENGL_ES == 0
     glGenBuffers(1, &generatedBlockBinding);
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     glBufferData(GL_UNIFORM_BUFFER,
@@ -57,30 +57,38 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
                               glGetUniformBlockIndex(s->Program, "shader_data"),
                               bindingPointIndex);
     }
+#endif
 }
 
 RenderingSystem::~RenderingSystem() {
 }
 
 void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
-    //#ifndef __EMSCRIPTEN__
+#if OPENGL_ES == 0
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &camera->shader_data, sizeof(camera->shader_data));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
-    //#endif
+#endif
 }
 
 void RenderingSystem::initStandardShapes() {
     fm::Model* quad = new fm::Model();
+    fm::Model* quadFS = new fm::Model();
     fm::Model* circle = new fm::Model();
     quad->meshContainer = fm::StandardShapes::CreateQuad();
     circle->meshContainer = fm::StandardShapes::CreateCircle();
+    quadFS->meshContainer = fm::StandardShapes::CreateQuadFullScreen();
 
     quad->generate();
     circle->generate();
+    quadFS->generate();
     fm::ResourcesManager::get().load<fm::Model>("Quad", quad);
+    fm::ResourcesManager::get().load<fm::Model>("QuadFS", quadFS);
+
     fm::ResourcesManager::get().load<fm::Model>("Circle", circle);
+    fm::Renderer::getInstance().createQuadScreen();
+
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager& event) {
@@ -119,7 +127,7 @@ void RenderingSystem::setCamera(Entity* camera) {
             ct->rotation);
     this->camera = camera;
     //#if OPENGL_ES_VERSION > 2
-    initUniformBufferCamera(cam);
+    // initUniformBufferCamera(cam);
     //#endif
     fm::Format formats[] = {fm::Format::RGBA, fm::Format::RGBA};
     fm::Type types[] = {fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE};
@@ -183,7 +191,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
     cam->shader_data.FM_P = cam->projection;
     cam->shader_data.FM_V = cam->viewMatrix;
     //#if OPENGL_ES_VERSION > 2
-    updateUniformBufferCamera(cam);
+    // updateUniformBufferCamera(cam);
     //#endif
     // PROFILER_START(Rendering)
     // PROFILER_START(RenderingSort)
@@ -196,7 +204,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
         // PROFILER_START(Draw)
         draw(cam);
     }
-    
+
     // PROFILER_STOP(Draw)
     // PROFILER_STOP(Rendering)
     // PROFILER_DISPLAY(Rendering)
@@ -213,9 +221,9 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
 
     finalShader->setValue("viewPos", camera->get<fmc::CTransform>()->position);
 
-    fm::Renderer::getInstance().SetSources(lightRenderTexture->getColorBuffer(),
-                                           2);
-    fm::Renderer::getInstance().blit(finalShader);
+    fm::Renderer::getInstance().SetSources(
+        graphics, lightRenderTexture->getColorBuffer(), 2);
+    fm::Renderer::getInstance().blit(graphics, finalShader);
 }
 
 void RenderingSystem::draw(fmc::CCamera* cam) {
@@ -292,6 +300,7 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
         // After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
            queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
+
             computeLighting(lightRenderTexture, cam, hasLight);
             computeLightDone = true;
         }
@@ -351,10 +360,10 @@ void RenderingSystem::computeLighting(
 
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
         fm::Renderer::getInstance().lightComputation(
-            cam->getRenderTexture()->getColorBuffer(), hasLight);
+            graphics, cam->getRenderTexture()->getColorBuffer(), hasLight);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         fm::Renderer::getInstance().lightComputation(
-            cam->getRenderTexture()->getColorBuffer(), false);
+            graphics, cam->getRenderTexture()->getColorBuffer(), false);
     }
 }
 
@@ -454,14 +463,14 @@ void RenderingSystem::drawText(int posX,
                 continue;
 
             coords[n++] = (fm::math::vec4){
-                            x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y};
+                x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y};
             coords[n++] = (fm::math::vec4){x2, -y2, ch.t.x, ch.t.y};
             coords[n++] = (fm::math::vec4){
-                            x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height};
+                x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height};
             coords[n++] = (fm::math::vec4){
-                            x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y};
+                x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y};
             coords[n++] = (fm::math::vec4){
-                            x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height};
+                x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height};
             coords[n++] =
                 (fm::math::vec4){x2 + w,
                                  -y2 - h,

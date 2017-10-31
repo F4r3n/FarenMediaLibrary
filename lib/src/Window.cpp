@@ -12,9 +12,8 @@
 #include "Resource/RFont.h"
 #include "Rendering/ShaderLibrary.h"
 
-#include <iostream>
 #include "Core/Config.h"
-
+#include "Core/Debug.h"
 
 using namespace fm;
 int Window::width;
@@ -28,28 +27,34 @@ Window::Window(int width, int height, const std::string& name) {
     Window::width = width;
 
     Window::height = height;
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return;
     }
 
-    window = SDL_CreateWindow(
-        name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(name.c_str(),
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              width,
+                              height,
+                              SDL_WINDOW_OPENGL);
 #if OPENGL_CORE == 1
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                        SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #elif OPENGL_ES == 1
+    Debug::logWarning(OPENGL_ES_VERSION);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_ES_VERSION);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #endif
 
-
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     init(window);
     createShaders();
-    ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/dejavu/DejaVuSansMono.ttf"));
+    ResourcesManager::get().load<RFont>(
+        "dejavu", new RFont("assets/fonts/dejavu/DejaVuSansMono.ttf"));
     isInit = true;
     std::cout << "Init Over" << std::endl;
 }
@@ -77,7 +82,6 @@ void Window::update(float fps) {
 }
 
 void Window::frameLimit(unsigned short fps) {
-
     curr_frame_time = SDL_GetTicks() - frame_start;
     double dur = (wait_time * 1000 - curr_frame_time);
     if(dur > 0) {
@@ -97,16 +101,16 @@ void Window::swapBuffers() {
 }
 
 void Window::errorDisplay() {
-    #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
     int error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << std::endl;
         exit(-1);
     }
-    #else
-            printf("Check error SDL: %s\n", SDL_GetError());
+#else
+    printf("Check error SDL: %s\n", SDL_GetError());
 
-        #endif
+#endif
 }
 
 bool Window::isClosed() {
@@ -115,35 +119,29 @@ bool Window::isClosed() {
 
 Window::~Window() {
     if(isInit) {
-    SDL_GL_DeleteContext(mainContext);
+        SDL_GL_DeleteContext(mainContext);
 
-    // Destroy our window
-    SDL_DestroyWindow(window);
+        // Destroy our window
+        SDL_DestroyWindow(window);
 
-    // Shutdown SDL 2
-    SDL_Quit();
-    
-    
+        // Shutdown SDL 2
+        SDL_Quit();
     }
 }
 
 int Window::init(SDL_Window* window) {
     if(window == nullptr) {
-
-        // glfwTerminate();
         return -1;
     }
     mainContext = SDL_GL_CreateContext(window);
     std::cout << glGetString(GL_VERSION) << std::endl;
-    #ifndef __EMSCRIPTEN__
+#if OPENGL_ES == 0
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK) {
         return -1;
     }
-    #endif
-    #ifndef __EMSCRIPTEN__
-    glGetError();
-    #endif
+#endif
+
     errorDisplay();
 
     glViewport(x, y, width, height);

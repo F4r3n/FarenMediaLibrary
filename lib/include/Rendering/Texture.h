@@ -7,6 +7,7 @@
 namespace fm {
 
 enum Format {
+#if OPENGL_ES == 0
     RED = GL_R,
     RGB = GL_RGB,
     RGBA = GL_RGBA,
@@ -16,31 +17,46 @@ enum Format {
     DEPTH_32F = GL_DEPTH_COMPONENT32F,
     DEPTH_STENCIL = GL_DEPTH_STENCIL,
     STENCIL = GL_STENCIL_INDEX
-
+#else
+    RGB = GL_RGB,
+    RGBA = GL_RGBA,
+    DEPTH_16 = GL_DEPTH_COMPONENT16,
+#endif
 };
 
 enum Type {
+#if OPENGL_ES == 0
     FLOAT = GL_FLOAT,
     HALF_FLOAT = GL_HALF_FLOAT,
     UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
     UNSIGNED_24_8 = GL_UNSIGNED_INT_24_8
+#else
+    FLOAT = GL_FLOAT,
+    UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+#endif
 };
 
 enum Filter { NEAREST = GL_NEAREST, LINEAR = GL_LINEAR };
 
 enum Wrapping {
+#if OPENGL_ES == 0
     REPEAT = GL_REPEAT,
     CLAMP_BORDER = GL_CLAMP_TO_BORDER,
     MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
     CLAMP_EDGE = GL_CLAMP_TO_EDGE
+#else
+    REPEAT = GL_REPEAT,
+    MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
+    CLAMP_EDGE = GL_CLAMP_TO_EDGE
+#endif
 };
 
-
 class Texture {
-
-public:
-    Texture(const Image& image, Recti rect = { 0, 0, -1, -1 });
-    Texture(const std::string& path, Recti rect = { 0, 0, -1, -1 }, bool alpha = true);
+   public:
+    Texture(const Image& image, Recti rect = {0, 0, -1, -1});
+    Texture(const std::string& path,
+            Recti rect = {0, 0, -1, -1},
+            bool alpha = true);
     Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha = true);
     Texture(unsigned int width, unsigned int height);
     void setData(unsigned char* image, bool alpha);
@@ -55,11 +71,11 @@ public:
     void release();
     Filter filter = NEAREST;
     Wrapping wrapping = REPEAT;
-        
-    void writeToPNG(const std::string &name);
+
+    void writeToPNG(const std::string& name);
     void setData(void* data);
-    void setTo(int value, const fm::Recti &rect);
-    void setData(void *data, const fm::Recti &rect);
+    void setTo(int value, const fm::Recti& rect);
+    void setData(void* data, const fm::Recti& rect);
     unsigned int getWidth() {
         return width;
     }
@@ -69,11 +85,12 @@ public:
     unsigned int getNumberChannels() {
         return numberChannels;
     }
-private:
+
+   private:
     unsigned int width;
     unsigned int height;
     unsigned int numberChannels = 4;
-    
+
     void init(std::vector<unsigned char>& data, Recti& rect);
     int format;
     int type;
@@ -81,6 +98,5 @@ private:
     std::vector<unsigned char> content;
 
     GLuint id;
-    
 };
 }

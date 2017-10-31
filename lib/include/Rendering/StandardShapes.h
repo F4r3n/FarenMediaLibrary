@@ -6,6 +6,8 @@ namespace fm {
     class StandardShapes {
     public:
         static rendering::MeshContainer* CreateQuad();
+        static rendering::MeshContainer* CreateQuadFullScreen();
+
         static rendering::MeshContainer* CreateCircle();
 
     private:

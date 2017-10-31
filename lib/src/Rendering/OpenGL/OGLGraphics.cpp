@@ -1,6 +1,7 @@
 #include <Rendering/Graphics.hpp>
 #include <Core/Config.h>
 #include <Rendering/OpenGL/OGLGraphicsDef.hpp>
+#include "Rendering/Model.hpp"
 using namespace fm;
 using namespace rendering;
 Graphics::Graphics() {
@@ -49,7 +50,7 @@ void Graphics::draw(int primitiveType,
     glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
-//TODO VAO needed with opengl CORE and not ES
+// TODO VAO needed with opengl CORE and not ES
 void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) {
     vertexBuffer->prepareData();
 }
@@ -61,4 +62,12 @@ void Graphics::bindFrameBuffer(unsigned int id) {
 void Graphics::bindTexture2D(int number, int idTexture) {
     glActiveTexture(GL_TEXTURE0 + number);
     glBindTexture(GL_TEXTURE_2D, idTexture);
+}
+
+void Graphics::draw(Model* model) {
+    setVertexBuffer(model->vertexBuffer);
+
+    draw(0,
+         model->meshContainer->listIndices.size(),
+         model->meshContainer->listIndices.data());
 }

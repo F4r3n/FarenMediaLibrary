@@ -4,6 +4,9 @@
 #include <memory>
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
+#include "Rendering/Model.hpp"
+#include "Resource/ResourcesManager.h"
+#include "Rendering/Graphics.hpp"
 namespace fm {
 class Renderer {
 public:
@@ -12,22 +15,22 @@ public:
     static inline Renderer& getInstance() {
         return _instance;
     }
-
+    
     void createQuadScreen();
     // void blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers);
-    void lightComputation(Texture* colorBuffer, bool compute = false);
-    void postProcess(Texture* colorBuffer);
-    void clear();
-    void blit(Texture& texture, Shader* shader) const;
-    void blit(RenderTexture& source, RenderTexture& dest, Shader* shader) const;
-    void blit(int ID, RenderTexture& dest, Shader* shader) const;
-    void SetSources(Texture *textures, int numberIDs);
-    void blit(RenderTexture& dest, Shader* shader);
-        void blit(Shader* shader);
+    void lightComputation(fm::Graphics &graphics, Texture* colorBuffer, bool compute = false);
+    void postProcess(fm::Graphics &graphics,Texture* colorBuffer);
+    void clear(fm::Graphics &graphics);
+    void blit(fm::Graphics &graphics,Texture& texture, Shader* shader) const;
+    void blit(fm::Graphics &graphics,RenderTexture& source, RenderTexture& dest, Shader* shader) const;
+    void blit(fm::Graphics &graphics,int ID, RenderTexture& dest, Shader* shader) const;
+    void SetSources(fm::Graphics &graphics,Texture *textures, int numberIDs);
+    void blit(fm::Graphics &graphics,RenderTexture& dest, Shader* shader);
+    void blit(fm::Graphics &graphics,Shader* shader);
 
 private:
     static Renderer _instance;
 
-    GLuint quadVAO;
+    fm::Model* quad;
 };
 }

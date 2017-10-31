@@ -3,8 +3,6 @@
 #define PRINT(x) std::cout << #x << std::endl;
 
 
-
-
 #define PHYSIC_SYSTEM
 #define SCRIPT_SYSTEM 
 
@@ -13,8 +11,16 @@
 #define DESKTOP 1
 #define OPENGL_CORE 1
 #define OPENGL_ES 0
+
+
+#ifdef __EMSCRIPTEN__
+    #undef OPENGL_ES
+    #define OPENGL_ES 1
+    #undef OPENGL_CORE
+#endif
+
 #if OPENGL_ES == 1
-#define OPENGL_ES_VERSION 3
+#define OPENGL_ES_VERSION 2
 #endif
 
 #if ANDROID == 1
@@ -23,7 +29,7 @@
 #define OPENGL_ES 1
 #endif
 
-#ifdef __EMSCRIPTEN__
+#if OPENGL_ES == 1
 #define USE_GLEW 0
 #else 
 #define USE_GLEW 1
@@ -36,6 +42,7 @@
 #if !USE_GLEW
     #if OPENGL_ES_VERSION == 2
         #include "SDL2/SDL_opengles2.h"
-    #endif
+    #else
     #include "SDL/SDL_opengl.h"
+    #endif
 #endif
