@@ -5,14 +5,15 @@
 #include <Component.h>
 #include "Core/Math/Vector2.h"
 #include "Resource/Resource.h"
+#include "Rendering/Texture.h"
+
 struct Character {
     fm::math::vec2 advance;
     fm::math::vec2 b_wh;
     fm::math::vec2 b_lt;
-   
-    fm::math::vec2 t;
-    
+    fm::math::vec2 t;    
 };
+
 class RFont : public fm::Resource {
 public:
     RFont(const std::string& name);
@@ -21,7 +22,8 @@ public:
     static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::FONT;}
     std::unordered_map<GLchar, Character> Characters;
     
-    GLuint tex;
+    fm::Texture *texture;
+    //GLuint tex;
     int atlas_width;
     int atlas_height;
     

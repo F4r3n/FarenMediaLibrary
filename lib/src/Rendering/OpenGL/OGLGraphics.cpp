@@ -41,32 +41,17 @@ void Graphics::draw(int primitiveType,
                     unsigned int vertexCount,
                     unsigned int* indices) {
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, indices);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Graphics::draw(int primitiveType,
                     unsigned int vertexStart,
                     unsigned int vertexCount) {
     glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
-
+//TODO VAO needed with opengl CORE and not ES
 void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) {
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->index);
-    // Position attribute
-        glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(
-        0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-
-    // UV attribute
-        glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(1,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          4 * sizeof(GLfloat),
-                          (GLvoid*)(2 * sizeof(GLfloat)));
+    vertexBuffer->prepareData();
 }
 
 void Graphics::bindFrameBuffer(unsigned int id) {

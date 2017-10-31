@@ -49,11 +49,11 @@ public:
         shader_data.render_mode = mode;
         if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
-#if OPENGL_ES_VERSION > 2
+//#if OPENGL_ES_VERSION > 2
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
-#else
-            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-#endif
+//#else
+//            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+//#endif
             renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
         } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
@@ -91,11 +91,11 @@ public:
                 if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                     fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 
-#if OPENGL_ES_VERSION > 2
+//#if OPENGL_ES_VERSION > 2
                     fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
-#else
-                    fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-#endif
+//#else
+//                    fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+//#endif
                     renderTexture = std::make_shared<fm::RenderTexture>(viewPort.w, viewPort.h, 3, formats, types, 24);
                 } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
                     fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
@@ -121,11 +121,11 @@ public:
         if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 
-#if OPENGL_ES_VERSION > 2
+//#if OPENGL_ES_VERSION > 2
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
-#else
-            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-#endif
+//#else
+//            fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+//#endif
             renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
         } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };

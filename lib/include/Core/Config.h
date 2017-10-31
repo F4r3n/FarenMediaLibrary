@@ -11,8 +11,8 @@
 #define ANDROID 0
 #define WEBGL 0
 #define DESKTOP 1
-#define OPENGL_CORE 0
-#define OPENGL_ES 1
+#define OPENGL_CORE 1
+#define OPENGL_ES 0
 #if OPENGL_ES == 1
 #define OPENGL_ES_VERSION 3
 #endif
@@ -31,12 +31,11 @@
 
 #if USE_GLEW
 #include "GL/glew.h"
-//#include "SDL2/SDL_opengles2.h"
 #endif
 
 #if !USE_GLEW
-#if OPENGL_ES_VERSION == 2
-#include "SDL2/SDL_opengles2.h"
-#endif
-#include "SDL/SDL_opengl.h"
+    #if OPENGL_ES_VERSION == 2
+        #include "SDL2/SDL_opengles2.h"
+    #endif
+    #include "SDL/SDL_opengl.h"
 #endif

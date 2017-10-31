@@ -3,9 +3,9 @@
 #include <Core/Config.h>
 #include "Image.h"
 #include "Core/Rect.h"
+
 namespace fm {
 
-    #if OPENGL_ES_VERSION > 2
 enum Format {
     RED = GL_R,
     RGB = GL_RGB,
@@ -34,26 +34,7 @@ enum Wrapping {
     MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
     CLAMP_EDGE = GL_CLAMP_TO_EDGE
 };
-#else
-enum Format {
-    RGB = GL_RGB,
-    RGBA = GL_RGBA,
-    DEPTH_16 = GL_DEPTH_COMPONENT16,
-};
 
-enum Type {
-    FLOAT = GL_FLOAT,
-    UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
-};
-
-enum Filter { NEAREST = GL_NEAREST, LINEAR = GL_LINEAR };
-
-enum Wrapping {
-    REPEAT = GL_REPEAT,
-    MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
-    CLAMP_EDGE = GL_CLAMP_TO_EDGE
-};
-#endif
 
 class Texture {
 
@@ -74,15 +55,32 @@ public:
     void release();
     Filter filter = NEAREST;
     Wrapping wrapping = REPEAT;
-
+        
+    void writeToPNG(const std::string &name);
+    void setData(void* data);
+    void setTo(int value, const fm::Recti &rect);
+    void setData(void *data, const fm::Recti &rect);
+    unsigned int getWidth() {
+        return width;
+    }
+    unsigned int getHeight() {
+        return height;
+    }
+    unsigned int getNumberChannels() {
+        return numberChannels;
+    }
 private:
-    int width;
-    int height;
+    unsigned int width;
+    unsigned int height;
+    unsigned int numberChannels = 4;
+    
     void init(std::vector<unsigned char>& data, Recti& rect);
     int format;
+    int type;
     std::string path;
     std::vector<unsigned char> content;
 
     GLuint id;
+    
 };
 }

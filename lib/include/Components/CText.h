@@ -9,6 +9,7 @@
 #include "Core/Math/Vector2.h"
 #include "Resource/RFont.h"
 #include "Serializer.h"
+#include "Rendering/VertexBuffer.hpp"
 namespace fmc {
 
 class CText : public Component<CText>, public Serializer {
@@ -19,22 +20,21 @@ public:
     
     
     std::string fontName = "dejavu";
-    GLuint VAO, VBO;
-
     std::string text = "";
+    std::string previousText = "";
     GLfloat scale = 1;
     
-    bool outline = false;
-    fm::Color outline_color;
-    fm::math::Vector2f outline_min;
-    fm::math::Vector2f outline_max;
-    
-    bool soft_edges = false;
-    fm::math::Vector2f soft_edge_values;
     static const std::string name;
-void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
+
+    fm::rendering::VertexBuffer* buffer = nullptr;
+        
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
     void parse(rapidjson::Value &value) override {}
+    
+
 private:
     fm::math::Vector2f pos = { 0, 0 };
+    
+    
 };
 }

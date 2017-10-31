@@ -51,6 +51,7 @@ Window::Window(int width, int height, const std::string& name) {
     createShaders();
     ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/dejavu/DejaVuSansMono.ttf"));
     isInit = true;
+    std::cout << "Init Over" << std::endl;
 }
 
 void Window::setMSAA(int value) {
