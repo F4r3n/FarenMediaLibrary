@@ -34,7 +34,6 @@ RenderingSystem::RenderingSystem(int width, int height)
         0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
 
     std::cout << "Create" << std::endl;
-
 }
 
 void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
@@ -74,8 +73,11 @@ void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
 
 void RenderingSystem::initStandardShapes() {
     fm::Model* quad = new fm::Model();
+    quad->name = "Quad";
     fm::Model* quadFS = new fm::Model();
+    quadFS->name = "QuadFS";
     fm::Model* circle = new fm::Model();
+    circle->name = "Circle";
     quad->meshContainer = fm::StandardShapes::CreateQuad();
     circle->meshContainer = fm::StandardShapes::CreateCircle();
     quadFS->meshContainer = fm::StandardShapes::CreateQuadFullScreen();
@@ -83,12 +85,11 @@ void RenderingSystem::initStandardShapes() {
     quad->generate();
     circle->generate();
     quadFS->generate();
-    fm::ResourcesManager::get().load<fm::Model>("Quad", quad);
-    fm::ResourcesManager::get().load<fm::Model>("QuadFS", quadFS);
+    fm::ResourcesManager::get().load<fm::Model>(quad->name, quad);
+    fm::ResourcesManager::get().load<fm::Model>(quadFS->name, quadFS);
 
-    fm::ResourcesManager::get().load<fm::Model>("Circle", circle);
+    fm::ResourcesManager::get().load<fm::Model>(circle->name, circle);
     fm::Renderer::getInstance().createQuadScreen();
-
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager& event) {
@@ -170,6 +171,8 @@ void RenderingSystem::pre_update(EntityManager& em) {
             ct->position,
             {cam->viewPort.w, cam->viewPort.h},
             ct->rotation);
+
+
 }
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event) {
@@ -243,31 +246,44 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
 
         if(state == fm::RENDER_QUEUE::OPAQUE) {
             if(mesh) {
+
+                if(mesh->model == nullptr || mesh->model->name.compare(mesh->getModelType()) != 0) {
+                    mesh->model =
+                        fm::ResourcesManager::get().getResource<fm::Model>(
+                            mesh->getModelType());
+                }
+
+                if(material->shader == nullptr && material->shaderName != "") {
+                    material->shader =
+                        fm::ResourcesManager::get().getResource<fm::Shader>(
+                            material->shaderName);
+                }
+                if(material->shader != nullptr &&
+                   !material->shader->IsReady()) {
+                    material->shader->compile();
+                }
                 fm::Shader* shader = material->shader;
-                shader->Use()
-                    ->setValue("FM_PV", cam->shader_data.FM_PV)
-                    ->setValue("BloomEffect", material->bloom);
+                if(shader != nullptr) {
+                    shader->Use()
+                        ->setValue("FM_PV", cam->shader_data.FM_PV)
+                        ->setValue("BloomEffect", material->bloom);
 
-                fm::math::mat model = fm::math::mat();
-                setModel(model, transform, worldPos);
+                    fm::math::mat model = fm::math::mat();
+                    setModel(model, transform, worldPos);
 
-                shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
-                shader->setValue("FM_M", model)
-                    ->setValue("mainColor", material->color);
-                if(material->textureReady) {
-                    glActiveTexture(GL_TEXTURE0);
-                    material->getTexture().bind();
+                    shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
+                    shader->setValue("FM_M", model)
+                        ->setValue("mainColor", material->color);
+                    if(material->textureReady) {
+                        glActiveTexture(GL_TEXTURE0);
+                        material->getTexture().bind();
+                    }
+
+                    for(auto const& value : material->getValues()) {
+                        shader->setValue(value.first, value.second);
+                    }
+                    graphics.draw(mesh->model);
                 }
-
-                for(auto const& value : material->getValues()) {
-                    shader->setValue(value.first, value.second);
-                }
-
-                graphics.setVertexBuffer(mesh->model->vertexBuffer);
-
-                graphics.draw(0,
-                              mesh->model->meshContainer->listIndices.size(),
-                              mesh->model->meshContainer->listIndices.data());
             }
         }
 
@@ -300,7 +316,6 @@ void RenderingSystem::draw(fmc::CCamera* cam) {
         // After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
            queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
-
             computeLighting(lightRenderTexture, cam, hasLight);
             computeLightDone = true;
         }

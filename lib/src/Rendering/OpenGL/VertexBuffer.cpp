@@ -13,7 +13,7 @@ void VertexBuffer::destroy() {
 }
 
 void VertexBuffer::prepareData() {
-#if !OPENGL_ES
+#if !OPENGL_ES || OPENGL_ES_VERSION > 2
     glBindVertexArray(indexVAO);
 #endif
     glBindBuffer(GL_ARRAY_BUFFER, index);
@@ -32,7 +32,7 @@ void VertexBuffer::prepareData() {
 }
 
 void VertexBuffer::generate(const std::vector<Vertex>& vertices) {
-#if !OPENGL_ES
+#if !OPENGL_ES || OPENGL_ES_VERSION > 2
 
     glGenVertexArrays(1, &indexVAO);
     glBindVertexArray(indexVAO);
@@ -48,7 +48,7 @@ void VertexBuffer::generate(const std::vector<Vertex>& vertices) {
 }
 
 void VertexBuffer::generate() {
-#if !OPENGL_ES
+#if !OPENGL_ES || OPENGL_ES_VERSION > 2
 
     glGenVertexArrays(1, &indexVAO);
     glBindVertexArray(indexVAO);
@@ -64,7 +64,7 @@ void VertexBuffer::setBufferData(void* data,
                                  unsigned int size,
                                  unsigned int dataSize,
                                  bool staticData) {
-                                     #if !OPENGL_ES
+#if !OPENGL_ES || OPENGL_ES_VERSION > 2
     glBindVertexArray(indexVAO);
 #endif
     glBindBuffer(GL_ARRAY_BUFFER, index);

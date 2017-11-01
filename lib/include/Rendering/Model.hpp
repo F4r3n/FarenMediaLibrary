@@ -17,5 +17,6 @@ public:
     rendering::MeshContainer* meshContainer;
     rendering::VertexBuffer* vertexBuffer;
     bool generated = false;
+    std::string name = "";
 };
 }

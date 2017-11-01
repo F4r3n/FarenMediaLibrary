@@ -4,7 +4,6 @@
 #include <imgui.h>
 #include <ECS.h>
 
-#include "imgui_impl_glfw_gl3.h"
 #include <type_traits>
 #include <Components/CText.h>
 #include <Components/CMesh.h>

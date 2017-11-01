@@ -15,7 +15,7 @@ add_subdirectory("extlib")
 add_subdirectory("lib")
 
 if(NOT EMSCRIPTEN)
-#add_subdirectory("gui")
+add_subdirectory("gui")
 else()
 
 endif()

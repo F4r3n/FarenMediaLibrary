@@ -2,19 +2,7 @@
 #include <string>
 #include <vector>
 #include "Core/Math/Vector2.h"
-/*#ifndef __EMSCRIPTEN__
-#define USE_GLEW 0
-#endif
 
-#if USE_GLEW
-#include "GL/glew.h"
-#endif
-
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#if !USE_GLEW
-#include "SDL/SDL_opengl.h"
-#endif*/
 #include <Core/Config.h>
 
 #include <Component.h>
@@ -38,7 +26,6 @@ public:
     ~CMesh();
 
     static const std::string name;
-    int currentShape = -1;
 
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
     }
@@ -49,8 +36,9 @@ public:
     void setType(const std::string &type);
     fm::Bounds bounds;
     bool IsmodelReady();
-    std::string getModelType() {return type;} 
-        fm::Model* model = nullptr;
+    const std::string& getModelType() const{return type;}
+    void setModelType(const std::string &type) {this->type = type;}
+    fm::Model* model = nullptr;
 
 private:
     bool created = false;

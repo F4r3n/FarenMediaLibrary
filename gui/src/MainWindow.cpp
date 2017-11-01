@@ -73,7 +73,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
     playImage = fm::Texture("assets/images/play_button.png");
 
     cameraEditor = fm::Engine::createEntity();
-    fmc::CCamera* cam = cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::DEFERRED));
+    fmc::CCamera* cam = cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     mainCameraPosition = cameraEditor->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = cameraEditor->addComponent<fmc::CIdentity>();
     identity->name = "CameraEditor";
@@ -361,14 +361,15 @@ void MainWindow::display(fmc::CMaterial* t, bool* value) {
 }
 void MainWindow::display(fmc::CMesh* t, bool* value) {
     static int current = 0;
-    static const char* ShapeNames[] = { "Rectangle", "Circle" };
+    static const char* shapeNames[] = { "Quad", "Circle" };
 
     if(ImGui::CollapsingHeader("Mesh", value)) {
 
         ImGui::PushItemWidth(120);
-        ImGui::Combo("##Shape", &current, ShapeNames, 2);
+        ImGui::Combo("##Shape", &current, shapeNames, 2);
         ImGui::PopItemWidth();
-        t->setShape(current);
+        t->setModelType(shapeNames[current]);
+        //t->setShape(current);
     }
 }
 void MainWindow::display(fmc::CText* t, bool* value) {
