@@ -139,7 +139,7 @@ public:
     InputManager(Window& window);
     InputManager();
     void pollEvents();
-
+    void processEvents();
     ~InputManager();
     bool keyIsPressed(int key);
     bool keyIsReleased(int key);
@@ -152,16 +152,15 @@ public:
     int getMouseButton(int id);
     static InputManager& getInstance();
     void init(Window& window);
-   // void init(GLFWwindow* window);
 
     int worldKeyboard(int key);
-    const SDL_Event& getLastEvent() {return event;}
-    bool isClosed() {return closed;}
+    SDL_Event& getLastEvent() {return _event;}
+    bool isClosed() {return _closed;}
 private:
-    static std::map<int, bool> keys;
-    static std::map<int, bool> keysReleased;
-    const Uint8 *state;
-    SDL_Event event;
+    static std::map<int, bool> _keys;
+    static std::map<int, bool> _keysReleased;
+    const Uint8 *_states;
+    SDL_Event _event;
     //static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
     //static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
@@ -169,11 +168,11 @@ private:
     // static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     // static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     //GLFWwindow* window;
-    bool typeKeyboard = true; /*false = querty | true = azerty*/
-    static float posX;
-    static float posY;
+    bool _typeKeyboard = true; /*false = querty | true = azerty*/
+    static float _posX;
+    static float _posY;
     
-    bool closed = false;
+    bool _closed = false;
 
 };
 }

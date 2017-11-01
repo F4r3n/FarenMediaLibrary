@@ -48,14 +48,14 @@ public:
     Shader* Use();
     bool compile();
     ~Shader();
-    bool IsReady() const{return isReady;}
+    bool IsReady() const{return _isReady;}
     static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
     void  setValue(const std::string &name, const fm::MaterialValue &value);
 
 private:
-    std::string vertex, fragment;
-    ZTEST zTest = ZTEST::LESS;
-    BLEND blendMode = BLEND::NONE;
-    bool isReady = false;
+    std::string _vertex, _fragment;
+    ZTEST _zTest = ZTEST::LESS;
+    BLEND _blendMode = BLEND::NONE;
+    bool _isReady = false;
 };
 }

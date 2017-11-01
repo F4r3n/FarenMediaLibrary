@@ -73,12 +73,13 @@ void Window::createShaders() {
     ShaderLibrary::loadShaders();
 }
 
-void Window::update(float fps) {
+void Window::update(float fps, bool internalUpdate) {
     // events();
     this->fpsMax = fps;
     wait_time = 1.0f / (float)fpsMax;
     frameLimit(fps);
-    fm::InputManager::getInstance().pollEvents();
+    if(internalUpdate)
+        fm::InputManager::getInstance().pollEvents();
 }
 
 void Window::frameLimit(unsigned short fps) {

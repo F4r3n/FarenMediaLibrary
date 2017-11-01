@@ -9,6 +9,7 @@
 
 #include "MainWindow.h"
 #include <Core/Debug.h>
+#include <Input/InputManager.h>
 void menuBar() {
 }
 
@@ -22,10 +23,14 @@ int main() {
     MainWindow mainWindow(&engine);
 
     while(!window.isClosed()) {
-
-        window.update(60);
+        while (SDL_PollEvent(&fm::InputManager::getInstance().getLastEvent()))
+        {
+            fm::InputManager::getInstance().processEvents();
+            ImGui_ImplSdlGL3_ProcessEvent(&fm::InputManager::getInstance().getLastEvent());
+        }
+        window.update(60, false);
         ImGui_ImplSdlGL3_NewFrame(window.getWindow());
-
+        
         engine.update(fm::Time::dt);
 
         mainWindow.draw();

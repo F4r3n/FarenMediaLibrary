@@ -68,7 +68,7 @@ class Texture {
     void bind() const;
     void clear();
     inline unsigned int getID() const {
-        return id;
+        return _id;
     }
     void generate(int width, int height, Format format, Type type);
     void release();
@@ -79,27 +79,27 @@ class Texture {
     void setData(void* data);
     void setTo(int value, const fm::Recti& rect);
     void setData(void* data, const fm::Recti& rect);
-    unsigned int getWidth() {
-        return width;
+    unsigned int getWidth() const{
+        return _width;
     }
-    unsigned int getHeight() {
-        return height;
+    unsigned int getHeight() const{
+        return _height;
     }
-    unsigned int getNumberChannels() {
-        return numberChannels;
+    unsigned int getNumberChannels() const{
+        return _numberChannels;
     }
 
    private:
-    unsigned int width;
-    unsigned int height;
-    unsigned int numberChannels = 4;
+    unsigned int _width;
+    unsigned int _height;
+    unsigned int _numberChannels = 4;
 
     void init(std::vector<unsigned char>& data, Recti& rect);
-    int format;
-    int type;
-    std::string path;
-    std::vector<unsigned char> content;
+    int _format;
+    int _type;
+    std::string _path;
+    std::vector<unsigned char> _content;
 
-    GLuint id;
+    GLuint _id;
 };
 }

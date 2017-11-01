@@ -4,12 +4,12 @@
 #include <iostream>
 using namespace fm;
 
-std::map<int, bool> InputManager::keys;
-std::map<int, bool> InputManager::keysReleased;
+std::map<int, bool> InputManager::_keys;
+std::map<int, bool> InputManager::_keysReleased;
 InputManager InputManager::_instance;
 
-float InputManager::posX = 0;
-float InputManager::posY = 0;
+float InputManager::_posX = 0;
+float InputManager::_posY = 0;
 
 InputManager::InputManager(Window& window) {
     init(window);
@@ -39,15 +39,15 @@ void InputManager::getMousePosition(double& posX, double& posY) {
 }
 
 float InputManager::getMousePositionX() {
-    return posX;
+    return _posX;
 }
 
 float InputManager::getMousePositionY() {
-    return posY;
+    return _posY;
 }
 
 int InputManager::worldKeyboard(int key) {
-    if(!typeKeyboard)
+    if(!_typeKeyboard)
         return key;
     if(key == FM_KEY_A)
         return FM_KEY_Q;
@@ -85,35 +85,30 @@ void InputManager::getMousePosition(math::Vector2d& pos) {
 }
 
 bool InputManager::keyIsPressed(int key) {
-    return event.type == key;
+    return _event.type == key;
 }
 
 bool InputManager::keyIsReleased(int key) {
-    bool v = keysReleased[key];
-    keysReleased[key] = false;
+    bool v = _keysReleased[key];
+    _keysReleased[key] = false;
     return v;
 }
 
 int InputManager::getMouseButton(int id) {
-    return event.type == id;
+    return _event.type == id;
 }
 
-// void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-//{
-//    if(keys[key] && action == GLFW_RELEASE) {
-//        keysReleased[key] = true;
-//    }
-//    keys[key] = (action == GLFW_PRESS) ? true : false;
-//}
+void InputManager::processEvents() {
+            _states = SDL_GetKeyboardState(nullptr);
+        if(_event.type == SDL_WINDOWEVENT) {
+            _closed = (_event.window.event == SDL_WINDOWEVENT_CLOSE);
+        }
+}
 
 void InputManager::pollEvents() {
-    closed = false;
-    while(SDL_PollEvent(&event)) {
-
-        state = SDL_GetKeyboardState(nullptr);
-        if(event.type == SDL_WINDOWEVENT) {
-            closed = (event.window.event == SDL_WINDOWEVENT_CLOSE);
-        }
+    _closed = false;
+    while(SDL_PollEvent(&_event)) {
+        processEvents();
     }
 }
 

@@ -7,13 +7,13 @@ Shader::Shader() {
 }
 
 Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode) {
-    this->vertex = vertexCode;
-    this->fragment = fragmentCode;
+    _vertex = vertexCode;
+    _fragment = fragmentCode;
 }
 
 bool Shader::compile() {
-    const GLchar* vShaderCode = vertex.c_str();
-    const GLchar* fShaderCode = fragment.c_str();
+    const GLchar* vShaderCode = _vertex.c_str();
+    const GLchar* fShaderCode = _fragment.c_str();
 
     GLuint vertex, fragment;
     GLint success;
@@ -58,7 +58,7 @@ bool Shader::compile() {
     // Delete the shaders as they're linked into our program now and no longer necessery
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-    isReady = true;
+    _isReady = true;
     return true;
 }
 

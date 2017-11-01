@@ -10,6 +10,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "Rendering/Texture.h"
+#include "Inspector.hpp"
 using namespace rapidjson;
 #define LIST_COMPONENT fmc::CTransform, fmc::CMesh, fmc::CMaterial, fmc::Body2D, fmc::CText
 
@@ -101,19 +102,13 @@ public:
     template <typename T, typename... Args> void displayComponent(Entity* currentEntity) {
         bool value = true;
         if(currentEntity->has<T>())
-            display(currentEntity->get<T>(), &value);
+            Inspector::OnDraw(currentEntity->get<T>(), &value);
         if(!value) {
             currentEntity->remove<T>();
         }
         displayComponent<Args...>(currentEntity);
     }
-
-    void display(fmc::CTransform* t, bool *value);
-    void display(fmc::Body2D* t, bool *value);
-    void display(fmc::CMaterial* t, bool *value);
-    void display(fmc::CMesh* t, bool *value);
-    void display(fmc::CText* t, bool *value);
-    void display(fmc::CDirectionalLight* t, bool *value);
+    
     template <typename T>
     void display(T *t, bool *value) {
          if(ImGui::CollapsingHeader(T::name, value)) {

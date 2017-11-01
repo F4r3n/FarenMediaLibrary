@@ -11,6 +11,7 @@
 #include "rapidjson/document.h"
 #include <Components/CPointLight.h>
 #include "Rendering/RenderingSystem.h"
+#include "Inspector.hpp"
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
     // From    https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
@@ -280,7 +281,7 @@ void MainWindow::window_WorldLightEditDisplay() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
     ImGui::Begin("World light", &window_WorldLightEdit);
-    display(dlight->get<fmc::CDirectionalLight>(), &value);
+    Inspector::OnDraw(dlight->get<fmc::CDirectionalLight>(), &value);
     ImGui::End();
 }
 
@@ -330,59 +331,3 @@ void MainWindow::draw() {
     ImGui::End();
 }
 
-void MainWindow::display(fmc::CTransform* t, bool* value) {
-    if(ImGui::CollapsingHeader("Transform")) {
-        ImGui::PushItemWidth(100);
-        ImGui::DragFloat2("Position", &t->position.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
-        ImGui::DragFloat2("Size", &t->scale.x, 0.02f, -FLT_MAX, FLT_MAX, NULL, 2.0f);
-        ImGui::DragInt("Layer", &t->layer, 1, 0, 99);
-        ImGui::PopItemWidth();
-    }
-}
-
-void MainWindow::display(fmc::Body2D* t, bool* value) {
-    static bool isDynamic = false;
-    if(ImGui::CollapsingHeader("Body2D", value)) {
-        ImGui::DragFloat2("Size##Body", &t->size.x, 0.02f, 0, FLT_MAX, NULL, 2.0f);
-        if(ImGui::Checkbox("Is dynamic", &isDynamic)) {
-            t->isDynamic = isDynamic;
-            if(isDynamic) {
-                t->bodyDef.type = b2_dynamicBody;
-            } else {
-                t->bodyDef.type = b2_staticBody;
-            }
-        }
-    }
-}
-void MainWindow::display(fmc::CMaterial* t, bool* value) {
-    if(ImGui::CollapsingHeader("Material", value)) {
-        ImGui::ColorEdit3("Color", &t->color.r);
-    }
-}
-void MainWindow::display(fmc::CMesh* t, bool* value) {
-    static int current = 0;
-    static const char* shapeNames[] = { "Quad", "Circle" };
-
-    if(ImGui::CollapsingHeader("Mesh", value)) {
-
-        ImGui::PushItemWidth(120);
-        ImGui::Combo("##Shape", &current, shapeNames, 2);
-        ImGui::PopItemWidth();
-        t->setModelType(shapeNames[current]);
-        //t->setShape(current);
-    }
-}
-void MainWindow::display(fmc::CText* t, bool* value) {
-
-    if(ImGui::CollapsingHeader("Text Renderer", value)) {
-        static char textToRender[256];
-        ImGui::InputText("Text", textToRender, 256);
-        ImGui::DragFloat("Size Text", &t->scale, 0.1, 0, 10);
-        t->text = std::string(textToRender);
-    }
-}
-void MainWindow::display(fmc::CDirectionalLight* t, bool* value) {
-    if(ImGui::CollapsingHeader("Directional Light")) {
-        ImGui::ColorEdit3("Color", &t->color.r);
-    }
-}
