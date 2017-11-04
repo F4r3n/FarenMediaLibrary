@@ -8,6 +8,7 @@
 class Position : public Component<Position> {
 public:
     Position() {
+        _name = "Position";
     }
     int x = 0;
     int y = 0;
@@ -20,6 +21,7 @@ public:
 class Data : public Component<Data> {
 public:
     Data() {
+        _name = "Data";
     }
     int x = 1;
     int y = 1;
@@ -30,6 +32,7 @@ public:
 class Data2 : public Component<Data2> {
 public:
     Data2() {
+        _name = "Data2";
     }
     int x = 1;
     int y = 1;
@@ -40,6 +43,7 @@ public:
 class C2 : public Component<C2> {
 public:
     C2() {
+        _name = "C2";
     }
     int x = 2;
     int y = 2;
@@ -131,9 +135,20 @@ int main() {
     SystemManager systemManager(0);
 
     Entity* e = EntityManager::get().createEntity();
-    e->addComponent<Position>();
+    e->addComponent<Position>()->x = 1;
     e->addComponent<Data>();
-
+    std::vector<BaseComponent*> compos = e->getAllComponents();
+    for(auto c : compos) {
+        std::cout << c->getName() << std::endl;
+        if(c->getName().compare("Position") == 0) {
+            Position* p = dynamic_cast<Position*>(c);
+            if(p != nullptr) {
+                std::cout << p->x << std::endl;
+                p->x++;
+            }
+        }
+    }
+    std::cout << e->get<Position>()->x << std::endl;
     
     EntityManager::get().make();
     systemManager.addSystem<Movement>(new Movement());
@@ -143,7 +158,7 @@ int main() {
     
 
   //Test 1000 iterations
-    for(int i = 0; i < 1000; ++i){
+    /*for(int i = 0; i < 1000; ++i){
         std::cout << "Itreation " << i << std::endl;
         //if(i < 100) {
         //    Position* p = EntityManager::get().createEntity()->addComponent<Position>();
@@ -151,6 +166,6 @@ int main() {
         //}
         systemManager.update(0.016, EntityManager::get(), EventManager::get());
         //++i;
-    }
+    }*/
     return 0;
 }

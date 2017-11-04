@@ -67,7 +67,7 @@ if(${EMSCRIPTEN})
 set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s USE_FREETYPE=1 -s FULL_ES2=1 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -o ${PROJECT_NAME}.html -v")
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua_shared openal ECS_static Box2D )
 else ()
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s glew SDL2-2.0 lua_shared glew freetype openal ECS_static Box2D ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D ${OPENGL_LIBRARIES})
 endif()
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)

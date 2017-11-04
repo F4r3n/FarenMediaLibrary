@@ -3,6 +3,7 @@ using namespace fmc;
 const std::string CScriptManager::name = "Script Manager";
 
 CScriptManager::CScriptManager() {
+    _name = "ScriptManager";
 }
 
 CScriptManager::~CScriptManager() {

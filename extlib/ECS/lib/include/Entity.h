@@ -43,6 +43,10 @@ public:
         return EntityManager::get().removeComponent<T>(ID);
     }
     
+    std::vector<BaseComponent*> getAllComponents() {
+        return EntityManager::get().getAllComponents(this);
+    }
+    
     void destroy();
 private:
 };

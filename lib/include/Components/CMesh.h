@@ -24,6 +24,7 @@ public:
     CMesh(std::string type);
     CMesh();
     ~CMesh();
+    int* get(int v) {return nullptr;}
 
     static const std::string name;
 

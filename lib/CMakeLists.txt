@@ -66,7 +66,7 @@ link_directories(${FML_EXTLIB_LIB}/lua)
 include_directories(${FML_EXTLIB}/Box2D/)
 link_directories(${FML_EXTLIB_LIB}/Box2D)
 
-if(FML_BUILD_STATIC)
+
 set(LIB_NAME ${PROJECT_NAME}_s)
 
 	add_library(${LIB_NAME} STATIC ${SOURCES})
@@ -81,9 +81,9 @@ set(LIB_NAME ${PROJECT_NAME}_s)
 	if(CMAKE_COMPILER_IS_GNUCXX)
 		target_link_libraries(${LIB_NAME} gcc_s stdc++)
 	endif(CMAKE_COMPILER_IS_GNUCXX)
-endif(FML_BUILD_STATIC)
 
-if(FML_BUILD_SHARED)
+
+
 set(LIB_NAME ${PROJECT_NAME})
 
 	add_library(${LIB_NAME} SHARED ${SOURCES})
@@ -98,7 +98,7 @@ set(LIB_NAME ${PROJECT_NAME})
 	if(CMAKE_COMPILER_IS_GNUCXX)
 		target_link_libraries(${LIB_NAME} gcc stdc++)
 	endif(CMAKE_COMPILER_IS_GNUCXX)
-endif(FML_BUILD_SHARED)
+
 
 #INSTALL( DIRECTORY ${LIB_NAME} DESTINATION /usr/local/lib/fml/ )
 

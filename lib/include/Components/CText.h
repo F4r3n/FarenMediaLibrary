@@ -18,7 +18,8 @@ public:
     CText();
     ~CText();
     
-    
+        int* get(int v) {return nullptr;}
+
     std::string fontName = "dejavu";
     std::string text = "";
     std::string previousText = "";

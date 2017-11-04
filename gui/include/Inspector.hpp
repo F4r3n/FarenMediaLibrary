@@ -13,8 +13,11 @@ class CText;
 class Inspector {
    public:
     Inspector();
-    ~Inspector();
+    virtual ~Inspector();
 
+    virtual void draw() {}
+    virtual void setTarget(BaseComponent* compo) {compo = _component;}
+    BaseComponent* _component = nullptr;
     static void OnDraw(fmc::CMesh *mesh, bool *value);
     static void OnDraw(fmc::CMaterial *material, bool *value);
     static void OnDraw(fmc::Body2D *body, bool *value);

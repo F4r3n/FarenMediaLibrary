@@ -27,7 +27,8 @@ public:
 
     ALuint source;
     ALuint buf;
-    
+        int* get(int v) {return nullptr;}
+
     bool toUpdate = false;
     static const std::string name;
 private:

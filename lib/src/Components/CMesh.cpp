@@ -6,17 +6,18 @@
 using namespace fmc;
 const std::string CMesh::name = "Mesh";
 
-
 CMesh::~CMesh() {
-    //destroy();
+    // destroy();
 }
 
-CMesh::CMesh() {}
+CMesh::CMesh() {
+    _name = "Mesh";
+   // _name("Mesh");
+}
 
 bool CMesh::IsmodelReady() {
     return model != nullptr;
 }
-
 
 void CMesh::setType(const std::string &type) {
     this->type = type;

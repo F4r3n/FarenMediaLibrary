@@ -4,7 +4,10 @@
 #include "EntityManager.h"
 
 #include "Serializer.h"
+//#include "Core/MacroHelper.h"
+
 class Entity;
+
 
 namespace fmc {
 class CTransform : public Component<CTransform>, public Serializer {
@@ -34,6 +37,6 @@ public:
 
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override;
     void parse(rapidjson::Value &value) override;
-     
+
 };
 }

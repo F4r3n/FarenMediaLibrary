@@ -7,13 +7,15 @@
 namespace fmc {
 
 class Body2D : public Component<Body2D>, public Serializer {
-public:
+   public:
     Body2D(unsigned int w, unsigned int h, bool isDynamic = false) {
         this->isDynamic = isDynamic;
         size.x = w;
         size.y = h;
+        _name = "Body2D";
     }
     Body2D() {
+        _name = "Body2D";
     }
 
     ~Body2D() {
@@ -46,18 +48,21 @@ public:
     size_t* identity = nullptr;
     fm::math::Vector2f size;
     bool isDynamic = false;
-    
-    static const std::string name;
-    
-    bool isReady = false;
-void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
-    void parse(rapidjson::Value &value) override {}
-            b2BodyDef bodyDef;
-    b2Body* body;
-    private:
 
+    static const std::string name;
+
+    bool isReady = false;
+    void serialize(
+        rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+    }
+    void parse(rapidjson::Value& value) override {
+    }
+    b2BodyDef bodyDef;
+    b2Body* body;
+    int* get(int v) {return nullptr;}
+   private:
     b2PolygonShape box;
     b2FixtureDef fixtureDef;
-    b2Fixture *fixture;
+    b2Fixture* fixture;
 };
 }

@@ -57,6 +57,14 @@ public:
     void resetMask() {
         bits.reset();
     }
+    
+    std::vector<BaseComponent*> getAllComponents() {
+        std::vector<BaseComponent*> temp;
+        for(auto &c : components) {
+            temp.push_back(c.second.get());
+        }
+        return temp;
+    }
 
 private:
     std::bitset<MAX_COMPONENTS> bits;

@@ -18,7 +18,9 @@ public:
 
     Entity* createEntity();
     void getEntities(std::function<void(Entity*)> func);
-    
+    std::vector<BaseComponent*> getAllComponents(Entity *e) { 
+        return entitiesComponents[getID(e)]->getAllComponents();
+    }
     void getEntitiesWithComponents(std::function<void(Entity*)> func, Mask& bits);
     void killAll();
     bool isExists(size_t id) const;

@@ -6,11 +6,13 @@ const std::string CSource::name = "Sound";
 
 CSource::CSource() {
      alGenSources((ALuint)1, &source);
+     _name = "Source";
 }
 
 CSource::CSource(const std::string& path) {
      alGenSources((ALuint)1, &source);
     loadAudio(path);
+    _name = "Source";
 }
 
 CSource::~CSource() {

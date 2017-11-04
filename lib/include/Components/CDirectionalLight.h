@@ -11,6 +11,7 @@ public:
     fm::Color color;
     static const std::string name;
     
+    int* get(int v) {return nullptr;}
 
 };
 }

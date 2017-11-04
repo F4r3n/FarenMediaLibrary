@@ -23,6 +23,7 @@ public:
     bool isOrthographic() {
         return isOrto;
     }
+    int* get(int v) {return nullptr;}
 
     float getFarPlane() {
         return farPlane;
@@ -33,8 +34,11 @@ public:
     }
 
     CCamera() {
+        _name = "Camera";
     }
     CCamera(int width, int height, fmc::RENDER_MODE mode) {
+                _name = "Camera";
+
         isOrto = true;
         // projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
         projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, nearPlane, farPlane);

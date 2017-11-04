@@ -1,17 +1,23 @@
 #include "Components/CTransform.h"
 #include "Entity.h"
 #include <EntityManager.h>
+//#include "TransformInspector.h"
 using namespace fmc;
 const std::string CTransform::name = "Transform";
 
 CTransform::CTransform() {
+    _name = "Transform";
+    //inspector = new gui::TransformInspector();
 }
 
-CTransform::CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer)
-    : position(position)
-    , scale(scale)
-    , rotation(rotation)
-    , layer(layer) {
+CTransform::CTransform(const fm::math::Vector2f& position,
+                       const fm::math::Vector2f& scale,
+                       const float& rotation,
+                       const int& layer)
+    :  position(position), scale(scale), rotation(rotation), layer(layer) {
+        _name = "Transform";
+    //inspector = new gui::TransformInspector();
+
 }
 
 fm::math::Vector2f CTransform::getWorldPos() {
@@ -57,6 +63,6 @@ void CTransform::parse(rapidjson::Value& value) {
     scale.x = value[name.c_str()][2].GetDouble();
     scale.y = value[name.c_str()][3].GetDouble();
     layer = value[name.c_str()][4].GetInt();
-    
+
     std::cout << position << " " << scale << " " << layer << std::endl;
 }

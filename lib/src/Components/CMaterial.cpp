@@ -4,11 +4,13 @@ const std::string CMaterial::name = "Material";
 
 CMaterial::CMaterial() {
     color = fm::Color(1, 1, 1, 1);
+    _name = "Material";
 }
 
 CMaterial::CMaterial(const fm::Color &color, bool bloom) {
     this->color = color;
     this->bloom = bloom;
+    _name = "Material";
 }
 
 CMaterial::~CMaterial() {

@@ -8,5 +8,6 @@ include_directories("../lib/include")
 
 link_directories("../bin")
 add_executable("testECS" main.cpp)
-set_target_properties("testECS" PROPERTIES LINK_FLAGS "-s ALLOW_MEMORY_GROWTH=1")
-target_link_libraries("testECS" ECS)
+
+target_link_libraries(STATIC "testECS" ECS_static)
+target_link_libraries(SHARED "testECS" ECS)

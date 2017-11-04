@@ -20,6 +20,7 @@ template <typename T>
         }
     }
     static const std::string name;
+    int* get(int v) {return nullptr;}
 
 private:
     std::vector<std::shared_ptr<fm::Script> > scripts;
