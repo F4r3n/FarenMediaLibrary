@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
 file(GLOB SOURCES "src/*.cpp")
 include_directories(include)
 
-set(FML_PATH /home/guillaume2/projet/fml/FarenMediaLibrary)
+set(FML_PATH /home/guillaume2/project/fml/FarenMediaLibrary)
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${FML_PATH}/build)
 
