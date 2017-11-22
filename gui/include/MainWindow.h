@@ -7,12 +7,9 @@
 #include <type_traits>
 #include <Components/CText.h>
 #include <Components/CMesh.h>
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
 #include "Rendering/Texture.h"
 #include "Inspector.hpp"
-using namespace rapidjson;
-
+#include "Core/GameObject.h"
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -24,25 +21,17 @@ namespace fm {
 class Engine;
 }
 
-
-
 class MainWindow {
 
-    struct EntityDisplay {
-        std::string name;
-        size_t id;
-    };
 
 public:
     MainWindow(fm::Engine* engine);
 
-    
-
-    void displayComponents(Entity* currentEntity);
+    void displayComponents(fm::GameObject* currentEntity);
     void menu();
     void menuEntity();
     void listEntity();
-    void getAllEntities();
+    std::vector<const char*> getAllEntities();
     void draw();
     void displayComponentsAvailable();
     
@@ -52,17 +41,12 @@ public:
     void fileSystem_save_window();
 
 private:
-    
 
-    Entity* currentEntity;
+    fm::GameObject* currentEntity;
     bool windowCurrentEntity = false;
     bool windowListEntity = false;
 
-    int currentEntitySelected = 0;
-    int previousEntitySelected = 0;
     float timerListEntityUpdate = 1;
-    std::vector<const char*> entitiesName;
-    std::vector<EntityDisplay> entityDisplay;
 
     bool choiceComponent = false;
 
@@ -80,7 +64,6 @@ private:
     std::string nameCurrentScene = "";
     bool fileSystem_save = false;
     
-    rapidjson::StringBuffer lastState;
     fm::Texture playImage;
     
     Entity* cameraEditor;

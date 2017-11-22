@@ -7,7 +7,7 @@
 
 #include "EntityManager.h"
 #include "Component.h"
-
+#include "Serializer.hpp"
 class Entity
 {
 
@@ -48,6 +48,15 @@ public:
     }
     
     void destroy();
+    void serialize() {
+        Serializer serializer;
+        serializer.write("IDEntity", ID);
+        std::vector<BaseComponent*> compos = getAllComponents();
+        for(BaseComponent* compo : compos) {
+            compo->serialize(serializer);
+        }
+        serializer.writeToFile(std::to_string(ID) + ".json");
+    }
 private:
 };
 

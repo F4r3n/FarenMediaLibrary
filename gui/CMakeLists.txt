@@ -34,7 +34,7 @@ include_directories(${FML_EXTLIB}/sol2)
 include_directories(${FML_EXTLIB}/stb)
 
 #RAPID_JSON
-include_directories(${FML_EXTLIB}/rapidjson/include)
+include_directories(${FML_EXTLIB}/json/include)
 
 #ECS
 include_directories(${FML_EXTLIB}/ECS/lib/include)

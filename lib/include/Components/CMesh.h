@@ -9,7 +9,6 @@
 #include "Core/Color.h"
 #include "Core/Bounds.h"
 
-#include "Serializer.h"
 #include <Rendering/Model.hpp>
 namespace fmc {
 enum SHAPE { RECTANGLE, CIRCLE, LAST_SHAPE };
@@ -18,7 +17,7 @@ struct Vertex {
     fm::math::Vector2f uv;
 };
 
-class CMesh : public Component<CMesh>, public Serializer {
+class CMesh : public Component<CMesh> {
 
 public:
     CMesh(std::string type);
@@ -28,10 +27,6 @@ public:
 
     static const std::string name;
 
-    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
-    }
-    void parse(rapidjson::Value& value) override {
-    }
 
     void computeBoundingSize();
     void setType(const std::string &type);

@@ -19,20 +19,20 @@ public:
     Entity* createEntity();
     void getEntities(std::function<void(Entity*)> func);
     std::vector<BaseComponent*> getAllComponents(Entity *e) { 
-        return entitiesComponents[getID(e)]->getAllComponents();
+        return _entitiesComponents[_getID(e)]->getAllComponents();
     }
     void getEntitiesWithComponents(std::function<void(Entity*)> func, Mask& bits);
     void killAll();
     bool isExists(size_t id) const;
     inline bool checkID(size_t ID) const {
-        return ID == MAX_ID;
+        return ID == _MAX_ID;
     }
     
     template <typename T> bool removeComponent(size_t ID) {
          if(checkID(ID))
             return false;
-        if(entitiesComponents[ID] != nullptr) {
-            return entitiesComponents[ID]->remove<T>();
+        if(_entitiesComponents[ID] != nullptr) {
+            return _entitiesComponents[ID]->remove<T>();
         }
         return false;
     }
@@ -40,27 +40,27 @@ public:
     template <typename T> T* addComponent(size_t ID, Component<T>* c) {
         if(checkID(ID))
             return nullptr;
-        if(entitiesComponents[ID] != nullptr) {
-            return entitiesComponents[ID]->addComponent<T>(c);
+        if(_entitiesComponents[ID] != nullptr) {
+            return _entitiesComponents[ID]->addComponent<T>(c);
         } else {
-            entitiesComponents[ID] = std::make_unique<ComponentManager>();
-            return entitiesComponents[ID]->addComponent<T>(c);
+            _entitiesComponents[ID] = std::make_unique<ComponentManager>();
+            return _entitiesComponents[ID]->addComponent<T>(c);
         }
     }
 
     template <typename T> T* addComponent(Entity* e, Component<T>* c) {
-        return addComponent<T>(getID(e), c);
+        return addComponent<T>(_getID(e), c);
     }
     
 
     std::array<std::unique_ptr<ComponentManager>, POOL_SIZE>& getEntitiesComponents() {
-        return entitiesComponents;
+        return _entitiesComponents;
     }
 
     template <typename T> T* get(Entity* e) {
-        if(!entitiesComponents[getID(e)])
+        if(!_entitiesComponents[_getID(e)])
             return nullptr;
-        return entitiesComponents[getID(e)]->getComponent<T>();
+        return _entitiesComponents[_getID(e)]->getComponent<T>();
     }
 
     void deleteEntity(Entity* e);
@@ -73,14 +73,14 @@ public:
     template <typename T>
     bool hasComponent(size_t id) {
         if(checkID(id)) return false;
-        return entitiesComponents[id]->has<T>();
+        return _entitiesComponents[id]->has<T>();
     }
     inline Entity* getEntity(const size_t id) {
         if(checkID(id)) return nullptr;
-        return entities_alive[id];
+        return _entities_alive[id];
     }
     inline Entity* getEntityNotSafe(const size_t id) {
-        return entities_alive[id];
+        return _entities_alive[id];
     }
     
 class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t> {
@@ -192,36 +192,36 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
     
     template <typename ...Args>
     EntityIteratorMask iterate() {
-        EntityIteratorMask iterator(createMask<Args...>(), posIndex, 0);
+        EntityIteratorMask iterator(createMask<Args...>(), _posIndex, 0);
         return iterator;
     }
     
     EntityIteratorMask iterate(const Mask &mask) {
-        EntityIteratorMask iterator(mask, posIndex, 0);
+        EntityIteratorMask iterator(mask, _posIndex, 0);
         return iterator;
     }
 
     EntityIterator simpleIterate() {
-        EntityIterator iterator(*this, posIndex, 0);
+        EntityIterator iterator(*this, _posIndex, 0);
         return iterator;
     }
 private:
-    void destroyEntity(size_t id, bool isActive);
+    void _destroyEntity(size_t id, bool isActive);
+    size_t _getID(Entity* e);
 
-    size_t getID(Entity* e);
-    const size_t MAX_ID = std::numeric_limits<size_t>::max();
+    const size_t _MAX_ID = std::numeric_limits<size_t>::max();
 
-    std::vector<size_t> free_id;
+    std::vector<size_t> _free_id;
 
-    std::vector<pEntity> entities_alive;
-    std::vector<pEntity> temp_entities;
-    std::vector<size_t> entities_killed;
+    std::vector<pEntity> _entities_alive;
+    std::vector<pEntity> _temp_entities;
+    std::vector<size_t> _entities_killed;
 
-    std::array<std::unique_ptr<ComponentManager>, POOL_SIZE> entitiesComponents;
+    std::array<std::unique_ptr<ComponentManager>, POOL_SIZE> _entitiesComponents;
     static EntityManager em;
 
-    size_t capacity = 0;
-    size_t posIndex = 0;
+    size_t _capacity = 0;
+    size_t _posIndex = 0;
     
 };
 

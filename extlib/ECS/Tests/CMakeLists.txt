@@ -6,6 +6,7 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 include_directories("../lib/include")
+include_directories("../extlib/json/include")
 link_directories("../bin")
 
 enable_testing()

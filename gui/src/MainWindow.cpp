@@ -8,13 +8,13 @@
 #include "Components/CIdentity.h"
 #include <Components/CTransform.h>
 #include <Components/CMaterial.h>
-#include "rapidjson/document.h"
 #include <Components/CPointLight.h>
 #include "Rendering/RenderingSystem.h"
 #include "Inspector.hpp"
 #include "TransformInspector.h"
 #include "MaterialInspector.h"
 #include "MeshInspector.h"
+#include "Core/SceneManager.h"
 MainWindow::MainWindow(fm::Engine* engine) {
     this->engine = engine;
     // From https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
@@ -81,58 +81,57 @@ MainWindow::MainWindow(fm::Engine* engine) {
 
     dlight = fm::Engine::createEntity();
     dlight->addComponent<fmc::CDirectionalLight>(
-        new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
+            new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
     dlight->addComponent<fmc::CTransform>(new fmc::CTransform(
-        fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
+                fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
     dlight->addComponent<fmc::CIdentity>()->display = false;
 
     playImage = fm::Texture("assets/images/play_button.png");
 
     cameraEditor = fm::Engine::createEntity();
-    fmc::CCamera* cam =
-        cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(
-            fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
+    cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(
+                fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     mainCameraPosition = cameraEditor->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = cameraEditor->addComponent<fmc::CIdentity>();
     identity->name = "CameraEditor";
     identity->display = false;
-    fmc::Body2D* b = cameraEditor->addComponent<fmc::Body2D>(
-        new fmc::Body2D(100, 100, true));
+
 
     // cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
     engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
+    fm::SceneManager::get().addScene(new fm::Scene("newScene"));
+    fm::SceneManager::get().setCurrentScene("newScene");
 }
 
-void MainWindow::displayComponents(Entity* currentEntity) {
-    // return;
+void MainWindow::displayComponents(fm::GameObject* currentEntity) {
     std::vector<BaseComponent*> compos = currentEntity->getAllComponents();
-
-    if(_inspectorComponents.find(currentEntity->ID) ==
-       _inspectorComponents.end()) {
+    
+    if(_inspectorComponents.find(currentEntity->getID()) ==
+            _inspectorComponents.end()) {
         std::unordered_map<std::string, Inspector*> inspectors;
 
         _inspectorComponents.insert(
-            std::pair<size_t, std::unordered_map<std::string, Inspector*>>(
-                currentEntity->ID, inspectors));
+                std::pair<size_t, std::unordered_map<std::string, Inspector*>>(
+                    currentEntity->getID(), inspectors));
     }
 
     for(auto c : compos) {
-        if(_inspectorComponents[currentEntity->ID][c->getName()] == nullptr) {
+        if(_inspectorComponents[currentEntity->getID()][c->getName()] == nullptr) {
             if(c->getName().compare("Transform") == 0) {
-                _inspectorComponents[currentEntity->ID][c->getName()] =
+                _inspectorComponents[currentEntity->getID()][c->getName()] =
                     new gui::TransformInspector(c);
             } else if(c->getName().compare("Material") == 0) {
-                _inspectorComponents[currentEntity->ID][c->getName()] =
+                _inspectorComponents[currentEntity->getID()][c->getName()] =
                     new gui::MaterialInspector(c);
             }
-            
+
             else if(c->getName().compare("Mesh") == 0) {
-                _inspectorComponents[currentEntity->ID][c->getName()] =
+                _inspectorComponents[currentEntity->getID()][c->getName()] =
                     new gui::MeshInspector(c);
             }
         } else {
-            _inspectorComponents[currentEntity->ID][c->getName()]->draw();
+            _inspectorComponents[currentEntity->getID()][c->getName()]->draw();
         }
     }
 }
@@ -188,11 +187,11 @@ void MainWindow::menu() {
         if(ImGui::BeginMenu("Entity")) {
             if(ImGui::MenuItem("Create")) {
                 windowCurrentEntity = true;
-                currentEntity = EntityManager::get().createEntity();
+                currentEntity = fm::GameObjectHelper::create();
                 currentEntity->addComponent<fmc::CTransform>(
-                    new fmc::CTransform(fm::math::Vector2f(0, 0),
-                                        fm::math::Vector2f(100, 100),
-                                        0));
+                        new fmc::CTransform(fm::math::Vector2f(0, 0),
+                            fm::math::Vector2f(100, 100),
+                            0));
                 currentEntity->addComponent<fmc::CIdentity>();
             }
             if(ImGui::MenuItem("List entity")) {
@@ -226,8 +225,8 @@ void MainWindow::menuEntity() {
         ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
 
         ImGui::Begin(std::string("Create entity " +
-                                 std::to_string(currentEntity->ID)).c_str(),
-                     &windowCurrentEntity);
+                    std::to_string(currentEntity->getID())).c_str(),
+                &windowCurrentEntity);
 
         displayComponents(currentEntity);
 
@@ -238,7 +237,7 @@ void MainWindow::menuEntity() {
             ImGui::MenuItem("Components", NULL, false, false);
 
             if(!currentEntity->has<fmc::CTransform>() &&
-               ImGui::MenuItem("Transform")) {
+                    ImGui::MenuItem("Transform")) {
                 currentEntity->add<fmc::CTransform>();
             }
 
@@ -258,54 +257,41 @@ void MainWindow::menuEntity() {
 
 void MainWindow::listEntity() {
     if(windowListEntity) {
+        static std::vector<const char*> namesEntities;
         ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("List entities", &windowListEntity);
 
         if(timerListEntityUpdate > 1) {
-            getAllEntities();
+            namesEntities = getAllEntities();
             timerListEntityUpdate = 0;
         } else {
             timerListEntityUpdate += fm::Time::dt;
         }
         ImGui::ListBox("List entities",
-                       &previousEntitySelected,
-                       &entitiesName[0],
-                       (int)entitiesName.size(),
-                       -1);
-        if(currentEntitySelected != previousEntitySelected) {
-            currentEntitySelected = previousEntitySelected;
-            currentEntity = EntityManager::get().getEntity(
-                entityDisplay[previousEntitySelected].id);
-            windowCurrentEntity = true;
-        }
+                &previousEntitySelected,
+                &namesEntities[0],
+                (int)namesEntities.size(),
+                -1);
+        currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[previousEntitySelected];
+
 
         if(ImGui::Button("Add Entity")) {
-            currentEntity = EntityManager::get().createEntity();
+            currentEntity = fm::GameObjectHelper::create();
+
             currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
-                fm::math::Vector2f(0, 0), fm::math::Vector2f(100, 100), 0));
-            currentEntity->addComponent<fmc::CIdentity>();
+                        fm::math::Vector2f(0, 0), fm::math::Vector2f(100, 100), 0));
         }
         ImGui::End();
     }
 }
 
-void MainWindow::getAllEntities() {
-    entitiesName.clear();
-    entityDisplay.clear();
-
-    for(auto e : EntityManager::get().iterate<fmc::CIdentity>()) {
-        fmc::CIdentity* identity = e->get<fmc::CIdentity>();
-        if(!identity->display)
-            continue;
-        EntityDisplay ed;
-        ed.id = e->ID;
-        ed.name = identity->name + std::to_string(e->ID);
-        entityDisplay.push_back(ed);
+std::vector<const char*> MainWindow::getAllEntities() {
+    std::vector<const char*> names;
+    std::vector<fm::GameObject*> gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
+    for(auto e : gos) {
+        names.push_back(e->name.c_str());
     }
-
-    for(EntityDisplay& s : entityDisplay) {
-        entitiesName.push_back(s.name.c_str());
-    }
+    return names;
 }
 
 void MainWindow::window_WorldLightEditDisplay() {
@@ -353,17 +339,17 @@ void MainWindow::draw() {
     ImGui::SetNextWindowPos(ImVec2(10, 30));
     static bool v = true;
     if(!ImGui::Begin(
-           "Mouse pos",
-           &v,
-           ImVec2(200, 0),
-           0.8f,
-           ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings)) {
+                "Mouse pos",
+                &v,
+                ImVec2(200, 0),
+                0.8f,
+                ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings)) {
         ImGui::End();
         return;
     }
 
     ImGui::Text("Position: (%.1f,%.1f)",
-                mainCameraPosition->position.x,
-                mainCameraPosition->position.y);
+            mainCameraPosition->position.x,
+            mainCameraPosition->position.y);
     ImGui::End();
 }

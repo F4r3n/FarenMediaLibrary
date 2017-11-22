@@ -8,11 +8,10 @@
 #include "Resource/Resource.h"
 #include "Core/Math/Vector2.h"
 #include "Resource/RFont.h"
-#include "Serializer.h"
 #include "Rendering/VertexBuffer.hpp"
 namespace fmc {
 
-class CText : public Component<CText>, public Serializer {
+class CText : public Component<CText> {
 public:
     CText(const std::string& text, const std::string& fontName);
     CText();
@@ -29,10 +28,6 @@ public:
 
     fm::rendering::VertexBuffer* buffer = nullptr;
         
-    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override{}
-    void parse(rapidjson::Value &value) override {}
-    
-
 private:
     fm::math::Vector2f pos = { 0, 0 };
     

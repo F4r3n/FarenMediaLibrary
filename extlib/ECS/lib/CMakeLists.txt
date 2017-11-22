@@ -6,8 +6,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
 
 
 include_directories("include")
+include_directories("../extlib/json/include")
 file(GLOB SOURCES "src/*.cpp")
+if(BUILD_STATIC)
+add_library(ECS STATIC ${SOURCES})
+endif(BUILD_STATIC)
 
-add_library(ECS_static STATIC ${SOURCES})
+#if(BUILD_SHARED)
 add_library(ECS SHARED ${SOURCES})
+#endif(BUILD_SHARED)
 

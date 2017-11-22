@@ -3,14 +3,13 @@
 #include "Core/Math/Vector2.h"
 #include "EntityManager.h"
 
-#include "Serializer.h"
 //#include "Core/MacroHelper.h"
 
 class Entity;
 
 
 namespace fmc {
-class CTransform : public Component<CTransform>, public Serializer {
+class CTransform : public Component<CTransform> {
 public:
     CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer = 1);
     CTransform();
@@ -35,8 +34,6 @@ public:
     int layer = 1;
     static const std::string name;
 
-    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override;
-    void parse(rapidjson::Value &value) override;
 
 };
 }
