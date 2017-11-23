@@ -43,6 +43,8 @@ public:
 private:
 
     fm::GameObject* currentEntity;
+    fm::GameObject* mainCamera;
+    Entity* dlight;
     bool windowCurrentEntity = false;
     bool windowListEntity = false;
 
@@ -58,7 +60,6 @@ private:
     fm::Engine* engine;
     bool window_WorldLightEdit = false;
     
-    Entity* dlight;
     
     std::string nameWindow;
     std::string nameCurrentScene = "";
@@ -66,6 +67,5 @@ private:
     
     fm::Texture playImage;
     
-    Entity* cameraEditor;
     std::unordered_map<size_t, std::unordered_map<std::string, Inspector*>> _inspectorComponents;
 };

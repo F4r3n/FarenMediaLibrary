@@ -15,7 +15,9 @@
 #include "MaterialInspector.h"
 #include "MeshInspector.h"
 #include "Core/SceneManager.h"
+#include "Core/Debug.h"
 MainWindow::MainWindow(fm::Engine* engine) {
+    fm::Debug::logWarning("Start init");
     this->engine = engine;
     // From https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
     // Some colors may have changed
@@ -78,30 +80,31 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.Alpha = 1.0f;
     style.FrameRounding = 4;
     style.IndentSpacing = 12.0f;
-
-    dlight = fm::Engine::createEntity();
+    fm::Debug::logWarning("Before light Init");
+    dlight = EntityManager::get().createEntity();
     dlight->addComponent<fmc::CDirectionalLight>(
             new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
     dlight->addComponent<fmc::CTransform>(new fmc::CTransform(
                 fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
-    dlight->addComponent<fmc::CIdentity>()->display = false;
+    fm::Debug::logWarning("After light Init");
 
     playImage = fm::Texture("assets/images/play_button.png");
 
-    cameraEditor = fm::Engine::createEntity();
-    cameraEditor->addComponent<fmc::CCamera>(new fmc::CCamera(
-                fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
-    mainCameraPosition = cameraEditor->addComponent<fmc::CTransform>();
-    fmc::CIdentity* identity = cameraEditor->addComponent<fmc::CIdentity>();
-    identity->name = "CameraEditor";
-    identity->display = false;
-
-
-    // cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
-    engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
+    fm::Debug::log("Before Scene"); 
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
+    fm::Debug::log("After Scene"); 
+    mainCamera = fm::GameObjectHelper::create();
+    fm::Debug::logWarning("AfterCreate");
+    mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(
+                fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
+    mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
+    fm::Debug::logWarning("AfterAllCreate");
+    mainCamera->name = "Camera";
+    // cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
+    engine->setMainCamera(mainCamera);
+    fm::Debug::log("Init done");
 }
 
 void MainWindow::displayComponents(fm::GameObject* currentEntity) {
@@ -209,11 +212,11 @@ void MainWindow::displayListCamera() {
     static bool value2 = false;
     if(ImGui::MenuItem("Camera editor", "", &value1)) {
         value2 = false;
-        engine->getSystem<fms::RenderingSystem>()->setCamera(cameraEditor);
+    engine->setMainCamera(mainCamera);
     }
     if(ImGui::MenuItem("Second Camera", "", &value2)) {
         value1 = false;
-        engine->setMainCamera();
+        //engine->setMainCamera();
     }
 }
 
@@ -267,12 +270,13 @@ void MainWindow::listEntity() {
         } else {
             timerListEntityUpdate += fm::Time::dt;
         }
+        static int number = 0;
         ImGui::ListBox("List entities",
-                &previousEntitySelected,
+                &number,
                 &namesEntities[0],
                 (int)namesEntities.size(),
                 -1);
-        currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[previousEntitySelected];
+        currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
 
 
         if(ImGui::Button("Add Entity")) {

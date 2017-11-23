@@ -43,6 +43,8 @@ namespace fm {
 
             inline size_t getID() {return _entity->ID;} 
             std::string name;
+            
+
         private:
             Entity* _entity = nullptr;
 

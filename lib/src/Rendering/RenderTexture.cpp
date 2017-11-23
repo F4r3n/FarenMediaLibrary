@@ -9,7 +9,10 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
     this->height = height;
     this->depth = depth;
     this->numberColors = numberColorAttchment;
-    isReady = initFrameBuffer(formats, types);
+    for(int i = 0; i < numberColorAttchment; ++i) {
+        _formats.push_back(formats[i]);
+        _types.push_back(types[i]);
+    }
 }
 
 RenderTexture::RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment) {
@@ -17,6 +20,11 @@ RenderTexture::RenderTexture(unsigned int width, unsigned int height, unsigned i
     this->height = height;
     this->numberColors = numberColorAttchment;
     isReady = initFrameBuffer(nullptr, nullptr);
+}
+
+void RenderTexture::create() {
+
+    isReady = initFrameBuffer(_formats.data(), _types.data());
 }
 
 RenderTexture::~RenderTexture() {

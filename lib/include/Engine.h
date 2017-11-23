@@ -4,6 +4,10 @@
 #include "Music/Speaker.h"
 #include "Music/Listener.h"
 
+namespace fm {
+    class GameObject;
+}
+
 namespace fm
 {
   
@@ -12,7 +16,6 @@ class Engine
 public:
     Engine();
     ~Engine();
-    static Entity* createEntity();
    
     void update(float dt);
     void init();
@@ -28,15 +31,15 @@ public:
        return systems.getSystem<T>(); 
     }
     
-    void setMainCamera();
-    Entity* getMainCamera();
+    void setMainCamera(fm::GameObject *go);
+    GameObject* getMainCamera();
     void loop(void *window);
 
     private:
     SystemManager systems;
+    fm::GameObject *mainCamera;
     Speaker speaker;
     Listener listener;
-    Entity* camera;
     bool hasStopped = false;
     
     size_t numberFramesTimer = 0;

@@ -48,7 +48,7 @@ public:
     void
     setView(fm::math::mat& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation);
 
-    Entity* camera;
+    Entity* camera = nullptr;
     int width;
     int height;
 

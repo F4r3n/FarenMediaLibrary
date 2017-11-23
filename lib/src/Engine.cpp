@@ -12,7 +12,7 @@
 #include "Profiler/Profiler.hpp"
 #include "Profiler/ProfilerMacro.h"
 #include "Core/Config.h"
-
+#include "Core/GameObject.h"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -73,29 +73,34 @@ void Engine::start() {
 #endif
 }
 
-Entity* Engine::getMainCamera() {
-    return camera;
+fm::GameObject* Engine::getMainCamera() {
+    return mainCamera;
 }
 
-void Engine::setMainCamera() {
-    systems.getSystem<fms::RenderingSystem>()->setCamera(camera);
+void Engine::setMainCamera(fm::GameObject *go) {
+    mainCamera = go;
+    EntityManager::get().make();
+    systems.getSystem<fms::RenderingSystem>()->setCamera(EntityManager::get().getEntity(go->getID()));
 }
 
 void Engine::init() {
+    std::cout << "INIT" << __FILE__ << " " << __LINE__ << std::endl;
     systems.addSystem(new fms::SoundSystem());
 
-    camera = fm::Engine::createEntity();
-    fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
+    //camera = fm::Engine::createEntity();
+    /*fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     camera->addComponent<fmc::CTransform>();
     fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
     identity->name = "Camera";
-    //cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;
+    //cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;*/
 
-    fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
+    //fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
+    systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
 
-    renderer->setCamera(camera);
+    //renderer->setCamera(camera);
 
     systems.init(EntityManager::get(), EventManager::get());
+    std::cout << "INIT" << __FILE__ << " " << __LINE__ << std::endl;
 }
 
 void Engine::stop() {
@@ -115,6 +120,3 @@ void Engine::update(float dt) {
     systems.update(dt * Time::scale, EntityManager::get(), EventManager::get());
 }
 
-Entity* Engine::createEntity() {
-    return EntityManager::get().createEntity();
-}

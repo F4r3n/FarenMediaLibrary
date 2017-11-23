@@ -18,7 +18,7 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         inline unsigned int getWidth() {return width;}
         inline unsigned int getHeight() {return height;}
         Texture* getColorBuffer() {return textureColorbuffer.data();}
-
+        void create();
         bool active();
         
     private:
@@ -27,6 +27,8 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         unsigned int height;
         unsigned short depth;
         unsigned short numberColors = 0;
+        std::vector<Format> _formats;
+        std::vector<Type> _types;
         bool initFrameBuffer(Format *formats, Type *types);
         //main Framebuffer + position fragcolor bright color
         GLuint framebuffer;
