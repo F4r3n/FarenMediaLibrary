@@ -15,6 +15,16 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
     }
 }
 
+RenderTexture::RenderTexture(const RenderTexture &renderTexture) {
+    this->width = renderTexture.width;
+    this->height = renderTexture.height;
+    this->depth = renderTexture.depth;
+    this->numberColors = renderTexture.numberColors;
+    for(int i = 0; i < renderTexture.numberColors; ++i) {
+        _formats.push_back(renderTexture._formats[i]);
+        _types.push_back(renderTexture._types[i]);
+    }
+}
 RenderTexture::RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment) {
     this->width = width;
     this->height = height;

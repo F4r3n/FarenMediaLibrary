@@ -1,9 +1,4 @@
 #pragma once
-#ifdef __EMSCRIPTEN__
-#include <Box2D/Common/b2Math.h>
-#else
-#include <Box2D/Common/b2Math.h>
-#endif
 #include <ostream>
 namespace fm {
 namespace math {
@@ -67,10 +62,6 @@ namespace math {
 
         inline T norme() {
             return sqrt(x * x + y * y);
-        }
-
-        inline operator b2Vec2() {
-            return b2Vec2(x, y);
         }
 
         friend std::ostream& operator<<(std::ostream& stream, const vec<T, 2> vector) {

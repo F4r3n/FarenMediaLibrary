@@ -10,6 +10,7 @@
 #include "Rendering/Texture.h"
 #include "Inspector.hpp"
 #include "Core/GameObject.h"
+#include "Rendering/RenderTexture.h"
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -66,6 +67,6 @@ private:
     bool fileSystem_save = false;
     
     fm::Texture playImage;
-    
+    std::shared_ptr<fm::RenderTexture> gameRenderTexture;    
     std::unordered_map<size_t, std::unordered_map<std::string, Inspector*>> _inspectorComponents;
 };

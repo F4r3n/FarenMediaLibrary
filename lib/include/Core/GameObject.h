@@ -24,7 +24,7 @@ namespace fm {
 
             template <typename T> T* get()
             {
-                return _entity->get<T>(this);
+                return _entity->get<T>();
             }
 
             template <typename T> bool has()

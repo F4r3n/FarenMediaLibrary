@@ -1,4 +1,5 @@
 #include "Components/Body2D.h"
+#include <Box2D/Common/b2Math.h>
 #include <iostream>
 using namespace fmc;
 
@@ -13,7 +14,7 @@ void Body2D::endContact() {
 }
 
 void Body2D::applyForceCenter(fm::math::Vector2f power) {
-    body->ApplyForce((b2Vec2)power, body->GetWorldCenter(), true);
+    body->ApplyForce({power.x, power.y}, body->GetWorldCenter(), true);
 }
 
 void Body2D::applyForceCenter2(float x, float y) {
@@ -21,7 +22,7 @@ void Body2D::applyForceCenter2(float x, float y) {
 }
 
 void Body2D::applyForce(fm::math::Vector2f &&power, fm::math::Vector2f &&pos) {
-    body->ApplyForce((b2Vec2)power, (b2Vec2)pos, true);
+    body->ApplyForce({power.x, power.y}, {pos.x, pos.y}, true);
    
 }
 

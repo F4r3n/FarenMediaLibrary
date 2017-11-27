@@ -10,6 +10,7 @@ namespace fm {
         RenderTexture(unsigned int width, unsigned int height, 
 unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth);
         RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment);
+        RenderTexture(const RenderTexture &renderTexture);
         ~RenderTexture();
         
         void release();

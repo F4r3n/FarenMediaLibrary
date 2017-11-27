@@ -97,13 +97,15 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fm::Debug::log("After Scene"); 
     mainCamera = fm::GameObjectHelper::create();
     fm::Debug::logWarning("AfterCreate");
-    mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(
                 fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
     fm::Debug::logWarning("AfterAllCreate");
     mainCamera->name = "Camera";
     // cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
     engine->setMainCamera(mainCamera);
+    //gameRenderTexture = std::make_shared<fm::RenderTexture>(*tempRefCamera->getInternalRenderTexture().get());
+    //tempRefCamera->target = gameRenderTexture;
     fm::Debug::log("Init done");
 }
 
@@ -356,4 +358,6 @@ void MainWindow::draw() {
             mainCameraPosition->position.x,
             mainCameraPosition->position.y);
     ImGui::End();
+
+    //mainCamera->get<fmc::CCamera>()->target->getColorBuffer()[0].writeToPNG("test.png");
 }

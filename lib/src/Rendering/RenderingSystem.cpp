@@ -134,8 +134,8 @@ namespace fms {
         fm::Format formats[] = {fm::Format::RGBA, fm::Format::RGBA};
         fm::Type types[] = {fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE};
         lightRenderTexture = std::make_shared<fm::RenderTexture>(
-                cam->getRenderTexture()->getWidth(),
-                cam->getRenderTexture()->getHeight(),
+                cam->renderTexture->getWidth(),
+                cam->renderTexture->getHeight(),
                 2,
                 formats,
                 types,
@@ -161,7 +161,7 @@ namespace fms {
         if(camera == nullptr) return ;
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
         if(!lightRenderTexture->isCreated()) lightRenderTexture->create();
-        if(!cam->getRenderTexture()->isCreated()) cam->getRenderTexture()->create();
+        if(!cam->renderTexture->isCreated()) cam->renderTexture->create();
 
         cam->updateRenderTexture();
         fmc::CTransform* ct = camera->get<fmc::CTransform>();
@@ -182,14 +182,14 @@ namespace fms {
         // fm::Renderer::getInstance().bindFrameBuffer();
         fmc::CCamera* cam = camera->get<fmc::CCamera>();
 
-        if(!cam->getRenderTexture()->isCreated()) {
+        if(!cam->renderTexture->isCreated()) {
             std::cout << "No render texture created" << std::endl;
             return;
         }
         lightRenderTexture->bind();
         graphics.clear(true, true);
 
-        cam->getRenderTexture()->bind();
+        cam->renderTexture->bind();
         graphics.setViewPort(cam->viewPort);
         graphics.clear(true, true);
 
@@ -217,7 +217,14 @@ namespace fms {
         // PROFILER_DISPLAY(RenderingSort)
         // PROFILER_DISPLAY(Draw)
 
-        graphics.bindFrameBuffer(0);
+        if(cam->target != nullptr) {
+            if(!cam->target->isCreated()) {
+                cam->target->create();
+            }
+            cam->target->bind();
+        }else {
+            graphics.bindFrameBuffer(0);
+        }
         graphics.setViewPort(cam->viewPort);
         graphics.clear(true, true);
 
@@ -229,7 +236,17 @@ namespace fms {
 
         fm::Renderer::getInstance().SetSources(
                 graphics, lightRenderTexture->getColorBuffer(), 2);
-        fm::Renderer::getInstance().blit(graphics, finalShader);
+        if(cam->target != nullptr) {
+            fm::Renderer::getInstance().blit(graphics, *cam->target.get(), finalShader);
+        }else {
+            fm::Renderer::getInstance().blit(graphics, finalShader);
+        }
+        if(cam->target != nullptr) {
+            graphics.bindFrameBuffer(0);
+            graphics.setViewPort(cam->viewPort);
+            graphics.clear(true, true);
+        }
+
     }
 
     void RenderingSystem::draw(fmc::CCamera* cam) {
@@ -378,10 +395,10 @@ namespace fms {
 
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
             fm::Renderer::getInstance().lightComputation(
-                    graphics, cam->getRenderTexture()->getColorBuffer(), hasLight);
+                    graphics, cam->renderTexture->getColorBuffer(), hasLight);
         } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
             fm::Renderer::getInstance().lightComputation(
-                    graphics, cam->getRenderTexture()->getColorBuffer(), false);
+                    graphics, cam->renderTexture->getColorBuffer(), false);
         }
     }
 
