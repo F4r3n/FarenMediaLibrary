@@ -104,8 +104,8 @@ MainWindow::MainWindow(fm::Engine* engine) {
     mainCamera->name = "Camera";
     // cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
     engine->setMainCamera(mainCamera);
-    //gameRenderTexture = std::make_shared<fm::RenderTexture>(*tempRefCamera->getInternalRenderTexture().get());
-    //tempRefCamera->target = gameRenderTexture;
+    gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get()));
+    tempRefCamera->target = gameView.renderTexture;
     fm::Debug::log("Init done");
 }
 
@@ -341,6 +341,8 @@ void MainWindow::draw() {
     } else {
         firstRightClick = false;
     }
+
+    gameView.draw();
 
     ImGui::SetNextWindowPos(ImVec2(10, 30));
     static bool v = true;

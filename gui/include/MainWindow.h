@@ -11,6 +11,7 @@
 #include "Inspector.hpp"
 #include "Core/GameObject.h"
 #include "Rendering/RenderTexture.h"
+#include "GameView.h"
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -42,7 +43,7 @@ public:
     void fileSystem_save_window();
 
 private:
-
+    GameView gameView;
     fm::GameObject* currentEntity;
     fm::GameObject* mainCamera;
     Entity* dlight;
@@ -67,6 +68,5 @@ private:
     bool fileSystem_save = false;
     
     fm::Texture playImage;
-    std::shared_ptr<fm::RenderTexture> gameRenderTexture;    
     std::unordered_map<size_t, std::unordered_map<std::string, Inspector*>> _inspectorComponents;
 };

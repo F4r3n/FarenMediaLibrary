@@ -262,7 +262,9 @@ void ShaderLibrary::loadShaders() {
                                     };
                                 void main(){
                                     gl_Position = vec4(position, 0.0f, 1.0f);
+                                    
                                     TexCoords = texCoords;
+                                    TexCoords.y = 1-texCoords.y;
                                 });            
 
     std::string simple_fragment = STRING(
@@ -275,11 +277,7 @@ void ShaderLibrary::loadShaders() {
                                   INT uniform vec2 screenSize;
                                   INT uniform vec2 viewPos;
                                   void main(){
-                                    const FLOAT float gamma = 2.2f;
-                                    const FLOAT float exposure = 1.0f;
-                                    FLOAT vec4 hdrColor = texture2D(screenTexture, TexCoords);
-                                    FLOAT vec4 bloomColor = texture2D(bloomBlur, TexCoords);
-                                    FLOAT vec4 result = hdrColor - bloomColor;
+                                    FLOAT vec4 hdrColor = texture2D(screenTexture, vec2(TexCoords.x, 1 - TexCoords.y));
                                     FragColor = vec4(hdrColor.rgb, 1);
                                     //FragColor = vec4(1);
 
