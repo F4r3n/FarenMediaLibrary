@@ -24,3 +24,13 @@ void CMaterial::setTexture(const fm::Texture& texture) {
 const fm::Texture& CMaterial::getTexture() {
     return texture;
 }
+
+void CMaterial::setValue(const std::string& name, int value) {
+    fm::MaterialValue materialValue;
+    materialValue = value;
+    values.insert(std::pair<std::string, fm::MaterialValue>(name, value));
+}
+
+const std::map<std::string, fm::MaterialValue>& CMaterial::getValues() const {
+    return values;
+}

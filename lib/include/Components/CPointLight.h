@@ -1,15 +1,13 @@
 #pragma once
-#include "Component.h"
+#include "component.h"
 #include "Core/Color.h"
 #include "Core/Math/Vector2.h"
 namespace fmc {
-class CPointLight : public Component<CPointLight> {
+class CPointLight : public FMComponent<CPointLight> {
     public:
-        CPointLight() {        _name = "PointLight";}
+        CPointLight();
 
         fm::Color color;
         float radius = 100;
-        int* get(int v) {return nullptr;}
-
 };
 }

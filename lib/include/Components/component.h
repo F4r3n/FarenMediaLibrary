@@ -5,12 +5,12 @@
 #include <json.hpp>
 namespace fmc
 {
-    template <typename T>
-    class FMComponent : public Component<T>
-    {
-            virtual bool Serialize(json &ioJson) {return false;}
-            virtual bool Read(const json &inJSON) {return false;}
-    };
+template <typename T>
+class FMComponent : public Component<T>
+{
+        virtual bool Serialize(json &ioJson) {return false;}
+        virtual bool Read(const json &inJSON) {return false;}
+};
 
 }
 

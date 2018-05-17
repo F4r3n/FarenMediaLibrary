@@ -15,13 +15,8 @@ class CTransform : public Component<CTransform> {
     public:
         CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer = 1);
         CTransform();
-        ~CTransform() {
-        }
 
-        void setFather(size_t id) {
-            this->idFather = id;
-        }
-
+        void setFather(size_t id);
         void setFather(Entity* e);
 
         fm::math::Vector2f getWorldPos();

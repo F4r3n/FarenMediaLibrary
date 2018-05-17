@@ -1,4 +1,5 @@
 #include "Components/CCamera.h"
+#include "Rendering/RenderTexture.h"
 using namespace fmc;
 using namespace fm;
 

@@ -1,17 +1,15 @@
 #pragma once
 #include <ECS.h>
 #include "Core/Color.h"
+#include "component.h"
 
 namespace fmc {
-class CDirectionalLight : public Component<CDirectionalLight>{
+class CDirectionalLight : public FMComponent<CDirectionalLight>{
     public:
         CDirectionalLight();
         CDirectionalLight(const fm::Color &color);
         ~CDirectionalLight();
         fm::Color color;
         static const std::string name;
-
-        int* get(int v) {return nullptr;}
-
 };
 }

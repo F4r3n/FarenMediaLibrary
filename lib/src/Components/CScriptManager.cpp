@@ -1,4 +1,5 @@
 #include "Components/CScriptManager.h"
+#include "Script/Script.h"
 using namespace fmc;
 const std::string CScriptManager::name = "Script Manager";
 
@@ -14,6 +15,7 @@ void CScriptManager::init( Entity* e) {
         s->init(e);
     }
 }
+
 
 void CScriptManager::update() {
     for(auto s : scripts) {

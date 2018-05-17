@@ -2,27 +2,32 @@
 
 #include <unordered_map>
 
-#include <Component.h>
+#include "component.h"
 #include "Core/Color.h"
 
-#include "Resource/Resource.h"
 #include "Core/Math/Vector2.h"
-#include "Resource/RFont.h"
-#include "Rendering/VertexBuffer.hpp"
+
+
+namespace fm
+{
+namespace rendering
+{
+class VertexBuffer;
+}
+}
+
 namespace fmc {
 
-class CText : public Component<CText> {
+class CText : public FMComponent<CText> {
     public:
         CText(const std::string& text, const std::string& fontName);
         CText();
         ~CText();
 
-        int* get(int v) {return nullptr;}
-
         std::string fontName = "dejavu";
         std::string text = "";
         std::string previousText = "";
-        GLfloat scale = 1;
+        float scale = 1;
 
         static const std::string name;
 

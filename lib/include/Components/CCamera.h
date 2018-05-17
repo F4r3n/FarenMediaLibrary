@@ -1,9 +1,13 @@
 #pragma once
-#include <Component.h>
-#include "Rendering/RenderTexture.h"
+#include "component.h"
+
 
 #include "Core/Math/Matrix.h"
 #include "Core/Rect.h"
+
+namespace fm {
+class RenderTexture;
+}
 
 namespace fms {
 class RenderingSystem;
@@ -22,7 +26,7 @@ struct Shader_data {
         fm::math::mat FM_PV;
         int render_mode = fmc::RENDER_MODE::FORWARD;
 };
-class CCamera : public Component<CCamera> {
+class CCamera : public FMComponent<CCamera> {
     public:
         friend class fms::RenderingSystem;
 

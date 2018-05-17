@@ -1,11 +1,13 @@
 #pragma once
 #include <vector>
-#include "Component.h"
+#include "component.h"
 #include "Script/LuaScript.h"
 #include "Entity.h"
 
+
+
 namespace fmc {
-class CScriptManager : public Component<CScriptManager> {
+class CScriptManager : public FMComponent<CScriptManager> {
     public:
         CScriptManager();
         ~CScriptManager();
@@ -20,7 +22,6 @@ class CScriptManager : public Component<CScriptManager> {
             }
         }
         static const std::string name;
-        int* get(int v) {return nullptr;}
 
     private:
         std::vector<std::shared_ptr<fm::Script> > scripts;

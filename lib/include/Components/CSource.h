@@ -4,12 +4,12 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include "Core/Math/Vector2.h"
-#include "Component.h"
+#include "component.h"
 
 namespace fmc {
 enum AUDIO_STATUS { INITIAL, PLAYING, PAUSED, STOPPED };
 
-class CSource : public Component<CSource> {
+class CSource : public FMComponent<CSource> {
     public:
         CSource(const std::string& path);
         CSource();
@@ -27,13 +27,9 @@ class CSource : public Component<CSource> {
 
         ALuint source;
         ALuint buf;
-        int* get(int v) {return nullptr;}
 
         bool toUpdate = false;
         static const std::string name;
     private:
-
-        //std::vector<uint16_t> data;
-        //std::array<int16_t, 4096> read_buf;
 };
 }

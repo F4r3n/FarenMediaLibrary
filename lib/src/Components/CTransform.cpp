@@ -15,7 +15,7 @@ CTransform::CTransform(const fm::math::Vector2f& position,
                        const float& rotation,
                        const int& layer)
     :  position(position), scale(scale), rotation(rotation), layer(layer) {
-        _name = "Transform";
+    _name = "Transform";
     //inspector = new gui::TransformInspector();
 
 }
@@ -42,7 +42,13 @@ fm::math::Vector2f CTransform::getWorldPos(EntityManager& manager) {
     return position + fatherTransform->getWorldPos();
 }
 
-void CTransform::setFather(Entity* e) {
+void CTransform::setFather(Entity* e)
+{
     setFather(e->ID);
 }
 
+
+void CTransform::setFather(size_t id)
+{
+    this->idFather = id;
+}
