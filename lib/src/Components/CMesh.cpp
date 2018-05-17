@@ -19,7 +19,7 @@ bool CMesh::IsmodelReady() {
     return model != nullptr;
 }
 
-void CMesh::setType(const std::string &type) {
+void CMesh::SetType(const std::string &type) {
     this->type = type;
 }
 

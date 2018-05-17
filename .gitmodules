@@ -9,7 +9,7 @@
 	url = https://github.com/glfw/glfw.git
 [submodule "extlib/freetype2"]
 	path = extlib/freetype2
-    url = git://git.sv.nongnu.org/freetype/freetype2.git
+    	url = git://git.savannah.gnu.org/freetype/freetype2.git
 [submodule "extlib/Box2D"]
 	path = extlib/Box2D
 	url = https://github.com/erincatto/Box2D.git

@@ -29,6 +29,7 @@ CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode) {
     viewPort.x = 0;
     viewPort.y = 0;
 
+
     if(renderTexture != nullptr && renderTexture->isCreated()) {
         renderTexture->release();
     }
@@ -96,7 +97,7 @@ void CCamera::updateRenderTexture() {
 void CCamera::setNewViewPort(int x, int y, unsigned int width, unsigned int height) {
     isOrto = true;
     projection =
-        fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, nearPlane, farPlane);
+            fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, nearPlane, farPlane);
     viewPort.w = width;
     viewPort.h = height;
     viewPort.x = x;

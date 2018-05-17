@@ -73,7 +73,7 @@ void LuaManager::registerComponents() {
     //"bounds", &CMesh::bounds
     //);
   registerComponent<Body2D>("Body2D", 
-    "applyForceCenter", &Body2D::applyForceCenter2, 
+    "applyForceCenter", &Body2D::ApplyForceCenter2,
     "setFriction", &Body2D::SetFriction);
 
   registerComponent<Entity>("Entity",

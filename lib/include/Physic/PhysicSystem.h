@@ -31,13 +31,13 @@ public:
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
            // size_t idA = -1, idB = -1;
             if(bodyUserData) {
-                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+                //fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
                 //contact->GetFixtureA()->SetFriction()
             }
 
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
-                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
+                //fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
             }
         }
 
@@ -47,14 +47,14 @@ public:
             size_t idA = -1, idB = -1;
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->startContact();
+                b->StartContact();
                 idA = *b->identity;
             }
 
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->startContact();
+                b->StartContact();
                 idB = *b->identity;
             }
             PhysicSystem::beginEvent(idA, idB);
@@ -66,14 +66,14 @@ public:
             size_t idA = -1, idB = -1;
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->endContact();
+                b->EndContact();
                 idA = *b->identity;
             }
 
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->endContact();
+                b->EndContact();
                 idB = *b->identity;
             }
             PhysicSystem::endEvent(idA, idB);

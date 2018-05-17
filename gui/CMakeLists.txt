@@ -22,7 +22,7 @@ include_directories(${OPENAL_INCLUDE_DIR})
 #SDL2
 include_directories(${FML_EXTLIB}/SDL2/include)
 link_directories(${FML_EXTLIB_LIB}/SDL2/lib)
-
+MESSAGE(STATUS ${FML_EXTLIB}/SDL2/include)
 #GLEW
 include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew/lib)

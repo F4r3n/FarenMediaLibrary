@@ -5,10 +5,10 @@
 namespace fmc {
 class CPointLight : public Component<CPointLight> {
     public:
-CPointLight() {        _name = "PointLight";}
+        CPointLight() {        _name = "PointLight";}
 
-    fm::Color color;
-    float radius = 100;
+        fm::Color color;
+        float radius = 100;
         int* get(int v) {return nullptr;}
 
 };

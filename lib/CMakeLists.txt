@@ -13,7 +13,8 @@ option(FML_BUILD_SHARED OFF)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
-include_directories(include)
+include_directories("include")
+file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
 
 
 if(EMSCRIPTEN)
@@ -69,7 +70,7 @@ link_directories(${FML_EXTLIB_LIB}/Box2D)
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
-	add_library(${LIB_NAME} STATIC ${SOURCES})
+        add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
 	target_link_libraries(${LIB_NAME} freetype)
 	target_link_libraries(${LIB_NAME} ECS)
 	target_link_libraries(${LIB_NAME} lua)
@@ -86,7 +87,7 @@ set(LIB_NAME ${PROJECT_NAME}_s)
 
 set(LIB_NAME ${PROJECT_NAME})
 
-	add_library(${LIB_NAME} SHARED ${SOURCES})
+        add_library(${LIB_NAME} SHARED ${SOURCES} ${HEADERS})
 	target_link_libraries(${LIB_NAME} freetype)
 	target_link_libraries(${LIB_NAME} ECS)
 	target_link_libraries(${LIB_NAME} lua_shared)

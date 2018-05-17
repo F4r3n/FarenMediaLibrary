@@ -25,38 +25,39 @@ Engine::~Engine() {
 
 
 
-void Engine::run(Window& window) {
+void Engine::run(Window& window)
+{
     fm::Window::setMSAA(0);
-    auto start = std::chrono::system_clock::now();
+    //auto start = std::chrono::system_clock::now();
 
-//#ifdef __EMSCRIPTEN__
-//    emscripten_set_main_loop_arg(loop,&window, 0, true);
-//#else
-   while(!window.isClosed()) {
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(loop,&window, 0, true);
+#else
+    while(!window.isClosed()) {
 
-       loop(&window);
+        loop(&window);
     }
-//#endif
+#endif
 
     
 }
 
 void Engine::loop(void* window) {
-         ((Window *)window)->update(60);
-        //std::cout << fm::Time::dt << std::endl;
-        update(fm::Time::dt);
-        
-        ((Window *)window)->swapBuffers();
+    ((Window *)window)->update(60);
+    //std::cout << fm::Time::dt << std::endl;
+    update(fm::Time::dt);
 
-        numberFramesTimer++;
-        if(numberFramesTimer == 200) {
-           // auto end = std::chrono::system_clock::now();
-           // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-           // float time = elapsed.count() / (float)numberFramesTimer;
-           // start = end;
-           // std::cout << "Time per frame " << time << " ms" << std::endl;
-            numberFramesTimer = 0;
-        }
+    ((Window *)window)->swapBuffers();
+
+    numberFramesTimer++;
+    if(numberFramesTimer == 200) {
+        // auto end = std::chrono::system_clock::now();
+        // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        // float time = elapsed.count() / (float)numberFramesTimer;
+        // start = end;
+        // std::cout << "Time per frame " << time << " ms" << std::endl;
+        numberFramesTimer = 0;
+    }
     
 }
 

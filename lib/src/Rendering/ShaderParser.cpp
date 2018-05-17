@@ -60,7 +60,7 @@ void ShaderParser::argsToLayout(std::string& currentLine, bool isVertex, bool pa
     std::vector<std::string> args;
     split(lineArgs, args, ',');
     if(parse) {
-        for(int i = 0; i < args.size(); i++) {
+        for(unsigned int i = 0; i < args.size(); i++) {
 
             std::string r;
             size_t pos_ = args[i].find("_");
@@ -185,6 +185,7 @@ std::string ShaderParser::findStringBetweenChar(const std::string& str, char c) 
 }
 
 bool ShaderParser::isFunction(const std::string& line, std::string& name) {
+    return false;
 }
 
 void ShaderParser::includeFiles(std::string& content) {

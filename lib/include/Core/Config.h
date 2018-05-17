@@ -40,9 +40,7 @@
 #endif
 
 #if !USE_GLEW
-    #if OPENGL_ES_VERSION == 2
-        #include "SDL2/SDL_opengles2.h"
-    #elif OPENGL_ES_VERSION == 3
+    #if OPENGL_ES_VERSION == 3
         #include <GLES3/gl3.h>
     #endif
 #endif

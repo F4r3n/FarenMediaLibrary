@@ -9,10 +9,10 @@ option(BUILD_TESTS OFF)
 add_subdirectory("lib")
 
 #if(BUILD_EXAMPLES)
-add_subdirectory("sample")
+#add_subdirectory("sample")
 #endif(BUILD_EXAMPLES)
 
 #MESSAGE(STATUS ${BUILD_SHARED})
 #if(BUILD_TESTS)
-add_subdirectory("Tests")
+#add_subdirectory("Tests")
 #endif(BUILD_TESTS)

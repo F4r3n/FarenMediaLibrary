@@ -1,45 +1,26 @@
 #pragma once
-#include "Component.h"
+#include "component.h"
 #include <Box2D/Box2D.h>
 #include "../Core/Math/Vector2.h"
 #include <string>
 namespace fmc {
 
-class Body2D : public Component<Body2D> {
+class Body2D : public FMComponent<Body2D> {
    public:
-    Body2D(unsigned int w, unsigned int h, bool isDynamic = false) {
-        this->isDynamic = isDynamic;
-        size.x = w;
-        size.y = h;
-        _name = "Body2D";
-    }
-    Body2D() {
-        _name = "Body2D";
-    }
+    Body2D(unsigned int w, unsigned int h, bool isDynamic = false);
+    Body2D();
 
-    ~Body2D() {
-    }
+    ~Body2D();
 
-    void init(b2World* world, float P2M) {
-        if(isDynamic)
-            bodyDef.type = b2_dynamicBody;
-        body = world->CreateBody(&bodyDef);
-        box.SetAsBox(size.x * P2M, size.y * P2M);
-        fixtureDef.shape = &box;
-        fixtureDef.density = density;
-        fixtureDef.friction = friction;
-        fixture = body->CreateFixture(&fixtureDef);
-        body->SetUserData(this);
-        isReady = true;
-    }
+    void Init(b2World* world, float P2M);
 
-    void startContact();
-    void endContact();
+    void StartContact();
+    void EndContact();
     void SetFriction(float friction);
 
-    void applyForceCenter(fm::math::Vector2f power);
-    void applyForce(fm::math::Vector2f&& power, fm::math::Vector2f&& pos);
-    void applyForceCenter2(float x, float y);
+    void ApplyForceCenter(fm::math::Vector2f power);
+    void ApplyForce(fm::math::Vector2f&& power, fm::math::Vector2f&& pos);
+    void ApplyForceCenter2(float x, float y);
 
     float density = 0.0f;
     float friction = 0.0f;
@@ -53,7 +34,7 @@ class Body2D : public Component<Body2D> {
     bool isReady = false;
     b2BodyDef bodyDef;
     b2Body* body;
-    int* get(int v) {return nullptr;}
+
    private:
     b2PolygonShape box;
     b2FixtureDef fixtureDef;
