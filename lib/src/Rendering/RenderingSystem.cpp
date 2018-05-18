@@ -125,11 +125,8 @@ void RenderingSystem::setCamera(Entity* camera)
 {
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
-    cam->viewMatrix = fm::math::mat();
-    setView(cam->viewMatrix,
-            ct->position,
-    {cam->viewPort.w, cam->viewPort.h},
-            ct->rotation);
+    cam->_viewMatrix = fm::math::mat();
+    setView(cam->_viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h}, ct->rotation);
     this->camera = camera;
     //#if OPENGL_ES_VERSION > 2
     // initUniformBufferCamera(cam);
@@ -137,8 +134,8 @@ void RenderingSystem::setCamera(Entity* camera)
     fm::Format formats[] = {fm::Format::RGBA, fm::Format::RGBA};
     fm::Type types[] = {fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE};
     lightRenderTexture = std::make_shared<fm::RenderTexture>(
-                cam->renderTexture->getWidth(),
-                cam->renderTexture->getHeight(),
+                cam->_renderTexture->getWidth(),
+                cam->_renderTexture->getHeight(),
                 2,
                 formats,
                 types,
@@ -161,17 +158,17 @@ void RenderingSystem::pre_update(EntityManager& em)
 
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     if(!lightRenderTexture->isCreated()) lightRenderTexture->create();
-    if(!cam->renderTexture->isCreated()) cam->renderTexture->create();
+    if(!cam->_renderTexture->isCreated()) cam->_renderTexture->create();
 
-    cam->updateRenderTexture();
+    cam->UpdateRenderTexture();
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
     bounds.setSize(fm::math::vec3(cam->viewPort.w,
                                   cam->viewPort.h,
-                                  cam->getFarPlane() - cam->getNearPlane()));
+                                  cam->GetFarPlane() - cam->GetNearPlane()));
     bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) +
                      bounds.getSize() / 2.0f);
     bounds.setScale(fm::math::vec3(1, 1, 1));
-    setView(cam->viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h},ct->rotation);
+    setView(cam->_viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h},ct->rotation);
 
 }
 
@@ -180,7 +177,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
     // fm::Renderer::getInstance().bindFrameBuffer();
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
 
-    if(!cam->renderTexture->isCreated())
+    if(!cam->_renderTexture->isCreated())
     {
         std::cout << "No render texture created" << std::endl;
         return;
@@ -188,13 +185,13 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
     lightRenderTexture->bind();
     graphics.clear(true, true);
 
-    cam->renderTexture->bind();
+    cam->_renderTexture->bind();
     graphics.setViewPort(cam->viewPort);
     graphics.clear(true, true);
 
-    cam->shader_data.FM_PV = cam->projection * cam->viewMatrix;
+    cam->shader_data.FM_PV = cam->projection * cam->_viewMatrix;
     cam->shader_data.FM_P = cam->projection;
-    cam->shader_data.FM_V = cam->viewMatrix;
+    cam->shader_data.FM_V = cam->_viewMatrix;
     //#if OPENGL_ES_VERSION > 2
     // updateUniformBufferCamera(cam);
     //#endif
@@ -404,10 +401,10 @@ void RenderingSystem::computeLighting(
 
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
         fm::Renderer::getInstance().lightComputation(
-                    graphics, cam->renderTexture->getColorBuffer(), hasLight);
+                    graphics, cam->_renderTexture->getColorBuffer(), hasLight);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
         fm::Renderer::getInstance().lightComputation(
-                    graphics, cam->renderTexture->getColorBuffer(), false);
+                    graphics, cam->_renderTexture->getColorBuffer(), false);
     }
 }
 

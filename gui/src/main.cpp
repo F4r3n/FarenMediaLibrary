@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include <Core/Debug.h>
 #include <Input/InputManager.h>
+#include "Core/application.h"
 void menuBar() {
 }
 
@@ -44,5 +45,8 @@ int main() {
 
     }
     ImGui_ImplSdlGL3_Shutdown();
+    fm::Application app;
+    app.Serialize();
+
     return 0;
 }

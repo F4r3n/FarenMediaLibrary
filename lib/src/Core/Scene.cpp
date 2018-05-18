@@ -15,12 +15,20 @@ void Scene::destroy() {
     }
 }
 
-void Scene::addEntity(GameObject *e) {
+void Scene::AddGameObject(GameObject *e)
+{
     _entities.push_back(e);
 }
-void Scene::serialize() {
 
-    for(auto e : _entities) {
+void Scene::Serialize(json &outJson)
+{
 
+    json scene;
+    for(auto e : _entities)
+    {
+        json v;
+        e->Serialize(v);
+        scene[std::to_string(e->getID())] = v;
     }
+    outJson[_name] = scene;
 }

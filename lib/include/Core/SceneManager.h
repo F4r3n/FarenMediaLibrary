@@ -1,6 +1,7 @@
 #pragma once 
 #include <map>
 #include "Core/Scene.h"
+#include "json.hpp"
 namespace fm {
     class SceneManager {
         public:
@@ -12,6 +13,7 @@ namespace fm {
             inline Scene* getCurrentScene() const {
                 return _currentScene;
             }
+            void Serialize(nlohmann::json &outjson);
         private:
             ~SceneManager();
             Scene* _currentScene = nullptr;

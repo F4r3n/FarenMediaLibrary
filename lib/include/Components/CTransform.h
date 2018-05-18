@@ -1,5 +1,5 @@
 #pragma once
-#include <Component.h>
+#include "component.h"
 #include "Core/Math/Vector2.h"
 #include "EntityManager.h"
 
@@ -11,10 +11,14 @@ namespace fmc {
 
 
 
-class CTransform : public Component<CTransform> {
+class CTransform : public FMComponent<CTransform> {
     public:
         CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer = 1);
         CTransform();
+
+        bool Serialize(json &ioJson);
+        bool Read(const json &inJSON);
+        void GetName(std::string &outName);
 
         void setFather(size_t id);
         void setFather(Entity* e);

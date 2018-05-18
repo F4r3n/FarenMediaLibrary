@@ -55,7 +55,7 @@ void LuaManager::registerComponents() {
     &CTransform::layer);
   registerComponent<CCamera>("CCamera",
     "viewPort", &CCamera::viewPort,
-    "isOrthographic", &CCamera::isOrthographic
+    "isOrthographic", &CCamera::IsOrthographic
     );
   registerComponent<CMaterial>("CMaterial", "color", &CMaterial::color);
   registerComponent<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);

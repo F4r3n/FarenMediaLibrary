@@ -1,6 +1,9 @@
 #pragma once
 #include <ECS.h>
 #include "Core/SceneManager.h"
+#include <json.hpp>
+#include "Components/component.h"
+
 namespace fm {
 
     class GameObject {
@@ -43,15 +46,41 @@ namespace fm {
 
             inline size_t getID() {return _entity->ID;} 
             std::string name;
+
+            void Serialize(json &outResult)
+            {
+                std::vector<BaseComponent*> compos = getAllComponents();
+                for(auto c : compos)
+                {
+                    json j;
+                    std::cout << "Value" << std::endl;
+                    fmc::SerializerComponent *s = dynamic_cast<fmc::SerializerComponent*>(c);
+                    if(s)
+                    {
+                        std::cout << "in" << std::endl;
+                        s->Serialize(j);
+                        std::string name;
+                        s->GetName(name);
+                        outResult[name] = j;
+                        std::cout << name << j.dump() << std::endl;
+                    }else {
+                        std::cout << "out" << std::endl;
+                    }
+                }
+
+            }
             
 
         private:
             Entity* _entity = nullptr;
 
     };
-    class GameObjectHelper {
+
+    class GameObjectHelper
+    {
         public:
-            static GameObject* create() {
+            static GameObject* create()
+            {
                 return (new GameObject())->create();
             }
     };

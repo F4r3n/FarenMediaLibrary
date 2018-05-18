@@ -20,6 +20,21 @@ CTransform::CTransform(const fm::math::Vector2f& position,
 
 }
 
+bool CTransform::Serialize(json &ioJson)
+{
+    ioJson["Position"] = {{"x", position.x}, {"y", position.y}};
+}
+
+bool CTransform::Read(const json &inJSON)
+{
+    return false;
+}
+
+void CTransform::GetName(std::string &outName)
+{
+    outName = _name;
+}
+
 fm::math::Vector2f CTransform::getWorldPos() {
     Entity* father = EntityManager::get().getEntity(idFather);
     if(!father)

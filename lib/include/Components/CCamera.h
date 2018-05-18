@@ -30,18 +30,18 @@ class CCamera : public FMComponent<CCamera> {
     public:
         friend class fms::RenderingSystem;
 
-
-        bool  isOrthographic();
-        float getFarPlane();
-        float getNearPlane();
-
         CCamera();
         CCamera(int width, int height, fmc::RENDER_MODE mode);
         ~CCamera();
 
-        void setNewProjection(unsigned int width, unsigned int height);
-        void updateRenderTexture();
-        void setNewViewPort(int x, int y, unsigned int width, unsigned int height);
+        bool  IsOrthographic();
+        float GetFarPlane();
+        float GetNearPlane();
+
+
+        void SetNewProjection(unsigned int width, unsigned int height);
+        void UpdateRenderTexture();
+        void SetNewViewPort(int x, int y, unsigned int width, unsigned int height);
 
 
         fm::Rect<float> viewPort;
@@ -49,12 +49,12 @@ class CCamera : public FMComponent<CCamera> {
 
         Shader_data shader_data;
         std::shared_ptr<fm::RenderTexture> target = nullptr;
-        std::shared_ptr<fm::RenderTexture> getInternalRenderTexture() {return renderTexture;}
+        std::shared_ptr<fm::RenderTexture> getInternalRenderTexture() const {return _renderTexture;}
     private:
-        std::shared_ptr<fm::RenderTexture> renderTexture = nullptr;
-        fm::math::mat viewMatrix;
-        bool  isOrto = false;
-        float farPlane = 100.0f;
-        float nearPlane = 0.0f;
+        std::shared_ptr<fm::RenderTexture> _renderTexture = nullptr;
+        fm::math::mat _viewMatrix;
+        bool  _isOrto = false;
+        float _farPlane = 100.0f;
+        float _nearPlane = 0.0f;
 };
 }
