@@ -24,6 +24,11 @@ class CMesh : public FMComponent<CMesh> {
         CMesh();
         ~CMesh();
 
+        bool Serialize(json &ioJson) const override;
+        bool Read(const json &inJSON) override;
+        const std::string& GetName() const override;
+        virtual size_t GetType() const {return KMesh;}
+
         static const std::string name;
 
 

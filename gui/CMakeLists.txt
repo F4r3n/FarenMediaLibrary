@@ -6,6 +6,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
 file(GLOB SOURCES "src/*.cpp")
 include_directories(include)
 
+include_directories("include")
+file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
+
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${FML_PATH}/build)
@@ -60,7 +63,7 @@ link_directories(${FML_PATH}/build/lib)
 include_directories(${FML_EXTLIB}/imgui/)
 
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D ${OPENGL_LIBRARIES})
 
 

@@ -28,7 +28,7 @@ void Scene::Serialize(json &outJson)
     {
         json v;
         e->Serialize(v);
-        scene[std::to_string(e->getID())] = v;
+        scene.push_back(v);
     }
     outJson[_name] = scene;
 }

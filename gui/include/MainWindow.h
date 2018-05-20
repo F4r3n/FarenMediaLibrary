@@ -68,5 +68,5 @@ private:
     bool fileSystem_save = false;
     
     fm::Texture playImage;
-    std::unordered_map<size_t, std::unordered_map<std::string, Inspector*>> _inspectorComponents;
+    std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
 };

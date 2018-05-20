@@ -113,30 +113,31 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
     std::vector<BaseComponent*> compos = currentEntity->getAllComponents();
     
     if(_inspectorComponents.find(currentEntity->getID()) ==
-            _inspectorComponents.end()) {
-        std::unordered_map<std::string, Inspector*> inspectors;
+            _inspectorComponents.end())
+    {
+        std::unordered_map<size_t, Inspector*> inspectors;
 
         _inspectorComponents.insert(
-                std::pair<size_t, std::unordered_map<std::string, Inspector*>>(
+                std::pair<size_t, std::unordered_map<size_t, Inspector*>>(
                     currentEntity->getID(), inspectors));
     }
 
     for(auto c : compos) {
-        if(_inspectorComponents[currentEntity->getID()][c->getName()] == nullptr) {
-            if(c->getName().compare("Transform") == 0) {
-                _inspectorComponents[currentEntity->getID()][c->getName()] =
-                    new gui::TransformInspector(c);
-            } else if(c->getName().compare("Material") == 0) {
-                _inspectorComponents[currentEntity->getID()][c->getName()] =
-                    new gui::MaterialInspector(c);
+        if(_inspectorComponents[currentEntity->getID()][c->GetType()] == nullptr)
+        {
+            if(c->GetType()== fmc::ComponentType::kTransform)
+            {
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::TransformInspector(c);
+            } else if(c->GetType()== fmc::ComponentType::kMaterial)
+            {
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::MaterialInspector(c);
             }
-
-            else if(c->getName().compare("Mesh") == 0) {
-                _inspectorComponents[currentEntity->getID()][c->getName()] =
-                    new gui::MeshInspector(c);
+            else if(c->GetType()== fmc::ComponentType::KMesh)
+            {
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::MeshInspector(c);
             }
         } else {
-            _inspectorComponents[currentEntity->getID()][c->getName()]->draw();
+            _inspectorComponents[currentEntity->getID()][c->GetType()]->draw();
         }
     }
 }

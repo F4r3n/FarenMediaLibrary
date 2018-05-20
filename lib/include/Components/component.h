@@ -3,27 +3,37 @@
 #include <Component.h>
 #include "EntityManager.h"
 #include <json.hpp>
+#include "Core/serializer.hpp"
 namespace fmc
 {
-class SerializerComponent
+const std::string kEmpty("");
+
+enum ComponentType
 {
-    public:
-        virtual bool Serialize(json &ioJson) = 0;
-        virtual bool Read(const json &inJSON) = 0;
-        virtual void GetName(std::string &outName) = 0;
-        virtual ~SerializerComponent() = default;
+    kTransform,
+    kMaterial,
+    KMesh,
+    kCamera,
+    kDirectionalLight,
+    kIdentity,
+    kPointLight,
+    kScriptManager,
+    kSource,
+    kText,
+    kEND,
+    kNone
 };
 
 
 template <typename T>
-class FMComponent : public Component<T>, public SerializerComponent
+class FMComponent : public Component<T>
 {
     public:
-        virtual bool Serialize(json &ioJson) {return false;}
+        virtual bool Serialize(json &ioJson) const {return false;}
         virtual bool Read(const json &inJSON) {return false;}
-        virtual void GetName(std::string &outName) {}
+        virtual const std::string & GetName() const {return Component<T>::GetName();}
         virtual ~FMComponent() = default;
-
+        virtual size_t GetType() const {return kNone;}
 };
 
 }

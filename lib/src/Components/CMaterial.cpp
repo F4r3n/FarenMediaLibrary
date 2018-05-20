@@ -2,18 +2,38 @@
 using namespace fmc;
 const std::string CMaterial::name = "Material";
 
-CMaterial::CMaterial() {
+CMaterial::CMaterial()
+{
     color = fm::Color(1, 1, 1, 1);
-    _name = "Material";
 }
 
-CMaterial::CMaterial(const fm::Color &color, bool bloom) {
+CMaterial::CMaterial(const fm::Color &color, bool bloom)
+{
     this->color = color;
     this->bloom = bloom;
-    _name = "Material";
 }
 
-CMaterial::~CMaterial() {
+CMaterial::~CMaterial()
+{
+}
+
+bool CMaterial::Serialize(json &ioJson) const
+{
+    ioJson["shaderName"] = shaderName;
+    json o;
+    color.Serialize(o);
+    ioJson["color"] = o;
+    return true;
+}
+bool CMaterial::Read(const json &inJSON)
+{
+    return false;
+}
+
+
+const std::string& CMaterial::GetName() const
+{
+    return name;
 }
 
 void CMaterial::setTexture(const fm::Texture& texture) {

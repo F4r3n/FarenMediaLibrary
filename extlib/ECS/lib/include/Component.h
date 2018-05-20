@@ -10,8 +10,10 @@ class BaseComponent {
 public:
     BaseComponent();
     virtual ~BaseComponent();
-    const std::string& getName() const {return _name;}
-    virtual void serialize(Serializer &serializer) {} 
+    const std::string& GetName() const {return _name;}
+    virtual bool Serialize(json &ioJson) const = 0;
+    virtual bool Read(const json &inJSON) = 0;
+    virtual size_t GetType() const = 0;
 protected:
     std::string _name;
 
@@ -27,13 +29,26 @@ public:
 
     static size_t id() {
         static size_t i = family_counter++;
+
         return i;
     }
+
+
     virtual ~Component() {
     }
+    virtual bool Serialize(json &ioJson) const = 0;
+    virtual bool Read(const json &inJSON) = 0;
+    virtual size_t GetType() const
+    {
+        static size_t type = id();
+        return type;
+    }
+
+
     friend class ComponentManager;
 
 private:
+
 };
 
 

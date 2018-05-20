@@ -16,12 +16,15 @@ class CTransform : public FMComponent<CTransform> {
         CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer = 1);
         CTransform();
 
-        bool Serialize(json &ioJson);
-        bool Read(const json &inJSON);
-        void GetName(std::string &outName);
+        bool Serialize(json &ioJson) const override;
+        bool Read(const json &inJSON) override;
+        const std::string& GetName() const override;
+        virtual size_t GetType() const {return kTransform;}
+
 
         void setFather(size_t id);
         void setFather(Entity* e);
+
 
         fm::math::Vector2f getWorldPos();
         fm::math::Vector2f getWorldPos(EntityManager& manager);

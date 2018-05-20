@@ -4,15 +4,27 @@
 #include <memory>
 #include "Core/Math/Functions.h"
 using namespace fmc;
-const std::string CMesh::name = "Mesh";
 
-CMesh::~CMesh() {
-    // destroy();
+CMesh::~CMesh()
+{
 }
 
 CMesh::CMesh() {
     _name = "Mesh";
-   // _name("Mesh");
+}
+
+bool CMesh::Serialize(json &ioJson) const
+{
+    return false;
+}
+bool CMesh::Read(const json &inJSON)
+{
+    return false;
+}
+
+const std::string& CMesh::GetName() const
+{
+    return _name;
 }
 
 bool CMesh::IsmodelReady() {

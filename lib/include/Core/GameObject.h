@@ -52,22 +52,14 @@ namespace fm {
                 std::vector<BaseComponent*> compos = getAllComponents();
                 for(auto c : compos)
                 {
-                    json j;
-                    std::cout << "Value" << std::endl;
-                    fmc::SerializerComponent *s = dynamic_cast<fmc::SerializerComponent*>(c);
-                    if(s)
-                    {
-                        std::cout << "in" << std::endl;
-                        s->Serialize(j);
-                        std::string name;
-                        s->GetName(name);
-                        outResult[name] = j;
-                        std::cout << name << j.dump() << std::endl;
-                    }else {
-                        std::cout << "out" << std::endl;
-                    }
-                }
 
+                    json j;
+                    if(c->Serialize(j))
+                    {
+                        outResult[std::to_string(c->GetType())] = j;
+                    }
+
+                }
             }
             
 

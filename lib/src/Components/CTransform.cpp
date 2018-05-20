@@ -20,9 +20,10 @@ CTransform::CTransform(const fm::math::Vector2f& position,
 
 }
 
-bool CTransform::Serialize(json &ioJson)
+bool CTransform::Serialize(json &ioJson) const
 {
     ioJson["Position"] = {{"x", position.x}, {"y", position.y}};
+    return true;
 }
 
 bool CTransform::Read(const json &inJSON)
@@ -30,9 +31,9 @@ bool CTransform::Read(const json &inJSON)
     return false;
 }
 
-void CTransform::GetName(std::string &outName)
+const std::string &CTransform::GetName() const
 {
-    outName = _name;
+   return _name;
 }
 
 fm::math::Vector2f CTransform::getWorldPos() {

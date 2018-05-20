@@ -21,6 +21,12 @@ class CMaterial : public FMComponent<CMaterial> {
         CMaterial();
         ~CMaterial();
         CMaterial(const fm::Color& color, bool bloom);
+
+        bool Serialize(json &ioJson) const override;
+        bool Read(const json &inJSON) override;
+        const std::string& GetName() const override;
+        virtual size_t GetType() const {return kMaterial;}
+
         void setTexture(const fm::Texture& texture);
         const fm::Texture& getTexture();
         void setValue(const std::string& name, int value);
@@ -30,10 +36,11 @@ class CMaterial : public FMComponent<CMaterial> {
         std::string shaderName = "default";
         fm::Color color;
         bool bloom = false;  // TODO to remove bloom from material
-        static const std::string name;
         fm::Shader* shader = nullptr;
     private:
         fm::Texture texture;
         std::map<std::string, fm::MaterialValue> values;
+        static const std::string name;
+
 };
 }
