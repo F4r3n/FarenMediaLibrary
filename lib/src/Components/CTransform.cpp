@@ -29,16 +29,20 @@ CTransform::CTransform(const fm::math::Vector2f& position,
 bool CTransform::Serialize(json &ioJson) const
 {
 
-    ioJson[Keys::position] = fm::Serialize(&position);
-    ioJson[Keys::scale] = fm::Serialize(&scale);
-    ioJson[Keys::rotation] =fm::Serialize(&rotation);
-    ioJson[Keys::father] = fm::Serialize<size_t, size_t>(&idFather);
+    ioJson[Keys::position] = position;
+    ioJson[Keys::scale] = scale;
+    ioJson[Keys::rotation] = rotation;
+    ioJson[Keys::father] = idFather;
     return true;
 }
 
 bool CTransform::Read(const json &inJSON)
 {
-    fm::Read(&position, inJSON[Keys::position]);
+
+    position = inJSON[Keys::position];
+    scale = inJSON[Keys::scale];
+    rotation = inJSON[Keys::rotation];
+    idFather = inJSON[Keys::father];
     return true;
 }
 
@@ -49,6 +53,8 @@ const std::string &CTransform::GetName() const
 
 fm::math::Vector2f CTransform::getWorldPos()
 {
+    if(idFather == -1) return position;
+
     Entity* father = EntityManager::get().getEntity(idFather);
     if(!father)
         return position;
@@ -61,6 +67,7 @@ fm::math::Vector2f CTransform::getWorldPos()
 
 fm::math::Vector2f CTransform::getWorldPos(EntityManager& manager)
 {
+    if(idFather == -1) return position;
     Entity* father = manager.getEntity(idFather);
     if(!father)
         return position;

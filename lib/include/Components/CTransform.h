@@ -31,7 +31,7 @@ class CTransform : public FMComponent<CTransform> {
 
         fm::math::Vector2f position = { 0, 0 };
 
-        size_t idFather = std::numeric_limits<size_t>::max();
+        long idFather = -1;
 
         fm::math::Vector2f scale = { 100, 100 };
         float rotation = 0;

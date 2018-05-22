@@ -4,6 +4,65 @@
 namespace fm {
 
 namespace math {
+template <typename T> using col2 = vec<T, 2>;
+template <typename T> struct matrix22 {
+    col2<T> m[2];
+
+    col2<T> const& operator[](int index) const;
+    col2<T>& operator[](int index);
+};
+
+template <typename T> col2<T> const& matrix22<T>::operator[](int index) const {
+    return m[index];
+}
+template <typename T> col2<T>& matrix22<T>::operator[](int index) {
+    return m[index];
+}
+template <typename T> struct Matrix22 {
+    matrix22<T> m;
+
+    col2<T> const& operator[](int index) const;
+    col2<T>& operator[](int index);
+    Matrix22(T a00,
+           T a01,
+           T a10,
+           T a11)
+    {
+        m[0][0] =a00;
+        m[0][1] =a01;
+        m[1][0] =a10;
+        m[1][1] =a11;
+
+    }
+
+    Matrix22(col2<T> l1, col2<T> l2);
+    Matrix22(const Matrix22<T> &m);
+    void identity();
+    Matrix22();
+};
+template <typename T>
+Matrix22<T>::Matrix22(const Matrix22<T> &m) {
+    this->m[0] = m[0];
+    this->m[1] = m[1];
+    this->m[2] = m[2];
+    this->m[3] = m[3];
+}
+template <typename T> Matrix22<T> operator*(const Matrix22<T>& m1, const Matrix22<T>& m2) {
+    return Matrix22<T>(m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1],
+                     m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1],
+
+                     m1[0][0] * m2[1][0] + m1[1][0] * m2[1][1],
+                     m1[0][1] * m2[1][0] + m1[1][1] * m2[1][1]
+                     );
+}
+
+template <typename T> Matrix22<T> operator*(const Matrix22<T>& m1, const vec<T,2>& v) {
+    return vec<T,2>(m1[0][0] * v.x + m1[1][0] * v.y,
+                    m1[0][1] * v.x + m1[1][1] * v.y
+                     );
+}
+
+
     template <typename T> using col = vec<T, 4>;
     template <typename T> struct matrix {
         col<T> m[4];
@@ -241,5 +300,7 @@ namespace math {
 
     
     typedef Matrix<float> mat;
+    typedef Matrix22<float> mat22;
+
 }
 }
