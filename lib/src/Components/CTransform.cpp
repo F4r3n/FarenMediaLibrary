@@ -6,7 +6,10 @@ using namespace fmc;
 const std::string CTransform::name = "Transform";
 namespace Keys
 {
-const std::string position;
+const std::string position("position");
+const std::string scale("scale");
+const std::string rotation("rotation");
+const std::string father("father");
 }
 CTransform::CTransform()
 {
@@ -25,9 +28,11 @@ CTransform::CTransform(const fm::math::Vector2f& position,
 
 bool CTransform::Serialize(json &ioJson) const
 {
-    json j;
-    fm::Serialize(&position, j);
-    ioJson[Keys::position] = j;
+
+    ioJson[Keys::position] = fm::Serialize(&position);
+    ioJson[Keys::scale] = fm::Serialize(&scale);
+    ioJson[Keys::rotation] =fm::Serialize(&rotation);
+    ioJson[Keys::father] = fm::Serialize<size_t, size_t>(&idFather);
     return true;
 }
 

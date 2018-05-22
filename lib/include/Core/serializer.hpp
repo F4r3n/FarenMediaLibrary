@@ -30,6 +30,21 @@ bool Serialize(const T *t, json &ioJson, size_t size = 0)
 }
 
 template <typename T, typename P = float>
+json Serialize(const T *t, size_t size = 0)
+{
+    json j;
+    if(size == 0) size = sizeof(T)/sizeof(P);
+
+    char *p = (char*)t;
+    for(size_t i = 0; i < size; ++i)
+    {
+        j.push_back(*(P*)(p));
+        p+= sizeof(P);
+    }
+    return j;
+}
+
+template <typename T, typename P = float>
 bool Read(T *t, const json &ioJson)
 {
     if(!t) return false;
