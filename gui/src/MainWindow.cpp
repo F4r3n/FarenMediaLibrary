@@ -16,6 +16,9 @@
 #include "MeshInspector.h"
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
+
+
+
 MainWindow::MainWindow(fm::Engine* engine) {
     fm::Debug::logWarning("Start init");
     this->engine = engine;
@@ -239,19 +242,22 @@ void MainWindow::menuEntity() {
         if(ImGui::Button("Add Component"))
             ImGui::OpenPopup("popup from button");
 
-        if(ImGui::BeginPopup("popup from button")) {
+        if(ImGui::BeginPopup("popup from button"))
+        {
             ImGui::MenuItem("Components", NULL, false, false);
 
-            if(!currentEntity->has<fmc::CTransform>() &&
-                    ImGui::MenuItem("Transform")) {
+            if(!currentEntity->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
+            {
                 currentEntity->add<fmc::CTransform>();
             }
 
-            if(!currentEntity->has<fmc::CMesh>() && ImGui::MenuItem("Mesh")) {
+            if(!currentEntity->has<fmc::CMesh>() && ImGui::MenuItem("Mesh"))
+            {
                 currentEntity->add<fmc::CMesh>();
             }
 
-            if(!currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material")) {
+            if(!currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
+            {
                 currentEntity->add<fmc::CMaterial>();
             }
 
@@ -261,30 +267,31 @@ void MainWindow::menuEntity() {
     }
 }
 
-void MainWindow::listEntity() {
-    if(windowListEntity) {
+void MainWindow::listEntity()
+{
+    if(windowListEntity)
+    {
         static std::vector<const char*> namesEntities;
         ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("List entities", &windowListEntity);
 
-        if(timerListEntityUpdate > 1) {
+        if(timerListEntityUpdate > 1)
+        {
             namesEntities = getAllEntities();
             timerListEntityUpdate = 0;
-        } else {
+        } else
+        {
             timerListEntityUpdate += fm::Time::dt;
         }
         static int number = 0;
-        ImGui::ListBox("List entities",
-                &number,
-                &namesEntities[0],
+        ImGui::ListBox("List entities", &number,&namesEntities[0],
                 (int)namesEntities.size(),
                 -1);
         currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
 
-
-        if(ImGui::Button("Add Entity")) {
+        if(ImGui::Button("Add Entity"))
+        {
             currentEntity = fm::GameObjectHelper::create();
-
             currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
                         fm::math::Vector2f(0, 0), fm::math::Vector2f(100, 100), 0));
         }
@@ -292,7 +299,8 @@ void MainWindow::listEntity() {
     }
 }
 
-std::vector<const char*> MainWindow::getAllEntities() {
+std::vector<const char*> MainWindow::getAllEntities()
+{
     std::vector<const char*> names;
     std::vector<fm::GameObject*> gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
     for(auto e : gos) {

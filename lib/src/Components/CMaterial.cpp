@@ -1,4 +1,5 @@
 #include "Components/CMaterial.h"
+#include "Core/serializer.hpp"
 using namespace fmc;
 const std::string CMaterial::name = "Material";
 
@@ -21,7 +22,7 @@ bool CMaterial::Serialize(json &ioJson) const
 {
     ioJson["shaderName"] = shaderName;
     json o;
-    color.Serialize(o);
+    fm::Serialize(&color, o, (size_t)3);
     ioJson["color"] = o;
     return true;
 }

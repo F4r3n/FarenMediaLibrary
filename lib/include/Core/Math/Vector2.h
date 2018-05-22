@@ -1,6 +1,5 @@
 #pragma once
-#include <cmath>
-#include <ostream>
+
 #include "Vector.h"
 namespace fm {
 	namespace math {

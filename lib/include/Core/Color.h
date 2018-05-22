@@ -3,7 +3,7 @@
 #include <Core/serializer.hpp>
 namespace fm {
 
-class Color :public Serializer {
+class Color {
 public:
     Color() {
         r = 1;
@@ -20,19 +20,6 @@ public:
     float mean();
     void RGB2HSV(Color& color);
 
-    bool Serialize(json &ioJson) const override
-    {
-        ioJson["r"] = r;
-        ioJson["g"] = g;
-        ioJson["b"] = b;
-        ioJson["a"] = a;
-
-        return true;
-    }
-    bool Read(const json &inJSON) override
-    {
-        return false;
-    }
 
 private:
     template <typename T> T max(std::vector<T> vals) {

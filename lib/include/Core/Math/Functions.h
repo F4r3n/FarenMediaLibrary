@@ -1,6 +1,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
-#include <math.h>
+#include <cmath>
 
 namespace fm {
 namespace math {

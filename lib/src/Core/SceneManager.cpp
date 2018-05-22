@@ -24,7 +24,7 @@ void SceneManager::Serialize(nlohmann::json &outjson)
     {
         nlohmann::json s;
         scene.second->Serialize(s);
-        outjson[scene.first] = s;
+        outjson.push_back(s);
     }
 }
 
