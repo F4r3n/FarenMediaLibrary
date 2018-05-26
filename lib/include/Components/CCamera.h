@@ -38,11 +38,15 @@ class CCamera : public FMComponent<CCamera> {
         float GetFarPlane();
         float GetNearPlane();
 
+        bool Serialize(json &ioJson) const override;
+        bool Read(const json &inJSON) override;
+        virtual size_t GetType() const {return kCamera;}
+
 
         void SetNewProjection(unsigned int width, unsigned int height);
         void UpdateRenderTexture();
         void SetNewViewPort(int x, int y, unsigned int width, unsigned int height);
-
+        void Init();
 
         fm::Rect<float> viewPort;
         fm::math::mat projection;
@@ -56,5 +60,8 @@ class CCamera : public FMComponent<CCamera> {
         bool  _isOrto = false;
         float _farPlane = 100.0f;
         float _nearPlane = 0.0f;
+
+        int _width;
+        int _height;
 };
 }

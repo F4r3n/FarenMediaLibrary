@@ -1,5 +1,3 @@
-
-
 #include "Rendering/RenderingSystem.h"
 #include "Components/CTransform.h"
 #include "Resource/ResourcesManager.h"
@@ -24,19 +22,21 @@
 #include "Event.h"
 #include "Window.h"
 #include "Core/Debug.h"
+#include <cassert>
 namespace fms {
 RenderingSystem::RenderingSystem(int width, int height)
-    : width(width), height(height) {
+    : width(width), height(height)
+{
     finalShader = fm::ResourcesManager::get().getResource<fm::Shader>("simple");
     lightShader = fm::ResourcesManager::get().getResource<fm::Shader>("light");
 
     textdef.projection = fm::math::ortho(
                 0.0f, (float)fm::Window::width, 0.0f, (float)fm::Window::height);
 
-    std::cout << "Create" << std::endl;
 }
 
-void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
+void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera)
+{
 #if OPENGL_ES == 0
     glGenBuffers(1, &generatedBlockBinding);
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
@@ -59,10 +59,12 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera) {
 #endif
 }
 
-RenderingSystem::~RenderingSystem() {
+RenderingSystem::~RenderingSystem()
+{
 }
 
-void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
+void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera)
+{
 #if OPENGL_ES == 0
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
@@ -71,7 +73,8 @@ void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera) {
 #endif
 }
 
-void RenderingSystem::initStandardShapes() {
+void RenderingSystem::initStandardShapes()
+{
     fm::Model* quad = new fm::Model();
     quad->name = "Quad";
     fm::Model* quadFS = new fm::Model();
@@ -92,8 +95,9 @@ void RenderingSystem::initStandardShapes() {
     fm::Renderer::getInstance().createQuadScreen();
 }
 
-void RenderingSystem::init(EntityManager& em, EventManager& event) {
-    fm::Debug::log("INIT");
+void RenderingSystem::init(EntityManager& em, EventManager& event)
+{
+    fm::Debug::log("INIT Standard Shapes");
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     std::cout << width << " " << height << std::endl;
 
@@ -119,6 +123,16 @@ void RenderingSystem::init(EntityManager& em, EventManager& event) {
             material->shader->compile();
         }
     }
+    //If no camera found the first one from the entities
+    if(!camera)
+    {
+        fm::Debug::log("INIT MainCamera");
+        for(auto e : em.iterate<fmc::CCamera>()) {
+           setCamera(e);
+           break;
+        }
+    }
+
 }
 
 void RenderingSystem::setCamera(Entity* camera)
@@ -174,6 +188,7 @@ void RenderingSystem::pre_update(EntityManager& em)
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 {
+    assert(camera != nullptr);
     // fm::Renderer::getInstance().bindFrameBuffer();
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
 

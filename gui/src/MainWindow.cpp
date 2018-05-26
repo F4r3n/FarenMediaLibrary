@@ -83,29 +83,21 @@ MainWindow::MainWindow(fm::Engine* engine) {
     style.Alpha = 1.0f;
     style.FrameRounding = 4;
     style.IndentSpacing = 12.0f;
-    fm::Debug::logWarning("Before light Init");
+
     dlight = EntityManager::get().createEntity();
-    dlight->addComponent<fmc::CDirectionalLight>(
-            new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
-    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(
-                fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
+    dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
+    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
     dlight->addComponent<fmc::CMaterial>();
-    fm::Debug::logWarning("After light Init");
 
     playImage = fm::Texture("assets/images/play_button.png");
 
-    fm::Debug::log("Before Scene"); 
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
-    fm::Debug::log("After Scene"); 
+
     mainCamera = fm::GameObjectHelper::create();
-    fm::Debug::logWarning("AfterCreate");
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(
-                fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
-    fm::Debug::logWarning("AfterAllCreate");
     mainCamera->name = "Camera";
-    // cam->setNewViewPort(0,10,fm::Window::width, fm::Window::height);
     engine->setMainCamera(mainCamera);
     gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get()));
     tempRefCamera->target = gameView.renderTexture;

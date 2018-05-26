@@ -17,15 +17,18 @@ void menuBar() {
 int main() {
     fm::Window window(800, 600, "FML Engine");
     fm::Engine engine;
-
+    fm::Application app;
+    //app.Read();
     engine.init();
+
+    //engine.run(window);
+    //return 0;
 
     ImGui_ImplSdlGL3_Init(window.getWindow());
 
     
     MainWindow mainWindow(&engine);
-    fm::Application app;
-    app.Read();
+
 
     //fm::Debug::log("INIT0");
     while(!window.isClosed()) {

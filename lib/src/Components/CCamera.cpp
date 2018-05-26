@@ -15,18 +15,40 @@ float CCamera::GetNearPlane() {
     return _nearPlane;
 }
 
-CCamera::CCamera() {
+CCamera::CCamera()
+{
     _name = "Camera";
 }
 
-CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode) {
+bool CCamera::Serialize(json &ioJson) const
+{
+    ioJson["width"] = viewPort.w;
+    ioJson["height"] = viewPort.h;
+    ioJson["farPlane"] = _farPlane;
+    ioJson["nearPlane"] = _nearPlane;
+
+    ioJson["Render_Mode"] = shader_data.render_mode;
+    return true;
+}
+bool CCamera::Read(const json &inJSON)
+{
+    _width = inJSON["width"];
+    _height = inJSON["height"];
+    _farPlane =  inJSON["farPlane"];
+    _nearPlane = inJSON["nearPlane"];
+    shader_data.render_mode = inJSON["Render_Mode"];
+    return true;
+}
+
+void CCamera::Init()
+{
     _name = "Camera";
 
     _isOrto = true;
     // projection = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 100.0f);
-    projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, _nearPlane, _farPlane);
-    viewPort.w = width;
-    viewPort.h = height;
+    projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
+    viewPort.w = _width;
+    viewPort.h = _height;
     viewPort.x = 0;
     viewPort.y = 0;
 
@@ -35,7 +57,7 @@ CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode) {
     {
         _renderTexture->release();
     }
-    shader_data.render_mode = mode;
+
     if(shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
     {
         fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
@@ -44,16 +66,25 @@ CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode) {
 #else
         fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 #endif
-        _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
+        _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 3, formats, types, 24);
     }
     else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
     {
         fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
         fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-        _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 2, formats, types, 24);
+        _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 2, formats, types, 24);
     }
 }
+
+CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode)
+{
+    _width = width;
+    _height = height;
+    shader_data.render_mode = mode;
+    Init();
+}
+
 CCamera::~CCamera()
 {
     if(_renderTexture != nullptr && _renderTexture->isCreated())
@@ -64,6 +95,8 @@ CCamera::~CCamera()
 
 void CCamera::SetNewProjection(unsigned int width, unsigned int height)
 {
+    _width = width;
+    _height = height;
     _isOrto = true;
     _farPlane = 100.0f;
 

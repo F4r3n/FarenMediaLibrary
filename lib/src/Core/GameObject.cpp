@@ -5,6 +5,7 @@
 #include "Components/CTransform.h"
 #include "Components/CMaterial.h"
 #include "Components/CMesh.h"
+#include "Components/CCamera.h"
 using namespace fm;
 GameObject* GameObject::create()
 {
@@ -65,6 +66,13 @@ bool GameObject::Read(const json &inJson)
                 {
                 fmc::CMesh * t = add<fmc::CMesh>();
                 t->Read(it.value());
+                }
+            break;
+            case fmc::ComponentType::kCamera:
+                {
+                fmc::CCamera * t = add<fmc::CCamera>();
+                t->Read(it.value());
+                t->Init();
                 }
             break;
         }
