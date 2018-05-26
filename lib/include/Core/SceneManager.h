@@ -14,6 +14,7 @@ namespace fm {
                 return _currentScene;
             }
             void Serialize(nlohmann::json &outjson);
+            bool Read(const nlohmann::json &injson);
         private:
             ~SceneManager();
             Scene* _currentScene = nullptr;

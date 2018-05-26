@@ -4,6 +4,7 @@
 #include <json.hpp>
 #include "Components/component.h"
 
+
 namespace fm {
 
     class GameObject {
@@ -11,6 +12,8 @@ namespace fm {
             GameObject();
             ~GameObject();
             GameObject* create();
+            GameObject* create(Scene *s);
+
 
             void destroy() {
                 _entity->destroy();
@@ -47,20 +50,11 @@ namespace fm {
             inline size_t getID() {return _entity->ID;} 
             std::string name;
 
-            void Serialize(json &outResult)
-            {
-                std::vector<BaseComponent*> compos = getAllComponents();
-                for(auto c : compos)
-                {
+            void Serialize(json &outResult);
 
-                    json j;
-                    if(c->Serialize(j))
-                    {
-                        outResult[std::to_string(c->GetType())] = j;
-                    }
 
-                }
-            }
+            bool Read(const json &inJson);
+
             
 
         private:
@@ -74,6 +68,10 @@ namespace fm {
             static GameObject* create()
             {
                 return (new GameObject())->create();
+            }
+            static GameObject* create(Scene *scene)
+            {
+                return (new GameObject())->create(scene);
             }
     };
 }

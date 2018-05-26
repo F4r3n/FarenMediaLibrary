@@ -1,4 +1,5 @@
 #include "Core/SceneManager.h"
+#include "Core/GameObject.h"
 using namespace fm;
 SceneManager SceneManager::_instance;
 SceneManager::SceneManager() {
@@ -24,9 +25,22 @@ void SceneManager::Serialize(nlohmann::json &outjson)
     {
         nlohmann::json s;
         scene.second->Serialize(s);
-        outjson.push_back(s);
+        outjson[scene.second->getName()] =  s;
     }
 }
+
+bool SceneManager::Read(const nlohmann::json &injson)
+{
+    for (nlohmann::json::const_iterator it = injson.cbegin(); it != injson.cend(); ++it) {
+        Scene *s = new Scene(it.key());
+        nlohmann::json o = it.value();
+        s->Read(o);
+
+        addScene(s);
+    }
+    return true;
+}
+
 
 
 void SceneManager::addScene(Scene *scene)

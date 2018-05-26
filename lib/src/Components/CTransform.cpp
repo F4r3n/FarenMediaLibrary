@@ -1,6 +1,7 @@
 #include "Components/CTransform.h"
 #include "Entity.h"
 #include <EntityManager.h>
+#include "Core/Math/Matrix.h"
 //#include "TransformInspector.h"
 using namespace fmc;
 const std::string CTransform::name = "Transform";
@@ -62,7 +63,8 @@ fm::math::Vector2f CTransform::getWorldPos()
     CTransform* fatherTransform = father->get<CTransform>();
     if(!fatherTransform)
         return position;
-    return position + fatherTransform->getWorldPos();
+    fm::math::Vector2f worldFatherPos = fatherTransform->getWorldPos();
+    return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation, position);//TODO missing rotation}
 }
 
 fm::math::Vector2f CTransform::getWorldPos(EntityManager& manager)
@@ -75,7 +77,8 @@ fm::math::Vector2f CTransform::getWorldPos(EntityManager& manager)
     CTransform* fatherTransform = father->get<CTransform>();
     if(!fatherTransform)
         return position;
-    return position + fatherTransform->getWorldPos();//TODO missing rotation
+    fm::math::Vector2f worldFatherPos = fatherTransform->getWorldPos();
+    return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation, position);//TODO missing rotation
 }
 
 void CTransform::setFather(Entity* e)

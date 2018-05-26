@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <Core/serializer.hpp>
+#include <json.hpp>
 namespace fm {
 
 class Color {
@@ -40,4 +40,16 @@ private:
         return result;
     }
 };
+
+
+
+}
+
+namespace fm
+{
+using nlohmann::json;
+
+
+void to_json(json& j, const Color& p);
+void from_json(const json& j, Color& p);
 }

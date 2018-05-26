@@ -81,6 +81,10 @@ namespace math {
     template <typename T> vec<T, 2> operator+(const vec<T, 2>& a, const vec<T, 2>& b) {
         return vec<T, 2>(a.x + b.x, a.y + b.y);
     }
+template <typename T> vec<T, 2> operator-(const vec<T, 2>& a, const vec<T, 2>& b) {
+return vec<T, 2>(a.x - b.x, a.y - b.y);
+}
+
 
     template <typename T> vec<T, 2> operator+(const vec<T, 2>& a, const vec<T, 1>& b) {
         return vec<T, 2>(a.x + b.x, a.y + b.x);

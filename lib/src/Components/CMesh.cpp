@@ -15,11 +15,14 @@ CMesh::CMesh() {
 
 bool CMesh::Serialize(json &ioJson) const
 {
-    return false;
+    ioJson["type"] = type;
+    return true;
 }
 bool CMesh::Read(const json &inJSON)
 {
-    return false;
+    type = inJSON["type"];
+
+    return true;
 }
 
 const std::string& CMesh::GetName() const

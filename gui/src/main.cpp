@@ -24,6 +24,9 @@ int main() {
 
     
     MainWindow mainWindow(&engine);
+    fm::Application app;
+    app.Read();
+
     //fm::Debug::log("INIT0");
     while(!window.isClosed()) {
 
@@ -45,8 +48,7 @@ int main() {
 
     }
     ImGui_ImplSdlGL3_Shutdown();
-    fm::Application app;
-    app.Serialize();
+    //app.Serialize();
 
     return 0;
 }

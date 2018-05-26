@@ -30,7 +30,13 @@ bool Application::Serialize()
 
 bool Application::Read()
 {
+    nlohmann::json s;
 
+    std::ifstream i(fileOutput);
+    nlohmann::json j;
+    i >> j;
+    SceneManager::get().Read(j);
+    return true;
 }
 
 void Application::Start()

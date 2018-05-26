@@ -14,6 +14,8 @@ namespace fm {
             ~Scene();
             void AddGameObject(GameObject *e);
             void Serialize(nlohmann::json &outJson);
+            bool Read(const nlohmann::json &inJson);
+
             void destroy();
             const std::string& getName() const{ return _name;}
             std::vector<fm::GameObject*> getAllGameObjects() {return _entities;}

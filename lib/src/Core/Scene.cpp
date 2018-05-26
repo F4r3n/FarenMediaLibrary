@@ -23,12 +23,25 @@ void Scene::AddGameObject(GameObject *e)
 void Scene::Serialize(json &outJson)
 {
 
-    json scene;
+    json entities;
     for(auto e : _entities)
     {
         json v;
         e->Serialize(v);
-        scene.push_back(v);
+        entities.push_back(v);
     }
-    outJson[_name] = scene;
+    outJson["entities"] = entities;
+    outJson["id"] = 0;
+}
+
+bool Scene::Read(const json &inJson)
+{
+    json entities = inJson["entities"];
+
+    for (nlohmann::json::const_iterator it = entities.cbegin(); it != entities.cend(); ++it)
+    {
+        GameObject *go = GameObjectHelper::create(this);
+        go->Read(it.value());
+    }
+    return true;
 }
