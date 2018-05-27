@@ -2,6 +2,9 @@
 #include <cmath>
 #include <ostream>
 #include "Vector.h"
+#include <json.hpp>
+using nlohmann::json;
+
 namespace fm {
     namespace math {
     typedef vec<float, 3> Vector3f;
@@ -11,5 +14,18 @@ namespace fm {
     typedef vec<double, 3> Vector3d;
     typedef vec<unsigned int, 3> Vector3ui;
 
+    template <typename T>
+    void to_json(json& j, const vec<T,3>& p) {
+            j = json{{"x", p.x}, {"y", p.y}, {"z", p.z}};
+        }
+template <typename T>
+        void from_json(const json& j, vec<T,3>& p) {
+            p.x = j.at("x").get<T>();
+            p.y = j.at("y").get<T>();
+            p.z = j.at("z").get<T>();
+
+        }
     }
-}
+
+    }
+

@@ -86,7 +86,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
 
     dlight = EntityManager::get().createEntity();
     dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
-    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector2f(100, 50), fm::math::Vector2f(20, 20), 0, 1));
+    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector3f(100, 50,0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1));
     dlight->addComponent<fmc::CMaterial>();
 
     playImage = fm::Texture("assets/images/play_button.png");
@@ -95,7 +95,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fm::SceneManager::get().setCurrentScene("newScene");
 
     mainCamera = fm::GameObjectHelper::create();
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, true));
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
     mainCamera->name = "Camera";
     engine->setMainCamera(mainCamera);
@@ -190,9 +190,9 @@ void MainWindow::menu() {
                 windowCurrentEntity = true;
                 currentEntity = fm::GameObjectHelper::create();
                 currentEntity->addComponent<fmc::CTransform>(
-                        new fmc::CTransform(fm::math::Vector2f(0, 0),
-                            fm::math::Vector2f(100, 100),
-                            0));
+                        new fmc::CTransform(fm::math::Vector3f(0, 0, 0),
+                            fm::math::Vector3f(100, 100, 100),
+                            fm::math::vec3(0,0,0), 1));
                 currentEntity->addComponent<fmc::CIdentity>();
             }
             if(ImGui::MenuItem("List entity")) {
@@ -285,7 +285,9 @@ void MainWindow::listEntity()
         {
             currentEntity = fm::GameObjectHelper::create();
             currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
-                        fm::math::Vector2f(0, 0), fm::math::Vector2f(100, 100), 0));
+                                                             fm::math::Vector3f(0, 0, 0),
+                                                             fm::math::Vector3f(100, 100, 100),
+                                                             fm::math::vec3(0,0,0)));
         }
         ImGui::End();
     }

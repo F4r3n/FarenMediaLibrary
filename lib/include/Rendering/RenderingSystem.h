@@ -35,7 +35,7 @@ public:
     void pre_update(EntityManager& em);
 
     private:
-    void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector2f& worldPos);
+    void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos);
     void initStandardShapes();
     ~RenderingSystem();
     void initUniformBufferCamera(fmc::CCamera* camera);
@@ -46,7 +46,7 @@ public:
     void fillQueue(EntityManager& em);
     void draw(fmc::CCamera *cam);
     void
-    setView(fm::math::mat& viewMatrix, const fm::math::Vector2f& position, const fm::math::Vector2f& size, float rotation);
+    setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation);
 
     Entity* camera = nullptr;
     int width;

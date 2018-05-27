@@ -128,6 +128,30 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 
         Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4);
         Matrix(const Matrix<T> &m);
+
+        Matrix(T a)
+        {
+            this->m[0][0] = a;
+            this->m[0][1] = a;
+            this->m[0][2] = a;
+            this->m[0][3] = a;
+
+            this->m[1][0] = a;
+            this->m[1][1] = a;
+            this->m[1][2] = a;
+            this->m[1][3] = a;
+
+            this->m[2][0] = a;
+            this->m[2][1] = a;
+            this->m[2][2] = a;
+            this->m[2][3] = a;
+
+            this->m[3][0] = a;
+            this->m[3][1] = a;
+            this->m[3][2] = a;
+            this->m[3][3] = a;
+        }
+
         void identity();
         Matrix();
     };
@@ -189,6 +213,22 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
         return Result;
     }
 
+    template<typename T>
+       Matrix<T> perspective(T fovy, T aspect, T zNear, T zFar)
+        {
+            assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
+
+            T const tanHalfFovy = tan(fovy / static_cast<T>(2));
+
+            Matrix<T> Result;
+            Result[0][0] = static_cast<T>(1) / (aspect * tanHalfFovy);
+            Result[1][1] = static_cast<T>(1) / (tanHalfFovy);
+            Result[2][2] = - (zFar + zNear) / (zFar - zNear);
+            Result[2][3] = - static_cast<T>(1);
+            Result[3][2] = - (static_cast<T>(2) * zFar * zNear) / (zFar - zNear);
+            return Result;
+        }
+
     template <typename T> Matrix<T> ortho(T left, T right, T bottom, T top, T zNear, T zFar) {
         Matrix<T> Result;
 
@@ -217,6 +257,30 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 		Result[3][1] = - (top + bottom) / (top - bottom);
 		return Result;
 	}
+
+       template<typename T>
+           Matrix<T> lookAt(vec<T,3> const& eye, vec<T, 3> const& center, vec<T, 3> const& up)
+           {
+               vec<T, 3> const f(normalize(center - eye));
+               vec<T, 3> const s(normalize(cross(f, up)));
+               vec<T, 3> const u(cross(s, f));
+
+               Matrix<T> Result(1);
+               Result[0][0] = s.x;
+               Result[1][0] = s.y;
+               Result[2][0] = s.z;
+               Result[0][1] = u.x;
+               Result[1][1] = u.y;
+               Result[2][1] = u.z;
+               Result[0][2] =-f.x;
+               Result[1][2] =-f.y;
+               Result[2][2] =-f.z;
+               Result[3][0] =-dot(s, eye);
+               Result[3][1] =-dot(u, eye);
+               Result[3][2] = dot(f, eye);
+               return Result;
+           }
+
 
     template <typename T>
     Matrix<T>::Matrix(T a00,
@@ -324,6 +388,8 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
         stream << m[0] << "\n" << m[1] << "\n" << m[2] << "\n" << m[3];
         return stream;
     }
+
+
 
     
     typedef Matrix<float> mat;

@@ -1,6 +1,6 @@
 #pragma once
 #include "component.h"
-#include "Core/Math/Vector2.h"
+#include "Core/Math/Vector3.h"
 #include "EntityManager.h"
 
 
@@ -13,7 +13,9 @@ namespace fmc {
 
 class CTransform : public FMComponent<CTransform> {
     public:
-        CTransform(const fm::math::Vector2f& position, const fm::math::Vector2f& scale, const float& rotation, const int& layer = 1);
+        CTransform(const fm::math::Vector3f& position,
+                   const fm::math::Vector3f& scale,
+                   const fm::math::Vector3f& rotation, const int& layer = 1);
         CTransform();
 
         bool Serialize(json &ioJson) const override;
@@ -26,15 +28,15 @@ class CTransform : public FMComponent<CTransform> {
         void setFather(Entity* e);
 
 
-        fm::math::Vector2f getWorldPos();
-        fm::math::Vector2f getWorldPos(EntityManager& manager);
+        fm::math::Vector3f getWorldPos();
+        fm::math::Vector3f getWorldPos(EntityManager& manager);
 
-        fm::math::Vector2f position = { 0, 0 };
+        fm::math::Vector3f position = { 0, 0, 0 };
 
         long idFather = -1;
 
-        fm::math::Vector2f scale = { 100, 100 };
-        float rotation = 0;
+        fm::math::Vector3f scale = { 100, 100, 100 };
+        fm::math::Vector3f rotation;
         int layer = 1;
         static const std::string name;
 

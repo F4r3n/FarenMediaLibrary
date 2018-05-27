@@ -25,7 +25,7 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event)
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         transform->position = fm::math::vec2(body->body->GetPosition().x - body->size.x*P2M, 
         body->body->GetPosition().y - body->size.y*P2M)*M2P;
-        transform->rotation = body->body->GetAngle();
+        transform->rotation.x = body->body->GetAngle();
     }
 }
 
@@ -42,7 +42,7 @@ void PhysicSystem::init(EntityManager& em, EventManager& event)
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         body->identity = &e->ID;
         body->bodyDef.position.Set((transform->position.x + body->size.x)*P2M, (transform->position.y + body->size.y)*P2M);
-        body->bodyDef.angle = transform->rotation;
+        body->bodyDef.angle = transform->rotation.x;
         body->Init(world.get(), P2M);
     }
 }

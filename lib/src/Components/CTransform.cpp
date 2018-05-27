@@ -17,9 +17,9 @@ CTransform::CTransform()
     _name = "Transform";
 }
 
-CTransform::CTransform(const fm::math::Vector2f& position,
-                       const fm::math::Vector2f& scale,
-                       const float& rotation,
+CTransform::CTransform(const fm::math::Vector3f& position,
+                       const fm::math::Vector3f& scale,
+                       const fm::math::Vector3f& rotation,
                        const int& layer)
     :  position(position), scale(scale), rotation(rotation), layer(layer)
 {
@@ -52,7 +52,7 @@ const std::string &CTransform::GetName() const
    return _name;
 }
 
-fm::math::Vector2f CTransform::getWorldPos()
+fm::math::Vector3f CTransform::getWorldPos()
 {
     if(idFather == -1) return position;
 
@@ -63,11 +63,11 @@ fm::math::Vector2f CTransform::getWorldPos()
     CTransform* fatherTransform = father->get<CTransform>();
     if(!fatherTransform)
         return position;
-    fm::math::Vector2f worldFatherPos = fatherTransform->getWorldPos();
-    return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation, position);//TODO missing rotation}
+    //fm::math::Vector3f worldFatherPos = fatherTransform->getWorldPos();
+    //return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation.x, position);//TODO missing rotation}
 }
 
-fm::math::Vector2f CTransform::getWorldPos(EntityManager& manager)
+fm::math::Vector3f CTransform::getWorldPos(EntityManager& manager)
 {
     if(idFather == -1) return position;
     Entity* father = manager.getEntity(idFather);
@@ -77,8 +77,8 @@ fm::math::Vector2f CTransform::getWorldPos(EntityManager& manager)
     CTransform* fatherTransform = father->get<CTransform>();
     if(!fatherTransform)
         return position;
-    fm::math::Vector2f worldFatherPos = fatherTransform->getWorldPos();
-    return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation, position);//TODO missing rotation
+    //fm::math::Vector3f worldFatherPos = fatherTransform->getWorldPos();
+    //return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation.x, position);//TODO missing rotation
 }
 
 void CTransform::setFather(Entity* e)

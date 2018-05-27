@@ -15,6 +15,11 @@ namespace math {
     constexpr double twoPi() {
         return 2.0f * M_PI;
     }
+    template <typename T>
+    inline T radians(T a)
+    {
+        return a*pi()/180;
+    }
 
     template <typename T> inline T mod(T a, T b) {
         return a - b * std::floor(a / b);

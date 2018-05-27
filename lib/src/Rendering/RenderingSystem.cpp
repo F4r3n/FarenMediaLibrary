@@ -128,8 +128,8 @@ void RenderingSystem::init(EntityManager& em, EventManager& event)
     {
         fm::Debug::log("INIT MainCamera");
         for(auto e : em.iterate<fmc::CCamera>()) {
-           setCamera(e);
-           break;
+            setCamera(e);
+            break;
         }
     }
 
@@ -157,16 +157,26 @@ void RenderingSystem::setCamera(Entity* camera)
 }
 
 void RenderingSystem::setView(fm::math::mat& viewMatrix,
-                              const fm::math::Vector2f& position,
-                              const fm::math::Vector2f& size,
-                              float rotation)
+                              const fm::math::Vector3f& position,
+                              const fm::math::Vector2f &size,
+                              const fm::math::Vector3f& rotation)
 {
-    fm::math::mat m;
-    m.identity();
-    viewMatrix = fm::math::translate(m,fm::math::vec3(-position.x, -position.y, 0));
-    viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
-    viewMatrix = fm::math::rotate(viewMatrix, rotation, fm::math::vec3(0, 0, 1));
-    viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+    if(camera == nullptr) return;
+    fmc::CCamera *cam = camera->get<fmc::CCamera>();
+    if(cam->IsOrthographic())
+    {
+        fm::math::mat m;
+        m.identity();
+        viewMatrix = fm::math::translate(m,fm::math::vec3(-position.x, -position.y, -position.z));
+        viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+        viewMatrix = fm::math::rotate(viewMatrix, rotation.x, fm::math::vec3(0, 0, 1));
+        viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+        }
+    else
+    {
+        viewMatrix = fm::math::lookAt(position, position + fm::math::vec3(0.0f,0.0f,-1.0f), fm::math::vec3(0.0f,0.0f,1.0f));
+        //TODO temporary
+    }
 }
 
 void RenderingSystem::pre_update(EntityManager& em)
@@ -283,7 +293,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
         fmc::CTransform* transform = node.transform;
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
-        fm::math::Vector2f worldPos = transform->getWorldPos();
+        fm::math::Vector3f worldPos = transform->getWorldPos();
         EventManager::get().emit<CameraInfo>({node.idEntity, cam});
 
         fm::RENDER_QUEUE state = node.state;
@@ -308,15 +318,15 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                 if(shader != nullptr)
                 {
                     shader->Use()
-                          ->setValue("FM_PV", cam->shader_data.FM_PV)
-                          ->setValue("BloomEffect", material->bloom);
+                            ->setValue("FM_PV", cam->shader_data.FM_PV)
+                            ->setValue("BloomEffect", material->bloom);
 
                     fm::math::mat model = fm::math::mat();
                     setModel(model, transform, worldPos);
 
                     shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
                     shader->setValue("FM_M", model)
-                          ->setValue("mainColor", material->color);
+                            ->setValue("mainColor", material->color);
                     if(material->textureReady)
                     {
                         glActiveTexture(GL_TEXTURE0);
@@ -478,11 +488,11 @@ void RenderingSystem::over()
 
 void RenderingSystem::setModel(fm::math::mat& model,
                                fmc::CTransform* transform,
-                               const fm::math::Vector2f& worldPos)
+                               const fm::math::Vector3f& worldPos)
 {
     model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));
     model = fm::math::translate( model,fm::math::vec3( 0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
-    model = fm::math::rotate( model, transform->rotation, fm::math::vec3(0.0f, 0.0f, 1.0f));
+    model = fm::math::rotate( model, transform->rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
     model = fm::math::translate( model, fm::math::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
     model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
 }
