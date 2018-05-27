@@ -43,7 +43,13 @@ public:
     void next();
     void init();
     void start();
-    inline bool empty() const{
+    inline size_t Size()
+    {
+        return elements.size();
+    }
+
+    inline bool Empty() const
+    {
         return indexElements >= elements.size() || elements.size() == 0;
     }
     

@@ -84,8 +84,9 @@ void Renderer::blit(fm::Graphics& graphics,
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& dest,
                     Shader* shader) {
-    dest.bind();
+
     shader->Use();
+    dest.bind();
     graphics.draw(quad);
 }
 void Renderer::blit(fm::Graphics& graphics, Shader* shader) {

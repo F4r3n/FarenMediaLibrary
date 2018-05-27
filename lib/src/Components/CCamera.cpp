@@ -3,15 +3,18 @@
 using namespace fmc;
 using namespace fm;
 
-bool CCamera::IsOrthographic() {
+bool CCamera::IsOrthographic()
+{
     return _isOrto;
 }
 
-float CCamera::GetFarPlane() {
+float CCamera::GetFarPlane()
+{
     return _farPlane;
 }
 
-float CCamera::GetNearPlane() {
+float CCamera::GetNearPlane()
+{
     return _nearPlane;
 }
 

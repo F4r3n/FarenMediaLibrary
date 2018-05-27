@@ -159,8 +159,11 @@ void RenderingSystem::setCamera(Entity* camera)
 void RenderingSystem::setView(fm::math::mat& viewMatrix,
                               const fm::math::Vector2f& position,
                               const fm::math::Vector2f& size,
-                              float rotation) {
-    viewMatrix = fm::math::translate(viewMatrix,fm::math::vec3(position.x, position.y, 0));
+                              float rotation)
+{
+    fm::math::mat m;
+    m.identity();
+    viewMatrix = fm::math::translate(m,fm::math::vec3(-position.x, -position.y, 0));
     viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
     viewMatrix = fm::math::rotate(viewMatrix, rotation, fm::math::vec3(0, 0, 1));
     viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
@@ -168,7 +171,7 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
 
 void RenderingSystem::pre_update(EntityManager& em)
 {
-    if(camera == nullptr) return;
+    assert(camera != nullptr);
 
     fmc::CCamera* cam = camera->get<fmc::CCamera>();
     if(!lightRenderTexture->isCreated()) lightRenderTexture->create();
@@ -215,7 +218,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 
     fillQueue(em);
 
-    if(!queue.empty()) {
+    if(!queue.Empty()) {
         queue.start();
         // PROFILER_STOP(RenderingSort)
         // PROFILER_START(Draw)
@@ -249,8 +252,10 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
     finalShader->setValue("viewPos", camera->get<fmc::CTransform>()->position);
 
     fm::Renderer::getInstance().SetSources(graphics, lightRenderTexture->getColorBuffer(), 2);
+    //lightRenderTexture->getColorBuffer()->writeToPNG("test.png");
     if(cam->target != nullptr)
     {
+        finalShader->setValue("reverse", 1);
         fm::Renderer::getInstance().blit(graphics, *cam->target.get(), finalShader);
     }
     else
@@ -272,7 +277,8 @@ void RenderingSystem::draw(fmc::CCamera* cam)
     bool hasLight = false;
     bool computeLightDone = false;
 
-    while(!queue.empty()) {
+    while(!queue.Empty())
+    {
         fm::RenderNode node = queue.getFrontElement();
         fmc::CTransform* transform = node.transform;
         fmc::CMaterial* material = node.mat;
@@ -285,7 +291,6 @@ void RenderingSystem::draw(fmc::CCamera* cam)
         if(state == fm::RENDER_QUEUE::OPAQUE) {
             if(mesh)
             {
-
                 if(mesh->model == nullptr || mesh->model->name.compare(mesh->GetModelType()) != 0)
                 {
                     mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
@@ -293,9 +298,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
                 if(material->shader == nullptr && material->shaderName != "")
                 {
-                    material->shader =
-                            fm::ResourcesManager::get().getResource<fm::Shader>(
-                                material->shaderName);
+                    material->shader =fm::ResourcesManager::get().getResource<fm::Shader>(material->shaderName);
                 }
                 if(material->shader != nullptr &&!material->shader->IsReady())
                 {
@@ -333,14 +336,10 @@ void RenderingSystem::draw(fmc::CCamera* cam)
             if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
                 if(node.plight) {
                     hasLight = true;
-                    std::string ln =
-                            "light[" + std::to_string(lightNumber) + "]";
+                    std::string ln ="light[" + std::to_string(lightNumber) + "]";
 
                     lightShader->Use()
-                            ->setValue(
-                                ln + ".position",
-                                fm::math::vec3(
-                                    worldPos.x, worldPos.y, transform->layer))
+                            ->setValue(ln + ".position",fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
                             ->setValue(ln + ".color", node.plight->color)
                             ->setValue(ln + ".ready", 1);
                     lightNumber++;
@@ -348,21 +347,23 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
                 if(node.dlight) {
                     hasLight = true;
-                    lightShader->Use()->setValue("dlight.color",
-                                                 node.dlight->color);
+                    lightShader->Use()->setValue("dlight.color", node.dlight->color);
                 }
             }
         }
 
         // After all lights, we compute the frame buffer
         if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
-                queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT) {
+                queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
+        {
             computeLighting(lightRenderTexture, cam, hasLight);
             computeLightDone = true;
         }
 
-        if(state == fm::RENDER_QUEUE::TRANSPARENT) {
-            if(!blendingMode) {
+        if(state == fm::RENDER_QUEUE::TRANSPARENT)
+        {
+            if(!blendingMode)
+            {
                 blendingMode = true;
 
                 graphics.enable(fm::RENDERING_TYPE::BLEND);
@@ -371,17 +372,19 @@ void RenderingSystem::draw(fmc::CCamera* cam)
             // TODO draw
         }
 
-        if(state == fm::RENDER_QUEUE::OVERLAY) {
-            if(node.text) {
-                if(!blendingMode) {
+        if(state == fm::RENDER_QUEUE::OVERLAY)
+        {
+            if(node.text)
+            {
+                if(!blendingMode)
+                {
                     blendingMode = true;
 
                     graphics.enable(fm::RENDERING_TYPE::BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 }
 
-                fm::Shader* shader =
-                        fm::ResourcesManager::get().getResource<fm::Shader>("text");
+                fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("text");
                 shader->Use()
                         ->setValue("projection", textdef.projection)
                         ->setValue("textColor", material->color);
@@ -441,10 +444,10 @@ void RenderingSystem::fillQueue(EntityManager& em)
         bool valid = false;
         if(node.mesh)
         {
-            node.mesh->bounds.setCenter(
-                        fm::math::vec3(node.transform->position) +
-                        fm::math::vec3(node.transform->scale) / 2.0f);
+            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) +
+                                        fm::math::vec3(node.transform->scale) / 2.0f);
             node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
+
             if(!node.mesh->bounds.intersects(bounds))
                 continue;
             valid = true;

@@ -260,11 +260,21 @@ void ShaderLibrary::loadShaders() {
                                     mat4 FM_VP;
                                     int render_mode;
                                     };
+                                 INT uniform int  reverse;
                                 void main(){
+                                    if(reverse == 0)
+
                                     gl_Position = vec4(position, 0.0f, 1.0f);
-                                    
-                                    TexCoords = texCoords;
-                                    TexCoords.y = 1-texCoords.y;
+                                    if(reverse == 0)
+                                    {
+                                        TexCoords = texCoords;
+                                    }else
+                                    {
+                                        TexCoords.x = texCoords.x;
+                                        TexCoords.y = 1 - texCoords.y;
+
+                                    }
+
                                 });            
 
     std::string simple_fragment = STRING(
@@ -276,8 +286,10 @@ void ShaderLibrary::loadShaders() {
 
                                   INT uniform vec2 screenSize;
                                   INT uniform vec2 viewPos;
+
                                   void main(){
-                                    FLOAT vec4 hdrColor = texture2D(screenTexture, vec2(TexCoords.x, 1 - TexCoords.y));
+
+                                    FLOAT vec4 hdrColor = texture2D(screenTexture, vec2(TexCoords.x, TexCoords.y));
                                     FragColor = vec4(hdrColor.rgb, 1);
                                     //FragColor = vec4(1);
 

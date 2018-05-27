@@ -21,10 +21,10 @@ MeshContainer* StandardShapes::CreateQuad() {
 
 MeshContainer* StandardShapes::CreateQuadFullScreen() {
     MeshContainer* meshContainer = new MeshContainer();
-    AddVertex(meshContainer, {-1, 1}, {0.0, 1.0});
-    AddVertex(meshContainer, {-1, -1}, {0.0, 0.0});
-    AddVertex(meshContainer, {1, -1}, {1.0, 0.0});
-    AddVertex(meshContainer, {1, 1}, {1.0, 1.0});
+    AddVertex(meshContainer, {-1, 1}, {0.0, 0.0});
+    AddVertex(meshContainer, {-1, -1}, {0.0, 1.0});
+    AddVertex(meshContainer, {1, -1}, {1.0, 1.0});
+    AddVertex(meshContainer, {1, 1}, {1.0, 0.0});
     meshContainer->listIndices = {0, 1, 2, 0, 2, 3};
 
     return meshContainer;
