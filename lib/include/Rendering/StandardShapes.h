@@ -11,7 +11,7 @@ namespace fm {
         static rendering::MeshContainer* CreateCircle();
 
     private:
-        static void AddVertex(rendering::MeshContainer* mesh, const fm::math::Vector2f& position, const fm::math::Vector2f& uv);
+        static void AddVertex(rendering::MeshContainer* mesh, const math::Vector3f &position, const fm::math::Vector2f& uv);
     };
 
 }

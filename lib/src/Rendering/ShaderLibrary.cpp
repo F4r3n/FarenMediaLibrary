@@ -250,7 +250,7 @@ void ShaderLibrary::loadShaders() {
                                  });     
 
     std::string simple_vertex = STRING(
-                                layout(location = 0) in vec2 position;
+                                layout(location = 0) in vec3 position;
                                 layout(location = 1) in vec2 texCoords;
                                 out vec2 TexCoords;
                                  layout (std140) uniform shader_data
@@ -264,7 +264,7 @@ void ShaderLibrary::loadShaders() {
                                 void main(){
                                     if(reverse == 0)
 
-                                    gl_Position = vec4(position, 0.0f, 1.0f);
+                                    gl_Position = vec4(position, 1.0f);
                                     if(reverse == 0)
                                     {
                                         TexCoords = texCoords;
@@ -296,7 +296,7 @@ void ShaderLibrary::loadShaders() {
                                   });
 
     std::string default_vertex = STRING(
-                                 layout(location = 0) in vec2 position;
+                                 layout(location = 0) in vec3 position;
                                  layout(location = 1) in vec2 texCoords;
                                  uniform mat4 FM_M;
                                  uniform mat4 FM_PVM;
@@ -313,7 +313,7 @@ void ShaderLibrary::loadShaders() {
                                  out vec3 ourPosition;
                                  void main(){
                                      
-                                 vec4 screenPos = vec4(position, 1.0f, 1.0f);
+                                 vec4 screenPos = vec4(position, 1.0f);
                                  gl_Position = FM_PVM*screenPos;
                                  ourPosition = (FM_M*screenPos).xyz;
                                  });

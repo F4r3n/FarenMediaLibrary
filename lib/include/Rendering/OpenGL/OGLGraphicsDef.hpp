@@ -1,3 +1,4 @@
+#pragma once
 #include <Core/Config.h>
 namespace fm {
    static unsigned int renderingType[] = {
