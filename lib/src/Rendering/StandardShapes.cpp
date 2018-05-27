@@ -8,7 +8,8 @@ void StandardShapes::AddVertex(MeshContainer* mesh,
     mesh->vertices.push_back({position, uv});
 }
 
-MeshContainer* StandardShapes::CreateQuad() {
+MeshContainer* StandardShapes::CreateQuad()
+{
     MeshContainer* meshContainer = new MeshContainer();
     AddVertex(meshContainer, {0, 1, 0}, {0.0, 1.0});
     AddVertex(meshContainer, {0, 0, 0}, {0.0, 0.0});
@@ -19,7 +20,42 @@ MeshContainer* StandardShapes::CreateQuad() {
     return meshContainer;
 }
 
-MeshContainer* StandardShapes::CreateQuadFullScreen() {
+MeshContainer* StandardShapes::CreateCube()
+{
+    MeshContainer* meshContainer = new MeshContainer();
+    AddVertex(meshContainer, {-1.0, -1.0, 1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, { 1.0, -1.0, 1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, { 1.0,  1.0, 1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, {-1.0,  1.0, 1.0}, {0.0, 0.0});
+
+    AddVertex(meshContainer, {-1.0, -1.0, -1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, { 1.0, -1.0, -1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, { 1.0,  1.0, -1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, {-1.0,  1.0, -1.0}, {0.0, 0.0});
+    meshContainer->listIndices = {		0, 1, 2,
+                                        2, 3, 0,
+                                        // right
+                                        1, 5, 6,
+                                        6, 2, 1,
+                                        // back
+                                        7, 6, 5,
+                                        5, 4, 7,
+                                        // left
+                                        4, 0, 3,
+                                        3, 7, 4,
+                                        // bottom
+                                        4, 5, 1,
+                                        1, 0, 4,
+                                        // top
+                                        3, 2, 6,
+                                        6, 7, 3,};
+
+    return meshContainer;
+}
+
+
+MeshContainer* StandardShapes::CreateQuadFullScreen()
+{
     MeshContainer* meshContainer = new MeshContainer();
     AddVertex(meshContainer, {-1, 1, 0}, {0.0, 0.0});
     AddVertex(meshContainer, {-1, -1, 0}, {0.0, 1.0});
@@ -30,7 +66,8 @@ MeshContainer* StandardShapes::CreateQuadFullScreen() {
     return meshContainer;
 }
 
-MeshContainer* StandardShapes::CreateCircle() {
+MeshContainer* StandardShapes::CreateCircle()
+{
     MeshContainer* meshContainer = new MeshContainer();
 
     unsigned int numberVertices = 100;

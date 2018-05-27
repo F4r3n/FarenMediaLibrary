@@ -21,12 +21,12 @@ Inspector::~Inspector()
 void Inspector::OnDraw(fmc::CMesh *mesh, bool *value)
 {
     static int current = 0;
-    static const char *shapeNames[] = {"Quad", "Circle"};
+    static const char *shapeNames[] = {"Quad", "Circle", "Cube"};
 
     if(ImGui::CollapsingHeader("Mesh", value))
     {
         ImGui::PushItemWidth(120);
-        ImGui::Combo("##Shape", &current, shapeNames, 2);
+        ImGui::Combo("##Shape", &current, shapeNames, 3);
         ImGui::PopItemWidth();
         mesh->SetModelType(shapeNames[current]);
         // t->setShape(current);

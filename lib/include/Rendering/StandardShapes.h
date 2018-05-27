@@ -9,6 +9,7 @@ namespace fm {
         static rendering::MeshContainer* CreateQuadFullScreen();
 
         static rendering::MeshContainer* CreateCircle();
+        static rendering::MeshContainer* CreateCube();
 
     private:
         static void AddVertex(rendering::MeshContainer* mesh, const math::Vector3f &position, const fm::math::Vector2f& uv);

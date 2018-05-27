@@ -95,7 +95,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fm::SceneManager::get().setCurrentScene("newScene");
 
     mainCamera = fm::GameObjectHelper::create();
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, true));
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false));
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
     mainCamera->name = "Camera";
     engine->setMainCamera(mainCamera);

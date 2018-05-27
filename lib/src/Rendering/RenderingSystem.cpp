@@ -81,17 +81,23 @@ void RenderingSystem::initStandardShapes()
     quadFS->name = "QuadFS";
     fm::Model* circle = new fm::Model();
     circle->name = "Circle";
+    fm::Model* cube = new fm::Model();
+    cube->name = "Cube";
     quad->meshContainer = fm::StandardShapes::CreateQuad();
     circle->meshContainer = fm::StandardShapes::CreateCircle();
     quadFS->meshContainer = fm::StandardShapes::CreateQuadFullScreen();
+    cube->meshContainer = fm::StandardShapes::CreateCube();
+
 
     quad->generate();
     circle->generate();
     quadFS->generate();
+    cube->generate();
     fm::ResourcesManager::get().load<fm::Model>(quad->name, quad);
     fm::ResourcesManager::get().load<fm::Model>(quadFS->name, quadFS);
-
     fm::ResourcesManager::get().load<fm::Model>(circle->name, circle);
+    fm::ResourcesManager::get().load<fm::Model>(cube->name, cube);
+
     fm::Renderer::getInstance().createQuadScreen();
 }
 
@@ -127,7 +133,8 @@ void RenderingSystem::init(EntityManager& em, EventManager& event)
     if(!camera)
     {
         fm::Debug::log("INIT MainCamera");
-        for(auto e : em.iterate<fmc::CCamera>()) {
+        for(auto e : em.iterate<fmc::CCamera>())
+        {
             setCamera(e);
             break;
         }
@@ -171,10 +178,12 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
         viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
         viewMatrix = fm::math::rotate(viewMatrix, rotation.x, fm::math::vec3(0, 0, 1));
         viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
-        }
+    }
     else
     {
-        viewMatrix = fm::math::lookAt(position, position + fm::math::vec3(0.0f,0.0f,-1.0f), fm::math::vec3(0.0f,0.0f,1.0f));
+        viewMatrix = fm::math::lookAt(position, position + fm::math::vec3(0.0f,0.0f,-1.0f), fm::math::vec3(0.0f,1.0f,0.0f));
+        std::cout << viewMatrix << std::endl;
+        //viewMatrix.identity();
         //TODO temporary
     }
 }
@@ -286,9 +295,11 @@ void RenderingSystem::draw(fmc::CCamera* cam)
     int lightNumber = 0;
     bool hasLight = false;
     bool computeLightDone = false;
-
+    std::cout << queue.Size() << std::endl;
     while(!queue.Empty())
     {
+        //std::cout << queue.Size() << std::endl;
+
         fm::RenderNode node = queue.getFrontElement();
         fmc::CTransform* transform = node.transform;
         fmc::CMaterial* material = node.mat;
@@ -298,7 +309,8 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
         fm::RENDER_QUEUE state = node.state;
 
-        if(state == fm::RENDER_QUEUE::OPAQUE) {
+        if(state == fm::RENDER_QUEUE::OPAQUE)
+        {
             if(mesh)
             {
                 if(mesh->model == nullptr || mesh->model->name.compare(mesh->GetModelType()) != 0)
@@ -427,12 +439,12 @@ void RenderingSystem::computeLighting(
     lightRenderTexture->bind();
     graphics.setViewPort(cam->viewPort);
 
-    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-        fm::Renderer::getInstance().lightComputation(
-                    graphics, cam->_renderTexture->getColorBuffer(), hasLight);
-    } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
-        fm::Renderer::getInstance().lightComputation(
-                    graphics, cam->_renderTexture->getColorBuffer(), false);
+    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
+    {
+        fm::Renderer::getInstance().lightComputation(graphics, cam->_renderTexture->getColorBuffer(), hasLight);
+    } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
+    {
+        fm::Renderer::getInstance().lightComputation(graphics, cam->_renderTexture->getColorBuffer(), false);
     }
 }
 
@@ -458,8 +470,8 @@ void RenderingSystem::fillQueue(EntityManager& em)
                                         fm::math::vec3(node.transform->scale) / 2.0f);
             node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
 
-            if(!node.mesh->bounds.intersects(bounds))
-                continue;
+            //if(!node.mesh->bounds.intersects(bounds))
+            //    continue;
             valid = true;
             node.state = fm::RENDER_QUEUE::OPAQUE;
         }
@@ -490,11 +502,23 @@ void RenderingSystem::setModel(fm::math::mat& model,
                                fmc::CTransform* transform,
                                const fm::math::Vector3f& worldPos)
 {
-    model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));
-    model = fm::math::translate( model,fm::math::vec3( 0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
-    model = fm::math::rotate( model, transform->rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
-    model = fm::math::translate( model, fm::math::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
-    model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
+    if(camera == nullptr) return;
+    fmc::CCamera *cam = camera->get<fmc::CCamera>();
+    if(cam->IsOrthographic())
+    {
+        model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));
+        model = fm::math::translate( model,fm::math::vec3( 0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
+        model = fm::math::rotate( model, transform->rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
+        model = fm::math::translate( model, fm::math::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
+        model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
+    }else
+    {
+        model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, worldPos.z));
+        model = fm::math::rotate( model, fm::math::radians(transform->rotation.x), fm::math::vec3(1,0,0));
+        model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
+
+    }
+
 }
 
 void RenderingSystem::drawText(int posX, int posY,

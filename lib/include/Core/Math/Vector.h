@@ -158,6 +158,12 @@ template <typename T>
         this->y = y;
         this->z = z;
     }
+
+    vec<T, 3>(T x) {
+        this->x = x;
+        this->y = x;
+        this->z = x;
+    }
 #if SIMD
     inline vec<T, 3>(__m128 m) : mmvalue(m) {}
 #endif
