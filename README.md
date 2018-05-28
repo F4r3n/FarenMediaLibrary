@@ -4,7 +4,7 @@
 # FarenEngine
 
 ### Introduction
-This library enables to create 2D games with lua scripts. The engine is linked to an entity system component.
+This library enables to create 2D or 3D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
 
 ![Link image](http://i.imgur.com/sL3IehG.png)
@@ -18,7 +18,7 @@ For the moment, the FarenEngine can :
 + Lua scripting
 + Forward/Deferred
 + Light effects
-
++ Serialization systeam
 ### Installation
 
 
@@ -39,8 +39,11 @@ The engine needs different libraries to work:
 + Box2D
 + glew
 + openal
-+ glfw
++ sdl2
 + lua 5.3
++ ECS (Custom)
++ Opengl
+
 The dependencies are all in the folder extlib.
 
 ### How to use it ?
@@ -62,3 +65,14 @@ engine.init();
 engine.run(window);
 ```
 
+### TODO
+
+- [ ] Load mesh
+- [ ] 3D physics
+- [ ] Culling Perspective
+- [ ] 3D QuadTree
+- [ ] GUI/List entities
+- [ ] GUI/Edit Shader
+- [ ] GUI/Add texture
+- [ ] C++ Scripts
+...
