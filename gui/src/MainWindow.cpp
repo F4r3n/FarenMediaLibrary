@@ -97,6 +97,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
     mainCamera = fm::GameObjectHelper::create();
     fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false));
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
+    mainCameraPosition->rotation.x = 90;
     mainCamera->name = "Camera";
     engine->setMainCamera(mainCamera);
     gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get()));
@@ -191,7 +192,7 @@ void MainWindow::menu() {
                 currentEntity = fm::GameObjectHelper::create();
                 currentEntity->addComponent<fmc::CTransform>(
                         new fmc::CTransform(fm::math::Vector3f(0, 0, 0),
-                            fm::math::Vector3f(100, 100, 100),
+                            fm::math::Vector3f(1, 1, 1),
                             fm::math::vec3(0,0,0), 1));
                 currentEntity->addComponent<fmc::CIdentity>();
             }

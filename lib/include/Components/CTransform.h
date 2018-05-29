@@ -35,7 +35,7 @@ class CTransform : public FMComponent<CTransform> {
 
         long idFather = -1;
 
-        fm::math::Vector3f scale = { 100, 100, 100 };
+        fm::math::Vector3f scale = { 1, 1, 1 };
         fm::math::Vector3f rotation = {0,0,0};
         int layer = 1;
         static const std::string name;

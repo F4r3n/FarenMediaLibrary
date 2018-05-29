@@ -278,6 +278,11 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
                Result[3][0] =-dot(s, eye);
                Result[3][1] =-dot(u, eye);
                Result[3][2] = dot(f, eye);
+
+               Result[0][3] = 0;
+               Result[1][3] = 0;
+               Result[2][3] = 0;
+
                return Result;
            }
 

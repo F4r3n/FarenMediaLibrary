@@ -11,10 +11,15 @@ void StandardShapes::AddVertex(MeshContainer* mesh,
 MeshContainer* StandardShapes::CreateQuad()
 {
     MeshContainer* meshContainer = new MeshContainer();
-    AddVertex(meshContainer, {0, 1, 0}, {0.0, 1.0});
-    AddVertex(meshContainer, {0, 0, 0}, {0.0, 0.0});
-    AddVertex(meshContainer, {1, 0, 0}, {1.0, 0.0});
-    AddVertex(meshContainer, {1, 1, 0}, {1.0, 1.0});
+    //AddVertex(meshContainer, {0, 1, 0}, {0.0, 1.0});
+    //AddVertex(meshContainer, {0, 0, 0}, {0.0, 0.0});
+    //AddVertex(meshContainer, {1, 0, 0}, {1.0, 0.0});
+    //AddVertex(meshContainer, {1, 1, 0}, {1.0, 1.0});
+
+    AddVertex(meshContainer, {-0.5, 0.5, 0}, {0.0, 1.0});
+    AddVertex(meshContainer, {-0.5f, -0.5f, 0}, {0.0, 0.0});
+    AddVertex(meshContainer, {0.5, -0.5, 0}, {1.0, 0.0});
+    AddVertex(meshContainer, {0.5, 0.5, 0}, {1.0, 1.0});
     meshContainer->listIndices = {0, 1, 2, 0, 2, 3};
 
     return meshContainer;
@@ -23,15 +28,15 @@ MeshContainer* StandardShapes::CreateQuad()
 MeshContainer* StandardShapes::CreateCube()
 {
     MeshContainer* meshContainer = new MeshContainer();
-    AddVertex(meshContainer, {-1.0, -1.0, 1.0}, {0.0, 0.0});
-    AddVertex(meshContainer, { 1.0, -1.0, 1.0}, {0.0, 0.0});
-    AddVertex(meshContainer, { 1.0,  1.0, 1.0}, {0.0, 0.0});
-    AddVertex(meshContainer, {-1.0,  1.0, 1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, {-0.5, -0.5, 0.5}, {0.0, 0.0});
+    AddVertex(meshContainer, { 0.5, -0.5, 0.5}, {0.0, 0.0});
+    AddVertex(meshContainer, { 0.5,  0.5, 0.5}, {0.0, 0.0});
+    AddVertex(meshContainer, {-0.5,  0.5, 0.5}, {0.0, 0.0});
 
-    AddVertex(meshContainer, {-1.0, -1.0, -1.0}, {0.0, 0.0});
-    AddVertex(meshContainer, { 1.0, -1.0, -1.0}, {0.0, 0.0});
-    AddVertex(meshContainer, { 1.0,  1.0, -1.0}, {0.0, 0.0});
-    AddVertex(meshContainer, {-1.0,  1.0, -1.0}, {0.0, 0.0});
+    AddVertex(meshContainer, {-0.5, -0.5, -0.5}, {0.0, 0.0});
+    AddVertex(meshContainer, { 0.5, -0.5, -0.5}, {0.0, 0.0});
+    AddVertex(meshContainer, { 0.5,  0.5, -0.5}, {0.0, 0.0});
+    AddVertex(meshContainer, {-0.5,  0.5, -0.5}, {0.0, 0.0});
     meshContainer->listIndices = {		0, 1, 2,
                                         2, 3, 0,
                                         // right

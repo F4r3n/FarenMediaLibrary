@@ -163,9 +163,22 @@ void RenderingSystem::setCamera(Entity* camera)
                 0);
 }
 
+void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &outFront,fm::math::vec3 &outRight,fm::math::vec3 &outUp,  const fm::math::vec3 &worldUp)
+{
+    // Calculate the new Front vector
+    fm::math::vec3 front;
+    front.x = cos(fm::math::radians(yaw)) * cos(fm::math::radians(pitch));
+    front.y = sin(fm::math::radians(pitch));
+    front.z = sin(fm::math::radians(yaw)) * cos(fm::math::radians(pitch));
+    outFront = fm::math::normalize(front);
+    // Also re-calculate the Right and Up vector
+    outRight = fm::math::normalize(fm::math::cross(outFront, fm::math::vec3(cos(fm::math::radians(roll)), sin(fm::math::radians(roll)), 0.0f)));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    outUp    = fm::math::normalize(fm::math::cross(outRight, outFront));
+}
+
 void RenderingSystem::setView(fm::math::mat& viewMatrix,
                               const fm::math::Vector3f& position,
-                              const fm::math::Vector2f &size,
+                              const fm::math::Vector2f& size,
                               const fm::math::Vector3f& rotation)
 {
     if(camera == nullptr) return;
@@ -181,7 +194,12 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
     }
     else
     {
-        viewMatrix = fm::math::lookAt(position, position + fm::math::vec3(0.0f,0.0f,-1.0f), fm::math::vec3(0.0f,1.0f,0.0f));
+        fm::math::vec3 front;
+        fm::math::vec3 right;
+        fm::math::vec3 up;
+
+        UpdateCameraVectors(rotation.x, rotation.y, rotation.z, front, right, up, fm::math::vec3(0.0f,1.0f,0.0f));
+        viewMatrix = fm::math::lookAt(position, position + front, up);
         std::cout << viewMatrix << std::endl;
         //viewMatrix.identity();
         //TODO temporary
@@ -515,7 +533,11 @@ void RenderingSystem::setModel(fm::math::mat& model,
     {
         model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, worldPos.z));
         model = fm::math::rotate( model, fm::math::radians(transform->rotation.x), fm::math::vec3(1,0,0));
-        model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
+        model = fm::math::rotate( model, fm::math::radians(transform->rotation.y), fm::math::vec3(0,1,0));
+        model = fm::math::rotate( model, fm::math::radians(transform->rotation.z), fm::math::vec3(0,0,1));
+
+        model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, transform->scale.z));
+        //model.identity();
 
     }
 
