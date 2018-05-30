@@ -2,9 +2,30 @@
 #include <Entity.h>
 #include "Physic/Collider.h"
 #include "Rendering/RenderingEvent.h"
+
+class Behaviour
+{
+    public:
+        Behaviour() {}
+        ~Behaviour() {}
+        virtual void Update() {}
+        virtual void Start() {}
+
+};
+
 namespace fm {
+
+
 class Script {
+
+
 public:
+        enum SCRIPT_TYPE
+        {
+            LUA,
+            CPP,
+            NONE
+        };
     Script() {
     }
     ~Script() {
@@ -15,6 +36,10 @@ public:
     virtual void start() {
     }
     virtual void update() {
+    }
+    virtual SCRIPT_TYPE GetType()
+    {
+        return NONE;
     }
     
     //TODO events

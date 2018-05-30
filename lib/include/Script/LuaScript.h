@@ -48,6 +48,11 @@ public:
     }
     bool hasStarted = false;
     void reload();
+
+    virtual fm::Script::SCRIPT_TYPE GetType()
+    {
+        return fm::Script::SCRIPT_TYPE::LUA;
+    }
     private:
 
     std::string scriptName;

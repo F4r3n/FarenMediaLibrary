@@ -1,11 +1,14 @@
 #include "Script/ScriptManagerSystem.h"
 #include "Script/LuaManager.h"
 #include "Components/CScriptManager.h"
+#include "Script/cppscript.hpp"
+#include "Script/cppmanager.hpp"
 using namespace fms;
 ScriptManagerSystem::ScriptManagerSystem() {
     
     LuaManager::get().openLibraries();
     LuaManager::get().registerComponents();
+    CPPManager::get().LoadLibrary();
 }
 
 
