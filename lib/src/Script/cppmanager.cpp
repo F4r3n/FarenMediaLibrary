@@ -4,7 +4,7 @@ CPPManager CPPManager::instance;
 
 void CPPManager::LoadLibrary()
 {
-    hndl = dlopen("libScriptCpp.so", RTLD_NOW);
+    hndl = dlopen("../scriptCpp/libScriptCpp.so", RTLD_NOW);
 }
 Behaviour* CPPManager::InstantiateClass(const std::string &name)
 {

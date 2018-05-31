@@ -17,6 +17,7 @@ class CppScript : public fm::Script
         {
             return fm::Script::SCRIPT_TYPE::CPP;
         }
+        Behaviour* GetBehaviour() const;
     private:
         Entity* currentEntity;
         Behaviour* behaviour;

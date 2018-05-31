@@ -4,7 +4,7 @@
 #include "Script/cppmanager.hpp"
 using namespace fm;
 
-CppScript::CppScript(const std::__cxx11::string &nameClass)
+CppScript::CppScript(const std::string &nameClass)
 {
     this->nameClass = nameClass;
 }
@@ -21,9 +21,18 @@ bool CppScript::init(Entity* e)
     return true;
 }
 
+Behaviour* CppScript::GetBehaviour() const
+{
+    return behaviour;
+}
+
+
 void CppScript::start()
 {
-    behaviour->Start();
+    if(behaviour)
+    {
+        behaviour->Start();
+    }
 }
 
 void CppScript::update()
