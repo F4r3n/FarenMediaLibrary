@@ -2,6 +2,7 @@
 #include <ECS.h>
 #include <Entity.h>
 #include "Script/cppmanager.hpp"
+#include "Core/Debug.h"
 using namespace fm;
 
 CppScript::CppScript(const std::string &nameClass)
@@ -16,8 +17,13 @@ CppScript::~CppScript()
 
 bool CppScript::init(Entity* e)
 {
+
     currentEntity = e;
     behaviour = CPPManager::get().InstantiateClass(nameClass);
+    std::cout << "INIT " << behaviour << std::endl;
+    isInit = true;
+    if(behaviour == nullptr)
+        fm::Debug::log("error");
     return true;
 }
 
@@ -32,6 +38,7 @@ void CppScript::start()
     if(behaviour)
     {
         behaviour->Start();
+        hasStarted = true;
     }
 }
 

@@ -41,6 +41,7 @@ void LuaScript::setName(const std::string& name) {
 
 void LuaScript::start() {
     LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
+    hasStarted = true;
 }
 
 void LuaScript::update() {
@@ -66,5 +67,7 @@ bool LuaScript::init(Entity* e) {
     for(auto o : objects) {
         LuaManager::get().getState()[nameVariable][o.first] = o.second;
     }
+    isInit = true;
+
     return true;
 }

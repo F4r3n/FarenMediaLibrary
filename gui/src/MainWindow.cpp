@@ -10,13 +10,13 @@
 #include <Components/CMaterial.h>
 #include <Components/CPointLight.h>
 #include "Rendering/RenderingSystem.h"
-#include "Inspector.hpp"
-#include "TransformInspector.h"
-#include "MaterialInspector.h"
-#include "MeshInspector.h"
+#include "inspector/Inspector.hpp"
+#include "inspector/TransformInspector.h"
+#include "inspector/MaterialInspector.h"
+#include "inspector/MeshInspector.h"
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
-
+#include "inspector/scriptmanagerinspector.hpp"
 
 
 MainWindow::MainWindow(fm::Engine* engine) {
@@ -131,6 +131,10 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
             else if(c->GetType()== fmc::ComponentType::KMesh)
             {
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::MeshInspector(c);
+            }
+            else if(c->GetType()== fmc::ComponentType::kScriptManager)
+            {
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::ScriptManagerInspector(c);
             }
         } else {
             _inspectorComponents[currentEntity->getID()][c->GetType()]->draw();
@@ -252,6 +256,10 @@ void MainWindow::menuEntity() {
             if(!currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
             {
                 currentEntity->add<fmc::CMaterial>();
+            }
+            if(!currentEntity->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
+            {
+                currentEntity->add<fmc::CScriptManager>();
             }
 
             ImGui::EndPopup();

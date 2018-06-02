@@ -105,7 +105,7 @@ void RenderingSystem::init(EntityManager& em, EventManager& event)
 {
     fm::Debug::log("INIT Standard Shapes");
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    std::cout << width << " " << height << std::endl;
+    fm::Debug::log(width + " " + height);
 
     initStandardShapes();
 
@@ -200,7 +200,7 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
 
         UpdateCameraVectors(rotation.x, rotation.y, rotation.z, front, right, up, fm::math::vec3(0.0f,1.0f,0.0f));
         viewMatrix = fm::math::lookAt(position, position + front, up);
-        std::cout << viewMatrix << std::endl;
+        //std::cout << viewMatrix << std::endl;
         //viewMatrix.identity();
         //TODO temporary
     }
@@ -234,7 +234,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 
     if(!cam->_renderTexture->isCreated())
     {
-        std::cout << "No render texture created" << std::endl;
+        fm::Debug::logError("No render texture created");
         return;
     }
     lightRenderTexture->bind();
@@ -313,7 +313,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
     int lightNumber = 0;
     bool hasLight = false;
     bool computeLightDone = false;
-    std::cout << queue.Size() << std::endl;
+
     while(!queue.Empty())
     {
         //std::cout << queue.Size() << std::endl;
@@ -548,7 +548,7 @@ void RenderingSystem::drawText(int posX, int posY,
                                fmc::CText* ctext)
 {
     if(font == nullptr || ctext == nullptr) {
-        std::cout << "Font not found" << std::endl;
+        fm::Debug::logError("Font not found");
         return;
     }
 

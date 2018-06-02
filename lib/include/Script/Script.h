@@ -51,7 +51,7 @@ public:
     //    
     //}
     bool hasStarted = false;
-
+    bool isInit = false;
 private:
 };
 }

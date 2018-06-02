@@ -17,9 +17,17 @@ void CScriptManager::init( Entity* e) {
 }
 
 
-void CScriptManager::update() {
-    for(auto s : scripts) {
-        if(!s->hasStarted) {
+void CScriptManager::update(Entity *e)
+{
+    for(auto s : scripts)
+    {
+        if(!s->isInit)
+        {
+            s->init(e);
+        }
+
+        if(!s->hasStarted)
+        {
             s->start();
             s->hasStarted = true;
         }
@@ -27,6 +35,7 @@ void CScriptManager::update() {
     }
 }
 
-void CScriptManager::addScript(std::shared_ptr<fm::Script> file) {
+void CScriptManager::addScript(std::shared_ptr<fm::Script> file)
+{
     scripts.push_back(file);
 }

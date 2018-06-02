@@ -8,12 +8,14 @@
 
 namespace fmc {
 class CScriptManager : public FMComponent<CScriptManager> {
+
     public:
         CScriptManager();
         ~CScriptManager();
         void init(Entity* e);
-        void update();
+        void update(Entity *e);
         void addScript(std::shared_ptr<fm::Script> file);
+        virtual size_t GetType() const {return kScriptManager;}
 
         template <typename T>
         void event(std::string name, const T& t) {
@@ -23,7 +25,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
         }
         static const std::string name;
 
-    private:
+
         std::vector<std::shared_ptr<fm::Script> > scripts;
 };
 }

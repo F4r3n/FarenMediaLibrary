@@ -3,9 +3,10 @@
 #include "Components/CScriptManager.h"
 #include "Script/cppscript.hpp"
 #include "Script/cppmanager.hpp"
+#include "Core/Debug.h"
 using namespace fms;
-ScriptManagerSystem::ScriptManagerSystem() {
-    
+ScriptManagerSystem::ScriptManagerSystem()
+{
     LuaManager::get().openLibraries();
     LuaManager::get().registerComponents();
     CPPManager::get().LoadLibrary();
@@ -13,14 +14,15 @@ ScriptManagerSystem::ScriptManagerSystem() {
 
 
 
-void ScriptManagerSystem::receive(const Collider& collider) {
-
+void ScriptManagerSystem::receive(const Collider& collider)
+{
     processCollision(collider.idA, collider.idB, collider.event);
     processCollision(collider.idB, collider.idA, collider.event);
 }
 
 
-void ScriptManagerSystem::receive(const CameraInfo &cameraInfo) {
+void ScriptManagerSystem::receive(const CameraInfo &cameraInfo)
+{
     Entity* e = EntityManager::get().getEntity(cameraInfo.ID);
      
     if(e && e->has<fmc::CScriptManager>()) {
@@ -29,7 +31,8 @@ void ScriptManagerSystem::receive(const CameraInfo &cameraInfo) {
     }
 }
 
-void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISION event) {
+void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISION event)
+{
     Entity* e = EntityManager::get().getEntity(idB);
     if(e && e->has<fmc::CScriptManager>()) {
         ColliderInfo info;
@@ -44,10 +47,14 @@ void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISI
     }
 }
 
-ScriptManagerSystem::~ScriptManagerSystem() {
+ScriptManagerSystem::~ScriptManagerSystem()
+{
 }
 
-void ScriptManagerSystem::init(EntityManager& em, EventManager& event) {
+void ScriptManagerSystem::init(EntityManager& em, EventManager& event)
+{
+    fm::Debug::log("INIT scriptSystem");
+
     event.subscribe<Collider>(*this);
     event.subscribe<CameraInfo>(*this);
     for(auto e : em.iterate<fmc::CScriptManager>()) {
@@ -56,9 +63,11 @@ void ScriptManagerSystem::init(EntityManager& em, EventManager& event) {
     }
 }
 
-void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager& event) {
-    for(auto e : em.iterate<fmc::CScriptManager>()) {
+void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager& event)
+{
+    for(auto e : em.iterate<fmc::CScriptManager>())
+    {
         fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-        scriptManager->update();
+        scriptManager->update(e);
     }
 }

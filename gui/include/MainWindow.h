@@ -8,7 +8,7 @@
 #include <Components/CText.h>
 #include <Components/CMesh.h>
 #include "Rendering/Texture.h"
-#include "Inspector.hpp"
+#include "inspector/Inspector.hpp"
 #include "Core/GameObject.h"
 #include "Rendering/RenderTexture.h"
 #include "GameView.h"

@@ -4,6 +4,8 @@
 
 class Entity;
 
+namespace fm
+{
 class CppScript : public fm::Script
 {
     public:
@@ -18,11 +20,16 @@ class CppScript : public fm::Script
             return fm::Script::SCRIPT_TYPE::CPP;
         }
         Behaviour* GetBehaviour() const;
+        const std::string& GetNameClass() const
+        {
+            return nameClass;
+        }
     private:
         Entity* currentEntity;
         Behaviour* behaviour;
         std::string nameClass;
 };
+}
 
 #endif // CPPSCRIPT_HPP
 

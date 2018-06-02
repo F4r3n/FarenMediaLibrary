@@ -88,6 +88,9 @@ void Engine::init() {
     std::cout << "INIT" << __FILE__ << " " << __LINE__ << std::endl;
     systems.addSystem(new fms::SoundSystem());
 
+    systems.addSystem(new fms::ScriptManagerSystem());
+    systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
+
     //camera = fm::Engine::createEntity();
     /*fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
     camera->addComponent<fmc::CTransform>();
