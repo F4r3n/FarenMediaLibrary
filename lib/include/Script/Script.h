@@ -3,14 +3,21 @@
 #include "Physic/Collider.h"
 #include "Rendering/RenderingEvent.h"
 
+namespace fm {
+class CppScript;
+}
+
 class Behaviour
 {
+        friend class fm::CppScript;
+
     public:
         Behaviour() {}
-        ~Behaviour() {}
+        virtual ~Behaviour() {}
         virtual void Update() {}
         virtual void Start() {}
-
+    protected:
+        Entity* entity;
 };
 
 namespace fm {

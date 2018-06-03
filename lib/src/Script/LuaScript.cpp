@@ -19,7 +19,8 @@ std::string getFileName(const std::string& s) {
     return ("");
 }
 
-LuaScript::LuaScript(const std::string& name, const std::string& nameVariable) {
+LuaScript::LuaScript(const std::string& name, const std::string& nameVariable)
+{
     unsigned int value = ScriptRegister::addScript(name);
     this->scriptName = name;
     nameFile = getFileName(name);
@@ -29,34 +30,42 @@ LuaScript::LuaScript(const std::string& name, const std::string& nameVariable) {
         this->nameVariable = nameVariable;
 }
 
-LuaScript::LuaScript() {
+LuaScript::LuaScript()
+{
 }
 
-LuaScript::~LuaScript() {
+LuaScript::~LuaScript()
+{
 }
 
-void LuaScript::setName(const std::string& name) {
+void LuaScript::setName(const std::string& name)
+{
     this->nameVariable = name;
 }
 
-void LuaScript::start() {
+void LuaScript::start()
+{
     LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
     hasStarted = true;
 }
 
-void LuaScript::update() {
+void LuaScript::update()
+{
     LuaManager::get()[nameVariable]["update"](LuaManager::get()[nameVariable]);
 }
 
-std::string LuaScript::getName() const {
+std::string LuaScript::getName() const
+{
     return nameVariable;
 }
 
-void LuaScript::reload() {
+void LuaScript::reload()
+{
     LuaManager::get().getState().script_file(scriptName);
 }
 
-bool LuaScript::init(Entity* e) {
+bool LuaScript::init(Entity* e)
+{
 
       LuaManager::get().getState().script_file(scriptName);
     std::string m = std::string("f_") + nameFile;
@@ -64,7 +73,8 @@ bool LuaScript::init(Entity* e) {
     LuaManager::get().getState().script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") + nameVariable +
                std::string("= ") + m + std::string(".new()"));
     LuaManager::get().getState()[nameVariable]["gameObject"] = e;
-    for(auto o : objects) {
+    for(auto o : objects)
+    {
         LuaManager::get().getState()[nameVariable][o.first] = o.second;
     }
     isInit = true;

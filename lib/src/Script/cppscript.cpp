@@ -13,6 +13,8 @@ CppScript::CppScript(const std::string &nameClass)
 CppScript::~CppScript()
 {
 
+   delete behaviour;
+
 }
 
 bool CppScript::init(Entity* e)
@@ -20,6 +22,7 @@ bool CppScript::init(Entity* e)
 
     currentEntity = e;
     behaviour = CPPManager::get().InstantiateClass(nameClass);
+    behaviour->entity = currentEntity;
     std::cout << "INIT " << behaviour << std::endl;
     isInit = true;
     if(behaviour == nullptr)

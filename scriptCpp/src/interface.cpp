@@ -1,4 +1,5 @@
 #include "interface.hpp"
+#include <Time.h>
 Factory Factory::instance;
 
 Test::Test()
@@ -6,22 +7,30 @@ Test::Test()
     std::cout << "INIIIIII" << std::endl;
 }
 
+void Test::Start()
+{
+    transform = entity->get<fmc::CTransform>();
+}
+
 void Test::Update()
 {
-    //std::cout << "yop" << std::endl;
+    transform->position.x += 0.1f*fm::Time::dt;
+
 }
 
 Behaviour *makerTest()
 {
    return new Test;
 }
-
-ProxyTest::ProxyTest()
+struct ProxyTest
 {
-    Factory::get().factory.emplace("Test", &makerTest);
-    std::cout <<"B"<< Factory::get().factory.size() << std::endl;
-}
-static ProxyTest proxy;
+        ProxyTest()
+        {
+            Factory::get().factory.emplace("Test", &makerTest);
+        }
+};
+
+ProxyTest proxy;
 
 
 

@@ -42,7 +42,7 @@ include_directories(${FML_EXTLIB}/json/include)
 #ECS
 include_directories(${FML_EXTLIB}/ECS/lib/include)
 link_directories(${FML_EXTLIB_LIB}/ECS/lib)
-MESSAGE(STATUS ${FML_EXTLIB}/ECS/lib/include)
+
 #FREETYPE
 include_directories(${FML_EXTLIB}/freetype2/include)
 link_directories(${FML_EXTLIB_LIB}/freetype2/lib)

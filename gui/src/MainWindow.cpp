@@ -98,6 +98,8 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false));
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
     mainCameraPosition->rotation.x = 90;
+    mainCameraPosition->rotation.z = -90;
+
     mainCamera->name = "Camera";
     engine->setMainCamera(mainCamera);
     gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get()));
