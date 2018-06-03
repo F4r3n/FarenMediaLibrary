@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 #include <Script/Script.h>
-#include <Components/CTransform.h>
 
 #if defined (WIN32) && defined (BUILD_SHARED_LIBS)
 #if defined (_MSC_VER)
@@ -35,34 +34,8 @@ class Factory
 };
 
 
-class Test : public Behaviour
-{
-    public:
-        Test();
-        virtual ~Test() {}
-        void Start();
-        void Update();
-    private:
-        fmc::CTransform *transform;
-
-};
-Behaviour *makerTest();
-
-
-static void Export(const std::string& name, maker_ptr *ptr )
-{
-     Factory::get().factory[name] = *ptr;
-}
-
-
-
-
-
-
-
 extern "C"
 {
     MYLIB_EXPORT maker_ptr Import(const char* name);
-    MYLIB_EXPORT int test();
 }
 

@@ -5,7 +5,7 @@ typedef Behaviour* (*maker_ptr)();
 
 void CPPManager::LoadLibrary()
 {
-    hndl = dlopen("../scriptCpp/libScriptCpp.so", RTLD_NOW);
+    hndl = dlopen("../scriptCpp/libScriptCpp.so", RTLD_LAZY);
     if (!hndl)
     {
        fprintf(stderr, "Couldn't open lib: %s\n", dlerror());

@@ -12,9 +12,7 @@ CppScript::CppScript(const std::string &nameClass)
 
 CppScript::~CppScript()
 {
-
    delete behaviour;
-
 }
 
 bool CppScript::init(Entity* e)

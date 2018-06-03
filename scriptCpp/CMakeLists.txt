@@ -3,11 +3,20 @@ set(PROJECT_NAME "ScriptCpp")
 project(${PROJECT_NAME})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -fPIC -g")
 
-file(GLOB SOURCES "src/*.cpp")
-include_directories(include)
+file(GLOB Scripts_SRC "src/scripts/*.cpp")
 
 include_directories("include")
-file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
+file(GLOB_RECURSE Scripts_HDR "include/scripts/*.h" "include/scripts/*.hpp")
+
+set(General_SRC
+        src/interface.cpp
+        src/implementation.cpp
+)
+set(General_HDR
+        include/interface.hpp
+)
+
+
 
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
@@ -61,7 +70,11 @@ link_directories(${FML_PATH}/build/lib)
 
 set(LIB_NAME ${PROJECT_NAME})
 
-add_library(${LIB_NAME} SHARED ${SOURCES} ${HEADERS})
+add_library(${LIB_NAME} SHARED
+            ${General_SRC} ${General_HDR}
+            ${Scripts_SRC} ${Scripts_HDR}
+
+)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D ${OPENGL_LIBRARIES})
 
 
