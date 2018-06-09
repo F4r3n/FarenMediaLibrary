@@ -20,6 +20,12 @@ EntityManager::EntityManager() {
 
 EntityManager::~EntityManager() {
 
+    make();
+    for(size_t i = 0; i < _entities_alive.size(); ++i)
+    {
+        delete _entities_alive[i];
+    }
+
     _entities_alive.clear();
     _entities_alive.shrink_to_fit();
 

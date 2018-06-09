@@ -31,7 +31,10 @@ Window::Window(int width, int height, const std::string& name) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return;
     }
-
+    SDL_DisplayMode DM;
+    SDL_GetCurrentDisplayMode(0, &DM);
+    width = DM.w;
+    height = DM.h;
     window = SDL_CreateWindow(name.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
