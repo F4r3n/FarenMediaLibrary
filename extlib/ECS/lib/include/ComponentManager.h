@@ -13,7 +13,7 @@
 class ComponentManager
 {
     public:
-        ComponentManager() {}
+        ComponentManager() {_bits.reset();}
         ~ComponentManager() {
             removeAll();
         }
@@ -34,10 +34,11 @@ class ComponentManager
         }
 
         template <typename T>
-            bool has()
-            {
-                return _bits.test(T::id());
-            }
+        bool has()
+        {
+            return _bits.test(T::id());
+        }
+
         bool has(size_t id)
         {
             return _bits.test(id);
@@ -73,8 +74,10 @@ class ComponentManager
 
         std::vector<BaseComponent*> getAllComponents() {
             std::vector<BaseComponent*> temp;
-            for(auto &c : _components) {
-                temp.push_back(c.second);
+            for(int i = 0; i < MAX_COMPONENTS; ++i) {
+                if(_bits.test(i)) {
+                    temp.push_back(_components[i]);
+                }
             }
             return temp;
         }
@@ -82,7 +85,7 @@ class ComponentManager
 
     private:
         std::bitset<MAX_COMPONENTS> _bits;
-        std::unordered_map<size_t, BaseComponent* > _components;
+        BaseComponent* _components[MAX_COMPONENTS];
 };
 
 #endif

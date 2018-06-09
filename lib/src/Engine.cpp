@@ -85,7 +85,6 @@ void Engine::setMainCamera(fm::GameObject *go) {
 }
 
 void Engine::init() {
-    std::cout << "INIT" << __FILE__ << " " << __LINE__ << std::endl;
     systems.addSystem(new fms::SoundSystem());
 
     systems.addSystem(new fms::ScriptManagerSystem());
@@ -104,7 +103,6 @@ void Engine::init() {
     //renderer->setCamera(camera);
 
     systems.init(EntityManager::get(), EventManager::get());
-    std::cout << "INIT" << __FILE__ << " " << __LINE__ << std::endl;
 }
 
 void Engine::stop() {

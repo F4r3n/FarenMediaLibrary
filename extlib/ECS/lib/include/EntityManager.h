@@ -3,8 +3,8 @@
 #include <array>
 #include "ComponentManager.h"
 #include <limits>
-#define POOL_SIZE 1000000
-
+#include <queue>
+#define ADD_SIZE 200
 class Entity;
 typedef Entity* pEntity;
 typedef std::bitset<MAX_COMPONENTS> Mask;
@@ -53,7 +53,7 @@ public:
     }
     
 
-    std::array<std::unique_ptr<ComponentManager>, POOL_SIZE>& getEntitiesComponents() {
+    std::vector<std::unique_ptr<ComponentManager>>& getEntitiesComponents() {
         return _entitiesComponents;
     }
 
@@ -211,16 +211,19 @@ private:
 
     const size_t _MAX_ID = std::numeric_limits<size_t>::max();
 
-    std::vector<size_t> _free_id;
+    std::queue<size_t> _free_id;
 
     std::vector<pEntity> _entities_alive;
     std::vector<pEntity> _temp_entities;
     std::vector<size_t> _entities_killed;
+    std::vector<size_t> _entitiesToKill;
 
-    std::array<std::unique_ptr<ComponentManager>, POOL_SIZE> _entitiesComponents;
+
+    std::vector<std::unique_ptr<ComponentManager>> _entitiesComponents;
     static EntityManager em;
 
     size_t _capacity = 0;
+    size_t _currentMAX = 0;
     size_t _posIndex = 0;
     
 };
