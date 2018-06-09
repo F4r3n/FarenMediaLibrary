@@ -3,8 +3,8 @@ set(PROJECT_NAME "FarenEngine")
 project(${PROJECT_NAME})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
 
-file(GLOB_RECURSE SOURCES_IMGUI "extlib/imgui/*.cpp")
-file(GLOB_RECURSE HEADERS_IMGUI "extlib/imgui/*.hpp" "extlib/imgui/*.h")
+file(GLOB SOURCES_IMGUI "extlib/imgui/*.cpp")
+file(GLOB HEADERS_IMGUI "extlib/imgui/*.hpp" "extlib/imgui/*.h")
 include_directories("extlib")
 
 
@@ -70,7 +70,7 @@ include_directories(${FML_EXTLIB}/imgui/)
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${SOURCES_IMGUI} ${HEADERS_IMGUI})
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D ${OPENGL_LIBRARIES})
 
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)
 
 

@@ -309,7 +309,7 @@ void MainWindow::_configureStyle()
 
     ImGuiStyle& style = ImGui::GetStyle();
     ImGuiIO& io = ImGui::GetIO();
-    ImFont* pFont = io.Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 14.0f);
+    ImFont* pFont = io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Medium.ttf", 14.0f);
     //style.ChildWindowRounding = 3.f;
     style.GrabRounding = 0.f;
     style.WindowRounding = 0.f;
