@@ -4,7 +4,7 @@
 #include <Window.h>
 #include <Time.h>
 
-#include <imgui.h>
+#include <imgui/imgui.h>
 #include "imgui_impl_sdl_gl3.h"
 
 #include "MainWindow.h"
@@ -21,11 +21,11 @@ int main() {
     //app.Read();
     engine.init();
 
-    //engine.run(window);
-    //return 0;
 
+    IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui_ImplSdlGL3_Init(window.getWindow());
-
     
     MainWindow mainWindow(&engine);
 
@@ -47,6 +47,7 @@ int main() {
         mainWindow.draw();
 
         ImGui::Render();
+        ImGui_ImplSdlGL3_RenderDrawData(ImGui::GetDrawData());
         window.swapBuffers();
 
     }

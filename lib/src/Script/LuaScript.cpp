@@ -21,8 +21,9 @@ std::string getFileName(const std::string& s) {
 
 LuaScript::LuaScript(const std::string& name, const std::string& nameVariable)
 {
+
     unsigned int value = ScriptRegister::addScript(name);
-    this->scriptName = name;
+    this->_scriptName = name;
     nameFile = getFileName(name);
     if(nameVariable == "")
         this->nameVariable = std::string("FM") + std::to_string(value) + std::string("_") + nameFile;
@@ -61,13 +62,13 @@ std::string LuaScript::getName() const
 
 void LuaScript::reload()
 {
-    LuaManager::get().getState().script_file(scriptName);
+    LuaManager::get().getState().script_file(_scriptName);
 }
 
 bool LuaScript::init(Entity* e)
 {
 
-      LuaManager::get().getState().script_file(scriptName);
+      LuaManager::get().getState().script_file(_scriptName);
     std::string m = std::string("f_") + nameFile;
 
     LuaManager::get().getState().script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") + nameVariable +

@@ -1,5 +1,5 @@
 #include "inspector/Inspector.hpp"
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 #include <Components/CDirectionalLight.h>
 

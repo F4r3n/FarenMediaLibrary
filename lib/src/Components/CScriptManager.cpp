@@ -16,6 +16,26 @@ void CScriptManager::init( Entity* e) {
     }
 }
 
+void CScriptManager::RemoveScript(const std::string &name)
+{
+    size_t index = 0;
+    size_t indexFound = 0;
+    bool found = false;
+    for(auto s : scripts)
+    {
+        if(s->GetScriptName().compare(name) == 0)
+        {
+            indexFound = index;
+            found = true;
+            break;
+        }
+        index++;
+    }
+
+    scripts.erase(scripts.begin() + indexFound);
+}
+
+
 
 void CScriptManager::update(Entity *e)
 {

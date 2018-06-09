@@ -15,6 +15,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
         void init(Entity* e);
         void update(Entity *e);
         void addScript(std::shared_ptr<fm::Script> file);
+        void RemoveScript(const std::string &name);
         virtual size_t GetType() const {return kScriptManager;}
 
         template <typename T>

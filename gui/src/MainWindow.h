@@ -1,7 +1,7 @@
 #pragma once
 #define GUI
 
-#include <imgui.h>
+#include <imgui/imgui.h>
 #include <ECS.h>
 
 #include <type_traits>
@@ -43,6 +43,7 @@ public:
     void fileSystem_save_window();
 
 private:
+    void _configureStyle();
     GameView gameView;
     fm::GameObject* currentEntity;
     fm::GameObject* mainCamera;

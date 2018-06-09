@@ -49,13 +49,12 @@ public:
     bool hasStarted = false;
     void reload();
 
-    virtual fm::Script::SCRIPT_TYPE GetType()
+    fm::Script::SCRIPT_TYPE GetType() const override
     {
         return fm::Script::SCRIPT_TYPE::LUA;
     }
     private:
 
-    std::string scriptName;
     std::string nameVariable;
     std::string nameFile;
     bool isDrawable = false;

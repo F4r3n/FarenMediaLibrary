@@ -1,5 +1,5 @@
 #include "GameView.h"
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 GameView::GameView() {
 

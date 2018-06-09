@@ -1,5 +1,5 @@
 #include "inspector/MaterialInspector.h"
-#include <imgui.h>
+#include <imgui/imgui.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Material, fmc::CMaterial)
 

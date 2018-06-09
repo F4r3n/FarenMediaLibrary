@@ -1,6 +1,6 @@
 #include "inspector/TransformInspector.h"
 #include "Components/CTransform.h"
-#include <imgui.h>
+#include <imgui/imgui.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Transform, fmc::CTransform)
 

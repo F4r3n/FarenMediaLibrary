@@ -2,7 +2,7 @@
 #include <Components/CScriptManager.h>
 #include <Script/LuaScript.h>
 #include <Script/cppscript.hpp>
-#include <imgui.h>
+#include <imgui/imgui.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
@@ -11,23 +11,7 @@ void ScriptManagerInspector::draw()
     bool value = true;
     if(ImGui::CollapsingHeader("ScriptManagerInspector", &value))
     {
-        //ImGui::ColorEdit3("Color", &target->color.r);
-        for(auto &script : target->scripts)
-        {
-            if(script->GetType() == fm::Script::SCRIPT_TYPE::CPP)
-            {
-                std::shared_ptr<fm::CppScript> cppScript = std::static_pointer_cast<fm::CppScript>(script);
-                //Use serialization to draw
-               ImGui::Text(cppScript->GetNameClass().c_str());
 
-            }
-            else if(script->GetType() == fm::Script::SCRIPT_TYPE::LUA)
-            {
-                std::shared_ptr<fm::LuaScript> luaScript = std::static_pointer_cast<fm::LuaScript>(script);
-
-            }
-
-        }
 
         static int current = 0;
         static const char *shapeNames[] = {"LUA", "CPP"};
@@ -39,7 +23,7 @@ void ScriptManagerInspector::draw()
         static char nameScript[128] = "ClassName";
         if(current == fm::Script::SCRIPT_TYPE::CPP)
         {
-            ImGui::InputText("input text", nameScript, IM_ARRAYSIZE(nameScript));
+            ImGui::InputText("Class Name", nameScript, IM_ARRAYSIZE(nameScript));
 
         }else if(current == fm::Script::SCRIPT_TYPE::LUA)
         {
@@ -53,6 +37,27 @@ void ScriptManagerInspector::draw()
                 target->addScript(std::make_shared<fm::CppScript>(nameScript));
             }
 
+        }
+        std::vector<std::string> scriptsToDelete;
+        //ImGui::ColorEdit3("Color", &target->color.r);
+        for(auto &script : target->scripts)
+        {
+            const char* t = script->GetScriptName().c_str();
+           ImGui::BulletText("%s",t);
+           ImGui::SameLine();
+           if(ImGui::SmallButton("x"))
+           {
+              scriptsToDelete.emplace_back(std::string(t));
+           }
+
+        }
+        if(!scriptsToDelete.empty())
+        {
+            std::cout << scriptsToDelete.size() << std::endl;
+            for(auto &s : scriptsToDelete)
+            {
+                target->RemoveScript(s);
+            }
         }
     }
 }

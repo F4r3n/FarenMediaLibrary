@@ -15,19 +15,15 @@ class CppScript : public fm::Script
         bool init(Entity* e) override;
         void start() override;
         void update() override;
-        virtual fm::Script::SCRIPT_TYPE GetType()
+        fm::Script::SCRIPT_TYPE GetType() const override
         {
             return fm::Script::SCRIPT_TYPE::CPP;
         }
         Behaviour* GetBehaviour() const;
-        const std::string& GetNameClass() const
-        {
-            return nameClass;
-        }
+
     private:
         Entity* currentEntity;
         Behaviour* behaviour;
-        std::string nameClass;
 };
 }
 

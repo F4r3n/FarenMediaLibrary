@@ -7,7 +7,7 @@ using namespace fm;
 
 CppScript::CppScript(const std::string &nameClass)
 {
-    this->nameClass = nameClass;
+    this->_scriptName = nameClass;
 }
 
 CppScript::~CppScript()
@@ -19,7 +19,7 @@ bool CppScript::init(Entity* e)
 {
 
     currentEntity = e;
-    behaviour = CPPManager::get().InstantiateClass(nameClass);
+    behaviour = CPPManager::get().InstantiateClass(_scriptName);
     behaviour->entity = currentEntity;
     std::cout << "INIT " << behaviour << std::endl;
     isInit = true;

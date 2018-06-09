@@ -27,16 +27,15 @@ class Script {
 
 
 public:
-        enum SCRIPT_TYPE
-        {
-            LUA,
-            CPP,
-            NONE
-        };
-    Script() {
-    }
-    ~Script() {
-    }
+    enum SCRIPT_TYPE
+    {
+        LUA,
+        CPP,
+        NONE
+    };
+
+    Script() {}
+    ~Script() {}
     virtual bool init(Entity* e) {
         return true;
     }
@@ -44,21 +43,23 @@ public:
     }
     virtual void update() {
     }
-    virtual SCRIPT_TYPE GetType()
+    virtual SCRIPT_TYPE GetType() const
     {
         return NONE;
     }
+    const std::string& GetScriptName() const
+    {
+        return _scriptName;
+    }
     
-    //TODO events
-    //template <typename T> 
     virtual void event(std::string name, const CameraInfo &camera) {}
     virtual void event(std::string name, const ColliderInfo& collider) {}
     virtual void event(std::string name, const Collider& collider) {}
 
-    //    
-    //}
     bool hasStarted = false;
     bool isInit = false;
+   protected:
+    std::string _scriptName;
 private:
 };
 }
