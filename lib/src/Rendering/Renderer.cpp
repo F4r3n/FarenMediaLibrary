@@ -25,19 +25,23 @@ void Renderer::lightComputation(fm::Graphics& graphics,
         light = ResourcesManager::get().getResource<fm::Shader>("no_light");
     }
     light->Use();
-
-    graphics.bindTexture2D(0, colorBuffer[0].getID());
+    int error = glGetError();
+    if(error != 0) {
+        std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
+        exit(-1);
+    }
+    graphics.bindTexture2D(0, colorBuffer[0].getID(), colorBuffer[0].GetKind());
 
     if(compute) {
-        graphics.bindTexture2D(1, colorBuffer[2].getID());
+        graphics.bindTexture2D(1, colorBuffer[2].getID(), colorBuffer[2].GetKind());
     }
 
     graphics.draw(quad);
 }
 
 void Renderer::postProcess(fm::Graphics& graphics, Texture* colorBuffer) {
-    graphics.bindTexture2D(0, colorBuffer[0].getID());
-    graphics.bindTexture2D(1, colorBuffer[1].getID());
+    graphics.bindTexture2D(0, colorBuffer[0].getID(), colorBuffer[0].GetKind());
+    graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 
     graphics.draw(quad);
 }
@@ -46,7 +50,7 @@ void Renderer::blit(fm::Graphics& graphics,
                     Texture& texture,
                     Shader* shader) const {
     shader->Use();
-    graphics.bindTexture2D(0, texture.getID());
+    graphics.bindTexture2D(0, texture.getID(), texture.GetKind());
 
     graphics.draw(quad);
 }
@@ -56,7 +60,7 @@ void Renderer::blit(fm::Graphics& graphics,
                     Shader* shader) const {
     dest.bind();
     shader->Use();
-    graphics.bindTexture2D(0, source.getColorBuffer()[0].getID());
+    graphics.bindTexture2D(0, source.getColorBuffer()[0].getID(), source.getColorBuffer()[0].GetKind());
 
     graphics.draw(quad);
 }
@@ -65,7 +69,7 @@ void Renderer::SetSources(fm::Graphics& graphics,
                           Texture* textures,
                           int numberIDs) {
     for(int i = 0; i < numberIDs; ++i) {
-        graphics.bindTexture2D(i, textures[i].getID());
+        graphics.bindTexture2D(i, textures[i].getID(), textures[i].GetKind());
     }
 }
 

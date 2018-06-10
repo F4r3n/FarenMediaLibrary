@@ -20,6 +20,13 @@ class Debug {
     template <typename T> static void logWarning(const T &content);
 
     template <typename T> static void log(const T &content);
+    static void logErrorExit(int error, const char* file, int line)
+    {
+        if(error != 0) {
+            std::cerr << "ERROR OPENGL " << error << " " << file<< " " << line <<std::endl;
+            exit(-1);
+        }
+    }
 
    private:
 };
@@ -39,4 +46,5 @@ template <typename T> void Debug::logError(const T &content) {
               << "\033[" << Debug::Code::FG_DEFAULT << "m" << std::endl;
     
 }
+
 }

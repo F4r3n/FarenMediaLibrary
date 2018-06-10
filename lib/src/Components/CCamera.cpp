@@ -32,7 +32,7 @@ bool CCamera::Serialize(json &ioJson) const
     ioJson["isOrtho"] = _isOrto;
     ioJson["fovy"] = _fovy;
     ioJson["Render_Mode"] = shader_data.render_mode;
-
+    ioJson["multiSampled"] = _multiSampled;
     return true;
 }
 bool CCamera::Read(const json &inJSON)
@@ -44,6 +44,7 @@ bool CCamera::Read(const json &inJSON)
     _isOrto = inJSON["isOrtho"];
     shader_data.render_mode = inJSON["Render_Mode"];
     _fovy = inJSON["fovy"];
+    _multiSampled = inJSON["multiSampled"];
     return true;
 }
 
@@ -74,14 +75,14 @@ void CCamera::Init()
 #else
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 #endif
-            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 3, formats, types, 24);
+            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 3, formats, types, 24, _multiSampled);
         }
         else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 2, formats, types, 24);
+            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 2, formats, types, 24, _multiSampled);
         }
     }else
     {
@@ -105,24 +106,25 @@ void CCamera::Init()
 #else
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 #endif
-            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 3, formats, types, 24);
+            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 3, formats, types, 24, _multiSampled);
         }
         else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
             fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
             fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 2, formats, types, 24);
+            _renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 2, formats, types, 24, _multiSampled);
         }
     }
 }
 
-CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho)
+CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, int multiSampled)
 {
     _width = width;
     _height = height;
     shader_data.render_mode = mode;
     _isOrto = ortho;
+    _multiSampled = multiSampled;
     Init();
 }
 
@@ -169,12 +171,12 @@ void CCamera::UpdateRenderTexture()
 #else
                 fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 #endif
-                _renderTexture = std::make_shared<fm::RenderTexture>(viewPort.w, viewPort.h, 3, formats, types, 24);
+                _renderTexture = std::make_shared<fm::RenderTexture>(viewPort.w, viewPort.h, 3, formats, types, 24, _multiSampled);
             } else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD) {
                 fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
                 fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-                _renderTexture = std::make_shared<fm::RenderTexture>(viewPort.w, viewPort.h, 3, formats, types, 24);
+                _renderTexture = std::make_shared<fm::RenderTexture>(viewPort.w, viewPort.h, 3, formats, types, 24, _multiSampled);
             }
         }
     }
@@ -201,14 +203,14 @@ void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int heig
 #else
         fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 #endif
-        _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24);
+        _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 3, formats, types, 24, _multiSampled);
     }
     else if(shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
     {
         fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
         fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-        _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 2, formats, types, 24);
+        _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 2, formats, types, 24, _multiSampled);
     }
 }
 

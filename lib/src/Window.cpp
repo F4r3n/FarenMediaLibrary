@@ -54,16 +54,23 @@ Window::Window(int width, int height, const std::string& name) {
 #endif
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    setMSAA(4);
     init(window);
     createShaders();
-    ResourcesManager::get().load<RFont>(
-        "dejavu", new RFont("assets/fonts/Roboto-Medium.ttf"));
+    ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/Roboto-Medium.ttf"));
     isInit = true;
     std::cout << "Init Over" << std::endl;
 }
 
 void Window::setMSAA(int value) {
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, value);
+    if(value > 0)
+    {
+        glEnable(GL_MULTISAMPLE);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, value);
+    }else
+    {
+        glDisable(GL_MULTISAMPLE);
+    }
 }
 
 void Window::setName(const std::string& name) {

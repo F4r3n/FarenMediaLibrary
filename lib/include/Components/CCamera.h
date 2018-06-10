@@ -31,7 +31,7 @@ class CCamera : public FMComponent<CCamera> {
         friend class fms::RenderingSystem;
 
         CCamera();
-        CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho);
+        CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, int multiSampled = 0);
         ~CCamera();
 
         bool  IsOrthographic();
@@ -60,7 +60,7 @@ class CCamera : public FMComponent<CCamera> {
         bool  _isOrto = false;
         float _farPlane = 100.0f;
         float _nearPlane = 0.0f;
-
+        int _multiSampled = 0;
         int _width;
         int _height;
         float _fovy = 60.0f;

@@ -8,9 +8,9 @@ namespace fm {
     public:
         RenderTexture() {}
         RenderTexture(unsigned int width, unsigned int height, 
-unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth);
+unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling = 0);
         RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment);
-        RenderTexture(const RenderTexture &renderTexture);
+        RenderTexture(const RenderTexture &renderTexture, int multiSampling = -1);
         ~RenderTexture();
         
         void release();
@@ -21,13 +21,15 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         Texture* getColorBuffer() {return textureColorbuffer.data();}
         void create();
         bool active();
-        
+        bool IsMultiSampled() const {return multiSampling > 0;}
+        unsigned int GetId() const {return framebuffer;}
     private:
         bool isReady = false;
         unsigned int width;
         unsigned int height;
         unsigned short depth;
         unsigned short numberColors = 0;
+        int multiSampling = 0;
         std::vector<Format> _formats;
         std::vector<Type> _types;
         bool initFrameBuffer(Format *formats, Type *types);
@@ -35,6 +37,7 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         GLuint framebuffer;
         std::vector<Texture> textureColorbuffer;
 
-        Texture rboDepth;
+        //Texture rboDepth;
+        unsigned int rboDepth;
     };
 }

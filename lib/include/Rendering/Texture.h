@@ -39,6 +39,12 @@ enum Type {
 
 };
 
+enum Kind
+{
+    TEXTURE2D = GL_TEXTURE_2D,
+    TEXTURE2D_MULTISAMPLED = GL_TEXTURE_2D_MULTISAMPLE
+};
+
 enum Filter { NEAREST = GL_NEAREST, LINEAR = GL_LINEAR };
 
 enum Wrapping {
@@ -70,7 +76,7 @@ class Texture {
     inline unsigned int getID() const {
         return _id;
     }
-    void generate(int width, int height, Format format, Type type);
+    void generate(int width, int height, Format format, Type type, int multiSampled = 0);
     void release();
     Filter filter = NEAREST;
     Wrapping wrapping = REPEAT;
@@ -88,8 +94,12 @@ class Texture {
     unsigned int getNumberChannels() const{
         return _numberChannels;
     }
+    Kind GetKind() const{
+        return _textureKind;
+    }
 
    private:
+    Kind _textureKind= Kind::TEXTURE2D;
     unsigned int _width;
     unsigned int _height;
     unsigned int _numberChannels = 4;

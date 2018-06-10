@@ -66,6 +66,8 @@ public:
     int queuePreviousValue = 0;
 
     std::shared_ptr<fm::RenderTexture> lightRenderTexture;
+    std::shared_ptr<fm::RenderTexture> intermediate;
+
     fm::Graphics graphics;
     
     fm::Bounds bounds;

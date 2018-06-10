@@ -8,11 +8,12 @@ Test::Test()
 void Test::Start()
 {
     transform = entity->get<fmc::CTransform>();
+    transform->position.z += 1.0f;
 }
 
 void Test::Update()
 {
-    transform->position.x += 0.1f*fm::Time::dt;
+    transform->rotation.y += 2.0f*fm::Time::dt;
 
 }
 

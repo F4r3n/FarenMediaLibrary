@@ -59,9 +59,9 @@ void Graphics::bindFrameBuffer(unsigned int id) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Graphics::bindTexture2D(int number, int idTexture) {
+void Graphics::bindTexture2D(int number, int idTexture, int type) {
     glActiveTexture(GL_TEXTURE0 + number);
-    glBindTexture(GL_TEXTURE_2D, idTexture);
+    glBindTexture(type, idTexture);
 }
 
 void Graphics::draw(Model* model) {

@@ -23,7 +23,7 @@ namespace fm {
         void draw(Model* model);
         void setVertexBuffer(rendering::VertexBuffer *vertexBuffer);
         void bindFrameBuffer(unsigned int id);
-        void bindTexture2D(int number, int idTexture);
+        void bindTexture2D(int number, int idTexture, int type);
     };
     
 }

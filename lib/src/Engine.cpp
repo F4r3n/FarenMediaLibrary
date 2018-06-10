@@ -27,7 +27,7 @@ Engine::~Engine() {
 
 void Engine::run(Window& window)
 {
-    fm::Window::setMSAA(0);
+    fm::Window::setMSAA(4);
     //auto start = std::chrono::system_clock::now();
 
 #ifdef __EMSCRIPTEN__

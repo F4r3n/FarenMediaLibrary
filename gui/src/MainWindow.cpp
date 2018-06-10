@@ -17,7 +17,7 @@
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
 #include "inspector/scriptmanagerinspector.hpp"
-
+#define WITH_VIEW 1
 
 MainWindow::MainWindow(fm::Engine* engine) {
     fm::Debug::logWarning("Start init");
@@ -35,15 +35,21 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fm::SceneManager::get().setCurrentScene("newScene");
 
     mainCamera = fm::GameObjectHelper::create();
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false));
+#if WITH_VIEW
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,8));
+#else
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4));
+#endif
     mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
     mainCameraPosition->rotation.x = 90;
     mainCameraPosition->rotation.z = -90;
 
     mainCamera->name = "Camera";
     engine->setMainCamera(mainCamera);
-    gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get()));
+    #if WITH_VIEW
+    gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
     tempRefCamera->target = gameView.renderTexture;
+#endif
     fm::Debug::log("Init done");
 }
 
@@ -263,14 +269,14 @@ void MainWindow::window_WorldLightEditDisplay() {
 }
 
 void MainWindow::draw() {
-    //bool show_test_window = true;
+    bool show_test_window = true;
     menu();
     menuEntity();
     listEntity();
     if(fileSystem_save)
         fileSystem_save_window();
-    //ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-    //ImGui::ShowTestWindow(&show_test_window);
+    ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+    ImGui::ShowDemoWindow(&show_test_window);
     if(window_WorldLightEdit)
         window_WorldLightEditDisplay();
 
@@ -295,9 +301,9 @@ void MainWindow::draw() {
     } else {
         firstRightClick = false;
     }
-
+#if WITH_VIEW
     gameView.draw();
-
+#endif
 
 }
 
@@ -309,7 +315,7 @@ void MainWindow::_configureStyle()
 
     ImGuiStyle& style = ImGui::GetStyle();
     ImGuiIO& io = ImGui::GetIO();
-    ImFont* pFont = io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Medium.ttf", 14.0f);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Medium.ttf", 14.0f);
     //style.ChildWindowRounding = 3.f;
     style.GrabRounding = 0.f;
     style.WindowRounding = 0.f;
