@@ -17,31 +17,31 @@ public:
     Engine();
     ~Engine();
    
-    void update(float dt);
-    void init();
-    void start();
-    void run(Window &window);
+    void Update(float dt);
+    void Init();
+    void Start();
+    void Run(Window &window);
     
-    void stop();
-    void resume();
-    void reset();
+    void Stop();
+    void Resume();
+    void Reset();
     
     template <typename T>
-    inline T* getSystem() {
-       return systems.getSystem<T>(); 
+    inline T* GetSystem() {
+       return _systems.getSystem<T>();
     }
     
-    void setMainCamera(fm::GameObject *go);
-    GameObject* getMainCamera();
-    void loop(void *window);
+    void SetMainCamera(fm::GameObject *go);
+    GameObject* GetMainCamera();
+    void RunMainLoop(void *window);
 
     private:
-    SystemManager systems;
-    fm::GameObject *mainCamera;
-    Speaker speaker;
-    Listener listener;
-    bool hasStopped = false;
-    
-    size_t numberFramesTimer = 0;
+        SystemManager _systems;
+        fm::GameObject *_mainCamera;
+        Speaker _speaker;
+        Listener _listener;
+        bool _hasStopped = false;
+
+        size_t _numberFramesTimer = 0;
 };
 }

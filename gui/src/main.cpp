@@ -19,7 +19,7 @@ int main() {
     fm::Engine engine;
     fm::Application app;
     //app.Read();
-    engine.init();
+    engine.Init();
 
 
     IMGUI_CHECKVERSION();
@@ -42,7 +42,7 @@ int main() {
         window.update(60, false);
         ImGui_ImplSdlGL3_NewFrame(window.getWindow());
 
-        engine.update(fm::Time::dt);
+        engine.Update(fm::Time::dt);
 
         mainWindow.draw();
 

@@ -45,7 +45,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
     mainCameraPosition->rotation.z = -90;
 
     mainCamera->name = "Camera";
-    engine->setMainCamera(mainCamera);
+    engine->SetMainCamera(mainCamera);
     #if WITH_VIEW
     gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
     tempRefCamera->target = gameView.renderTexture;
@@ -112,13 +112,13 @@ void MainWindow::menu() {
         if(ImGui::BeginMenu("File")) {
             if(ImGui::BeginMenu("Run")) {
                 if(ImGui::MenuItem("Start")) {
-                    engine->start();
+                    engine->Start();
                 }
                 if(ImGui::MenuItem("Pause")) {
-                    engine->stop();
+                    engine->Stop();
                 }
                 if(ImGui::MenuItem("Stop")) {
-                    engine->reset();
+                    engine->Reset();
                 }
                 ImGui::EndMenu();
             }
@@ -163,7 +163,7 @@ void MainWindow::displayListCamera() {
     static bool value2 = false;
     if(ImGui::MenuItem("Camera editor", "", &value1)) {
         value2 = false;
-    engine->setMainCamera(mainCamera);
+    engine->SetMainCamera(mainCamera);
     }
     if(ImGui::MenuItem("Second Camera", "", &value2)) {
         value1 = false;
