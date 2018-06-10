@@ -36,7 +36,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
 
     mainCamera = fm::GameObjectHelper::create();
 #if WITH_VIEW
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,8));
+    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(1280, 720, fmc::RENDER_MODE::FORWARD, false,8));
 #else
     fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4));
 #endif
@@ -56,8 +56,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
 void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
     std::vector<BaseComponent*> compos = currentEntity->getAllComponents();
-    if(_inspectorComponents.find(currentEntity->getID()) ==
-            _inspectorComponents.end())
+    if(_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
     {
         std::unordered_map<size_t, Inspector*> inspectors;
 
@@ -85,7 +84,15 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::ScriptManagerInspector(c);
             }
         } else {
-            _inspectorComponents[currentEntity->getID()][c->GetType()]->draw();
+            bool value = true;
+            _inspectorComponents[currentEntity->getID()][c->GetType()]->draw(&value);
+            if(!value)
+            {
+                delete _inspectorComponents[currentEntity->getID()][c->GetType()];
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = nullptr;
+                c->Destroy();
+
+            }
         }
     }
 }
@@ -174,20 +181,29 @@ void MainWindow::displayListCamera() {
 void MainWindow::displayComponentsAvailable() {
 }
 
-void MainWindow::menuEntity() {
-    if(windowCurrentEntity) {
-        ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+void MainWindow::menuEntity()
+{
 
-        ImGui::Begin(std::string("Create entity " +
-                    std::to_string(currentEntity->getID())).c_str(),
-                &windowCurrentEntity);
+    std::string nameWindowInspector("Inspector");
 
+    if(currentEntity && currentEntity->IsActive())
+    {
+         nameWindowInspector += std::to_string(currentEntity->getID());
+    }
+
+
+    ImGui::SetNextWindowPos(ImVec2(0,20));
+    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+    ImGui::Begin(nameWindowInspector.c_str(),&windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+
+    if(currentEntity && currentEntity->IsActive())
+    {
         displayComponents(currentEntity);
 
         if(ImGui::Button("Add Component"))
             ImGui::OpenPopup("popup from button");
 
-        if(ImGui::BeginPopup("popup from button"))
+        if(ImGui::BeginPopup("popup from button") && currentEntity && currentEntity->IsActive())
         {
             ImGui::MenuItem("Components", NULL, false, false);
 
@@ -203,7 +219,8 @@ void MainWindow::menuEntity() {
 
             if(!currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
             {
-                currentEntity->add<fmc::CMaterial>();
+                fmc::CMaterial* mat = currentEntity->add<fmc::CMaterial>();
+                std::cout << mat->color.r << std::endl;
             }
             if(!currentEntity->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
             {
@@ -212,8 +229,9 @@ void MainWindow::menuEntity() {
 
             ImGui::EndPopup();
         }
-        ImGui::End();
     }
+    ImGui::End();
+
 }
 
 void MainWindow::listEntity()

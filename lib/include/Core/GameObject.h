@@ -13,7 +13,10 @@ namespace fm {
             ~GameObject();
             GameObject* create();
             GameObject* create(Scene *s);
-
+            bool IsActive()
+            {
+                return _entity != nullptr && _entity->active;
+            }
 
             void destroy() {
                 _entity->destroy();
@@ -73,5 +76,11 @@ namespace fm {
             {
                 return (new GameObject())->create(scene);
             }
+            template <typename T>
+            static void Destroy(size_t ID)
+            {
+                EntityManager::get().removeComponent<T>(ID);
+            }
+
     };
 }

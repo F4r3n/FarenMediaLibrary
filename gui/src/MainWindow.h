@@ -45,10 +45,10 @@ public:
 private:
     void _configureStyle();
     GameView gameView;
-    fm::GameObject* currentEntity;
+    fm::GameObject* currentEntity = nullptr;
     fm::GameObject* mainCamera;
     Entity* dlight;
-    bool windowCurrentEntity = false;
+    bool windowCurrentEntity = true;
     bool windowListEntity = false;
 
     float timerListEntityUpdate = 1;

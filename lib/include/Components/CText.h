@@ -32,6 +32,11 @@ class CText : public FMComponent<CText> {
         static const std::string name;
 
         fm::rendering::VertexBuffer* buffer = nullptr;
+
+        void Destroy()
+        {
+            EntityManager::get().removeComponent<CText>(BaseComponent::_IDEntity);
+        }
         
     private:
         fm::math::Vector2f pos = { 0, 0 };

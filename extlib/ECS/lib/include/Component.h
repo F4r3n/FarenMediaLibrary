@@ -14,9 +14,11 @@ public:
     virtual bool Serialize(json &ioJson) const = 0;
     virtual bool Read(const json &inJSON) = 0;
     virtual size_t GetType() const = 0;
+    virtual void Destroy() = 0;
 protected:
-    std::string _name;
+    size_t _IDEntity;
 
+    std::string _name;
     static std::size_t family_counter;
 };
 
@@ -38,6 +40,8 @@ public:
     }
     virtual bool Serialize(json &ioJson) const = 0;
     virtual bool Read(const json &inJSON) = 0;
+    virtual void Destroy() = 0;
+
     virtual size_t GetType() const
     {
         static size_t type = id();
@@ -45,7 +49,9 @@ public:
     }
 
 
+
     friend class ComponentManager;
+
 
 private:
 

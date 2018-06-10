@@ -13,7 +13,10 @@ class Body2D : public FMComponent<Body2D> {
     ~Body2D();
 
     void Init(b2World* world, float P2M);
-
+    void Destroy()
+    {
+        EntityManager::get().removeComponent<Body2D>(BaseComponent::_IDEntity);
+    }
     void StartContact();
     void EndContact();
     void SetFriction(float friction);

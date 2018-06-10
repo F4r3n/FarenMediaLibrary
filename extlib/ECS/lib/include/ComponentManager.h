@@ -13,7 +13,8 @@
 class ComponentManager
 {
     public:
-        ComponentManager() {_bits.reset();}
+        explicit ComponentManager(size_t ID) {_bits.reset(); currentEntityID = ID;}
+        ComponentManager() = delete;
         ~ComponentManager() {
             removeAll();
         }
@@ -29,7 +30,9 @@ class ComponentManager
         template <typename T> T* addComponent(Component<T> *c)
         {
             _bits.set(T::id(), 1);
+            c->_IDEntity = currentEntityID;
             _components[T::id()] = std::move(c);
+
             return dynamic_cast<T*>(_components[T::id()]);
         }
 
@@ -82,7 +85,7 @@ class ComponentManager
             return temp;
         }
 
-
+        size_t currentEntityID = -1;
     private:
         std::bitset<MAX_COMPONENTS> _bits;
         BaseComponent* _components[MAX_COMPONENTS];

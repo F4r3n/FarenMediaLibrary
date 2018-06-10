@@ -10,5 +10,9 @@ namespace fmc {
             std::string name = "Entity";
             bool toSerialize = true;
             bool display = true;
+            void Destroy()
+            {
+                EntityManager::get().removeComponent<CIdentity>(BaseComponent::_IDEntity);
+            }
     };
 }

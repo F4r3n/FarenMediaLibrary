@@ -25,7 +25,7 @@ enum ComponentType
 };
 
 
-template <typename T>
+template <class T>
 class FMComponent : public Component<T>
 {
     public:
@@ -34,6 +34,8 @@ class FMComponent : public Component<T>
         virtual const std::string & GetName() const {return Component<T>::GetName();}
         virtual ~FMComponent() = default;
         virtual size_t GetType() const {return kNone;}
+        virtual void Destroy() = 0;
+
 };
 
 }

@@ -43,7 +43,7 @@ public:
         if(_entitiesComponents[ID] != nullptr) {
             return _entitiesComponents[ID]->addComponent<T>(c);
         } else {
-            _entitiesComponents[ID] = std::make_unique<ComponentManager>();
+            _entitiesComponents[ID] = std::make_unique<ComponentManager>(ID);
             return _entitiesComponents[ID]->addComponent<T>(c);
         }
     }

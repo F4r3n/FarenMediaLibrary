@@ -37,6 +37,11 @@ class CMaterial : public FMComponent<CMaterial> {
         fm::Color color;
         bool bloom = false;  // TODO to remove bloom from material
         fm::Shader* shader = nullptr;
+
+        void Destroy()
+        {
+            EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
+        }
     private:
         fm::Texture texture;
         std::map<std::string, fm::MaterialValue> values;

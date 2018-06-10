@@ -33,13 +33,13 @@ Window::Window(int width, int height, const std::string& name) {
     }
     SDL_DisplayMode DM;
     SDL_GetCurrentDisplayMode(0, &DM);
-    width = DM.w;
-    height = DM.h;
+    Window::width = DM.w;
+    Window::height = DM.h;
     window = SDL_CreateWindow(name.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
-                              width,
-                              height,
+                              Window::width,
+                              Window::height,
                               SDL_WINDOW_OPENGL);
 #if OPENGL_CORE == 1
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,

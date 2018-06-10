@@ -3,9 +3,11 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Material, fmc::CMaterial)
 
-void MaterialInspector::draw() {
-    bool value = true;
-    if(ImGui::CollapsingHeader("Material", &value)) {
+void MaterialInspector::draw(bool *value) {
+
+    if(ImGui::CollapsingHeader("Material", value))
+    {
         ImGui::ColorEdit3("Color", &target->color.r);
     }
+
 }

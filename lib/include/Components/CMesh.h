@@ -30,7 +30,10 @@ class CMesh : public FMComponent<CMesh> {
         virtual size_t GetType() const {return KMesh;}
 
         static const std::string name;
-
+        void Destroy()
+        {
+            EntityManager::get().removeComponent<CMesh>(BaseComponent::_IDEntity);
+        }
 
         void ComputeBoundingSize();
         void SetType(const std::string &type);

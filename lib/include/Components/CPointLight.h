@@ -9,5 +9,9 @@ class CPointLight : public FMComponent<CPointLight> {
 
         fm::Color color;
         float radius = 100;
+        void Destroy()
+        {
+            EntityManager::get().removeComponent<CPointLight>(BaseComponent::_IDEntity);
+        }
 };
 }

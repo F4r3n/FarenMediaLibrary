@@ -3,7 +3,7 @@
 #define DECLARE_INSPECTOR_CLASS(name, typeTarget)  \
     class name##Inspector : public Inspector {     \
        public:                                     \
-        void draw();                               \
+        void draw(bool *value);                    \
         name##Inspector();                         \
         name##Inspector(BaseComponent* component); \
         void setTarget(BaseComponent* compo);      \

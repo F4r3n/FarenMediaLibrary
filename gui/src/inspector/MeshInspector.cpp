@@ -3,9 +3,8 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)
 
-void MeshInspector::draw()
+void MeshInspector::draw(bool *value)
 {
-    bool value = true;
     static int current = 0;
     static const char *shapeNames[] = {"Quad", "Circle", "Cube"};
 

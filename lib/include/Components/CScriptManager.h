@@ -25,7 +25,10 @@ class CScriptManager : public FMComponent<CScriptManager> {
             }
         }
         static const std::string name;
-
+        void Destroy()
+        {
+            EntityManager::get().removeComponent<CScriptManager>(BaseComponent::_IDEntity);
+        }
 
         std::vector<std::shared_ptr<fm::Script> > scripts;
 };
