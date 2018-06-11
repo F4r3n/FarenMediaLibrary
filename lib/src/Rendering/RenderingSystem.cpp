@@ -339,98 +339,87 @@ void RenderingSystem::draw(fmc::CCamera* cam)
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
         fm::math::Vector3f worldPos = transform->getWorldPos();
-        EventManager::get().emit<CameraInfo>({node.idEntity, cam});
+        //EventManager::get().emit<CameraInfo>({node.idEntity, cam});
 
         fm::RENDER_QUEUE state = node.state;
 
-        if(state == fm::RENDER_QUEUE::OPAQUE)
+        if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
-            if(mesh)
+            if(state == fm::RENDER_QUEUE::OPAQUE)
             {
-                if(mesh->model == nullptr || mesh->model->name.compare(mesh->GetModelType()) != 0)
+                if(mesh)
                 {
-                    mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
-                }
-
-                if(material->shader == nullptr && material->shaderName != "")
-                {
-                    material->shader =fm::ResourcesManager::get().getResource<fm::Shader>(material->shaderName);
-                }
-                if(material->shader != nullptr &&!material->shader->IsReady())
-                {
-                    material->shader->compile();
-                }
-                fm::Shader* shader = material->shader;
-                if(shader != nullptr)
-                {
-                    shader->Use()
-                            ->setValue("FM_PV", cam->shader_data.FM_PV)
-                            ->setValue("BloomEffect", material->bloom);
-
-                    fm::math::mat model = fm::math::mat();
-                    setModel(model, transform, worldPos);
-
-                    shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
-                    shader->setValue("FM_M", model)
-                            ->setValue("mainColor", material->color);
-                    if(material->textureReady)
+                    if(mesh->model == nullptr || mesh->model->name.compare(mesh->GetModelType()) != 0)
                     {
-                        glActiveTexture(GL_TEXTURE0);
-                        material->getTexture().bind();
+                        mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
                     }
 
-                    for(auto const& value : material->getValues()) {
-                        shader->setValue(value.first, value.second);
+                    material->Reload();
+
+                    if(material->shader != nullptr &&!material->shader->IsReady())
+                    {
+                        material->shader->compile();
                     }
-                    graphics.draw(mesh->model);
+
+                    fm::Shader* shader = material->shader;
+
+
+                    if(shader != nullptr)
+                    {
+                        shader->Use()
+                                ->setValue("FM_PV", cam->shader_data.FM_PV)
+                                ->setValue("BloomEffect", material->bloom);
+
+                        fm::math::mat model = fm::math::mat();
+                        setModel(model, transform, worldPos);
+
+                        shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
+                        shader->setValue("FM_M", model)
+                                ->setValue("mainColor", material->color);
+                        if(material->textureReady)
+                        {
+                            glActiveTexture(GL_TEXTURE0);
+                            material->getTexture().bind();
+                        }
+
+                        for(auto const& value : material->getValues()) {
+                            shader->setValue(value.first, value.second);
+                        }
+                        graphics.draw(mesh->model);
+                    }
                 }
             }
-        }
 
-        // Set the lights
-        if(state == fm::RENDER_QUEUE::LIGHT) {
-            if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                if(node.plight) {
-                    hasLight = true;
-                    std::string ln ="light[" + std::to_string(lightNumber) + "]";
+            // Set the lights
+            if(state == fm::RENDER_QUEUE::LIGHT) {
+                //if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
+                    if(node.plight) {
+                        hasLight = true;
+                        std::string ln ="light[" + std::to_string(lightNumber) + "]";
 
-                    lightShader->Use()
-                            ->setValue(ln + ".position",fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
-                            ->setValue(ln + ".color", node.plight->color)
-                            ->setValue(ln + ".ready", 1);
-                    lightNumber++;
-                }
+                        lightShader->Use()
+                                ->setValue(ln + ".position",fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
+                                ->setValue(ln + ".color", node.plight->color)
+                                ->setValue(ln + ".ready", 1);
+                        lightNumber++;
+                    }
 
-                if(node.dlight) {
-                    hasLight = true;
-                    lightShader->Use()->setValue("dlight.color", node.dlight->color);
-                }
+                    if(node.dlight) {
+                        hasLight = true;
+                        lightShader->Use()->setValue("dlight.color", node.dlight->color);
+                    }
+                //}
             }
-        }
 
-        // After all lights, we compute the frame buffer
-        if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
-                queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
-        {
-            computeLighting(lightRenderTexture, cam, hasLight);
-            computeLightDone = true;
-        }
-
-        if(state == fm::RENDER_QUEUE::TRANSPARENT)
-        {
-            if(!blendingMode)
+            // After all lights, we compute the frame buffer
+            if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
+                    queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
             {
-                blendingMode = true;
-
-                graphics.enable(fm::RENDERING_TYPE::BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                computeLighting(lightRenderTexture, cam, hasLight);
+                computeLightDone = true;
             }
-            // TODO draw
-        }
 
-        if(state == fm::RENDER_QUEUE::OVERLAY)
-        {
-            if(node.text)
+            if(state == fm::RENDER_QUEUE::TRANSPARENT)
             {
                 if(!blendingMode)
                 {
@@ -439,23 +428,44 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                     graphics.enable(fm::RENDERING_TYPE::BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 }
-
-                fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("text");
-                shader->Use()
-                        ->setValue("projection", textdef.projection)
-                        ->setValue("textColor", material->color);
-
-                drawText(worldPos.x,
-                         worldPos.y,
-                         fm::ResourcesManager::get().getResource<RFont>(
-                             node.text->fontName),
-                         node.text);
+                // TODO draw
             }
+
+            if(state == fm::RENDER_QUEUE::OVERLAY)
+            {
+                if(node.text)
+                {
+                    if(!blendingMode)
+                    {
+                        blendingMode = true;
+
+                        graphics.enable(fm::RENDERING_TYPE::BLEND);
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    }
+
+                    fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("text");
+                    shader->Use()
+                            ->setValue("projection", textdef.projection)
+                            ->setValue("textColor", material->color);
+
+                    drawText(worldPos.x,
+                             worldPos.y,
+                             fm::ResourcesManager::get().getResource<RFont>(
+                                 node.text->fontName),
+                             node.text);
+                }
+            }
+            queuePreviousValue = state;
+            queue.next();
+        }else if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
+        {
+
         }
-        queuePreviousValue = state;
-        queue.next();
+
+
+
     }
- fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
     if(blendingMode) {
         graphics.disable(fm::RENDERING_TYPE::BLEND);
     }
@@ -521,7 +531,7 @@ void RenderingSystem::fillQueue(EntityManager& em)
         }
         if(node.dlight || node.plight)
         {
-            node.state = fm::RENDER_QUEUE::LIGHT;
+            node.state = fm::RENDER_QUEUE::BEFORE_LIGHT;
             valid = true;
         }
         if(node.text)

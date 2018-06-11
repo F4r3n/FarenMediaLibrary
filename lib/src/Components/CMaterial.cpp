@@ -1,5 +1,7 @@
 #include "Components/CMaterial.h"
 #include "Core/serializer.hpp"
+#include <Rendering/Shader.h>
+#include <Resource/ResourcesManager.h>
 using namespace fmc;
 using namespace fm;
 const std::string CMaterial::name = "Material";
@@ -17,6 +19,20 @@ CMaterial::CMaterial(const fm::Color &color, bool bloom)
 
 CMaterial::~CMaterial()
 {
+}
+
+void CMaterial::Reload()
+{
+    if(hasChanged)
+    {
+        if(shader == nullptr && shaderName != ""
+          || shader && shaderName != shader->GetName())
+        {
+            shader =fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
+        }
+
+    }
+    hasChanged = false;
 }
 
 bool CMaterial::Serialize(json &ioJson) const

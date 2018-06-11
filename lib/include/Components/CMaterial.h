@@ -42,10 +42,15 @@ class CMaterial : public FMComponent<CMaterial> {
         {
             EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
         }
+
+        void SetFlagHasChanged() {hasChanged = true;}
+        void Reload();
+
     private:
         fm::Texture texture;
         std::map<std::string, fm::MaterialValue> values;
         static const std::string name;
+        bool hasChanged = true;
 
 };
 }

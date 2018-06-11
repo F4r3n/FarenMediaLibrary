@@ -36,7 +36,7 @@ public:
     GLuint Program;
     Shader();
     //Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
-    Shader(const std::string& vertexCode, const std::string& fragmentCode);
+    Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name);
     Shader* setValue(const std::string& name, fm::math::mat matrix);
     Shader* setValue(const std::string& name, fm::math::vec2 vector);
     Shader* setValue(const std::string& name, fm::math::vec3 vector);
@@ -51,11 +51,12 @@ public:
     bool IsReady() const{return _isReady;}
     static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
     void  setValue(const std::string &name, const fm::MaterialValue &value);
-
+    const std::string& GetName() {return _name;}
 private:
     std::string _vertex, _fragment;
     ZTEST _zTest = ZTEST::LESS;
     BLEND _blendMode = BLEND::NONE;
     bool _isReady = false;
+    std::string _name;
 };
 }

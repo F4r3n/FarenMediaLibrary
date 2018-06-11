@@ -25,6 +25,10 @@ public:
         return dynamic_cast<T*>(resources[T::getType()][name]);
     }
 
+    template <typename T> bool Exists(const std::string& name) {
+        return resources[T::getType()].find(name) != resources[T::getType()].end();
+    }
+
     template <typename T>
     void load(const std::string& name, Resource* resource) {
         if(T::getType() > RESOURCE_TYPE::LAST_RESOURCE) return;

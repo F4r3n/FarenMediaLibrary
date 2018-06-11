@@ -6,9 +6,10 @@ using namespace fm;
 Shader::Shader() {
 }
 
-Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode) {
+Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::__cxx11::string &name) {
     _vertex = vertexCode;
     _fragment = fragmentCode;
+    _name = name;
 }
 
 bool Shader::compile() {
