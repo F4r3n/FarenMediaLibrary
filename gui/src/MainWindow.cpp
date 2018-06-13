@@ -17,6 +17,7 @@
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
 #include "inspector/scriptmanagerinspector.hpp"
+#include "inspector/pointlightinspector.h"
 #define WITH_VIEW 1
 
 MainWindow::MainWindow(fm::Engine* engine) {
@@ -82,6 +83,10 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
             else if(c->GetType()== fmc::ComponentType::kScriptManager)
             {
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::ScriptManagerInspector(c);
+            }
+            else if(c->GetType()== fmc::ComponentType::kPointLight)
+            {
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::PointLightInspector(c);
             }
         } else {
             bool value = true;
@@ -226,7 +231,10 @@ void MainWindow::menuEntity()
             {
                 currentEntity->add<fmc::CScriptManager>();
             }
-
+            if(!currentEntity->has<fmc::CPointLight>() && ImGui::MenuItem("PointLight"))
+            {
+                currentEntity->add<fmc::CPointLight>();
+            }
             ImGui::EndPopup();
         }
     }
@@ -261,7 +269,7 @@ void MainWindow::listEntity()
             currentEntity = fm::GameObjectHelper::create();
             currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
                                                              fm::math::Vector3f(0, 0, 0),
-                                                             fm::math::Vector3f(100, 100, 100),
+                                                             fm::math::Vector3f(1, 1, 1),
                                                              fm::math::vec3(0,0,0)));
         }
         ImGui::End();

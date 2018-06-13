@@ -331,6 +331,7 @@ void ShaderLibrary::loadShaders() {
                                    uniform int BloomEffect;
                                    in vec3 ourPosition;
 
+
                                    
                                    void main(){
                                    vec4 color = mainColor;
@@ -350,6 +351,7 @@ void ShaderLibrary::loadShaders() {
                                        uniform vec4 mainColor;
                                        uniform int BloomEffect;
                                        in vec3 ourPosition;
+                                       uniform INT int lightNumber;
                                        struct PointLight {
                                           FLOAT vec3 position;
                                           FLOAT vec4 color;
@@ -363,12 +365,16 @@ void ShaderLibrary::loadShaders() {
 
                                        const INT int MAX_LIGHTS = 32;
 
-                                       uniform PointLight light[MAX_LIGHTS];
+                                       layout (std140) uniform PointLights
+                                       {
+                                            PointLight light[MAX_LIGHTS];
+                                       };
 
                                        void main(){
                                             vec4 color = mainColor;
                                             posTexture = vec4(ourPosition, 1);
-                                            color.x = 0;
+                                            if(lightNumber > 0)
+                                            color.x = light[0].color.x;
                                             FragColor = color;
                                        });
 

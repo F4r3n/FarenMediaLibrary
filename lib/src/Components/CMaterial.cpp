@@ -21,18 +21,23 @@ CMaterial::~CMaterial()
 {
 }
 
-void CMaterial::Reload()
+bool CMaterial::Reload()
 {
     if(hasChanged)
     {
         if(shader == nullptr && shaderName != ""
-          || shader && shaderName != shader->GetName())
+          || (shader && shaderName != shader->GetName()))
         {
-            shader =fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
+            shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
+            hasChanged = false;
+            return true;
         }
 
     }
+
     hasChanged = false;
+    return false;
+
 }
 
 bool CMaterial::Serialize(json &ioJson) const

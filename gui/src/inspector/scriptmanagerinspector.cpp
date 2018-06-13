@@ -19,7 +19,6 @@ void ScriptManagerInspector::draw(bool *value)
         ImGui::PushItemWidth(120);
         ImGui::Combo("##Type", &current, shapeNames, 2);
         ImGui::PopItemWidth();
-        static char nameScript[128] = "ClassName";
         if(current == fm::Script::SCRIPT_TYPE::CPP)
         {
             ImGui::InputText("Class Name", nameScript, IM_ARRAYSIZE(nameScript));

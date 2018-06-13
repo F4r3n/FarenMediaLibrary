@@ -44,6 +44,7 @@ public:
     Shader* setValue(const std::string& name, float val);
     Shader* setValue(const std::string& name, int val);
     Shader* setValue(const std::string& name, Color vector);
+    Shader* SetUniformBuffer(const std::string &name, unsigned int bindingPoint);
 
     Shader* Use();
     bool compile();

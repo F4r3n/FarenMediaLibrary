@@ -31,8 +31,8 @@ void CScriptManager::RemoveScript(const std::string &name)
         }
         index++;
     }
-
-    scripts.erase(scripts.begin() + indexFound);
+    if(found)
+        scripts.erase(scripts.begin() + indexFound);
 }
 
 

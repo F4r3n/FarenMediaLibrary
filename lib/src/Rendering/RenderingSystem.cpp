@@ -23,6 +23,15 @@
 #include "Window.h"
 #include "Core/Debug.h"
 #include <cassert>
+#include "Rendering/uniformbuffer.hpp"
+const int NUMBER_POINTLIGHT_MAX = 8;
+struct PointLight
+{
+   fm::math::vec3 position;
+   fm::math::vec4 color;
+   float radius;
+};
+
 namespace fms {
 RenderingSystem::RenderingSystem(int width, int height)
     : width(width), height(height)
@@ -37,6 +46,8 @@ RenderingSystem::RenderingSystem(int width, int height)
 
 void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera)
 {
+
+
 #if OPENGL_ES == 0
     glGenBuffers(1, &generatedBlockBinding);
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
@@ -99,13 +110,15 @@ void RenderingSystem::initStandardShapes()
     fm::ResourcesManager::get().load<fm::Model>(cube->name, cube);
 
     fm::Renderer::getInstance().createQuadScreen();
+
+    uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
+    uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager& event)
 {
     fm::Debug::log("INIT Standard Shapes");
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    fm::Debug::log(width + " " + height);
 
     initStandardShapes();
 
@@ -329,7 +342,10 @@ void RenderingSystem::draw(fmc::CCamera* cam)
     int lightNumber = 0;
     bool hasLight = false;
     bool computeLightDone = false;
- fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+    fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+    std::vector<PointLight> pointLights;
+
+    bool firstMesh = true;
     while(!queue.Empty())
     {
         //std::cout << queue.Size() << std::endl;
@@ -345,16 +361,30 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
+
             if(state == fm::RENDER_QUEUE::OPAQUE)
             {
-                if(mesh)
+                //if(firstMesh)
+                //{
+                    size_t sizeToSet = pointLights.size() > NUMBER_POINTLIGHT_MAX ? NUMBER_POINTLIGHT_MAX : pointLights.size();
+                    uboLight->SetData(pointLights.data(), sizeof(PointLight)*sizeToSet);
+                    firstMesh = false;
+                //}
+                if(mesh && material)
                 {
                     if(mesh->model == nullptr || mesh->model->name.compare(mesh->GetModelType()) != 0)
                     {
                         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
                     }
 
-                    material->Reload();
+                    if(material->Reload())
+                    {
+                        uboLight->Bind();
+                        material->shader->SetUniformBuffer("PointLights", 2);
+                        fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+                    }
+
+
 
                     if(material->shader != nullptr &&!material->shader->IsReady())
                     {
@@ -362,13 +392,16 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                     }
 
                     fm::Shader* shader = material->shader;
-
+                    //std::cout << (int)pointLights.size() << std::endl;
+                    //if(pointLights.size() > 0)
+                    //    std::cout << pointLights[0].color << std::endl;
 
                     if(shader != nullptr)
                     {
                         shader->Use()
                                 ->setValue("FM_PV", cam->shader_data.FM_PV)
                                 ->setValue("BloomEffect", material->bloom);
+                        shader->setValue("lightNumber",(int)pointLights.size() );
 
                         fm::math::mat model = fm::math::mat();
                         setModel(model, transform, worldPos);
@@ -391,23 +424,39 @@ void RenderingSystem::draw(fmc::CCamera* cam)
             }
 
             // Set the lights
-            if(state == fm::RENDER_QUEUE::LIGHT) {
+            if(state == fm::RENDER_QUEUE::BEFORE_LIGHT) {
+                if(node.plight)//TODO use uniform buffer
+                {
+                    PointLight p;
+                    fm::math::vec4 c;
+                    c.x = node.plight->color.r;
+                    c.y = node.plight->color.g;
+                    c.z = node.plight->color.b;
+                    c.w = node.plight->color.a;
+
+                    p.color = c;
+                    p.position = node.transform->getWorldPos();
+                    p.radius = node.plight->radius;
+                    pointLights.push_back(p);
+                }
+
+
                 //if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                    if(node.plight) {
-                        hasLight = true;
-                        std::string ln ="light[" + std::to_string(lightNumber) + "]";
-
-                        lightShader->Use()
-                                ->setValue(ln + ".position",fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
-                                ->setValue(ln + ".color", node.plight->color)
-                                ->setValue(ln + ".ready", 1);
-                        lightNumber++;
-                    }
-
-                    if(node.dlight) {
-                        hasLight = true;
-                        lightShader->Use()->setValue("dlight.color", node.dlight->color);
-                    }
+                    //if(node.plight) {
+                    //    hasLight = true;
+                    //    std::string ln ="light[" + std::to_string(lightNumber) + "]";
+                    //
+                    //    lightShader->Use()
+                    //            ->setValue(ln + ".position",fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
+                    //            ->setValue(ln + ".color", node.plight->color)
+                    //            ->setValue(ln + ".ready", 1);
+                    //    lightNumber++;
+                    //}
+                    //
+                    //if(node.dlight) {
+                    //    hasLight = true;
+                    //    lightShader->Use()->setValue("dlight.color", node.dlight->color);
+                    //}
                 //}
             }
 
@@ -506,7 +555,7 @@ void RenderingSystem::fillQueue(EntityManager& em)
 {
     queue.init();
 
-    for(auto e : em.iterate<fmc::CTransform, fmc::CMaterial>())
+    for(auto e : em.iterate<fmc::CTransform>())
     {
         fm::RenderNode node = {e->get<fmc::CTransform>(),
                                e->get<fmc::CMaterial>(),

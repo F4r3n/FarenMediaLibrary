@@ -5,4 +5,6 @@
 namespace gui {
     
     DECLARE_INSPECTOR_CLASS(Transform, fmc::CTransform)
+
+};
 }

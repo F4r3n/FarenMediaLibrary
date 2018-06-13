@@ -6,7 +6,7 @@ using namespace fm;
 Shader::Shader() {
 }
 
-Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::__cxx11::string &name) {
+Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name) {
     _vertex = vertexCode;
     _fragment = fragmentCode;
     _name = name;
@@ -117,6 +117,15 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) {
         setValue(name, value.getMatrix());
     }
 }
+
+Shader* Shader::SetUniformBuffer(const std::string &name, unsigned int bindingPoint)
+{
+    int b = glGetUniformBlockIndex(Program, name.c_str());
+    if(b != -1)
+        glUniformBlockBinding(Program, b, bindingPoint);
+
+}
+
 
 Shader::~Shader() {
 }

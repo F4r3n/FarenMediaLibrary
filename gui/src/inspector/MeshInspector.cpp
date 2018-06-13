@@ -14,6 +14,6 @@ void MeshInspector::draw(bool *value)
         ImGui::Combo("##Shape", &current, shapeNames, 3);
         ImGui::PopItemWidth();
         target->SetModelType(shapeNames[current]);
-        // t->setShape(current);
+
     }
 }

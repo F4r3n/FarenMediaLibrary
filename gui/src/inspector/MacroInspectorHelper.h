@@ -8,7 +8,7 @@
         name##Inspector(BaseComponent* component); \
         void setTarget(BaseComponent* compo);      \
         typeTarget* target;                        \
-    };
+   // };
 
 #define DEFINE_INSPECTOR_FUNCTIONS(name, typeTarget)             \
     name##Inspector::name##Inspector() {                         \

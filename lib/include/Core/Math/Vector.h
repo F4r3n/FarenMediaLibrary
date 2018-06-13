@@ -184,6 +184,8 @@ template <typename T>
     // Operatot *=
     vec<T, 3>& operator*=(const vec<T, 3>& b);
 
+
+
     void reset() {
         x = 0;
         y = 0;
@@ -306,6 +308,7 @@ template <typename T> struct vec<T, 4> {
         z = 0;
         w = 0;
     }
+
 
     inline T norme() {
         return sqrt(x * x + y * y + z * z + w * w);

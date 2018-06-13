@@ -11,7 +11,7 @@ void MaterialInspector::draw(bool *value) {
     {
         ImGui::ColorEdit3("Color", &target->color.r);
 
-        static char shaderName[128] = "default";
+
         ImGui::InputText("", shaderName, IM_ARRAYSIZE(shaderName));
         if(fm::ResourcesManager::get().Exists<fm::Shader>(shaderName))
         {

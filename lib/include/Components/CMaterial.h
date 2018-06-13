@@ -44,7 +44,7 @@ class CMaterial : public FMComponent<CMaterial> {
         }
 
         void SetFlagHasChanged() {hasChanged = true;}
-        void Reload();
+        bool Reload();
 
     private:
         fm::Texture texture;

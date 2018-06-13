@@ -12,6 +12,7 @@
 #include "Rendering/Model.hpp"
 #include <string>
 #include "Rendering/MaterialValue.h"
+
 namespace fmc {
 class CText;
 class CTransform;
@@ -22,6 +23,11 @@ struct TextDef {
     GLuint VBO;
     fm::math::mat projection;
 };
+
+namespace fm
+{
+    class UniformBuffer;
+}
 
 namespace fms {
 class RenderingSystem : public System<RenderingSystem> {
@@ -71,6 +77,7 @@ public:
     fm::Graphics graphics;
     
     fm::Bounds bounds;
+    std::unique_ptr<fm::UniformBuffer> uboLight;
 
 //    fm::Model *quad;
     
