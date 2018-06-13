@@ -9,7 +9,7 @@ void MaterialInspector::draw(bool *value) {
 
     if(ImGui::CollapsingHeader("Material", value))
     {
-        ImGui::ColorEdit3("Color", &target->color.r);
+        ImGui::ColorEdit3("Color##Material", &target->color.r);
 
 
         ImGui::InputText("", shaderName, IM_ARRAYSIZE(shaderName));

@@ -78,7 +78,7 @@ public:
     
     fm::Bounds bounds;
     std::unique_ptr<fm::UniformBuffer> uboLight;
-
+int lightNumber = 0;
 //    fm::Model *quad;
     
 };

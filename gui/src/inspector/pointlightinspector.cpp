@@ -8,6 +8,6 @@ void PointLightInspector::draw(bool *value)
 {
     if(ImGui::CollapsingHeader("PointLight", value))
     {
-        ImGui::ColorEdit3("Color", &target->color.r);
+        ImGui::ColorEdit3("Color##PointLight", &target->color.r);
     }
 }

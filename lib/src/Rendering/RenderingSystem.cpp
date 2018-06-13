@@ -339,13 +339,13 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 
 void RenderingSystem::draw(fmc::CCamera* cam)
 {
-    int lightNumber = 0;
+
     bool hasLight = false;
     bool computeLightDone = false;
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-    std::vector<PointLight> pointLights;
+    //std::vector<PointLight> pointLights;
 
-    bool firstMesh = true;
+    //bool firstMesh = true;
     while(!queue.Empty())
     {
         //std::cout << queue.Size() << std::endl;
@@ -366,9 +366,9 @@ void RenderingSystem::draw(fmc::CCamera* cam)
             {
                 //if(firstMesh)
                 //{
-                    size_t sizeToSet = pointLights.size() > NUMBER_POINTLIGHT_MAX ? NUMBER_POINTLIGHT_MAX : pointLights.size();
-                    uboLight->SetData(pointLights.data(), sizeof(PointLight)*sizeToSet);
-                    firstMesh = false;
+                    //size_t sizeToSet = pointLights.size() > NUMBER_POINTLIGHT_MAX ? NUMBER_POINTLIGHT_MAX : pointLights.size();
+                    //uboLight->SetData(pointLights.data(), sizeof(PointLight)*sizeToSet);
+                    //firstMesh = false;
                 //}
                 if(mesh && material)
                 {
@@ -401,7 +401,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         shader->Use()
                                 ->setValue("FM_PV", cam->shader_data.FM_PV)
                                 ->setValue("BloomEffect", material->bloom);
-                        shader->setValue("lightNumber",(int)pointLights.size() );
+                        shader->setValue("lightNumber",lightNumber );
 
                         fm::math::mat model = fm::math::mat();
                         setModel(model, transform, worldPos);
@@ -421,43 +421,6 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         graphics.draw(mesh->model);
                     }
                 }
-            }
-
-            // Set the lights
-            if(state == fm::RENDER_QUEUE::BEFORE_LIGHT) {
-                if(node.plight)//TODO use uniform buffer
-                {
-                    PointLight p;
-                    fm::math::vec4 c;
-                    c.x = node.plight->color.r;
-                    c.y = node.plight->color.g;
-                    c.z = node.plight->color.b;
-                    c.w = node.plight->color.a;
-
-                    p.color = c;
-                    p.position = node.transform->getWorldPos();
-                    p.radius = node.plight->radius;
-                    pointLights.push_back(p);
-                }
-
-
-                //if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED) {
-                    //if(node.plight) {
-                    //    hasLight = true;
-                    //    std::string ln ="light[" + std::to_string(lightNumber) + "]";
-                    //
-                    //    lightShader->Use()
-                    //            ->setValue(ln + ".position",fm::math::vec3(worldPos.x, worldPos.y, transform->layer))
-                    //            ->setValue(ln + ".color", node.plight->color)
-                    //            ->setValue(ln + ".ready", 1);
-                    //    lightNumber++;
-                    //}
-                    //
-                    //if(node.dlight) {
-                    //    hasLight = true;
-                    //    lightShader->Use()->setValue("dlight.color", node.dlight->color);
-                    //}
-                //}
             }
 
             // After all lights, we compute the frame buffer
@@ -554,7 +517,8 @@ void RenderingSystem::computeLighting(
 void RenderingSystem::fillQueue(EntityManager& em)
 {
     queue.init();
-
+    std::vector<PointLight> pointLights;
+    lightNumber = 0;
     for(auto e : em.iterate<fmc::CTransform>())
     {
         fm::RenderNode node = {e->get<fmc::CTransform>(),
@@ -573,21 +537,26 @@ void RenderingSystem::fillQueue(EntityManager& em)
                                         fm::math::vec3(node.transform->scale) / 2.0f);
             node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
 
-            //if(!node.mesh->bounds.intersects(bounds))
-            //    continue;
+
             valid = true;
             node.state = fm::RENDER_QUEUE::OPAQUE;
         }
-        if(node.dlight || node.plight)
+        if(node.plight)
         {
-            node.state = fm::RENDER_QUEUE::BEFORE_LIGHT;
-            valid = true;
+            PointLight p;
+            fm::math::vec4 c;
+            c.x = node.plight->color.r;
+            c.y = node.plight->color.g;
+            c.z = node.plight->color.b;
+            c.w = node.plight->color.a;
+
+            p.color = c;
+            p.position = node.transform->getWorldPos();
+            p.radius = node.plight->radius;
+            pointLights.push_back(p);
+            lightNumber++;
         }
-        if(node.text)
-        {
-            node.state = fm::RENDER_QUEUE::OVERLAY;
-            valid = true;
-        }
+
         node.queue = 0;
         if(!valid)
         {
@@ -595,6 +564,7 @@ void RenderingSystem::fillQueue(EntityManager& em)
         }
         queue.addElement(node);
     }
+    uboLight->SetData(pointLights.data(), pointLights.size()*sizeof(PointLight));
 }
 
 void RenderingSystem::over()
