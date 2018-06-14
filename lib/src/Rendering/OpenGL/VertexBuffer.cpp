@@ -14,24 +14,21 @@ void VertexBuffer::destroy() {
 
 void VertexBuffer::prepareData()
 {
-
 #if !OPENGL_ES || OPENGL_ES_VERSION > 2
     glBindVertexArray(indexVAO);
 #endif
     glBindBuffer(GL_ARRAY_BUFFER, index);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          5 * sizeof(GLfloat),
-                          (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),(GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(GLvoid*)(5 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
 
 }
+
 
 void VertexBuffer::generate(const std::vector<Vertex>& vertices) {
 #if !OPENGL_ES || OPENGL_ES_VERSION > 2

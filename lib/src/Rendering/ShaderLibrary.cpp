@@ -298,6 +298,8 @@ void ShaderLibrary::loadShaders() {
     std::string default_vertex = STRING(
                                  layout(location = 0) in vec3 position;
                                  layout(location = 1) in vec2 texCoords;
+                                 layout(location = 2) in vec3 normals;
+
                                  uniform mat4 FM_M;
                                  uniform mat4 FM_PVM;
                                  
@@ -311,11 +313,13 @@ void ShaderLibrary::loadShaders() {
                                     };
 
                                  out vec3 ourPosition;
+                                 out vec3 ourNormals;
                                  void main(){
                                      
                                  vec4 screenPos = vec4(position, 1.0f);
                                  gl_Position = FM_PVM*screenPos;
                                  ourPosition = (FM_M*screenPos).xyz;
+                                 ourNormals = mat3(transpose(inverse(FM_M))) * normals;
                                  });
 
     std::string default_fragment = STRING(
@@ -336,7 +340,7 @@ void ShaderLibrary::loadShaders() {
                                    void main(){
                                    vec4 color = mainColor;
                                    posTexture = vec4(ourPosition, 1);
-                                    FragColor = color;
+                                   FragColor = color;
                                    });
 
         std::string default_fragment_light = STRING(
@@ -351,6 +355,7 @@ void ShaderLibrary::loadShaders() {
                                        uniform vec4 mainColor;
                                        uniform int BloomEffect;
                                        in vec3 ourPosition;
+                                       in vec3 ourNormals;
                                        uniform INT int lightNumber;
                                        struct PointLight {
                                           FLOAT vec3 position;
@@ -372,10 +377,21 @@ void ShaderLibrary::loadShaders() {
 
                                        void main(){
                                             vec4 color = mainColor;
-                                            posTexture = vec4(ourPosition, 1);
+                                            //posTexture = vec4(ourPosition, 1);
                                             if(lightNumber > 0)
                                             color.x = light[0].color.x;
-                                            FragColor = color;
+                                            FragColor = vec4(0.1f,0.1f,0.1f, 1.0f);
+                                            int i = 0;
+                                            for(i=0;i < lightNumber; ++i)
+                                            {
+                                                PointLight pl = light[i];
+                                                vec3 norm = normalize(ourNormals);
+                                                vec3 lightDir = normalize(pl.position - ourPosition);
+                                                float diff = max(dot(norm, lightDir), 0.0);
+                                                vec3 diffuse = diff*pl.color.xyz;
+                                                FragColor += vec4(diffuse,1.0);
+                                            }
+                                            FragColor*=mainColor;
                                        });
 
                                        
