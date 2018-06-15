@@ -39,7 +39,7 @@ int main() {
             ImGui_ImplSdlGL3_ProcessEvent(&fm::InputManager::getInstance().getLastEvent());
         }
 
-        window.update(60, false);
+        window.update(120, false);
         ImGui_ImplSdlGL3_NewFrame(window.getWindow());
 
         engine.Update(fm::Time::dt);

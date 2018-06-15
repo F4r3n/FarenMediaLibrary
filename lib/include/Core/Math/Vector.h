@@ -327,6 +327,13 @@ template <typename T> struct vec<T, 4> {
         z = v.z;
         w = v.w;
     }
+
+    explicit vec<T, 4>(const vec<T, 3>& v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+        w = 0;
+    }
 };
 
 template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 4>& b) {
@@ -537,5 +544,7 @@ T length(const vec<T, 3>& a) {
     return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 }
+
+
 }
 

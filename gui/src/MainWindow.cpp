@@ -5,7 +5,6 @@
 #include "Components/Body2D.h"
 #include "Components/CDirectionalLight.h"
 #include "Engine.h"
-#include "Components/CIdentity.h"
 #include <Components/CTransform.h>
 #include <Components/CMaterial.h>
 #include <Components/CPointLight.h>
@@ -18,6 +17,7 @@
 #include "Core/Debug.h"
 #include "inspector/scriptmanagerinspector.hpp"
 #include "inspector/pointlightinspector.h"
+#include "Core/Debug.h"
 #define WITH_VIEW 1
 
 MainWindow::MainWindow(fm::Engine* engine) {
@@ -158,7 +158,6 @@ void MainWindow::menu() {
                         new fmc::CTransform(fm::math::Vector3f(0, 0, 0),
                             fm::math::Vector3f(1, 1, 1),
                             fm::math::vec3(0,0,0), 1));
-                currentEntity->addComponent<fmc::CIdentity>();
             }
             if(ImGui::MenuItem("List entity")) {
                 windowListEntity = true;
@@ -293,15 +292,15 @@ void MainWindow::window_WorldLightEditDisplay() {
     Inspector::OnDraw(dlight->get<fmc::CDirectionalLight>(), &value);
     ImGui::End();
 }
-
+int counter = 0;
 void MainWindow::draw() {
-    bool show_test_window = true;
+    bool show_test_window = false;
     menu();
     menuEntity();
     listEntity();
     if(fileSystem_save)
         fileSystem_save_window();
-    ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
     ImGui::ShowDemoWindow(&show_test_window);
     if(window_WorldLightEdit)
         window_WorldLightEditDisplay();
@@ -330,6 +329,12 @@ void MainWindow::draw() {
 #if WITH_VIEW
     gameView.draw();
 #endif
+    counter++;
+    //fm::Debug::get().LogError("test " +std::to_string(counter) );
+    std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
+    for(int i = 0; i < messages.size(); ++i)
+        debugLogger.AddLog(messages[i]);
+    debugLogger.Draw("Logger");
 
 }
 

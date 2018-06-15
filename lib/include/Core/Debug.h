@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <queue>
+#include <mutex>
 namespace fm {
 
 class Debug {
@@ -15,7 +17,21 @@ class Debug {
         BG_DEFAULT = 49
     };
 
+
+
    public:
+    enum MESSAGE_TYPE
+    {
+        INFO,
+        ERROR,
+        WARNING
+    };
+
+    struct Message
+    {
+        std::string content;
+        MESSAGE_TYPE type;
+    };
     template <typename T> static void logError(const T &content);
     template <typename T> static void logWarning(const T &content);
 
@@ -27,8 +43,31 @@ class Debug {
             exit(-1);
         }
     }
+    Debug();
+    ~Debug();
+    inline static Debug& get()
+    {
+        return _instance;
+    }
+    void LogError(const std::string &content, MESSAGE_TYPE messageType = MESSAGE_TYPE::INFO);
+    std::vector<Message> Flush()
+    {
+        mutex.lock();
+        std::vector<Message> messagesToSend;
+        while(!messages.empty())
+        {
+            messagesToSend.push_back(messages.front());
+            messages.pop();
+        }
+        mutex.unlock();
+        return messagesToSend;
+    }
 
    private:
+    std::mutex mutex;
+    static Debug _instance;
+    std::queue<Message> messages;
+
 };
 
 template <typename T> void Debug::logWarning(const T &content) {

@@ -27,9 +27,10 @@
 const int NUMBER_POINTLIGHT_MAX = 8;
 struct PointLight
 {
-   fm::math::vec3 position;
+   fm::math::vec4 position;
    fm::math::vec4 color;
-   float radius;
+   fm::math::vec4 custom;
+
 };
 
 namespace fms {
@@ -162,6 +163,7 @@ void RenderingSystem::setCamera(Entity* camera)
     cam->_viewMatrix = fm::math::mat();
     setView(cam->_viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h}, ct->rotation);
     this->camera = camera;
+    this->camTransform = ct;
     //#if OPENGL_ES_VERSION > 2
     // initUniformBufferCamera(cam);
     //#endif
@@ -402,7 +404,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                                 ->setValue("FM_PV", cam->shader_data.FM_PV)
                                 ->setValue("BloomEffect", material->bloom);
                         shader->setValue("lightNumber",lightNumber );
-
+                        shader->setValue("viewPos", camTransform->getWorldPos());
                         fm::math::mat model = fm::math::mat();
                         setModel(model, transform, worldPos);
 
@@ -517,7 +519,7 @@ void RenderingSystem::computeLighting(
 void RenderingSystem::fillQueue(EntityManager& em)
 {
     queue.init();
-    std::vector<PointLight> pointLights;
+    PointLight pointLights[NUMBER_POINTLIGHT_MAX];
     lightNumber = 0;
     for(auto e : em.iterate<fmc::CTransform>())
     {
@@ -551,9 +553,10 @@ void RenderingSystem::fillQueue(EntityManager& em)
             c.w = node.plight->color.a;
 
             p.color = c;
-            p.position = node.transform->getWorldPos();
-            p.radius = node.plight->radius;
-            pointLights.push_back(p);
+
+            p.position = fm::math::vec4(node.transform->getWorldPos());
+            p.custom.x = node.plight->radius;
+            pointLights[lightNumber] = p;
             lightNumber++;
         }
 
@@ -564,7 +567,10 @@ void RenderingSystem::fillQueue(EntityManager& em)
         }
         queue.addElement(node);
     }
-    uboLight->SetData(pointLights.data(), pointLights.size()*sizeof(PointLight));
+    //std::cout << lightNumber*sizeof(PointLight) << std::endl;
+    uboLight->SetData(&pointLights[0], lightNumber*sizeof(PointLight));
+    //if(pointLights.size() > 0)
+    //    std::cout <<pointLights[0].color << std::endl;
 }
 
 void RenderingSystem::over()

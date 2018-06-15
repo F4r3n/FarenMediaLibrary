@@ -358,10 +358,9 @@ void ShaderLibrary::loadShaders() {
                                        in vec3 ourNormals;
                                        uniform INT int lightNumber;
                                        struct PointLight {
-                                          FLOAT vec3 position;
-                                          FLOAT vec4 color;
-                                          INT int ready;
-                                          FLOAT float radius;
+                                          vec4 position;
+                                          vec4 color;
+                                          vec4 radius;
                                        };
 
                                        struct DirectionalLight {
@@ -374,22 +373,24 @@ void ShaderLibrary::loadShaders() {
                                        {
                                             PointLight light[MAX_LIGHTS];
                                        };
-
+                                        uniform vec3 viewPos;
                                        void main(){
-                                            vec4 color = mainColor;
-                                            //posTexture = vec4(ourPosition, 1);
-                                            if(lightNumber > 0)
-                                            color.x = light[0].color.x;
+
                                             FragColor = vec4(0.1f,0.1f,0.1f, 1.0f);
                                             int i = 0;
                                             for(i=0;i < lightNumber; ++i)
                                             {
                                                 PointLight pl = light[i];
                                                 vec3 norm = normalize(ourNormals);
-                                                vec3 lightDir = normalize(pl.position - ourPosition);
+                                                vec3 lightDir = normalize(pl.position.xyz - ourPosition);
                                                 float diff = max(dot(norm, lightDir), 0.0);
+                                                vec3 viewDir = normalize(viewPos - ourPosition);
+                                                vec3 reflectDir = reflect(-lightDir, norm);
+                                                float spec = pow(max(dot(viewDir, reflectDir),0.0),32);
+                                                vec3 specular = 0.5*spec*pl.color.xyz;
                                                 vec3 diffuse = diff*pl.color.xyz;
-                                                FragColor += vec4(diffuse,1.0);
+                                                FragColor += vec4(diffuse,1.0) + vec4(specular,1.0);
+
                                             }
                                             FragColor*=mainColor;
                                        });

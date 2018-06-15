@@ -12,6 +12,7 @@
 #include "Core/GameObject.h"
 #include "Rendering/RenderTexture.h"
 #include "GameView.h"
+#include "debuglogger.h"
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -70,4 +71,5 @@ private:
     
     fm::Texture playImage;
     std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
+    DebugLogger debugLogger;
 };

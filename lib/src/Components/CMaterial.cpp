@@ -25,7 +25,7 @@ bool CMaterial::Reload()
 {
     if(hasChanged)
     {
-        if(shader == nullptr && shaderName != ""
+        if((shader == nullptr && shaderName != "")
           || (shader && shaderName != shader->GetName()))
         {
             shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);

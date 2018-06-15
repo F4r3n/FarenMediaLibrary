@@ -6,7 +6,6 @@
 #include "Script/ScriptManagerSystem.h"
 
 #include "Music/SoundSystem.h"
-#include "Components/CIdentity.h"
 
 #include "Profiler/Profile.hpp"
 #include "Profiler/Profiler.hpp"
@@ -47,7 +46,7 @@ void Engine::Run(Window& window)
 void Engine::RunMainLoop(void* window)
 {
     //auto start = std::chrono::system_clock::now();
-    ((Window *)window)->update(60);
+    ((Window *)window)->update(120);
     //std::cout << fm::Time::dt << std::endl;
     Update(fm::Time::dt);
 
@@ -131,17 +130,17 @@ void Engine::Reset()
 
 void Engine::Update(float dt)
 {
-    auto start = std::chrono::system_clock::now();
+  //  auto start = std::chrono::system_clock::now();
 
     _systems.update(dt * Time::scale, EntityManager::get(), EventManager::get());
-_numberFramesTimer++;
-    if(_numberFramesTimer == 200) {
-         auto end = std::chrono::system_clock::now();
-         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-         float time = elapsed.count();
-         start = end;
-         std::cout << "Time per frame " << time << " ms" << std::endl;
-        _numberFramesTimer = 0;
-    }
+//_numberFramesTimer++;
+    //if(_numberFramesTimer == 200) {
+       //  auto end = std::chrono::system_clock::now();
+       //  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+       //  float time = elapsed.count();
+       //  start = end;
+       //  std::cout << "Time per frame " << time << " ms" << std::endl;
+       // _numberFramesTimer = 0;
+    //}
 }
 

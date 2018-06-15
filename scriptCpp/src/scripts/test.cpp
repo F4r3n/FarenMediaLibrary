@@ -1,5 +1,6 @@
 #include "scripts/test.hpp"
 #include <Time.h>
+#include <Core/Debug.h>
 Test::Test()
 {
     std::cout << "INIIIIII" << std::endl;
@@ -13,6 +14,7 @@ void Test::Start()
 
 void Test::Update()
 {
+    fm::Debug::get().LogError(std::to_string(fm::Time::dt));
     transform->rotation.y += 2.0f*fm::Time::dt;
 
 }
