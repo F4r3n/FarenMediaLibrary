@@ -23,33 +23,32 @@
 MainWindow::MainWindow(fm::Engine* engine) {
     fm::Debug::logWarning("Start init");
     _configureStyle();
-    this->engine = engine;
+    _engine = engine;
 
-    dlight = EntityManager::get().createEntity();
-    dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
-    dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector3f(100, 50,0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1));
-    dlight->addComponent<fmc::CMaterial>();
+    _dlight = EntityManager::get().createEntity();
+    _dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
+    _dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector3f(100, 50,0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1));
+    _dlight->addComponent<fmc::CMaterial>();
 
-    playImage = fm::Texture("assets/images/play_button.png");
 
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
 
-    mainCamera = fm::GameObjectHelper::create();
+    _mainCamera = fm::GameObjectHelper::create();
 #if WITH_VIEW
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(1280, 720, fmc::RENDER_MODE::FORWARD, false,8));
+    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(1280, 720, fmc::RENDER_MODE::FORWARD, false,8));
 #else
     fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4));
 #endif
-    mainCameraPosition = mainCamera->addComponent<fmc::CTransform>();
-    mainCameraPosition->rotation.x = 90;
-    mainCameraPosition->rotation.z = -90;
+    _mainCameraPosition = _mainCamera->addComponent<fmc::CTransform>();
+    _mainCameraPosition->rotation.x = 90;
+    _mainCameraPosition->rotation.z = -90;
 
-    mainCamera->name = "Camera";
-    engine->SetMainCamera(mainCamera);
+    _mainCamera->name = "Camera";
+    _engine->SetMainCamera(_mainCamera);
     #if WITH_VIEW
-    gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
-    tempRefCamera->target = gameView.renderTexture;
+    _gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
+    tempRefCamera->target = _gameView.renderTexture;
 #endif
     fm::Debug::log("Init done");
 }
@@ -104,17 +103,17 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
 void MainWindow::fileSystem_save_window() {
     ImGui::SetNextWindowPos(ImVec2(200, 20), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Save window", &fileSystem_save);
+    ImGui::Begin("Save window", &_fileSystemSave);
     static char nameScene[256] = {"scene"};
     ImGui::InputText("Save name", nameScene, 256);
 
     if(ImGui::Button("Save")) {
-        nameCurrentScene = std::string(nameScene);
-        fileSystem_save = false;
+        _nameCurrentScene = std::string(nameScene);
+        _fileSystemSave = false;
     }
     ImGui::SameLine();
     if(ImGui::Button("Cancel")) {
-        fileSystem_save = false;
+        _fileSystemSave = false;
     }
     ImGui::End();
 }
@@ -124,31 +123,31 @@ void MainWindow::menu() {
         if(ImGui::BeginMenu("File")) {
             if(ImGui::BeginMenu("Run")) {
                 if(ImGui::MenuItem("Start")) {
-                    engine->Start();
+                    _engine->Start();
                 }
                 if(ImGui::MenuItem("Pause")) {
-                    engine->Stop();
+                    _engine->Stop();
                 }
                 if(ImGui::MenuItem("Stop")) {
-                    engine->Reset();
+                    _engine->Reset();
                 }
                 ImGui::EndMenu();
             }
             if(ImGui::MenuItem("Scene")) {
-                fileSystem_save = true;
+                _fileSystemSave = true;
             }
             ImGui::EndMenu();
         }
         if(ImGui::BeginMenu("World")) {
             if(ImGui::MenuItem("Light")) {
-                window_WorldLightEdit = true;
+                _windowWorldLightEdit = true;
             }
             ImGui::EndMenu();
         }
-        static bool debugLoggerMenu = activateDebugLogger;
+        static bool debugLoggerMenu = _activateDebugLogger;
         if(ImGui::BeginMenu("Options")) {
             if(ImGui::MenuItem("Logger","L", &debugLoggerMenu)) {
-                activateDebugLogger = debugLoggerMenu;
+                _activateDebugLogger = debugLoggerMenu;
             }
             ImGui::EndMenu();
         }
@@ -159,15 +158,15 @@ void MainWindow::menu() {
         }
         if(ImGui::BeginMenu("Entity")) {
             if(ImGui::MenuItem("Create")) {
-                windowCurrentEntity = true;
-                currentEntity = fm::GameObjectHelper::create();
-                currentEntity->addComponent<fmc::CTransform>(
+                _windowCurrentEntity = true;
+                _currentEntity = fm::GameObjectHelper::create();
+                _currentEntity->addComponent<fmc::CTransform>(
                         new fmc::CTransform(fm::math::Vector3f(0, 0, 0),
                             fm::math::Vector3f(1, 1, 1),
                             fm::math::vec3(0,0,0), 1));
             }
             if(ImGui::MenuItem("List entity")) {
-                windowListEntity = true;
+                _windowListEntity = true;
             }
 
             ImGui::EndMenu();
@@ -178,15 +177,10 @@ void MainWindow::menu() {
 
 void MainWindow::displayListCamera() {
     static bool value1 = true;
-    static bool value2 = false;
     if(ImGui::MenuItem("Camera editor", "", &value1)) {
-        value2 = false;
-    engine->SetMainCamera(mainCamera);
+        _engine->SetMainCamera(_mainCamera);
     }
-    if(ImGui::MenuItem("Second Camera", "", &value2)) {
-        value1 = false;
-        //engine->setMainCamera();
-    }
+
 }
 
 void MainWindow::displayComponentsAvailable() {
@@ -195,51 +189,50 @@ void MainWindow::displayComponentsAvailable() {
 void MainWindow::menuEntity()
 {
 
-    std::string nameWindowInspector("Inspector");
+    static std::string nameWindowInspector("Inspector");
 
-    if(currentEntity && currentEntity->IsActive())
+    if(_currentEntity && _currentEntity->IsActive())
     {
-         nameWindowInspector += std::to_string(currentEntity->getID());
+         nameWindowInspector += std::to_string(_currentEntity->getID());
     }
 
 
     ImGui::SetNextWindowPos(ImVec2(0,20));
     ImGui::SetNextWindowSize(ImVec2(200, fm::Window::height-20));
-    ImGui::Begin(nameWindowInspector.c_str(),&windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin(nameWindowInspector.c_str(),&_windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-    if(currentEntity && currentEntity->IsActive())
+    if(_currentEntity && _currentEntity->IsActive())
     {
-        displayComponents(currentEntity);
+        displayComponents(_currentEntity);
 
         if(ImGui::Button("Add Component"))
             ImGui::OpenPopup("popup from button");
 
-        if(ImGui::BeginPopup("popup from button") && currentEntity && currentEntity->IsActive())
+        if(ImGui::BeginPopup("popup from button") && _currentEntity && _currentEntity->IsActive())
         {
             ImGui::MenuItem("Components", NULL, false, false);
 
-            if(!currentEntity->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
+            if(!_currentEntity->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
             {
-                currentEntity->add<fmc::CTransform>();
+                _currentEntity->add<fmc::CTransform>();
             }
 
-            if(!currentEntity->has<fmc::CMesh>() && ImGui::MenuItem("Mesh"))
+            if(!_currentEntity->has<fmc::CMesh>() && ImGui::MenuItem("Mesh"))
             {
-                currentEntity->add<fmc::CMesh>();
+                _currentEntity->add<fmc::CMesh>();
             }
 
-            if(!currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
+            if(!_currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
             {
-                fmc::CMaterial* mat = currentEntity->add<fmc::CMaterial>();
-                std::cout << mat->color.r << std::endl;
+                _currentEntity->add<fmc::CMaterial>();
             }
-            if(!currentEntity->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
+            if(!_currentEntity->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
             {
-                currentEntity->add<fmc::CScriptManager>();
+                _currentEntity->add<fmc::CScriptManager>();
             }
-            if(!currentEntity->has<fmc::CPointLight>() && ImGui::MenuItem("PointLight"))
+            if(!_currentEntity->has<fmc::CPointLight>() && ImGui::MenuItem("PointLight"))
             {
-                currentEntity->add<fmc::CPointLight>();
+                _currentEntity->add<fmc::CPointLight>();
             }
             ImGui::EndPopup();
         }
@@ -250,31 +243,31 @@ void MainWindow::menuEntity()
 
 void MainWindow::listEntity()
 {
-    if(windowListEntity)
+    if(_windowListEntity)
     {
         static std::vector<const char*> namesEntities;
         ImGui::SetNextWindowPos(ImVec2(fm::Window::width - 256,20));
         ImGui::SetNextWindowSize(ImVec2(256, fm::Window::height-20));
-        ImGui::Begin("List entities", &windowListEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("List entities", &_windowListEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-        if(timerListEntityUpdate > 1)
+        if(_timerListEntityUpdate > 1)
         {
             namesEntities = getAllEntities();
-            timerListEntityUpdate = 0;
+            _timerListEntityUpdate = 0;
         } else
         {
-            timerListEntityUpdate += fm::Time::dt;
+            _timerListEntityUpdate += fm::Time::dt;
         }
         static int number = 0;
         ImGui::ListBox("List entities", &number,&namesEntities[0],
                 (int)namesEntities.size(),
                 -1);
-        currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
+        _currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
 
         if(ImGui::Button("Add Entity"))
         {
-            currentEntity = fm::GameObjectHelper::create();
-            currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
+            _currentEntity = fm::GameObjectHelper::create();
+            _currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
                                                              fm::math::Vector3f(0, 0, 0),
                                                              fm::math::Vector3f(1, 1, 1),
                                                              fm::math::vec3(0,0,0)));
@@ -296,8 +289,8 @@ std::vector<const char*> MainWindow::getAllEntities()
 void MainWindow::window_WorldLightEditDisplay() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
-    ImGui::Begin("World light", &window_WorldLightEdit);
-    Inspector::OnDraw(dlight->get<fmc::CDirectionalLight>(), &value);
+    ImGui::Begin("World light", &_windowWorldLightEdit);
+    Inspector::OnDraw(_dlight->get<fmc::CDirectionalLight>(), &value);
     ImGui::End();
 }
 
@@ -306,44 +299,44 @@ void MainWindow::draw() {
     menu();
     menuEntity();
     listEntity();
-    if(fileSystem_save)
+    if(_fileSystemSave)
         fileSystem_save_window();
     ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
     ImGui::ShowDemoWindow(&show_test_window);
-    if(window_WorldLightEdit)
+    if(_windowWorldLightEdit)
         window_WorldLightEditDisplay();
 
     if(ImGui::GetIO().MouseClicked[1]) {
-        if(!firstRightClick) {
-            FirstPosMouseRightClick = ImGui::GetIO().MousePos;
-            firstRightClick = true;
+        if(!_firstRightClick) {
+            _firstPosMouseRightClick = ImGui::GetIO().MousePos;
+            _firstRightClick = true;
         }
     }
 
     if(ImGui::GetIO().MouseDown[1]) {
-        if(firstRightClick) {
-            mainCameraPosition->position.x +=
-                (FirstPosMouseRightClick.x - ImGui::GetIO().MousePos.x) *
-                coeffMouseSpeed;
-            mainCameraPosition->position.y +=
-                (FirstPosMouseRightClick.y - ImGui::GetIO().MousePos.y) *
-                coeffMouseSpeed;
+        if(_firstRightClick) {
+            _mainCameraPosition->position.x +=
+                (_firstPosMouseRightClick.x - ImGui::GetIO().MousePos.x) *
+                _coeffMouseSpeed;
+            _mainCameraPosition->position.y +=
+                (_firstPosMouseRightClick.y - ImGui::GetIO().MousePos.y) *
+                _coeffMouseSpeed;
 
-            FirstPosMouseRightClick = ImGui::GetIO().MousePos;
+            _firstPosMouseRightClick = ImGui::GetIO().MousePos;
         }
     } else {
-        firstRightClick = false;
+        _firstRightClick = false;
     }
 #if WITH_VIEW
-    gameView.draw();
+    _gameView.draw();
 #endif
 
-    if(activateDebugLogger)
+    if(_activateDebugLogger)
     {
         std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
         for(int i = 0; i < messages.size(); ++i)
-            debugLogger.AddLog(messages[i]);
-        debugLogger.Draw("Logger");
+            _debugLogger.AddLog(messages[i]);
+        _debugLogger.Draw("Logger");
     }
 
 }

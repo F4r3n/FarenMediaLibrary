@@ -45,32 +45,31 @@ public:
 
 private:
     void _configureStyle();
-    GameView gameView;
-    fm::GameObject* currentEntity = nullptr;
-    fm::GameObject* mainCamera;
-    Entity* dlight;
-    bool windowCurrentEntity = true;
-    bool windowListEntity = false;
+    GameView _gameView;
+    fm::GameObject* _currentEntity = nullptr;
+    fm::GameObject* _mainCamera;
+    Entity* _dlight;
+    bool _windowCurrentEntity = true;
+    bool _windowListEntity = false;
 
-    float timerListEntityUpdate = 1;
+    float _timerListEntityUpdate = 1;
 
-    bool choiceComponent = false;
+    bool _choiceComponent = false;
 
-    ImVec2 FirstPosMouseRightClick;
-    float coeffMouseSpeed = -0.8f;
-    bool firstRightClick = false;
-    fmc::CTransform* mainCameraPosition;
+    ImVec2 _firstPosMouseRightClick;
+    float _coeffMouseSpeed = -0.8f;
+    bool _firstRightClick = false;
+    fmc::CTransform* _mainCameraPosition;
 
-    fm::Engine* engine;
-    bool window_WorldLightEdit = false;
+    fm::Engine* _engine;
+    bool _windowWorldLightEdit = false;
     
     
-    std::string nameWindow;
-    std::string nameCurrentScene = "";
-    bool fileSystem_save = false;
+    std::string _nameWindow;
+    std::string _nameCurrentScene = "";
+    bool _fileSystemSave = false;
     
-    fm::Texture playImage;
     std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
-    DebugLogger debugLogger;
-    bool activateDebugLogger = false;
+    DebugLogger _debugLogger;
+    bool _activateDebugLogger = false;
 };
