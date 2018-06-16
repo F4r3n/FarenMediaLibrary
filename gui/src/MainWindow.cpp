@@ -41,8 +41,8 @@ MainWindow::MainWindow(fm::Engine* engine) {
     fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4));
 #endif
     _mainCameraPosition = _mainCamera->addComponent<fmc::CTransform>();
-    _mainCameraPosition->rotation.x = 90;
-    _mainCameraPosition->rotation.z = -90;
+    //_mainCameraPosition->rotation.x = 90;
+    //_mainCameraPosition->rotation.z = -90;
 
     _mainCamera->name = "Camera";
     _engine->SetMainCamera(_mainCamera);

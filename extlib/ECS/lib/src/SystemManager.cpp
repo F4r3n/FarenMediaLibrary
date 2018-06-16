@@ -21,6 +21,11 @@ void SystemManager::init(EntityManager& em, EventManager &event) {
     em.make();
 }
 
+void SystemManager::Free()
+{
+    systems.clear();
+}
+
 void SystemManager::update(float dt, EntityManager& em, EventManager &event) {
     currentTime = dt;
     for(auto &s : systems) {

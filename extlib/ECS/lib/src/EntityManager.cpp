@@ -7,11 +7,10 @@ EntityManager EntityManager::em;
 
 EntityManager::EntityManager() {
 
-    size_t sizeFreeID = POOL_SIZE;
-	for(size_t i = 0; i < sizeFreeID; ++i) {
+    for(size_t i = 0; i < POOL_SIZE; ++i) {
         _free_id.push(i);
-	}
-	_entities_alive.reserve(POOL_SIZE);
+    }
+    _entities_alive.reserve(POOL_SIZE);
     _entities_killed.reserve(POOL_SIZE);
     _entitiesComponents.resize(POOL_SIZE);
     _currentMAX = POOL_SIZE;
@@ -40,12 +39,21 @@ void EntityManager::killAll() {
         {
             if(!checkID(e->ID) && _entitiesComponents[e->ID])
             {
-				_entitiesComponents[e->ID].reset();
-			}
+                _entitiesComponents[e->ID].reset();
+            }
             
 			delete e;
 		}
 	}
+
+    for(size_t i = 0; i < _temp_entities.size(); ++i)
+    {
+        if(_temp_entities[i] && _temp_entities[i]->allocated)
+        {
+            delete _temp_entities[i];
+        }
+    }
+    _temp_entities.clear();
 
     size_t sizeFreeID = _free_id.size();
     for(size_t i = 0; i < sizeFreeID; ++i)
@@ -56,6 +64,20 @@ void EntityManager::killAll() {
 	_entities_killed.clear();
 	_capacity = 0;
 	_posIndex = 0;
+
+}
+
+void EntityManager::Free()
+{
+    std::queue<size_t> empty;
+    std::swap( _free_id, empty );
+
+
+    _entities_alive.clear();
+    _entities_killed.clear();
+
+    std::vector<std::unique_ptr<ComponentManager>> emptyC;
+    std::swap(_entitiesComponents, emptyC);
 }
 
 bool EntityManager::isExists(size_t id) const{
@@ -153,28 +175,28 @@ std::vector<size_t> EntityManager::getEntitiesAlive() {
 bool EntityManager::hasComponents(Entity* e, const std::vector<std::size_t>& compo) const{
 	if(!e || isExists(e->ID))
 		return false;
-	if(_entitiesComponents[e->ID]) {
-		for(std::size_t c : compo) {
-			if(!_entitiesComponents[e->ID]->has(c))
-				return false;
-		}
-		return true;
-	}
+    if(_entitiesComponents[e->ID]) {
+        for(std::size_t c : compo) {
+            if(!_entitiesComponents[e->ID]->has(c))
+                return false;
+        }
+        return true;
+    }
 	return false;
 }
 
 bool EntityManager::hasComponents(Entity* e, const Mask& bits) const{
     if(!e)
         return false;
-	if(_entitiesComponents[e->ID])
-		return _entitiesComponents[e->ID]->has(bits);
+    if(_entitiesComponents[e->ID])
+        return _entitiesComponents[e->ID]->has(bits);
 	return false;
 }
 
 bool EntityManager::hasComponents(size_t id,const Mask& bits) const {
     //std::cout <<"Has "<< id << " " << entitiesComponents[id]->has(bits) << std::endl;
     if(_entitiesComponents[id])
-		return _entitiesComponents[id]->has(bits);
+        return _entitiesComponents[id]->has(bits);
 	return false;
 }
 

@@ -217,12 +217,19 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
     }
     else
     {
-        fm::math::vec3 front;
-        fm::math::vec3 right;
-        fm::math::vec3 up;
+        viewMatrix.identity();
+        viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.x), fm::math::vec3(1,0,0));
+        viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.y), fm::math::vec3(0,1,0));
+        viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.z), fm::math::vec3(0,0,1));
+        viewMatrix = fm::math::translate( viewMatrix, position);
 
-        UpdateCameraVectors(rotation.x, rotation.y, rotation.z, front, right, up, fm::math::vec3(0.0f,1.0f,0.0f));
-        viewMatrix = fm::math::lookAt(position, position + front, up);
+
+        //fm::math::vec3 front;
+        //fm::math::vec3 right;
+        //fm::math::vec3 up;
+        //
+        //UpdateCameraVectors(rotation.x, rotation.y, rotation.z, front, right, up, fm::math::vec3(0.0f,1.0f,0.0f));
+        //viewMatrix = fm::math::lookAt(position, position + front, up);
         //std::cout << viewMatrix << std::endl;
         //viewMatrix.identity();
         //TODO temporary
@@ -333,7 +340,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
     {
         graphics.bindFrameBuffer(0);
         graphics.setViewPort(cam->viewPort);
-        graphics.clear(true, true);
+        graphics.clear(true, true, false);
     }
      fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 

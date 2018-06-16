@@ -31,40 +31,40 @@ void Graphics::setViewPort(const fm::Rect<float>& rect) const {
     glViewport(rect.x, rect.y, rect.w, rect.h);
 }
 
-void Graphics::enable(RENDERING_TYPE r) {
+void Graphics::enable(RENDERING_TYPE r) const {
     glEnable(renderingType[r]);
 }
-void Graphics::disable(RENDERING_TYPE r) {
+void Graphics::disable(RENDERING_TYPE r) const{
     glDisable(renderingType[r]);
 }
 
 void Graphics::draw(int primitiveType,
                     unsigned int vertexCount,
-                    unsigned int* indices) {
+                    unsigned int* indices) const{
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, indices);
 }
 
 void Graphics::draw(int primitiveType,
                     unsigned int vertexStart,
-                    unsigned int vertexCount) {
+                    unsigned int vertexCount) const{
     glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 // TODO VAO needed with opengl CORE and not ES
-void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) {
+void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) const{
     vertexBuffer->prepareData();
 }
 
-void Graphics::bindFrameBuffer(unsigned int id) {
+void Graphics::bindFrameBuffer(unsigned int id) const{
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Graphics::bindTexture2D(int number, int idTexture, int type) {
+void Graphics::bindTexture2D(int number, int idTexture, int type) const {
     glActiveTexture(GL_TEXTURE0 + number);
     glBindTexture(type, idTexture);
 }
 
-void Graphics::draw(Model* model) {
+void Graphics::draw(Model* model) const{
     setVertexBuffer(model->vertexBuffer);
 
     draw(0,

@@ -7,7 +7,7 @@
 
 #include "EntityManager.h"
 #include "Component.h"
-#include "Serializer.hpp"
+
 class Entity
 {
 

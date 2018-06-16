@@ -16,7 +16,7 @@ class BaseSystem {
 public:
     BaseSystem(){}
     virtual ~BaseSystem() {}
-virtual void pre_update(EntityManager &manager) = 0;
+    virtual void pre_update(EntityManager &manager) = 0;
     virtual void update(float dt, EntityManager &manager, EventManager &event) = 0;
     virtual void init(EntityManager &manager, EventManager &event) = 0;
     virtual void over() = 0;

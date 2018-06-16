@@ -30,7 +30,7 @@ template <typename T>
 
     void update(float dt, EntityManager& em, EventManager &event);
     void init(EntityManager& em, EventManager &event);
-    //void call_back(Entity *e);
+    void Free();
 
 private:
     std::unordered_map<size_t, std::unique_ptr<BaseSystem> > systems;

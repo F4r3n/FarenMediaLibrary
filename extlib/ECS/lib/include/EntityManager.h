@@ -18,7 +18,7 @@ public:
 
     Entity* createEntity();
     void getEntities(std::function<void(Entity*)> func);
-    std::vector<BaseComponent*> getAllComponents(Entity *e) { 
+    std::vector<BaseComponent*> getAllComponents(Entity *e) {
         return _entitiesComponents[_getID(e)]->getAllComponents();
     }
     void getEntitiesWithComponents(std::function<void(Entity*)> func, Mask& bits);
@@ -167,15 +167,15 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
         
         void next() {
             
-            while(!parent.isExists(currentIndex) && currentIndex < capacity) {
+            while(currentIndex < capacity && !parent.isExists(currentIndex)) {
                 ++currentIndex;
             }
         }
         
          
     private:
-        size_t currentIndex;
-        size_t capacity;
+        size_t currentIndex = 0;
+        size_t capacity = 0;
         EntityManager& parent;
     };
      template <typename T>
@@ -205,6 +205,7 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
         EntityIterator iterator(*this, _posIndex, 0);
         return iterator;
     }
+    void Free();
 private:
     void _destroyEntity(size_t id, bool isActive);
     size_t _getID(Entity* e);

@@ -63,46 +63,53 @@ bool Shader::compile() {
     return true;
 }
 
-Shader* Shader::Use() {
+const Shader* Shader::Use() const {
     glUseProgram(this->Program);
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, fm::math::mat matrix) {
+const Shader* Shader::setValue(const std::string& name, fm::math::mat matrix) const
+{
     glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, fm::math::vec2 vector) {
+const Shader* Shader::setValue(const std::string& name, fm::math::vec2 vector) const
+{
     glUniform2f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y);
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, fm::math::vec3 vector) {
+const Shader* Shader::setValue(const std::string& name, fm::math::vec3 vector) const
+{
     glUniform3f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y, vector.z);
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, float val) {
+const Shader* Shader::setValue(const std::string& name, float val) const
+{
     glUniform1f(glGetUniformLocation(Program, name.c_str()), val);
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, fm::math::vec4 vector) {
+const Shader* Shader::setValue(const std::string& name, fm::math::vec4 vector) const
+{
     glUniform4f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y, vector.z, vector.w);
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, int val) {
+const Shader* Shader::setValue(const std::string& name, int val) const
+{
     glUniform1i(glGetUniformLocation(Program, name.c_str()), val);
     return this;
 }
 
-Shader* Shader::setValue(const std::string& name, Color vector) {
+const Shader* Shader::setValue(const std::string& name, Color vector) const
+{
     return setValue(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));
 }
 
-void Shader::setValue(const std::string &name, const fm::MaterialValue &value) {
+void Shader::setValue(const std::string &name, const fm::MaterialValue &value) const{
     if(value.getType() == fm::ValuesType::VALUE_FLOAT) {
         setValue(name, value.getFloat());
     }else if(value.getType() == fm::ValuesType::VALUE_INT) {
@@ -118,11 +125,12 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) {
     }
 }
 
-Shader* Shader::SetUniformBuffer(const std::string &name, unsigned int bindingPoint)
+const Shader* Shader::SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const
 {
     int b = glGetUniformBlockIndex(Program, name.c_str());
     if(b != -1)
         glUniformBlockBinding(Program, b, bindingPoint);
+    return this;
 
 }
 

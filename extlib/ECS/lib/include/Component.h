@@ -2,7 +2,9 @@
 #include <string>
 #include <memory>
 #include <typeinfo> //for 'typeid' to work
-#include "Serializer.hpp"
+#include "json.hpp"
+#include <fstream>
+using json = nlohmann::json;
 class ComponentManager;
 
 #include <cstddef>

@@ -37,22 +37,22 @@ public:
     Shader();
     //Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
     Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name);
-    Shader* setValue(const std::string& name, fm::math::mat matrix);
-    Shader* setValue(const std::string& name, fm::math::vec2 vector);
-    Shader* setValue(const std::string& name, fm::math::vec3 vector);
-    Shader* setValue(const std::string& name, fm::math::vec4 vector);
-    Shader* setValue(const std::string& name, float val);
-    Shader* setValue(const std::string& name, int val);
-    Shader* setValue(const std::string& name, Color vector);
-    Shader* SetUniformBuffer(const std::string &name, unsigned int bindingPoint);
+    const Shader* setValue(const std::string& name, fm::math::mat matrix) const;
+    const Shader* setValue(const std::string& name, fm::math::vec2 vector) const;
+    const Shader* setValue(const std::string& name, fm::math::vec3 vector) const;
+    const Shader* setValue(const std::string& name, fm::math::vec4 vector) const;
+    const Shader* setValue(const std::string& name, float val) const;
+    const Shader* setValue(const std::string& name, int val) const;
+    const Shader* setValue(const std::string& name, Color vector) const;
+    const Shader* SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const;
 
-    Shader* Use();
+    const Shader* Use() const;
     bool compile();
     ~Shader();
     bool IsReady() const{return _isReady;}
     static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
-    void  setValue(const std::string &name, const fm::MaterialValue &value);
-    const std::string& GetName() {return _name;}
+    void  setValue(const std::string &name, const fm::MaterialValue &value) const;
+    const std::string& GetName() const{return _name;}
 private:
     std::string _vertex, _fragment;
     ZTEST _zTest = ZTEST::LESS;

@@ -5,7 +5,6 @@ DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)
 
 void MeshInspector::draw(bool *value)
 {
-    static int current = 0;
     static const char *shapeNames[] = {"Quad", "Circle", "Cube"};
 
     if(ImGui::CollapsingHeader("Mesh", value))
