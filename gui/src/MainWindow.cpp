@@ -145,6 +145,13 @@ void MainWindow::menu() {
             }
             ImGui::EndMenu();
         }
+        static bool debugLoggerMenu = activateDebugLogger;
+        if(ImGui::BeginMenu("Options")) {
+            if(ImGui::MenuItem("Logger","L", &debugLoggerMenu)) {
+                activateDebugLogger = debugLoggerMenu;
+            }
+            ImGui::EndMenu();
+        }
 
         if(ImGui::BeginMenu("Cameras")) {
             displayListCamera();
@@ -197,7 +204,7 @@ void MainWindow::menuEntity()
 
 
     ImGui::SetNextWindowPos(ImVec2(0,20));
-    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200, fm::Window::height-20));
     ImGui::Begin(nameWindowInspector.c_str(),&windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
     if(currentEntity && currentEntity->IsActive())
@@ -246,8 +253,9 @@ void MainWindow::listEntity()
     if(windowListEntity)
     {
         static std::vector<const char*> namesEntities;
-        ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
-        ImGui::Begin("List entities", &windowListEntity);
+        ImGui::SetNextWindowPos(ImVec2(fm::Window::width - 256,20));
+        ImGui::SetNextWindowSize(ImVec2(256, fm::Window::height-20));
+        ImGui::Begin("List entities", &windowListEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
         if(timerListEntityUpdate > 1)
         {
@@ -292,7 +300,7 @@ void MainWindow::window_WorldLightEditDisplay() {
     Inspector::OnDraw(dlight->get<fmc::CDirectionalLight>(), &value);
     ImGui::End();
 }
-int counter = 0;
+
 void MainWindow::draw() {
     bool show_test_window = false;
     menu();
@@ -329,12 +337,14 @@ void MainWindow::draw() {
 #if WITH_VIEW
     gameView.draw();
 #endif
-    counter++;
-    //fm::Debug::get().LogError("test " +std::to_string(counter) );
-    std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
-    for(int i = 0; i < messages.size(); ++i)
-        debugLogger.AddLog(messages[i]);
-    debugLogger.Draw("Logger");
+
+    if(activateDebugLogger)
+    {
+        std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
+        for(int i = 0; i < messages.size(); ++i)
+            debugLogger.AddLog(messages[i]);
+        debugLogger.Draw("Logger");
+    }
 
 }
 

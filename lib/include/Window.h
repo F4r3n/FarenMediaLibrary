@@ -39,8 +39,8 @@ private:
     SDL_Window* window;
     SDL_GLContext mainContext;
 
-    int fpsMax = 60;
-    double wait_time = 1.0f / (float)fpsMax;
+    int fpsMax = 120;
+    double wait_time = 1.0f / (double)fpsMax;
     double curr_frame_time = 0;
     double dur = 0;
     double frame_start = 0;

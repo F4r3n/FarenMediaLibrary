@@ -10,11 +10,13 @@ class DebugLogger
         void    Clear();
         void    Draw(const char* title, bool* p_open = nullptr);
         void    AddLog(const fm::Debug::Message &message);
+
     private:
         std::vector<char>   _buffer;
         ImVector<int>       _lineOffsets;        // Index to lines offset
         bool                _scrollToBottom;
         std::mutex          mutex;
+
 
 };
 

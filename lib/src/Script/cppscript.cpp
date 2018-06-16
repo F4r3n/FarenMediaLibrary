@@ -21,10 +21,9 @@ bool CppScript::init(Entity* e)
     currentEntity = e;
     behaviour = CPPManager::get().InstantiateClass(_scriptName);
     behaviour->entity = currentEntity;
-    std::cout << "INIT " << behaviour << std::endl;
     isInit = true;
     if(behaviour == nullptr)
-        fm::Debug::log("error");
+        fm::Debug::get().LogError("Unable to create the  class");
     return true;
 }
 
