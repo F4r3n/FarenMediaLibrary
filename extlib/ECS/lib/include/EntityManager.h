@@ -23,7 +23,7 @@ public:
     }
     void getEntitiesWithComponents(std::function<void(Entity*)> func, Mask& bits);
     void killAll();
-    bool isExists(size_t id) const;
+    bool Exists(size_t id) const;
     inline bool checkID(size_t ID) const {
         return ID == _MAX_ID;
     }
@@ -122,7 +122,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
         }
         
         inline bool valid() const{
-            return EntityManager::get().isExists(currentIndex)
+            return EntityManager::get().Exists(currentIndex)
             && EntityManager::get().hasComponents(currentIndex, mask);
         }
         
@@ -131,8 +131,8 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
 
     private:
         Mask mask;
-        size_t currentIndex;
-        size_t capacity;
+        size_t currentIndex = 0;
+        size_t capacity = 0;
     };
     
 class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
@@ -167,7 +167,7 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
         
         void next() {
             
-            while(currentIndex < capacity && !parent.isExists(currentIndex)) {
+            while(currentIndex < capacity && !parent.Exists(currentIndex)) {
                 ++currentIndex;
             }
         }

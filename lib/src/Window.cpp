@@ -107,10 +107,9 @@ void Window::frameLimit(unsigned short fps) {
     frame_start = frame_end;
 }
 
-void Window::swapBuffers() {
-    // At the end of the current frame check if an error occured
-    errorDisplay();
-    SDL_GL_SwapWindow(window);
+void Window::swapBuffers() const{
+    if(window)
+        SDL_GL_SwapWindow(window);
 }
 
 void Window::errorDisplay() {

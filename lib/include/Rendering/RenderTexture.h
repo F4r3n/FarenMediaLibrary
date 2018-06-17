@@ -16,28 +16,27 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         void release();
         bool isCreated();
         void bind();
-        inline unsigned int getWidth() {return width;}
-        inline unsigned int getHeight() {return height;}
-        Texture* getColorBuffer() {return textureColorbuffer.data();}
+        inline unsigned int getWidth() {return _width;}
+        inline unsigned int getHeight() {return _height;}
+        Texture* getColorBuffer() {return _textureColorbuffer.data();}
         void create();
-        bool active();
-        bool IsMultiSampled() const {return multiSampling > 0;}
-        unsigned int GetId() const {return framebuffer;}
+        bool IsMultiSampled() const {return _multiSampling > 0;}
+        unsigned int GetId() const {return _framebuffer;}
     private:
-        bool isReady = false;
-        unsigned int width;
-        unsigned int height;
-        unsigned short depth;
-        unsigned short numberColors = 0;
-        int multiSampling = 0;
+        bool _isReady = false;
+        unsigned int _width = 0;
+        unsigned int _height = 0;
+        unsigned short _depth = 0;
+        unsigned short _numberColors = 0;
+        int _multiSampling = 0;
         std::vector<Format> _formats;
         std::vector<Type> _types;
-        bool initFrameBuffer(Format *formats, Type *types);
+        bool _InitFrameBuffer(Format *formats, Type *types);
         //main Framebuffer + position fragcolor bright color
-        GLuint framebuffer;
-        std::vector<Texture> textureColorbuffer;
+        GLuint _framebuffer;
+        std::vector<Texture> _textureColorbuffer;
 
         //Texture rboDepth;
-        unsigned int rboDepth;
+        unsigned int _rboDepth;
     };
 }

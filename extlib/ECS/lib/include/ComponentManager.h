@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include <typeinfo>
 #include <array>
-#include <iostream>
 #include <bitset>
 #include "Config.h"
 
@@ -85,7 +84,7 @@ class ComponentManager
             return temp;
         }
 
-        size_t currentEntityID = -1;
+        size_t currentEntityID = std::numeric_limits<size_t>::max();
     private:
         std::bitset<MAX_COMPONENTS> _bits;
         BaseComponent* _components[MAX_COMPONENTS];

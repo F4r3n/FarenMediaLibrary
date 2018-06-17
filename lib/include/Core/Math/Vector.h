@@ -168,6 +168,9 @@ template <typename T>
     inline vec<T, 3>(__m128 m) : mmvalue(m) {}
 #endif
     vec<T, 3>() {
+        x = 0;
+        y = 0;
+        z = 0;
     }
     // Operator +=
     vec<T, 3>& operator+=(const vec<T, 1>& b);
@@ -286,6 +289,10 @@ template <typename T> struct vec<T, 4> {
     }
 
     vec<T, 4>() {
+        x = 0;
+        y = 0;
+        z = 0;
+        w = 0;
     }
     // Operator +=
     vec<T, 4>& operator+=(const vec<T, 1>& b);

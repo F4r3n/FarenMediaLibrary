@@ -15,7 +15,7 @@ public:
     Entity();
     Entity(size_t ID);
     ~Entity();
-    size_t ID;
+    size_t ID = std::numeric_limits<size_t>::max();
     bool active = false;
     bool toCreate = true;
     bool allocated = false;

@@ -18,9 +18,9 @@ public:
     virtual size_t GetType() const = 0;
     virtual void Destroy() = 0;
 protected:
-    size_t _IDEntity;
+    size_t _IDEntity = std::numeric_limits<size_t>::max();
 
-    std::string _name;
+    std::string _name = "";
     static std::size_t family_counter;
 };
 

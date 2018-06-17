@@ -5,39 +5,39 @@ using namespace fm;
 
 RenderTexture::RenderTexture(unsigned int width, unsigned int height,
 unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling) {
-    this->width = width;
-    this->height = height;
-    this->depth = depth;
-    this->numberColors = numberColorAttchment;
+    _width = width;
+    _height = height;
+    _depth = depth;
+    _numberColors = numberColorAttchment;
     for(unsigned int i = 0; i < numberColorAttchment; ++i) {
         _formats.push_back(formats[i]);
         _types.push_back(types[i]);
     }
-    this->multiSampling = multiSampling;
+    _multiSampling = multiSampling;
 }
 
 RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampling) {
-    this->width = renderTexture.width;
-    this->height = renderTexture.height;
-    this->depth = renderTexture.depth;
-    this->numberColors = renderTexture.numberColors;
+    _width = renderTexture._width;
+    _height = renderTexture._height;
+    _depth = renderTexture._depth;
+    _numberColors = renderTexture._numberColors;
     if(multiSampling == -1)
-    this->multiSampling = renderTexture.multiSampling;
-    for(unsigned int i = 0; i < renderTexture.numberColors; ++i) {
+    _multiSampling = renderTexture._multiSampling;
+    for(unsigned int i = 0; i < renderTexture._numberColors; ++i) {
         _formats.push_back(renderTexture._formats[i]);
         _types.push_back(renderTexture._types[i]);
     }
 }
 RenderTexture::RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment) {
-    this->width = width;
-    this->height = height;
-    this->numberColors = numberColorAttchment;
-    isReady = initFrameBuffer(nullptr, nullptr);
+    _width = width;
+    _height = height;
+    _numberColors = numberColorAttchment;
+    _isReady = _InitFrameBuffer(nullptr, nullptr);
 }
 
 void RenderTexture::create() {
 
-    isReady = initFrameBuffer(_formats.data(), _types.data());
+    _isReady = _InitFrameBuffer(_formats.data(), _types.data());
 }
 
 RenderTexture::~RenderTexture() {
@@ -45,37 +45,31 @@ RenderTexture::~RenderTexture() {
 
 void RenderTexture::release() {
     //std::cout << "Release render texture" << std::endl;
-    for(unsigned int i = 0; i < textureColorbuffer.size(); i++)
+    for(unsigned int i = 0; i < _textureColorbuffer.size(); i++)
     {
-        textureColorbuffer[i].release();
+        _textureColorbuffer[i].release();
     }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //rboDepth.release();
 
-    glDeleteRenderbuffers(1, &framebuffer);
+    glDeleteRenderbuffers(1, &_framebuffer);
 
-    isReady = false;
-    
-    
+    _isReady = false;
 }
+
 bool RenderTexture::isCreated()
 {
-    return isReady;
+    return _isReady;
 }
 
-bool RenderTexture::active()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    return true;
-}
 
-bool RenderTexture::initFrameBuffer(Format *formats, Type *types)
+bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
 {
-    if( width == 0 || height == 0) return false;
+    if( _width == 0 || _height == 0) return false;
     
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glGenFramebuffers(1, &_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     int error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
@@ -85,20 +79,20 @@ bool RenderTexture::initFrameBuffer(Format *formats, Type *types)
     if(formats != nullptr && types != nullptr)
     {
         
-        for(int i = 0; i < numberColors; i++)
+        for(int i = 0; i < _numberColors; i++)
         {
             Texture t;
             t.filter = Filter::NEAREST;
-            std::cout << "Create texture " <<i << " " << numberColors << " " << multiSampling<< std::endl;
+            std::cout << "Create texture " <<i << " " << _numberColors << " " << _multiSampling<< std::endl;
 
-            t.generate(width, height, formats[i], types[i], this->multiSampling);
+            t.generate(_width, _height, formats[i], types[i], _multiSampling);
 
             int error = glGetError();
             if(error != 0) {
                 std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
                 exit(-1);
             }
-            if(multiSampling > 0)
+            if(_multiSampling > 0)
             {
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, t.getID(), 0);
 
@@ -112,32 +106,32 @@ bool RenderTexture::initFrameBuffer(Format *formats, Type *types)
                 std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
                 exit(-1);
             }
-            textureColorbuffer.push_back(t);
+            _textureColorbuffer.push_back(t);
         }
     }
 
-    if(depth != 0)
+    if(_depth != 0)
     {
         //rboDepth.generate(width, height, Format::DEPTH_STENCIL, Type::UNSIGNED_24_8);
         //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, rboDepth.getID(), 0);
 
-            glGenRenderbuffers(1, &rboDepth);
-            glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-            if(multiSampling > 0)
+            glGenRenderbuffers(1, &_rboDepth);
+            glBindRenderbuffer(GL_RENDERBUFFER, _rboDepth);
+            if(_multiSampling > 0)
             {
-                glRenderbufferStorageMultisample(GL_RENDERBUFFER, multiSampling, GL_DEPTH24_STENCIL8, width, height);
+                glRenderbufferStorageMultisample(GL_RENDERBUFFER, _multiSampling, GL_DEPTH24_STENCIL8, _width, _height);
             }else
             {
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, _width, _height);
 
             }
             glBindRenderbuffer(GL_RENDERBUFFER, 0);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _rboDepth);
 
     }
 
     std::vector<GLuint> attachments;
-    for(unsigned int i = 0; i < numberColors; i++)
+    for(unsigned int i = 0; i < _numberColors; i++)
     {
         attachments.push_back(GL_COLOR_ATTACHMENT0 + i);
     }
@@ -158,6 +152,6 @@ bool RenderTexture::initFrameBuffer(Format *formats, Type *types)
 
 void RenderTexture::bind()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
 }

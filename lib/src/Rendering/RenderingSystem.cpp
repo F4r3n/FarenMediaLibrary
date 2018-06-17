@@ -221,7 +221,7 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
         viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.x), fm::math::vec3(1,0,0));
         viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.y), fm::math::vec3(0,1,0));
         viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.z), fm::math::vec3(0,0,1));
-        viewMatrix = fm::math::translate( viewMatrix, position);
+        viewMatrix = fm::math::translate(viewMatrix,fm::math::vec3(-position.x, -position.y, position.z));
 
 
         //fm::math::vec3 front;

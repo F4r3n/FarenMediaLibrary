@@ -12,8 +12,8 @@ class Window   {
 public:
     Window(int width, int height, const std::string& name);
     ~Window();
-    Window() {}
-    void swapBuffers();
+    explicit Window() {}
+    void swapBuffers() const;
     static void setMSAA(int value);
     bool isClosed();
     void frameLimit(unsigned short fps);
@@ -36,7 +36,7 @@ private:
     void createShaders();
     void errorDisplay();
 
-    SDL_Window* window;
+    SDL_Window* window = nullptr;
     SDL_GLContext mainContext;
 
     int fpsMax = 120;
@@ -45,6 +45,6 @@ private:
     double dur = 0;
     double frame_start = 0;
     
-    std::string nameWindow;
+    std::string nameWindow = "";
 };
 }
