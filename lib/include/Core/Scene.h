@@ -18,6 +18,7 @@ namespace fm {
 
             void destroy();
             const std::string& getName() const{ return _name;}
+            GameObject* GetGameObject(size_t id) const;
             std::vector<fm::GameObject*> getAllGameObjects() {return _entities;}
         private:
             std::vector<GameObject*> _entities;

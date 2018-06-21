@@ -192,17 +192,17 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
     
     template <typename ...Args>
     EntityIteratorMask iterate() {
-        EntityIteratorMask iterator(createMask<Args...>(), _posIndex, 0);
+        EntityIteratorMask iterator(createMask<Args...>(), _capacity, 0);
         return iterator;
     }
     
     EntityIteratorMask iterate(const Mask &mask) {
-        EntityIteratorMask iterator(mask, _posIndex, 0);
+        EntityIteratorMask iterator(mask, _capacity, 0);
         return iterator;
     }
 
     EntityIterator simpleIterate() {
-        EntityIterator iterator(*this, _posIndex, 0);
+        EntityIterator iterator(*this, _capacity, 0);
         return iterator;
     }
     void Free();
@@ -225,7 +225,6 @@ private:
 
     size_t _capacity = 0;
     size_t _currentMAX = 0;
-    size_t _posIndex = 0;
     
 };
 

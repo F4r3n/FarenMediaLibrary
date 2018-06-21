@@ -43,7 +43,8 @@ void ScriptManagerInspector::draw(bool *value)
             const char* t = script->GetScriptName().c_str();
            ImGui::BulletText("%s",t);
            ImGui::SameLine();
-           if(ImGui::SmallButton("x"))
+
+           if(ImGui::SmallButton("X"))
            {
               scriptsToDelete.emplace_back(std::string(t));
            }

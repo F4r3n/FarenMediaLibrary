@@ -7,6 +7,14 @@ Scene::Scene(const std::string &name)
     _name = name;
 }
 
+GameObject* Scene::GetGameObject(size_t id) const
+{
+    if(id < _entities.size())
+        return _entities[id];
+    return nullptr;
+}
+
+
 Scene::~Scene()
 {
 }

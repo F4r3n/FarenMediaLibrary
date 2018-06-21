@@ -63,8 +63,15 @@ fm::math::Vector3f CTransform::getWorldPos()
     CTransform* fatherTransform = father->get<CTransform>();
     if(!fatherTransform)
         return position;
-    //fm::math::Vector3f worldFatherPos = fatherTransform->getWorldPos();
-    //return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation.x, position);//TODO missing rotation}
+
+    fm::math::mat m;
+    m.identity();
+    m = fm::math::rotate(m, fatherTransform->rotation.x, fm::math::vec3(1,0,0));
+    m = fm::math::rotate(m, fatherTransform->rotation.y, fm::math::vec3(0,1,0));
+    m = fm::math::rotate(m, fatherTransform->rotation.z, fm::math::vec3(0,0,1));
+    m = fm::math::translate(m, position + fatherTransform->getWorldPos());
+
+    return fm::math::vec3(m[3][0], m[3][1], m[3][2]);
 }
 
 fm::math::Vector3f CTransform::getWorldPos(EntityManager& manager)
@@ -77,8 +84,14 @@ fm::math::Vector3f CTransform::getWorldPos(EntityManager& manager)
     CTransform* fatherTransform = father->get<CTransform>();
     if(!fatherTransform)
         return position;
-    //fm::math::Vector3f worldFatherPos = fatherTransform->getWorldPos();
-    //return position + worldFatherPos + fm::math::rotate(fatherTransform->rotation.x, position);//TODO missing rotation
+    fm::math::mat m;
+    m.identity();
+    m = fm::math::rotate(m, fatherTransform->rotation.x, fm::math::vec3(1,0,0));
+    m = fm::math::rotate(m, fatherTransform->rotation.y, fm::math::vec3(0,1,0));
+    m = fm::math::rotate(m, fatherTransform->rotation.z, fm::math::vec3(0,0,1));
+    m = fm::math::translate(m, position + fatherTransform->getWorldPos());
+
+    return fm::math::vec3(m[3][0], m[3][1], m[3][2]);
 }
 
 void CTransform::setFather(Entity* e)

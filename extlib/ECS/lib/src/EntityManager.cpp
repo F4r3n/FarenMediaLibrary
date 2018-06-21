@@ -70,7 +70,6 @@ void EntityManager::killAll() {
 	_entities_alive.clear();
 	_entities_killed.clear();
 	_capacity = 0;
-	_posIndex = 0;
 
 }
 
@@ -134,7 +133,6 @@ Entity* EntityManager::createEntity() {
 
     if(_entities_killed.empty())
     {
-		_posIndex++;
 
         Entity* entity = new Entity(_free_id.front());
 		entity->allocated = true;
@@ -147,7 +145,7 @@ Entity* EntityManager::createEntity() {
 
     } else
     {
-		_capacity++;
+        //_capacity++;
 		size_t id = _entities_killed.back();
 
 		_entities_killed.pop_back();
@@ -229,7 +227,7 @@ void EntityManager::deleteEntity(Entity* e) {
 void EntityManager::_destroyEntity(size_t id, bool isActive) {
 
 	if(isActive && !_entities_alive.empty()) {
-		_capacity--;
+        //_capacity--;
 		_entities_alive[id]->ID = _MAX_ID;
 		_entities_killed.push_back(id);
 	}

@@ -258,11 +258,31 @@ void MainWindow::listEntity()
         {
             _timerListEntityUpdate += fm::Time::dt;
         }
-        static int number = 0;
-        ImGui::ListBox("List entities", &number,&namesEntities[0],
-                (int)namesEntities.size(),
-                -1);
+        static size_t number = 0;
+
+        for (size_t i = 0; i < namesEntities.size(); i++)
+        {
+            fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(number);
+            fmc::CTransform *transform = o->get<fmc::CTransform>();
+            // Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+            ImGuiTreeNodeFlags node_flags = (transform->idFather !=-1) ?  ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0
+                    | ImGuiTreeNodeFlags_Selected
+                    ;
+
+            // Node
+            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, namesEntities[i], i);
+            if (ImGui::IsItemClicked())
+                number = i;
+            if (node_open)
+            {
+                //ImGui::Text("Blah blah\nBlah Blah");
+                ImGui::TreePop();
+            }
+
+
+        }
         _currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
+
 
         if(ImGui::Button("Add Entity"))
         {
@@ -295,7 +315,7 @@ void MainWindow::window_WorldLightEditDisplay() {
 }
 
 void MainWindow::draw() {
-    bool show_test_window = false;
+    bool show_test_window = true;
     menu();
     menuEntity();
     listEntity();
