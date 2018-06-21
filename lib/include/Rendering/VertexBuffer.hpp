@@ -17,11 +17,15 @@ namespace rendering {
         void prepareData();
         void destroy();
         bool isGenerated();
+        void GenerateEmpty(size_t maxVertices);
+        bool AddVertices(Vertex *inVertices, size_t number, size_t offset);
                 //Used by opengl
         unsigned int index;
         unsigned int indexVAO;
         unsigned int numberVertices = 0;
     private:
+        //const unsigned int MAX_VERTICES = 1000;
+        //unsigned int _currentNumberVertices = 0;
 
     };
 

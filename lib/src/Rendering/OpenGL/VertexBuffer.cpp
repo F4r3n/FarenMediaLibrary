@@ -9,7 +9,19 @@ VertexBuffer::~VertexBuffer() {
 }
 
 void VertexBuffer::destroy() {
-    glDeleteBuffers(1, &index);
+
+    if(indexVAO != 0)
+    {
+        glBindVertexArray(indexVAO);
+        if(index != 0)
+        {
+            glDeleteBuffers(1, &index);
+        }
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &indexVAO);
+    }
+
+
 }
 
 void VertexBuffer::prepareData()
@@ -27,6 +39,41 @@ void VertexBuffer::prepareData()
     glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(GLvoid*)(5 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 
+}
+
+void VertexBuffer::GenerateEmpty(size_t maxVertices)
+{
+    if(indexVAO != 0)
+    {
+       destroy();
+    }
+
+    glGenVertexArrays(1, &indexVAO);
+    glBindVertexArray(indexVAO);
+
+    glGenBuffers(1, &index);
+    glBindBuffer(GL_ARRAY_BUFFER, index);
+    glBufferData(GL_ARRAY_BUFFER, maxVertices*sizeof(Vertex), nullptr, GL_STREAM_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, sizeof(Vertex),(GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(GLvoid*)(5 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+bool VertexBuffer::AddVertices(Vertex *inVertices, size_t number, size_t offset)
+{
+    if(indexVAO == 0) return false;
+
+    glBindVertexArray(indexVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, index);
+    glBufferSubData(GL_ARRAY_BUFFER, offset*sizeof(Vertex), number*sizeof(Vertex), inVertices);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    return true;
 }
 
 
