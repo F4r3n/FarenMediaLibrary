@@ -222,17 +222,6 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
         viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.y), fm::math::vec3(0,1,0));
         viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.z), fm::math::vec3(0,0,1));
         viewMatrix = fm::math::translate(viewMatrix,fm::math::vec3(-position.x, -position.y, position.z));
-
-
-        //fm::math::vec3 front;
-        //fm::math::vec3 right;
-        //fm::math::vec3 up;
-        //
-        //UpdateCameraVectors(rotation.x, rotation.y, rotation.z, front, right, up, fm::math::vec3(0.0f,1.0f,0.0f));
-        //viewMatrix = fm::math::lookAt(position, position + front, up);
-        //std::cout << viewMatrix << std::endl;
-        //viewMatrix.identity();
-        //TODO temporary
     }
 }
 
@@ -408,8 +397,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                     if(shader != nullptr)
                     {
                         shader->Use()
-                                ->setValue("FM_PV", cam->shader_data.FM_PV)
-                                ->setValue("BloomEffect", material->bloom);
+                                ->setValue("FM_PV", cam->shader_data.FM_PV);
                         shader->setValue("lightNumber",lightNumber );
                         shader->setValue("viewPos", camTransform->getWorldPos());
                         fm::math::mat model = fm::math::mat();
@@ -418,11 +406,11 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
                         shader->setValue("FM_M", model)
                                 ->setValue("mainColor", material->color);
-                        if(material->textureReady)
-                        {
-                            glActiveTexture(GL_TEXTURE0);
-                            material->getTexture().bind();
-                        }
+                        //if(material->textureReady)
+                        //{
+                        //    glActiveTexture(GL_TEXTURE0);
+                        //    material->getTexture().bind();
+                        //}
 
                         for(auto const& value : material->getValues()) {
                             shader->setValue(value.first, value.second);

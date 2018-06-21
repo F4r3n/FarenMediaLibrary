@@ -354,7 +354,7 @@ void MainWindow::draw() {
     if(_activateDebugLogger)
     {
         std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
-        for(int i = 0; i < messages.size(); ++i)
+        for(size_t i = 0; i < messages.size(); ++i)
             _debugLogger.AddLog(messages[i]);
         _debugLogger.Draw("Logger");
     }

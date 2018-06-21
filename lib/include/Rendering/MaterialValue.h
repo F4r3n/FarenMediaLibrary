@@ -4,7 +4,20 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 #include <Core/Math/Vector.h>
+#include <Rendering/Texture.h>
 namespace fm {
+
+struct TextureMat
+{
+        TextureMat(const TextureMat& textureMat)
+        {
+            texture = textureMat.texture;
+            position = textureMat.position;
+        }
+
+        fm::Texture texture;
+        int position;
+};
 
 enum ValuesType {
     VALUE_INT,
@@ -13,6 +26,7 @@ enum ValuesType {
     VALUE_VECTOR4_FLOAT,
     VALUE_VECTOR2_FLOAT,
     VALUE_MATRIX_FLOAT,
+    VALUE_TEXTURE,
     VALUE_NONE
     // etc
 };
@@ -25,7 +39,7 @@ union VariantValue {
     math::vec3 vec3_;
     math::vec4 vec4_;
     math::mat mat_;
-    
+    TextureMat texture_;
         /// Construct uninitialized.
     VariantValue() { }
     /// Non-copyable.
@@ -61,6 +75,9 @@ class MaterialValue {
         case ValuesType::VALUE_MATRIX_FLOAT:
             value.mat_ = material.value.mat_;
             break;
+            case ValuesType::VALUE_TEXTURE:
+                value.texture_ = material.value.texture_;
+                break;
         default:
             break;
         }
@@ -84,6 +101,9 @@ class MaterialValue {
         case ValuesType::VALUE_MATRIX_FLOAT:
             new (&value.mat_) math::mat();
             break;
+            case ValuesType::VALUE_TEXTURE:
+                new (&value.texture_) fm::Texture();
+                break;
         default:
             break;
         }
@@ -119,6 +139,12 @@ class MaterialValue {
         setType(ValuesType::VALUE_MATRIX_FLOAT);
 
         value.mat_ = static_cast<math::mat>(v);
+    }
+
+    MaterialValue(TextureMat v) {
+        setType(ValuesType::VALUE_TEXTURE);
+
+        value.texture_ = static_cast<TextureMat>(v);
     }
 
     MaterialValue& operator=(int v) {
@@ -163,6 +189,13 @@ class MaterialValue {
         return *this;
     }
 
+    MaterialValue& operator=(TextureMat v) {
+        setType(ValuesType::VALUE_TEXTURE);
+
+        value.texture_ = static_cast<TextureMat>(v);
+        return *this;
+    }
+
     int getInt() const {
         return value.int_;
     }
@@ -186,10 +219,18 @@ class MaterialValue {
     const math::mat& getMatrix() const {
         return value.mat_;
     }
+    const TextureMat& getTexture() const {
+        return value.texture_;
+    }
     
     ValuesType getType() const{
         return valueType;
     }
+
+    //bool operator==(const MaterialValue &materialValue)
+    //{
+    //    return valueType == materialValue.valueType &&
+    //}
 
    private:
     ValuesType valueType = ValuesType::VALUE_NONE;

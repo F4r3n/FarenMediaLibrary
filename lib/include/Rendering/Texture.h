@@ -97,6 +97,12 @@ class Texture {
     Kind GetKind() const{
         return _textureKind;
     }
+    Texture(const Texture &texture);
+
+    Texture& operator=(const Texture &texture);
+
+    Texture& operator=(Texture &&texture);
+
 
    private:
     Kind _textureKind= Kind::TEXTURE2D;

@@ -4,8 +4,7 @@
 #include <Resource/ResourcesManager.h>
 using namespace fmc;
 using namespace fm;
-const std::string CMaterial::name = "Material";
-
+static const std::string kName = "Material";
 CMaterial::CMaterial()
 {
     color = fm::Color(1, 1, 1, 1);
@@ -14,7 +13,6 @@ CMaterial::CMaterial()
 CMaterial::CMaterial(const fm::Color &color, bool bloom)
 {
     this->color = color;
-    this->bloom = bloom;
 }
 
 CMaterial::~CMaterial()
@@ -23,19 +21,19 @@ CMaterial::~CMaterial()
 
 bool CMaterial::Reload()
 {
-    if(hasChanged)
+    if(_hasChanged)
     {
         if((shader == nullptr && shaderName != "")
           || (shader && shaderName != shader->GetName()))
         {
             shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
-            hasChanged = false;
+            _hasChanged = false;
             return true;
         }
 
     }
 
-    hasChanged = false;
+    _hasChanged = false;
     return false;
 
 }
@@ -46,6 +44,7 @@ bool CMaterial::Serialize(json &ioJson) const
     ioJson["color"] = color;
     return true;
 }
+
 bool CMaterial::Read(const json &inJSON)
 {
     shaderName = inJSON["shaderName"];
@@ -56,17 +55,9 @@ bool CMaterial::Read(const json &inJSON)
 
 const std::string& CMaterial::GetName() const
 {
-    return name;
+    return kName;
 }
 
-void CMaterial::setTexture(const fm::Texture& texture) {
-    shaderName = "sprite";
-    this->texture = texture;
-    textureReady = true;
-}
-const fm::Texture& CMaterial::getTexture() {
-    return texture;
-}
 
 void CMaterial::setValue(const std::string& name, int value) {
     fm::MaterialValue materialValue;

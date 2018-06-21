@@ -27,15 +27,11 @@ class CMaterial : public FMComponent<CMaterial> {
         const std::string& GetName() const override;
         virtual size_t GetType() const {return kMaterial;}
 
-        void setTexture(const fm::Texture& texture);
-        const fm::Texture& getTexture();
         void setValue(const std::string& name, int value);
         const std::map<std::string, fm::MaterialValue>& getValues() const;
 
-        bool textureReady = false;
         std::string shaderName = "default";
         fm::Color color;
-        bool bloom = false;  // TODO to remove bloom from material
         fm::Shader* shader = nullptr;
 
         void Destroy()
@@ -43,14 +39,12 @@ class CMaterial : public FMComponent<CMaterial> {
             EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
         }
 
-        void SetFlagHasChanged() {hasChanged = true;}
+        inline void SetFlagHasChanged() {_hasChanged = true;}
         bool Reload();
 
     private:
-        fm::Texture texture;
         std::map<std::string, fm::MaterialValue> values;
-        static const std::string name;
-        bool hasChanged = true;
+        bool _hasChanged = true;
 
 };
 }

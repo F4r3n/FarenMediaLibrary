@@ -123,6 +123,11 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) c
     }else if(value.getType() == fm::ValuesType::VALUE_MATRIX_FLOAT) {
         setValue(name, value.getMatrix());
     }
+    else if(value.getType() == fm::ValuesType::VALUE_TEXTURE) {
+        TextureMat t = value.getTexture();
+            glActiveTexture(t.position);
+            t.texture.bind();
+    }
 }
 
 const Shader* Shader::SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const

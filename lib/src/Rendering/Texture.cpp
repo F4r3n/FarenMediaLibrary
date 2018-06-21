@@ -61,6 +61,53 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha) : _path(path) 
         std::cout << "Error Loading texture from path " << path << std::endl;
 }
 
+Texture::Texture(const Texture &texture)
+{
+    _width = texture._width;
+    _height = texture._height;
+    _numberChannels = texture._numberChannels;
+    _textureKind = texture._textureKind;
+    _format = texture._format;
+    _type = texture._type;
+    _path = texture._path;
+    _content = std::vector<unsigned char>(texture._content);
+    _id = texture._id;
+    filter = texture.filter;
+    wrapping = texture.wrapping;
+}
+
+Texture& Texture::operator=(const Texture &texture)
+{
+    _width = texture._width;
+    _height = texture._height;
+    _numberChannels = texture._numberChannels;
+    _textureKind = texture._textureKind;
+    _format = texture._format;
+    _type = texture._type;
+    _path = texture._path;
+    _content = std::vector<unsigned char>(texture._content);
+    _id = texture._id;
+    filter = texture.filter;
+    wrapping = texture.wrapping;
+    return *this;
+}
+
+Texture& Texture::operator=(Texture &&texture)
+{
+    _width = texture._width;
+    _height = texture._height;
+    _numberChannels = texture._numberChannels;
+    _textureKind = texture._textureKind;
+    _format = texture._format;
+    _type = texture._type;
+    _path = texture._path;
+    _content.swap(texture._content);
+    _id = texture._id;
+    filter = texture.filter;
+    wrapping = texture.wrapping;
+    return *this;
+}
+
 Texture::Texture(const Image& image, Recti rect) {
     // std::cout << "Texture " << texture.path << " Loaded " << texture.width <<
     // " " << texture.height << std::endl;
