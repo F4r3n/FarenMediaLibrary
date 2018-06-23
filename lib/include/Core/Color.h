@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
-#include <json.hpp>
+#include <nlohmann/json_fwd.hpp>
+
+
 namespace fm {
 
 class Color {
@@ -47,9 +49,9 @@ private:
 
 namespace fm
 {
-using nlohmann::json;
 
 
-void to_json(json& j, const Color& p);
-void from_json(const json& j, Color& p);
+
+void to_json(nlohmann::json& j, const Color& p);
+void from_json(const nlohmann::json& j, Color& p);
 }

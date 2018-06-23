@@ -1,7 +1,7 @@
 #pragma once
 #include <ECS.h>
 #include "Core/SceneManager.h"
-#include <json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include "Components/component.h"
 
 
@@ -53,10 +53,10 @@ namespace fm {
             inline size_t getID() {return _entity->ID;} 
             std::string name;
 
-            void Serialize(json &outResult);
+            void Serialize(nlohmann::json &outResult);
 
 
-            bool Read(const json &inJson);
+            bool Read(const nlohmann::json &inJson);
 
             
 

@@ -12,6 +12,10 @@ set(LINK_FLAGS "${LINK_FLAGS} -s FULL_ES3=1")
 endif(EMSCRIPTEN)
 
 add_subdirectory("extlib")
+
+set(BUILD_SHARED_FML ON CACHE BOOL "" FORCE)
+set(BUILD_STATIC_FML OFF CACHE BOOL "" FORCE)
+
 add_subdirectory("lib")
 add_subdirectory("gui")
 add_subdirectory("scriptCpp")

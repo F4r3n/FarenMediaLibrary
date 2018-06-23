@@ -1,3 +1,4 @@
+
 #include "MainWindow.h"
 #include "Components/CCamera.h"
 #include <Time.h>
@@ -18,6 +19,8 @@
 #include "inspector/scriptmanagerinspector.hpp"
 #include "inspector/pointlightinspector.h"
 #include "Core/Debug.h"
+#include "Core/Scene.h"
+#include "Core/GameObject.h"
 #define WITH_VIEW 1
 
 MainWindow::MainWindow(fm::Engine* engine) {

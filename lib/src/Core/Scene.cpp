@@ -1,5 +1,7 @@
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
+#include <nlohmann/json.hpp>
+
 using namespace fm;
 
 Scene::Scene(const std::string &name)
@@ -33,13 +35,13 @@ void Scene::AddGameObject(GameObject *e)
     _entities.push_back(e);
 }
 
-void Scene::Serialize(json &outJson)
+void Scene::Serialize(nlohmann::json &outJson)
 {
 
-    json entities;
+    nlohmann::json entities;
     for(auto e : _entities)
     {
-        json v;
+        nlohmann::json v;
         e->Serialize(v);
         entities.push_back(v);
     }
@@ -47,13 +49,12 @@ void Scene::Serialize(json &outJson)
     outJson["id"] = 0;
 }
 
-bool Scene::Read(const json &inJson)
+bool Scene::Read(const nlohmann::json &inJson)
 {
-    json entities = inJson["entities"];
+    nlohmann::json entities = inJson["entities"];
 
     for (nlohmann::json::const_iterator it = entities.cbegin(); it != entities.cend(); ++it)
     {
-        std::cout << *it << std::endl;
         GameObject *go = GameObjectHelper::create(this);
         go->Read(*it);
     }

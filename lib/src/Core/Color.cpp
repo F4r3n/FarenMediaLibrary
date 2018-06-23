@@ -1,4 +1,5 @@
 #include "Core/Color.h"
+#include <nlohmann/json.hpp>
 using namespace fm;
 Color::Color(float r, float g, float b)
     : r(r)

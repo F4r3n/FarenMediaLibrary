@@ -1,10 +1,12 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <json.hpp>
+#include <nlohmann/json_fwd.hpp>
 namespace fm {
     class GameObject;
 }
+
+
 
 namespace fm {
 

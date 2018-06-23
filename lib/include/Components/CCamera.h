@@ -38,8 +38,8 @@ class CCamera : public FMComponent<CCamera> {
         float GetFarPlane();
         float GetNearPlane();
 
-        bool Serialize(json &ioJson) const override;
-        bool Read(const json &inJSON) override;
+        bool Serialize(nlohmann::json &ioJson) const override;
+        bool Read(const nlohmann::json &inJSON) override;
         virtual size_t GetType() const {return kCamera;}
         void Destroy()
         {

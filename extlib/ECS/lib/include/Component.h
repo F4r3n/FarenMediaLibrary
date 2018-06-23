@@ -2,10 +2,12 @@
 #include <string>
 #include <memory>
 #include <typeinfo> //for 'typeid' to work
-#include "json.hpp"
+#include <limits>
 #include <fstream>
-using json = nlohmann::json;
+#include <nlohmann/json_fwd.hpp>
 class ComponentManager;
+
+
 
 #include <cstddef>
 class BaseComponent {
@@ -13,8 +15,8 @@ public:
     BaseComponent();
     virtual ~BaseComponent();
     const std::string& GetName() const {return _name;}
-    virtual bool Serialize(json &ioJson) const = 0;
-    virtual bool Read(const json &inJSON) = 0;
+    virtual bool Serialize(nlohmann::json &ioJson) const = 0;
+    virtual bool Read(const nlohmann::json &inJSON) = 0;
     virtual size_t GetType() const = 0;
     virtual void Destroy() = 0;
 protected:
@@ -40,8 +42,8 @@ public:
 
     virtual ~Component() {
     }
-    virtual bool Serialize(json &ioJson) const = 0;
-    virtual bool Read(const json &inJSON) = 0;
+    virtual bool Serialize(nlohmann::json &ioJson) const = 0;
+    virtual bool Read(const nlohmann::json &inJSON) = 0;
     virtual void Destroy() = 0;
 
     virtual size_t GetType() const

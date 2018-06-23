@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include "Vector4.h"
 #include "Functions.h"
 namespace fm {

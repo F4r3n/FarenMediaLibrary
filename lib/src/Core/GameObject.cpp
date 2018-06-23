@@ -1,6 +1,7 @@
 #include "Core/GameObject.h"
 #include "Core/Scene.h"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
+
 #include "Components/component.h"
 #include "Components/CTransform.h"
 #include "Components/CMaterial.h"

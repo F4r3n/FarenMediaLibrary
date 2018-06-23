@@ -23,7 +23,7 @@ CCamera::CCamera()
     _name = "Camera";
 }
 
-bool CCamera::Serialize(json &ioJson) const
+bool CCamera::Serialize(nlohmann::json &ioJson) const
 {
     ioJson["width"] = viewPort.w;
     ioJson["height"] = viewPort.h;
@@ -35,7 +35,7 @@ bool CCamera::Serialize(json &ioJson) const
     ioJson["multiSampled"] = _multiSampled;
     return true;
 }
-bool CCamera::Read(const json &inJSON)
+bool CCamera::Read(const nlohmann::json &inJSON)
 {
     _width = inJSON["width"];
     _height = inJSON["height"];

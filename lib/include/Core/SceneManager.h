@@ -1,7 +1,13 @@
 #pragma once 
 #include <map>
-#include "Core/Scene.h"
-#include "json.hpp"
+
+namespace fm
+{
+class Scene;
+}
+
+
+
 namespace fm {
     class SceneManager {
         public:

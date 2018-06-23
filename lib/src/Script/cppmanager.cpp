@@ -1,5 +1,5 @@
 #include "Script/cppmanager.hpp"
-#include <iostream>
+#include <cstring>
 CPPManager CPPManager::instance;
 typedef Behaviour* (*maker_ptr)();
 

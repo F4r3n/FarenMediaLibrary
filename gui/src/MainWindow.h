@@ -2,17 +2,14 @@
 #define GUI
 
 #include <imgui/imgui.h>
-#include <ECS.h>
+
 
 #include <type_traits>
-#include <Components/CText.h>
-#include <Components/CMesh.h>
-#include "Rendering/Texture.h"
 #include "inspector/Inspector.hpp"
-#include "Core/GameObject.h"
-#include "Rendering/RenderTexture.h"
 #include "GameView.h"
 #include "debuglogger.h"
+
+
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -21,6 +18,7 @@ namespace fmc {
 }
 
 namespace fm {
+class GameObject;
 class Engine;
 }
 
@@ -29,6 +27,8 @@ class MainWindow {
 
 public:
     MainWindow(fm::Engine* engine);
+    MainWindow() = default;
+    ~MainWindow() = default;
 
     void displayComponents(fm::GameObject* currentEntity);
     void menu();
@@ -73,3 +73,5 @@ private:
     DebugLogger _debugLogger;
     bool _activateDebugLogger = false;
 };
+
+

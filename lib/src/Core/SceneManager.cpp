@@ -1,3 +1,7 @@
+#include <nlohmann/json.hpp>
+
+#include "Core/Scene.h"
+
 #include "Core/SceneManager.h"
 #include "Core/GameObject.h"
 using namespace fm;
