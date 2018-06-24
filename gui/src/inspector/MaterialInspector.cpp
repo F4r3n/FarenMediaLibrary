@@ -10,6 +10,13 @@ DEFINE_INSPECTOR_FUNCTIONS(Material, fmc::CMaterial)
 void MaterialInspector::init()
 {
     fm::Debug::get().LogError("InitMaterial");
+    std::map<std::string, fm::Resource*> resources = fm::ResourcesManager::get().getAll<fm::Shader>();
+    for(auto &r : resources)
+    {
+        fm::Shader *s = static_cast<fm::Shader*>(r.second);
+        values.push_back(s->GetName().c_str());
+        lengthBuffer += s->GetName().length();
+    }
 
 }
 
@@ -38,20 +45,26 @@ void MaterialInspector::draw(bool *value) {
                     }
                 }
 
-                const char* items[] = { "default","default_light" };
-                size_t it = 0;
-                for(; it < 2; ++it)
+
+                const char* item_current_char = m->shaderName.c_str();
+                std::string nameCombo = "Shader##" + m->GetID();
+                if (ImGui::BeginCombo(nameCombo.c_str(), item_current_char, 0)) // The second parameter is the label previewed before opening the combo.
                 {
-                    if(items[it] == m->shaderName)
-                        break;
+                    for (size_t n = 0; n < values.size(); n++)
+                    {
+                        bool is_selected = (item_current_char == values[n]);
+                        if (ImGui::Selectable(values[n], is_selected))
+                            item_current_char = values[n];
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                    }
+                    ImGui::EndCombo();
                 }
-                int item_current = it == 2 ? it= -1: it;
-                ImGui::Combo("Shader", &item_current, items, IM_ARRAYSIZE(items));
-                std::cout << item_current << std::endl;
-                //ImGui::InputText("", shaderName, 128);
-                if(item_current != -1 && fm::ResourcesManager::get().Exists<fm::Shader>(items[item_current]))
+
+
+                if(fm::ResourcesManager::get().Exists<fm::Shader>(item_current_char))
                 {
-                    m->shaderName = std::string(items[item_current]);
+                    m->shaderName = std::string(item_current_char);
                     m->SetFlagHasChanged();
                 }
 

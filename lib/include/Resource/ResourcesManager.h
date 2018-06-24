@@ -34,7 +34,7 @@ public:
     }
     
     template <typename T>
-    std::map<std::string, Resource* > getAll() {
+    std::map<std::string, Resource* >& getAll() {
         return resources[T::getType()];
     }
 

@@ -201,7 +201,7 @@ void MainWindow::menuEntity()
 
 
     ImGui::SetNextWindowPos(ImVec2(0,20));
-    ImGui::SetNextWindowSize(ImVec2(200, fm::Window::height-20));
+    ImGui::SetNextWindowSize(ImVec2(300, fm::Window::height-20));
     ImGui::Begin(nameWindowInspector.c_str(),&_windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
     if(_currentEntity && _currentEntity->IsActive())
