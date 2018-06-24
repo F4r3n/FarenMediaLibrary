@@ -6,6 +6,7 @@
 
 namespace gui {
     DECLARE_INSPECTOR_CLASS(Material, fmc::CMaterial)
-        char shaderName[128] = "default";
+        char shaderName[128];
+    char buf1[64];
 };
 }

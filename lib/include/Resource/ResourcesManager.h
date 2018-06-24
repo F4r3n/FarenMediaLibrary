@@ -9,7 +9,7 @@
 #include "Components/CMesh.h"
 #include "Rendering/Model.hpp"
 
-#include <iostream>
+
 namespace fm {
     class Shader;
 

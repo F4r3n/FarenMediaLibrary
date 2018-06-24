@@ -3,6 +3,11 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)
 
+void MeshInspector::init()
+{
+
+}
+
 void MeshInspector::draw(bool *value)
 {
     static const char *shapeNames[] = {"Quad", "Circle", "Cube"};

@@ -1,12 +1,7 @@
 #pragma once
 #include "component.h"
-#include "Core/Color.h"
-#include "Rendering/Texture.h"
-
-#include <memory>
-#include <map>
-#include <Rendering/MaterialValue.h>
-
+#include "Rendering/material.hpp"
+#include <vector>
 namespace fm
 {
 class Shader;
@@ -20,7 +15,6 @@ class CMaterial : public FMComponent<CMaterial> {
     public:
         CMaterial();
         ~CMaterial();
-        CMaterial(const fm::Color& color, bool bloom);
 
         bool Serialize(json &ioJson) const override;
         bool Read(const json &inJSON) override;
@@ -29,21 +23,13 @@ class CMaterial : public FMComponent<CMaterial> {
         void Destroy() override;
 
 
-        void setValue(const std::string& name, int value);
-        const std::map<std::string, fm::MaterialValue>& getValues() const;
-
-        std::string shaderName = "default";
-        fm::Color color;
-        fm::Shader* shader = nullptr;
-
-
-
-        inline void SetFlagHasChanged() {_hasChanged = true;}
+        inline void SetFlagHasChanged() {for(auto &s: _materials) s.SetFlagHasChanged();}
         bool Reload();
+        std::vector<fm::Material>& GetAllMaterials() {return _materials;}
 
     private:
-        std::map<std::string, fm::MaterialValue> values;
-        bool _hasChanged = true;
+        std::vector<fm::Material> _materials;
+        bool _hasChanged = false;
 
 };
 }

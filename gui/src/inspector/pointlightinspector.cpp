@@ -4,6 +4,11 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(PointLight, fmc::CPointLight)
 
+void PointLightInspector::init()
+{
+
+}
+
 void PointLightInspector::draw(bool *value)
 {
     if(ImGui::CollapsingHeader("PointLight", value))

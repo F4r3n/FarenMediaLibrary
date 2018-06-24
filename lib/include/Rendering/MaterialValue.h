@@ -27,6 +27,7 @@ enum ValuesType {
     VALUE_VECTOR2_FLOAT,
     VALUE_MATRIX_FLOAT,
     VALUE_TEXTURE,
+    VALUE_COLOR,
     VALUE_NONE
     // etc
 };
@@ -40,6 +41,7 @@ union VariantValue {
     math::vec4 vec4_;
     math::mat mat_;
     TextureMat texture_;
+    fm::Color color_;
         /// Construct uninitialized.
     VariantValue() { }
     /// Non-copyable.
@@ -75,8 +77,11 @@ class MaterialValue {
         case ValuesType::VALUE_MATRIX_FLOAT:
             value.mat_ = material.value.mat_;
             break;
-            case ValuesType::VALUE_TEXTURE:
-                value.texture_ = material.value.texture_;
+        case ValuesType::VALUE_TEXTURE:
+            value.texture_ = material.value.texture_;
+            break;
+            case ValuesType::VALUE_COLOR:
+                value.color_ = material.value.color_;
                 break;
         default:
             break;
@@ -103,6 +108,9 @@ class MaterialValue {
             break;
             case ValuesType::VALUE_TEXTURE:
                 new (&value.texture_) fm::Texture();
+                break;
+            case ValuesType::VALUE_COLOR:
+                new (&value.color_) fm::Color();
                 break;
         default:
             break;
@@ -145,6 +153,12 @@ class MaterialValue {
         setType(ValuesType::VALUE_TEXTURE);
 
         value.texture_ = static_cast<TextureMat>(v);
+    }
+
+    MaterialValue(fm::Color v) {
+        setType(ValuesType::VALUE_COLOR);
+
+        value.color_ = static_cast<fm::Color>(v);
     }
 
     MaterialValue& operator=(int v) {
@@ -196,6 +210,13 @@ class MaterialValue {
         return *this;
     }
 
+    MaterialValue& operator=(fm::Color v) {
+        setType(ValuesType::VALUE_COLOR);
+
+        value.color_ = static_cast<fm::Color>(v);
+        return *this;
+    }
+
     int getInt() const {
         return value.int_;
     }
@@ -203,6 +224,7 @@ class MaterialValue {
     float getFloat() const {
         return value.float_;
     }
+
 
     const math::vec2& getVector2() const {
         return value.vec2_;
@@ -221,6 +243,10 @@ class MaterialValue {
     }
     const TextureMat& getTexture() const {
         return value.texture_;
+    }
+
+    const fm::Color getColor() const {
+        return value.color_;
     }
     
     ValuesType getType() const{

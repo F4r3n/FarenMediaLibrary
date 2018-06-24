@@ -4,6 +4,11 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Transform, fmc::CTransform)
 
+void TransformInspector::init()
+{
+
+}
+
 void TransformInspector::draw(bool *value)
 {
     if(ImGui::CollapsingHeader("Transform"))

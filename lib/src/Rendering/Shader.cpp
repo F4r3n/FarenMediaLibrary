@@ -123,6 +123,9 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) c
     }else if(value.getType() == fm::ValuesType::VALUE_MATRIX_FLOAT) {
         setValue(name, value.getMatrix());
     }
+    else if(value.getType() == fm::ValuesType::VALUE_COLOR) {
+            setValue(name, value.getColor());
+    }
     else if(value.getType() == fm::ValuesType::VALUE_TEXTURE) {
         TextureMat t = value.getTexture();
             glActiveTexture(t.position);

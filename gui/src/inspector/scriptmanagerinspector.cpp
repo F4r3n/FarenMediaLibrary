@@ -6,6 +6,12 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
+void ScriptManagerInspector::init()
+{
+
+}
+
+
 void ScriptManagerInspector::draw(bool *value)
 {
     if(ImGui::CollapsingHeader("ScriptManagerInspector", value))

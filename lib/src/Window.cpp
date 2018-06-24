@@ -60,7 +60,7 @@ Window::Window(int width, int height, const std::string& name) {
     createShaders();
     ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/Roboto-Medium.ttf"));
     isInit = true;
-    std::cout << "Init Over" << std::endl;
+    fm::Debug::get().LogError("Init");
 }
 
 void Window::setMSAA(int value) {
@@ -116,7 +116,7 @@ void Window::errorDisplay() {
 #ifndef __EMSCRIPTEN__
     int error = glGetError();
     if(error != 0) {
-        std::cerr << "ERROR OPENGL " << error << std::endl;
+        fm::Debug::get().logErrorExit(error, __FILE__, __LINE__);
         exit(-1);
     }
 #else
@@ -146,7 +146,7 @@ int Window::init(SDL_Window* window) {
         return -1;
     }
     mainContext = SDL_GL_CreateContext(window);
-    std::cout << glGetString(GL_VERSION) << std::endl;
+
 #if OPENGL_ES == 0
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK) {

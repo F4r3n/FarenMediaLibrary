@@ -132,16 +132,21 @@ void RenderingSystem::init(EntityManager& em, EventManager& event)
     for(auto e : em.iterate<fmc::CMaterial>())
     {
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
-        if(material->shader == nullptr && material->shaderName != "")
+        std::vector<fm::Material> materials = material->GetAllMaterials();
+        for(auto &m : materials)
         {
-            material->shader =
-                    fm::ResourcesManager::get().getResource<fm::Shader>(
-                        material->shaderName);
+            if(m.shader == nullptr && m.shaderName != "")
+            {
+                m.shader =
+                        fm::ResourcesManager::get().getResource<fm::Shader>(
+                            m.shaderName);
+            }
+            if(m.shader != nullptr && !m.shader->IsReady())
+            {
+                m.shader->compile();
+            }
         }
-        if(material->shader != nullptr && !material->shader->IsReady())
-        {
-            material->shader->compile();
-        }
+
     }
     //If no camera found the first one from the entities
     if(!camera)
@@ -375,21 +380,26 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
                     }
 
-                    if(material->Reload())
+
+
+                    for(auto &m : material->GetAllMaterials())
+                    {
+
+
+                    if(m.shader != nullptr &&!m.shader->IsReady())
+                    {
+                        m.shader->compile();
+                    }
+
+                    if(m.Reload())
                     {
                         uboLight->Bind();
-                        material->shader->SetUniformBuffer("PointLights", 2);
+
+                        m.shader->SetUniformBuffer("PointLights", 2);
                         fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
                     }
 
-
-
-                    if(material->shader != nullptr &&!material->shader->IsReady())
-                    {
-                        material->shader->compile();
-                    }
-
-                    fm::Shader* shader = material->shader;
+                    fm::Shader* shader = m.shader;
                     //std::cout << (int)pointLights.size() << std::endl;
                     //if(pointLights.size() > 0)
                     //    std::cout << pointLights[0].color << std::endl;
@@ -404,18 +414,14 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         setModel(model, transform, worldPos);
 
                         shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
-                        shader->setValue("FM_M", model)
-                                ->setValue("mainColor", material->color);
-                        //if(material->textureReady)
-                        //{
-                        //    glActiveTexture(GL_TEXTURE0);
-                        //    material->getTexture().bind();
-                        //}
+                        shader->setValue("FM_M", model);
 
-                        for(auto const& value : material->getValues()) {
+                        for(auto const& value : m.getValues())
+                        {
                             shader->setValue(value.first, value.second);
                         }
                         graphics.draw(mesh->model);
+                    }
                     }
                 }
             }
@@ -454,8 +460,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
                     fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("text");
                     shader->Use()
-                            ->setValue("projection", textdef.projection)
-                            ->setValue("textColor", material->color);
+                            ->setValue("projection", textdef.projection);
 
                     drawText(worldPos.x,
                              worldPos.y,
