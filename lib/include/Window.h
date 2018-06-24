@@ -1,9 +1,10 @@
 #pragma once
 
-#include <SDL.h>
 
 #include <string>
 #include "NonCopyable.h"
+
+class SDL_Window;
 
 namespace fm {
 class Window   {
@@ -20,31 +21,31 @@ public:
     void update(float fps, bool internalUpdate = true);
     Window& getInstance();
     SDL_Window* getWindow() {
-        return window;
+        return _window;
     }
     void setName(const std::string &name);
     inline std::string getName() const {
-        return nameWindow;
+        return _nameWindow;
     }
     static int width;
     static int height;
     static int x;
     static int y;
 private:
-    bool isInit = false;
-    int init(SDL_Window* window);
-    void createShaders();
-    void errorDisplay();
+    bool _isInit = false;
+    int _Init();
+    void _CreateShaders();
+    void _CreateMaterials();
+    void _ErrorDisplay();
 
-    SDL_Window* window = nullptr;
-    SDL_GLContext mainContext;
+    SDL_Window* _window = nullptr;
+    void * _mainContext;
 
-    int fpsMax = 120;
-    double wait_time = 1.0f / (double)fpsMax;
-    double curr_frame_time = 0;
-    double dur = 0;
-    double frame_start = 0;
+    int _fpsMax = 120;
+    double _waitTime = 1.0f / (double)_fpsMax;
+    double _currFrameTime = 0;
+    double _frameStart = 0;
     
-    std::string nameWindow = "";
+    std::string _nameWindow = "";
 };
 }

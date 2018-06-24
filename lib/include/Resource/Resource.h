@@ -5,6 +5,7 @@
         FONT,
         MESH,
         SHADER,
+        MATERIAL,
         LAST_RESOURCE,
         NONE
     };

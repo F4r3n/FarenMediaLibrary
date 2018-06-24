@@ -5,8 +5,9 @@
 #include <Resource/ResourcesManager.h>
 using namespace fm;
 
-Material::Material()
+Material::Material(const std::string &id)
 {
+    _id = id;
 setValue<fm::Color>("mainColor", fm::Color(1,1,1,1));
 }
 

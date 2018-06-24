@@ -1,6 +1,7 @@
 #include "Script/LuaScript.h"
 #include "Script/ScriptRegister.h"
 #include "Components/CTransform.h"
+#include "Components/CCamera.h"
 using namespace fm;
 
 std::string getFileName(const std::string& s) {

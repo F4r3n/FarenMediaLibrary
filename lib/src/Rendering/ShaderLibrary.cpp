@@ -517,7 +517,7 @@ void ShaderLibrary::loadShaders() {
     //fm::ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
     //fm::ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
     for(auto shader : fm::ResourcesManager::get().getAll<fm::Shader>()) {
-        fm::Shader *s = dynamic_cast<fm::Shader*>(shader.second); 
+        fm::Shader *s = static_cast<fm::Shader*>(shader.second);
         if(s != nullptr && !s->IsReady()) {
             s->compile();
         }

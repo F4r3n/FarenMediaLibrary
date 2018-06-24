@@ -1,13 +1,11 @@
 #pragma once
 #include "Resource.h"
-#include "Rendering/Texture.h"
 #include <map>
 #include <unordered_map>
 #include <array>
 #include <memory>
 #include "NonCopyable.h"
-#include "Components/CMesh.h"
-#include "Rendering/Model.hpp"
+
 
 
 namespace fm {

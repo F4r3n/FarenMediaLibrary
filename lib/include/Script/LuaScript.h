@@ -3,10 +3,15 @@
 #include "Core/Math/Vector2.h"
 #include "Input/InputManager.h"
 #include <vector>
-#include "Entity.h"
-#include "Script/LuaManager.h"
-#include "Components/CCamera.h"
 
+#include "Script/LuaManager.h"
+
+class Entity;
+
+namespace fmc
+{
+class CCamera;
+}
 
 namespace fm {
 class LuaScript : public Script {
@@ -22,23 +27,23 @@ public:
     void setGameObjects(const std::string& name, Entity* var) {
         objects[name] = var;
     }
-    void event(std::string name, const CameraInfo& cam) {
-        if(LuaManager::get()[nameVariable][name]) {
-           LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], cam.camera);
-        }
-    }
-
-    void event(std::string name, const ColliderInfo& t) {
-        if(LuaManager::get()[nameVariable][name]) {
-            LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
-        }
-    }
-
-    void event(std::string name, const Collider& t) {
-        if(LuaManager::get()[nameVariable][name]) {
-            LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
-        }
-    }
+    //void event(std::string name, const CameraInfo& cam) {
+    //    if(LuaManager::get()[nameVariable][name]) {
+    //       LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], cam.camera);
+    //    }
+    //}
+    //
+    //void event(std::string name, const ColliderInfo& t) {
+    //    if(LuaManager::get()[nameVariable][name]) {
+    //        LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
+    //    }
+    //}
+    //
+    //void event(std::string name, const Collider& t) {
+    //    if(LuaManager::get()[nameVariable][name]) {
+    //        LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
+    //    }
+    //}
 
     std::string getName() const;
     void setName(const std::string& name);

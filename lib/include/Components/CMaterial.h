@@ -1,10 +1,11 @@
 #pragma once
 #include "component.h"
-#include "Rendering/material.hpp"
+
 #include <vector>
 namespace fm
 {
 class Shader;
+class Material;
 }
 
 
@@ -16,19 +17,19 @@ class CMaterial : public FMComponent<CMaterial> {
         CMaterial();
         ~CMaterial();
 
-        bool Serialize(json &ioJson) const override;
-        bool Read(const json &inJSON) override;
+        bool Serialize(nlohmann::json &ioJson) const override;
+        bool Read(const nlohmann::json &inJSON) override;
         const std::string& GetName() const override;
         size_t GetType() const override {return kMaterial;}
         void Destroy() override;
 
 
-        inline void SetFlagHasChanged() {for(auto &s: _materials) s.SetFlagHasChanged();}
+        void SetFlagHasChanged();
         bool Reload();
-        std::vector<fm::Material>& GetAllMaterials() {return _materials;}
+        std::vector<fm::Material*>& GetAllMaterials() {return _materials;}
 
     private:
-        std::vector<fm::Material> _materials;
+        std::vector<fm::Material*> _materials;
         bool _hasChanged = false;
 
 };

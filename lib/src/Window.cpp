@@ -1,3 +1,4 @@
+#include <SDL.h>
 
 #include "Window.h"
 #include <Core/Config.h>
@@ -14,7 +15,7 @@
 
 #include "Core/Config.h"
 #include "Core/Debug.h"
-
+#include "Rendering/material.hpp"
 using namespace fm;
 int Window::width;
 int Window::height;
@@ -22,7 +23,7 @@ int Window::height;
 int Window::x = 0;
 int Window::y = 0;
 Window::Window(int width, int height, const std::string& name) {
-    this->nameWindow = name;
+    _nameWindow = name;
 
     Window::width = width;
 
@@ -35,7 +36,7 @@ Window::Window(int width, int height, const std::string& name) {
     SDL_GetCurrentDisplayMode(0, &DM);
     Window::width = DM.w;
     Window::height = DM.h;
-    window = SDL_CreateWindow(name.c_str(),
+    _window = SDL_CreateWindow(name.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
                               Window::width,
@@ -56,11 +57,28 @@ Window::Window(int width, int height, const std::string& name) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetSwapInterval(0);
     setMSAA(4);
-    init(window);
-    createShaders();
+    _Init();
+    _CreateShaders();
+    _CreateMaterials();
     ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/Roboto-Medium.ttf"));
-    isInit = true;
+    _isInit = true;
     fm::Debug::get().LogError("Init");
+}
+
+void Window::_CreateMaterials()
+{
+    {
+    Material *defaultMat = new fm::Material("default_material");
+    defaultMat->shaderName = "default";
+    defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default");
+    fm::ResourcesManager::get().load<Material>("default_material", defaultMat);
+    }
+{
+    Material *defaultMat = new fm::Material("default_light_material");
+    defaultMat->shaderName = "default_light";
+    defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default_light");
+    fm::ResourcesManager::get().load<Material>("default_light_material", defaultMat);
+    }
 }
 
 void Window::setMSAA(int value) {
@@ -75,19 +93,19 @@ void Window::setMSAA(int value) {
 }
 
 void Window::setName(const std::string& name) {
-    this->nameWindow = name;
-    SDL_SetWindowTitle(window, name.c_str());
+    _nameWindow = name;
+    SDL_SetWindowTitle(_window, name.c_str());
 }
 
-void Window::createShaders() {
+void Window::_CreateShaders() {
     // Create, load and set textures shader
     ShaderLibrary::loadShaders();
 }
 
 void Window::update(float fps, bool internalUpdate) {
     // events();
-    this->fpsMax = fps;
-    wait_time = 1.0f / (float)fpsMax;
+    _fpsMax = fps;
+    _waitTime = 1.0f / (float)_fpsMax;
     if(internalUpdate)
         fm::InputManager::getInstance().pollEvents();
     frameLimit(fps);
@@ -95,24 +113,24 @@ void Window::update(float fps, bool internalUpdate) {
 }
 
 void Window::frameLimit(unsigned short fps) {
-    curr_frame_time = SDL_GetTicks() - frame_start;
-    double dur = (wait_time * 1000 - curr_frame_time);
+    _currFrameTime = SDL_GetTicks() - _frameStart;
+    double dur = (_waitTime * 1000 - _currFrameTime);
     if(dur > 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
     }
 
     double frame_end = SDL_GetTicks();
-    Time::dt = (frame_end - frame_start) / 1000.0f;
+    Time::dt = (frame_end - _frameStart) / 1000.0f;
     Time::timeStamp += Time::dt;
-    frame_start = frame_end;
+    _frameStart = frame_end;
 }
 
 void Window::swapBuffers() const{
-    if(window)
-        SDL_GL_SwapWindow(window);
+    if(_window)
+        SDL_GL_SwapWindow(_window);
 }
 
-void Window::errorDisplay() {
+void Window::_ErrorDisplay() {
 #ifndef __EMSCRIPTEN__
     int error = glGetError();
     if(error != 0) {
@@ -130,22 +148,22 @@ bool Window::isClosed() {
 }
 
 Window::~Window() {
-    if(isInit) {
-        SDL_GL_DeleteContext(mainContext);
+    if(_isInit) {
+        SDL_GL_DeleteContext(_mainContext);
 
         // Destroy our window
-        SDL_DestroyWindow(window);
+        SDL_DestroyWindow(_window);
 
         // Shutdown SDL 2
         SDL_Quit();
     }
 }
 
-int Window::init(SDL_Window* window) {
-    if(window == nullptr) {
+int Window::_Init() {
+    if(_window == nullptr) {
         return -1;
     }
-    mainContext = SDL_GL_CreateContext(window);
+    _mainContext = SDL_GL_CreateContext(_window);
 
 #if OPENGL_ES == 0
     glewExperimental = GL_TRUE;
@@ -154,7 +172,7 @@ int Window::init(SDL_Window* window) {
     }
 #endif
 
-    errorDisplay();
+    _ErrorDisplay();
 
     glViewport(x, y, width, height);
 

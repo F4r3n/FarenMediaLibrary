@@ -24,6 +24,7 @@
 #include "Core/Debug.h"
 #include <cassert>
 #include "Rendering/uniformbuffer.hpp"
+#include "Rendering/material.hpp"
 const int NUMBER_POINTLIGHT_MAX = 8;
 struct PointLight
 {
@@ -132,18 +133,18 @@ void RenderingSystem::init(EntityManager& em, EventManager& event)
     for(auto e : em.iterate<fmc::CMaterial>())
     {
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
-        std::vector<fm::Material> materials = material->GetAllMaterials();
+        std::vector<fm::Material*> materials = material->GetAllMaterials();
         for(auto &m : materials)
         {
-            if(m.shader == nullptr && m.shaderName != "")
+            if(m->shader == nullptr && m->shaderName != "")
             {
-                m.shader =
+                m->shader =
                         fm::ResourcesManager::get().getResource<fm::Shader>(
-                            m.shaderName);
+                            m->shaderName);
             }
-            if(m.shader != nullptr && !m.shader->IsReady())
+            if(m->shader != nullptr && !m->shader->IsReady())
             {
-                m.shader->compile();
+                m->shader->compile();
             }
         }
 
@@ -386,20 +387,20 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                     {
 
 
-                    if(m.shader != nullptr &&!m.shader->IsReady())
+                    if(m->shader != nullptr &&!m->shader->IsReady())
                     {
-                        m.shader->compile();
+                        m->shader->compile();
                     }
 
-                    if(m.Reload())
+                    if(m->Reload())
                     {
                         uboLight->Bind();
 
-                        m.shader->SetUniformBuffer("PointLights", 2);
+                        m->shader->SetUniformBuffer("PointLights", 2);
                         fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
                     }
 
-                    fm::Shader* shader = m.shader;
+                    fm::Shader* shader = m->shader;
                     //std::cout << (int)pointLights.size() << std::endl;
                     //if(pointLights.size() > 0)
                     //    std::cout << pointLights[0].color << std::endl;
@@ -416,7 +417,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
                         shader->setValue("FM_M", model);
 
-                        for(auto const& value : m.getValues())
+                        for(auto const& value : m->getValues())
                         {
                             shader->setValue(value.first, value.second);
                         }

@@ -3,6 +3,7 @@
 #include <Rendering/Shader.h>
 #include <Resource/ResourcesManager.h>
 #include <EntityManager.h>
+#include "Rendering/material.hpp"
 
 using namespace fmc;
 using namespace fm;
@@ -11,7 +12,7 @@ static const std::string kName = "Material";
 
 CMaterial::CMaterial()
 {
-   _materials.push_back(fm::Material());
+   _materials.push_back(fm::ResourcesManager::get().getResource<fm::Material>("default_material"));
 }
 
 
@@ -24,13 +25,18 @@ void CMaterial::Destroy()
     EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
 }
 
+void CMaterial::SetFlagHasChanged() {
+    for(auto &s: _materials) s->SetFlagHasChanged();
+}
+
+
 bool CMaterial::Reload()
 {
     if(_hasChanged)
     {
         for(auto &m : _materials)
         {
-            m.Reload();
+            m->Reload();
         }
         return true;
     }
