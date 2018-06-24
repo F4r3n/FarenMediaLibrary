@@ -3,6 +3,7 @@
 #include "Resource/ResourcesManager.h"
 #include <memory>
 #include "Core/Math/Functions.h"
+#include <EntityManager.h>
 using namespace fmc;
 
 CMesh::~CMesh()
@@ -36,6 +37,11 @@ bool CMesh::IsmodelReady() {
 
 void CMesh::SetType(const std::string &type) {
     this->type = type;
+}
+
+void CMesh::Destroy()
+{
+    EntityManager::get().removeComponent<CMesh>(BaseComponent::_IDEntity);
 }
 
 CMesh::CMesh(std::string type) {

@@ -1,6 +1,6 @@
 #include "Components/Body2D.h"
 #include <Box2D/Common/b2Math.h>
-#include <iostream>
+#include <EntityManager.h>
 using namespace fmc;
 Body2D::Body2D(unsigned int w, unsigned int h, bool isDynamic) {
     this->isDynamic = isDynamic;
@@ -52,4 +52,9 @@ void Body2D::ApplyForce(fm::math::Vector2f &&power, fm::math::Vector2f &&pos) {
 
 void Body2D::SetFriction(float value) {
     fixture->SetFriction(value);
+}
+
+void Body2D::Destroy()
+{
+    EntityManager::get().removeComponent<Body2D>(BaseComponent::_IDEntity);
 }

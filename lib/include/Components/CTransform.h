@@ -1,11 +1,10 @@
 #pragma once
 #include "component.h"
 #include "Core/Math/Vector3.h"
-#include "EntityManager.h"
 
 
 class Entity;
-
+class EntityManager;
 
 namespace fmc {
 
@@ -17,10 +16,7 @@ class CTransform : public FMComponent<CTransform> {
                    const fm::math::Vector3f& scale,
                    const fm::math::Vector3f& rotation, const int& layer = 1);
         CTransform();
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CTransform>(BaseComponent::_IDEntity);
-        }
+        void Destroy();
 
         bool Serialize(json &ioJson) const override;
         bool Read(const json &inJSON) override;

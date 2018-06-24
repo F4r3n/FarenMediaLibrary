@@ -27,7 +27,7 @@ void ScriptManagerSystem::receive(const CameraInfo &cameraInfo)
      
     if(e && e->has<fmc::CScriptManager>()) {
         fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-        scriptManager->event("OnRenderObject", cameraInfo);
+        //scriptManager->event("OnRenderObject", cameraInfo);
     }
 }
 
@@ -38,12 +38,12 @@ void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISI
         ColliderInfo info;
         info.idOther = idA;
         fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-        if(event == EVENT_COLLISION::BEGIN) {
-            scriptManager->event("CollisionEventEnter", info);
-
-        } else if(event == EVENT_COLLISION::END) {
-            scriptManager->event("CollisionEventExit", info);
-        }
+        //if(event == EVENT_COLLISION::BEGIN) {
+        //    scriptManager->event("CollisionEventEnter", info);
+        //
+        //} else if(event == EVENT_COLLISION::END) {
+        //    scriptManager->event("CollisionEventExit", info);
+        //}
     }
 }
 

@@ -27,13 +27,11 @@ class CMesh : public FMComponent<CMesh> {
         bool Serialize(json &ioJson) const override;
         bool Read(const json &inJSON) override;
         const std::string& GetName() const override;
-        virtual size_t GetType() const {return KMesh;}
+        size_t GetType() const override {return KMesh;}
+        void Destroy() override;
 
         static const std::string name;
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CMesh>(BaseComponent::_IDEntity);
-        }
+
 
         void ComputeBoundingSize();
         void SetType(const std::string &type);

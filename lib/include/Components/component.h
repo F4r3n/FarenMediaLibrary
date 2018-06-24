@@ -1,7 +1,6 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include <Component.h>
-#include "EntityManager.h"
 
 #include "Core/serializer.hpp"
 

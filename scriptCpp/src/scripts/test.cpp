@@ -1,6 +1,7 @@
 #include "scripts/test.hpp"
 #include <Time.h>
 #include <Core/Debug.h>
+#include <Entity.h>
 Test::Test()
 {
     std::cout << "INIIIIII" << std::endl;

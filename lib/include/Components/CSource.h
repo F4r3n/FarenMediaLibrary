@@ -29,10 +29,8 @@ class CSource : public FMComponent<CSource> {
         ALuint buf;
 
         bool toUpdate = false;
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CSource>(BaseComponent::_IDEntity);
-        }
+        void Destroy() override;
+
         static const std::string name;
     private:
 };

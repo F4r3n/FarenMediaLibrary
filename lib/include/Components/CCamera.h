@@ -40,11 +40,8 @@ class CCamera : public FMComponent<CCamera> {
 
         bool Serialize(nlohmann::json &ioJson) const override;
         bool Read(const nlohmann::json &inJSON) override;
-        virtual size_t GetType() const {return kCamera;}
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CCamera>(BaseComponent::_IDEntity);
-        }
+        size_t GetType() const override {return kCamera;}
+        void Destroy() override;
 
         void SetNewProjection(unsigned int width, unsigned int height);
         void UpdateRenderTexture();

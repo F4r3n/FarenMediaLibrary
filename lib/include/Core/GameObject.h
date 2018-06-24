@@ -1,9 +1,12 @@
 #pragma once
 #include <ECS.h>
-#include "Core/SceneManager.h"
 #include <nlohmann/json_fwd.hpp>
 #include "Components/component.h"
 
+namespace fm
+{
+class Scene;
+}
 
 namespace fm {
 

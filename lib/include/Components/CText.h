@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "component.h"
-#include "Core/Color.h"
+
 
 #include "Core/Math/Vector2.h"
 
@@ -16,6 +16,7 @@ class VertexBuffer;
 }
 }
 
+class EntityManager;
 namespace fmc {
 
 class CText : public FMComponent<CText> {
@@ -33,10 +34,7 @@ class CText : public FMComponent<CText> {
 
         fm::rendering::VertexBuffer* buffer = nullptr;
 
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CText>(BaseComponent::_IDEntity);
-        }
+        void Destroy() override;
         
     private:
         fm::math::Vector2f pos = { 0, 0 };

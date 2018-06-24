@@ -1,6 +1,7 @@
 #pragma once
 #include "Script.h"
 #include <single/sol/sol.hpp>
+#include <Entity.h>
 template <typename T> T* get(Entity* e) {
     assert(e);
     return e->get<T>();

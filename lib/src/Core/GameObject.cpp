@@ -1,4 +1,5 @@
 #include "Core/GameObject.h"
+#include "Core/SceneManager.h"
 #include "Core/Scene.h"
 #include <nlohmann/json.hpp>
 

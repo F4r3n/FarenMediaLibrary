@@ -1,9 +1,12 @@
 #pragma once
 #include <vector>
 #include "component.h"
-#include "Script/LuaScript.h"
-#include "Entity.h"
 
+namespace fm
+{
+class Script;
+}
+class Entity;
 
 
 namespace fmc {
@@ -18,18 +21,9 @@ class CScriptManager : public FMComponent<CScriptManager> {
         void RemoveScript(const std::string &name);
         virtual size_t GetType() const {return kScriptManager;}
 
-        template <typename T>
-        void event(std::string name, const T& t) {
-            for(auto s : scripts) {
-                s->event(name, t);
-            }
-        }
-        static const std::string name;
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CScriptManager>(BaseComponent::_IDEntity);
-        }
 
+        static const std::string name;
+        void Destroy();
         std::vector<std::shared_ptr<fm::Script> > scripts;
 };
 }

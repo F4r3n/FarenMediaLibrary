@@ -2,6 +2,7 @@
 #include "Core/serializer.hpp"
 #include <Rendering/Shader.h>
 #include <Resource/ResourcesManager.h>
+#include <EntityManager.h>
 using namespace fmc;
 using namespace fm;
 static const std::string kName = "Material";
@@ -17,6 +18,11 @@ CMaterial::CMaterial(const fm::Color &color, bool bloom)
 
 CMaterial::~CMaterial()
 {
+}
+
+void CMaterial::Destroy()
+{
+    EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
 }
 
 bool CMaterial::Reload()

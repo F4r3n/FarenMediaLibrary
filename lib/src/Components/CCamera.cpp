@@ -1,5 +1,6 @@
 #include "Components/CCamera.h"
 #include "Rendering/RenderTexture.h"
+#include <EntityManager.h>
 using namespace fmc;
 using namespace fm;
 
@@ -35,6 +36,7 @@ bool CCamera::Serialize(nlohmann::json &ioJson) const
     ioJson["multiSampled"] = _multiSampled;
     return true;
 }
+
 bool CCamera::Read(const nlohmann::json &inJSON)
 {
     _width = inJSON["width"];
@@ -46,6 +48,11 @@ bool CCamera::Read(const nlohmann::json &inJSON)
     _fovy = inJSON["fovy"];
     _multiSampled = inJSON["multiSampled"];
     return true;
+}
+
+void CCamera::Destroy()
+{
+    EntityManager::get().removeComponent<CCamera>(BaseComponent::_IDEntity);
 }
 
 void CCamera::Init()

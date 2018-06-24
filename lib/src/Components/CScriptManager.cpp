@@ -1,5 +1,6 @@
 #include "Components/CScriptManager.h"
 #include "Script/Script.h"
+#include <EntityManager.h>
 using namespace fmc;
 const std::string CScriptManager::name = "Script Manager";
 
@@ -14,6 +15,11 @@ void CScriptManager::init( Entity* e) {
     for(auto s : scripts) {
         s->init(e);
     }
+}
+
+void CScriptManager::Destroy()
+{
+    EntityManager::get().removeComponent<CScriptManager>(BaseComponent::_IDEntity);
 }
 
 void CScriptManager::RemoveScript(const std::string &name)

@@ -37,6 +37,11 @@ bool CTransform::Serialize(json &ioJson) const
     return true;
 }
 
+void CTransform::Destroy()
+{
+    EntityManager::get().removeComponent<CTransform>(BaseComponent::_IDEntity);
+}
+
 bool CTransform::Read(const json &inJSON)
 {
 

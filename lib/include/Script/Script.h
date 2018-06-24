@@ -1,7 +1,9 @@
 #pragma once
-#include <Entity.h>
+
 #include "Physic/Collider.h"
 #include "Rendering/RenderingEvent.h"
+#include <string>
+class Entity;
 
 namespace fm {
 class CppScript;
@@ -52,9 +54,9 @@ public:
         return _scriptName;
     }
     
-    virtual void event(std::string name, const CameraInfo &camera) {}
-    virtual void event(std::string name, const ColliderInfo& collider) {}
-    virtual void event(std::string name, const Collider& collider) {}
+    //virtual void event(std::string name, const CameraInfo &camera) {}
+    //virtual void event(std::string name, const ColliderInfo& collider) {}
+    //virtual void event(std::string name, const Collider& collider) {}
 
     bool hasStarted = false;
     bool isInit = false;

@@ -1,4 +1,5 @@
-#pragma once   
+#pragma once
+#include <cstddef>
 enum EVENT_COLLISION {BEGIN, END};
 
  struct Collider {

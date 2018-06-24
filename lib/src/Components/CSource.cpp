@@ -1,6 +1,7 @@
 #include "Components/CSource.h"
 //#include <sndfile.h> TODO replace by my own
-#include <iostream>
+#include <EntityManager.h>
+#include <Core/Debug.h>
 using namespace fmc;
 const std::string CSource::name = "Sound";
 
@@ -66,10 +67,15 @@ void CSource::play() {
     alSourcePlay(source);
     ALenum error;
     if((error = alGetError()) != AL_NO_ERROR) {
-        std::cerr << "Source error " << __LINE__ << " " << __FILE__ << " " << error << std::endl;
+        fm::Debug::get().LogError("Error sound system", fm::Debug::MESSAGE_TYPE::ERROR);
         return;
     }
     ALint source_state;
 
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+}
+
+void CSource::Destroy()
+{
+    EntityManager::get().removeComponent<CSource>(BaseComponent::_IDEntity);
 }

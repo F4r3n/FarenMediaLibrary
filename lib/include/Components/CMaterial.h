@@ -25,7 +25,9 @@ class CMaterial : public FMComponent<CMaterial> {
         bool Serialize(json &ioJson) const override;
         bool Read(const json &inJSON) override;
         const std::string& GetName() const override;
-        virtual size_t GetType() const {return kMaterial;}
+        size_t GetType() const override {return kMaterial;}
+        void Destroy() override;
+
 
         void setValue(const std::string& name, int value);
         const std::map<std::string, fm::MaterialValue>& getValues() const;
@@ -34,10 +36,7 @@ class CMaterial : public FMComponent<CMaterial> {
         fm::Color color;
         fm::Shader* shader = nullptr;
 
-        void Destroy()
-        {
-            EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
-        }
+
 
         inline void SetFlagHasChanged() {_hasChanged = true;}
         bool Reload();
