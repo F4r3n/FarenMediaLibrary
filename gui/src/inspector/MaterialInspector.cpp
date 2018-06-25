@@ -48,7 +48,7 @@ void MaterialInspector::draw(bool *value) {
 
                 const char* item_current_char = m->shaderName.c_str();
                 std::string nameCombo = "Shader##" + m->GetID();
-                if (ImGui::BeginCombo(nameCombo.c_str(), item_current_char, 0)) // The second parameter is the label previewed before opening the combo.
+                if (ImGui::BeginCombo(nameCombo.c_str(), item_current_char, 0))
                 {
                     for (size_t n = 0; n < values.size(); n++)
                     {
@@ -56,7 +56,7 @@ void MaterialInspector::draw(bool *value) {
                         if (ImGui::Selectable(values[n], is_selected))
                             item_current_char = values[n];
                         if (is_selected)
-                            ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                            ImGui::SetItemDefaultFocus();
                     }
                     ImGui::EndCombo();
                 }
@@ -72,22 +72,6 @@ void MaterialInspector::draw(bool *value) {
             }
             i++;
         }
-
-
-
-        //ImGui::InputText("", shaderName, IM_ARRAYSIZE(shaderName));
-        //if(fm::ResourcesManager::get().Exists<fm::Shader>(shaderName))
-        //{
-        //    target->shaderName = std::string(shaderName);
-        //    ImGui::SameLine();
-        //    ImGui::TextColored(ImVec4(0,255,0,255),&shaderName[0]);
-        //    target->SetFlagHasChanged();
-        //}
-        //else
-        //{
-        //    ImGui::SameLine();
-        //    ImGui::TextColored(ImVec4(255,0,0,255),&shaderName[0]);
-        //}
 
     }
 

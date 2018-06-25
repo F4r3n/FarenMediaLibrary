@@ -20,6 +20,7 @@ enum ComponentType
     kScriptManager,
     kSource,
     kText,
+    kEvent,
     kEND,
     kNone
 };
