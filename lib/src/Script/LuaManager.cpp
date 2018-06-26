@@ -88,13 +88,13 @@ void LuaManager::registerComponents() {
     &Entity::get<Body2D>,
     
     "addTransform",
-    &Entity::add<CTransform>,
+    &Entity::addEmpty<CTransform>,
     "addMesh",
-    &Entity::add<CMesh>,
+    &Entity::addEmpty<CMesh>,
     "addMaterial",
-    &Entity::add<CMaterial>,
+    &Entity::addEmpty<CMaterial>,
     "addBody",
-    &Entity::add<Body2D>,
+    &Entity::addEmpty<Body2D>,
     
     "removeTransform",
     &Entity::remove<CTransform>,

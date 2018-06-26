@@ -26,10 +26,21 @@ class ComponentManager
             return dynamic_cast<T*>(_components[T::id()]);
         }
 
-        template <typename T> T* addComponent(Component<T> *c)
+        template <typename T> T* add(Component<T> *c)
         {
             _bits.set(T::id(), 1);
             c->_IDEntity = currentEntityID;
+            _components[T::id()] = std::move(c);
+
+            return dynamic_cast<T*>(_components[T::id()]);
+        }
+
+        template <typename T, typename... Args> T* addComponent(Args&&... args)
+        {
+            _bits.set(T::id(), 1);
+            Component<T>* c = new T(std::forward<Args>(args)...);
+            c->_IDEntity = currentEntityID;
+
             _components[T::id()] = std::move(c);
 
             return dynamic_cast<T*>(_components[T::id()]);

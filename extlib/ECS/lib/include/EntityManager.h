@@ -37,19 +37,34 @@ public:
         return false;
     }
 
-    template <typename T> T* addComponent(size_t ID, Component<T>* c) {
+    template <typename T> T* add(size_t ID, Component<T>* c) {
         if(checkID(ID))
             return nullptr;
         if(_entitiesComponents[ID] != nullptr) {
-            return _entitiesComponents[ID]->addComponent<T>(c);
+            return _entitiesComponents[ID]->add<T>(c);
         } else {
             _entitiesComponents[ID] = std::make_unique<ComponentManager>(ID);
-            return _entitiesComponents[ID]->addComponent<T>(c);
+            return _entitiesComponents[ID]->add<T>(c);
         }
     }
 
-    template <typename T> T* addComponent(Entity* e, Component<T>* c) {
-        return addComponent<T>(_getID(e), c);
+    template <typename T, typename... Args> T* addComponent(size_t ID, Args &&... args) {
+        if(checkID(ID))
+            return nullptr;
+        if(_entitiesComponents[ID] != nullptr) {
+            return _entitiesComponents[ID]->addComponent<T>(args...);
+        } else {
+            _entitiesComponents[ID] = std::make_unique<ComponentManager>(ID);
+            return _entitiesComponents[ID]->addComponent<T>(args...);
+        }
+    }
+
+    template <typename T> T* add(Entity* e, Component<T>* c) {
+        return add<T>(_getID(e), c);
+    }
+
+    template <typename T, typename ...Args> T* addComponent(Entity* e, Args&& ...args) {
+        return addComponent<T>(_getID(e), args...);
     }
     
 

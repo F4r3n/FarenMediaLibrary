@@ -97,13 +97,6 @@ void Engine::Init()
     _systems.addSystem(new fms::ScriptManagerSystem());
     _systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
 
-    //camera = fm::Engine::createEntity();
-    /*fmc::CCamera* cam = camera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD));
-    camera->addComponent<fmc::CTransform>();
-    fmc::CIdentity* identity = camera->addComponent<fmc::CIdentity>();
-    identity->name = "Camera";
-    //cam->shader_data.render_mode = fmc::RENDER_MODE::DEFERRED;*/
-
     //fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     _systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
 

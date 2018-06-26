@@ -29,8 +29,8 @@ MainWindow::MainWindow(fm::Engine* engine) {
     _engine = engine;
 
     _dlight = EntityManager::get().createEntity();
-    _dlight->addComponent<fmc::CDirectionalLight>(new fmc::CDirectionalLight(fm::Color(0.3, 0.3, 0.3, 1)));
-    _dlight->addComponent<fmc::CTransform>(new fmc::CTransform(fm::math::Vector3f(100, 50,0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1));
+    _dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
+    _dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50,0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
     _dlight->addComponent<fmc::CMaterial>();
 
 
@@ -39,13 +39,12 @@ MainWindow::MainWindow(fm::Engine* engine) {
 
     _mainCamera = fm::GameObjectHelper::create();
 #if WITH_VIEW
-    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(1280, 720, fmc::RENDER_MODE::FORWARD, false,8));
+    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(1280, 720, fmc::RENDER_MODE::FORWARD, false,8);
 #else
     fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4));
 #endif
     _mainCameraPosition = _mainCamera->addComponent<fmc::CTransform>();
-    //_mainCameraPosition->rotation.x = 90;
-    //_mainCameraPosition->rotation.z = -90;
+
 
     _mainCamera->name = "Camera";
     _engine->SetMainCamera(_mainCamera);
@@ -164,9 +163,9 @@ void MainWindow::menu() {
                 _windowCurrentEntity = true;
                 _currentEntity = fm::GameObjectHelper::create();
                 _currentEntity->addComponent<fmc::CTransform>(
-                        new fmc::CTransform(fm::math::Vector3f(0, 0, 0),
+                            fm::math::Vector3f(0, 0, 0),
                             fm::math::Vector3f(1, 1, 1),
-                            fm::math::vec3(0,0,0), 1));
+                            fm::math::vec3(0,0,0), 1);
             }
             if(ImGui::MenuItem("List entity")) {
                 _windowListEntity = true;
@@ -290,10 +289,9 @@ void MainWindow::listEntity()
         if(ImGui::Button("Add Entity"))
         {
             _currentEntity = fm::GameObjectHelper::create();
-            _currentEntity->addComponent<fmc::CTransform>(new fmc::CTransform(
-                                                             fm::math::Vector3f(0, 0, 0),
-                                                             fm::math::Vector3f(1, 1, 1),
-                                                             fm::math::vec3(0,0,0)));
+            _currentEntity->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
+                                                          fm::math::Vector3f(1, 1, 1),
+                                                          fm::math::vec3(0,0,0));
         }
         ImGui::End();
     }

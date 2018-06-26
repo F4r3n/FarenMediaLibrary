@@ -19,13 +19,24 @@ public:
     bool active = false;
     bool toCreate = true;
     bool allocated = false;
-    template <typename T> T* addComponent(Component<T> *c = new T())
+
+
+    template <typename T, typename ...Args> T* addComponent(Args&&... args)
     {
-       return EntityManager::get().addComponent<T>(this, c);
+       return EntityManager::get().addComponent<T>(this, args...);
     }
     template <typename T> T* add()
     {
-       return EntityManager::get().addComponent<T>(this, new T());
+       return EntityManager::get().add<T>(this, new T());
+    }
+
+    template <typename T> T* addEmpty()
+    {
+       return EntityManager::get().add<T>(this, new T());
+    }
+    template <typename T> T* add(Component<T> *c)
+    {
+       return EntityManager::get().add<T>(this, c);
     }
 
     template <typename T> T* get()

@@ -25,13 +25,18 @@ namespace fm {
                 _entity->destroy();
             }
 
-            template <typename T> T* addComponent(Component<T> *c = new T())
+            template <typename T> T* add(Component<T> *c)
             {
-                return _entity->addComponent<T>(c);
+                return _entity->add<T>(c);
+            }
+
+            template <typename T, typename ...Args> T* addComponent(Args&&...args)
+            {
+                return _entity->addComponent<T>(args...);
             }
             template <typename T> T* add()
             {
-                return _entity->addComponent<T>(new T());
+                return _entity->add<T>();
             }
 
             template <typename T> T* get()
