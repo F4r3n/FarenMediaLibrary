@@ -11,7 +11,7 @@ class BaseEvent
     public:
         BaseEvent();
         virtual ~BaseEvent();
-        virtual size_t GetType() const =0;
+        virtual size_t GetType() const = 0;
 
 };
 }
@@ -29,9 +29,24 @@ class CEvent : public FMComponent<CEvent>
         size_t GetType() const override {return kEvent;}
         void Destroy() override;
 
-        void AddEvent(fm::BaseEvent *event);
+        template <typename T, typename... Args>
+        void AddEvent(Args&&...args)
+        {
+            std::unique_ptr<fm::BaseEvent> e = std::make_unique<T>(args...);
+             std::unordered_map<size_t, std::queue<std::unique_ptr<fm::BaseEvent>>>::iterator it = _events.find(e->GetType());
+            if(it != _events.end())
+            {
+                it->second.push(e);
+            }else
+            {
+                size_t id = e->GetType();
+                std::queue<std::unique_ptr<fm::BaseEvent>> q;
+                q.push(e);
+                _events[id] = q;
+            }
+        }
     private:
-        std::unordered_map<size_t, std::queue<fm::BaseEvent*>> _events;
+        std::unordered_map<size_t, std::queue<std::unique_ptr<fm::BaseEvent>>> _events;
 };
 
 
