@@ -5,8 +5,8 @@
 #include <memory>
 #include <map>
 #include <Rendering/MaterialValue.h>
-#include <nlohmann/json_fwd.hpp>
 #include <Resource/Resource.h>
+#include <Core/serializer.hpp>
 namespace fm
 {
 class Shader;
@@ -14,10 +14,14 @@ class Shader;
 
 namespace fm
 {
-class Material : public Resource
+class Material : public Resource, public Serializer
 {
 
     public:
+        bool Serialize(nlohmann::json &ioJson) const override;
+        bool Read(const nlohmann::json &inJSON) override;
+
+
         Material(const std::string &id);
         template <typename T>
         void setValue(const std::string& name, T value) {
@@ -43,10 +47,9 @@ class Material : public Resource
         bool _hasChanged = true;
 };
 
-void to_json(nlohmann::json& j, const Material &mat);
-void from_json(const nlohmann::json& j, Material &mat);
 
 }
+
 
 #endif // MATERIAL_HPP
 

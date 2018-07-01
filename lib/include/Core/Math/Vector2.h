@@ -14,12 +14,12 @@ namespace fm {
 
     template <typename T>
     void to_json(nlohmann::json& j, const vec<T,2>& p) {
-            j = nlohmann::json{{"x", p.x}, {"y", p.y}};
+            j = nlohmann::json{p.x, p.y};
         }
 template <typename T>
         void from_json(const nlohmann::json& j, vec<T,2>& p) {
-            p.x = j.at("x").get<T>();
-            p.y = j.at("y").get<T>();
+            p.x = j[0];
+            p.y = j[1];
         }
 	}
 }

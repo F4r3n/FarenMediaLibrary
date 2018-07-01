@@ -401,5 +401,17 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
     typedef Matrix<float> mat;
     typedef Matrix22<float> mat22;
 
+    template <typename T>
+    void to_json(nlohmann::json& j, const Matrix<T>& p) {
+            j = nlohmann::json{p[0], p[1], p[2], p[3]};
+        }
+template <typename T>
+        void from_json(const nlohmann::json& j, Matrix<T>& p) {
+            p[0] = j[0];
+            p[1] = j[1];
+            p[2] = j[2];
+            p[3] = j[3];
+        }
+
 }
 }

@@ -14,12 +14,22 @@ struct TextureMat
             texture = textureMat.texture;
             position = textureMat.position;
         }
+        TextureMat() {position = 0;}
 
         fm::Texture texture;
         int position;
 };
 
-enum ValuesType {
+
+void to_json(nlohmann::json& j, const TextureMat& p);
+void from_json(const nlohmann::json& j, TextureMat& p);
+
+
+void to_json(nlohmann::json& j, const Texture& p);
+void from_json(const nlohmann::json& j, Texture& p);
+
+enum ValuesType
+{
     VALUE_INT,
     VALUE_FLOAT,
     VALUE_VECTOR3_FLOAT,
@@ -32,7 +42,8 @@ enum ValuesType {
     // etc
 };
 
-union VariantValue {
+union VariantValue
+{
     int int_;
     float float_;
     math::vec2 vec2_;
@@ -251,6 +262,31 @@ class MaterialValue {
     
     ValuesType getType() const{
         return valueType;
+    }
+
+    template <typename T>
+    const T& getAnyType() const
+    {
+        switch(valueType) {
+        case ValuesType::VALUE_INT:
+            return value.int_;
+        case ValuesType::VALUE_FLOAT:
+            return value.float_;
+        case ValuesType::VALUE_VECTOR2_FLOAT:
+           return value.vec2_;
+        case ValuesType::VALUE_VECTOR3_FLOAT:
+           return value.vec3_;
+        case ValuesType::VALUE_VECTOR4_FLOAT:
+           return value.vec4_;
+        case ValuesType::VALUE_MATRIX_FLOAT:
+           return value.mat_;
+        case ValuesType::VALUE_TEXTURE:
+            return value.texture_;
+        case ValuesType::VALUE_COLOR:
+            return value.color_;
+
+        }
+        return 0;
     }
 
     //bool operator==(const MaterialValue &materialValue)

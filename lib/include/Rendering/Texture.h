@@ -3,7 +3,7 @@
 #include <Core/Config.h>
 #include "Image.h"
 #include "Core/Rect.h"
-
+#include <nlohmann/json_fwd.hpp>
 namespace fm {
 
 enum Format {
@@ -103,6 +103,8 @@ class Texture {
 
     Texture& operator=(Texture &&texture);
 
+    const std::string& GetPath() const {return _path;}
+    void SetPath(const std::string &path) {_path = path;}
 
    private:
     Kind _textureKind= Kind::TEXTURE2D;
@@ -118,4 +120,6 @@ class Texture {
 
     GLuint _id;
 };
+
+
 }

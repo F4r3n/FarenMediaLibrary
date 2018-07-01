@@ -383,12 +383,18 @@ void ShaderLibrary::loadShaders() {
                                                 PointLight pl = light[i];
                                                 vec3 norm = normalize(ourNormals);
                                                 vec3 lightDir = normalize(pl.position.xyz - ourPosition);
+
                                                 float diff = max(dot(norm, lightDir), 0.0);
+
                                                 vec3 viewDir = normalize(viewPos - ourPosition);
-                                                vec3 reflectDir = reflect(-lightDir, norm);
-                                                float spec = pow(max(dot(viewDir, reflectDir),0.0),32);
+                                                vec3 halfwayDir = normalize(lightDir + viewDir);
+                                                //vec3 reflectDir = reflect(-lightDir, norm);
+
+                                                float spec = pow(max(dot(norm, halfwayDir),0.0),32);
+
                                                 vec3 specular = 0.5*spec*pl.color.xyz;
                                                 vec3 diffuse = diff*pl.color.xyz;
+
                                                 FragColor += vec4(diffuse,1.0) + vec4(specular,1.0);
 
                                             }

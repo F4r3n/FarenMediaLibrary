@@ -1,10 +1,16 @@
-
+#include <nlohmann/json.hpp>
 #include "Rendering/Texture.h"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+
 using namespace fm;
+
+
+
+
+
 Texture::Texture(const std::string& path, Recti rect, bool alpha) : _path(path) {
     if(alpha) {
         _format = GL_RGBA;

@@ -49,12 +49,12 @@ bool CMaterial::Reload()
 bool CMaterial::Serialize(json &ioJson) const
 {
     nlohmann::json j;
-   //for(auto &s : _materials)
-   //{
-   //    nlohmann::json m = s;
-   //   j.push_back(m);
-   //}
-   //ioJson["Materials"] = j;
+    for(fm::Material *s : _materials)
+    {
+        nlohmann::json m = s->GetID();
+       j.push_back(m);
+    }
+    ioJson["Materials"] = j;
     return true;
 }
 
