@@ -49,9 +49,6 @@ private:
 
 namespace fm
 {
-
-
-
 void to_json(nlohmann::json& j, const Color& p);
 void from_json(const nlohmann::json& j, Color& p);
 }

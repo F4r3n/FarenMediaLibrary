@@ -37,7 +37,6 @@ void LuaManager::registerComponents() {
   registerComponent<math::Vector2d>("Vector2d", "x", &math::Vector2d::x, "y", &math::Vector2d::y);
   registerComponent<Rectf>("Rectf", "x", &Rectf::x, "y", &Rectf::y, "w", &Rectf::w, "h", &Rectf::h);
   
-  registerComponent<Vertex>("Vertex", "position", &Vertex::position, "uv", &Vertex::uv);
   registerComponent<Bounds>("Bounds", 
     "center", sol::property(&Bounds::getCenter, &Bounds::setCenter),
     "scale", sol::property(&Bounds::getScale, &Bounds::setScale),

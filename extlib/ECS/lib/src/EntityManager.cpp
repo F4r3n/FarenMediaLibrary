@@ -97,6 +97,12 @@ bool EntityManager::Exists(size_t id) const{
     return (id < _capacity && _entities_alive[id] && (_entities_alive[id]->ID != _MAX_ID));
 }
 
+size_t EntityManager::GetID(Entity *e) const
+{
+      return e->ID;
+}
+
+
 void EntityManager::make()
 {
 	if(_temp_entities.empty())
@@ -109,6 +115,7 @@ void EntityManager::make()
             e->active = true;
             _entities_alive.push_back(std::move(e));
             _capacity++;
+            _listEntities.push_back(_entities_alive.back());
         }
 	}
 	_temp_entities.clear();
@@ -236,3 +243,9 @@ void EntityManager::_destroyEntity(size_t id, bool isActive) {
 size_t EntityManager::_getID(Entity* e) {
 	return e->ID;
 }
+
+bool EntityManager::_IsEntityActive(Entity *e) const
+{
+    return e && e->active;
+}
+

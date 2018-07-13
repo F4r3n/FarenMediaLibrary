@@ -59,6 +59,10 @@ link_directories(${FML_EXTLIB_LIB}/lua/lib)
 include_directories(${FML_EXTLIB}/Box2D/)
 link_directories(${FML_EXTLIB_LIB}/Box2D/lib)
 
+#Assimp
+include_directories(${FML_EXTLIB}/assimp/include)
+link_directories(${FML_EXTLIB_LIB}/assimp/lib/)
+
 #FML
 include_directories(${FML_PATH}/lib/include)
 link_directories(${FML_PATH}/build/lib)
@@ -67,8 +71,9 @@ link_directories(${FML_PATH}/build/lib)
 include_directories(${FML_EXTLIB}/imgui/)
 
 
+
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${SOURCES_IMGUI} ${HEADERS_IMGUI})
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D assimp ${OPENGL_LIBRARIES})
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

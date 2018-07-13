@@ -67,6 +67,10 @@ link_directories(${FML_EXTLIB_LIB}/lua)
 include_directories(${FML_EXTLIB}/Box2D/)
 link_directories(${FML_EXTLIB_LIB}/Box2D)
 
+#Assimp
+include_directories(${FML_EXTLIB}/assimp/include)
+link_directories(${FML_EXTLIB_LIB}/assimp/lib)
+
 if(BUILD_STATIC_FML)
 set(LIB_NAME ${PROJECT_NAME}_s)
 
@@ -79,6 +83,8 @@ set(LIB_NAME ${PROJECT_NAME}_s)
 	target_link_libraries(${LIB_NAME} glew)
 	target_link_libraries(${LIB_NAME} openal)
 	target_link_libraries(${LIB_NAME} Box2D)
+        target_link_libraries(${LIB_NAME} assimp)
+
         target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 
 	if(CMAKE_COMPILER_IS_GNUCXX)
@@ -98,6 +104,8 @@ set(LIB_NAME ${PROJECT_NAME})
 	target_link_libraries(${LIB_NAME} glew)
 	target_link_libraries(${LIB_NAME} openal)
 	target_link_libraries(${LIB_NAME} Box2D_shared)
+        target_link_libraries(${LIB_NAME} assimp)
+
         target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 
 	if(CMAKE_COMPILER_IS_GNUCXX)

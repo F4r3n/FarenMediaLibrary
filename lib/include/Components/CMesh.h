@@ -11,11 +11,7 @@
 #include <Rendering/Model.hpp>
 
 namespace fmc {
-enum SHAPE { RECTANGLE, CIRCLE,CUBE, LAST_SHAPE };
-struct Vertex {
-        fm::math::Vector2f position;
-        fm::math::Vector2f uv;
-};
+
 
 class CMesh : public FMComponent<CMesh> {
 
