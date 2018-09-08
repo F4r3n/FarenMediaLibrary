@@ -20,7 +20,7 @@ namespace fm
 struct MaterialProperty
 {
     fm::MaterialValue materialValue;
-    std::string name;
+    char name[256] = {'\0'};
 
     MaterialProperty()
     {
@@ -30,7 +30,7 @@ struct MaterialProperty
     fm::MaterialProperty& operator=(fm::MaterialProperty &&m)
     {
         materialValue = m.materialValue;//TODO not good
-        m.name.swap(name);
+        strcpy(name, m.name);
         return *this;
     }
 
@@ -38,7 +38,7 @@ struct MaterialProperty
     {
         materialValue.setType(m.materialValue.getType());
         materialValue.setValue(m.materialValue.getType(), m.materialValue);
-        name = m.name;
+        strcpy(name, m.name);
     }
 };
 
@@ -58,14 +58,14 @@ class Material : public Resource, public Serializer
 
             MaterialProperty p;
             p.materialValue = materialValue;
-            p.name = name;
+            strcpy(p.name, name.c_str());
             _properties.push_back(p);
         }
 
         void setValue(const std::string& name, fm::MaterialValue &inMaterialValue) {
             MaterialProperty p;
             p.materialValue = inMaterialValue;
-            p.name = name;
+            strcpy(p.name, name.c_str());
             _properties.push_back(p);
         }
         static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MATERIAL;}

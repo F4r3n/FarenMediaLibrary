@@ -50,6 +50,7 @@ void MaterialInspector::init()
 void MaterialInspector::draw(bool *value)
 {
     static int numberAdded = 0;
+
     if(ImGui::CollapsingHeader("Material", value))
     {
         size_t i = 0;
@@ -62,73 +63,88 @@ void MaterialInspector::draw(bool *value)
             {
                 size_t j = 0;
                 std::vector<fm::MaterialProperty>::iterator materialValue = m->getValues().begin();
+
                 for (; materialValue != m->getValues().end(); )
                 {
 
                     size_t type =  (size_t)materialValue->materialValue.getType();
                     const size_t ctype = type;
                     std::string currentType = fm::MaterialValueNames::ktypeName[type];
-
                     static char nameType[256];
-                    strcpy(nameType, materialValue->name.c_str());
+
+                    strcpy(nameType, materialValue->name);
                     {
-                        //ImGui::SameLine();
-                        DrawCombo("Type##"+ m->shaderName + materialValue->name, typesMaterial, currentType, &type);
-                        ImGui::InputText("TypeName##" + j, nameType, 256);
-
+                        DrawCombo("Type##"+ m->shaderName + materialValue->name + std::to_string(j), typesMaterial, currentType, &type);
+                        std::string nameTextInput = std::string(nameType) + "##Text"+ m->shaderName + materialValue->name + std::to_string(j);
+                        if(ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            strncpy(materialValue->name, nameType, strlen(nameType) );
+                        }
                     }
-                    materialValue->name = std::string(nameType);
 
+                    std::string name = std::string(materialValue->name) + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
+                    name += std::to_string(j);
 
                     if(type == fm::ValuesType::VALUE_COLOR)
                     {
-                        std::string name = materialValue->name + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
                         fm::Color c =  materialValue->materialValue.getColor();
-                        ImGui::ColorEdit3(name.c_str(), &c.r);
+                        ImGui::PushID(name.c_str());
+                        ImGui::ColorEdit3("##", &c.r);
+                        ImGui::PopID();
+
                         materialValue->materialValue = c;
                     }
                     else if(type == fm::ValuesType::VALUE_INT)
                     {
-                        std::string name = materialValue->name + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
 
                         int c =  materialValue->materialValue.getInt();
-                        ImGui::InputInt(name.c_str(), &c);
+                        ImGui::PushID(name.c_str());
+                        ImGui::InputInt("##", &c);
+                        ImGui::PopID();
+
                         materialValue->materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_FLOAT)
                     {
-                        std::string name = materialValue->name + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
 
                         float c =  materialValue->materialValue.getInt();
-                        ImGui::InputFloat(name.c_str(), &c);
+                        ImGui::PushID(name.c_str());
+                        ImGui::InputFloat("##", &c);
+                        ImGui::PopID();
                         materialValue->materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
                     {
-                        std::string name = materialValue->name + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
 
                         fm::math::vec2 c =  materialValue->materialValue.getVector2();
-                        ImGui::InputFloat2(name.c_str(), &c.x);
+                        ImGui::PushID(name.c_str());
+                        ImGui::InputFloat2("##", &c.x);
+                        ImGui::PopID();
+
                         materialValue->materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
                     {
-                        std::string name = materialValue->name + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
 
                         fm::math::vec3 c =  materialValue->materialValue.getVector3();
-                        ImGui::InputFloat3(name.c_str(), &c.x);
+                        ImGui::PushID(name.c_str());
+                        ImGui::InputFloat3("##", &c.x);
+                        ImGui::PopID();
+
                         materialValue->materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
                     {
-                        std::string name = materialValue->name + " "+ fm::MaterialValueNames::ktypeName[type] + "##" + m->shaderName + materialValue->name;
 
                         fm::math::vec4 c =  materialValue->materialValue.getVector4();
-                        ImGui::InputFloat4(name.c_str(), &c.x);
+                        ImGui::PushID(name.c_str());
+                        ImGui::InputFloat4("##", &c.x);
+                        ImGui::PopID();
+
                         materialValue->materialValue = c;
 
                     }
@@ -139,7 +155,6 @@ void MaterialInspector::draw(bool *value)
                     if(ctype != type)
                     {
                         materialValue->materialValue.setType((fm::ValuesType)type);
-
                     }
                     materialValue++;
 
