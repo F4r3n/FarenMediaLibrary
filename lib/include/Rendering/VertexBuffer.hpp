@@ -23,7 +23,9 @@ namespace rendering {
         unsigned int index;
         unsigned int indexVAO;
         unsigned int numberVertices = 0;
+
     private:
+        bool _vaoIsSet = false;
         //const unsigned int MAX_VERTICES = 1000;
         //unsigned int _currentNumberVertices = 0;
 

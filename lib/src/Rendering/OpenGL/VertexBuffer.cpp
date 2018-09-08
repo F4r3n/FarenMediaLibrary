@@ -28,7 +28,10 @@ void VertexBuffer::prepareData()
 {
 #if !OPENGL_ES || OPENGL_ES_VERSION > 2//TODO why binding each time, if we use VAO ???
     glBindVertexArray(indexVAO);
+    if(_vaoIsSet) return;
 #endif
+
+
     glBindBuffer(GL_ARRAY_BUFFER, index);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 
@@ -38,7 +41,7 @@ void VertexBuffer::prepareData()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, sizeof(Vertex),(GLvoid*)(5 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
-
+    _vaoIsSet = true;
 }
 
 void VertexBuffer::GenerateEmpty(size_t maxVertices)

@@ -3,12 +3,24 @@
 
 #include <string>
 
+class aiMesh;
+class aiScene;
+class aiNode;
+namespace fm
+{
+    class Model;
+}
+
 namespace fm
 {
 class MeshLoader
 {
     public:
-        static bool Load(const std::string &inFileName);
+        static bool Load(const std::string &inFileName, Model *outModel, const std::string &inObjectName);
+    private:
+        static void ProcessMesh(Model *inModel, aiMesh *mesh, const aiScene *scene);
+        static void ProcessNode(Model *inModel, aiNode *node, const aiScene *scene);
+
 };
 }
 

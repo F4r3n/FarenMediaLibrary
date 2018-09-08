@@ -3,6 +3,8 @@
 
 #include <queue>
 #include <mutex>
+#define DEBUG_ERROR(message) fm::Debug::get().LogError(message, fm::Debug::MESSAGE_TYPE::ERROR);
+
 namespace fm {
 
 class Debug {

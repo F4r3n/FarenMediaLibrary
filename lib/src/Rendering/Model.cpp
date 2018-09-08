@@ -2,6 +2,7 @@
 #include <Rendering/StandardShapes.h>
 #include <Rendering/Model.hpp>
 #include <Core/Debug.h>
+
 using namespace fm;
 using namespace rendering;
 
@@ -20,11 +21,10 @@ void Model::AddMesh(MeshContainer *inMeshContainer)
 
 Model::~Model()
 {
-    /*if(vertexBuffer != nullptr)
+    for(auto &mesh : _meshes)
     {
-        delete vertexBuffer;
-        vertexBuffer = nullptr;
-    }*/
+       delete mesh.meshContainer;
+    }
 }
 
 void Model::PrepareBuffer()
@@ -42,19 +42,15 @@ void Model::PrepareBuffer()
 
 void Model::generate()
 {
-    //if(vertexBuffer != nullptr)
-    //{
-        //vertexBuffer->generate(meshContainer->vertices);
-        //generated = true;
-    //}
-        for(auto &mesh : _meshes)
-        {
-            if(mesh.vertexBuffer == nullptr)
-            {
-                mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new VertexBuffer());
-            }
 
-            mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
-            _generated = true;
+    for(auto &mesh : _meshes)
+    {
+        if(mesh.vertexBuffer == nullptr)
+        {
+            mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new VertexBuffer());
         }
+
+        mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
+        _generated = true;
+    }
 }
