@@ -5,7 +5,8 @@
 #include <vector>
 namespace gui {
     DECLARE_INSPECTOR_CLASS(Material, fmc::CMaterial)
-    std::vector<const char*> values;
-    size_t lengthBuffer;
+    std::vector<const char*> valuesShader;
+
+    std::vector<const char*> typesMaterial;
 };
 }

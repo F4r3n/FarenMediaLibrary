@@ -28,6 +28,15 @@ void from_json(const nlohmann::json& j, TextureMat& p);
 void to_json(nlohmann::json& j, const Texture& p);
 void from_json(const nlohmann::json& j, Texture& p);
 
+namespace MaterialValueNames
+{
+static const char* const ktypeName[] =
+{
+"Int", "Float", "Vector3", "Vector4", "Vector2",
+"Matrix", "Texture", "Color", "None"
+};
+}
+
 enum ValuesType
 {
     VALUE_INT,
@@ -38,7 +47,8 @@ enum ValuesType
     VALUE_MATRIX_FLOAT,
     VALUE_TEXTURE,
     VALUE_COLOR,
-    VALUE_NONE
+    VALUE_NONE,
+    VALUE_LAST
     // etc
 };
 
@@ -69,6 +79,11 @@ class MaterialValue {
 
     MaterialValue(const MaterialValue& material) {
         setType(material.valueType);
+        setValue(material.getType(), material);
+    }
+
+    void setValue(fm::ValuesType valueType, const MaterialValue& material)
+    {
         switch(valueType) {
         case ValuesType::VALUE_INT:
             value.int_ = material.value.int_;
@@ -170,6 +185,13 @@ class MaterialValue {
         setType(ValuesType::VALUE_COLOR);
 
         value.color_ = static_cast<fm::Color>(v);
+    }
+
+    MaterialValue& operator=(MaterialValue & m)
+    {
+        setType(m.getType());
+        setValue(m.getType(), m);
+        return *this;
     }
 
     MaterialValue& operator=(int v) {

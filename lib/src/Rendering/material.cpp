@@ -18,29 +18,29 @@ bool Material::Serialize(nlohmann::json &ioJson) const
     ioJson["shaderName"] = shaderName;
 
     nlohmann::json valuesJSON;
-    for(auto &value : _values)
+    for(auto &value : _properties)
     {
         nlohmann::json valueJSON;
-        fm::ValuesType type = value.second.getType();
+        fm::ValuesType type = value.materialValue.getType();
 
-        valueJSON["name"] = value.first;
+        valueJSON["name"] = value.name;
         valueJSON["type"] = type;
         if(type == fm::ValuesType::VALUE_INT)
-            valueJSON["value"] = value.second.getInt();
+            valueJSON["value"] = value.materialValue.getInt();
         else if(type == fm::ValuesType::VALUE_COLOR)
-            valueJSON["value"] = value.second.getColor();
+            valueJSON["value"] = value.materialValue.getColor();
         else if(type == fm::ValuesType::VALUE_FLOAT)
-            valueJSON["value"] = value.second.getFloat();
+            valueJSON["value"] = value.materialValue.getFloat();
         else if(type == fm::ValuesType::VALUE_MATRIX_FLOAT)
-            valueJSON["value"] = value.second.getMatrix();
+            valueJSON["value"] = value.materialValue.getMatrix();
         else if(type == fm::ValuesType::VALUE_TEXTURE)
-            valueJSON["value"] = value.second.getTexture();
+            valueJSON["value"] = value.materialValue.getTexture();
         else if(type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
-            valueJSON["value"] = value.second.getVector2();
+            valueJSON["value"] = value.materialValue.getVector2();
         else if(type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
-            valueJSON["value"] = value.second.getVector3();
+            valueJSON["value"] = value.materialValue.getVector3();
         else if(type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
-            valueJSON["value"] = value.second.getVector4();
+            valueJSON["value"] = value.materialValue.getVector4();
         valuesJSON.push_back(valueJSON);
     }
     ioJson["materialValues"] = valuesJSON;
@@ -108,7 +108,6 @@ bool Material::Reload()
                 _hasChanged = false;
                 return true;
             }
-
         }
 
         _hasChanged = false;
@@ -117,8 +116,9 @@ bool Material::Reload()
 
 
 
-std::map<std::string, fm::MaterialValue>& Material::getValues() {
-    return _values;
+std::vector<MaterialProperty> &Material::getValues()
+{
+    return _properties;
 }
 
 

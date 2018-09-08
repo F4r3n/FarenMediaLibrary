@@ -415,7 +415,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
                         for(auto const& value : m->getValues())
                         {
-                            shader->setValue(value.first, value.second);
+                            shader->setValue(value.name, value.materialValue);
                         }
                         graphics.draw(mesh->model);
                     }

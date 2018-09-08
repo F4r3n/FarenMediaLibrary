@@ -110,26 +110,39 @@ const Shader* Shader::setValue(const std::string& name, Color vector) const
 }
 
 void Shader::setValue(const std::string &name, const fm::MaterialValue &value) const{
-    if(value.getType() == fm::ValuesType::VALUE_FLOAT) {
+    if(value.getType() == fm::ValuesType::VALUE_FLOAT)
+    {
         setValue(name, value.getFloat());
-    }else if(value.getType() == fm::ValuesType::VALUE_INT) {
+    }else if(value.getType() == fm::ValuesType::VALUE_INT)
+    {
         setValue(name, value.getInt());
-    }else if(value.getType() == fm::VALUE_VECTOR2_FLOAT) {
+    }
+    else if(value.getType() == fm::VALUE_VECTOR2_FLOAT)
+    {
         setValue(name, value.getVector2());
-    }else if(value.getType() == fm::VALUE_VECTOR3_FLOAT) {
+    }
+    else if(value.getType() == fm::VALUE_VECTOR3_FLOAT)
+    {
         setValue(name, value.getVector3());
-    }else if(value.getType() == fm::VALUE_VECTOR4_FLOAT) {
+    }
+    else if(value.getType() == fm::VALUE_VECTOR4_FLOAT)
+    {
         setValue(name, value.getVector4());
-    }else if(value.getType() == fm::ValuesType::VALUE_MATRIX_FLOAT) {
+    }
+    else if(value.getType() == fm::ValuesType::VALUE_MATRIX_FLOAT)
+    {
         setValue(name, value.getMatrix());
     }
-    else if(value.getType() == fm::ValuesType::VALUE_COLOR) {
+    else if(value.getType() == fm::ValuesType::VALUE_COLOR)
+    {
             setValue(name, value.getColor());
     }
-    else if(value.getType() == fm::ValuesType::VALUE_TEXTURE) {
+    else if(value.getType() == fm::ValuesType::VALUE_TEXTURE)
+    {
         TextureMat t = value.getTexture();
-            glActiveTexture(t.position);
-            t.texture.bind();
+        setValue("texture" + std::to_string(t.position), t.position);
+        glActiveTexture(t.position);
+        t.texture.bind();
     }
 }
 

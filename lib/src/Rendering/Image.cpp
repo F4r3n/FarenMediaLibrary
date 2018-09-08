@@ -4,7 +4,7 @@
 #include <cstring>
 #define IMAGE_RGBA 4
 #define IMAGE_RGB 3
-#include <iostream>
+
 using namespace fm;
 Image::Image() {
 }

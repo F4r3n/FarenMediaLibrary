@@ -314,12 +314,14 @@ void ShaderLibrary::loadShaders() {
 
                                  out vec3 ourPosition;
                                  out vec3 ourNormals;
+                                 out vec2 ourUVs;
                                  void main(){
                                      
                                  vec4 screenPos = vec4(position, 1.0f);
                                  gl_Position = FM_PVM*screenPos;
                                  ourPosition = (FM_M*screenPos).xyz;
                                  ourNormals = mat3(transpose(inverse(FM_M))) * normals;
+                                 ourUVs = texCoords;
                                  });
 
     std::string default_fragment = STRING(
@@ -334,13 +336,15 @@ void ShaderLibrary::loadShaders() {
                                    uniform vec4 mainColor;
                                    uniform int BloomEffect;
                                    in vec3 ourPosition;
-
-
+                                    in vec2 ourUVs;
+                                    uniform sampler2D texture0;
                                    
                                    void main(){
                                    vec4 color = mainColor;
                                    posTexture = vec4(ourPosition, 1);
-                                   FragColor = color;
+                                   FragColor = color*texture(texture0, ourUVs);
+                                   //FragColor = color;
+
                                    });
 
         std::string default_fragment_light = STRING(
@@ -356,6 +360,8 @@ void ShaderLibrary::loadShaders() {
                                        uniform int BloomEffect;
                                        in vec3 ourPosition;
                                        in vec3 ourNormals;
+                                       in vec2 ourUVs;
+
                                        uniform INT int lightNumber;
                                        struct PointLight {
                                           vec4 position;
