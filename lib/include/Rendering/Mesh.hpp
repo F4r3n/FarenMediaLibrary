@@ -16,5 +16,6 @@ namespace rendering {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> listIndices;
     };
+
 }
 }

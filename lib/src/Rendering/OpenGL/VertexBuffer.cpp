@@ -26,7 +26,7 @@ void VertexBuffer::destroy() {
 
 void VertexBuffer::prepareData()
 {
-#if !OPENGL_ES || OPENGL_ES_VERSION > 2
+#if !OPENGL_ES || OPENGL_ES_VERSION > 2//TODO why binding each time, if we use VAO ???
     glBindVertexArray(indexVAO);
 #endif
     glBindBuffer(GL_ARRAY_BUFFER, index);
@@ -113,13 +113,17 @@ void VertexBuffer::setBufferData(void* data,
 #if !OPENGL_ES || OPENGL_ES_VERSION > 2
     glBindVertexArray(indexVAO);
 #endif
-    glBindBuffer(GL_ARRAY_BUFFER, index);
-    glBufferData(GL_ARRAY_BUFFER,
+    if(numberVertices != size)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, index);
+        glBufferData(GL_ARRAY_BUFFER,
                  size*dataSize,
                  data,
                  staticData ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    numberVertices = size;
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        numberVertices = size;
+
+     }
 }
 
 bool VertexBuffer::isGenerated() {

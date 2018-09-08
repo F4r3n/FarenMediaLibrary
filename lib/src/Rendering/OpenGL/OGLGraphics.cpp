@@ -4,17 +4,23 @@
 #include "Rendering/Model.hpp"
 using namespace fm;
 using namespace rendering;
-Graphics::Graphics() {
+Graphics::Graphics()
+{
 }
-Graphics::~Graphics() {
+
+Graphics::~Graphics()
+{
 }
 
 void Graphics::clear(bool colorBuffer,
                      bool depthBuffer,
-                     bool replaceColor) const {
-    if(replaceColor) {
+                     bool replaceColor) const
+{
+    if(replaceColor)
+    {
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     }
+
     GLbitfield mask = 0;
     if(colorBuffer)
         mask |= GL_COLOR_BUFFER_BIT;
@@ -23,51 +29,68 @@ void Graphics::clear(bool colorBuffer,
     glClear(mask);
 }
 
-void Graphics::setViewPort(const fm::math::vec4i& rect) const {
+void Graphics::setViewPort(const fm::math::vec4i& rect) const
+{
     glViewport(rect.x, rect.y, rect.z, rect.w);
 }
 
-void Graphics::setViewPort(const fm::Rect<float>& rect) const {
+void Graphics::setViewPort(const fm::Rect<float>& rect) const
+{
     glViewport(rect.x, rect.y, rect.w, rect.h);
 }
 
-void Graphics::enable(RENDERING_TYPE r) const {
+void Graphics::enable(RENDERING_TYPE r) const
+{
     glEnable(renderingType[r]);
 }
-void Graphics::disable(RENDERING_TYPE r) const{
+void Graphics::disable(RENDERING_TYPE r) const
+{
     glDisable(renderingType[r]);
 }
 
 void Graphics::draw(int primitiveType,
                     unsigned int vertexCount,
-                    unsigned int* indices) const{
+                    unsigned int* indices) const
+{
     glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, indices);
 }
 
 void Graphics::draw(int primitiveType,
                     unsigned int vertexStart,
-                    unsigned int vertexCount) const{
+                    unsigned int vertexCount) const
+{
     glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void Graphics::draw(Model* model) const{
+    //setVertexBuffer(model->vertexBuffer);
+    model->PrepareBuffer();
+    for(size_t i = 0; i < model->GetNumberMeshes(); ++i)
+    {
+        fm::rendering::MeshContainer* mesh = model->GetMeshContainer(i);
+        draw(0,
+             mesh->listIndices.size(),
+             mesh->listIndices.data());
+    }
+
+}
+
 // TODO VAO needed with opengl CORE and not ES
-void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) const{
+void Graphics::setVertexBuffer(VertexBuffer* vertexBuffer) const
+{
     vertexBuffer->prepareData();
 }
 
-void Graphics::bindFrameBuffer(unsigned int id) const{
+void Graphics::bindFrameBuffer(unsigned int id) const
+{
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Graphics::bindTexture2D(int number, int idTexture, int type) const {
+void Graphics::bindTexture2D(int number, int idTexture, int type) const
+{
     glActiveTexture(GL_TEXTURE0 + number);
     glBindTexture(type, idTexture);
 }
 
-void Graphics::draw(Model* model) const{
-    setVertexBuffer(model->vertexBuffer);
 
-    draw(0,
-         model->meshContainer->listIndices.size(),
-         model->meshContainer->listIndices.data());
-}

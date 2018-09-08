@@ -88,28 +88,24 @@ void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera)
 
 void RenderingSystem::initStandardShapes()
 {
-    fm::Model* quad = new fm::Model();
-    quad->name = "Quad";
-    fm::Model* quadFS = new fm::Model();
-    quadFS->name = "QuadFS";
-    fm::Model* circle = new fm::Model();
-    circle->name = "Circle";
-    fm::Model* cube = new fm::Model();
-    cube->name = "Cube";
-    quad->meshContainer = fm::StandardShapes::CreateQuad();
-    circle->meshContainer = fm::StandardShapes::CreateCircle();
-    quadFS->meshContainer = fm::StandardShapes::CreateQuadFullScreen();
-    cube->meshContainer = fm::StandardShapes::CreateCube();
+    fm::Model* quad = new fm::Model("Quad");
+    fm::Model* quadFS = new fm::Model("QuadFS");
+    fm::Model* circle = new fm::Model("Circle");
+    fm::Model* cube = new fm::Model("Cube");
+    quad->AddMesh(fm::StandardShapes::CreateQuad());
+    circle->AddMesh(fm::StandardShapes::CreateCircle());
+    quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
+    cube->AddMesh(fm::StandardShapes::CreateCube());
 
 
     quad->generate();
     circle->generate();
     quadFS->generate();
     cube->generate();
-    fm::ResourcesManager::get().load<fm::Model>(quad->name, quad);
-    fm::ResourcesManager::get().load<fm::Model>(quadFS->name, quadFS);
-    fm::ResourcesManager::get().load<fm::Model>(circle->name, circle);
-    fm::ResourcesManager::get().load<fm::Model>(cube->name, cube);
+    fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
+    fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
+    fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
+    fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
 
     fm::Renderer::getInstance().createQuadScreen();
 
@@ -376,7 +372,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                 //}
                 if(mesh && material)
                 {
-                    if(mesh->model == nullptr || mesh->model->name.compare(mesh->GetModelType()) != 0)
+                    if(mesh->model == nullptr || mesh->model->GetName().compare(mesh->GetModelType()) != 0)
                     {
                         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
                     }
@@ -412,7 +408,7 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                         shader->setValue("lightNumber",lightNumber );
                         shader->setValue("viewPos", camTransform->getWorldPos());
                         fm::math::mat model = fm::math::mat();
-                        setModel(model, transform, worldPos);
+                        setModelPosition(model, transform, worldPos);
 
                         shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
                         shader->setValue("FM_M", model);
@@ -580,7 +576,7 @@ void RenderingSystem::over()
 
 }
 
-void RenderingSystem::setModel(fm::math::mat& model,
+void RenderingSystem::setModelPosition(fm::math::mat& model,
                                fmc::CTransform* transform,
                                const fm::math::Vector3f& worldPos)
 {

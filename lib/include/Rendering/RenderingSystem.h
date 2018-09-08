@@ -41,7 +41,7 @@ public:
     void pre_update(EntityManager& em);
 
     private:
-    void setModel(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos);
+    void setModelPosition(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos);
     void initStandardShapes();
     ~RenderingSystem();
     void initUniformBufferCamera(fmc::CCamera* camera);

@@ -1,14 +1,14 @@
 #ifndef MESHLOADER_HPP
 #define MESHLOADER_HPP
 
-
+#include <string>
 
 namespace fm
 {
 class MeshLoader
 {
     public:
-        void load();
+        static bool Load(const std::string &inFileName);
 };
 }
 
