@@ -9,7 +9,7 @@
 using namespace fm;
 using namespace rendering;
 
-bool MeshLoader::Load(const std::string &inFileName, Model *outModel, const std::__cxx11::string &inObjectName)
+bool MeshLoader::Load(const std::string &inFileName, Model *outModel, const std::string &inObjectName)
 {
     outModel = new Model(inObjectName);
 

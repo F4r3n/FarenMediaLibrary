@@ -6,7 +6,7 @@
 using namespace fm;
 using namespace rendering;
 
-Model::Model(const std::__cxx11::string &inName): Resource()
+Model::Model(const std::string &inName): Resource()
 {
     _name = inName;
 }
