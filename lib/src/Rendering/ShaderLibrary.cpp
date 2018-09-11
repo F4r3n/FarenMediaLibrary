@@ -343,7 +343,7 @@ void ShaderLibrary::loadShaders() {
                                    vec4 color = mainColor;
                                    posTexture = vec4(ourPosition, 1);
                                    FragColor = color*texture(texture0, ourUVs);
-                                   //FragColor = color;
+                                   FragColor = color;
 
                                    });
 

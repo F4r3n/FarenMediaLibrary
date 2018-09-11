@@ -1,3 +1,6 @@
+#include <Engine.h>
+#include <Window.h>
+#include <Time.h>
 #include "Core/application.h"
 #include <nlohmann/json.hpp>
 #include "Core/SceneManager.h"
@@ -7,9 +10,9 @@ using namespace fm;
 
 const std::string fileOutput = "fml.conf";
 
-Application::Application()
+Application::Application(const Config &inConfig)
 {
-
+    _currentConfig = inConfig;
 }
 
 Application::~Application()
@@ -44,7 +47,31 @@ void Application::Start()
 {
 }
 
+fm::Window* Application::GetWindow() const
+{
+    return _window;
+}
+fm::Engine* Application::GetEngine() const
+{
+    return _engine;
+}
+
 void Application::Init()
 {
+    _engine = new fm::Engine();
+    _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.name);
+    _window->Init();
+    _engine->Init();
+}
 
+void Application::Update()
+{
+    _window->update(_currentConfig.fpsWanted, false);
+    _engine->Update(fm::Time::dt);
+}
+
+void Application::DeInit()
+{
+    delete _window;
+    delete _engine;
 }

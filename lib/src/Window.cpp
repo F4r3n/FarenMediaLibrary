@@ -26,17 +26,21 @@ Window::Window(int width, int height, const std::string& name) {
     _nameWindow = name;
 
     Window::width = width;
-
     Window::height = height;
+
+}
+
+bool Window::Init()
+{
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
-        return;
+        return false;
     }
     SDL_DisplayMode DM;
     SDL_GetCurrentDisplayMode(0, &DM);
     Window::width = DM.w;
     Window::height = DM.h;
-    _window = SDL_CreateWindow(name.c_str(),
+    _window = SDL_CreateWindow(_nameWindow.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
                               Window::width,
@@ -57,12 +61,16 @@ Window::Window(int width, int height, const std::string& name) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetSwapInterval(0);
     setMSAA(4);
-    _Init();
-    _CreateShaders();
-    _CreateMaterials();
-    ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/Roboto-Medium.ttf"));
-    _isInit = true;
-    fm::Debug::get().LogError("Init");
+    if(_Init())
+    {
+        _CreateShaders();
+        _CreateMaterials();
+        ResourcesManager::get().load<RFont>("dejavu", new RFont("assets/fonts/Roboto-Medium.ttf"));
+        _isInit = true;
+        fm::Debug::get().LogError("Init");
+        return true;
+    }
+    return false;
 }
 
 void Window::_CreateMaterials()

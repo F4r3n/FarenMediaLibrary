@@ -31,6 +31,7 @@ public:
     static int height;
     static int x;
     static int y;
+    bool Init();
 private:
     bool _isInit = false;
     int _Init();
