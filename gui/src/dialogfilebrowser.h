@@ -9,25 +9,38 @@ struct EntityFile
         int type;
 };
 
+
+
 std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern);
 std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath);
 int IsDirectory(const char *path);
 
 
-
+//Only one file dialog can be visible at once
 class DialogFileBrowser
 {
+
+        struct InternalData
+        {
+                std::string _selectedFilePath;
+                bool _isOpened = false;
+                bool _isVisible = false;
+                std::string _currentFolderPath;
+                std::vector<EntityFile> _listFiles;
+        };
+
     public:
         DialogFileBrowser();
-        void Run(const std::string &path, const std::string &browserName,bool *isOpened);
+        static DialogFileBrowser& Get()
+        {
+            static DialogFileBrowser instance;
+            return instance;
+        }
+        void Import(const std::string &path, const std::string &browserName,bool *isOpened);
     private:
-        void _Open();
-        void _Close();
-        std::string _selectedFilePath;
-        static bool _isOpened;
-        static bool _isVisible;
-        std::string _currentFolderPath;
-        std::vector<EntityFile> _listFiles;
+
+        InternalData _internaldata;
+
 
 };
 

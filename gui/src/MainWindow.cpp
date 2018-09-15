@@ -106,9 +106,8 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
 void MainWindow::fileSystem_save_window()
 {
-    static DialogFileBrowser fileBrowser;
 
-    fileBrowser.Run(".", "Test",&_fileSystemSave);
+    DialogFileBrowser::Get().Import(".", "Test",&_fileSystemSave);
 }
 
 void MainWindow::menu() {

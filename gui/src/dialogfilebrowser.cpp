@@ -10,9 +10,6 @@
 #include <glob.h>
 #include <dirent.h>
 
-bool DialogFileBrowser::_isOpened = false;
-bool DialogFileBrowser::_isVisible = false;
-
 
 
 int IsDirectory(const char *path)
@@ -76,63 +73,44 @@ DialogFileBrowser::DialogFileBrowser()
 }
 
 
-void DialogFileBrowser::Run(const std::string &path, const std::string &browserName, bool *isOpened)
+void DialogFileBrowser::Import(const std::string &path, const std::string &browserName, bool *isOpened)
 {
-    if(!_isVisible)
+    if(!_internaldata._isVisible)
     {
         ImGui::OpenPopup(browserName.c_str());
-        _isVisible = true;
-        _currentFolderPath = path;
-        _listFiles = GetListFilesFromPath(_currentFolderPath);
+        _internaldata._isVisible = true;
+        _internaldata._currentFolderPath = path;
+        _internaldata._listFiles = GetListFilesFromPath(_internaldata._currentFolderPath);
     }
-    //ImGui::SetNextWindowPos(ImVec2(200, 200));
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(400,200));
-    //ImGui::SetNextWindowSizeConstraints(ImVec2(400,200), ImVec2(800,600));
+
     if(ImGui::BeginPopupModal(browserName.c_str(), isOpened,ImGuiWindowFlags_AlwaysAutoResize ))
     {
 
         ImGui::BeginChild("Folders", ImVec2(200, 200), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-        for(size_t i = 0; i < _listFiles.size(); ++i)
+        for(size_t i = 0; i < _internaldata._listFiles.size(); ++i)
         {
-            if (_listFiles[i].type == 4 && ImGui::Selectable(_listFiles[i].name.c_str()))
+            if (_internaldata._listFiles[i].type == 4 && ImGui::Selectable(_internaldata._listFiles[i].name.c_str()))
             {
-                _currentFolderPath += "/" +  _listFiles[i].name;
-                std::cout << _currentFolderPath << std::endl;
-                _listFiles = GetListFilesFromPath(_currentFolderPath);
-
+               _internaldata. _currentFolderPath += "/" +  _internaldata._listFiles[i].name;
+                _internaldata._listFiles = GetListFilesFromPath(_internaldata._currentFolderPath);
             }
-
         }
         ImGui::EndChild();
         ImGui::SameLine();
         ImGui::BeginChild("Files", ImVec2(200, 200), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-         for(size_t i = 0; i < _listFiles.size(); ++i)
+         for(size_t i = 0; i < _internaldata._listFiles.size(); ++i)
          {
-            if(_listFiles[i].type == 8)
-                ImGui::BulletText(_listFiles[i].name.c_str());
-
+            if(_internaldata._listFiles[i].type == 8)
+                ImGui::BulletText(_internaldata._listFiles[i].name.c_str());
          }
 
         ImGui::EndChild();
 
-
       ImGui::EndPopup();
     }
-    //ImGui::PopStyleVar(ImGuiStyleVar_WindowMinSize);
 
-    _isOpened = *isOpened;
-    _isVisible = *isOpened;
-}
-
-void DialogFileBrowser::_Open()
-{
-
-}
-
-void DialogFileBrowser::_Close()
-{
-
-
+    _internaldata._isOpened = *isOpened;
+    _internaldata._isVisible = *isOpened;
 }
