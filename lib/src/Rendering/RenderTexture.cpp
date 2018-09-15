@@ -83,7 +83,6 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
         {
             Texture t;
             t.filter = Filter::NEAREST;
-            std::cout << "Create texture " <<i << " " << _numberColors << " " << _multiSampling<< std::endl;
 
             t.generate(_width, _height, formats[i], types[i], _multiSampling);
 

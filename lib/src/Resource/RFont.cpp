@@ -100,7 +100,7 @@ RFont::RFont(const std::string& path) : Resource() {
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 
-    std::cout << "Font loaded " << glGetError() << std::endl;
+    std::cout << "Font loaded " << !glGetError() << std::endl;
     // exit(-1);
 }
 RFont::RFont() : Resource() {

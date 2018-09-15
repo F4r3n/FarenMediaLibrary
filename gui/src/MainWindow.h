@@ -72,6 +72,9 @@ private:
     std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
     DebugLogger _debugLogger;
     bool _activateDebugLogger = false;
+
+    std::string _projectName;
+    std::string _directoryPath;
 };
 
 

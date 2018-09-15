@@ -19,7 +19,7 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha) : _path(path) 
 
     Image image;
     if(!image.loadImage(path)) {
-        std::cout << "Error loading image " << path << std::endl;
+        std::cerr << "Error loading image " << path << std::endl;
     }
 
     // std::cout << "Texture " << texture.path << " Loaded " << texture.width <<
@@ -169,7 +169,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
         exit(-1);
     }
     glGenTextures(1, &_id);
-    std::cout << _id << std::endl;
     if(multiSampled > 0)
     {
         _textureKind = Kind::TEXTURE2D_MULTISAMPLED;
@@ -257,7 +256,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
         glTexParameteri(_textureKind, GL_TEXTURE_WRAP_S, wrapping);
         glTexParameteri(_textureKind, GL_TEXTURE_WRAP_T, wrapping);
     }
-    std::cout << _id << std::endl;
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
@@ -354,13 +352,10 @@ void Texture::writeToPNG(const std::string& name) {
 #if !OPENGL_ES
     if(_type == Type::UNSIGNED_BYTE)
     {
-        std::cout << _width << " " << _height << " " << _numberChannels
-                  << std::endl;
         unsigned char* data =  new unsigned char[_width * _height * _numberChannels];
         glBindTexture(_textureKind, _id);
         glGetTexImage(_textureKind, 0, _format, _type, data);
 
-        std::cout << (int)data[0] << std::endl;
         stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels);
         delete data;
     }

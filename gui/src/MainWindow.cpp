@@ -21,6 +21,7 @@
 #include "Core/Debug.h"
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
+#include "dialogfilebrowser.h"
 #define WITH_VIEW 1
 
 MainWindow::MainWindow(fm::Engine* engine) {
@@ -103,63 +104,66 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
     }
 }
 
-void MainWindow::fileSystem_save_window() {
-    ImGui::SetNextWindowPos(ImVec2(200, 20), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Save window", &_fileSystemSave);
-    static char nameScene[256] = {"scene"};
-    ImGui::InputText("Save name", nameScene, 256);
+void MainWindow::fileSystem_save_window()
+{
+    static DialogFileBrowser fileBrowser;
 
-    if(ImGui::Button("Save")) {
-        _nameCurrentScene = std::string(nameScene);
-        _fileSystemSave = false;
-    }
-    ImGui::SameLine();
-    if(ImGui::Button("Cancel")) {
-        _fileSystemSave = false;
-    }
-    ImGui::End();
+    fileBrowser.Run(".", "Test",&_fileSystemSave);
 }
 
 void MainWindow::menu() {
-    if(ImGui::BeginMainMenuBar()) {
-        if(ImGui::BeginMenu("File")) {
-            if(ImGui::BeginMenu("Run")) {
-                if(ImGui::MenuItem("Start")) {
+    if(ImGui::BeginMainMenuBar())
+    {
+        if(ImGui::BeginMenu("File"))
+        {
+            if(ImGui::BeginMenu("Run"))
+            {
+                if(ImGui::MenuItem("Start"))
+                {
                     _engine->Start();
                 }
-                if(ImGui::MenuItem("Pause")) {
+                if(ImGui::MenuItem("Pause"))
+                {
                     _engine->Stop();
                 }
-                if(ImGui::MenuItem("Stop")) {
+                if(ImGui::MenuItem("Stop"))
+                {
                     _engine->Reset();
                 }
                 ImGui::EndMenu();
             }
-            if(ImGui::MenuItem("Scene")) {
+            if(ImGui::MenuItem("Scene"))
+            {
                 _fileSystemSave = true;
             }
             ImGui::EndMenu();
         }
-        if(ImGui::BeginMenu("World")) {
-            if(ImGui::MenuItem("Light")) {
+        if(ImGui::BeginMenu("World"))
+        {
+            if(ImGui::MenuItem("Light"))
+            {
                 _windowWorldLightEdit = true;
             }
             ImGui::EndMenu();
         }
         static bool debugLoggerMenu = _activateDebugLogger;
         if(ImGui::BeginMenu("Options")) {
-            if(ImGui::MenuItem("Logger","L", &debugLoggerMenu)) {
+            if(ImGui::MenuItem("Logger","L", &debugLoggerMenu))
+            {
                 _activateDebugLogger = debugLoggerMenu;
             }
             ImGui::EndMenu();
         }
 
-        if(ImGui::BeginMenu("Cameras")) {
+        if(ImGui::BeginMenu("Cameras"))
+        {
             displayListCamera();
             ImGui::EndMenu();
         }
-        if(ImGui::BeginMenu("Entity")) {
-            if(ImGui::MenuItem("Create")) {
+        if(ImGui::BeginMenu("Entity"))
+        {
+            if(ImGui::MenuItem("Create"))
+            {
                 _windowCurrentEntity = true;
                 _currentEntity = fm::GameObjectHelper::create();
                 _currentEntity->addComponent<fmc::CTransform>(

@@ -4,7 +4,6 @@
 #include <Entity.h>
 Test::Test()
 {
-    std::cout << "INIIIIII" << std::endl;
 }
 
 void Test::Start()
