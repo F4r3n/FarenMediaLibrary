@@ -23,7 +23,13 @@ class Engine;
 }
 
 class MainWindow {
-
+enum WINDOWS
+{
+    WIN_LIGHT_EDIT,
+    WIN_LOGGER,
+    WIN_FILE_BROWSER_SAVE,
+    WIN_LAST
+};
 
 public:
     MainWindow(fm::Engine* engine);
@@ -62,19 +68,18 @@ private:
     fmc::CTransform* _mainCameraPosition;
 
     fm::Engine* _engine;
-    bool _windowWorldLightEdit = false;
     
     
     std::string _nameWindow;
     std::string _nameCurrentScene = "";
-    bool _fileSystemSave = false;
     
     std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
     DebugLogger _debugLogger;
-    bool _activateDebugLogger = false;
 
     std::string _projectName;
     std::string _directoryPath;
+
+    bool _windowStates[WIN_LAST];
 };
 
 

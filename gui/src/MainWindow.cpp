@@ -106,8 +106,12 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
 void MainWindow::fileSystem_save_window()
 {
+    DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_SAVE]);
+    if(DialogFileBrowser::Get().IsValid())
+    {
+        std::string result = DialogFileBrowser::Get().GetResult();
+    }
 
-    DialogFileBrowser::Get().Import(".", "Test",&_fileSystemSave);
 }
 
 void MainWindow::menu() {
@@ -131,9 +135,9 @@ void MainWindow::menu() {
                 }
                 ImGui::EndMenu();
             }
-            if(ImGui::MenuItem("Scene"))
+            if(ImGui::MenuItem("Save"))
             {
-                _fileSystemSave = true;
+                _windowStates[WIN_FILE_BROWSER_SAVE] = true;
             }
             ImGui::EndMenu();
         }
@@ -141,15 +145,15 @@ void MainWindow::menu() {
         {
             if(ImGui::MenuItem("Light"))
             {
-                _windowWorldLightEdit = true;
+                _windowStates[WIN_LIGHT_EDIT] = true;
             }
             ImGui::EndMenu();
         }
-        static bool debugLoggerMenu = _activateDebugLogger;
+        //static bool debugLoggerMenu = _activateDebugLogger;
         if(ImGui::BeginMenu("Options")) {
-            if(ImGui::MenuItem("Logger","L", &debugLoggerMenu))
+            if(ImGui::MenuItem("Logger","L", &_windowStates[WIN_LOGGER]))
             {
-                _activateDebugLogger = debugLoggerMenu;
+                _windowStates[WIN_LOGGER] = true;
             }
             ImGui::EndMenu();
         }
@@ -313,7 +317,7 @@ std::vector<const char*> MainWindow::getAllEntities()
 void MainWindow::window_WorldLightEditDisplay() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
-    ImGui::Begin("World light", &_windowWorldLightEdit);
+    ImGui::Begin("World light", &_windowStates[WIN_LIGHT_EDIT]);
     Inspector::OnDraw(_dlight->get<fmc::CDirectionalLight>(), &value);
     ImGui::End();
 }
@@ -323,11 +327,11 @@ void MainWindow::draw() {
     menu();
     menuEntity();
     listEntity();
-    if(_fileSystemSave)
+    if(_windowStates[WIN_FILE_BROWSER_SAVE])
         fileSystem_save_window();
     ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
     ImGui::ShowDemoWindow(&show_test_window);
-    if(_windowWorldLightEdit)
+    if(_windowStates[WIN_LIGHT_EDIT])
         window_WorldLightEditDisplay();
 
     if(ImGui::GetIO().MouseClicked[1]) {
@@ -355,7 +359,7 @@ void MainWindow::draw() {
     _gameView.draw();
 #endif
 
-    if(_activateDebugLogger)
+    if(_windowStates[WIN_LOGGER])
     {
         std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
         for(size_t i = 0; i < messages.size(); ++i)
