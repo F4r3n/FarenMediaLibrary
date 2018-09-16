@@ -104,15 +104,38 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
     }
 }
 
-void MainWindow::fileSystem_save_window()
+void MainWindow::DisplayWindow_Save()
 {
     DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_SAVE]);
     if(DialogFileBrowser::Get().IsValid())
     {
         std::string result = DialogFileBrowser::Get().GetResult();
-    }
 
+        _projectSettings.path = result + _projectSettings.name + "/";
+        _projectSettings.path = result + _projectSettings.name + "/" + _projectSettings.resourcesFolder + "/";
+
+        CreateFolder(_projectSettings.path.c_str());
+        CreateFolder(_projectSettings.resourcesFolder.c_str());
+
+    }
 }
+
+void MainWindow::DisplayWindow_ProjectSettings()
+{
+    ImGui::Begin("Project name", &_windowStates[WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("%s", _projectSettings.name.c_str());
+
+    static char bufferName[256];
+    ImGui::InputText("Poject name", bufferName, 256);
+    if(ImGui::Button("Valid"))
+    {
+        _projectSettings.name = std::string(bufferName);
+        _windowStates[WIN_PROJECT_SETTINGS] = false;
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::End();
+}
+
 
 void MainWindow::menu() {
     if(ImGui::BeginMainMenuBar())
@@ -134,6 +157,10 @@ void MainWindow::menu() {
                     _engine->Reset();
                 }
                 ImGui::EndMenu();
+            }
+            if(ImGui::MenuItem("Project Settings"))
+            {
+                _windowStates[WIN_PROJECT_SETTINGS] = true;
             }
             if(ImGui::MenuItem("Save"))
             {
@@ -314,7 +341,7 @@ std::vector<const char*> MainWindow::getAllEntities()
     return names;
 }
 
-void MainWindow::window_WorldLightEditDisplay() {
+void MainWindow::DisplayWindow_WorldLighEdit() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
     ImGui::Begin("World light", &_windowStates[WIN_LIGHT_EDIT]);
@@ -328,11 +355,15 @@ void MainWindow::draw() {
     menuEntity();
     listEntity();
     if(_windowStates[WIN_FILE_BROWSER_SAVE])
-        fileSystem_save_window();
+        DisplayWindow_Save();
+
+    if(_windowStates[WIN_PROJECT_SETTINGS])
+        DisplayWindow_ProjectSettings();
+
     ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
     ImGui::ShowDemoWindow(&show_test_window);
     if(_windowStates[WIN_LIGHT_EDIT])
-        window_WorldLightEditDisplay();
+        DisplayWindow_WorldLighEdit();
 
     if(ImGui::GetIO().MouseClicked[1]) {
         if(!_firstRightClick) {

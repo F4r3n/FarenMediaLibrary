@@ -50,6 +50,26 @@ std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern)
     return filenames;
 }
 
+int CreateFolder(const char *path, mode_t mode)
+{
+    struct stat            st;
+    int             status = 0;
+
+    if (stat(path, &st) != 0)
+    {
+        /* Directory does not exist. EEXIST for race condition */
+        if (mkdir(path, mode) != 0 && errno != EEXIST)
+            status = -1;
+    }
+    else if (!S_ISDIR(st.st_mode))
+    {
+        errno = ENOTDIR;
+        status = -1;
+    }
+
+    return(status);
+}
+
 std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath)
 {
     DIR* dir;
@@ -161,6 +181,7 @@ void DialogFileBrowser::Import(const std::string &path, const std::string &brows
                     {
                         if (ImGui::IsMouseDoubleClicked(0))
                         {
+                            _result =  _internaldata._listFiles[i].fullPath;
                             _UpdateData(_internaldata._listFiles[i].fullPath);
                         }
                         else

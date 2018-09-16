@@ -15,6 +15,7 @@ struct EntityFile
 std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern);
 std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath);
 int IsDirectory(const char *path);
+int CreateFolder(const char *path, mode_t mode = 0777);
 
 
 //Only one file dialog can be visible at once

@@ -28,7 +28,15 @@ enum WINDOWS
     WIN_LIGHT_EDIT,
     WIN_LOGGER,
     WIN_FILE_BROWSER_SAVE,
+    WIN_PROJECT_SETTINGS,
     WIN_LAST
+};
+
+struct ProjectSettings
+{
+    std::string name = "Project";
+    std::string path;
+    std::string resourcesFolder = "Resources";
 };
 
 public:
@@ -44,10 +52,12 @@ public:
     void draw();
     void displayComponentsAvailable();
     
-    void window_WorldLightEditDisplay();
 
     void displayListCamera();
-    void fileSystem_save_window();
+
+    void DisplayWindow_Save();
+    void DisplayWindow_ProjectSettings();
+    void DisplayWindow_WorldLighEdit();
 
 private:
     void _configureStyle();
@@ -76,7 +86,7 @@ private:
     std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
     DebugLogger _debugLogger;
 
-    std::string _projectName;
+    ProjectSettings _projectSettings;
     std::string _directoryPath;
 
     bool _windowStates[WIN_LAST];
