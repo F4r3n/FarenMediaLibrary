@@ -42,18 +42,21 @@ MainWindow::MainWindow(fm::Engine* engine) {
 #if WITH_VIEW
     fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(1280, 720, fmc::RENDER_MODE::FORWARD, false,8);
 #else
-    fmc::CCamera *tempRefCamera = mainCamera->addComponent<fmc::CCamera>(new fmc::CCamera(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4));
+    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4);
 #endif
-    _mainCameraPosition = _mainCamera->addComponent<fmc::CTransform>();
+    _mainCamera->addComponent<fmc::CTransform>();
 
 
     _mainCamera->name = "Camera";
     _engine->SetMainCamera(_mainCamera);
-    #if WITH_VIEW
+#if WITH_VIEW
     _gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
     tempRefCamera->target = _gameView.renderTexture;
 #endif
     fm::Debug::log("Init done");
+
+    for(size_t i = 0; i < WIN_LAST; ++i)
+        _windowStates[i] = false;
 }
 
 void MainWindow::displayComponents(fm::GameObject* currentEntity) {
@@ -106,18 +109,47 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
 void MainWindow::DisplayWindow_Save()
 {
-    DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_SAVE]);
-    if(DialogFileBrowser::Get().IsValid())
-    {
-        std::string result = DialogFileBrowser::Get().GetResult();
 
-        _projectSettings.path = result + _projectSettings.name + "/";
-        _projectSettings.path = result + _projectSettings.name + "/" + _projectSettings.resourcesFolder + "/";
+    ImGui::Begin("Project name", &_windowStates[WIN_CREATE_PROJECT], ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("%s", _projectSettings.name.c_str());
+
+    static char bufferName[256];
+    ImGui::InputText("Poject name", bufferName, 256);
+
+    static char path[PATH_MAX];
+    ImGui::InputText("##Path", path, PATH_MAX);
+    ImGui::SameLine();
+    if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
+    {
+        _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
+        DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
+        //std::cout << _windowStates[WIN_FILE_BROWSER_LOCATION] << std::endl;
+        if(DialogFileBrowser::Get().IsValid())
+        {
+            std::string result = DialogFileBrowser::Get().GetResult();
+
+            _projectSettings.path = result + _projectSettings.name + "/";
+            _projectSettings.resourcesFolder = result + _projectSettings.name + "/" + "Resources" + "/";
+
+            strcpy(path, _projectSettings.path.c_str());
+        }
+    }
+
+    if(ImGui::Button("Valid"))
+    {
+        _projectSettings.name = std::string(bufferName);
+        _windowStates[WIN_PROJECT_SETTINGS] = false;
 
         CreateFolder(_projectSettings.path.c_str());
         CreateFolder(_projectSettings.resourcesFolder.c_str());
 
+
+        ImGui::CloseCurrentPopup();
     }
+    ImGui::End();
+
+
+
 }
 
 void MainWindow::DisplayWindow_ProjectSettings()
@@ -164,7 +196,7 @@ void MainWindow::menu() {
             }
             if(ImGui::MenuItem("Save"))
             {
-                _windowStates[WIN_FILE_BROWSER_SAVE] = true;
+                _windowStates[WIN_CREATE_PROJECT] = true;
             }
             ImGui::EndMenu();
         }
@@ -211,9 +243,11 @@ void MainWindow::menu() {
     ImGui::EndMainMenuBar();
 }
 
-void MainWindow::displayListCamera() {
+void MainWindow::displayListCamera()
+{
     static bool value1 = true;
-    if(ImGui::MenuItem("Camera editor", "", &value1)) {
+    if(ImGui::MenuItem("Camera editor", "", &value1))
+    {
         _engine->SetMainCamera(_mainCamera);
     }
 
@@ -354,38 +388,43 @@ void MainWindow::draw() {
     menu();
     menuEntity();
     listEntity();
-    if(_windowStates[WIN_FILE_BROWSER_SAVE])
+    if(_windowStates[WIN_CREATE_PROJECT])
         DisplayWindow_Save();
 
     if(_windowStates[WIN_PROJECT_SETTINGS])
         DisplayWindow_ProjectSettings();
 
-    ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
-    ImGui::ShowDemoWindow(&show_test_window);
     if(_windowStates[WIN_LIGHT_EDIT])
         DisplayWindow_WorldLighEdit();
 
-    if(ImGui::GetIO().MouseClicked[1]) {
-        if(!_firstRightClick) {
+    ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
+    ImGui::ShowDemoWindow(&show_test_window);
+
+
+
+
+    if(ImGui::GetIO().MouseClicked[1])
+    {
+        if(!_firstRightClick)
+        {
             _firstPosMouseRightClick = ImGui::GetIO().MousePos;
             _firstRightClick = true;
         }
     }
 
-    if(ImGui::GetIO().MouseDown[1]) {
+    if(ImGui::GetIO().MouseDown[1])
+    {
         if(_firstRightClick) {
-            _mainCameraPosition->position.x +=
-                (_firstPosMouseRightClick.x - ImGui::GetIO().MousePos.x) *
-                _coeffMouseSpeed;
-            _mainCameraPosition->position.y +=
-                (_firstPosMouseRightClick.y - ImGui::GetIO().MousePos.y) *
-                _coeffMouseSpeed;
-
+            //_mainCameraEditorPosition->position.x += (_firstPosMouseRightClick.x - ImGui::GetIO().MousePos.x) * _coeffMouseSpeed;
+            //_mainCameraEditorPosition->position.y += (_firstPosMouseRightClick.y - ImGui::GetIO().MousePos.y) * _coeffMouseSpeed;
             _firstPosMouseRightClick = ImGui::GetIO().MousePos;
         }
-    } else {
+    }
+    else
+    {
         _firstRightClick = false;
     }
+
 #if WITH_VIEW
     _gameView.draw();
 #endif

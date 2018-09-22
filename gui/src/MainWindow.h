@@ -27,7 +27,8 @@ enum WINDOWS
 {
     WIN_LIGHT_EDIT,
     WIN_LOGGER,
-    WIN_FILE_BROWSER_SAVE,
+    WIN_CREATE_PROJECT,
+    WIN_FILE_BROWSER_LOCATION,
     WIN_PROJECT_SETTINGS,
     WIN_LAST
 };
@@ -63,7 +64,8 @@ private:
     void _configureStyle();
     GameView _gameView;
     fm::GameObject* _currentEntity = nullptr;
-    fm::GameObject* _mainCamera;
+
+
     Entity* _dlight;
     bool _windowCurrentEntity = true;
     bool _windowListEntity = false;
@@ -75,7 +77,6 @@ private:
     ImVec2 _firstPosMouseRightClick;
     float _coeffMouseSpeed = -0.8f;
     bool _firstRightClick = false;
-    fmc::CTransform* _mainCameraPosition;
 
     fm::Engine* _engine;
     
@@ -90,6 +91,10 @@ private:
     std::string _directoryPath;
 
     bool _windowStates[WIN_LAST];
+
+    fm::GameObject* _mainCamera;
+
+
 };
 
 

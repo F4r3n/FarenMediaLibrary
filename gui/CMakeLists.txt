@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 set(PROJECT_NAME "FarenEngine")
 project(${PROJECT_NAME})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 
 file(GLOB SOURCES_IMGUI "extlib/imgui/*.cpp")
 file(GLOB HEADERS_IMGUI "extlib/imgui/*.hpp" "extlib/imgui/*.h")

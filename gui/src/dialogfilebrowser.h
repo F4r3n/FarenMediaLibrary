@@ -7,16 +7,17 @@ struct EntityFile
 {
         std::string name;
         std::string fullPath;
+        std::string directory;
         int type;
 };
 
 
 
 std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern);
-std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath);
+std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath, std::string *outPath = nullptr);
 int IsDirectory(const char *path);
 int CreateFolder(const char *path, mode_t mode = 0777);
-
+int RenameFile(const char* path, const char* newPath);
 
 //Only one file dialog can be visible at once
 class DialogFileBrowser
@@ -53,8 +54,9 @@ class DialogFileBrowser
         bool _isValid;
 
         InternalData _internaldata;
-
-
+        size_t editedItem = -1;
+        bool openContexttualMenu = false;
+        bool renameWanted = false;
 };
 
 #endif // DIALOGFILEBROWSER_H
