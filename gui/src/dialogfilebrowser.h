@@ -25,10 +25,10 @@ class DialogFileBrowser
 
     struct InternalData
     {
-         std::string _selectedFilePath;
          bool _isOpened = false;
          bool _isVisible = false;
-         std::string _currentFolderPath;
+         std::string _currentPath;
+         std::string _currentDirectory;
          std::vector<EntityFile> _listFiles;
 
 
@@ -44,13 +44,14 @@ class DialogFileBrowser
         }
         void Import(const std::string &path, const std::string &browserName,bool *isOpened);
         void Run(const std::string &path, const std::string &browserName,bool *isOpened, bool folderOnly);
-        const std::string& GetResult() const {return _result;}
+        const std::string& GetResult() const {return _result.fullPath;}
+        void GetResult(std::string &outFileName, std::string &outFilePath);
         inline bool IsValid() const {return _isValid;}
 
     private:
         void _UpdateData(const std::string& path, bool previous = false);
-
-        std::string _result;
+        bool _IsPathAFolder(const std::string &inPath);
+        EntityFile _result;
         bool _isValid;
 
         InternalData _internaldata;

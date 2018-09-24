@@ -22,6 +22,7 @@
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
 #include "dialogfilebrowser.h"
+#include "Core/application.h"
 #define WITH_VIEW 1
 
 MainWindow::MainWindow(fm::Engine* engine) {
@@ -110,13 +111,15 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 void MainWindow::DisplayWindow_Save()
 {
 
-    ImGui::Begin("Project name", &_windowStates[WIN_CREATE_PROJECT], ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Project name##Save", &_windowStates[WIN_CREATE_PROJECT], ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("%s", _projectSettings.name.c_str());
 
     static char bufferName[256];
+    strcpy(bufferName, _projectSettings.name.c_str());
     ImGui::InputText("Poject name", bufferName, 256);
 
     static char path[PATH_MAX];
+
     ImGui::InputText("##Path", path, PATH_MAX);
     ImGui::SameLine();
     if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
@@ -142,15 +145,48 @@ void MainWindow::DisplayWindow_Save()
 
         CreateFolder(_projectSettings.path.c_str());
         CreateFolder(_projectSettings.resourcesFolder.c_str());
+        nlohmann::json s;
+        fm::SceneManager::get().Serialize(s);
 
+        std::string projectConfig = _projectSettings.path + "project.fml";
+        std::ofstream o(projectConfig.c_str(), std::ofstream::out);
+        o << std::setw(4) << s << std::endl;
+        o.close();
 
         ImGui::CloseCurrentPopup();
     }
     ImGui::End();
-
-
-
 }
+
+
+void MainWindow::DisplayWindow_Load()
+{
+    ImGui::Begin("Project name##Load", &_windowStates[WIN_PROJECT_LOAD], ImGuiWindowFlags_AlwaysAutoResize);
+
+    if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
+    {
+        _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
+        DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
+
+        if(DialogFileBrowser::Get().IsValid())
+        {
+            DialogFileBrowser::Get().GetResult(_projectSettings.name, _projectSettings.path);
+
+            std::cout << _projectSettings.path << std::endl;
+            _windowStates[WIN_FILE_BROWSER_LOCATION] = false;
+
+        }
+    }
+
+    if(ImGui::Button("Valid"))
+    {
+
+        _windowStates[WIN_PROJECT_LOAD] = false;
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::End();
+}
+
 
 void MainWindow::DisplayWindow_ProjectSettings()
 {
@@ -197,6 +233,10 @@ void MainWindow::menu() {
             if(ImGui::MenuItem("Save"))
             {
                 _windowStates[WIN_CREATE_PROJECT] = true;
+            }
+            if(ImGui::MenuItem("Load"))
+            {
+                _windowStates[WIN_PROJECT_LOAD] = true;
             }
             ImGui::EndMenu();
         }
@@ -396,6 +436,9 @@ void MainWindow::draw() {
 
     if(_windowStates[WIN_LIGHT_EDIT])
         DisplayWindow_WorldLighEdit();
+
+    if(_windowStates[WIN_PROJECT_LOAD])
+        DisplayWindow_Load();
 
     ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
     ImGui::ShowDemoWindow(&show_test_window);

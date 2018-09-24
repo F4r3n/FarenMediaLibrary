@@ -30,6 +30,7 @@ enum WINDOWS
     WIN_CREATE_PROJECT,
     WIN_FILE_BROWSER_LOCATION,
     WIN_PROJECT_SETTINGS,
+    WIN_PROJECT_LOAD,
     WIN_LAST
 };
 
@@ -59,7 +60,7 @@ public:
     void DisplayWindow_Save();
     void DisplayWindow_ProjectSettings();
     void DisplayWindow_WorldLighEdit();
-
+    void DisplayWindow_Load();
 private:
     void _configureStyle();
     GameView _gameView;
