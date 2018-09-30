@@ -1,3 +1,4 @@
+#include <sol2/sol.hpp>
 #include "Script/LuaManager.h"
 #include "Input/Input.h"
 #include "Core/Math/Vector2.h"
@@ -24,12 +25,25 @@ LuaManager LuaManager::instance;
 using namespace fmc;
 using namespace fm;
 
-LuaManager::LuaManager() {}
+LuaManager::LuaManager() {
+	lua = new sol::state;
+}
 
 LuaManager::~LuaManager() {}
 
-void LuaManager::registerComponents() {
-  
+void LuaManager::openLibraries()
+{
+	lua->open_libraries();
+}
+
+sol::state* LuaManager::getState()
+{
+	return lua;
+}
+
+void LuaManager::registerComponents() 
+{
+  /*
   registerComponent<math::Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),
    "x", &math::Vector2f::x, "y", &math::Vector2f::y);
   registerComponent<math::vec3>("Vector3",sol::constructors<sol::types<float, float, float>>(),
@@ -120,6 +134,6 @@ void LuaManager::registerComponents() {
     );
 
 
-  lua.set_function("createEntity", &createEntity);
+  lua.set_function("createEntity", &createEntity);*/
   
 }

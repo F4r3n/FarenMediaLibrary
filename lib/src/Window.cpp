@@ -3,7 +3,7 @@
 #include "Window.h"
 #include <Core/Config.h>
 
-#include "Time.h"
+#include <TimeDef.h>
 #include <chrono>
 #include <thread>
 #include "Rendering/Renderer.h"

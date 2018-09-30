@@ -7,7 +7,7 @@ CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
-set(FML_EXTLIB_LIB ${FML_PATH}/build/)
+set(FML_EXTLIB_LIB ${FML_PATH}/build/extlib)
 option(FML_BUILD_STATIC ON)
 option(FML_BUILD_SHARED OFF)
 
@@ -25,14 +25,22 @@ if(EMSCRIPTEN)
 else(EMSCRIPTEN)
 
 endif(EMSCRIPTEN)
-
-#OPENGL
-find_package(OpenGL REQUIRED)
-
-#OPENAL
-find_package(OpenAL REQUIRED)
-link_directories(${OPENAL_LIBRARIES_DIR})
-include_directories(${OPENAL_INCLUDE_DIR})
+IF (WIN32)
+	find_package(OpenGL)
+	set (OPENAL_LIBRARIES_DIR "" CACHE PATH "OPENAL_LIBRARIES")
+	set (OPENAL_INCLUDE_DIR "" CACHE PATH "OPENAL_INCLUDE_DIR")
+	link_directories(${OPENAL_LIBRARIES_DIR})
+	include_directories(${OPENAL_INCLUDE_DIR})
+ELSE()
+	
+	#OPENGL
+	find_package(OpenGL REQUIRED)
+	
+	#OPENAL
+	find_package(OpenAL REQUIRED)
+	link_directories(${OPENAL_LIBRARIES_DIR})
+	include_directories(${OPENAL_INCLUDE_DIR})
+ENDIF()
 
 #SDL2
 include_directories(${FML_EXTLIB}/SDL2/include)
@@ -74,7 +82,7 @@ link_directories(${FML_EXTLIB_LIB}/assimp/lib)
 if(BUILD_STATIC_FML)
 set(LIB_NAME ${PROJECT_NAME}_s)
 
-        add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
+    add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
 	target_link_libraries(${LIB_NAME} freetype)
 	target_link_libraries(${LIB_NAME} ECS)
 	target_link_libraries(${LIB_NAME} lua)
@@ -83,9 +91,8 @@ set(LIB_NAME ${PROJECT_NAME}_s)
 	target_link_libraries(${LIB_NAME} glew)
 	target_link_libraries(${LIB_NAME} openal)
 	target_link_libraries(${LIB_NAME} Box2D)
-        target_link_libraries(${LIB_NAME} assimp)
-
-        target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
+    target_link_libraries(${LIB_NAME} assimp)
+    target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 
 	if(CMAKE_COMPILER_IS_GNUCXX)
 		target_link_libraries(${LIB_NAME} gcc_s stdc++)
@@ -95,7 +102,7 @@ endif(BUILD_STATIC_FML)
 if(BUILD_SHARED_FML)
 set(LIB_NAME ${PROJECT_NAME})
 
-        add_library(${LIB_NAME} SHARED ${SOURCES} ${HEADERS})
+    add_library(${LIB_NAME} SHARED ${SOURCES} ${HEADERS})
 	target_link_libraries(${LIB_NAME} freetype)
 	target_link_libraries(${LIB_NAME} ECS)
 	target_link_libraries(${LIB_NAME} lua_shared)
@@ -104,9 +111,8 @@ set(LIB_NAME ${PROJECT_NAME})
 	target_link_libraries(${LIB_NAME} glew)
 	target_link_libraries(${LIB_NAME} openal)
 	target_link_libraries(${LIB_NAME} Box2D_shared)
-        target_link_libraries(${LIB_NAME} assimp)
-
-        target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
+    target_link_libraries(${LIB_NAME} assimp)
+    target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 
 	if(CMAKE_COMPILER_IS_GNUCXX)
 		target_link_libraries(${LIB_NAME} gcc stdc++)

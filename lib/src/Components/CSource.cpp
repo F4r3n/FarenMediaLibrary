@@ -67,7 +67,7 @@ void CSource::play() {
     alSourcePlay(source);
     ALenum error;
     if((error = alGetError()) != AL_NO_ERROR) {
-        fm::Debug::get().LogError("Error sound system", fm::Debug::MESSAGE_TYPE::ERROR);
+        fm::Debug::get().LogError("Error sound system", fm::Debug::MESSAGE_TYPE::MESSAGE_TYPE_ERROR);
         return;
     }
     ALint source_state;

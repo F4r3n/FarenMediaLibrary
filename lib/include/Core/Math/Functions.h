@@ -4,16 +4,18 @@
 
 namespace fm {
 namespace math {
+
+	const long double g_PI = 3.14159265358979323846;
     constexpr double pi() {
-        return M_PI;
+        return g_PI;
     }
 
     constexpr double halfPi() {
-        return M_PI / 2.0f;
+        return g_PI / 2.0f;
     }
 
     constexpr double twoPi() {
-        return 2.0f * M_PI;
+        return 2.0f * g_PI;
     }
     template <typename T>
     inline T radians(T a)

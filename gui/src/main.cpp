@@ -3,7 +3,7 @@
 
 #include <Engine.h>
 #include <Window.h>
-#include <Time.h>
+#include <TimeDef.h>
 
 #include <imgui/imgui.h>
 #include "imgui_impl_sdl_gl3.h"

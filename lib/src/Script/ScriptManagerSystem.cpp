@@ -9,7 +9,7 @@ ScriptManagerSystem::ScriptManagerSystem()
 {
     LuaManager::get().openLibraries();
     LuaManager::get().registerComponents();
-    CPPManager::get().LoadLibrary();
+    CPPManager::get().LoadPlugin();
 }
 
 

@@ -23,6 +23,19 @@ For the moment, the FarenEngine can :
 
 
 To install the whole project:
+
+* Clone the project with
+git clone https://github.com/F4r3n/FarenMediaLibrary.git
+git submodule init && git submodule update
+
+Installation on windows
+
+Install openAL
+https://www.openal.org/downloads/
+
+Install GLEW
+http://glew.sourceforge.net/install.html
+
 ```
 mkdir build
 cd build

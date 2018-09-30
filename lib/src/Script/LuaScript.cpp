@@ -47,13 +47,13 @@ void LuaScript::setName(const std::string& name)
 
 void LuaScript::start()
 {
-    LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
+//    LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
     hasStarted = true;
 }
 
 void LuaScript::update()
 {
-    LuaManager::get()[nameVariable]["update"](LuaManager::get()[nameVariable]);
+   // LuaManager::get()[nameVariable]["update"](LuaManager::get()[nameVariable]);
 }
 
 std::string LuaScript::getName() const
@@ -63,12 +63,12 @@ std::string LuaScript::getName() const
 
 void LuaScript::reload()
 {
-    LuaManager::get().getState().script_file(_scriptName);
+   // LuaManager::get().getState().script_file(_scriptName);
 }
 
 bool LuaScript::init(Entity* e)
 {
-
+	/*
       LuaManager::get().getState().script_file(_scriptName);
     std::string m = std::string("f_") + nameFile;
 
@@ -79,7 +79,7 @@ bool LuaScript::init(Entity* e)
     {
         LuaManager::get().getState()[nameVariable][o.first] = o.second;
     }
-    isInit = true;
+    isInit = true;*/
 
     return true;
 }

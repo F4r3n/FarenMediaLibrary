@@ -1,7 +1,7 @@
 
 #include "MainWindow.h"
 #include "Components/CCamera.h"
-#include <Time.h>
+#include <TimeDef.h>
 #include "Components/CMaterial.h"
 #include "Components/Body2D.h"
 #include "Components/CDirectionalLight.h"
@@ -23,7 +23,13 @@
 #include "Core/GameObject.h"
 #include "dialogfilebrowser.h"
 #include "Core/application.h"
+#include <iomanip>      // std::setw
+
 #define WITH_VIEW 1
+
+#ifndef PATH_MAX
+#define PATH_MAX 256
+#endif
 
 MainWindow::MainWindow(fm::Engine* engine) {
     fm::Debug::logWarning("Start init");

@@ -1,5 +1,5 @@
 #include "scripts/test.hpp"
-#include <Time.h>
+#include <TimeDef.h>
 #include <Core/Debug.h>
 #include <Entity.h>
 Test::Test()

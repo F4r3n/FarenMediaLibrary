@@ -1,6 +1,6 @@
 #pragma once
 #include "Script.h"
-#include <single/sol/sol.hpp>
+#include <sol2/sol_forward.hpp>
 #include <Entity.h>
 template <typename T> T* get(Entity* e) {
     assert(e);
@@ -14,6 +14,10 @@ template <typename T> T* add(Entity* e) {
     return t;
 }
 
+namespace sol
+{
+	class state;
+}
 
 class LuaManager {
     
@@ -24,26 +28,21 @@ class LuaManager {
         return instance;
     }
     
-    template <typename T>
-    decltype(auto) operator[](T && t) {
-        return lua[t];
-    }
+    //template <typename T>
+    //decltype(auto) operator[](T && t) {
+    //    return lua[t];
+    //}
     
-    sol::state& getState() {
-        return lua;
-    }
+	sol::state* getState();
+    //template <typename T, typename... Args> void registerComponent(const std::string& name, Args&&... args) {
+    //    lua.new_usertype<T>(name, args...);
+    //}
     
-    template <typename T, typename... Args> void registerComponent(const std::string& name, Args&&... args) {
-        lua.new_usertype<T>(name, args...);
-    }
-    
-    void openLibraries() {
-        lua.open_libraries();
-    }
+	void openLibraries();
     
     void registerComponents();
     
 private:
     static LuaManager instance;
-    sol::state lua;
+    sol::state *lua;
 };

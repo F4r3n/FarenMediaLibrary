@@ -1,6 +1,7 @@
 #include "EntityManager.h"
 #include "Entity.h"
 #include <cassert>
+#include <functional>
 
 #define DEBUG 0
 

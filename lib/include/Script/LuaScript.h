@@ -1,5 +1,5 @@
 #pragma once
-#include <single/sol/sol.hpp>
+
 #include "Core/Math/Vector2.h"
 #include "Input/InputManager.h"
 #include <vector>

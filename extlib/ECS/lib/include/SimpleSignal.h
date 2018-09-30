@@ -1,8 +1,14 @@
 // CC0 Public Domain: http://creativecommons.org/publicdomain/zero/1.0/
 //https://github.com/larspensjo/SimpleSignal
 #pragma once
-
+#ifdef __linux__ 
 #include <unistd.h>
+#elif _WIN32
+	// windows code goes here
+#else
+
+#endif
+
 #include <assert.h>
 #include <stdint.h>
 #include <functional>

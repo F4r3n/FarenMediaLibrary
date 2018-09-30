@@ -82,7 +82,7 @@ RFont::RFont(const std::string& path) : Resource() {
             ox = 0;
         }
 
-        texture->setData(tempBuffer, {ox, oy, g->bitmap.width, g->bitmap.rows});
+        texture->setData(tempBuffer, fm::Recti(ox, oy, g->bitmap.width, g->bitmap.rows));
 
         //#endif
         Character character = {

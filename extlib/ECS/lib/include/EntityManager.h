@@ -5,7 +5,7 @@
 #include <limits>
 #include <queue>
 #include <list>
-
+#include <functional>
 #define ADD_SIZE 200
 class Entity;
 typedef Entity* pEntity;

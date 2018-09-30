@@ -3,7 +3,7 @@
 
 #include <queue>
 #include <mutex>
-#define DEBUG_ERROR(message) fm::Debug::get().LogError(message, fm::Debug::MESSAGE_TYPE::ERROR);
+#define DEBUG_ERROR(message) fm::Debug::get().LogError(message, fm::Debug::MESSAGE_TYPE::MESSAGE_TYPE_ERROR);
 
 namespace fm {
 
@@ -24,9 +24,9 @@ class Debug {
    public:
     enum MESSAGE_TYPE
     {
-        INFO,
-        ERROR,
-        WARNING
+		MESSAGE_TYPE_INFO,
+		MESSAGE_TYPE_ERROR,
+		MESSAGE_TYPE_WARNING
     };
 
     struct Message
@@ -62,7 +62,7 @@ class Debug {
     {
         return _instance;
     }
-    void LogError(const std::string &content, MESSAGE_TYPE messageType = MESSAGE_TYPE::INFO);
+    void LogError(const std::string &content, MESSAGE_TYPE messageType = MESSAGE_TYPE::MESSAGE_TYPE_INFO);
     std::vector<Message> Flush();
 
 

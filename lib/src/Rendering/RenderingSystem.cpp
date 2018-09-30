@@ -620,7 +620,7 @@ void RenderingSystem::drawText(int posX, int posY,
     font->texture->bind();
 
     if(!(ctext->text.compare(ctext->previousText) == 0)) {
-        fm::math::vec4 coords[6 * ctext->text.size()];
+        fm::math::vec4 *coords = new fm::math::vec4[6 * ctext->text.size()];
         float x = posX;
         float y = posY;
         std::string::const_iterator c;
@@ -636,23 +636,18 @@ void RenderingSystem::drawText(int posX, int posY,
             if(!w || !h)
                 continue;
 
-            coords[n++] = (fm::math::vec4){
-                    x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y};
-            coords[n++] = (fm::math::vec4){x2, -y2, ch.t.x, ch.t.y};
-            coords[n++] = (fm::math::vec4){
-                    x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height};
-            coords[n++] = (fm::math::vec4){
-                    x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y};
-            coords[n++] = (fm::math::vec4){
-                    x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height};
-            coords[n++] =
-                    (fm::math::vec4){x2 + w,
-                    -y2 - h,
+            coords[n++] = fm::math::vec4(x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y);
+            coords[n++] = fm::math::vec4(x2, -y2, ch.t.x, ch.t.y);
+            coords[n++] = fm::math::vec4(x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height);
+            coords[n++] = fm::math::vec4( x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y);
+            coords[n++] = fm::math::vec4( x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height);
+            coords[n++] =fm::math::vec4(x2 + w, -y2 - h,
                     ch.t.x + ch.b_wh.x / font->atlas_width,
-                    ch.t.y + ch.b_wh.y / font->atlas_height};
+                    ch.t.y + ch.b_wh.y / font->atlas_height);
         }
         ctext->previousText = ctext->text;
         ctext->buffer->setBufferData(&coords[0], n, sizeof(float) * 4, false);
+		delete coords;
     }
     if(ctext->buffer != NULL && ctext->buffer->isGenerated()) {
         graphics.setVertexBuffer(ctext->buffer);
