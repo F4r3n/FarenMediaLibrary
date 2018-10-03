@@ -4,7 +4,7 @@
 #include <iostream>
 #include <Script/Script.h>
 
-#if defined (WIN32) && defined (BUILD_SHARED_LIBS)
+#if defined (WIN32)
 #if defined (_MSC_VER)
 #pragma warning(disable: 4251)
 #endif

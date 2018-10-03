@@ -16,7 +16,7 @@ void CPPManager::LoadPlugin()
 		fprintf(stderr, "Couldn't open lib: %s\n", dlerror());
 	}
 #else
-	hndl = LoadLibrary("../scriptCpp/libScriptCpp.dll");
+	hndl = LoadLibrary("../scriptCpp/Debug/ScriptCpp.dll");
 	if (!hndl) {
 		std::cout << "could not load the dynamic library" << std::endl;
 	}

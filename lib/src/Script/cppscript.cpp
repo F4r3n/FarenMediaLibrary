@@ -3,6 +3,7 @@
 #include <Entity.h>
 #include "Script/cppmanager.hpp"
 #include "Core/Debug.h"
+#include <Components/CTransform.h>
 using namespace fm;
 
 CppScript::CppScript(const std::string &nameClass)
@@ -37,6 +38,7 @@ void CppScript::start()
 {
     if(behaviour)
     {
+		fmc::CTransform *t = behaviour->entity->get<fmc::CTransform>();
         behaviour->Start();
         hasStarted = true;
     }
@@ -46,6 +48,7 @@ void CppScript::update()
 {
     if(behaviour)
     {
+		
         behaviour->Update();
     }
 }

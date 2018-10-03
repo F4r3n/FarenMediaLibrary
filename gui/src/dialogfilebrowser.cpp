@@ -6,22 +6,30 @@
 //For linux and mac
 #include <sys/types.h>
 #include <sys/stat.h>
+#if __linux__
 #include <unistd.h>
 #include <glob.h>
 #include <dirent.h>
+#endif
 #include <cstdio>
 
 
 int IsDirectory(const char *path)
 {
+#if __linux__
     struct stat statbuf;
     if (stat(path, &statbuf) != 0)
         return 0;
     return S_ISDIR(statbuf.st_mode);
+#else
+	return 0;
+#endif
 }
 
 std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern)
 {
+	std::vector<std::string> filenames;
+#if __linux__
     using namespace std;
     glob_t glob_result;
     memset(&glob_result, 0, sizeof(glob_result));
@@ -37,7 +45,7 @@ std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern)
     }
 
     // collect all the filenames into a std::list<std::string>
-    vector<string> filenames;
+   
     for(size_t i = 0; i < glob_result.gl_pathc; ++i)
     {
         filenames.push_back(string(glob_result.gl_pathv[i]));
@@ -45,7 +53,9 @@ std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern)
 
     // cleanup
     globfree(&glob_result);
+#else
 
+#endif
     // done
     return filenames;
 }
@@ -56,8 +66,9 @@ int RenameFile(const char* path, const char* newPath)
 }
 
 
-int CreateFolder(const char *path, mode_t mode)
+int CreateFolder(const char *path)
 {
+#if __linux__
     struct stat            st;
     int             status = 0;
 
@@ -72,15 +83,21 @@ int CreateFolder(const char *path, mode_t mode)
         errno = ENOTDIR;
         status = -1;
     }
+	return(status);
 
-    return(status);
+#else
+	return 0;
+
+#endif
 }
 
 std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath, std::string *outPath)
 {
+	std::vector<EntityFile> listFiles;
+#if __linux__
     DIR* dir;
     dirent *ent;
-    std::vector<EntityFile> listFiles;
+    
     char pathDir[PATH_MAX];
     realpath(inPath.c_str(), pathDir);
     std::string s(pathDir);
@@ -106,6 +123,9 @@ std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath, std::str
         }
         closedir(dir);
     }
+#else
+
+#endif
     return listFiles;
 }
 

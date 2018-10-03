@@ -24,20 +24,42 @@ set(FML_EXTLIB_LIB ${FML_PATH}/build)
 
 
 #OPENGL
-find_package(OpenGL REQUIRED)
+IF (MSVC)
+	find_package(OpenGL)
+	find_package(OpenAl)
+	if(NOT OpenAl_FOUND)
+		set (OPENAL_LIBRARIES_DIR "${FML_EXTLIB}/openal/windows/libs/Win64" CACHE PATH "Openal lib" FORCE)
+		set (OPENAL_INCLUDE_DIR "${FML_EXTLIB}/openal/windows/include" CACHE PATH "Openal include" FORCE)
+		set (OPENAL_LIBRARIES "openal32" CACHE STRING "Include dir" FORCE)
 
-#OPENAL
-find_package(OpenAL REQUIRED)
-link_directories(${OPENAL_LIBRARIES_DIR})
-include_directories(${OPENAL_INCLUDE_DIR})
+	endif()
+	link_directories(${OPENAL_LIBRARIES_DIR})
+	include_directories(${OPENAL_INCLUDE_DIR})
 
-#SDL2
-include_directories(${FML_EXTLIB}/SDL2/include)
-link_directories(${FML_EXTLIB_LIB}/SDL2/lib)
-MESSAGE(STATUS ${FML_EXTLIB}/SDL2/include)
-#GLEW
-include_directories(${FML_EXTLIB}/glew/include)
-link_directories(${FML_EXTLIB_LIB}/glew/lib)
+	#GLEW
+	find_package(GLEW)
+	if(NOT GLEW_FOUND)
+		set (GLEW_LIBRARIES_DIR "${FML_EXTLIB}/glew/lib/Release/x64" CACHE STRING "Lib dir" FORCE)
+		set (GLEW_INCLUDE_DIR "${FML_EXTLIB}/glew/include" CACHE PATH "Include dir" FORCE)
+		set (GLEW_LIBRARIES "glew32" CACHE STRING "Include dir" FORCE)
+	endif()
+
+	include_directories(${GLEW_INCLUDE_DIR})
+	link_directories(${GLEW_LIBRARIES_DIR})
+ELSE()
+	
+	#OPENGL
+	find_package(OpenGL REQUIRED)
+	
+	#OPENAL
+	find_package(OpenAL REQUIRED)
+	link_directories(${OPENAL_LIBRARIES_DIR})
+	include_directories(${OPENAL_INCLUDE_DIR})
+
+	#GLEW
+	include_directories(${FML_EXTLIB}/glew/include)
+	link_directories(${CMAKE_BINARY_DIR}/bin)
+ENDIF()
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -75,7 +97,7 @@ add_library(${LIB_NAME} SHARED
             ${Scripts_SRC} ${Scripts_HDR}
 
 )
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary glew SDL2-2.0 lua_shared glew freetype openal ECS Box2D ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s SDL2 lua ${GLEW_LIBRARIES} freetype ${OPENAL_LIBRARIES} ECS Box2D assimp ${OPENGL_LIBRARIES})
 
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)

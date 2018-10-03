@@ -8,8 +8,9 @@ Test::Test()
 
 void Test::Start()
 {
-    transform = entity->get<fmc::CTransform>();
-    transform->position.z += 1.0f;
+    transform =Get<fmc::CTransform>();
+	if(transform)
+		transform->position.z += 1.0f;
 }
 
 void Test::Update()

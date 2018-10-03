@@ -17,8 +17,8 @@
 #include "Core/Debug.h"
 #include "Rendering/material.hpp"
 using namespace fm;
-int Window::width;
-int Window::height;
+int Window::width = 0;
+int Window::height = 0;
 
 int Window::x = 0;
 int Window::y = 0;
@@ -36,10 +36,13 @@ bool Window::Init()
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return false;
     }
-    SDL_DisplayMode DM;
-    SDL_GetCurrentDisplayMode(0, &DM);
-    Window::width = DM.w;
-    Window::height = DM.h;
+	if (Window::width == 0 || Window::height == 0)
+	{
+		SDL_DisplayMode DM;
+		SDL_GetCurrentDisplayMode(0, &DM);
+		Window::width = DM.w;
+		Window::height = DM.h;
+	}
     _window = SDL_CreateWindow(_nameWindow.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
@@ -189,4 +192,9 @@ int Window::_Init() {
     glEnable(GL_DEPTH_TEST);
 
     return 1;
+}
+
+SDL_GLContext Window::GetContext()
+{ 
+	return (SDL_GLContext)_mainContext; 
 }

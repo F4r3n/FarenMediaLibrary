@@ -290,6 +290,8 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
         // PROFILER_START(Draw)
         draw(cam);
     }
+	//fm::Texture *tex = cam->_renderTexture->getColorBuffer();
+	//tex[0].writeToPNG("yolo.png");
 
     // PROFILER_STOP(Draw)
     // PROFILER_STOP(Rendering)

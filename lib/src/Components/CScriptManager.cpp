@@ -1,6 +1,8 @@
 #include "Components/CScriptManager.h"
 #include "Script/Script.h"
 #include <EntityManager.h>
+
+#include <Components/CTransform.h>
 using namespace fmc;
 const std::string CScriptManager::name = "Script Manager";
 

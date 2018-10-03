@@ -13,7 +13,9 @@ typedef std::bitset<MAX_COMPONENTS> Mask;
 class EntityManager {
 public:
     EntityManager();
-    static inline EntityManager& get() {
+    static inline EntityManager& get() 
+	{
+		static EntityManager em;
         return em;
     }
     ~EntityManager();

@@ -121,10 +121,7 @@ void ShaderLibrary::loadShaders() {
                                     TexCoords = colorTest;});
 
     std::string instancing_fragment = STRING(
-            #if OPENGL_ES == 1
-        precision highp float;
 
-        #endif
                                       in vec2 TexCoords;
                                       in vec3 Color;
                                       out vec4 color;
@@ -225,10 +222,7 @@ void ShaderLibrary::loadShaders() {
                                  });
                                  
                     std::string light_fragment_no_light = STRING(
-                            #if OPENGL_ES == 1
-        precision highp float;
 
-        #endif
                                  layout (location = 0) out vec4 FragColor;
                                  layout (location = 1) out vec4 BrightColor;
 
@@ -261,9 +255,8 @@ void ShaderLibrary::loadShaders() {
                                     int render_mode;
                                     };
                                  INT uniform int  reverse;
-                                void main(){
-                                    if(reverse == 0)
-
+                                void main()
+								{
                                     gl_Position = vec4(position, 1.0f);
                                     if(reverse == 0)
                                     {
@@ -304,13 +297,13 @@ void ShaderLibrary::loadShaders() {
                                  uniform mat4 FM_PVM;
                                  
                                  layout (std140) uniform shader_data
-                                { 
+								 { 
                                     mat4 FM_V;
                                     mat4 FM_P;
                                     mat4 FM_PV;
                                     int render_mode;
 
-                                    };
+                                  };
 
                                  out vec3 ourPosition;
                                  out vec3 ourNormals;
@@ -325,10 +318,7 @@ void ShaderLibrary::loadShaders() {
                                  });
 
     std::string default_fragment = STRING(
-            #if OPENGL_ES == 1
-        precision highp float;
 
-        #endif
                                    layout (location = 0) out vec4 FragColor;
                                    layout (location = 1) out vec4 BrightColor;
                                    layout (location = 2) out vec4 posTexture;
@@ -348,10 +338,7 @@ void ShaderLibrary::loadShaders() {
                                    });
 
         std::string default_fragment_light = STRING(
-                #if OPENGL_ES == 1
-            precision highp float;
 
-            #endif
                                        layout (location = 0) out vec4 FragColor;
                                        layout (location = 1) out vec4 BrightColor;
                                        layout (location = 2) out vec4 posTexture;
@@ -437,10 +424,7 @@ void ShaderLibrary::loadShaders() {
                                         });
 
     std::string default_fragment_sprite = STRING(
-            #if OPENGL_ES == 1
-        precision highp float;
 
-        #endif
                                           layout (location = 0) out vec4 FragColor;
                                           layout (location = 1) out vec4 BrightColor;
                                           layout (location = 2) out vec4 posTexture;
@@ -493,9 +477,7 @@ void ShaderLibrary::loadShaders() {
         });
 
     std::string default_fragment_particle = STRING(
-                #if OPENGL_ES == 1
-        precision highp float;
-        #endif
+
                                             in vec4 ourColor;
                                             in vec2 ourTexCoord;
                                             uniform sampler2D texture2d;

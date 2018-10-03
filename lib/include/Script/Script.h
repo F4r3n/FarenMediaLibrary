@@ -18,6 +18,8 @@ class Behaviour
         virtual ~Behaviour() {}
         virtual void Update() {}
         virtual void Start() {}
+		template <typename T>
+		T* Get() {return entity->get<T>(); }
     protected:
         Entity* entity;
 };

@@ -42,13 +42,13 @@ src/loadlib.c
 src/linit.c
 src/lutf8lib.c
 )
-add_library (lualib SHARED ${SOURCES})
+add_library (lua STATIC ${SOURCES})
 
 #if(FML_BUILD_SHARED_LIBS)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_library (lua_shared STATIC ${SOURCES})
-set_property(TARGET lua_shared PROPERTY POSITION_INDEPENDENT_CODE ON)
+#add_library (lua_shared STATIC ${SOURCES})
+#set_property(TARGET lua_shared PROPERTY POSITION_INDEPENDENT_CODE ON)
 #set_target_properties(lua PROPERTIES OUTPUT_NAME "lua") 
 #endif()
 

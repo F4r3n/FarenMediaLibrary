@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.0)
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g -Wall -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g -W1 -O3")
 option(EMSCRIPTEN OFF)
 set(V_EMSCRIPTEN ${EMSCRIPTEN})
 if(EMSCRIPTEN)
@@ -12,10 +12,6 @@ set(LINK_FLAGS "${LINK_FLAGS} -s FULL_ES3=1")
 endif(EMSCRIPTEN)
 
 add_subdirectory("extlib")
-
-set(BUILD_SHARED_FML ON CACHE BOOL "" FORCE)
-set(BUILD_STATIC_FML OFF CACHE BOOL "" FORCE)
-
 add_subdirectory("lib")
 add_subdirectory("gui")
 add_subdirectory("scriptCpp")

@@ -32,6 +32,7 @@ public:
     static int x;
     static int y;
     bool Init();
+	void* GetContext();
 private:
     bool _isInit = false;
     int _Init();

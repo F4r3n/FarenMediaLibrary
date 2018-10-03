@@ -10,8 +10,6 @@
 #endif
 #define POOL_SIZE 10000
 
-EntityManager EntityManager::em;
-
 EntityManager::EntityManager() {
 
     for(size_t i = 0; i < POOL_SIZE; ++i)
