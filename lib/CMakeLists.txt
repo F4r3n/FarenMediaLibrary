@@ -57,9 +57,9 @@ ELSE()
 	link_directories(${OPENAL_LIBRARIES_DIR})
 	include_directories(${OPENAL_INCLUDE_DIR})
 
-	#GLEW
-	include_directories(${FML_EXTLIB}/glew/include)
-	link_directories(${CMAKE_BINARY_DIR}/bin)
+	find_package(GLEW)
+	link_directories(${GLEW_LIBRARIES_DIR})
+	include_directories(${GLEW_INCLUDE_DIR})
 ENDIF()
 
 #SDL2
