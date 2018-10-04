@@ -20,46 +20,25 @@ set(General_HDR
 
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
-set(FML_EXTLIB_LIB ${FML_PATH}/build)
+set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 
 
-#OPENGL
-IF (MSVC)
-	find_package(OpenGL)
-	find_package(OpenAl)
-	if(NOT OpenAl_FOUND)
-		set (OPENAL_LIBRARIES_DIR "${FML_EXTLIB}/openal/windows/libs/Win64" CACHE PATH "Openal lib" FORCE)
-		set (OPENAL_INCLUDE_DIR "${FML_EXTLIB}/openal/windows/include" CACHE PATH "Openal include" FORCE)
-		set (OPENAL_LIBRARIES "openal32" CACHE STRING "Include dir" FORCE)
+#Opengl
+find_package(OpenGL)
 
-	endif()
-	link_directories(${OPENAL_LIBRARIES_DIR})
-	include_directories(${OPENAL_INCLUDE_DIR})
+#OpenAL
+set(OPENAL_LIBRARIES OpenAl32)
+link_directories(${FML_EXTLIB_LIB}/openal)
+include_directories(${FML_EXTLIB}/openal/include)
 
-	#GLEW
-	find_package(GLEW)
-	if(NOT GLEW_FOUND)
-		set (GLEW_LIBRARIES_DIR "${FML_EXTLIB}/glew/lib/Release/x64" CACHE STRING "Lib dir" FORCE)
-		set (GLEW_INCLUDE_DIR "${FML_EXTLIB}/glew/include" CACHE PATH "Include dir" FORCE)
-		set (GLEW_LIBRARIES "glew32" CACHE STRING "Include dir" FORCE)
-	endif()
+#GLEW
+set(GLEW_LIBRARIES glew)
+link_directories(${FML_EXTLIB_LIB}/glew)
+include_directories(${FML_EXTLIB}/glew/include)
 
-	include_directories(${GLEW_INCLUDE_DIR})
-	link_directories(${GLEW_LIBRARIES_DIR})
-ELSE()
-	
-	#OPENGL
-	find_package(OpenGL REQUIRED)
-	
-	#OPENAL
-	find_package(OpenAL REQUIRED)
-	link_directories(${OPENAL_LIBRARIES_DIR})
-	include_directories(${OPENAL_INCLUDE_DIR})
-
-	find_package(GLEW)
-	link_directories(${GLEW_LIBRARIES_DIR})
-	include_directories(${GLEW_INCLUDE_DIR})
-ENDIF()
+#SDL2
+include_directories(${FML_EXTLIB}/SDL2/include)
+link_directories(${FML_EXTLIB_LIB}/SDL2)
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)

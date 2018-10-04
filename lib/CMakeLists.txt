@@ -7,7 +7,7 @@ CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -W1")
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
-set(FML_EXTLIB_LIB ${FML_PATH}/build/extlib)
+set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 option(FML_BUILD_STATIC ON)
 option(FML_BUILD_SHARED OFF)
 
@@ -25,48 +25,22 @@ if(EMSCRIPTEN)
 else(EMSCRIPTEN)
 
 endif(EMSCRIPTEN)
-IF (MSVC)
-	find_package(OpenGL)
-	find_package(OpenAl)
-	if(NOT OpenAl_FOUND)
-		set (OPENAL_LIBRARIES_DIR "${FML_EXTLIB}/openal/windows/libs/Win64" CACHE PATH "Openal lib" FORCE)
-		set (OPENAL_INCLUDE_DIR "${FML_EXTLIB}/openal/windows/include" CACHE PATH "Openal include" FORCE)
-		set (OPENAL_LIBRARIES "openal32" CACHE STRING "Include dir" FORCE)
+#Opengl
+find_package(OpenGL)
 
-	endif()
-	link_directories(${OPENAL_LIBRARIES_DIR})
-	include_directories(${OPENAL_INCLUDE_DIR})
+#OpenAL
+set(OPENAL_LIBRARIES OpenAl32)
+link_directories(${FML_EXTLIB_LIB}/openal)
+include_directories(${FML_EXTLIB}/openal/include)
 
-	#GLEW
-	find_package(GLEW)
-	if(NOT GLEW_FOUND)
-		set (GLEW_LIBRARIES_DIR "${FML_EXTLIB}/glew/lib/Release/x64" CACHE STRING "Lib dir" FORCE)
-		set (GLEW_INCLUDE_DIR "${FML_EXTLIB}/glew/include" CACHE PATH "Include dir" FORCE)
-		set (GLEW_LIBRARIES "glew32" CACHE STRING "Include dir" FORCE)
-	endif()
-
-	include_directories(${GLEW_INCLUDE_DIR})
-	link_directories(${GLEW_LIBRARIES_DIR})
-ELSE()
-	
-	#OPENGL
-	find_package(OpenGL REQUIRED)
-	
-	#OPENAL
-	find_package(OpenAL REQUIRED)
-	link_directories(${OPENAL_LIBRARIES_DIR})
-	include_directories(${OPENAL_INCLUDE_DIR})
-
-	find_package(GLEW)
-	link_directories(${GLEW_LIBRARIES_DIR})
-	include_directories(${GLEW_INCLUDE_DIR})
-ENDIF()
+#GLEW
+set(GLEW_LIBRARIES glew)
+link_directories(${FML_EXTLIB_LIB}/glew)
+include_directories(${FML_EXTLIB}/glew/include)
 
 #SDL2
 include_directories(${FML_EXTLIB}/SDL2/include)
 link_directories(${FML_EXTLIB_LIB}/SDL2)
-
-
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -97,7 +71,6 @@ link_directories(${FML_EXTLIB_LIB}/Box2D)
 include_directories(${FML_EXTLIB}/assimp/include)
 link_directories(${FML_EXTLIB_LIB}/assimp/code/)
 
-if(BUILD_STATIC_FML)
 set(LIB_NAME ${PROJECT_NAME}_s)
 
     add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
@@ -115,27 +88,7 @@ set(LIB_NAME ${PROJECT_NAME}_s)
 	if(CMAKE_COMPILER_IS_GNUCXX)
 		target_link_libraries(${LIB_NAME} gcc_s stdc++)
 	endif(CMAKE_COMPILER_IS_GNUCXX)
-endif(BUILD_STATIC_FML)
 
-if(BUILD_SHARED_FML)
-set(LIB_NAME ${PROJECT_NAME})
-
-    add_library(${LIB_NAME} SHARED ${SOURCES} ${HEADERS})
-	target_link_libraries(${LIB_NAME} freetype)
-	target_link_libraries(${LIB_NAME} ECS)
-	target_link_libraries(${LIB_NAME} lua_shared)
-	target_link_libraries(${LIB_NAME} SDL2)
-	target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES})
-	target_link_libraries(${LIB_NAME} ${GLEW_LIBRARIES})
-	target_link_libraries(${LIB_NAME} ${OPENAL_LIBRARIES})
-	target_link_libraries(${LIB_NAME} Box2D_shared)
-    target_link_libraries(${LIB_NAME} assimp)
-    target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
-
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		target_link_libraries(${LIB_NAME} gcc stdc++)
-	endif(CMAKE_COMPILER_IS_GNUCXX)
-endif(BUILD_SHARED_FML)
 
 #INSTALL( DIRECTORY ${LIB_NAME} DESTINATION /usr/local/lib/fml/ )
 
