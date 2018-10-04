@@ -1,4 +1,18 @@
+[submodule "extlib/glm"]
+	path = extlib/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "extlib/sol2"]
+	path = extlib/sol2
+	url = https://github.com/ThePhD/sol2.git
+[submodule "extlib/glfw"]
+	path = extlib/glfw
+	url = https://github.com/glfw/glfw.git
 [submodule "extlib/freetype2"]
 	path = extlib/freetype2
-    url = git://git.savannah.gnu.org/freetype/freetype2.git
-
+    	url = git://git.savannah.gnu.org/freetype/freetype2.git
+[submodule "extlib/Box2D"]
+	path = extlib/Box2D
+	url = https://github.com/erincatto/Box2D.git
+[submodule "extlib/ECS"]
+	path = extlib/ECS
+	url = https://github.com/F4r3n/ECS.git
