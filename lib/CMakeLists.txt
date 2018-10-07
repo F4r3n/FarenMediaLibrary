@@ -14,7 +14,8 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 
 include_directories("include")
 file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
-
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(EMSCRIPTEN)
 	add_definitions(-DEMSCRIPTEN)

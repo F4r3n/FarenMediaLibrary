@@ -33,7 +33,8 @@ file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
-
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #Opengl
 find_package(OpenGL)
