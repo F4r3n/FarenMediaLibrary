@@ -1,4 +1,6 @@
+#include <ECS.h>
 #include "Engine.h"
+#include <Window.h>
 #include <TimeDef.h>
 
 #include "Physic/PhysicSystem.h"
@@ -18,6 +20,7 @@
 using namespace fm;
 Engine::Engine()
 {
+	_systems = std::unique_ptr<SystemManager>(new SystemManager());
 }
 
 Engine::~Engine()
@@ -68,13 +71,13 @@ void Engine::Start()
 {
 
 #ifdef PHYSIC_SYSTEM
-    _systems.addSystem(new fms::PhysicSystem());
-    _systems.getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
+    _systems->addSystem(new fms::PhysicSystem());
+    _systems->getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
 #endif
 
 #ifdef SCRIPT_SYSTEM
-    _systems.addSystem(new fms::ScriptManagerSystem());
-    _systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
+    _systems->addSystem(new fms::ScriptManagerSystem());
+    _systems->getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
 #endif
 }
 
@@ -87,22 +90,22 @@ void Engine::SetMainCamera(fm::GameObject *go)
 {
     _mainCamera = go;
     EntityManager::get().make();
-    _systems.getSystem<fms::RenderingSystem>()->setCamera(EntityManager::get().getEntity(go->getID()));
+    _systems->getSystem<fms::RenderingSystem>()->setCamera(EntityManager::get().getEntity(go->getID()));
 }
 
 void Engine::Init()
 {
-    _systems.addSystem(new fms::SoundSystem());
+    _systems->addSystem(new fms::SoundSystem());
 
-    _systems.addSystem(new fms::ScriptManagerSystem());
-    _systems.getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
+    _systems->addSystem(new fms::ScriptManagerSystem());
+    _systems->getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
 
     //fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
-    _systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
+    _systems->addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
 
     //renderer->setCamera(camera);
 
-    _systems.init(EntityManager::get(), EventManager::get());
+    _systems->init(EntityManager::get(), EventManager::get());
 }
 
 void Engine::Stop()
@@ -117,15 +120,15 @@ void Engine::Resume()
 
 void Engine::Reset()
 {
-    _systems.addSystem(new fms::PhysicSystem());
-    _systems.addSystem(new fms::ScriptManagerSystem());
+    _systems->addSystem(new fms::PhysicSystem());
+    _systems->addSystem(new fms::ScriptManagerSystem());
 }
 
 void Engine::Update(float dt)
 {
   //  auto start = std::chrono::system_clock::now();
 
-    _systems.update(dt * Time::scale, EntityManager::get(), EventManager::get());
+    _systems->update(dt * Time::scale, EntityManager::get(), EventManager::get());
 //_numberFramesTimer++;
     //if(_numberFramesTimer == 200) {
        //  auto end = std::chrono::system_clock::now();

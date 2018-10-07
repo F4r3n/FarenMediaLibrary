@@ -1,4 +1,6 @@
 #include "Components/Body2D.h"
+#include <Box2D/Box2D.h>
+
 #include <Box2D/Common/b2Math.h>
 #include <EntityManager.h>
 using namespace fmc;
@@ -15,15 +17,22 @@ Body2D::Body2D() {
 Body2D::~Body2D() {
 }
 
-void Body2D::Init(b2World* world, float P2M) {
+void Body2D::Init(b2World* world, float P2M) 
+{
+	b2PolygonShape box;
+	b2BodyDef bodyDef;
     if(isDynamic)
         bodyDef.type = b2_dynamicBody;
     body = world->CreateBody(&bodyDef);
+
     box.SetAsBox(size.x * P2M, size.y * P2M);
+
+	b2FixtureDef fixtureDef;
+
     fixtureDef.shape = &box;
     fixtureDef.density = density;
     fixtureDef.friction = friction;
-    fixture = body->CreateFixture(&fixtureDef);
+	body->CreateFixture(&fixtureDef);
     body->SetUserData(this);
     isReady = true;
 }
@@ -51,10 +60,11 @@ void Body2D::ApplyForce(fm::math::Vector2f &&power, fm::math::Vector2f &&pos) {
 }
 
 void Body2D::SetFriction(float value) {
-    fixture->SetFriction(value);
+	body->GetFixtureList()[0].SetFriction(value);
 }
 
 void Body2D::Destroy()
 {
     EntityManager::get().removeComponent<Body2D>(BaseComponent::_IDEntity);
+
 }

@@ -75,7 +75,8 @@ add_library(${LIB_NAME} SHARED
             ${Scripts_SRC} ${Scripts_HDR}
 
 )
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s SDL2 lua ${GLEW_LIBRARIES} freetype ${OPENAL_LIBRARIES} ECS Box2D assimp ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua ${GLEW_LIBRARIES} freetype ${OPENAL_LIBRARIES} ECS Box2D assimp ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)

@@ -24,7 +24,7 @@
 #include "dialogfilebrowser.h"
 #include "Core/application.h"
 #include <iomanip>      // std::setw
-
+#include <Window.h>
 #define WITH_VIEW 1
 
 #ifndef PATH_MAX
@@ -36,14 +36,13 @@ MainWindow::MainWindow(fm::Engine* engine) {
     _configureStyle();
     _engine = engine;
 
-    _dlight = EntityManager::get().createEntity();
-    _dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
-    _dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50,0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
-    _dlight->addComponent<fmc::CMaterial>();
-
-
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
+
+	_dlight = fm::GameObjectHelper::create();
+	_dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
+	_dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50, 0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
+	_dlight->addComponent<fmc::CMaterial>();
 
     _mainCamera = fm::GameObjectHelper::create();
 #if WITH_VIEW

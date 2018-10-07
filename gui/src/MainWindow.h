@@ -67,7 +67,7 @@ private:
     fm::GameObject* _currentEntity = nullptr;
 
 
-    Entity* _dlight;
+    fm::GameObject* _dlight;
     bool _windowCurrentEntity = true;
     bool _windowListEntity = false;
 

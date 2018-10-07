@@ -1,6 +1,6 @@
 #pragma once
-#include <ECS.h>
-#include "Components/component.h"
+
+class BaseComponent;
 namespace fmc {
 class CTransform;
 class CMaterial;

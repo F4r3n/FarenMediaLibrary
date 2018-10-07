@@ -1,12 +1,13 @@
 #pragma once
-#include <ECS.h>
-#include "Window.h"
+
 #include "Music/Speaker.h"
 #include "Music/Listener.h"
-
+#include <memory>
 namespace fm {
     class GameObject;
+	class Window;
 }
+class SystemManager;
 
 namespace fm
 {
@@ -20,7 +21,7 @@ public:
     void Update(float dt);
     void Init();
     void Start();
-    void Run(Window &window);
+    void Run(fm::Window &window);
     
     void Stop();
     void Resume();
@@ -36,7 +37,7 @@ public:
     void RunMainLoop(void *window);
 
     private:
-        SystemManager _systems;
+        std::unique_ptr<SystemManager> _systems;
         fm::GameObject *_mainCamera;
         Speaker _speaker;
         Listener _listener;
