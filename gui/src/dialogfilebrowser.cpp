@@ -6,10 +6,16 @@
 //For linux and mac
 #include <sys/types.h>
 #include <sys/stat.h>
-#if __linux__
+#if __linux__ || __APPLE__
 #include <unistd.h>
 #include <glob.h>
 #include <dirent.h>
+#else
+#include <windows.h>
+#include <tchar.h> 
+#include <stdio.h>
+#include <strsafe.h>
+#pragma comment(lib, "User32.lib")
 #endif
 #include <cstdio>
 
@@ -54,7 +60,7 @@ std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern)
     // cleanup
     globfree(&glob_result);
 #else
-
+	
 #endif
     // done
     return filenames;
@@ -124,6 +130,46 @@ std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath, std::str
         closedir(dir);
     }
 #else
+	/*WIN32_FIND_DATA ffd;
+	LARGE_INTEGER filesize;
+	TCHAR szDir[MAX_PATH];
+	size_t length_of_arg;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	DWORD dwError = 0;
+
+	// Check that the input path plus 3 is not longer than MAX_PATH.
+   // Three characters are for the "\*" plus NULL appended below.
+
+	StringCchLength(inPattern.c_str(), MAX_PATH, &length_of_arg);
+	StringCchCopy(szDir, MAX_PATH, argv[1]);
+	StringCchCat(szDir, MAX_PATH, TEXT("\\*"));
+
+	// Find the first file in the directory.
+
+	hFind = FindFirstFile(szDir, &ffd);
+
+
+	do
+	{
+		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			_tprintf(TEXT("  %s   <DIR>\n"), ffd.cFileName);
+		}
+		else
+		{
+			filesize.LowPart = ffd.nFileSizeLow;
+			filesize.HighPart = ffd.nFileSizeHigh;
+			_tprintf(TEXT("  %s   %ld bytes\n"), ffd.cFileName, filesize.QuadPart);
+		}
+	} while (FindNextFile(hFind, &ffd) != 0);
+
+	dwError = GetLastError();
+	if (dwError != ERROR_NO_MORE_FILES)
+	{
+		DisplayErrorBox(TEXT("FindFirstFile"));
+	}
+
+	FindClose(hFind);*/
 
 #endif
     return listFiles;

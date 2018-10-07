@@ -5,8 +5,8 @@
 namespace fm {
 namespace math {
 
-	const long double g_PI = 3.14159265358979323846;
-    inline const double pi() {
+	constexpr long double g_PI = 3.14159265358979323846;
+	constexpr double pi() {
         return g_PI;
     }
 
