@@ -19,31 +19,22 @@ For the moment, the FarenEngine can :
 + Forward/Deferred
 + Light effects
 + Serialization systeam
-### Installation
 
+### Installation
 
 To install the whole project:
 
 * Clone the project with
 git clone https://github.com/F4r3n/FarenMediaLibrary.git
-git submodule init && git submodule update
 
-Installation on windows
-
-Install openAL
-https://www.openal.org/downloads/
-
-Install GLEW
-http://glew.sourceforge.net/install.html
 
 ```
 mkdir build
 cd build
-cmake .. -DFML_BUILD_SHARED=ON
+cmake ..
 make
 ```
-
-
+It will create a static lib and the exe FarenEngine.
 
 ### List of dependencies
 
@@ -64,28 +55,36 @@ The dependencies are all in the folder extlib.
 #### Simple Window
 
 ```c++
-//To create a simple window where all the rendering will be made
-Window window(800, 600, "Simple Window");
+fm::Config config;
+	config.name = "FML Engine";//Name of the window
+	config.fpsWanted = 60;//Fps wanted
+	config.width = 800;
+	config.height = 600;
+	fm::Application app(config);
+	app.Init();//Init then engine
 
-/*Initialize your first entity there*/
 
-//initialize the engine, all the logic is there. 
-//The entities previously made will be created.
-Engine engine;
-engine.init();
+	fm::Window *window = app.GetWindow();
+	fm::Engine *engine = app.GetEngine();
 
-//The engine is ready and runs until the window is closed
-engine.run(window);
+	while (!window->isClosed())
+	{
+		app.Update();
+		window->swapBuffers();
+	}
+	app.DeInit();
 ```
 
 ### TODO
 
-- [ ] Load mesh
+- [x] Load mesh
 - [ ] 3D physics
 - [ ] Culling Perspective
 - [ ] 3D QuadTree
-- [ ] GUI/List entities
+- [x] GUI/List entities
 - [ ] GUI/Edit Shader
 - [ ] GUI/Add texture
-- [ ] C++ Scripts
+- [x] C++ Scripts //To improve
+- [ ] Command buffer
+- [ ] Filesystem
 ...
