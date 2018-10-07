@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 set(PROJECT_NAME "ScriptCpp")
 project(${PROJECT_NAME})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -fPIC -g")
 
 file(GLOB Scripts_SRC "src/scripts/*.cpp")
 
@@ -27,8 +26,8 @@ set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 find_package(OpenGL)
 
 #OpenAL
-set(OPENAL_LIBRARIES OpenAl32)
-link_directories(${FML_EXTLIB_LIB}/openal)
+set(OPENAL_LIBRARIES OpenAL32)
+link_directories(${FML_EXTLIB_LIB}/openal/lib)
 include_directories(${FML_EXTLIB}/openal/include)
 
 #GLEW

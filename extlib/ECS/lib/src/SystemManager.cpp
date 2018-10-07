@@ -4,7 +4,8 @@
 
 
 
-void SystemManager::init(EntityManager& em, EventManager &event) {
+void SystemManager::init(EntityManager& em, EventManager &event) 
+{
     EntityManager::get().make();
     for(auto &s : systems) {
 
@@ -18,8 +19,8 @@ void SystemManager::Free()
     systems.clear();
 }
 
-void SystemManager::update(float dt, EntityManager& em, EventManager &event) {
-
+void SystemManager::update(float dt, EntityManager& em, EventManager &event)
+{
     for(auto &s : systems) {
         
 

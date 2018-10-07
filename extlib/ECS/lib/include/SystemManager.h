@@ -7,9 +7,6 @@
 #include "Event.h"
 class SystemManager {
 public:
-    SystemManager(unsigned int numberSystems) {
-        
-    }
     
     SystemManager() {}
     ~SystemManager() {

@@ -270,7 +270,6 @@ private:
     std::list<pEntity> _listEntities;
 
     std::vector<std::unique_ptr<ComponentManager>> _entitiesComponents;
-    static EntityManager em;
 
     size_t _capacity = 0;
     size_t _currentMAX = 0;

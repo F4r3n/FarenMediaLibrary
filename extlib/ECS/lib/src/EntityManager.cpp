@@ -137,6 +137,7 @@ Entity* EntityManager::createEntity() {
         _entitiesComponents.resize(sizeFreeID);
     }
 
+	Entity* finalE = nullptr;
     if(_entities_killed.empty())
     {
 
@@ -147,7 +148,7 @@ Entity* EntityManager::createEntity() {
         entity = nullptr;
         _free_id.pop();
 
-		return _temp_entities.back();
+		finalE = _temp_entities.back();
 
     } else
     {
@@ -157,9 +158,9 @@ Entity* EntityManager::createEntity() {
 		_entities_killed.pop_back();
 		_entities_alive[id]->active = true;
 		_entities_alive[id]->ID = id;
-		return _entities_alive[id];
+		finalE = _entities_alive[id];
     }
-	return nullptr;
+	return finalE;
 }
 
 void EntityManager::getEntities(std::function<void(Entity*)> func)

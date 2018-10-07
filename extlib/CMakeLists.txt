@@ -19,16 +19,15 @@ set(BUILD_SHARED_LIBS OFF)
 set(EXTLIB_CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/extlib)
 
 foreach(TARGET freetype2 SDL2 ECS Box2D lua assimp openal glew)
+set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
+set(SDL_SHARED ON)
+set(SDL_STATIC OFF)
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${EXTLIB_CMAKE_BINARY_DIR}/${TARGET}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${EXTLIB_CMAKE_BINARY_DIR}/${TARGET}/lib)
 
-
-	if(${TARGET} STREQUAL "lua")
-	set(BUILD_SHARED_LIBS True)
-	endif()
-
+#Assimp is too big with a Static lib
 	if(${TARGET} STREQUAL "assimp")
-	set(BUILD_SHARED_LIBS True)
+	set(BUILD_SHARED_LIBS ON)
 	endif()
 	add_subdirectory(${TARGET})
     set(BUILD_SHARED_LIBS OFF)

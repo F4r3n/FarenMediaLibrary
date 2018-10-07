@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 set(PROJECT_NAME "FarenEngine")
 project(${PROJECT_NAME})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -W1")
 
 include_directories("extlib")
 set(SOURCES ${SOURCES} 
@@ -51,7 +50,7 @@ include_directories(${FML_EXTLIB}/glew/include)
 
 #SDL2
 include_directories(${FML_EXTLIB}/SDL2/include)
-link_directories(${FML_EXTLIB_LIB}/SDL2)
+link_directories(${FML_EXTLIB_LIB}/SDL2/lib)
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -92,7 +91,8 @@ include_directories(${FML_EXTLIB}/imgui/)
 
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s SDL2 lua ${GLEW_LIBRARIES} freetype ${OPENAL_LIBRARIES} ECS Box2D assimp ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua ${GLEW_LIBRARIES} freetype ${OPENAL_LIBRARIES} ECS Box2D assimp ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
