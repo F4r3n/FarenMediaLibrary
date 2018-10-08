@@ -71,14 +71,17 @@ union VariantValue
     ~VariantValue() { }
 };
 
-class MaterialValue {
+class MaterialValue 
+{
    public:
-    MaterialValue() {
-        valueType = ValuesType::VALUE_NONE;
+    MaterialValue() 
+	{
+        _valueType = ValuesType::VALUE_NONE;
     }
 
-    MaterialValue(const MaterialValue& material) {
-        setType(material.valueType);
+    MaterialValue(const MaterialValue& material) 
+	{
+        setType(material._valueType);
         setValue(material.getType(), material);
     }
 
@@ -86,105 +89,115 @@ class MaterialValue {
     {
         switch(valueType) {
         case ValuesType::VALUE_INT:
-            value.int_ = material.value.int_;
+            _value.int_ = material._value.int_;
             break;
         case ValuesType::VALUE_FLOAT:
-            value.float_ = material.value.float_;
+            _value.float_ = material._value.float_;
             break;
         case ValuesType::VALUE_VECTOR2_FLOAT:
-            value.vec2_ = material.value.vec2_;
+            _value.vec2_ = material._value.vec2_;
             break;
         case ValuesType::VALUE_VECTOR3_FLOAT:
-            value.vec3_ = material.value.vec3_;
+            _value.vec3_ = material._value.vec3_;
             break;
         case ValuesType::VALUE_VECTOR4_FLOAT:
-            value.vec4_ = material.value.vec4_;
+            _value.vec4_ = material._value.vec4_;
             break;
         case ValuesType::VALUE_MATRIX_FLOAT:
-            value.mat_ = material.value.mat_;
+            _value.mat_ = material._value.mat_;
             break;
         case ValuesType::VALUE_TEXTURE:
-            value.texture_ = material.value.texture_;
+            _value.texture_ = material._value.texture_;
             break;
             case ValuesType::VALUE_COLOR:
-                value.color_ = material.value.color_;
-                break;
+			_value.color_ = material._value.color_;
+			break;
         default:
             break;
         }
     }
 
-    void setType(ValuesType valueType) {
-        if(this->valueType == valueType)
+    void setType(ValuesType valueType)
+	{
+        if(_valueType == valueType)
             return;
 
-        this->valueType = valueType;
-        switch(valueType) {
+        _valueType = valueType;
+        switch(valueType) 
+		{
         case ValuesType::VALUE_VECTOR2_FLOAT:
-            new (&value.vec2_) math::vec2();
+            new (&_value.vec2_) math::vec2();
             break;
         case ValuesType::VALUE_VECTOR3_FLOAT:
-            new (&value.vec3_) math::vec3();
+            new (&_value.vec3_) math::vec3();
             break;
         case ValuesType::VALUE_VECTOR4_FLOAT:
-            new (&value.vec4_) math::vec4();
+            new (&_value.vec4_) math::vec4();
             break;
         case ValuesType::VALUE_MATRIX_FLOAT:
-            new (&value.mat_) math::mat();
+            new (&_value.mat_) math::mat();
             break;
             case ValuesType::VALUE_TEXTURE:
-                new (&value.texture_) fm::Texture();
+                new (&_value.texture_) fm::Texture();
                 break;
             case ValuesType::VALUE_COLOR:
-                new (&value.color_) fm::Color();
+                new (&_value.color_) fm::Color();
                 break;
         default:
             break;
         }
     }
 
-    MaterialValue(int v) {
+    MaterialValue(int v)
+	{
         setType(ValuesType::VALUE_INT);
-        value.int_ = static_cast<int>(v);
+        _value.int_ = static_cast<int>(v);
     }
 
-    MaterialValue(float v) {
+    MaterialValue(float v) 
+	{
         setType(ValuesType::VALUE_FLOAT);
-        value.float_ = static_cast<float>(v);
+        _value.float_ = static_cast<float>(v);
     }
 
-    MaterialValue(math::vec2 v) {
+    MaterialValue(math::vec2 v)
+	{
         setType(ValuesType::VALUE_VECTOR2_FLOAT);
-        value.vec2_ = static_cast<math::vec2>(v);
+        _value.vec2_ = static_cast<math::vec2>(v);
     }
 
-    MaterialValue(math::vec3 v) {
+    MaterialValue(math::vec3 v)
+	{
         setType(ValuesType::VALUE_VECTOR3_FLOAT);
-        value.vec3_ = static_cast<math::vec3>(v);
+        _value.vec3_ = static_cast<math::vec3>(v);
     }
 
-    MaterialValue(math::vec4 v) {
+    MaterialValue(math::vec4 v) 
+	{
         setType(ValuesType::VALUE_VECTOR4_FLOAT);
 
-        value.vec4_ = static_cast<math::vec4>(v);
+        _value.vec4_ = static_cast<math::vec4>(v);
     }
 
-    MaterialValue(math::mat v) {
+    MaterialValue(math::mat v) 
+	{
         setType(ValuesType::VALUE_MATRIX_FLOAT);
 
-        value.mat_ = static_cast<math::mat>(v);
+        _value.mat_ = static_cast<math::mat>(v);
     }
 
-    MaterialValue(TextureMat v) {
+    MaterialValue(TextureMat v)
+	{
         setType(ValuesType::VALUE_TEXTURE);
 
-        value.texture_ = static_cast<TextureMat>(v);
+        _value.texture_ = static_cast<TextureMat>(v);
     }
+
 
     MaterialValue(fm::Color v) {
         setType(ValuesType::VALUE_COLOR);
 
-        value.color_ = static_cast<fm::Color>(v);
+        _value.color_ = static_cast<fm::Color>(v);
     }
 
     MaterialValue& operator=(MaterialValue & m)
@@ -194,96 +207,113 @@ class MaterialValue {
         return *this;
     }
 
-    MaterialValue& operator=(int v) {
+    MaterialValue& operator=(int v)
+	{
         setType(ValuesType::VALUE_INT);
 
-        value.int_ = (int)v;
+        _value.int_ = (int)v;
         return *this;
     }
 
-    MaterialValue& operator=(float v) {
+    MaterialValue& operator=(float v)
+	{
         setType(ValuesType::VALUE_FLOAT);
 
-        value.float_ = (float)v;
+        _value.float_ = (float)v;
         return *this;
     }
 
-    MaterialValue& operator=(math::vec2 v) {
+    MaterialValue& operator=(math::vec2 v) 
+	{
         setType(ValuesType::VALUE_VECTOR2_FLOAT);
 
-        value.vec2_ = static_cast<math::vec2>(v);
+        _value.vec2_ = static_cast<math::vec2>(v);
         return *this;
     }
 
-    MaterialValue& operator=(math::vec3 v) {
+    MaterialValue& operator=(math::vec3 v)
+	{
         setType(ValuesType::VALUE_VECTOR3_FLOAT);
 
-        value.vec3_ = static_cast<math::vec3>(v);
+        _value.vec3_ = static_cast<math::vec3>(v);
         return *this;
     }
 
-    MaterialValue& operator=(math::vec4 v) {
+    MaterialValue& operator=(math::vec4 v) 
+	{
         setType(ValuesType::VALUE_VECTOR4_FLOAT);
 
-        value.vec4_ = static_cast<math::vec4>(v);
+        _value.vec4_ = static_cast<math::vec4>(v);
         return *this;
     }
 
-    MaterialValue& operator=(math::mat v) {
+    MaterialValue& operator=(math::mat v)
+	{
         setType(ValuesType::VALUE_MATRIX_FLOAT);
 
-        value.mat_ = static_cast<math::mat>(v);
+        _value.mat_ = static_cast<math::mat>(v);
         return *this;
     }
 
-    MaterialValue& operator=(TextureMat v) {
+    MaterialValue& operator=(TextureMat v)
+	{
         setType(ValuesType::VALUE_TEXTURE);
 
-        value.texture_ = static_cast<TextureMat>(v);
+        _value.texture_ = static_cast<TextureMat>(v);
         return *this;
     }
 
-    MaterialValue& operator=(fm::Color v) {
+    MaterialValue& operator=(fm::Color v) 
+	{
         setType(ValuesType::VALUE_COLOR);
 
-        value.color_ = static_cast<fm::Color>(v);
+        _value.color_ = static_cast<fm::Color>(v);
         return *this;
     }
 
-    int getInt() const {
-        return value.int_;
+    int getInt() const 
+	{
+        return _value.int_;
     }
 
-    float getFloat() const {
-        return value.float_;
+    float getFloat() const
+	{
+        return _value.float_;
     }
 
 
-    const math::vec2& getVector2() const {
-        return value.vec2_;
+    const math::vec2& getVector2() const
+	{
+        return _value.vec2_;
     }
 
-    const math::vec3& getVector3() const {
-        return value.vec3_;
+    const math::vec3& getVector3() const 
+	{
+        return _value.vec3_;
     }
 
-    const math::vec4& getVector4() const {
-        return value.vec4_;
+    const math::vec4& getVector4() const
+	{
+        return _value.vec4_;
     }
 
-    const math::mat& getMatrix() const {
-        return value.mat_;
+    const math::mat& getMatrix() const
+	{
+        return _value.mat_;
     }
-    const TextureMat& getTexture() const {
-        return value.texture_;
+    const TextureMat& getTexture() const
+	{
+        return _value.texture_;
     }
 
-    const fm::Color getColor() const {
-        return value.color_;
+    const fm::Color getColor() const 
+	{
+        return _value.color_;
     }
     
-    ValuesType getType() const{
-        return valueType;
+    ValuesType getType() const
+	{
+        return _valueType;
     }
 
     template <typename T>
@@ -291,21 +321,21 @@ class MaterialValue {
     {
         switch(valueType) {
         case ValuesType::VALUE_INT:
-            return value.int_;
+            return _value.int_;
         case ValuesType::VALUE_FLOAT:
-            return value.float_;
+            return _value.float_;
         case ValuesType::VALUE_VECTOR2_FLOAT:
-           return value.vec2_;
+           return _value.vec2_;
         case ValuesType::VALUE_VECTOR3_FLOAT:
-           return value.vec3_;
+           return _value.vec3_;
         case ValuesType::VALUE_VECTOR4_FLOAT:
-           return value.vec4_;
+           return _value.vec4_;
         case ValuesType::VALUE_MATRIX_FLOAT:
-           return value.mat_;
+           return _value.mat_;
         case ValuesType::VALUE_TEXTURE:
-            return value.texture_;
+            return _value.texture_;
         case ValuesType::VALUE_COLOR:
-            return value.color_;
+            return _value.color_;
 
         }
         return 0;
@@ -317,7 +347,7 @@ class MaterialValue {
     //}
 
    private:
-    ValuesType valueType = ValuesType::VALUE_NONE;
-    VariantValue value;
+    ValuesType _valueType = ValuesType::VALUE_NONE;
+    VariantValue _value;
 };
 }

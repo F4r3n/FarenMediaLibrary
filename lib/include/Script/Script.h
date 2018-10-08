@@ -8,6 +8,10 @@ class Entity;
 namespace fm {
 class CppScript;
 }
+namespace fmc
+{
+	class CTransform;
+}
 
 class Behaviour
 {
@@ -18,8 +22,8 @@ class Behaviour
         virtual ~Behaviour() {}
         virtual void Update() {}
         virtual void Start() {}
-		template <typename T>
-		T* Get() {return entity->get<T>(); }
+
+		fmc::CTransform* GetTransform() { return nullptr; }
     protected:
         Entity* entity;
 };
@@ -55,10 +59,7 @@ public:
     {
         return _scriptName;
     }
-    
-    //virtual void event(std::string name, const CameraInfo &camera) {}
-    //virtual void event(std::string name, const ColliderInfo& collider) {}
-    //virtual void event(std::string name, const Collider& collider) {}
+
 
     bool hasStarted = false;
     bool isInit = false;

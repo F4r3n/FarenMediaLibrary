@@ -63,8 +63,8 @@ void CCamera::Init()
     {
 
         projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
-        viewPort.w = _width;
-        viewPort.h = _height;
+        viewPort.w = static_cast<float>(_width);
+        viewPort.h = static_cast<float>(_height);
         viewPort.x = 0;
         viewPort.y = 0;
 
@@ -94,8 +94,8 @@ void CCamera::Init()
     }else
     {
         projection = fm::math::perspective(fm::math::radians(_fovy),(float)_width/(float)_height, _nearPlane, _farPlane);
-        viewPort.w = _width;
-        viewPort.h = _height;
+        viewPort.w = static_cast<float>(_width);
+        viewPort.h = static_cast<float>(_height);
         viewPort.x = 0;
         viewPort.y = 0;
 
@@ -193,10 +193,10 @@ void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int heig
 {
     _isOrto = true;
     projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, _nearPlane, _farPlane);
-    viewPort.w = width;
-    viewPort.h = height;
-    viewPort.x = x;
-    viewPort.y = y;
+    viewPort.w = static_cast<float>(width);
+    viewPort.h = static_cast<float>(height);
+    viewPort.x = static_cast<float>(x);
+    viewPort.y = static_cast<float>(y);
     if(_renderTexture != nullptr && _renderTexture->isCreated())
     {
         _renderTexture->release();

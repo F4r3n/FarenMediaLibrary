@@ -30,8 +30,8 @@ template <class T>
 class FMComponent : public Component<T>
 {
     public:
-        virtual bool Serialize(nlohmann::json &ioJson) const {return false;}
-        virtual bool Read(const nlohmann::json &inJSON) {return false;}
+        virtual bool Serialize(nlohmann::json &) const {return false;}
+        virtual bool Read(const nlohmann::json &) {return false;}
         virtual const std::string & GetName() const {return Component<T>::GetName();}
         virtual ~FMComponent() = default;
         virtual size_t GetType() const {return kNone;}

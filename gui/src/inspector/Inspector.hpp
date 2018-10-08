@@ -15,7 +15,7 @@ class Inspector {
     Inspector();
     virtual ~Inspector();
 
-    virtual void draw(bool *value) {}
+    virtual void draw(bool *) {}
     virtual void setTarget(BaseComponent* compo) {compo = _component;}
     BaseComponent* _component = nullptr;
     static void OnDraw(fmc::CDirectionalLight *dlight, bool *value);

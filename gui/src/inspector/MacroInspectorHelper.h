@@ -6,7 +6,7 @@
         void draw(bool *value);                    \
         name##Inspector();                         \
         name##Inspector(BaseComponent* component); \
-        void setTarget(BaseComponent* compo);      \
+        void setTarget();      \
         void init();                               \
         typeTarget* target;                        \
    // };
@@ -21,6 +21,6 @@
         target = static_cast<typeTarget*>(_component);          \
         init();                                                 \
     }                                                            \
-    void name##Inspector::setTarget(BaseComponent* compo) {      \
+    void name##Inspector::setTarget() {      \
         target = static_cast<typeTarget*>(_component);          \
     }
