@@ -1,10 +1,16 @@
 #pragma once
 #include "System.h"
 #include <Entity.h>
-
+#include <memory>
 namespace fmc {
 class CTransform;
 class CSource;
+}
+
+namespace fm
+{
+	class Speaker;
+	class Listener;
 }
 
 namespace fms {
@@ -20,5 +26,7 @@ public:
 
 private:
     void setSettings(fmc::CTransform* transform, fmc::CSource* sound);
+	std::unique_ptr<fm::Speaker> _speaker;
+	std::unique_ptr<fm::Listener> _listener;
 };
 }

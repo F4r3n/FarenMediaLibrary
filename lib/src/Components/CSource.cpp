@@ -2,6 +2,8 @@
 //#include <sndfile.h> TODO replace by my own
 #include <EntityManager.h>
 #include <Core/Debug.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 using namespace fmc;
 const std::string CSource::name = "Sound";
 

@@ -2,13 +2,16 @@
 #include <memory>
 #include <iostream>
 using namespace fm;
-Speaker::Speaker() {
+Speaker::Speaker() 
+{
     device = alcOpenDevice(NULL);
-    if(!device) {
+    if(!device) 
+	{
         std::cerr << "ERROR SPEAKER : No device found" << std::endl;
     }
     context = alcCreateContext(device, NULL);
-    if(!alcMakeContextCurrent(context)) {
+    if(!alcMakeContextCurrent(context))
+	{
         std::cerr << "Error init context" << std::endl;
     }
     

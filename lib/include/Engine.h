@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Music/Speaker.h"
-#include "Music/Listener.h"
+
 #include <memory>
 namespace fm {
     class GameObject;
@@ -39,8 +38,7 @@ public:
     private:
         std::unique_ptr<SystemManager> _systems;
         fm::GameObject *_mainCamera;
-        Speaker _speaker;
-        Listener _listener;
+
         bool _hasStopped = false;
 
         size_t _numberFramesTimer = 0;

@@ -39,11 +39,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #Opengl
 find_package(OpenGL)
 
-#OpenAL
-set(OPENAL_LIBRARIES OpenAL32)
-link_directories(${FML_EXTLIB_LIB}/openal/lib)
-include_directories(${FML_EXTLIB}/openal/include)
-
 #GLEW
 set(GLEW_LIBRARIES glew)
 link_directories(${FML_EXTLIB_LIB}/glew)
@@ -77,7 +72,7 @@ include_directories(${FML_EXTLIB}/imgui/)
 
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${GLEW_LIBRARIES} ${OPENAL_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 target_link_libraries(${PROJECT_NAME} ECS)
 

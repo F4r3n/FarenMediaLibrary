@@ -73,7 +73,7 @@ link_directories(${FML_EXTLIB_LIB}/assimp/code/)
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
-    add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
+    add_library(${LIB_NAME} INTERFACE ${SOURCES} ${HEADERS})
 	target_link_libraries(${LIB_NAME} freetype)
 	target_link_libraries(${LIB_NAME} ECS)
 	target_link_libraries(${LIB_NAME} lua)

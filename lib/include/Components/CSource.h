@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
-#include <AL/al.h>
-#include <AL/alc.h>
+
 #include "Core/Math/Vector2.h"
 #include "component.h"
 
@@ -25,8 +24,8 @@ class CSource : public FMComponent<CSource> {
         float volume = 1.0f;
         bool isLooping = false;
 
-        ALuint source;
-        ALuint buf;
+        unsigned int source;
+        unsigned int buf;
 
         bool toUpdate = false;
         void Destroy() override;
