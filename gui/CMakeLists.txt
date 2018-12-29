@@ -39,6 +39,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #Opengl
 find_package(OpenGL)
 
+set(OPENAL_LIBRARIES OpenAL32)
+include_directories(${FML_EXTLIB}/openal/include)
+link_directories(${FML_EXTLIB_LIB}/openal/lib)
+
+
 #GLEW
 set(GLEW_LIBRARIES glew)
 link_directories(${FML_EXTLIB_LIB}/glew)

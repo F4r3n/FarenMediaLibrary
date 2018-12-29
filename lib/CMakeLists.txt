@@ -30,7 +30,7 @@ find_package(OpenGL)
 
 #OpenAL
 set(OPENAL_LIBRARIES OpenAL32)
-link_directories(${FML_EXTLIB_LIB}/openal/lib)
+link_directories(${FML_EXTLIB_LIB}/openal)
 include_directories(${FML_EXTLIB}/openal/include)
 
 #GLEW
@@ -73,7 +73,7 @@ link_directories(${FML_EXTLIB_LIB}/assimp/code/)
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
-    add_library(${LIB_NAME} INTERFACE ${SOURCES} ${HEADERS})
+    add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
 	target_link_libraries(${LIB_NAME} freetype)
 	target_link_libraries(${LIB_NAME} ECS)
 	target_link_libraries(${LIB_NAME} lua)
