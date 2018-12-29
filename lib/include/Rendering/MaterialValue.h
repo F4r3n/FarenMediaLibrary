@@ -319,7 +319,7 @@ class MaterialValue
     template <typename T>
     const T& getAnyType() const
     {
-        switch(valueType) {
+        switch(_valueType) {
         case ValuesType::VALUE_INT:
             return _value.int_;
         case ValuesType::VALUE_FLOAT:
