@@ -26,10 +26,6 @@ public:
     void Resume();
     void Reset();
     
-    template <typename T>
-    inline T* GetSystem() {
-       return _systems->getSystem<T>();
-    }
     
     void SetMainCamera(fm::GameObject *go);
     GameObject* GetMainCamera();

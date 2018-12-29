@@ -11,7 +11,7 @@ class ScriptManagerSystem : public System<ScriptManagerSystem>, public Receiver<
 public:
     ScriptManagerSystem();
     ~ScriptManagerSystem();
-    void pre_update(EntityManager& em) {
+    void pre_update(EntityManager&) {
     }
     void update(float dt, EntityManager& em, EventManager& event);
     void init(EntityManager& em, EventManager& event);

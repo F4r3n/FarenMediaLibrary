@@ -54,32 +54,32 @@ public:
     void
     setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation);
 
-    Entity* fCamera = nullptr;
-    fmc::CTransform *camTransform;
-    int width;
-    int height;
+    Entity* _camera = nullptr;
+    fmc::CTransform *_camTransform;
+    int _width;
+    int _height;
 
-    fm::Shader *finalShader;
-    fm::Shader *lightShader;
+    fm::Shader *_finalShader;
+    fm::Shader *_lightShader;
 
-    TextDef textdef;
+    TextDef _textdef;
 
-    const GLuint bindingPointIndex = 2;
-    GLuint generatedBlockBinding;
-    fm::RenderQueue queue;
+    const GLuint _bindingPointIndex = 2;
+    GLuint _generatedBlockBinding;
+    fm::RenderQueue _queue;
 
-    bool blendingMode = false;
-    bool computeLightinh = false;
-    int queuePreviousValue = 0;
+    bool _blendingMode = false;
+    bool _computeLightinh = false;
+    int _queuePreviousValue = 0;
 
-    std::shared_ptr<fm::RenderTexture> lightRenderTexture;
-    std::shared_ptr<fm::RenderTexture> intermediate;
+    std::shared_ptr<fm::RenderTexture> _lightRenderTexture;
+    std::shared_ptr<fm::RenderTexture> _intermediate;
 
-    fm::Graphics graphics;
+    fm::Graphics _graphics;
     
-    fm::Bounds bounds;
-    std::unique_ptr<fm::UniformBuffer> uboLight;
-int lightNumber = 0;
+    fm::Bounds _bounds;
+    std::unique_ptr<fm::UniformBuffer> _uboLight;
+	int _lightNumber = 0;
 //    fm::Model *quad;
     
 };

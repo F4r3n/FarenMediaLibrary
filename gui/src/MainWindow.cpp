@@ -134,26 +134,36 @@ void MainWindow::DisplayWindow_Save()
         //std::cout << _windowStates[WIN_FILE_BROWSER_LOCATION] << std::endl;
         if(DialogFileBrowser::Get().IsValid())
         {
-            std::string result = DialogFileBrowser::Get().GetResult();
+            FilePath result = DialogFileBrowser::Get().GetResult();
 
-            _projectSettings.path = result + _projectSettings.name + "/";
-            _projectSettings.resourcesFolder = result + _projectSettings.name + "/" + "Resources" + "/";
+			if (result.IsFolder())
+			{
+				FilePath r(result);
+				r.Append(_projectSettings.name);
+				_projectSettings.path = r;
 
-            strcpy(path, _projectSettings.path.c_str());
+				r.Append("Resources");
+				_projectSettings.resourcesFolder = r.GetPath();
+
+			}
+
+            strcpy(path, _projectSettings.path.GetPath().c_str());
         }
     }
 
     if(ImGui::Button("Valid"))
     {
         _projectSettings.name = std::string(bufferName);
-        _windowStates[WIN_PROJECT_SETTINGS] = false;
+        _windowStates[WIN_CREATE_PROJECT] = false;
 
-        CreateFolder(_projectSettings.path.c_str());
+		_projectSettings.path.CreateFolder();
         CreateFolder(_projectSettings.resourcesFolder.c_str());
         nlohmann::json s;
         fm::SceneManager::get().Serialize(s);
 
-        std::string projectConfig = _projectSettings.path + "project.fml";
+		FilePath p(_projectSettings.path);
+		p.Append("project.fml");
+        std::string projectConfig = p.GetPath();
         std::ofstream o(projectConfig.c_str(), std::ofstream::out);
         o << std::setw(4) << s << std::endl;
         o.close();
@@ -175,9 +185,10 @@ void MainWindow::DisplayWindow_Load()
 
         if(DialogFileBrowser::Get().IsValid())
         {
-            DialogFileBrowser::Get().GetResult(_projectSettings.name, _projectSettings.path);
+			FilePath path;
+            DialogFileBrowser::Get().GetResult(_projectSettings.name, path);
 
-            std::cout << _projectSettings.path << std::endl;
+            std::cout << path.GetPath() << std::endl;
             _windowStates[WIN_FILE_BROWSER_LOCATION] = false;
 
         }

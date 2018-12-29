@@ -26,6 +26,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/scriptmanagerinspector.cpp
 	src/inspector/TransformInspector.cpp
 	src/debuglogger.cpp
+	src/FilePath.cpp
 	src/dialogfilebrowser.cpp
 
 	)

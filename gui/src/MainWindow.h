@@ -8,7 +8,7 @@
 #include "inspector/Inspector.hpp"
 #include "GameView.h"
 #include "debuglogger.h"
-
+#include "FilePath.h"
 
 namespace fmc {
     class CTransform;
@@ -37,7 +37,7 @@ enum WINDOWS
 struct ProjectSettings
 {
     std::string name = "Project";
-    std::string path;
+    FilePath path;
     std::string resourcesFolder = "Resources";
 };
 
