@@ -54,7 +54,7 @@ public:
     void
     setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation);
 
-    Entity* camera = nullptr;
+    Entity* fCamera = nullptr;
     fmc::CTransform *camTransform;
     int width;
     int height;

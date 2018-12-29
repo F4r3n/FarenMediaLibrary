@@ -46,7 +46,7 @@ RenderingSystem::RenderingSystem(int width, int height)
 
 }
 
-void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera)
+void RenderingSystem::initUniformBufferCamera(fmc::CCamera* inCamera)
 {
 
 
@@ -54,8 +54,8 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* camera)
     glGenBuffers(1, &generatedBlockBinding);
     glBindBuffer(GL_UNIFORM_BUFFER, generatedBlockBinding);
     glBufferData(GL_UNIFORM_BUFFER,
-                 sizeof(camera->shader_data),
-                 &camera->shader_data,
+                 sizeof(inCamera->shader_data),
+                 &inCamera->shader_data,
                  GL_DYNAMIC_COPY);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -146,7 +146,7 @@ void RenderingSystem::init(EntityManager& em, EventManager& event)
 
     }
     //If no camera found the first one from the entities
-    if(!camera)
+    if(!fCamera)
     {
         fm::Debug::log("INIT MainCamera");
         for(auto e : em.iterate<fmc::CCamera>())
@@ -164,8 +164,8 @@ void RenderingSystem::setCamera(Entity* camera)
     fmc::CTransform* ct = camera->get<fmc::CTransform>();
     cam->_viewMatrix = fm::math::mat();
     setView(cam->_viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h}, ct->rotation);
-    this->camera = camera;
-    this->camTransform = ct;
+    fCamera = camera;
+    camTransform = ct;
     //#if OPENGL_ES_VERSION > 2
     // initUniformBufferCamera(cam);
     //#endif
@@ -206,8 +206,8 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
                               const fm::math::Vector2f& size,
                               const fm::math::Vector3f& rotation)
 {
-    if(camera == nullptr) return;
-    fmc::CCamera *cam = camera->get<fmc::CCamera>();
+    if(fCamera == nullptr) return;
+    fmc::CCamera *cam = fCamera->get<fmc::CCamera>();
     if(cam->IsOrthographic())
     {
         fm::math::mat m;
@@ -229,15 +229,15 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
 
 void RenderingSystem::pre_update(EntityManager& em)
 {
-    assert(camera != nullptr);
+    assert(fCamera != nullptr);
 
-    fmc::CCamera* cam = camera->get<fmc::CCamera>();
+    fmc::CCamera* cam = fCamera->get<fmc::CCamera>();
     if(!lightRenderTexture->isCreated()) lightRenderTexture->create();
     if(!intermediate->isCreated()) intermediate->create();
     if(!cam->_renderTexture->isCreated()) cam->_renderTexture->create();
 
     cam->UpdateRenderTexture();
-    fmc::CTransform* ct = camera->get<fmc::CTransform>();
+    fmc::CTransform* ct = fCamera->get<fmc::CTransform>();
     bounds.setSize(fm::math::vec3(cam->viewPort.w,
                                   cam->viewPort.h,
                                   cam->GetFarPlane() - cam->GetNearPlane()));
@@ -250,9 +250,9 @@ void RenderingSystem::pre_update(EntityManager& em)
 
 void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 {
-    assert(camera != nullptr);
+    assert(fCamera != nullptr);
     // fm::Renderer::getInstance().bindFrameBuffer();
-    fmc::CCamera* cam = camera->get<fmc::CCamera>();
+    fmc::CCamera* cam = fCamera->get<fmc::CCamera>();
 
     if(!cam->_renderTexture->isCreated())
     {
@@ -317,7 +317,7 @@ void RenderingSystem::update(float dt, EntityManager& em, EventManager& event)
     finalShader->Use();
     finalShader->Use()->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
 
-    finalShader->setValue("viewPos", camera->get<fmc::CTransform>()->position);
+    finalShader->setValue("viewPos", fCamera->get<fmc::CTransform>()->position);
 
     fm::Renderer::getInstance().SetSources(graphics, lightRenderTexture->getColorBuffer(), 2);
     if(cam->target != nullptr)
@@ -582,8 +582,8 @@ void RenderingSystem::setModelPosition(fm::math::mat& model,
                                fmc::CTransform* transform,
                                const fm::math::Vector3f& worldPos)
 {
-    if(camera == nullptr) return;
-    fmc::CCamera *cam = camera->get<fmc::CCamera>();
+	assert(fCamera != nullptr);
+    fmc::CCamera *cam = fCamera->get<fmc::CCamera>();
     if(cam->IsOrthographic())
     {
         model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));

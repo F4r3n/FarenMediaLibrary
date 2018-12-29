@@ -28,7 +28,7 @@ public:
     
     template <typename T>
     inline T* GetSystem() {
-       return _systems.getSystem<T>();
+       return _systems->getSystem<T>();
     }
     
     void SetMainCamera(fm::GameObject *go);
