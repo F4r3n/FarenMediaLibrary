@@ -1,9 +1,4 @@
 macro(SET_COMPILER_OPTIONS)
-CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-
-if(HAVE_STD_C14)
-	add_compile_options("-std=c++14")
-endif()
 
 if(MSVC)
 	add_compile_options("/W4")
@@ -13,7 +8,7 @@ endif(MSVC)
 endmacro(SET_COMPILER_OPTIONS)
 
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.10)
 
 include(CheckCXXCompilerFlag)
 

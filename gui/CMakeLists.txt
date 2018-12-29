@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 set(PROJECT_NAME "FarenEngine")
 project(${PROJECT_NAME})
 
+
+
+
 include_directories("extlib")
 set(SOURCES ${SOURCES} 
 	src/imgui_impl_sdl_gl3.cpp
@@ -77,6 +80,8 @@ include_directories(${FML_EXTLIB}/imgui/)
 
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 target_link_libraries(${PROJECT_NAME} ECS)

@@ -2,176 +2,51 @@
 #include <sstream>
 #include <imgui/imgui.h>
 #include <iostream>
-
-//For linux and mac
-#include <sys/types.h>
-#include <sys/stat.h>
-#if __linux__ || __APPLE__
-#include <unistd.h>
-#include <glob.h>
-#include <dirent.h>
-#else
-#include <windows.h>
-#include <tchar.h> 
-#include <stdio.h>
-#include <strsafe.h>
-#pragma comment(lib, "User32.lib")
-#endif
 #include <cstdio>
+#include <filesystem>
 
+namespace fs = std::filesystem;
 
-int IsDirectory(const char *path)
+int IsDirectory(const char *inPath)
 {
-#if __linux__
-    struct stat statbuf;
-    if (stat(path, &statbuf) != 0)
-        return 0;
-    return S_ISDIR(statbuf.st_mode);
-#else
-	return 0;
-#endif
-}
-
-std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern)
-{
-	std::vector<std::string> filenames;
-#if __linux__
-    using namespace std;
-    glob_t glob_result;
-    memset(&glob_result, 0, sizeof(glob_result));
-
-    // do the glob operation
-    int return_value = glob(inPattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-    if(return_value != 0)
-    {
-        globfree(&glob_result);
-        stringstream ss;
-        ss << "glob() failed with return_value " << return_value << endl;
-        throw std::runtime_error(ss.str());
-    }
-
-    // collect all the filenames into a std::list<std::string>
-   
-    for(size_t i = 0; i < glob_result.gl_pathc; ++i)
-    {
-        filenames.push_back(string(glob_result.gl_pathv[i]));
-    }
-
-    // cleanup
-    globfree(&glob_result);
-#else
-	
-#endif
-    // done
-    return filenames;
-}
-
-int RenameFile(const char* path, const char* newPath)
-{
-    return rename(path, newPath);
+	fs::path path(inPath);
+	return fs::is_directory(path);
 }
 
 
-int CreateFolder(const char *path)
+void RenameFile(const char* path, const char* newPath)
 {
-#if __linux__
-    struct stat            st;
-    int             status = 0;
-
-    if (stat(path, &st) != 0)
-    {
-        /* Directory does not exist. EEXIST for race condition */
-        if (mkdir(path, mode) != 0 && errno != EEXIST)
-            status = -1;
-    }
-    else if (!S_ISDIR(st.st_mode))
-    {
-        errno = ENOTDIR;
-        status = -1;
-    }
-	return(status);
-
-#else
-	return 0;
-
-#endif
+	std::filesystem::rename(path, newPath);
 }
 
-std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath, std::string *outPath)
+
+bool CreateFolder(const char *path)
+{
+	if (!fs::is_directory(path))
+	{
+		return fs::create_directory(path);
+	}
+	return false;
+}
+
+std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath)
 {
 	std::vector<EntityFile> listFiles;
-#if __linux__
-    DIR* dir;
-    dirent *ent;
-    
-    char pathDir[PATH_MAX];
-    realpath(inPath.c_str(), pathDir);
-    std::string s(pathDir);
-    if(s[s.size() -1] != '/')
-        s.push_back('/');
-    if(outPath != nullptr)
-        *outPath = s;
 
-    if((dir = opendir(s.c_str())) != nullptr)
-    {
-        while((ent = readdir(dir)) != nullptr)
-        {
-
-            EntityFile f;
-            f.name = ent->d_name;
-            f.type = ent->d_type;
-            f.directory = s;
-            f.fullPath = std::string(s + f.name);
-            if(f.type == 4 && f.fullPath[f.fullPath.size() - 1] != '/')
-                f.fullPath.push_back('/');
-
-            listFiles.push_back(f);
-        }
-        closedir(dir);
-    }
-#else
-	/*WIN32_FIND_DATA ffd;
-	LARGE_INTEGER filesize;
-	TCHAR szDir[MAX_PATH];
-	size_t length_of_arg;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	DWORD dwError = 0;
-
-	// Check that the input path plus 3 is not longer than MAX_PATH.
-   // Three characters are for the "\*" plus NULL appended below.
-
-	StringCchLength(inPattern.c_str(), MAX_PATH, &length_of_arg);
-	StringCchCopy(szDir, MAX_PATH, argv[1]);
-	StringCchCat(szDir, MAX_PATH, TEXT("\\*"));
-
-	// Find the first file in the directory.
-
-	hFind = FindFirstFile(szDir, &ffd);
-
-
-	do
+	if (fs::is_directory(inPath))
 	{
-		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		for (auto& file : fs::directory_iterator(inPath))
 		{
-			_tprintf(TEXT("  %s   <DIR>\n"), ffd.cFileName);
+			EntityFile f;
+			f.name = file.path().filename().u8string();
+			f.isDirectory = file.is_directory();
+			f.parentDirectory = inPath;
+			f.fullPath = file.path().u8string();
+			
+			listFiles.push_back(f);
 		}
-		else
-		{
-			filesize.LowPart = ffd.nFileSizeLow;
-			filesize.HighPart = ffd.nFileSizeHigh;
-			_tprintf(TEXT("  %s   %ld bytes\n"), ffd.cFileName, filesize.QuadPart);
-		}
-	} while (FindNextFile(hFind, &ffd) != 0);
-
-	dwError = GetLastError();
-	if (dwError != ERROR_NO_MORE_FILES)
-	{
-		DisplayErrorBox(TEXT("FindFirstFile"));
 	}
 
-	FindClose(hFind);*/
-
-#endif
     return listFiles;
 }
 
@@ -186,7 +61,7 @@ void DialogFileBrowser::Run(const std::string &path, const std::string &browserN
     Import(path, browserName, isOpened);
 }
 
-void DialogFileBrowser::_UpdateData( const std::string& path , bool previous)
+void DialogFileBrowser::_UpdateData( const std::string& path)
 {
     _internaldata._currentDirectory = path;
     if(_IsPathAFolder( _internaldata._currentDirectory))
@@ -209,7 +84,8 @@ void DialogFileBrowser::Import(const std::string &path, const std::string &brows
         _isValid = false;
         if(_IsPathAFolder(path))
         {
-            _internaldata._listFiles = GetListFilesFromPath(path, &_internaldata._currentDirectory);
+            _internaldata._listFiles = GetListFilesFromPath(path);
+			_internaldata._currentDirectory = path;
         }
     }
 
@@ -248,7 +124,7 @@ void DialogFileBrowser::Import(const std::string &path, const std::string &brows
                      _internaldata._currentPath = _internaldata._listFiles[i].fullPath;
                     if (ImGui::IsMouseDoubleClicked(0))
                     {
-                        if(_internaldata._listFiles[i].type == 4)//If folder update path
+                        if(_internaldata._listFiles[i].isDirectory)//If folder update path
                         {
                             std::cout << _internaldata._listFiles[i].fullPath << std::endl;
                             _UpdateData(_internaldata._listFiles[i].fullPath);
@@ -290,7 +166,7 @@ void DialogFileBrowser::Import(const std::string &path, const std::string &brows
             strcpy(bufferFile, _internaldata._listFiles[editedItem].name.c_str());
             if(ImGui::InputText("tata", bufferFile, 256, ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                std::string newPath = _internaldata._listFiles[editedItem].directory + std::string(bufferFile);
+                std::string newPath = _internaldata._listFiles[editedItem].parentDirectory + std::string(bufferFile);
                 RenameFile(_internaldata._listFiles[editedItem].fullPath.c_str(),newPath.c_str());
                 _UpdateData(_internaldata._currentDirectory);
                 renameWanted = false;

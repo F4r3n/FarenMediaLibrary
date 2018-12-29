@@ -3,21 +3,21 @@
 #include <string>
 #include <vector>
 
+
 struct EntityFile
 {
         std::string name;
         std::string fullPath;
-        std::string directory;
-        int type;
+        std::string parentDirectory;
+		bool isDirectory;
 };
 
 
 
-std::vector<std::string> GetListFilesFromPattern(const std::string & inPattern);
-std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath, std::string *outPath = nullptr);
+std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath);
 int IsDirectory(const char *path);
-int CreateFolder(const char *path);
-int RenameFile(const char* path, const char* newPath);
+bool CreateFolder(const char *path);
+void RenameFile(const char* path, const char* newPath);
 
 //Only one file dialog can be visible at once
 class DialogFileBrowser
@@ -49,7 +49,7 @@ class DialogFileBrowser
         inline bool IsValid() const {return _isValid;}
 
     private:
-        void _UpdateData(const std::string& path, bool previous = false);
+        void _UpdateData(const std::string& path);
         bool _IsPathAFolder(const std::string &inPath);
         EntityFile _result;
         bool _isValid;
