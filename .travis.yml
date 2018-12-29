@@ -1,11 +1,9 @@
 language : generic
-env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
+env: COMPILER_NAME=gcc CXX=g++-7 CC=gcc-7
 addons:
   apt:
     packages:
-      - g++-5
-      - cmake
-      - cmake-data
+      - g++-7
     sources: &sources
       - ubuntu-toolchain-r-test
 
@@ -16,7 +14,16 @@ before_install:
 
 
 compiler :
-  - gcc-5
+  - gcc-7
+  
+ install:    
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  - travis_retry wget --no-check-certificate https://cmake.org/files/v3.13/cmake-3.13.1-Linux-x86_64.tar.gz
+  - tar -xvf cmake-3.13.1-Linux-x86_64.tar.gz > /dev/null
+  - mv cmake-3.13.1-Linux-x86_64 cmake-install
+  - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+  - cd ${TRAVIS_BUILD_DIR}
 
 
 script : 
