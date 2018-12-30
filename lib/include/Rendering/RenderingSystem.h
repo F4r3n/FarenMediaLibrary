@@ -13,24 +13,54 @@
 #include <string>
 #include "Rendering/MaterialValue.h"
 
-namespace fmc {
-class CText;
-class CTransform;
-class CMesh;
+namespace fmc 
+{
+	class CText;
+	class CTransform;
+	class CMesh;
 }
 
-struct TextDef {
+namespace fm
+{
+	class UniformBuffer;
+}
+
+struct TextDef 
+{
     GLuint VBO;
     fm::math::mat projection;
 };
 
-namespace fm
-{
-    class UniformBuffer;
-}
 
-namespace fms {
-class RenderingSystem : public System<RenderingSystem> {
+struct RendererConfiguration
+{
+	Entity* camera = nullptr;
+	fmc::CTransform *camTransform;
+
+
+	const GLuint bindingPointIndex = 2;
+	GLuint generatedBlockBinding;
+	fm::RenderQueue queue;
+
+	bool blendingMode = false;
+	int queuePreviousValue = 0;
+
+	std::shared_ptr<fm::RenderTexture> lightRenderTexture;
+	std::shared_ptr<fm::RenderTexture> intermediate;
+
+
+	fm::Bounds bounds;
+	std::unique_ptr<fm::UniformBuffer> uboLight;
+};
+
+
+
+
+namespace fms 
+{
+
+class RenderingSystem : public System<RenderingSystem> 
+{
 public:
     RenderingSystem(int width, int height);
     void setCamera(Entity* camera);
@@ -54,33 +84,18 @@ public:
     void
     setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation);
 
-    Entity* _camera = nullptr;
-    fmc::CTransform *_camTransform;
-    int _width;
-    int _height;
+private:
+	RendererConfiguration _rendererConfig;
 
-    fm::Shader *_finalShader;
-    fm::Shader *_lightShader;
-
-    TextDef _textdef;
-
-    const GLuint _bindingPointIndex = 2;
-    GLuint _generatedBlockBinding;
-    fm::RenderQueue _queue;
-
-    bool _blendingMode = false;
-    bool _computeLightinh = false;
-    int _queuePreviousValue = 0;
-
-    std::shared_ptr<fm::RenderTexture> _lightRenderTexture;
-    std::shared_ptr<fm::RenderTexture> _intermediate;
-
-    fm::Graphics _graphics;
-    
-    fm::Bounds _bounds;
-    std::unique_ptr<fm::UniformBuffer> _uboLight;
+	fm::Shader *_finalShader;
+	fm::Shader *_lightShader;
+	int _width;
+	int _height;
 	int _lightNumber = 0;
-//    fm::Model *quad;
+
+	fm::Graphics _graphics;
+
+	TextDef _textdef;
     
 };
 }

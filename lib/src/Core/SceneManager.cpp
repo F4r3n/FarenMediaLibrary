@@ -33,6 +33,21 @@ void SceneManager::Serialize(nlohmann::json &outjson)
     }
 }
 
+
+void SceneManager::SerializeEditor(nlohmann::json &outjson)
+{
+	nlohmann::json s;
+	_editorScene->Serialize(s);
+	outjson = s;
+}
+
+
+bool SceneManager::ReadEditor(const nlohmann::json &injson)
+{
+	_editorScene->Read(injson);	
+	return true;
+}
+
 bool SceneManager::Read(const nlohmann::json &injson)
 {
     for (nlohmann::json::const_iterator it = injson.cbegin(); it != injson.cend(); ++it) {
@@ -60,3 +75,15 @@ Scene* SceneManager::getScene(const std::string &name)
     }
     return nullptr;
 }
+
+void SceneManager::InitEditorScene()
+{
+	if (_editorScene != nullptr)
+	{
+		delete _editorScene;
+	}
+
+	_editorScene = new Scene("Editor");
+
+}
+

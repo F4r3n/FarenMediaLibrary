@@ -21,8 +21,8 @@ int main() {
 	fm::Config config;
 	config.name = "FML Engine";
 	config.fpsWanted = 60;
-	config.width = 800;
-	config.height = 600;
+	config.width = 1280;
+	config.height = 720;
 	fm::Application app(config);
 	app.Init();
 	//app.Read();

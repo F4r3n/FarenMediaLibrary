@@ -31,11 +31,13 @@
 #define PATH_MAX 256
 #endif
 
-MainWindow::MainWindow(fm::Engine* engine) {
+MainWindow::MainWindow(fm::Engine* engine) 
+{
     fm::Debug::logWarning("Start init");
     _configureStyle();
     _engine = engine;
 
+	fm::SceneManager::get().InitEditorScene();
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
 
@@ -44,7 +46,7 @@ MainWindow::MainWindow(fm::Engine* engine) {
 	_dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50, 0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
 	_dlight->addComponent<fmc::CMaterial>();
 
-    _mainCamera = fm::GameObjectHelper::create();
+    _mainCamera = fm::GameObjectHelper::create(fm::SceneManager::get().GetEditorScene());
 #if WITH_VIEW
     fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(1280, 720, fmc::RENDER_MODE::FORWARD, false,8);
 #else
@@ -130,7 +132,7 @@ void MainWindow::DisplayWindow_Save()
     if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
     {
         _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
-        DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
+        DialogFileBrowser::Get().Import(".", "Save",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
         //std::cout << _windowStates[WIN_FILE_BROWSER_LOCATION] << std::endl;
         if(DialogFileBrowser::Get().IsValid())
         {
@@ -158,15 +160,29 @@ void MainWindow::DisplayWindow_Save()
 
 		_projectSettings.path.CreateFolder();
         CreateFolder(_projectSettings.resourcesFolder.c_str());
-        nlohmann::json s;
-        fm::SceneManager::get().Serialize(s);
+		{
+			nlohmann::json s;
+			fm::SceneManager::get().Serialize(s);
 
-		FilePath p(_projectSettings.path);
-		p.Append("project.fml");
-        std::string projectConfig = p.GetPath();
-        std::ofstream o(projectConfig.c_str(), std::ofstream::out);
-        o << std::setw(4) << s << std::endl;
-        o.close();
+			FilePath p(_projectSettings.path);
+			p.Append("project.fml");
+			std::string projectConfig = p.GetPath();
+			std::ofstream o(projectConfig.c_str(), std::ofstream::out);
+			o << std::setw(4) << s << std::endl;
+			o.close();
+		}
+
+		{
+			nlohmann::json s;
+			fm::SceneManager::get().SerializeEditor(s);
+
+			FilePath p(_projectSettings.path);
+			p.Append("project.editor.fml");
+			std::string projectConfig = p.GetPath();
+			std::ofstream o(projectConfig.c_str(), std::ofstream::out);
+			o << std::setw(4) << s << std::endl;
+			o.close();
+		}
 
         ImGui::CloseCurrentPopup();
     }
@@ -181,7 +197,7 @@ void MainWindow::DisplayWindow_Load()
     if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
     {
         _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
-        DialogFileBrowser::Get().Import(".", "Test",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
+        DialogFileBrowser::Get().Import(".", "Load",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
 
         if(DialogFileBrowser::Get().IsValid())
         {
@@ -391,9 +407,7 @@ void MainWindow::listEntity()
             fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(number);
             fmc::CTransform *transform = o->get<fmc::CTransform>();
             // Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-            ImGuiTreeNodeFlags node_flags = (transform->idFather !=-1) ?  ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0
-                    | ImGuiTreeNodeFlags_Selected
-                    ;
+            ImGuiTreeNodeFlags node_flags = (transform->idFather !=-1) ?  ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0 | ImGuiTreeNodeFlags_Selected;
 
             // Node
             bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, namesEntities[i], i);

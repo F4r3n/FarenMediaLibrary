@@ -20,12 +20,22 @@ namespace fm {
                 return _currentScene;
             }
             void Serialize(nlohmann::json &outjson);
+			void SerializeEditor(nlohmann::json &outjson);
             bool Read(const nlohmann::json &injson);
+			bool ReadEditor(const nlohmann::json &injson);
+
+
+			inline Scene* GetEditorScene() {
+				return _editorScene;
+			};
+
+			void InitEditorScene();
         private:
             ~SceneManager();
             Scene* _currentScene = nullptr;
             static SceneManager _instance;
             std::map<std::string, Scene*> _scenes;
+			Scene* _editorScene = nullptr;
 
     };
 
