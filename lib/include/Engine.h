@@ -27,13 +27,10 @@ public:
     void Reset();
     
     
-    void SetMainCamera(fm::GameObject *go);
-    GameObject* GetMainCamera();
     void RunMainLoop(void *window);
 
     private:
         std::unique_ptr<SystemManager> _systems;
-        fm::GameObject *_mainCamera;
 
         bool _hasStopped = false;
 

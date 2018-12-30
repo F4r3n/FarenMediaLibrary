@@ -4,29 +4,56 @@
 
 #include "Core/Math/Matrix.h"
 #include "Core/Rect.h"
-
-namespace fm {
+#include "Rendering/RenderQueue.h"
+#include "Rendering/uniformbuffer.hpp"
+namespace fm 
+{
 class RenderTexture;
 }
 
-namespace fms {
+namespace fms 
+{
 class RenderingSystem;
 }
-namespace fmc {
+namespace fmc 
+{
 
-enum RENDER_MODE {
+enum RENDER_MODE 
+{
     FORWARD,
     DEFERRED
 
 };
 
-struct Shader_data {
+struct Shader_data 
+{
         fm::math::mat FM_V;
         fm::math::mat FM_P;
         fm::math::mat FM_PV;
         int render_mode = fmc::RENDER_MODE::FORWARD;
 };
-class CCamera : public FMComponent<CCamera> {
+
+struct RendererConfiguration
+{
+	bool isInit = false;
+	const GLuint bindingPointIndex = 2;
+	GLuint generatedBlockBinding;
+	fm::RenderQueue queue;
+
+	bool blendingMode = false;
+	int queuePreviousValue = 0;
+
+	std::shared_ptr<fm::RenderTexture> lightRenderTexture;
+	std::shared_ptr<fm::RenderTexture> intermediate;
+
+	fm::Bounds bounds;
+	std::unique_ptr<fm::UniformBuffer> uboLight;
+};
+
+
+
+class CCamera : public FMComponent<CCamera> 
+{
     public:
         friend class fms::RenderingSystem;
 
@@ -55,6 +82,9 @@ class CCamera : public FMComponent<CCamera> {
         std::shared_ptr<fm::RenderTexture> target = nullptr;
         std::shared_ptr<fm::RenderTexture> getInternalRenderTexture() const {return _renderTexture;}
     private:
+
+		RendererConfiguration _rendererConfiguration;
+
         std::shared_ptr<fm::RenderTexture> _renderTexture = nullptr;
         fm::math::mat _viewMatrix;
         bool  _isOrto = false;

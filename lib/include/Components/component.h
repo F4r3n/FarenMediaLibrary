@@ -36,7 +36,7 @@ class FMComponent : public Component<T>
         virtual ~FMComponent() = default;
         virtual size_t GetType() const {return kNone;}
         virtual void Destroy() = 0;
-
+		bool Enable = true;
 };
 
 }

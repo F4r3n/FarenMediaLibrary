@@ -56,7 +56,7 @@ MainWindow::MainWindow(fm::Engine* engine)
 
 
     _mainCamera->name = "Camera";
-    _engine->SetMainCamera(_mainCamera);
+    //_engine->SetMainCamera(_mainCamera);
 #if WITH_VIEW
     _gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
     tempRefCamera->target = _gameView.renderTexture;
@@ -320,7 +320,7 @@ void MainWindow::displayListCamera()
     static bool value1 = true;
     if(ImGui::MenuItem("Camera editor", "", &value1))
     {
-        _engine->SetMainCamera(_mainCamera);
+        //_engine->SetMainCamera(_mainCamera);
     }
 
 }

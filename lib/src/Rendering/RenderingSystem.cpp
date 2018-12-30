@@ -52,8 +52,8 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* inCamera)
 
 
 #if OPENGL_ES == 0
-    glGenBuffers(1, &_rendererConfig.generatedBlockBinding);
-    glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfig.generatedBlockBinding);
+    glGenBuffers(1, &inCamera->_rendererConfiguration.generatedBlockBinding);
+    glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
     glBufferData(GL_UNIFORM_BUFFER,
                  sizeof(inCamera->shader_data),
                  &inCamera->shader_data,
@@ -65,10 +65,10 @@ void RenderingSystem::initUniformBufferCamera(fmc::CCamera* inCamera)
         s->Use();
 
         glBindBufferBase(
-                    GL_UNIFORM_BUFFER, _rendererConfig.bindingPointIndex, _rendererConfig.generatedBlockBinding);
+                    GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.bindingPointIndex, inCamera->_rendererConfiguration.generatedBlockBinding);
         glUniformBlockBinding(s->Program,
                               glGetUniformBlockIndex(s->Program, "shader_data"),
-			_rendererConfig.bindingPointIndex);
+			inCamera->_rendererConfiguration.bindingPointIndex);
     }
 #endif
 }
@@ -77,12 +77,12 @@ RenderingSystem::~RenderingSystem()
 {
 }
 
-void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* camera)
+void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* inCamera)
 {
 #if OPENGL_ES == 0
-    glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfig.generatedBlockBinding);
+    glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-    memcpy(p, &camera->shader_data, sizeof(camera->shader_data));
+    memcpy(p, &inCamera->shader_data, sizeof(inCamera->shader_data));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
 #endif
 }
@@ -110,8 +110,7 @@ void RenderingSystem::initStandardShapes()
 
     fm::Renderer::getInstance().createQuadScreen();
 
-	_rendererConfig.uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
-	_rendererConfig.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
+
 }
 
 void RenderingSystem::init(EntityManager& em, EventManager&)
@@ -146,48 +145,55 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
         }
 
     }
-    //If no camera found the first one from the entities
-    if(_rendererConfig.camera == nullptr)
+
+    fm::Debug::log("INIT MainCamera");
+    for(auto e : em.iterate<fmc::CCamera>())
     {
-        fm::Debug::log("INIT MainCamera");
-        for(auto e : em.iterate<fmc::CCamera>())
-        {
-            setCamera(e);
-            break;
-        }
+        InitCamera(e);
+        break;
     }
+    
 
 }
 
-void RenderingSystem::setCamera(Entity* camera)
+void RenderingSystem::InitCamera(Entity* inEntityCamera)
 {
-	_rendererConfig.camera = camera;
+	fmc::CCamera* camera = inEntityCamera->get<fmc::CCamera>();
 
-    fmc::CCamera* cam = camera->get<fmc::CCamera>();
-    fmc::CTransform* ct = camera->get<fmc::CTransform>();
-    cam->_viewMatrix = fm::math::mat();
-    setView(cam->_viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h}, ct->rotation);
-	_rendererConfig.camTransform = ct;
-    //#if OPENGL_ES_VERSION > 2
-    // initUniformBufferCamera(cam);
-    //#endif
-    fm::Format formats[] = {fm::Format::RGBA, fm::Format::RGBA};
-    fm::Type types[] = {fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE};
-	_rendererConfig.lightRenderTexture = std::make_shared<fm::RenderTexture>(
-                cam->_renderTexture->getWidth(),
-                cam->_renderTexture->getHeight(),
-                2,
-                formats,
-                types,
-                0);
+	if (camera!= nullptr && !camera->_rendererConfiguration.isInit)
+	{
+		camera->_rendererConfiguration.uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
+		camera->_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
 
-	_rendererConfig.intermediate = std::make_shared<fm::RenderTexture>(
-                cam->_renderTexture->getWidth(),
-                cam->_renderTexture->getHeight(),
-                2,
-                formats,
-                types,
-                0);
+		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
+		camera->_viewMatrix = fm::math::mat();
+		setView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
+		//#if OPENGL_ES_VERSION > 2
+		// initUniformBufferCamera(cam);
+		//#endif
+		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
+		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+		camera->_rendererConfiguration.lightRenderTexture = std::make_shared<fm::RenderTexture>(
+			camera->_renderTexture->getWidth(),
+			camera->_renderTexture->getHeight(),
+			2,
+			formats,
+			types,
+			0);
+
+		camera->_rendererConfiguration.intermediate = std::make_shared<fm::RenderTexture>(
+			camera->_renderTexture->getWidth(),
+			camera->_renderTexture->getHeight(),
+			2,
+			formats,
+			types,
+			0);
+
+		camera->_rendererConfiguration.isInit = true;
+	}
+	
+
+	
 }
 
 void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &outFront,fm::math::vec3 &outRight,fm::math::vec3 &outUp,  const fm::math::vec3 &worldUp)
@@ -206,12 +212,10 @@ void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &out
 void RenderingSystem::setView(fm::math::mat& viewMatrix,
                               const fm::math::Vector3f& position,
                               const fm::math::Vector2f& size,
-                              const fm::math::Vector3f& rotation)
+                              const fm::math::Vector3f& rotation, bool isOrthographic)
 {
-	assert(_rendererConfig.camera != nullptr);
 
-    fmc::CCamera *cam = _rendererConfig.camera->get<fmc::CCamera>();
-    if(cam->IsOrthographic())
+    if(isOrthographic)
     {
         fm::math::mat m;
         m.identity();
@@ -230,123 +234,135 @@ void RenderingSystem::setView(fm::math::mat& viewMatrix,
     }
 }
 
-void RenderingSystem::pre_update(EntityManager&)
+void RenderingSystem::pre_update(EntityManager& em)
 {
-	assert(_rendererConfig.camera != nullptr);
+	for (auto e : em.iterate<fmc::CCamera>())
+	{
+		fmc::CCamera* cam = e->get<fmc::CCamera>();
 
-    fmc::CCamera* cam = _rendererConfig.camera->get<fmc::CCamera>();
-    if(!_rendererConfig.lightRenderTexture->isCreated()) 
-		_rendererConfig.lightRenderTexture->create();
+		if (!cam->_rendererConfiguration.isInit)
+		{
+			InitCamera(e);
+		}
 
-    if(!_rendererConfig.intermediate->isCreated()) 
-		_rendererConfig.intermediate->create();
 
-    if(!cam->_renderTexture->isCreated()) 
-		cam->_renderTexture->create();
+		if (!cam->_rendererConfiguration.lightRenderTexture->isCreated())
+			cam->_rendererConfiguration.lightRenderTexture->create();
 
-    cam->UpdateRenderTexture();
-    fmc::CTransform* ct = _rendererConfig.camera->get<fmc::CTransform>();
+		if (!cam->_rendererConfiguration.intermediate->isCreated())
+			cam->_rendererConfiguration.intermediate->create();
 
-	_rendererConfig.bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, cam->GetFarPlane() - cam->GetNearPlane()));
-	_rendererConfig.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) +_rendererConfig.bounds.getSize() / 2.0f);
-	_rendererConfig.bounds.setScale(fm::math::vec3(1, 1, 1));
+		if (!cam->_renderTexture->isCreated())
+			cam->_renderTexture->create();
 
-    setView(cam->_viewMatrix, ct->position, {cam->viewPort.w, cam->viewPort.h},ct->rotation);
+		cam->UpdateRenderTexture();
+		fmc::CTransform* ct = e->get<fmc::CTransform>();
+
+		cam->_rendererConfiguration.bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, cam->GetFarPlane() - cam->GetNearPlane()));
+		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
+		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
+
+		setView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation, cam->IsOrthographic());
+	}
 
 }
 
 void RenderingSystem::update(float, EntityManager& em, EventManager&)
 {
-    assert(_rendererConfig.camera != nullptr);
-    // fm::Renderer::getInstance().bindFrameBuffer();
-    fmc::CCamera* cam = _rendererConfig.camera->get<fmc::CCamera>();
+	for (auto e : em.iterate<fmc::CCamera>())
+	{
+		fmc::CCamera* cam = e->get<fmc::CCamera>();
+		fmc::CTransform* transform = e->get<fmc::CTransform>();
 
-    if(!cam->_renderTexture->isCreated())
-    {
-        fm::Debug::logError("No render texture created");
-        return;
-    }
-	_rendererConfig.lightRenderTexture->bind();
-    _graphics.clear(true, true);
+		if (!cam->_renderTexture->isCreated())
+		{
+			fm::Debug::logError("No render texture created");
+			return;
+		}
+		cam->_rendererConfiguration.lightRenderTexture->bind();
+		_graphics.clear(true, true);
 
-	_rendererConfig.intermediate->bind();
-    _graphics.clear(true, true);
+		cam->_rendererConfiguration.intermediate->bind();
+		_graphics.clear(true, true);
 
-    cam->_renderTexture->bind();
-    _graphics.setViewPort(cam->viewPort);
-    _graphics.clear(true, true);
+		cam->_renderTexture->bind();
+		_graphics.setViewPort(cam->viewPort);
+		_graphics.clear(true, true);
 
-    cam->shader_data.FM_PV = cam->projection * cam->_viewMatrix;
-    cam->shader_data.FM_P = cam->projection;
-    cam->shader_data.FM_V = cam->_viewMatrix;
-    //#if OPENGL_ES_VERSION > 2
-    // updateUniformBufferCamera(cam);
-    //#endif
-    // PROFILER_START(Rendering)
-    // PROFILER_START(RenderingSort)
-    int error = glGetError();
-    if(error != 0) {
-        std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
-    }
-    fillQueue(em);
+		cam->shader_data.FM_PV = cam->projection * cam->_viewMatrix;
+		cam->shader_data.FM_P = cam->projection;
+		cam->shader_data.FM_V = cam->_viewMatrix;
+		//#if OPENGL_ES_VERSION > 2
+		// updateUniformBufferCamera(cam);
+		//#endif
+		// PROFILER_START(Rendering)
+		// PROFILER_START(RenderingSort)
+		int error = glGetError();
+		if (error != 0) {
+			std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
+			exit(-1);
+		}
+		FillQueue(cam, em);
 
-    if(!_rendererConfig.queue.Empty()) {
-		_rendererConfig.queue.start();
-        // PROFILER_STOP(RenderingSort)
-        // PROFILER_START(Draw)
-        draw(cam);
-    }
-	//fm::Texture *tex = cam->_renderTexture->getColorBuffer();
-	//tex[0].writeToPNG("yolo.png");
+		if (!cam->_rendererConfiguration.queue.Empty()) {
+			cam->_rendererConfiguration.queue.start();
+			// PROFILER_STOP(RenderingSort)
+			// PROFILER_START(Draw)
+			draw(cam, transform);
+		}
+		//fm::Texture *tex = cam->_renderTexture->getColorBuffer();
+		//tex[0].writeToPNG("yolo.png");
 
-    // PROFILER_STOP(Draw)
-    // PROFILER_STOP(Rendering)
-    // PROFILER_DISPLAY(Rendering)
-    // PROFILER_DISPLAY(RenderingSort)
-    // PROFILER_DISPLAY(Draw)
+		// PROFILER_STOP(Draw)
+		// PROFILER_STOP(Rendering)
+		// PROFILER_DISPLAY(Rendering)
+		// PROFILER_DISPLAY(RenderingSort)
+		// PROFILER_DISPLAY(Draw)
 
-    if(cam->target != nullptr)
-    {
-        if(!cam->target->isCreated())
-        {
-            cam->target->create();
-        }
-        cam->target->bind();
-    }
-    else
-    {
-        _graphics.bindFrameBuffer(0);
-    }
-    _graphics.setViewPort(cam->viewPort);
-    _graphics.clear(true, true);
+		if (cam->target != nullptr)
+		{
+			if (!cam->target->isCreated())
+			{
+				cam->target->create();
+			}
+			cam->target->bind();
+		}
+		else
+		{
+			_graphics.bindFrameBuffer(0);
+		}
+		_graphics.setViewPort(cam->viewPort);
+		_graphics.clear(true, true);
 
-    _finalShader->Use();
-    _finalShader->Use()->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
+		_finalShader->Use();
+		_finalShader->Use()->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
 
-    _finalShader->setValue("viewPos", _rendererConfig.camera->get<fmc::CTransform>()->position);
+		_finalShader->setValue("viewPos", transform->position);
 
-    fm::Renderer::getInstance().SetSources(_graphics, _rendererConfig.lightRenderTexture->getColorBuffer(), 2);
-    if(cam->target != nullptr)
-    {
-        _finalShader->setValue("reverse", 1);
-        fm::Renderer::getInstance().blit(_graphics, *cam->target.get(), _finalShader);
-    }
-    else
-    {
-        fm::Renderer::getInstance().blit(_graphics, _finalShader);
-    }
-    if(cam->target != nullptr)
-    {
-        _graphics.bindFrameBuffer(0);
-        _graphics.setViewPort(cam->viewPort);
-        _graphics.clear(true, true, false);
-    }
-     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+		fm::Renderer::getInstance().SetSources(_graphics, cam->_rendererConfiguration.lightRenderTexture->getColorBuffer(), 2);
+		if (cam->target != nullptr)
+		{
+			_finalShader->setValue("reverse", 1);
+			fm::Renderer::getInstance().blit(_graphics, *cam->target.get(), _finalShader);
+		}
+		else
+		{
+			fm::Renderer::getInstance().blit(_graphics, _finalShader);
+		}
+		if (cam->target != nullptr)
+		{
+			_graphics.bindFrameBuffer(0);
+			_graphics.setViewPort(cam->viewPort);
+			_graphics.clear(true, true, false);
+		}
+		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+	}
+
+
 
 }
 
-void RenderingSystem::draw(fmc::CCamera* cam)
+void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
 {
 
     bool hasLight = false;
@@ -355,11 +371,11 @@ void RenderingSystem::draw(fmc::CCamera* cam)
     //std::vector<PointLight> pointLights;
 
     //bool firstMesh = true;
-    while(!_rendererConfig.queue.Empty())
+    while(!cam->_rendererConfiguration.queue.Empty())
     {
         //std::cout << queue.Size() << std::endl;
 
-        fm::RenderNode node = _rendererConfig.queue.getFrontElement();
+        fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
         fmc::CTransform* transform = node.transform;
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
@@ -399,25 +415,23 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
                     if(m->Reload())
                     {
-						_rendererConfig.uboLight->Bind();
+						cam->_rendererConfiguration.uboLight->Bind();
 
                         m->shader->SetUniformBuffer("PointLights", 2);
                         fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
                     }
 
                     fm::Shader* shader = m->shader;
-                    //std::cout << (int)pointLights.size() << std::endl;
-                    //if(pointLights.size() > 0)
-                    //    std::cout << pointLights[0].color << std::endl;
+
 
                     if(shader != nullptr)
                     {
                         shader->Use()
                                 ->setValue("FM_PV", cam->shader_data.FM_PV);
                         shader->setValue("lightNumber",_lightNumber );
-                        shader->setValue("viewPos", _rendererConfig.camTransform->getWorldPos());
+                        shader->setValue("viewPos", transform->getWorldPos());
                         fm::math::mat model = fm::math::mat();
-                        setModelPosition(model, transform, worldPos);
+                        setModelPosition(model, transform, worldPos, cam->IsOrthographic());
 
                         shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
                         shader->setValue("FM_M", model);
@@ -434,17 +448,17 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
             // After all lights, we compute the frame buffer
             if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
-				_rendererConfig.queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
+				cam->_rendererConfiguration.queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
             {
-                computeLighting(_rendererConfig.lightRenderTexture, cam, hasLight);
+                computeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
                 computeLightDone = true;
             }
 
             if(state == fm::RENDER_QUEUE::TRANSPARENT)
             {
-                if(!_rendererConfig.blendingMode)
+                if(!cam->_rendererConfiguration.blendingMode)
                 {
-					_rendererConfig.blendingMode = true;
+					cam->_rendererConfiguration.blendingMode = true;
 
                     _graphics.enable(fm::RENDERING_TYPE::BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -456,9 +470,9 @@ void RenderingSystem::draw(fmc::CCamera* cam)
             {
                 if(node.text)
                 {
-                    if(!_rendererConfig.blendingMode)
+                    if(!cam->_rendererConfiguration.blendingMode)
                     {
-						_rendererConfig.blendingMode = true;
+						cam->_rendererConfiguration.blendingMode = true;
 
                         _graphics.enable(fm::RENDERING_TYPE::BLEND);
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -475,8 +489,8 @@ void RenderingSystem::draw(fmc::CCamera* cam)
                              node.text);
                 }
             }
-			_rendererConfig.queuePreviousValue = state;
-			_rendererConfig.queue.next();
+			cam->_rendererConfiguration.queuePreviousValue = state;
+			cam->_rendererConfiguration.queue.next();
         }else if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
         {
 
@@ -486,26 +500,27 @@ void RenderingSystem::draw(fmc::CCamera* cam)
 
     }
 
-    if(_rendererConfig.blendingMode) {
+    if(cam->_rendererConfiguration.blendingMode) {
         _graphics.disable(fm::RENDERING_TYPE::BLEND);
     }
-	_rendererConfig.blendingMode = false;
+	cam->_rendererConfiguration.blendingMode = false;
 
     if(!computeLightDone) {
-        computeLighting(_rendererConfig.lightRenderTexture, cam, hasLight);
+        computeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
     }
  fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 }
 
-void RenderingSystem::computeLighting(
-        std::shared_ptr<fm::RenderTexture> lightRenderTexture,
-        fmc::CCamera* cam,
-        bool hasLight) {
+void RenderingSystem::computeLighting( std::shared_ptr<fm::RenderTexture> lightRenderTexture,
+										 fmc::CCamera* cam,
+										 bool hasLight) {
 
     //From MSAA
     glBindFramebuffer(GL_READ_FRAMEBUFFER, cam->_renderTexture->GetId());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _rendererConfig.intermediate->GetId());
-    glBlitFramebuffer(0, 0, cam->_renderTexture->getWidth(), cam->_renderTexture->getHeight(), 0, 0,_rendererConfig.intermediate->getWidth(), _rendererConfig.intermediate->getHeight(),
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cam->_rendererConfiguration.intermediate->GetId());
+    glBlitFramebuffer(0, 0, cam->_renderTexture->getWidth(), cam->_renderTexture->getHeight(), 0, 0, 
+					cam->_rendererConfiguration.intermediate->getWidth(), 
+					cam->_rendererConfiguration.intermediate->getHeight(),
                       GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 
@@ -514,17 +529,17 @@ void RenderingSystem::computeLighting(
 
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
     {
-        fm::Renderer::getInstance().lightComputation(_graphics, _rendererConfig.intermediate->getColorBuffer(), hasLight);
+        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.intermediate->getColorBuffer(), hasLight);
     } else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
     {
-        fm::Renderer::getInstance().lightComputation(_graphics, _rendererConfig.intermediate->getColorBuffer(), false);
+        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.intermediate->getColorBuffer(), false);
     }
 
 }
 
-void RenderingSystem::fillQueue(EntityManager& em)
+void RenderingSystem::FillQueue(fmc::CCamera* cam, EntityManager& em)
 {
-	_rendererConfig.queue.init();
+	cam->_rendererConfiguration.queue.init();
     PointLight pointLights[NUMBER_POINTLIGHT_MAX];
     _lightNumber = 0;
     for(auto e : em.iterate<fmc::CTransform>())
@@ -571,12 +586,10 @@ void RenderingSystem::fillQueue(EntityManager& em)
         {
             continue;
         }
-		_rendererConfig.queue.addElement(node);
+		cam->_rendererConfiguration.queue.addElement(node);
     }
-    //std::cout << lightNumber*sizeof(PointLight) << std::endl;
-	_rendererConfig.uboLight->SetData(&pointLights[0], _lightNumber*sizeof(PointLight));
-    //if(pointLights.size() > 0)
-    //    std::cout <<pointLights[0].color << std::endl;
+
+	cam->_rendererConfiguration.uboLight->SetData(&pointLights[0], _lightNumber*sizeof(PointLight));
 }
 
 void RenderingSystem::over()
@@ -587,11 +600,9 @@ void RenderingSystem::over()
 
 void RenderingSystem::setModelPosition(fm::math::mat& model,
                                fmc::CTransform* transform,
-                               const fm::math::Vector3f& worldPos)
+                               const fm::math::Vector3f& worldPos, bool isOrthographic)
 {
-	assert(_rendererConfig.camera != nullptr);
-    fmc::CCamera *cam = _rendererConfig.camera->get<fmc::CCamera>();
-    if(cam->IsOrthographic())
+    if(isOrthographic)
     {
         model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));
         model = fm::math::translate( model,fm::math::vec3( 0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
@@ -606,8 +617,6 @@ void RenderingSystem::setModelPosition(fm::math::mat& model,
         model = fm::math::rotate( model, fm::math::radians(transform->rotation.z), fm::math::vec3(0,0,1));
 
         model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, transform->scale.z));
-        //model.identity();
-
     }
 
 }

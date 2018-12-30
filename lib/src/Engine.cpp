@@ -81,17 +81,6 @@ void Engine::Start()
 #endif
 }
 
-fm::GameObject* Engine::GetMainCamera()
-{
-    return _mainCamera;
-}
-
-void Engine::SetMainCamera(fm::GameObject *go)
-{
-    _mainCamera = go;
-    EntityManager::get().make();
-    _systems->getSystem<fms::RenderingSystem>()->setCamera(EntityManager::get().getEntity(go->getID()));
-}
 
 void Engine::Init()
 {

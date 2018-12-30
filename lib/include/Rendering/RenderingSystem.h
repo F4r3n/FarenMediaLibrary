@@ -4,14 +4,13 @@
 #include "Components/CCamera.h"
 
 #include "Rendering/RenderQueue.h"
-#include <chrono>
 #include "Rendering/Shader.h"
 #include "Resource/RFont.h"
 #include "Core/Bounds.h"
 #include "Rendering/Graphics.hpp"
 #include "Rendering/Model.hpp"
-#include <string>
 #include "Rendering/MaterialValue.h"
+#include <vector>
 
 namespace fmc 
 {
@@ -32,26 +31,7 @@ struct TextDef
 };
 
 
-struct RendererConfiguration
-{
-	Entity* camera = nullptr;
-	fmc::CTransform *camTransform;
 
-
-	const GLuint bindingPointIndex = 2;
-	GLuint generatedBlockBinding;
-	fm::RenderQueue queue;
-
-	bool blendingMode = false;
-	int queuePreviousValue = 0;
-
-	std::shared_ptr<fm::RenderTexture> lightRenderTexture;
-	std::shared_ptr<fm::RenderTexture> intermediate;
-
-
-	fm::Bounds bounds;
-	std::unique_ptr<fm::UniformBuffer> uboLight;
-};
 
 
 
@@ -63,7 +43,7 @@ class RenderingSystem : public System<RenderingSystem>
 {
 public:
     RenderingSystem(int width, int height);
-    void setCamera(Entity* camera);
+    void InitCamera(Entity* camera);
 
     void update(float dt, EntityManager& em, EventManager& event);
     void over();
@@ -71,7 +51,7 @@ public:
     void pre_update(EntityManager& em);
 
     private:
-    void setModelPosition(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos);
+    void setModelPosition(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
     void initStandardShapes();
     ~RenderingSystem();
     void initUniformBufferCamera(fmc::CCamera* camera);
@@ -79,13 +59,13 @@ public:
     void draw(const fmc::CMesh* cmesh);
     void drawText(int posX, int posY, RFont* font, fmc::CText* ctext);
     void computeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
-    void fillQueue(EntityManager& em);
-    void draw(fmc::CCamera *cam);
+    void FillQueue(fmc::CCamera* cam, EntityManager& em);
+    void draw(fmc::CCamera *cam, fmc::CTransform *transform);
     void
-    setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation);
+    setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation, bool isOrthographic);
 
 private:
-	RendererConfiguration _rendererConfig;
+	//RendererConfiguration _rendererConfig;
 
 	fm::Shader *_finalShader;
 	fm::Shader *_lightShader;
