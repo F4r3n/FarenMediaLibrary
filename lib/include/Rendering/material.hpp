@@ -30,7 +30,7 @@ struct MaterialProperty
     fm::MaterialProperty& operator=(fm::MaterialProperty &&m)
     {
         strcpy(name, m.name);
-		materialValue = std::move(m.materialValue);
+	materialValue = m.materialValue;
 
         return *this;
     }
