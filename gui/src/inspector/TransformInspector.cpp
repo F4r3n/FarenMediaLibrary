@@ -9,7 +9,7 @@ void TransformInspector::init()
 
 }
 
-void TransformInspector::draw(bool *value)
+void TransformInspector::draw(bool *)
 {
     if(ImGui::CollapsingHeader("Transform"))
     {

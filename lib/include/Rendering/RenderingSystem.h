@@ -50,23 +50,22 @@ public:
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
 
-    private:
-    void setModelPosition(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
-    void initStandardShapes();
-    ~RenderingSystem();
-    void initUniformBufferCamera(fmc::CCamera* camera);
-    void updateUniformBufferCamera(fmc::CCamera* camera);
-    void draw(const fmc::CMesh* cmesh);
-    void drawText(int posX, int posY, RFont* font, fmc::CText* ctext);
-    void computeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
-    void FillQueue(fmc::CCamera* cam, EntityManager& em);
-    void draw(fmc::CCamera *cam, fmc::CTransform *transform);
-    void
-    setView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation, bool isOrthographic);
+ private:
+    void _SetModelPosition(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
+    void _InitStandardShapes();
+    void _InitUniformBufferCamera(fmc::CCamera* camera);
+    void _UpdateUniformBufferCamera(fmc::CCamera* camera);
+    void _Draw(const fmc::CMesh* cmesh);
+    void _DrawText(int posX, int posY, RFont* font, fmc::CText* ctext);
+    void _ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
+    void _FillQueue(fmc::CCamera* cam, EntityManager& em);
+    void _Draw(fmc::CCamera *cam, fmc::CTransform *transform);
+    void _SetView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation, bool isOrthographic);
+
+
+	~RenderingSystem();
 
 private:
-	//RendererConfiguration _rendererConfig;
-
 	fm::Shader *_finalShader;
 	fm::Shader *_lightShader;
 	int _width;
@@ -75,7 +74,6 @@ private:
 
 	fm::Graphics _graphics;
 
-	TextDef _textdef;
-    
+	TextDef _textdef;    
 };
 }

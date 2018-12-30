@@ -17,16 +17,18 @@
 #include "Core/Debug.h"
 #include "Rendering/material.hpp"
 using namespace fm;
-int Window::width = 0;
-int Window::height = 0;
+int Window::kWidth = 0;
+int Window::kHeight = 0;
 
-int Window::x = 0;
-int Window::y = 0;
-Window::Window(int width, int height, const std::string& name) {
+int Window::kX = 0;
+int Window::kY = 0;
+
+Window::Window(int width, int height, const std::string& name) 
+{
     _nameWindow = name;
 
-    Window::width = width;
-    Window::height = height;
+    Window::kWidth = width;
+    Window::kHeight = height;
 
 }
 
@@ -36,18 +38,18 @@ bool Window::Init()
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return false;
     }
-	if (Window::width == 0 || Window::height == 0)
+	if (Window::kWidth == 0 || Window::kHeight == 0)
 	{
 		SDL_DisplayMode DM;
 		SDL_GetCurrentDisplayMode(0, &DM);
-		Window::width = DM.w;
-		Window::height = DM.h;
+		Window::kWidth = DM.w;
+		Window::kHeight = DM.h;
 	}
     _window = SDL_CreateWindow(_nameWindow.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
-                              Window::width,
-                              Window::height,
+                              Window::kWidth,
+                              Window::kHeight,
                               SDL_WINDOW_OPENGL);
 #if OPENGL_CORE == 1
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
@@ -92,7 +94,9 @@ void Window::_CreateMaterials()
     }
 }
 
-void Window::setMSAA(int value) {
+
+void Window::setMSAA(int value) 
+{
     if(value > 0)
     {
         glEnable(GL_MULTISAMPLE);
@@ -103,17 +107,23 @@ void Window::setMSAA(int value) {
     }
 }
 
-void Window::setName(const std::string& name) {
+
+void Window::setName(const std::string& name) 
+{
     _nameWindow = name;
     SDL_SetWindowTitle(_window, name.c_str());
 }
 
-void Window::_CreateShaders() {
+
+void Window::_CreateShaders() 
+{
     // Create, load and set textures shader
     ShaderLibrary::loadShaders();
 }
 
-void Window::update(float fps, bool internalUpdate) {
+
+void Window::update(float fps, bool internalUpdate) 
+{
     // events();
     _fpsMax = fps;
     _waitTime = 1.0f / (float)_fpsMax;
@@ -123,7 +133,9 @@ void Window::update(float fps, bool internalUpdate) {
 
 }
 
-void Window::frameLimit(unsigned short fps) {
+
+void Window::frameLimit(unsigned short fps) 
+{
     _currFrameTime = SDL_GetTicks() - _frameStart;
     double dur = (_waitTime * 1000 - _currFrameTime);
     if(dur > 0) {
@@ -136,12 +148,16 @@ void Window::frameLimit(unsigned short fps) {
     _frameStart = frame_end;
 }
 
-void Window::swapBuffers() const{
+
+void Window::swapBuffers() const
+{
     if(_window)
         SDL_GL_SwapWindow(_window);
 }
 
-void Window::_ErrorDisplay() {
+
+void Window::_ErrorDisplay() 
+{
 #ifndef __EMSCRIPTEN__
     int error = glGetError();
     if(error != 0) {
@@ -154,11 +170,15 @@ void Window::_ErrorDisplay() {
 #endif
 }
 
-bool Window::isClosed() {
+
+bool Window::isClosed() 
+{
     return InputManager::getInstance().isClosed();
 }
 
-Window::~Window() {
+
+Window::~Window() 
+{
     if(_isInit) {
         SDL_GL_DeleteContext(_mainContext);
 
@@ -170,22 +190,26 @@ Window::~Window() {
     }
 }
 
-int Window::_Init() {
-    if(_window == nullptr) {
+
+int Window::_Init()
+{
+    if(_window == nullptr) 
+	{
         return -1;
     }
     _mainContext = SDL_GL_CreateContext(_window);
 
 #if OPENGL_ES == 0
     glewExperimental = GL_TRUE;
-    if(glewInit() != GLEW_OK) {
+    if(glewInit() != GLEW_OK) 
+	{
         return -1;
     }
 #endif
 
     _ErrorDisplay();
 
-    glViewport(x, y, width, height);
+    glViewport(kX, kY, kWidth, kHeight);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -193,6 +217,7 @@ int Window::_Init() {
 
     return 1;
 }
+
 
 SDL_GLContext Window::GetContext()
 { 

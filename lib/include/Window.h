@@ -20,25 +20,24 @@ public:
     void frameLimit(unsigned short fps);
     void update(float fps, bool internalUpdate = true);
     Window& getInstance();
-    SDL_Window* getWindow() {
-        return _window;
-    }
+    SDL_Window* getWindow() { return _window;}
     void setName(const std::string &name);
     inline std::string getName() const {
         return _nameWindow;
     }
-    static int width;
-    static int height;
-    static int x;
-    static int y;
+    static int kWidth;
+    static int kHeight;
+    static int kX;
+    static int kY;
     bool Init();
 	void* GetContext();
 private:
-    bool _isInit = false;
-    int _Init();
+    int  _Init();
     void _CreateShaders();
     void _CreateMaterials();
     void _ErrorDisplay();
+
+	bool _isInit = false;
 
     SDL_Window* _window = nullptr;
     void * _mainContext;

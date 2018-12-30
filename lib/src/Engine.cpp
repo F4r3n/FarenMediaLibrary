@@ -25,6 +25,9 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+	EntityManager::get().killAll();
+	EntityManager::get().Free();
+
 }
 
 
@@ -90,7 +93,7 @@ void Engine::Init()
     _systems->getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
 
     //fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
-    _systems->addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
+    _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
 
     //renderer->setCamera(camera);
 

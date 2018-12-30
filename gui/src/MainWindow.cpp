@@ -25,7 +25,6 @@
 #include "Core/application.h"
 #include <iomanip>      // std::setw
 #include <Window.h>
-#define WITH_VIEW 1
 
 #ifndef PATH_MAX
 #define PATH_MAX 256
@@ -47,20 +46,15 @@ MainWindow::MainWindow(fm::Engine* engine)
 	_dlight->addComponent<fmc::CMaterial>();
 
     _mainCamera = fm::GameObjectHelper::create(fm::SceneManager::get().GetEditorScene());
-#if WITH_VIEW
-    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(1280, 720, fmc::RENDER_MODE::FORWARD, false,8);
-#else
-    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(fm::Window::width, fm::Window::height, fmc::RENDER_MODE::FORWARD, false,4);
-#endif
+    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false,4);
+
     _mainCamera->addComponent<fmc::CTransform>();
-
-
     _mainCamera->name = "Camera";
-    //_engine->SetMainCamera(_mainCamera);
-#if WITH_VIEW
-    _gameView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*tempRefCamera->getInternalRenderTexture().get(), 0));
-    tempRefCamera->target = _gameView.renderTexture;
-#endif
+
+	_gameView.AddCamera(_mainCamera);
+	_gameView.SetMainCamera(_mainCamera);
+
+
     fm::Debug::log("Init done");
 
     for(size_t i = 0; i < WIN_LAST; ++i)
@@ -101,15 +95,18 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
             {
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::PointLightInspector(c);
             }
-        } else {
+        } 
+		else 
+		{
             bool value = true;
+
             _inspectorComponents[currentEntity->getID()][c->GetType()]->draw(&value);
+
             if(!value)
             {
                 delete _inspectorComponents[currentEntity->getID()][c->GetType()];
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = nullptr;
                 c->Destroy();
-
             }
         }
     }
@@ -340,7 +337,7 @@ void MainWindow::menuEntity()
 
 
     ImGui::SetNextWindowPos(ImVec2(0,20));
-    ImGui::SetNextWindowSize(ImVec2(300, fm::Window::height-20));
+    ImGui::SetNextWindowSize(ImVec2(300, fm::Window::kHeight-20));
     ImGui::Begin(nameWindowInspector.c_str(),&_windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
     if(_currentEntity && _currentEntity->IsActive())
@@ -388,8 +385,8 @@ void MainWindow::listEntity()
     if(_windowListEntity)
     {
         static std::vector<const char*> namesEntities;
-        ImGui::SetNextWindowPos(ImVec2(fm::Window::width - 256,20));
-        ImGui::SetNextWindowSize(ImVec2(256, fm::Window::height-20));
+        ImGui::SetNextWindowPos(ImVec2(fm::Window::kWidth - 256,20));
+        ImGui::SetNextWindowSize(ImVec2(256, fm::Window::kHeight-20));
         ImGui::Begin("List entities", &_windowListEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
         if(_timerListEntityUpdate > 1)
@@ -498,9 +495,8 @@ void MainWindow::draw() {
         _firstRightClick = false;
     }
 
-#if WITH_VIEW
     _gameView.draw();
-#endif
+
 
     if(_windowStates[WIN_LOGGER])
     {

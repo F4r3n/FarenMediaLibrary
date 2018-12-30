@@ -47,7 +47,7 @@ RenderingSystem::RenderingSystem(int width, int height)
 
 }
 
-void RenderingSystem::initUniformBufferCamera(fmc::CCamera* inCamera)
+void RenderingSystem::_InitUniformBufferCamera(fmc::CCamera* inCamera)
 {
 
 
@@ -77,7 +77,7 @@ RenderingSystem::~RenderingSystem()
 {
 }
 
-void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* inCamera)
+void RenderingSystem::_UpdateUniformBufferCamera(fmc::CCamera* inCamera)
 {
 #if OPENGL_ES == 0
     glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
@@ -87,7 +87,7 @@ void RenderingSystem::updateUniformBufferCamera(fmc::CCamera* inCamera)
 #endif
 }
 
-void RenderingSystem::initStandardShapes()
+void RenderingSystem::_InitStandardShapes()
 {
     fm::Model* quad = new fm::Model("Quad");
     fm::Model* quadFS = new fm::Model("QuadFS");
@@ -118,7 +118,7 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
     fm::Debug::log("INIT Standard Shapes");
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    initStandardShapes();
+    _InitStandardShapes();
 
     for(auto e : em.iterate<fmc::CMesh>()) {
         fmc::CMesh* mesh = e->get<fmc::CMesh>();
@@ -167,7 +167,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 
 		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
 		camera->_viewMatrix = fm::math::mat();
-		setView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
+		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
 		//#if OPENGL_ES_VERSION > 2
 		// initUniformBufferCamera(cam);
 		//#endif
@@ -209,7 +209,7 @@ void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &out
     outUp    = fm::math::normalize(fm::math::cross(outRight, outFront));
 }
 
-void RenderingSystem::setView(fm::math::mat& viewMatrix,
+void RenderingSystem::_SetView(fm::math::mat& viewMatrix,
                               const fm::math::Vector3f& position,
                               const fm::math::Vector2f& size,
                               const fm::math::Vector3f& rotation, bool isOrthographic)
@@ -239,6 +239,8 @@ void RenderingSystem::pre_update(EntityManager& em)
 	for (auto e : em.iterate<fmc::CCamera>())
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
+		if (!cam->Enabled)
+			continue;
 
 		if (!cam->_rendererConfiguration.isInit)
 		{
@@ -262,7 +264,7 @@ void RenderingSystem::pre_update(EntityManager& em)
 		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
 		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
 
-		setView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation, cam->IsOrthographic());
+		_SetView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation, cam->IsOrthographic());
 	}
 
 }
@@ -272,6 +274,10 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 	for (auto e : em.iterate<fmc::CCamera>())
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
+
+		if (!cam->Enabled)
+			continue;
+
 		fmc::CTransform* transform = e->get<fmc::CTransform>();
 
 		if (!cam->_renderTexture->isCreated())
@@ -302,16 +308,15 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
 			exit(-1);
 		}
-		FillQueue(cam, em);
+		_FillQueue(cam, em);
 
 		if (!cam->_rendererConfiguration.queue.Empty()) {
 			cam->_rendererConfiguration.queue.start();
 			// PROFILER_STOP(RenderingSort)
 			// PROFILER_START(Draw)
-			draw(cam, transform);
+			_Draw(cam, transform);
 		}
-		//fm::Texture *tex = cam->_renderTexture->getColorBuffer();
-		//tex[0].writeToPNG("yolo.png");
+
 
 		// PROFILER_STOP(Draw)
 		// PROFILER_STOP(Rendering)
@@ -362,18 +367,15 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 }
 
-void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
+void RenderingSystem::_Draw(fmc::CCamera* cam, fmc::CTransform *transform)
 {
 
     bool hasLight = false;
     bool computeLightDone = false;
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-    //std::vector<PointLight> pointLights;
 
-    //bool firstMesh = true;
     while(!cam->_rendererConfiguration.queue.Empty())
     {
-        //std::cout << queue.Size() << std::endl;
 
         fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
         fmc::CTransform* transform = node.transform;
@@ -389,12 +391,7 @@ void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
 
             if(state == fm::RENDER_QUEUE::OPAQUE)
             {
-                //if(firstMesh)
-                //{
-                    //size_t sizeToSet = pointLights.size() > NUMBER_POINTLIGHT_MAX ? NUMBER_POINTLIGHT_MAX : pointLights.size();
-                    //uboLight->SetData(pointLights.data(), sizeof(PointLight)*sizeToSet);
-                    //firstMesh = false;
-                //}
+
                 if(mesh && material)
                 {
                     if(mesh->model == nullptr || mesh->model->GetName().compare(mesh->GetModelType()) != 0)
@@ -431,7 +428,7 @@ void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
                         shader->setValue("lightNumber",_lightNumber );
                         shader->setValue("viewPos", transform->getWorldPos());
                         fm::math::mat model = fm::math::mat();
-                        setModelPosition(model, transform, worldPos, cam->IsOrthographic());
+                        _SetModelPosition(model, transform, worldPos, cam->IsOrthographic());
 
                         shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
                         shader->setValue("FM_M", model);
@@ -450,7 +447,7 @@ void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
             if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
 				cam->_rendererConfiguration.queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
             {
-                computeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
+                _ComputeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
                 computeLightDone = true;
             }
 
@@ -482,7 +479,7 @@ void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
                     shader->Use()
                             ->setValue("projection", _textdef.projection);
 
-                    drawText(worldPos.x,
+                    _DrawText(worldPos.x,
                              worldPos.y,
                              fm::ResourcesManager::get().getResource<RFont>(
                                  node.text->fontName),
@@ -506,12 +503,12 @@ void RenderingSystem::draw(fmc::CCamera* cam, fmc::CTransform *transform)
 	cam->_rendererConfiguration.blendingMode = false;
 
     if(!computeLightDone) {
-        computeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
+        _ComputeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
     }
  fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 }
 
-void RenderingSystem::computeLighting( std::shared_ptr<fm::RenderTexture> lightRenderTexture,
+void RenderingSystem::_ComputeLighting( std::shared_ptr<fm::RenderTexture> lightRenderTexture,
 										 fmc::CCamera* cam,
 										 bool hasLight) {
 
@@ -537,7 +534,7 @@ void RenderingSystem::computeLighting( std::shared_ptr<fm::RenderTexture> lightR
 
 }
 
-void RenderingSystem::FillQueue(fmc::CCamera* cam, EntityManager& em)
+void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 {
 	cam->_rendererConfiguration.queue.init();
     PointLight pointLights[NUMBER_POINTLIGHT_MAX];
@@ -598,7 +595,7 @@ void RenderingSystem::over()
 
 }
 
-void RenderingSystem::setModelPosition(fm::math::mat& model,
+void RenderingSystem::_SetModelPosition(fm::math::mat& model,
                                fmc::CTransform* transform,
                                const fm::math::Vector3f& worldPos, bool isOrthographic)
 {
@@ -621,7 +618,7 @@ void RenderingSystem::setModelPosition(fm::math::mat& model,
 
 }
 
-void RenderingSystem::drawText(int posX, int posY,
+void RenderingSystem::_DrawText(int posX, int posY,
                                RFont* font,
                                fmc::CText* ctext)
 {

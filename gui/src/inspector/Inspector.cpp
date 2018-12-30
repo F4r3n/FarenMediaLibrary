@@ -11,7 +11,7 @@ Inspector::~Inspector()
 {
 }
 
-void Inspector::OnDraw(fmc::CDirectionalLight *t, bool *value)
+void Inspector::OnDraw(fmc::CDirectionalLight *t, bool *)
 {
     if(ImGui::CollapsingHeader("Directional Light"))
     {

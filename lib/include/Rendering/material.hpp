@@ -29,8 +29,9 @@ struct MaterialProperty
 
     fm::MaterialProperty& operator=(fm::MaterialProperty &&m)
     {
-        materialValue = m.materialValue;//TODO not good
         strcpy(name, m.name);
+		materialValue = std::move(m.materialValue);
+
         return *this;
     }
 
