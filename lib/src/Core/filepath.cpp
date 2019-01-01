@@ -1,4 +1,4 @@
-#include "FilePath.h"
+#include "Core/FilePath.h"
 #include <filesystem>
 #include <fstream>
 #if __linux__
@@ -10,7 +10,7 @@ const char FOLDER_SEPARATOR = '\\';
 #endif
 
 namespace fs = std::filesystem;
-
+using namespace fm;
 FilePath::FilePath(const std::string &inPath)
 {
 	_path = inPath;
@@ -82,12 +82,17 @@ FilePath FilePath::GetAbsolutePath(const std::string &inPath)
 	return p;
 }
 
-std::string FilePath::GetName() const
+std::string FilePath::GetName(bool withoutExtension) const
 {
 	fs::path p(_path);
 	if (p.has_filename())
 	{
-		return p.filename().u8string();
+		if (withoutExtension)
+		{
+			return p.filename().stem().u8string();
+		}
+		else 
+			return p.filename().u8string();
 	}
 
 	return "";
@@ -109,6 +114,41 @@ FilePath FilePath::Rename(const FilePath &currentPath, const std::string &inNewN
 	
 	return p;
 }
+
+FilePath FilePath::GetWorkingDirectory()
+{
+	return FilePath(fs::current_path().u8string());
+}
+
+void FilePath::GetAllFiles(const FilePath &directory, const std::string &inExtension, bool recursive, std::vector<FilePath> &outPaths)
+{
+	for (auto &file : fs::directory_iterator(directory.GetPath(), fs::directory_options::skip_permission_denied))
+	{
+
+		if (file.is_regular_file())
+		{
+			if (!inExtension.empty())
+			{
+				fs::path p(file);
+				if (p.extension() == inExtension)
+				{
+					outPaths.push_back(FilePath(p.u8string()));
+				}
+			}
+			else
+			{
+				outPaths.push_back(FilePath(fs::path(file).u8string()));
+			}
+		}
+		else if(recursive && file.is_directory())
+		{
+			GetAllFiles(FilePath(fs::path(file).u8string()), inExtension, recursive, outPaths);
+		}
+
+	}
+}
+
+
 
 
 

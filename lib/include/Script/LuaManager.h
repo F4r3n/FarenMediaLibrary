@@ -19,6 +19,21 @@ namespace sol
 	class state;
 }
 
+namespace fmc
+{
+	class CTransform;
+}
+
+class GameObjectLua
+{
+public:
+	GameObjectLua(Entity* inEntity);
+	fmc::CTransform* GetTransform();
+private:
+	Entity* _entity;
+};
+
+
 class LuaManager {
     
     public:
@@ -27,22 +42,18 @@ class LuaManager {
     inline static LuaManager& get() {
         return instance;
     }
-    
-    //template <typename T>
-    //decltype(auto) operator[](T && t) {
-    //    return lua[t];
-    //}
-    
-	sol::state* getState();
-    //template <typename T, typename... Args> void registerComponent(const std::string& name, Args&&... args) {
-    //    lua.new_usertype<T>(name, args...);
-    //}
-    
+
 	void openLibraries();
-    
     void registerComponents();
-    
+	bool ReadFile(const std::string &inPath);
+	const sol::table& GetTable(const std::string &inClass);
+
+	sol::state* GetState() { return lua; }
 private:
+	void _OpenInternalLibs();
+
+
     static LuaManager instance;
     sol::state *lua;
+	
 };

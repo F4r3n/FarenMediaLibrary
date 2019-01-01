@@ -2,12 +2,12 @@
 #define DIALOGFILEBROWSER_H
 #include <string>
 #include <vector>
-#include "FilePath.h"
+#include <Core/FilePath.h>
 
 struct EntityFile
 {
-        FilePath path;
-		FilePath parentDirectory;
+        fm::FilePath path;
+		fm::FilePath parentDirectory;
 		bool isDirectory;
 };
 
@@ -26,8 +26,8 @@ class DialogFileBrowser
     {
          bool _isOpened = false;
          bool _isVisible = false;
-         FilePath _currentPath;
-		 FilePath _currentDirectory;
+         fm::FilePath _currentPath;
+		 fm::FilePath _currentDirectory;
          std::vector<EntityFile> _listFiles;
 
 
@@ -43,12 +43,12 @@ class DialogFileBrowser
         }
         void Import(const std::string &path, const std::string &browserName,bool *isOpened);
         void Run(const std::string &path, const std::string &browserName,bool *isOpened, bool folderOnly);
-        const FilePath& GetResult() const {return _result.path;}
-        void GetResult(std::string &outFileName, FilePath &outFilePath);
+        const fm::FilePath& GetResult() const {return _result.path;}
+        void GetResult(std::string &outFileName, fm::FilePath &outFilePath);
         inline bool IsValid() const {return _isValid;}
 
     private:
-        void _UpdateData(const FilePath& path);
+        void _UpdateData(const fm::FilePath& path);
         bool _IsPathAFolder(const std::string &inPath);
         EntityFile _result;
         bool _isValid;

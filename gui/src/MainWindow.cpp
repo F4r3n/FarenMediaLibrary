@@ -25,7 +25,7 @@
 #include "Core/application.h"
 #include <iomanip>      // std::setw
 #include <Window.h>
-
+#include "Resource/ResourcesManager.h"
 #ifndef PATH_MAX
 #define PATH_MAX 256
 #endif
@@ -133,11 +133,11 @@ void MainWindow::DisplayWindow_Save()
         //std::cout << _windowStates[WIN_FILE_BROWSER_LOCATION] << std::endl;
         if(DialogFileBrowser::Get().IsValid())
         {
-            FilePath result = DialogFileBrowser::Get().GetResult();
+            fm::FilePath result = DialogFileBrowser::Get().GetResult();
 
 			if (result.IsFolder())
 			{
-				FilePath r(result);
+				fm::FilePath r(result);
 				r.Append(_projectSettings.name);
 				_projectSettings.path = r;
 
@@ -161,7 +161,7 @@ void MainWindow::DisplayWindow_Save()
 			nlohmann::json s;
 			fm::SceneManager::get().Serialize(s);
 
-			FilePath p(_projectSettings.path);
+			fm::FilePath p(_projectSettings.path);
 			p.Append("project.fml");
 			std::string projectConfig = p.GetPath();
 			std::ofstream o(projectConfig.c_str(), std::ofstream::out);
@@ -173,7 +173,7 @@ void MainWindow::DisplayWindow_Save()
 			nlohmann::json s;
 			fm::SceneManager::get().SerializeEditor(s);
 
-			FilePath p(_projectSettings.path);
+			fm::FilePath p(_projectSettings.path);
 			p.Append("project.editor.fml");
 			std::string projectConfig = p.GetPath();
 			std::ofstream o(projectConfig.c_str(), std::ofstream::out);
@@ -198,7 +198,7 @@ void MainWindow::DisplayWindow_Load()
 
         if(DialogFileBrowser::Get().IsValid())
         {
-			FilePath path;
+			fm::FilePath path;
             DialogFileBrowser::Get().GetResult(_projectSettings.name, path);
 
             std::cout << path.GetPath() << std::endl;
@@ -516,7 +516,10 @@ void MainWindow::_configureStyle()
 
     ImGuiStyle& style = ImGui::GetStyle();
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Medium.ttf", 14.0f);
+
+	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::FONT_LOCATION);
+	p.Append("Roboto-Medium.ttf");
+    io.Fonts->AddFontFromFileTTF(p.GetPath().c_str(), 14.0f);
     style.GrabRounding = 0.f;
     style.WindowRounding = 0.f;
     style.ScrollbarRounding = 3.f;

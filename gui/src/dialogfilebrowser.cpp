@@ -40,9 +40,9 @@ std::vector<EntityFile> GetListFilesFromPath(const std::string &inPath)
 		{
 			EntityFile f;
 			f.isDirectory = file.is_directory();
-			f.parentDirectory = FilePath::GetAbsolutePath(inPath);
+			f.parentDirectory = fm::FilePath::GetAbsolutePath(inPath);
 
-			f.path = FilePath::GetAbsolutePath(file.path().u8string());
+			f.path = fm::FilePath::GetAbsolutePath(file.path().u8string());
 			
 			listFiles.push_back(f);
 		}
@@ -62,7 +62,7 @@ void DialogFileBrowser::Run(const std::string &path, const std::string &browserN
     Import(path, browserName, isOpened);
 }
 
-void DialogFileBrowser::_UpdateData( const FilePath& path)
+void DialogFileBrowser::_UpdateData( const fm::FilePath& path)
 {
     _internaldata._currentDirectory = path;
     if(_internaldata._currentDirectory.Exist())
@@ -79,7 +79,7 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
 {
     if(!_internaldata._isVisible)
     {
-		std::string path = FilePath::GetAbsolutePath(inPath).GetPath();
+		std::string path = fm::FilePath::GetAbsolutePath(inPath).GetPath();
 
         ImGui::OpenPopup(browserName.c_str());
         _internaldata._isVisible = true;
@@ -109,7 +109,7 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
 
         if(ImGui::Button("Create folder"))
         {
-			FilePath p(_internaldata._currentDirectory.GetPath());
+			fm::FilePath p(_internaldata._currentDirectory.GetPath());
 			p.Append("New Folder");
             CreateFolder(p.GetPath().c_str());
             _UpdateData(_internaldata._currentDirectory);
@@ -124,7 +124,7 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
         {
             for(size_t i = 0; i < _internaldata._listFiles.size(); ++i)
             {
-                 if(ImGui::Selectable(_internaldata._listFiles[i].path.GetName().c_str(), editedItem == i, ImGuiSelectableFlags_AllowDoubleClick))
+                 if(ImGui::Selectable(_internaldata._listFiles[i].path.GetName(false).c_str(), editedItem == i, ImGuiSelectableFlags_AllowDoubleClick))
                 {
                      _internaldata._currentPath = _internaldata._listFiles[i].path;
                     if (ImGui::IsMouseDoubleClicked(0))
@@ -168,13 +168,13 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
         static char bufferFile[256];
         if(renameWanted && editedItem != -1)
         {
-            strcpy(bufferFile, _internaldata._listFiles[editedItem].path.GetName().c_str());
+            strcpy(bufferFile, _internaldata._listFiles[editedItem].path.GetName(false).c_str());
             if(ImGui::InputText("Rename", bufferFile, 256, ImGuiInputTextFlags_EnterReturnsTrue))
             {
-				FilePath parentDirectory = _internaldata._listFiles[editedItem].parentDirectory;
+				fm::FilePath parentDirectory = _internaldata._listFiles[editedItem].parentDirectory;
 				 
 
-				_internaldata._listFiles[editedItem].path = FilePath::Rename(_internaldata._listFiles[editedItem].path, std::string(bufferFile));
+				_internaldata._listFiles[editedItem].path = fm::FilePath::Rename(_internaldata._listFiles[editedItem].path, std::string(bufferFile));
                 _UpdateData(_internaldata._currentDirectory);
                 renameWanted = false;
                 editedItem = -1;
@@ -203,9 +203,9 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
     _internaldata._isVisible = *isOpened;
 }
 
-void DialogFileBrowser::GetResult(std::string &outFileName, FilePath &outFilePath)
+void DialogFileBrowser::GetResult(std::string &outFileName, fm::FilePath &outFilePath)
 {
-    outFileName = _result.path.GetName();
+    outFileName = _result.path.GetName(false);
     outFilePath = _result.path;
 }
 

@@ -5,64 +5,34 @@
 #include <vector>
 
 #include "Script/LuaManager.h"
-
+#include <sol2/sol.hpp>
+#include <memory>
+#include <string>
 class Entity;
 
-namespace fmc
+namespace fm
 {
-class CCamera;
+	class FilePath;
 }
+
 
 namespace fm {
 class LuaScript : public Script {
 public:
-    LuaScript(const std::string& script, const std::string& nameVariable = "");
-    LuaScript();
+    LuaScript(const fm::FilePath &inPath, Entity* inEntity);
     ~LuaScript();
-    bool attachScript(const std::string& script);
     void update();
     void start();
     bool init(Entity* e);
-
-    void setGameObjects(const std::string& name, Entity* var) {
-        objects[name] = var;
-    }
-    //void event(std::string name, const CameraInfo& cam) {
-    //    if(LuaManager::get()[nameVariable][name]) {
-    //       LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], cam.camera);
-    //    }
-    //}
-    //
-    //void event(std::string name, const ColliderInfo& t) {
-    //    if(LuaManager::get()[nameVariable][name]) {
-    //        LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
-    //    }
-    //}
-    //
-    //void event(std::string name, const Collider& t) {
-    //    if(LuaManager::get()[nameVariable][name]) {
-    //        LuaManager::get()[nameVariable][name](LuaManager::get()[nameVariable], t);
-    //    }
-    //}
-
-    std::string getName() const;
-    void setName(const std::string& name);
-
-    template <typename T> T getComponent(const std::string name) {
-        return (T)LuaManager::get()[nameVariable][name];
-    }
-    bool hasStarted = false;
-    void reload();
 
     fm::Script::SCRIPT_TYPE GetType() const override
     {
         return fm::Script::SCRIPT_TYPE::LUA;
     }
-    private:
+ private:
+	sol::table _table;
 
-    std::string nameVariable;
-    std::string nameFile;
-    bool isDrawable = false;
-    std::unordered_map<std::string, Entity*> objects;
+	GameObjectLua *_go;
+	std::string _name;
 };
 }

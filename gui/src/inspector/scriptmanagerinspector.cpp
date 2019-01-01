@@ -3,6 +3,8 @@
 #include <Script/LuaScript.h>
 #include <Script/cppscript.hpp>
 #include <imgui/imgui.h>
+#include "Core/FilePath.h"
+#include "Resource/ResourcesManager.h"
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
@@ -31,15 +33,25 @@ void ScriptManagerInspector::draw(bool *value)
 
         }else if(current == fm::Script::SCRIPT_TYPE::LUA)
         {
-
+			ImGui::InputText("Class Name", nameScript, IM_ARRAYSIZE(nameScript));
         }
 
         if(ImGui::Button("Add Script"))
         {
             if(current == fm::Script::SCRIPT_TYPE::CPP)
             {
-                target->addScript(std::make_shared<fm::CppScript>(nameScript));
+             //   target->addScript(std::make_shared<fm::CppScript>(nameScript));
             }
+			else if (current == fm::Script::SCRIPT_TYPE::LUA)
+			{
+				fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::RESOURCES_LOCATION);
+				p.Append("test_lua");
+				std::string fileName = std::string(nameScript) + ".lua";
+				p.Append(fileName);
+				
+				target->addScriptLua(p);
+			}
+
 
         }
         std::vector<std::string> scriptsToDelete;

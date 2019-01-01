@@ -8,7 +8,6 @@ using namespace fms;
 ScriptManagerSystem::ScriptManagerSystem()
 {
     LuaManager::get().openLibraries();
-    LuaManager::get().registerComponents();
     CPPManager::get().LoadPlugin();
 }
 

@@ -26,7 +26,6 @@ set(SOURCES ${SOURCES}
 	src/inspector/scriptmanagerinspector.cpp
 	src/inspector/TransformInspector.cpp
 	src/debuglogger.cpp
-	src/FilePath.cpp
 	src/dialogfilebrowser.cpp
 
 	)
@@ -78,17 +77,19 @@ link_directories(${FML_PATH}/build/lib)
 #IMGUI
 include_directories(${FML_EXTLIB}/imgui/)
 
-
+#LUA
+include_directories(${FML_EXTLIB}/lua/src)
+link_directories(${FML_EXTLIB_LIB}/lua)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
-target_link_libraries(${PROJECT_NAME} ECS)
+target_link_libraries(${PROJECT_NAME} ECS lua)
 
 
-file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 
 

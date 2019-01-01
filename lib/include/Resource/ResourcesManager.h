@@ -5,7 +5,7 @@
 #include <array>
 #include <memory>
 #include "NonCopyable.h"
-
+#include "Core/FilePath.h"
 
 
 namespace fm {
@@ -15,6 +15,16 @@ namespace fm {
 class ResourcesManager : protected fm_system::NonCopyable {
 
 public:
+
+	enum LOCATION
+	{
+		LUA_LOCATION,
+		INTERNAL_LUA_LOCATION,
+		RESOURCES_LOCATION,
+		FONT_LOCATION
+	};
+
+
     ResourcesManager();
     ~ResourcesManager();
 
@@ -38,7 +48,7 @@ public:
         return resources[T::getType()];
     }
 
-
+	static FilePath GetFilePathResource(LOCATION inLocation);
  static ResourcesManager& get() {
         return _instance;
     }

@@ -2,84 +2,48 @@
 #include "Script/ScriptRegister.h"
 #include "Components/CTransform.h"
 #include "Components/CCamera.h"
+#include <sol2/sol.hpp>
+#include "Core/FilePath.h"
 using namespace fm;
 
-std::string getFileName(const std::string& s) {
 
-    char sep = '/';
 
-#ifdef _WIN32
-    sep = '\\';
-#endif
-
-    size_t i = s.rfind(sep, s.length());
-    if(i != std::string::npos) {
-        return (s.substr(i + 1, s.length() - i - 5));
-    }
-
-    return ("");
-}
-
-LuaScript::LuaScript(const std::string& name, const std::string& nameVariable)
+LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity)
 {
-
-    unsigned int value = ScriptRegister::addScript(name);
-    this->_scriptName = name;
-    nameFile = getFileName(name);
-    if(nameVariable == "")
-        this->nameVariable = std::string("FM") + std::to_string(value) + std::string("_") + nameFile;
-    else
-        this->nameVariable = nameVariable;
+	//TODO check class
+	_name = inPath.GetName(true);
+	bool s = LuaManager::get().ReadFile(inPath.GetPath());
+	//_class = LuaManager::get().GetState();
+	_go = new GameObjectLua(inEntity);
 }
 
-LuaScript::LuaScript()
-{
-}
+
 
 LuaScript::~LuaScript()
 {
 }
 
-void LuaScript::setName(const std::string& name)
-{
-    this->nameVariable = name;
-}
 
 void LuaScript::start()
 {
-//    LuaManager::get()[nameVariable]["start"](LuaManager::get()[nameVariable]);
+	_table["start"](_table);
     hasStarted = true;
 }
 
 void LuaScript::update()
 {
-   // LuaManager::get()[nameVariable]["update"](LuaManager::get()[nameVariable]);
+	_table["update"](_table);
 }
 
-std::string LuaScript::getName() const
-{
-    return nameVariable;
-}
-
-void LuaScript::reload()
-{
-   // LuaManager::get().getState().script_file(_scriptName);
-}
 
 bool LuaScript::init(Entity* e)
 {
-	/*
-      LuaManager::get().getState().script_file(_scriptName);
-    std::string m = std::string("f_") + nameFile;
+	sol::state *lua = (LuaManager::get().GetState());
+	sol::table cclass = (*lua)[_name];
+	_table = cclass["create"](cclass);
 
-    LuaManager::get().getState().script("local " + m + std::string(" = require '") + nameFile + std::string("'\n") + nameVariable +
-               std::string("= ") + m + std::string(".new()"));
-    LuaManager::get().getState()[nameVariable]["gameObject"] = e;
-    for(auto o : objects)
-    {
-        LuaManager::get().getState()[nameVariable][o.first] = o.second;
-    }
-    isInit = true;*/
-
+	_table["Go"] = (*lua)["GameObject"];
+	_table["Go"]["_internal"] = _go;
+	
     return true;
 }

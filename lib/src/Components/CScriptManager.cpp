@@ -1,8 +1,8 @@
 #include "Components/CScriptManager.h"
 #include "Script/Script.h"
 #include <EntityManager.h>
-
-#include <Components/CTransform.h>
+#include "Core/FilePath.h"
+#include "Script/LuaScript.h"
 using namespace fmc;
 const std::string CScriptManager::name = "Script Manager";
 
@@ -14,7 +14,7 @@ CScriptManager::~CScriptManager() {
 }
 
 void CScriptManager::init( Entity* e) {
-    for(auto s : scripts) {
+    for(auto &s : scripts) {
         s->init(e);
     }
 }
@@ -29,7 +29,7 @@ void CScriptManager::RemoveScript(const std::string &name)
     size_t index = 0;
     size_t indexFound = 0;
     bool found = false;
-    for(auto s : scripts)
+    for(auto &s : scripts)
     {
         if(s->GetScriptName().compare(name) == 0)
         {
@@ -47,7 +47,7 @@ void CScriptManager::RemoveScript(const std::string &name)
 
 void CScriptManager::update(Entity *e)
 {
-    for(auto s : scripts)
+    for(auto &s : scripts)
     {
         if(!s->isInit)
         {
@@ -63,7 +63,10 @@ void CScriptManager::update(Entity *e)
     }
 }
 
-void CScriptManager::addScript(std::shared_ptr<fm::Script> file)
+
+
+void CScriptManager::addScriptLua(const fm::FilePath &inPath)
 {
-    scripts.push_back(file);
+	Entity* e = EntityManager::get().getEntity(BaseComponent::_IDEntity);
+	scripts.emplace_back(new fm::LuaScript(inPath, e));
 }

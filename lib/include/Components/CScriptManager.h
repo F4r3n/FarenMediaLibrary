@@ -1,10 +1,12 @@
 #pragma once
+#include <memory>
 #include <vector>
 #include "component.h"
 
 namespace fm
 {
 class Script;
+class FilePath;
 }
 class Entity;
 
@@ -17,13 +19,14 @@ class CScriptManager : public FMComponent<CScriptManager> {
         ~CScriptManager();
         void init(Entity* e);
         void update(Entity *e);
-        void addScript(std::shared_ptr<fm::Script> file);
+		void addScriptLua(const fm::FilePath &inpath);
+
         void RemoveScript(const std::string &name);
         virtual size_t GetType() const {return kScriptManager;}
 
 
         static const std::string name;
         void Destroy();
-        std::vector<std::shared_ptr<fm::Script> > scripts;
+        std::vector<std::unique_ptr<fm::Script> > scripts;
 };
 }
