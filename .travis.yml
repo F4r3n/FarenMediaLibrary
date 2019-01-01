@@ -1,5 +1,5 @@
 language : generic
-env: COMPILER_NAME=gcc CXX=g++-7 CC=gcc-7
+env: COMPILER_NAME=gcc CXX=g++-8 CC=gcc-8
 addons:
   apt:
     packages:
