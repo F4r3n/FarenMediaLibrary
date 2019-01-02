@@ -128,17 +128,19 @@ void MainWindow::DisplayWindow_Save()
     if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
     {
         _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
-        DialogFileBrowser::Get().Import(".", "Save",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
-        //std::cout << _windowStates[WIN_FILE_BROWSER_LOCATION] << std::endl;
+        DialogFileBrowser::Get().Import(fm::Application::Get().GetUserDirectory().GetPath().empty() ? "." : fm::Application::Get().GetUserDirectory().GetPath(), 
+			"Save", &_windowStates[WIN_FILE_BROWSER_LOCATION]);
+
         if(DialogFileBrowser::Get().IsValid())
         {
             fm::FilePath result = DialogFileBrowser::Get().GetResult();
-			fm::Application::Get().SetUserDirectory(result);
 			if (result.IsFolder())
 			{
 				fm::FilePath r(result);
 				r.Append(_projectSettings.name);
 				_projectSettings.path = r;
+				fm::Application::Get().SetUserDirectory(r);
+
 
 				r.Append("Resources");
 				_projectSettings.resourcesFolder = r.GetPath();

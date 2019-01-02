@@ -33,7 +33,10 @@ bool Application::Serialize(bool serializeEditor)
 		nlohmann::json s;
 		SceneManager::get().Serialize(s);
 
-		std::ofstream o(_currentConfig.userDirectory.GetPath() + _currentConfig.name + PROJECT_FILE_NAME_EXTENSION, std::ofstream::out);
+		FilePath p(_currentConfig.userDirectory);
+		p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
+		
+		std::ofstream o(p.GetPath(), std::ofstream::out);
 		o << std::setw(4) << s << std::endl;
 		o.close();
 	}
@@ -43,7 +46,9 @@ bool Application::Serialize(bool serializeEditor)
 		nlohmann::json s;
 		SceneManager::get().SerializeEditor(s);
 
-		std::ofstream o(_currentConfig.userDirectory.GetPath() + _currentConfig.name + EDITOR_FILE_NAME_EXTENSION, std::ofstream::out);
+		FilePath p(_currentConfig.userDirectory);
+		p.Append(_currentConfig.name + EDITOR_FILE_NAME_EXTENSION);
+		std::ofstream o(p.GetPath(), std::ofstream::out);
 		o << std::setw(4) << s << std::endl;
 		o.close();
 	}
