@@ -2,13 +2,11 @@
 #define GUI
 
 #include <imgui/imgui.h>
+#include "Core/application.h"
 
-
-#include <type_traits>
 #include "inspector/Inspector.hpp"
 #include "GameView.h"
 #include "debuglogger.h"
-#include <Core/FilePath.h>
 
 namespace fmc {
     class CTransform;
@@ -42,12 +40,11 @@ struct ProjectSettings
 };
 
 public:
-    MainWindow(fm::Engine* engine);
-    MainWindow() = default;
+    MainWindow();
     ~MainWindow() = default;
 
     void displayComponents(fm::GameObject* currentEntity);
-    void menu();
+    void DrawMenu();
     void menuEntity();
     void listEntity();
     std::vector<const char*> getAllEntities();
@@ -78,8 +75,6 @@ private:
     ImVec2 _firstPosMouseRightClick;
     float _coeffMouseSpeed = -0.8f;
     bool _firstRightClick = false;
-
-    fm::Engine* _engine;
     
     
     std::string _nameWindow;

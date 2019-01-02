@@ -30,11 +30,10 @@
 #define PATH_MAX 256
 #endif
 
-MainWindow::MainWindow(fm::Engine* engine) 
+MainWindow::MainWindow() 
 {
     fm::Debug::logWarning("Start init");
     _configureStyle();
-    _engine = engine;
 
 	fm::SceneManager::get().InitEditorScene();
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
@@ -134,7 +133,7 @@ void MainWindow::DisplayWindow_Save()
         if(DialogFileBrowser::Get().IsValid())
         {
             fm::FilePath result = DialogFileBrowser::Get().GetResult();
-
+			fm::Application::Get().SetUserDirectory(result);
 			if (result.IsFolder())
 			{
 				fm::FilePath r(result);
@@ -157,29 +156,8 @@ void MainWindow::DisplayWindow_Save()
 
 		_projectSettings.path.CreateFolder();
         CreateFolder(_projectSettings.resourcesFolder.c_str());
-		{
-			nlohmann::json s;
-			fm::SceneManager::get().Serialize(s);
-
-			fm::FilePath p(_projectSettings.path);
-			p.Append("project.fml");
-			std::string projectConfig = p.GetPath();
-			std::ofstream o(projectConfig.c_str(), std::ofstream::out);
-			o << std::setw(4) << s << std::endl;
-			o.close();
-		}
-
-		{
-			nlohmann::json s;
-			fm::SceneManager::get().SerializeEditor(s);
-
-			fm::FilePath p(_projectSettings.path);
-			p.Append("project.editor.fml");
-			std::string projectConfig = p.GetPath();
-			std::ofstream o(projectConfig.c_str(), std::ofstream::out);
-			o << std::setw(4) << s << std::endl;
-			o.close();
-		}
+		fm::Application::Get().SetProjectName(_projectSettings.name);
+		fm::Application::Get().Serialize(true);
 
         ImGui::CloseCurrentPopup();
     }
@@ -200,8 +178,10 @@ void MainWindow::DisplayWindow_Load()
         {
 			fm::FilePath path;
             DialogFileBrowser::Get().GetResult(_projectSettings.name, path);
+			fm::Application::Get().SetUserDirectory(path);
+			fm::SceneManager::get().Clear(false);
+			fm::Application::Get().Read();
 
-            std::cout << path.GetPath() << std::endl;
             _windowStates[WIN_FILE_BROWSER_LOCATION] = false;
 
         }
@@ -234,7 +214,8 @@ void MainWindow::DisplayWindow_ProjectSettings()
 }
 
 
-void MainWindow::menu() {
+void MainWindow::DrawMenu() 
+{
     if(ImGui::BeginMainMenuBar())
     {
         if(ImGui::BeginMenu("File"))
@@ -243,15 +224,15 @@ void MainWindow::menu() {
             {
                 if(ImGui::MenuItem("Start"))
                 {
-                    _engine->Start();
+                    //_engine->Start();
                 }
                 if(ImGui::MenuItem("Pause"))
                 {
-                    _engine->Stop();
+                    //_engine->Stop();
                 }
                 if(ImGui::MenuItem("Stop"))
                 {
-                    _engine->Reset();
+                    //_engine->Reset();
                 }
                 ImGui::EndMenu();
             }
@@ -452,7 +433,7 @@ void MainWindow::DisplayWindow_WorldLighEdit() {
 
 void MainWindow::draw() {
     bool show_test_window = true;
-    menu();
+    DrawMenu();
     menuEntity();
     listEntity();
     if(_windowStates[WIN_CREATE_PROJECT])

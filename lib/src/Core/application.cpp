@@ -9,26 +9,44 @@
 #include <fstream>
 using namespace fm;
 
-const std::string fileOutput = "fml.conf";
-
-Application::Application(const Config &inConfig)
-{
-    _currentConfig = inConfig;
-}
-
+const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
+const std::string EDITOR_FILE_NAME_EXTENSION = ".editor.fml";
 Application::~Application()
 {
 
 }
 
-bool Application::Serialize()
+void Application::SetConfig(const Config &inConfig)
 {
-    nlohmann::json s;
-    SceneManager::get().Serialize(s);
+	_currentConfig = inConfig;
+}
 
-    std::ofstream o(fileOutput, std::ofstream::out);
-    o << std::setw(4) << s << std::endl;
-    o.close();
+Application::Application()
+{
+
+}
+
+
+bool Application::Serialize(bool serializeEditor)
+{
+	{
+		nlohmann::json s;
+		SceneManager::get().Serialize(s);
+
+		std::ofstream o(_currentConfig.userDirectory.GetPath() + _currentConfig.name + PROJECT_FILE_NAME_EXTENSION, std::ofstream::out);
+		o << std::setw(4) << s << std::endl;
+		o.close();
+	}
+
+	if(serializeEditor)
+	{
+		nlohmann::json s;
+		SceneManager::get().SerializeEditor(s);
+
+		std::ofstream o(_currentConfig.userDirectory.GetPath() + _currentConfig.name + EDITOR_FILE_NAME_EXTENSION, std::ofstream::out);
+		o << std::setw(4) << s << std::endl;
+		o.close();
+	}
     return true;
 
 }
@@ -37,7 +55,7 @@ bool Application::Read()
 {
     nlohmann::json s;
 
-    std::ifstream i(fileOutput);
+    std::ifstream i(_currentConfig.userDirectory.GetPath());
     nlohmann::json j;
     i >> j;
     SceneManager::get().Read(j);
@@ -71,8 +89,28 @@ void Application::Update()
     _engine->Update(fm::Time::dt);
 }
 
+
 void Application::DeInit()
 {
     delete _window;
     delete _engine;
 }
+
+
+void Application::SetUserDirectory(const fm::FilePath &inPath)
+{
+	_currentConfig.userDirectory = inPath;
+}
+
+const fm::FilePath& Application::GetUserDirectory()
+{
+	return _currentConfig.userDirectory;
+}
+
+void Application::SetProjectName(const std::string &inName)
+{
+	_currentConfig.name = inName;
+}
+
+
+

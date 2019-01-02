@@ -23,7 +23,7 @@ namespace fm {
 			void SerializeEditor(nlohmann::json &outjson);
             bool Read(const nlohmann::json &injson);
 			bool ReadEditor(const nlohmann::json &injson);
-
+			void Clear(bool clearEditor);
 
 			inline Scene* GetEditorScene() {
 				return _editorScene;

@@ -23,22 +23,20 @@ int main() {
 	config.fpsWanted = 60;
 	config.width = 1280;
 	config.height = 720;
-	fm::Application app(config);
-	app.Init();
-	//app.Read();
-	//engine.Init();
-	fm::Window *window = app.GetWindow();
-	fm::Engine *engine = app.GetEngine();
+	fm::Application::Get().SetConfig(config);
+	fm::Application::Get().Init();
+	
+
+	fm::Window *window = fm::Application::Get().GetWindow();
+	fm::Engine *engine = fm::Application::Get().GetEngine();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui_ImplSdlGL3_Init(window->getWindow());
 
-	MainWindow mainWindow(engine);
+	MainWindow mainWindow;
 
-
-	//fm::Debug::log("INIT0");
 	while (!window->isClosed())
 	{
 		while (SDL_PollEvent(&fm::InputManager::getInstance().getLastEvent()))
@@ -47,7 +45,7 @@ int main() {
 			ImGui_ImplSdlGL3_ProcessEvent(&fm::InputManager::getInstance().getLastEvent());
 		}
 
-		app.Update();
+		fm::Application::Get().Update();
 		ImGui_ImplSdlGL3_NewFrame(window->getWindow());
 		mainWindow.draw();
 
@@ -57,7 +55,7 @@ int main() {
 
 	}
 	ImGui_ImplSdlGL3_Shutdown();
-	//app.Serialize();
-	app.DeInit();
+
+	fm::Application::Get().DeInit();
 	return 0;
 }

@@ -50,7 +50,8 @@ bool SceneManager::ReadEditor(const nlohmann::json &injson)
 
 bool SceneManager::Read(const nlohmann::json &injson)
 {
-    for (nlohmann::json::const_iterator it = injson.cbegin(); it != injson.cend(); ++it) {
+    for (nlohmann::json::const_iterator it = injson.cbegin(); it != injson.cend(); ++it) 
+	{
         Scene *s = new Scene(it.key());
         nlohmann::json o = it.value();
         s->Read(o);
@@ -64,7 +65,7 @@ bool SceneManager::Read(const nlohmann::json &injson)
 
 void SceneManager::addScene(Scene *scene)
 {
-    _scenes.insert(std::pair<std::string, Scene*>(scene->getName(), scene));    
+    _scenes.insert(std::pair<std::string, Scene*>(scene->getName(), std::move(scene)));    
 }
 
 Scene* SceneManager::getScene(const std::string &name)
@@ -86,4 +87,19 @@ void SceneManager::InitEditorScene()
 	_editorScene = new Scene("Editor");
 
 }
+
+void SceneManager::Clear(bool clearEditor)
+{
+	if (clearEditor && _editorScene != nullptr)
+	{
+		_editorScene->destroy();
+	}
+
+	for (auto &scene : _scenes)
+	{
+		scene.second->destroy();
+	}
+	_scenes.clear();
+}
+
 
