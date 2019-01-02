@@ -59,8 +59,9 @@ bool Application::Serialize(bool serializeEditor)
 bool Application::Read()
 {
     nlohmann::json s;
-
-    std::ifstream i(_currentConfig.userDirectory.GetPath());
+	FilePath p(_currentConfig.userDirectory);
+	p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
+    std::ifstream i(p.GetPath());
     nlohmann::json j;
     i >> j;
     SceneManager::get().Read(j);

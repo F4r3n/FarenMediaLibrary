@@ -58,7 +58,7 @@ DialogFileBrowser::DialogFileBrowser()
 void DialogFileBrowser::Run(const std::string &path, const std::string &browserName,bool *isOpened, bool folderOnly)
 {
     _internaldata.folderOnly = folderOnly;
-
+	_internaldata._listFiles.clear();
     Import(path, browserName, isOpened);
 }
 
@@ -131,17 +131,18 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
                     {
                         if(_internaldata._listFiles[i].isDirectory)//If folder update path
                         {
-                            //std::cout << _internaldata._listFiles[i].fullPath << std::endl;
+							editedItem = i;
+							_result = _internaldata._listFiles[i];
                             _UpdateData(_internaldata._listFiles[i].path);
+							break;
                         }
                     }
 
-                    if(ImGui::IsMouseClicked(1))
-                    {
-                        std::cout << "Right click" << std::endl;
-                    }
-                     editedItem = i;
-                    _result = _internaldata._listFiles[i];
+
+					editedItem = i;
+					_result = _internaldata._listFiles[i];
+				
+
                 }
 
 

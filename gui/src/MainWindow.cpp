@@ -181,6 +181,8 @@ void MainWindow::DisplayWindow_Load()
 			fm::FilePath path;
             DialogFileBrowser::Get().GetResult(_projectSettings.name, path);
 			fm::Application::Get().SetUserDirectory(path);
+			fm::Application::Get().SetProjectName(path.GetName(true));
+
 			fm::SceneManager::get().Clear(false);
 			fm::Application::Get().Read();
 
