@@ -59,6 +59,8 @@ public:
     void DisplayWindow_WorldLighEdit();
     void DisplayWindow_Load();
 private:
+
+	void _ClearInspectorComponents();
     void _configureStyle();
     GameView _gameView;
     fm::GameObject* _currentEntity = nullptr;
@@ -80,7 +82,7 @@ private:
     std::string _nameWindow;
     std::string _nameCurrentScene = "";
     
-    std::unordered_map<size_t, std::unordered_map<size_t, Inspector*>> _inspectorComponents;
+    std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> _inspectorComponents;
     DebugLogger _debugLogger;
 
     ProjectSettings _projectSettings;
@@ -89,6 +91,7 @@ private:
     bool _windowStates[WIN_LAST];
 
     fm::GameObject* _mainCamera;
+	std::vector<fm::Config> _lastConfigsUsed;
 
 
 };

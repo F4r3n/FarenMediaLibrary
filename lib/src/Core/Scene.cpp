@@ -11,8 +11,8 @@ Scene::Scene(const std::string &name)
 
 GameObject* Scene::GetGameObject(size_t id) const
 {
-    if(id < _entities.size())
-        return _entities[id];
+    if(id < _gos.size())
+        return _gos[id];
     return nullptr;
 }
 
@@ -23,23 +23,22 @@ Scene::~Scene()
 
 void Scene::destroy()
 {
-    for(auto e : _entities)
+    for(auto e : _gos)
     {
         e->destroy();
     }
+	_gos.clear();
 }
 
 void Scene::AddGameObject(GameObject *e)
 {
-
-    _entities.push_back(e);
+	_gos.push_back(e);
 }
 
 void Scene::Serialize(nlohmann::json &outJson)
 {
-
     nlohmann::json entities;
-    for(auto e : _entities)
+    for(auto e : _gos)
     {
         nlohmann::json v;
         e->Serialize(v);

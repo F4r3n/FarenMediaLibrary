@@ -39,10 +39,10 @@ MainWindow::MainWindow()
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
 
-	_dlight = fm::GameObjectHelper::create();
-	_dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
-	_dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50, 0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
-	_dlight->addComponent<fmc::CMaterial>();
+	//_dlight = fm::GameObjectHelper::create();
+	//_dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
+	//_dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50, 0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
+	//_dlight->addComponent<fmc::CMaterial>();
 
     _mainCamera = fm::GameObjectHelper::create(fm::SceneManager::get().GetEditorScene());
     fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false,4);
@@ -60,16 +60,25 @@ MainWindow::MainWindow()
         _windowStates[i] = false;
 }
 
+void MainWindow::_ClearInspectorComponents()
+{
+	for (auto& entities : _inspectorComponents) {
+		
+		bool value = true;	
+		entities.second.clear();
+	}
+	_inspectorComponents.clear();
+}
+
+
 void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
     std::vector<BaseComponent*> compos = currentEntity->getAllComponents();
     if(_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
     {
-        std::unordered_map<size_t, Inspector*> inspectors;
 
-        _inspectorComponents.insert(
-                std::pair<size_t, std::unordered_map<size_t, Inspector*>>(
-                    currentEntity->getID(), inspectors));
+		_inspectorComponents[currentEntity->getID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
+               
     }
 
     for(auto c : compos) {
@@ -77,22 +86,22 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
         {
             if(c->GetType()== fmc::ComponentType::kTransform)
             {
-                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::TransformInspector(c);
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique<gui::TransformInspector>(c);
             } else if(c->GetType()== fmc::ComponentType::kMaterial)
             {
-                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::MaterialInspector(c);
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::MaterialInspector>(c);
             }
             else if(c->GetType()== fmc::ComponentType::KMesh)
             {
-                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::MeshInspector(c);
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::MeshInspector>(c);
             }
             else if(c->GetType()== fmc::ComponentType::kScriptManager)
             {
-                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::ScriptManagerInspector(c);
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::ScriptManagerInspector>(c);
             }
             else if(c->GetType()== fmc::ComponentType::kPointLight)
             {
-                _inspectorComponents[currentEntity->getID()][c->GetType()] = new gui::PointLightInspector(c);
+                _inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::PointLightInspector>(c);
             }
         } 
 		else 
@@ -103,7 +112,7 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
             if(!value)
             {
-                delete _inspectorComponents[currentEntity->getID()][c->GetType()];
+				_inspectorComponents[currentEntity->getID()][c->GetType()].reset();
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = nullptr;
                 c->Destroy();
             }
@@ -176,27 +185,34 @@ void MainWindow::DisplayWindow_Load()
         _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
         DialogFileBrowser::Get().Import(".", "Load",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
 
+
         if(DialogFileBrowser::Get().IsValid())
-        {
-			fm::FilePath path;
-            DialogFileBrowser::Get().GetResult(_projectSettings.name, path);
-			fm::Application::Get().SetUserDirectory(path);
-			fm::Application::Get().SetProjectName(path.GetName(true));
+        {			
+			_windowStates[WIN_FILE_BROWSER_LOCATION] = false;
+			fm::FilePath result;
 
-			fm::SceneManager::get().Clear(false);
-			fm::Application::Get().Read();
+			DialogFileBrowser::Get().GetResult(_projectSettings.name, result);
+			fm::Application::Get().SetProjectName(result.GetName(true));
 
-            _windowStates[WIN_FILE_BROWSER_LOCATION] = false;
-
+			fm::Application::Get().SetUserDirectory(result);
         }
     }
 
-    if(ImGui::Button("Valid"))
-    {
+	if (ImGui::Button("Valid"))
+	{
 
-        _windowStates[WIN_PROJECT_LOAD] = false;
-        ImGui::CloseCurrentPopup();
-    }
+		fm::SceneManager::get().Clear(false);
+		_ClearInspectorComponents();
+		_currentEntity = nullptr;
+
+		fm::Application::Get().Read();
+
+		_windowStates[WIN_PROJECT_LOAD] = false;
+		
+		ImGui::CloseCurrentPopup();
+	}
+
+    
     ImGui::End();
 }
 
@@ -244,15 +260,31 @@ void MainWindow::DrawMenu()
             {
                 _windowStates[WIN_PROJECT_SETTINGS] = true;
             }
-            if(ImGui::MenuItem("Save"))
+            if(ImGui::BeginMenu("Save"))
             {
-                _windowStates[WIN_CREATE_PROJECT] = true;
+				if (ImGui::MenuItem("Save to ..."))
+				{
+					_windowStates[WIN_CREATE_PROJECT] = true;
+				}
+				if (ImGui::MenuItem("Save"))
+				{
+					fm::Application::Get().Serialize(true);
+				}
+
+				ImGui::EndMenu();
             }
-            if(ImGui::MenuItem("Load"))
-            {
-                _windowStates[WIN_PROJECT_LOAD] = true;
-            }
-            ImGui::EndMenu();
+
+			if (ImGui::BeginMenu("Load"))
+			{
+				
+				if (ImGui::MenuItem("Load from ..."))
+				{
+					_windowStates[WIN_PROJECT_LOAD] = true;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+
         }
         if(ImGui::BeginMenu("World"))
         {
@@ -382,11 +414,11 @@ void MainWindow::listEntity()
         {
             _timerListEntityUpdate += fm::Time::dt;
         }
-        static size_t number = 0;
+        static size_t number = -1;
 
         for (size_t i = 0; i < namesEntities.size(); i++)
         {
-            fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(number);
+            fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(i);
             fmc::CTransform *transform = o->get<fmc::CTransform>();
             // Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
             ImGuiTreeNodeFlags node_flags = (transform->idFather !=-1) ?  ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0 | ImGuiTreeNodeFlags_Selected;
@@ -403,6 +435,7 @@ void MainWindow::listEntity()
 
 
         }
+		if(number != -1)
         _currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
 
 

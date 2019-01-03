@@ -108,7 +108,7 @@ void Application::SetUserDirectory(const fm::FilePath &inPath)
 	_currentConfig.userDirectory = inPath;
 }
 
-const fm::FilePath& Application::GetUserDirectory()
+const fm::FilePath& Application::GetUserDirectory() const
 {
 	return _currentConfig.userDirectory;
 }
@@ -117,6 +117,33 @@ void Application::SetProjectName(const std::string &inName)
 {
 	_currentConfig.name = inName;
 }
+
+void Application::RegisterCurrentConfig()
+{
+	bool found = false;
+	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
+	{
+		if (_lastConfigsUsed[i].name == _currentConfig.name && _lastConfigsUsed[i].userDirectory.GetPath() == _currentConfig.userDirectory.GetPath())
+		{
+			found = true;
+		}
+	}
+
+	_lastConfigsUsed.Push(_currentConfig);
+
+}
+
+void Application::GetLastConfigs(std::vector<fm::Config> &outConfig)
+{
+	//Berk
+	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
+	{
+		outConfig.push_back(_lastConfigsUsed[i]);
+	}
+}
+
+
+
 
 
 

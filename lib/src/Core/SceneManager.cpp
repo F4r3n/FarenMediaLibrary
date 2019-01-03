@@ -53,6 +53,7 @@ bool SceneManager::Read(const nlohmann::json &injson)
     for (nlohmann::json::const_iterator it = injson.cbegin(); it != injson.cend(); ++it) 
 	{
         Scene *s = new Scene(it.key());
+		_currentScene = s;
         nlohmann::json o = it.value();
         s->Read(o);
 
