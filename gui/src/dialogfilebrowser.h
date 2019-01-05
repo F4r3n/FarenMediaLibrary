@@ -46,7 +46,7 @@ class DialogFileBrowser
         const fm::FilePath& GetResult() const {return _result.path;}
         void GetResult(std::string &outFileName, fm::FilePath &outFilePath);
         inline bool IsValid() const {return _isValid;}
-
+		bool IsVisible() { return _internaldata._isVisible; }
     private:
         void _UpdateData(const fm::FilePath& path);
         bool _IsPathAFolder(const std::string &inPath);

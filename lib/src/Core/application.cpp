@@ -118,6 +118,11 @@ void Application::SetProjectName(const std::string &inName)
 	_currentConfig.name = inName;
 }
 
+const fm::Config& Application::GetCurrentConfig() const
+{
+	return _currentConfig;
+}
+
 void Application::RegisterCurrentConfig()
 {
 	bool found = false;

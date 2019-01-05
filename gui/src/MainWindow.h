@@ -2,12 +2,11 @@
 #define GUI
 
 #include <imgui/imgui.h>
-#include "Core/application.h"
-
 #include "inspector/Inspector.hpp"
 #include "GameView.h"
 #include "debuglogger.h"
-
+#include "GWindow.h"
+#include "Core/application.h"
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -20,7 +19,10 @@ class GameObject;
 class Engine;
 }
 
-class MainWindow {
+typedef std::unordered_map<size_t, std::unique_ptr<gui::GWindow>> MapOfWindows;
+
+class MainWindow 
+{
 enum WINDOWS
 {
     WIN_LIGHT_EDIT,
@@ -32,12 +34,7 @@ enum WINDOWS
     WIN_LAST
 };
 
-struct ProjectSettings
-{
-    std::string name = "Project";
-    fm::FilePath path;
-    std::string resourcesFolder = "Resources";
-};
+
 
 public:
     MainWindow();
@@ -48,7 +45,8 @@ public:
     void menuEntity();
     void listEntity();
     std::vector<const char*> getAllEntities();
-    void draw();
+    void Draw();
+	void Update();
     void displayComponentsAvailable();
     
 
@@ -59,6 +57,8 @@ public:
     void DisplayWindow_WorldLighEdit();
     void DisplayWindow_Load();
 private:
+	MapOfWindows _windows;
+
 
 	void _ClearInspectorComponents();
     void _configureStyle();
@@ -85,7 +85,7 @@ private:
     std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> _inspectorComponents;
     DebugLogger _debugLogger;
 
-    ProjectSettings _projectSettings;
+    fm::ProjectSettings _projectSettings;
     std::string _directoryPath;
 
     bool _windowStates[WIN_LAST];

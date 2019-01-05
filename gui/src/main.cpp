@@ -47,7 +47,8 @@ int main() {
 
 		fm::Application::Get().Update();
 		ImGui_ImplSdlGL3_NewFrame(window->getWindow());
-		mainWindow.draw();
+		mainWindow.Update();
+		mainWindow.Draw();
 
 		ImGui::Render();
 		ImGui_ImplSdlGL3_RenderDrawData(ImGui::GetDrawData());

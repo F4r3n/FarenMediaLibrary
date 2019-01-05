@@ -18,7 +18,9 @@ set(SOURCES ${SOURCES}
 
 	src/main.cpp
 	src/MainWindow.cpp
+	src/GWindow.cpp
 	src/GameView.cpp
+	src/SaveProjectWindow.cpp
 	src/inspector/Inspector.cpp
 	src/inspector/MaterialInspector.cpp
 	src/inspector/MeshInspector.cpp

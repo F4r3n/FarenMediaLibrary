@@ -53,6 +53,13 @@ template <typename T> struct vec<T, 2> {
         return *this;
     }
 
+	// Operator =
+	vec<T, 2>& operator=(const vec<T, 2>&& b) {
+		this->x = b.x;
+		this->y = b.y;
+		return *this;
+	}
+
     // Operator *=
     vec<T, 2>& operator*=(const vec<T, 2>& b);
 

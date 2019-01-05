@@ -20,6 +20,13 @@ namespace fm
 		fm::FilePath userDirectory;
 	};
 
+	struct ProjectSettings
+	{
+		std::string name = "Project";
+		fm::FilePath path;
+		std::string resourcesFolder = "Resources";
+	};
+
 	//Could be drastically optimized, but not needed
 	template <typename T, size_t P>
 	class CircularBuffer
@@ -99,6 +106,7 @@ class Application
 		const fm::FilePath& GetUserDirectory() const;
 
 		void SetProjectName(const std::string &inName);
+		const fm::Config& GetCurrentConfig() const;
 		void RegisterCurrentConfig();
 		void GetLastConfigs(std::vector<fm::Config> &outConfig);
     private:

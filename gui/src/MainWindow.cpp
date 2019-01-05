@@ -26,12 +26,18 @@
 #include <iomanip>      // std::setw
 #include <Window.h>
 #include "Resource/ResourcesManager.h"
+#include "SaveProjectWindow.h"
 #ifndef PATH_MAX
 #define PATH_MAX 256
 #endif
 
+
 MainWindow::MainWindow() 
 {
+	//window = new TestWindow("test");
+	//window->AddWidget(std::make_unique<gui::GButton<int>>("toto", yolo, 5));
+	_windows.insert(std::make_pair<size_t, std::unique_ptr<gui::SaveProjectWindow>>(WIN_CREATE_PROJECT, std::make_unique<gui::SaveProjectWindow>("SaveWindow")));
+
     fm::Debug::logWarning("Start init");
     _configureStyle();
 
@@ -123,56 +129,7 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 void MainWindow::DisplayWindow_Save()
 {
 
-    ImGui::Begin("Project name##Save", &_windowStates[WIN_CREATE_PROJECT], ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("%s", _projectSettings.name.c_str());
-
-    static char bufferName[256];
-    strcpy(bufferName, _projectSettings.name.c_str());
-    ImGui::InputText("Poject name", bufferName, 256);
-
-    static char path[PATH_MAX];
-
-    ImGui::InputText("##Path", path, PATH_MAX);
-    ImGui::SameLine();
-    if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
-    {
-        _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
-        DialogFileBrowser::Get().Import(fm::Application::Get().GetUserDirectory().GetPath().empty() ? "." : fm::Application::Get().GetUserDirectory().GetPath(), 
-			"Save", &_windowStates[WIN_FILE_BROWSER_LOCATION]);
-
-        if(DialogFileBrowser::Get().IsValid())
-        {
-            fm::FilePath result = DialogFileBrowser::Get().GetResult();
-			if (result.IsFolder())
-			{
-				fm::FilePath r(result);
-				r.Append(_projectSettings.name);
-				_projectSettings.path = r;
-				fm::Application::Get().SetUserDirectory(r);
-
-
-				r.Append("Resources");
-				_projectSettings.resourcesFolder = r.GetPath();
-
-			}
-
-            strcpy(path, _projectSettings.path.GetPath().c_str());
-        }
-    }
-
-    if(ImGui::Button("Valid"))
-    {
-        _projectSettings.name = std::string(bufferName);
-        _windowStates[WIN_CREATE_PROJECT] = false;
-
-		_projectSettings.path.CreateFolder();
-        CreateFolder(_projectSettings.resourcesFolder.c_str());
-		fm::Application::Get().SetProjectName(_projectSettings.name);
-		fm::Application::Get().Serialize(true);
-
-        ImGui::CloseCurrentPopup();
-    }
-    ImGui::End();
+    
 }
 
 
@@ -180,10 +137,10 @@ void MainWindow::DisplayWindow_Load()
 {
     ImGui::Begin("Project name##Load", &_windowStates[WIN_PROJECT_LOAD], ImGuiWindowFlags_AlwaysAutoResize);
 
-    if(ImGui::Button("Location") || _windowStates[WIN_FILE_BROWSER_LOCATION])
+    if(ImGui::Button("Location") || DialogFileBrowser::Get().IsVisible())
     {
         _windowStates[WIN_FILE_BROWSER_LOCATION] = true;
-        DialogFileBrowser::Get().Import(".", "Load",&_windowStates[WIN_FILE_BROWSER_LOCATION]);
+        DialogFileBrowser::Get().Import(".", "Load", &_windowStates[WIN_FILE_BROWSER_LOCATION]);
 
 
         if(DialogFileBrowser::Get().IsValid())
@@ -264,7 +221,7 @@ void MainWindow::DrawMenu()
             {
 				if (ImGui::MenuItem("Save to ..."))
 				{
-					_windowStates[WIN_CREATE_PROJECT] = true;
+					_windows[WIN_CREATE_PROJECT]->SetStatus(true);					
 				}
 				if (ImGui::MenuItem("Save"))
 				{
@@ -468,13 +425,25 @@ void MainWindow::DisplayWindow_WorldLighEdit() {
     ImGui::End();
 }
 
-void MainWindow::draw() {
+void MainWindow::Update()
+{
+	
+}
+
+void MainWindow::Draw() 
+{
+
+	for (auto& window : _windows)
+	{
+		window.second->Draw();
+	}
+
+	//window->Draw();
+
     bool show_test_window = true;
     DrawMenu();
     menuEntity();
     listEntity();
-    if(_windowStates[WIN_CREATE_PROJECT])
-        DisplayWindow_Save();
 
     if(_windowStates[WIN_PROJECT_SETTINGS])
         DisplayWindow_ProjectSettings();
