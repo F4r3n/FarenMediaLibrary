@@ -8,12 +8,10 @@
 #include <sol2/sol.hpp>
 #include <memory>
 #include <string>
+#include "Core/FilePath.h"
 class Entity;
 
-namespace fm
-{
-	class FilePath;
-}
+
 
 
 namespace fm {
@@ -29,10 +27,12 @@ public:
     {
         return fm::Script::SCRIPT_TYPE::LUA;
     }
+	virtual bool Reload() override;
  private:
 	sol::table _table;
 
 	GameObjectLua *_go;
 	std::string _name;
+	fm::FilePath _path;
 };
 }

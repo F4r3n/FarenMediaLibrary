@@ -81,7 +81,7 @@ void LuaManager::openLibraries()
 void LuaManager::registerComponents() 
 {
   
-	lua->new_usertype<GameObjectLua>("GameObject",
+	lua->new_usertype<GameObjectLua>("GameObjectInternal",
 		"GetTransform", &GameObjectLua::GetTransform
 		);
 

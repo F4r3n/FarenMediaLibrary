@@ -10,11 +10,13 @@ using namespace fm;
 
 LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity)
 {
-	//TODO check class
+	_path = inPath;
 	_name = inPath.GetName(true);
-	bool s = LuaManager::get().ReadFile(inPath.GetPath());
+	if (LuaManager::get().ReadFile(inPath.GetPath()))
+	{
+		_go = new GameObjectLua(inEntity);
+	}
 	//_class = LuaManager::get().GetState();
-	_go = new GameObjectLua(inEntity);
 }
 
 
@@ -35,15 +37,26 @@ void LuaScript::update()
 	_table["update"](_table);
 }
 
+bool LuaScript::Reload()
+{
+	if (LuaManager::get().ReadFile(_path.GetPath()))
+	{
+		return init(nullptr);
+	}
+
+	return false;
+}
+
 
 bool LuaScript::init(Entity* e)
 {
 	sol::state *lua = (LuaManager::get().GetState());
 	sol::table cclass = (*lua)[_name];
 	_table = cclass["create"](cclass);
-
-	_table["Go"] = (*lua)["GameObject"];
-	_table["Go"]["_internal"] = _go;
 	
+	sol::table tempGoClass = (*lua)["GameObject"];
+	_table["Go"] = tempGoClass["create"](tempGoClass);
+	_table["Go"]["_internal"] = _go;
+	isInit = true;
     return true;
 }

@@ -44,8 +44,11 @@ void ScriptManagerInspector::draw(bool *value)
             }
 			else if (current == fm::Script::SCRIPT_TYPE::LUA)
 			{
-				fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::RESOURCES_LOCATION);
-				p.Append("test_lua");
+				fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::USER_LUA_LOCATION);
+				if (p.GetPath().empty())
+				{
+					p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_RESOURCES_LOCATION);
+				}
 				std::string fileName = std::string(nameScript) + ".lua";
 				p.Append(fileName);
 				
@@ -61,6 +64,12 @@ void ScriptManagerInspector::draw(bool *value)
             const char* t = script->GetScriptName().c_str();
            ImGui::BulletText("%s",t);
            ImGui::SameLine();
+
+		   if (ImGui::Button("Reload"))
+		   {
+			   script->Reload();
+		   }
+		   ImGui::SameLine();
 
            if(ImGui::SmallButton("X"))
            {

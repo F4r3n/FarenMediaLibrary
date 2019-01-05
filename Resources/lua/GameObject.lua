@@ -12,8 +12,6 @@ function GameObject:print()
 	print(self.balance)
 end
 
-function GameObject:Test()
-  print("yolo")
-  print(self._internal:GetTransform())
+function GameObject:GetTransform()
+ return self._internal:GetTransform()
 end
-

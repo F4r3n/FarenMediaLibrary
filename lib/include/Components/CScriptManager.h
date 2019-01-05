@@ -27,6 +27,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
 
         static const std::string name;
         void Destroy();
+		void ReloadScript(const std::string &inName);
         std::vector<std::unique_ptr<fm::Script> > scripts;
 };
 }

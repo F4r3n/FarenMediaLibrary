@@ -70,3 +70,15 @@ void CScriptManager::addScriptLua(const fm::FilePath &inPath)
 	Entity* e = EntityManager::get().getEntity(BaseComponent::_IDEntity);
 	scripts.emplace_back(new fm::LuaScript(inPath, e));
 }
+
+void CScriptManager::ReloadScript(const std::string &inName)
+{
+	for (auto &s : scripts)
+	{
+		if (s->GetScriptName() == inName)
+		{
+			s->Reload();
+		}
+	}
+}
+

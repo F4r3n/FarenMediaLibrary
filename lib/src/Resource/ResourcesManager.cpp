@@ -19,17 +19,17 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 	case LOCATION::INTERNAL_LUA_LOCATION:
 	{
-		FilePath p = GetFilePathResource(RESOURCES_LOCATION);
+		FilePath p = GetFilePathResource(INTERNAL_RESOURCES_LOCATION);
 		p.Append("lua");
 		return p;
 	}
-	case LOCATION::FONT_LOCATION:
+	case LOCATION::INTERNAL_FONT_LOCATION:
 	{
-		FilePath p = GetFilePathResource(RESOURCES_LOCATION);
+		FilePath p = GetFilePathResource(INTERNAL_RESOURCES_LOCATION);
 		p.Append("fonts");
 		return p;
 	}
-	case LOCATION::RESOURCES_LOCATION:
+	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
 		FilePath p = FilePath::GetWorkingDirectory();
 		p.Append("Resources");

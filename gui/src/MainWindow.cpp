@@ -504,7 +504,7 @@ void MainWindow::_configureStyle()
     ImGuiStyle& style = ImGui::GetStyle();
     ImGuiIO& io = ImGui::GetIO();
 
-	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::FONT_LOCATION);
+	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_FONT_LOCATION);
 	p.Append("Roboto-Medium.ttf");
     io.Fonts->AddFontFromFileTTF(p.GetPath().c_str(), 14.0f);
     style.GrabRounding = 0.f;

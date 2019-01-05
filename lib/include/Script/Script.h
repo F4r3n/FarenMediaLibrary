@@ -60,6 +60,8 @@ public:
         return _scriptName;
     }
 
+	virtual bool Reload() { return false; }
+
 
     bool hasStarted = false;
     bool isInit = false;

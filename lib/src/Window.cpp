@@ -71,7 +71,7 @@ bool Window::Init()
         _CreateShaders();
         _CreateMaterials();
 
-		fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::FONT_LOCATION);
+		fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_FONT_LOCATION);
 		p.Append("Roboto-Medium.ttf");
         ResourcesManager::get().load<RFont>("dejavu", new RFont(p.GetPath()));
         _isInit = true;
