@@ -44,7 +44,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #Opengl
 find_package(OpenGL)
 
-set(OPENAL_LIBRARIES OpenAL32)
+IF(NOT WIN32)
+    SET(OPENAL_LIBRARIES "openal")
+ELSE()
+    SET(OPENAL_LIBRARIES "OpenAL32")
+ENDIF()
 include_directories(${FML_EXTLIB}/openal/include)
 link_directories(${FML_EXTLIB_LIB}/openal/lib)
 

@@ -35,7 +35,11 @@ include_directories(${FML_EXTLIB}/bullet3/src)
 find_package(OpenGL)
 
 #OpenAL
-set(OPENAL_LIBRARIES OpenAL32)
+IF(NOT WIN32)
+    SET(OPENAL_LIBRARIES "openal")
+ELSE()
+    SET(OPENAL_LIBRARIES "OpenAL32")
+ENDIF()
 link_directories(${FML_EXTLIB_LIB}/openal)
 include_directories(${FML_EXTLIB}/openal/include)
 
