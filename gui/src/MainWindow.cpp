@@ -438,9 +438,7 @@ void MainWindow::Draw()
 		window.second->Draw();
 	}
 
-	//window->Draw();
 
-    bool show_test_window = true;
     DrawMenu();
     menuEntity();
     listEntity();
@@ -454,6 +452,7 @@ void MainWindow::Draw()
     if(_windowStates[WIN_PROJECT_LOAD])
         DisplayWindow_Load();
 
+	bool show_test_window = false;
     ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
     ImGui::ShowDemoWindow(&show_test_window);
 
