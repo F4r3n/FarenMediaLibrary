@@ -7,7 +7,7 @@
 This library enables to create 2D or 3D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
 
-![Link image](http://i.imgur.com/sL3IehG.png)
+![Link image](https://imgur.com/OpzrxbM.png)
 
 For the moment, the FarenEngine can :
 + Camera system 
@@ -86,5 +86,5 @@ fm::Config config;
 - [ ] GUI/Add texture
 - [x] C++ Scripts //To improve
 - [ ] Command buffer
-- [ ] Filesystem
+- [x] Filesystem
 ...
