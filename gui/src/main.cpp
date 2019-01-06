@@ -3,21 +3,14 @@
 #include "imgui_impl_sdl_gl3.h"
 #include "Core/application.h"
 
-#include <Engine.h>
-#include <Window.h>
-#include <Time.h>
-
-
-
 #include "MainWindow.h"
 #include <Core/Debug.h>
 #include <Input/InputManager.h>
-void menuBar() {
-}
 
-int main() {
-	//fm::Window window(800, 600, "FML Engine");
-	//fm::Engine engine;
+
+int main()
+{
+
 	fm::Config config;
 	config.name = "FML Engine";
 	config.fpsWanted = 60;
