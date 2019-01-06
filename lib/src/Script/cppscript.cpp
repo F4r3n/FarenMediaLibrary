@@ -44,7 +44,7 @@ void CppScript::start()
     }
 }
 
-void CppScript::update()
+void CppScript::update(float dt)
 {
     if(behaviour)
     {

@@ -19,7 +19,7 @@ class LuaScript : public Script {
 public:
     LuaScript(const fm::FilePath &inPath, Entity* inEntity);
     ~LuaScript();
-    void update();
+    void update(float dt);
     void start();
     bool init(Entity* e);
 
@@ -29,6 +29,7 @@ public:
     }
 	virtual bool Reload() override;
  private:
+	 bool _hasAnErrorOccured = false;
 	sol::table _table;
 
 	GameObjectLua *_go;

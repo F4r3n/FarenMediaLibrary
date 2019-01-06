@@ -44,12 +44,12 @@ public:
 
     Script() {}
     ~Script() {}
-    virtual bool init(Entity* e) {
+    virtual bool init(Entity*) {
         return true;
     }
     virtual void start() {
     }
-    virtual void update() {
+    virtual void update(float dt) {
     }
     virtual SCRIPT_TYPE GetType() const
     {

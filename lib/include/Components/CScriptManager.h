@@ -18,14 +18,13 @@ class CScriptManager : public FMComponent<CScriptManager> {
         CScriptManager();
         ~CScriptManager();
         void init(Entity* e);
-        void update(Entity *e);
+        void update(Entity *e, float dt);
 		void addScriptLua(const fm::FilePath &inpath);
 
         void RemoveScript(const std::string &name);
         virtual size_t GetType() const {return kScriptManager;}
 
 
-        static const std::string name;
         void Destroy();
 		void ReloadScript(const std::string &inName);
         std::vector<std::unique_ptr<fm::Script> > scripts;

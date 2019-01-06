@@ -46,7 +46,6 @@ class LuaManager {
 	void openLibraries();
     void registerComponents();
 	bool ReadFile(const std::string &inPath);
-	const sol::table& GetTable(const std::string &inClass);
 
 	sol::state* GetState() { return lua; }
 private:

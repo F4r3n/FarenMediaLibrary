@@ -61,14 +61,17 @@ void LuaManager::_OpenInternalLibs()
 
 bool LuaManager::ReadFile(const std::string &inPath)
 {
-	return  lua->script_file(inPath).valid();
+	bool result = false;
+	try
+	{
+		result = lua->safe_script_file(inPath).valid();
+	}
+	catch (std::exception &e)
+	{
+		throw e.what();
+	}
+	return result;
 }
-
-const sol::table& LuaManager::GetTable(const std::string &inClass)
-{
-	return (*lua)[inClass];
-}
-
 
 
 void LuaManager::openLibraries()

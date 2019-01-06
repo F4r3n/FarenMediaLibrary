@@ -14,7 +14,7 @@ class CppScript : public fm::Script
         ~CppScript();
         bool init(Entity* e) override;
         void start() override;
-        void update() override;
+        void update(float dt) override;
         fm::Script::SCRIPT_TYPE GetType() const override
         {
             return fm::Script::SCRIPT_TYPE::CPP;

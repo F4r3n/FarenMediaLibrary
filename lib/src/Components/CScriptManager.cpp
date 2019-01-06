@@ -4,7 +4,6 @@
 #include "Core/FilePath.h"
 #include "Script/LuaScript.h"
 using namespace fmc;
-const std::string CScriptManager::name = "Script Manager";
 
 CScriptManager::CScriptManager() {
     _name = "ScriptManager";
@@ -45,7 +44,7 @@ void CScriptManager::RemoveScript(const std::string &name)
 
 
 
-void CScriptManager::update(Entity *e)
+void CScriptManager::update(Entity *e, float dt)
 {
     for(auto &s : scripts)
     {
@@ -59,7 +58,7 @@ void CScriptManager::update(Entity *e)
             s->start();
             s->hasStarted = true;
         }
-        s->update();
+        s->update(dt);
     }
 }
 

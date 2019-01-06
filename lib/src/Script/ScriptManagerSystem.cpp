@@ -25,7 +25,7 @@ void ScriptManagerSystem::receive(const CameraInfo &cameraInfo)
     Entity* e = EntityManager::get().getEntity(cameraInfo.ID);
      
     if(e && e->has<fmc::CScriptManager>()) {
-        fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+        //fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
         //scriptManager->event("OnRenderObject", cameraInfo);
     }
 }
@@ -34,9 +34,9 @@ void ScriptManagerSystem::processCollision(size_t idA, size_t idB, EVENT_COLLISI
 {
     Entity* e = EntityManager::get().getEntity(idB);
     if(e && e->has<fmc::CScriptManager>()) {
-        ColliderInfo info;
-        info.idOther = idA;
-        fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+        //ColliderInfo info;
+        //info.idOther = idA;
+        //fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
         //if(event == EVENT_COLLISION::BEGIN) {
         //    scriptManager->event("CollisionEventEnter", info);
         //
@@ -67,6 +67,6 @@ void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager& even
     for(auto e : em.iterate<fmc::CScriptManager>())
     {
         fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-        scriptManager->update(e);
+        scriptManager->update(e, dt);
     }
 }
