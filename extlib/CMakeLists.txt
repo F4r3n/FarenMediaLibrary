@@ -24,7 +24,7 @@ set(SDL_STATIC OFF)
 
 set(ALSOFT_EXAMPLES OFF)
 set(ALSOFT_TESTS OFF)
-foreach(TARGET freetype2 SDL2 ECS Box2D lua assimp openal glew)
+foreach(TARGET freetype2 SDL2 ECS Box2D lua assimp openal glew bullet3)
 
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${EXTLIB_CMAKE_BINARY_DIR}/${TARGET}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${EXTLIB_CMAKE_BINARY_DIR}/${TARGET}/lib)

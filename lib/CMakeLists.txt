@@ -25,6 +25,12 @@ if(EMSCRIPTEN)
 else(EMSCRIPTEN)
 
 endif(EMSCRIPTEN)
+
+#Bullet
+set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath Bullet3Common)
+link_directories(${FML_EXTLIB_LIB}/bullet3)
+include_directories(${FML_EXTLIB}/bullet3/src)
+
 #Opengl
 find_package(OpenGL)
 
