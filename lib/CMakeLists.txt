@@ -97,6 +97,7 @@ set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 	target_link_libraries(${LIB_NAME} Box2D)
     target_link_libraries(${LIB_NAME} assimp)
     target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
+    target_link_libraries(${LIB_NAME} stdc++fs)
 
 	if(CMAKE_COMPILER_IS_GNUCXX)
 		target_link_libraries(${LIB_NAME} gcc_s stdc++)
