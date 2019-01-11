@@ -13,6 +13,7 @@ class Entity;
 class EntityManager;
 
 class BaseSystem {
+	friend class SystemManager;
 public:
     BaseSystem(){}
     virtual ~BaseSystem() {}
@@ -20,34 +21,30 @@ public:
     virtual void update(float dt, EntityManager &manager, EventManager &event) = 0;
     virtual void init(EntityManager &manager, EventManager &event) = 0;
     virtual void over() = 0;
+	virtual void Start() = 0;
+	virtual void Stop() = 0;
 protected:
     static std::size_t family_counter;
+	bool _IsAffectedByStartAndStop = true;
 };
 
 
 template <class T> class System : public BaseSystem {
 
 public:
-    System() {
-    }
-    virtual ~System() {
-    }
+    System() {}
+    virtual ~System(){}
     
     
-    static size_t id() {
+    static size_t id() 
+	{
         static size_t i = family_counter++;
         return i;
     }
     
     
     friend class SystemManager;
-   
 
-protected:
-    std::bitset<MAX_COMPONENTS> bits;
-
-private:
-    std::vector<size_t> componentsNeeded;
 };
 
 #endif

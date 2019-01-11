@@ -17,7 +17,8 @@ class CMesh : public FMComponent<CMesh> {
 
     public:
         CMesh(std::string type);
-        CMesh();
+		CMesh();
+
         ~CMesh();
 
         bool Serialize(json &ioJson) const override;
@@ -26,19 +27,15 @@ class CMesh : public FMComponent<CMesh> {
         size_t GetType() const override {return KMesh;}
         void Destroy() override;
 
-        static const std::string name;
 
-
-        void ComputeBoundingSize();
         void SetType(const std::string &type);
         fm::Bounds bounds;
         bool IsmodelReady();
-        const std::string& GetModelType() const {return type;}
-        void SetModelType(const std::string &type) {this->type = type;}
+        const std::string& GetModelType() const {return _type;}
+        void SetModelType(const std::string &type) {_type = type;}
         fm::Model* model = nullptr;
 
     private:
-        bool created = false;
-        std::string type = "Quad";
+        std::string _type;
 };
 }

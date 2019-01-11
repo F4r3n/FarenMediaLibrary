@@ -83,6 +83,8 @@ public:
             
         }
     };
+	void Start() {}
+	void Stop() {}
 
 private:
     b2Vec2 gravity;

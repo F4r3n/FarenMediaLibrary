@@ -72,37 +72,22 @@ void Engine::RunMainLoop(void* window)
 
 void Engine::Start()
 {
-
-#ifdef PHYSIC_SYSTEM
-    _systems->addSystem(new fms::PhysicSystem());
-    _systems->getSystem<fms::PhysicSystem>()->init(EntityManager::get(), EventManager::get());
-#endif
-
-#ifdef SCRIPT_SYSTEM
-    _systems->addSystem(new fms::ScriptManagerSystem());
-    _systems->getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
-#endif
+	_systems->Start();
 }
 
 
 void Engine::Init()
 {
     _systems->addSystem(new fms::SoundSystem());
-
     _systems->addSystem(new fms::ScriptManagerSystem());
-    _systems->getSystem<fms::ScriptManagerSystem>()->init(EntityManager::get(), EventManager::get());
-
-    //fms::RenderingSystem* renderer = systems.addSystem(new fms::RenderingSystem(fm::Window::width, fm::Window::height));
     _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
-
-    //renderer->setCamera(camera);
 
     _systems->init(EntityManager::get(), EventManager::get());
 }
 
 void Engine::Stop()
 {
-    fm::Time::scale = 0;
+	_systems->Stop();
 }
 
 void Engine::Resume()

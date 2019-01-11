@@ -31,11 +31,6 @@ struct TextDef
 };
 
 
-
-
-
-
-
 namespace fms 
 {
 
@@ -50,6 +45,8 @@ public:
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
 
+	void Start() {}
+	void Stop() {}
  private:
     void _SetModelPosition(fm::math::mat& model, fmc::CTransform* transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
     void _InitStandardShapes();

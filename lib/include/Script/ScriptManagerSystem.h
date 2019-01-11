@@ -19,6 +19,8 @@ public:
     }
     void receive(const Collider& collider);
     void receive(const CameraInfo &cameraInfo);
+	void Start() {}
+	void Stop() {}
 private:
 
     void processCollision(size_t idA, size_t idB, EVENT_COLLISION event);

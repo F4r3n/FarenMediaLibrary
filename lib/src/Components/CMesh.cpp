@@ -10,18 +10,20 @@ CMesh::~CMesh()
 {
 }
 
-CMesh::CMesh() {
-    _name = "Mesh";
+CMesh::CMesh() 
+{
+	_name = "Mesh";
+	_type = "Quad";
 }
 
 bool CMesh::Serialize(json &ioJson) const
 {
-    ioJson["type"] = type;
+    ioJson["type"] = _type;
     return true;
 }
 bool CMesh::Read(const json &inJSON)
 {
-    type = inJSON["type"];
+    _type = inJSON["type"];
 
     return true;
 }
@@ -36,7 +38,7 @@ bool CMesh::IsmodelReady() {
 }
 
 void CMesh::SetType(const std::string &type) {
-    this->type = type;
+    _type = type;
 }
 
 void CMesh::Destroy()
@@ -45,5 +47,7 @@ void CMesh::Destroy()
 }
 
 CMesh::CMesh(std::string type) {
-    this->type = type;
+    _type = type;
+	_name = "Mesh";
+
 }

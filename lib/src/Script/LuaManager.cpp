@@ -68,7 +68,7 @@ bool LuaManager::ReadFile(const std::string &inPath)
 	}
 	catch (std::exception &e)
 	{
-		throw e.what();
+		throw e;
 	}
 	return result;
 }

@@ -23,7 +23,8 @@ public:
     void update(float dt, EntityManager& em, EventManager& event);
     void init(EntityManager& em, EventManager& event);
     void over();
-
+	void Start() {}
+	void Stop() {}
 private:
     void setSettings(fmc::CTransform* transform, fmc::CSource* sound);
 	std::unique_ptr<fm::Speaker> _speaker;

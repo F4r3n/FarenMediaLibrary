@@ -44,6 +44,7 @@ RenderingSystem::RenderingSystem(int width, int height)
 
     _textdef.projection = fm::math::ortho(
                 0.0f, (float)_width, 0.0f, (float)_height);
+	_IsAffectedByStartAndStop = false;
 
 }
 
@@ -437,7 +438,8 @@ void RenderingSystem::_Draw(fmc::CCamera* cam, fmc::CTransform *transform)
                         {
                             shader->setValue(value.name, value.materialValue);
                         }
-                        _graphics.draw(mesh->model);
+						if(mesh->model != nullptr)
+							_graphics.draw(mesh->model);
                     }
                     }
                 }

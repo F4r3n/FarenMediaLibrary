@@ -13,6 +13,8 @@ public:
 	void init(EntityManager& em, EventManager& event);
 	void pre_update(EntityManager& em);
 	~PhysicSystem3D();
+	void Start() {}
+	void Stop() {}
 
 private:
 	btDiscreteDynamicsWorld* _dynamicsWorld;
