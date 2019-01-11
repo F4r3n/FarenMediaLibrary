@@ -21,7 +21,6 @@ int main()
 	
 
 	fm::Window *window = fm::Application::Get().GetWindow();
-	fm::Engine *engine = fm::Application::Get().GetEngine();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

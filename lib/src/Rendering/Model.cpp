@@ -51,6 +51,5 @@ void Model::generate()
         }
 
         mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
-        _generated = true;
     }
 }

@@ -4,7 +4,7 @@
 #include <string>
 #include "NonCopyable.h"
 
-class SDL_Window;
+struct SDL_Window;
 
 namespace fm {
 class Window   {

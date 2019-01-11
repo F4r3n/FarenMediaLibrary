@@ -5,7 +5,7 @@
 namespace fm {
 
 namespace rendering {
-    class MeshContainer;
+    struct MeshContainer;
     class VertexBuffer;
 }
 
@@ -25,14 +25,11 @@ public:
     void AddMesh(rendering::MeshContainer* inMeshContainer);
 
     void PrepareBuffer();
-    //const std::vector<Mesh>& GetMeshes() const {return _meshes;}
     const std::string& GetName() const {return _name;}
     size_t GetNumberMeshes() {return _meshes.size();}
     rendering::MeshContainer* GetMeshContainer(size_t index) {return _meshes[index].meshContainer;}
 private:
     std::vector<Mesh> _meshes;//One model may have more than one mesh
-
-    bool _generated = false;
     std::string _name = "";
 };
 }

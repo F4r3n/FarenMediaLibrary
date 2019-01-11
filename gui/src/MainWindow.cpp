@@ -51,7 +51,7 @@ MainWindow::MainWindow()
 	//_dlight->addComponent<fmc::CMaterial>();
 
     _mainCamera = fm::GameObjectHelper::create(fm::SceneManager::get().GetEditorScene());
-    fmc::CCamera *tempRefCamera = _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false,4);
+    _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false,4);
 
     _mainCamera->addComponent<fmc::CTransform>();
     _mainCamera->name = "Camera";
@@ -68,9 +68,8 @@ MainWindow::MainWindow()
 
 void MainWindow::_ClearInspectorComponents()
 {
-	for (auto& entities : _inspectorComponents) {
-		
-		bool value = true;	
+	for (auto& entities : _inspectorComponents) 
+	{
 		entities.second.clear();
 	}
 	_inspectorComponents.clear();
@@ -359,8 +358,8 @@ void MainWindow::listEntity()
     if(_windowListEntity)
     {
         static std::vector<const char*> namesEntities;
-        ImGui::SetNextWindowPos(ImVec2(fm::Window::kWidth - 256,20));
-        ImGui::SetNextWindowSize(ImVec2(256, fm::Window::kHeight-20));
+        ImGui::SetNextWindowPos(ImVec2(fm::Window::kWidth - 256.0f,20.0f));
+        ImGui::SetNextWindowSize(ImVec2(256.0f, fm::Window::kHeight-20.0f));
         ImGui::Begin("List entities", &_windowListEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
         if(_timerListEntityUpdate > 1)
@@ -371,7 +370,7 @@ void MainWindow::listEntity()
         {
             _timerListEntityUpdate += fm::Time::dt;
         }
-        static size_t number = -1;
+        static int number = -1;
 
         for (size_t i = 0; i < namesEntities.size(); i++)
         {
@@ -393,7 +392,7 @@ void MainWindow::listEntity()
 
         }
 		if(number != -1)
-        _currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
+			_currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
 
 
         if(ImGui::Button("Add Entity"))

@@ -54,7 +54,7 @@ class DialogFileBrowser
         bool _isValid;
 
         InternalData _internaldata;
-        size_t editedItem = -1;
+        int editedItem = -1;
         bool openContexttualMenu = false;
         bool renameWanted = false;
 };

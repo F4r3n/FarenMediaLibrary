@@ -315,7 +315,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			cam->_rendererConfiguration.queue.start();
 			// PROFILER_STOP(RenderingSort)
 			// PROFILER_START(Draw)
-			_Draw(cam, transform);
+			_Draw(cam);
 		}
 
 
@@ -368,7 +368,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 }
 
-void RenderingSystem::_Draw(fmc::CCamera* cam, fmc::CTransform *transform)
+void RenderingSystem::_Draw(fmc::CCamera* cam)
 {
 
     bool hasLight = false;
@@ -603,7 +603,7 @@ void RenderingSystem::_SetModelPosition(fm::math::mat& model,
 {
     if(isOrthographic)
     {
-        model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, -transform->layer));
+        model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, (float)-transform->layer));
         model = fm::math::translate( model,fm::math::vec3( 0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
         model = fm::math::rotate( model, transform->rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
         model = fm::math::translate( model, fm::math::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
