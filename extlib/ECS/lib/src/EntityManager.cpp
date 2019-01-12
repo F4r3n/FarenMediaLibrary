@@ -38,10 +38,23 @@ EntityManager::~EntityManager() {
     _entities_killed.shrink_to_fit();
 }
 
+void EntityManager::killInativeEntities()
+{
+	for (size_t i = 0; i < _entities_killed.size(); ++i)
+	{
+		size_t id = _entities_killed[i];
+
+		delete _entities_alive[id];
+		_entities_alive[id] = nullptr;
+	}
+	_entities_killed.clear();
+}
+
+
 void EntityManager::killAll() {
     for(auto& e : _entities_alive)
     {
-        if(e && e->allocated)
+        if(e != nullptr)
         {
             if(!checkID(e->ID) && _entitiesComponents[e->ID])
             {
@@ -49,12 +62,13 @@ void EntityManager::killAll() {
             }
             
 			delete e;
+			e = nullptr;
 		}
 	}
 
     for(size_t i = 0; i < _temp_entities.size(); ++i)
     {
-        if(_temp_entities[i] && _temp_entities[i]->allocated)
+        if(_temp_entities[i])
         {
             delete _temp_entities[i];
         }
@@ -142,7 +156,6 @@ Entity* EntityManager::createEntity() {
     {
 
         Entity* entity = new Entity(_free_id.front());
-		entity->allocated = true;
 
 		_temp_entities.push_back(std::move(entity));
         entity = nullptr;

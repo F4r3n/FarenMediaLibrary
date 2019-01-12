@@ -255,6 +255,8 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
         return iterator;
     }
     void Free();
+	void killInativeEntities();
+
 private:
     void _destroyEntity(size_t id, bool isActive);
     size_t _getID(Entity* e);

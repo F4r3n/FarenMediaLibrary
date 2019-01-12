@@ -18,7 +18,6 @@ public:
     size_t ID = std::numeric_limits<size_t>::max();
     bool active = false;
     bool toCreate = true;
-    bool allocated = false;
 
 
     template <typename T, typename ...Args> T* addComponent(Args&&... args)
