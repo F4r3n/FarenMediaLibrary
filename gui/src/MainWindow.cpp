@@ -10,14 +10,14 @@
 #include <Components/CMaterial.h>
 #include <Components/CPointLight.h>
 #include "Rendering/RenderingSystem.h"
-#include "inspector/Inspector.hpp"
-#include "inspector/TransformInspector.h"
-#include "inspector/MaterialInspector.h"
-#include "inspector/MeshInspector.h"
+#include "inspector/inspector.hpp"
+#include "inspector/transformInspector.hpp"
+#include "inspector/materialInspector.hpp"
+#include "inspector/meshInspector.hpp"
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
 #include "inspector/scriptmanagerinspector.hpp"
-#include "inspector/pointlightinspector.h"
+#include "inspector/pointLightInspector.hpp"
 #include "Core/Debug.h"
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
@@ -27,7 +27,7 @@
 #include <Window.h>
 #include "Resource/ResourcesManager.h"
 #include "SaveProjectWindow.h"
-#include "inspector/Body3DInspector.h"
+#include "inspector/body3DInspector.hpp"
 #ifndef PATH_MAX
 #define PATH_MAX 256
 #endif

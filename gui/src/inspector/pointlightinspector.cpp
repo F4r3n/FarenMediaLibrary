@@ -1,4 +1,4 @@
-#include "inspector/pointlightinspector.h"
+#include "inspector/pointLightInspector.hpp"
 #include "Components/CPointLight.h"
 #include <imgui/imgui.h>
 using namespace gui;

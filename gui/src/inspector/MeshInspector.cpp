@@ -1,4 +1,4 @@
-#include "inspector/MeshInspector.h"
+#include "inspector/meshInspector.hpp"
 #include <imgui/imgui.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)

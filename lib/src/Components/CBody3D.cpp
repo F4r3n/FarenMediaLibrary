@@ -57,7 +57,7 @@ void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
 		transform = _body->getCenterOfMassTransform();
 	}
 	
-	transform.setOrigin(btVector3(inPosition.x, inPosition.y, inPosition.y));
+	transform.setOrigin(btVector3(inPosition.x, inPosition.y, inPosition.z));
 	_body->setCenterOfMassTransform(transform);
 }
 

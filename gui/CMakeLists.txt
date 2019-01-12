@@ -21,13 +21,13 @@ set(SOURCES ${SOURCES}
 	src/GWindow.cpp
 	src/GameView.cpp
 	src/SaveProjectWindow.cpp
-	src/inspector/Inspector.cpp
-	src/inspector/MaterialInspector.cpp
-	src/inspector/MeshInspector.cpp
-	src/inspector/pointlightinspector.cpp
-	src/inspector/scriptmanagerinspector.cpp
-	src/inspector/TransformInspector.cpp
-	src/inspector/Body3DInspector.cpp
+	src/inspector/inspector.cpp
+	src/inspector/materialInspector.cpp
+	src/inspector/meshInspector.cpp
+	src/inspector/pointLightInspector.cpp
+	src/inspector/scriptManagerInspector.cpp
+	src/inspector/transformInspector.cpp
+	src/inspector/body3DInspector.cpp
 	src/debuglogger.cpp
 	src/dialogfilebrowser.cpp
 

@@ -1,4 +1,4 @@
-#include "inspector/TransformInspector.h"
+#include "inspector/transformInspector.hpp"
 #include "Components/CTransform.h"
 #include <imgui/imgui.h>
 using namespace gui;

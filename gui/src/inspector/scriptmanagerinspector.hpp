@@ -1,7 +1,7 @@
 #ifndef SCRIPTMANAGERINSPECTOR_HPP
 #define SCRIPTMANAGERINSPECTOR_HPP
-#include "MacroInspectorHelper.h"
-#include "inspector/Inspector.hpp"
+#include "macroInspectorHelper.hpp"
+#include "inspector/inspector.hpp"
 #include "Components/CScriptManager.h"
 namespace gui {
     DECLARE_INSPECTOR_CLASS(ScriptManager, fmc::CScriptManager)

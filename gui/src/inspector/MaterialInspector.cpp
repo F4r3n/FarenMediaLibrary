@@ -1,4 +1,4 @@
-#include "inspector/MaterialInspector.h"
+#include "inspector/materialInspector.hpp"
 #include <imgui/imgui.h>
 #include <Resource/ResourcesManager.h>
 #include <Rendering/Shader.h>

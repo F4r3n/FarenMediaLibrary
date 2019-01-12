@@ -1,4 +1,4 @@
-#include "inspector/Body3DInspector.h"
+#include "inspector/body3DInspector.hpp"
 #include "Components/CBody3D.h"
 #include <imgui/imgui.h>
 using namespace gui;
