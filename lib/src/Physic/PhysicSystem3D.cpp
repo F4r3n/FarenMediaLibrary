@@ -2,7 +2,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "Components/CTransform.h"
 #include "Components/CBody3D.h"
-using namespace fm;
+using namespace fms;
 
 PhysicSystem3D::PhysicSystem3D()
 {
@@ -10,27 +10,6 @@ PhysicSystem3D::PhysicSystem3D()
 }
 
 
-void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
-{
-	_dynamicsWorld->stepSimulation(1/60.0f, 10);
-
-	for (auto e : em.iterate<fmc::CTransform, fmc::CBody3D>())
-	{
-		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
-		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
-
-		cbody->GetPosition(ctransform->position);
-		cbody->GetRotation(ctransform->rotation);
-	}
-
-	
-}
-
-
-void PhysicSystem3D::over()
-{
-
-}
 
 
 void PhysicSystem3D::init(EntityManager& em, EventManager& event)
@@ -60,6 +39,10 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 		if (cbody->GetBody() == NULL)
 		{
 			cbody->Init();
+			fmc::CTransform *ctransform = e->get<fmc::CTransform>();
+
+			cbody->SetPosition(ctransform->position);
+			cbody->SetRotation(ctransform->rotation);
 			cbody->AddToWorld(_dynamicsWorld);
 		}
 
@@ -72,9 +55,29 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 
 		cbody->SetPosition(ctransform->position);
 		cbody->SetRotation(ctransform->rotation);
-	}
+		cbody->SetScale(ctransform->scale);
 
+	}
 }
+
+void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
+{
+	_dynamicsWorld->stepSimulation(1 / 60.0f, 10);
+
+	for (auto e : em.iterate<fmc::CTransform, fmc::CBody3D>())
+	{
+		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
+		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
+
+		cbody->GetPosition(ctransform->position);
+		cbody->GetRotation(ctransform->rotation);
+	}
+}
+
+void PhysicSystem3D::over()
+{
+}
+
 
 PhysicSystem3D::~PhysicSystem3D()
 {

@@ -27,7 +27,7 @@ else(EMSCRIPTEN)
 endif(EMSCRIPTEN)
 
 #Bullet
-set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath Bullet3Common)
+set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
 link_directories(${FML_EXTLIB_LIB}/bullet3)
 include_directories(${FML_EXTLIB}/bullet3/src)
 
@@ -96,6 +96,7 @@ target_link_libraries(${LIB_NAME} ${GLEW_LIBRARIES})
 target_link_libraries(${LIB_NAME} ${OPENAL_LIBRARIES})
 target_link_libraries(${LIB_NAME} Box2D)
 target_link_libraries(${LIB_NAME} assimp)
+target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 
 if(CMAKE_COMPILER_IS_GNUCXX)

@@ -3,7 +3,7 @@
 
 class btDiscreteDynamicsWorld;
 
-namespace fm
+namespace fms
 {
 class PhysicSystem3D : public System<PhysicSystem3D> {
 public:

@@ -18,6 +18,7 @@ enum ComponentType
     kIdentity,
     kPointLight,
     kScriptManager,
+	kBody3D,
     kSource,
     kText,
     kEvent,

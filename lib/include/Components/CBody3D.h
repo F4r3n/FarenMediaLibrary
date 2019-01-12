@@ -15,21 +15,30 @@ namespace fmc
 	{
 	public:
 
-		CBody3D(float w, float h, float l);
+
+		const std::string& GetName() const override;
+		void Destroy() override;
+
+		size_t GetType() const override { return kBody3D; }
+
+		CBody3D(const fm::math::vec3 &inVec3);
 		~CBody3D();
 		void SetMass(float inMass);
 		void Init();
 		void SetPosition(const fm::math::vec3 &inPosition);
 		void SetRotation(const fm::math::vec3 &inRotation);
+		void SetScale(const fm::math::vec3 &inScale);
 
 		void GetPosition(fm::math::vec3& outVec) const;
 		void GetRotation(fm::math::vec3& outVec) const;
+
 
 		btRigidBody* GetBody() const { return _body; }
 		void AddToWorld(btDiscreteDynamicsWorld *inWorld);
 		bool IsInit() const;
 
 	private:
+		void _InitShape(const fm::math::vec3 &inScale);
 
 		btCollisionShape* _shape;
 		btRigidBody* _body;

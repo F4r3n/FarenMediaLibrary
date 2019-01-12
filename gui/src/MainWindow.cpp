@@ -27,6 +27,7 @@
 #include <Window.h>
 #include "Resource/ResourcesManager.h"
 #include "SaveProjectWindow.h"
+#include "inspector/Body3DInspector.h"
 #ifndef PATH_MAX
 #define PATH_MAX 256
 #endif
@@ -108,6 +109,10 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
             {
                 _inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::PointLightInspector>(c);
             }
+			else if (c->GetType() == fmc::ComponentType::kBody3D)
+			{
+				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::Body3DInspector>(c);
+			}
         } 
 		else 
 		{
@@ -346,6 +351,11 @@ void MainWindow::menuEntity()
             {
                 _currentEntity->add<fmc::CPointLight>();
             }
+			if (!_currentEntity->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
+			{
+				fmc::CTransform* t = _currentEntity->get<fmc::CTransform>();
+				_currentEntity->add<fmc::CBody3D>(new fmc::CBody3D(t->scale));
+			}
             ImGui::EndPopup();
         }
     }
@@ -445,11 +455,11 @@ void MainWindow::Draw()
     if(_windowStates[WIN_PROJECT_SETTINGS])
         DisplayWindow_ProjectSettings();
 
-    if(_windowStates[WIN_LIGHT_EDIT])
-        DisplayWindow_WorldLighEdit();
+	if(_windowStates[WIN_LIGHT_EDIT])
+		DisplayWindow_WorldLighEdit();
 
-    if(_windowStates[WIN_PROJECT_LOAD])
-        DisplayWindow_Load();
+	if(_windowStates[WIN_PROJECT_LOAD])
+		DisplayWindow_Load();
 
 	bool show_test_window = false;
     ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);

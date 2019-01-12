@@ -27,6 +27,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/pointlightinspector.cpp
 	src/inspector/scriptmanagerinspector.cpp
 	src/inspector/TransformInspector.cpp
+	src/inspector/Body3DInspector.cpp
 	src/debuglogger.cpp
 	src/dialogfilebrowser.cpp
 
@@ -40,6 +41,11 @@ set(FML_EXTLIB ${FML_PATH}/extlib)
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#Bullet
+set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
+link_directories(${FML_EXTLIB_LIB}/bullet3)
+include_directories(${FML_EXTLIB}/bullet3/src)
 
 #Opengl
 find_package(OpenGL)
@@ -92,7 +98,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
-target_link_libraries(${PROJECT_NAME} ECS lua)
+target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES})
 
 
 file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

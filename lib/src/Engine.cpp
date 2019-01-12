@@ -14,6 +14,7 @@
 #include "Profiler/ProfilerMacro.h"
 #include "Core/Config.h"
 #include "Core/GameObject.h"
+#include "Physic/PhysicSystem3D.h"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -79,6 +80,8 @@ void Engine::Start()
 void Engine::Init()
 {
     _systems->addSystem(new fms::SoundSystem());
+	_systems->addSystem(new fms::PhysicSystem3D());
+
     _systems->addSystem(new fms::ScriptManagerSystem());
     _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
 
