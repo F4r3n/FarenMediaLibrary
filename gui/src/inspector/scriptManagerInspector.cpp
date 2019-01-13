@@ -1,4 +1,4 @@
-#include "inspector/scriptmanagerinspector.hpp"
+#include "inspector/scriptManagerInspector.hpp"
 #include <Components/CScriptManager.h>
 #include <Script/LuaScript.h>
 #include <Script/cppscript.hpp>

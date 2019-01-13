@@ -171,6 +171,8 @@ Entity* EntityManager::createEntity() {
 		_entities_alive[id]->active = true;
 		_entities_alive[id]->ID = id;
 		finalE = _entities_alive[id];
+		finalE->toDelete = false;
+		_listEntities.push_back(finalE);
     }
 	return finalE;
 }
