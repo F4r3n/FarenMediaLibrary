@@ -15,12 +15,14 @@ SceneManager::~SceneManager() {
 }
 
 void SceneManager::setCurrentScene(const std::string &name) {
-    if(_scenes.find(name) != _scenes.end()) {
+    if(_scenes.find(name) != _scenes.end()) 
+	{
         _currentScene = _scenes[name];
     }
 }
 
-SceneManager& SceneManager::get() {
+SceneManager& SceneManager::get() 
+{
     return _instance;
 }
 void SceneManager::Serialize(nlohmann::json &outjson)
@@ -34,18 +36,33 @@ void SceneManager::Serialize(nlohmann::json &outjson)
 }
 
 
-void SceneManager::SerializeEditor(nlohmann::json &outjson)
+bool SceneManager::SerializePrivate(const std::string &inName, nlohmann::json &outjson)
 {
-	nlohmann::json s;
-	_editorScene->Serialize(s);
-	outjson = s;
+	nlohmann::json json;
+	for (auto& s : _privateScenes)
+	{
+		if (s->getName() == inName)
+		{
+			s->Serialize(json);
+			outjson = json;
+			return true;
+		}
+	}
+	return false;
 }
 
 
-bool SceneManager::ReadEditor(const nlohmann::json &injson)
+bool SceneManager::ReadPrivate(const std::string &inName, const nlohmann::json &injson)
 {
-	_editorScene->Read(injson);	
-	return true;
+	for (auto& s : _privateScenes)
+	{
+		if (s->getName() == inName)
+		{
+			s->Read(injson);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool SceneManager::Read(const nlohmann::json &injson)
@@ -78,29 +95,51 @@ Scene* SceneManager::getScene(const std::string &name)
     return nullptr;
 }
 
-void SceneManager::InitEditorScene()
+std::shared_ptr<fm::Scene> SceneManager::AddPrivateScene(const std::string &inName)
 {
-	if (_editorScene != nullptr)
+	for (auto& s : _privateScenes)
 	{
-		delete _editorScene;
+		if (s->getName() == inName)
+		{
+			return s;
+		}
 	}
 
-	_editorScene = new Scene("Editor");
-
+	_privateScenes.emplace_back(std::make_shared<fm::Scene>(inName));
+	return _privateScenes[_privateScenes.size() - 1];
 }
 
-void SceneManager::Clear(bool clearEditor)
+void SceneManager::ClearAllPublic()
 {
-	if (clearEditor && _editorScene != nullptr)
-	{
-		_editorScene->destroy();
-	}
 
 	for (auto &scene : _scenes)
 	{
 		scene.second->destroy();
 	}
 	_scenes.clear();
+}
+
+
+
+bool SceneManager::ClearScene(const std::string &inName)
+{
+	std::map<std::string, Scene*>::iterator it = _scenes.find(inName);
+	if (it != _scenes.end())
+	{
+		it->second->destroy();
+		return true;
+	}
+
+	for (auto& s : _privateScenes)
+	{
+		if (s->getName() == inName)
+		{
+			s->destroy();
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

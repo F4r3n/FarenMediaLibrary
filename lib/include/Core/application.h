@@ -7,6 +7,7 @@ namespace fm
 {
 class Window;
 class Engine;
+class Scene;
 }
 
 namespace fm
@@ -89,10 +90,11 @@ class Application
 			return app;
 		}
 
-        bool Serialize(bool serializeEditor);
+        bool Serialize(std::shared_ptr<fm::Scene> editorScene);
         bool Read();
 
-        void Start();
+        void Start(bool inSandbox);
+		void Stop();
 		void SetConfig(const Config &inConfig);
         void Init();
         void DeInit();

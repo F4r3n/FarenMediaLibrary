@@ -46,6 +46,7 @@ void EntityManager::killInativeEntities()
 
 		delete _entities_alive[id];
 		_entities_alive[id] = nullptr;
+		_free_id.push(id);
 	}
 	_entities_killed.clear();
 }
@@ -154,16 +155,12 @@ Entity* EntityManager::createEntity() {
 	Entity* finalE = nullptr;
     if(_entities_killed.empty())
     {
-
-        Entity* entity = new Entity(_free_id.front());
-
-		_temp_entities.push_back(std::move(entity));
-        entity = nullptr;
+		_temp_entities.emplace_back(new Entity(_free_id.front()));
         _free_id.pop();
 
 		finalE = _temp_entities.back();
-
-    } else
+    }
+	else
     {
         //_capacity++;
 		size_t id = _entities_killed.back();

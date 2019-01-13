@@ -2,11 +2,11 @@
 #define GUI
 
 #include <imgui/imgui.h>
-#include "inspector/Inspector.hpp"
 #include "GameView.h"
 #include "debuglogger.h"
 #include "GWindow.h"
 #include "Core/application.h"
+#include "inspector/inspector.hpp"
 namespace fmc {
     class CTransform;
     class CMaterial;
@@ -17,6 +17,7 @@ namespace fmc {
 namespace fm {
 class GameObject;
 class Engine;
+class Scene;
 }
 
 typedef std::unordered_map<size_t, std::unique_ptr<gui::GWindow>> MapOfWindows;
@@ -57,6 +58,7 @@ public:
     void DisplayWindow_WorldLighEdit();
     void DisplayWindow_Load();
 private:
+	std::shared_ptr<fm::Scene> _editorScene;
 	MapOfWindows _windows;
 
 

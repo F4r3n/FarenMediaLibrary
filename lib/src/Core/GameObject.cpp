@@ -18,12 +18,20 @@ GameObject* GameObject::create()
     return this;
 }
 
-GameObject* GameObject::create(Scene *s)
+GameObject* GameObject::create(std::shared_ptr<Scene> s)
 {
     if(_entity != nullptr) return this;
     _entity = EntityManager::get().createEntity();
     s->AddGameObject(this);
     return this;
+}
+
+GameObject* GameObject::create(fm::Scene* s)
+{
+	if (_entity != nullptr) return this;
+	_entity = EntityManager::get().createEntity();
+	s->AddGameObject(this);
+	return this;
 }
 
 GameObject::GameObject()

@@ -16,7 +16,7 @@
 #include "inspector/meshInspector.hpp"
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
-#include "inspector/scriptmanagerinspector.hpp"
+#include "inspector/scriptManagerInspector.hpp"
 #include "inspector/pointLightInspector.hpp"
 #include "Core/Debug.h"
 #include "Core/Scene.h"
@@ -35,14 +35,13 @@
 
 MainWindow::MainWindow() 
 {
-	//window = new TestWindow("test");
-	//window->AddWidget(std::make_unique<gui::GButton<int>>("toto", yolo, 5));
-	_windows.insert(std::make_pair<size_t, std::unique_ptr<gui::SaveProjectWindow>>(WIN_CREATE_PROJECT, std::make_unique<gui::SaveProjectWindow>("SaveWindow")));
+	_windows.insert(std::make_pair<size_t, std::unique_ptr<gui::SaveProjectWindow>>(WIN_CREATE_PROJECT,
+		std::make_unique<gui::SaveProjectWindow>("SaveWindow", [this] {fm::Application::Get().Serialize(this->_editorScene); })));
 
     fm::Debug::logWarning("Start init");
     _configureStyle();
 
-	fm::SceneManager::get().InitEditorScene();
+	_editorScene = fm::SceneManager::get().AddPrivateScene("_editor");
     fm::SceneManager::get().addScene(new fm::Scene("newScene"));
     fm::SceneManager::get().setCurrentScene("newScene");
 
@@ -51,8 +50,8 @@ MainWindow::MainWindow()
 	//_dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50, 0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
 	//_dlight->addComponent<fmc::CMaterial>();
 
-    _mainCamera = fm::GameObjectHelper::create(fm::SceneManager::get().GetEditorScene());
-    _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false,4);
+    _mainCamera = fm::GameObjectHelper::create(_editorScene);
+    _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, 4);
 
     _mainCamera->addComponent<fmc::CTransform>();
     _mainCamera->name = "Camera";
@@ -162,7 +161,7 @@ void MainWindow::DisplayWindow_Load()
 	if (ImGui::Button("Valid"))
 	{
 
-		fm::SceneManager::get().Clear(false);
+		fm::SceneManager::get().ClearAllPublic();
 		_ClearInspectorComponents();
 		_currentEntity = nullptr;
 
@@ -229,7 +228,7 @@ void MainWindow::DrawMenu()
 				}
 				if (ImGui::MenuItem("Save"))
 				{
-					fm::Application::Get().Serialize(true);
+					fm::Application::Get().Serialize(_editorScene);
 				}
 
 				ImGui::EndMenu();

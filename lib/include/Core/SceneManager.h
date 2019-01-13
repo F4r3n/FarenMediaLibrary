@@ -1,6 +1,6 @@
 #pragma once 
 #include <map>
-
+#include <memory>
 namespace fm
 {
 class Scene;
@@ -20,23 +20,21 @@ namespace fm {
                 return _currentScene;
             }
             void Serialize(nlohmann::json &outjson);
-			void SerializeEditor(nlohmann::json &outjson);
             bool Read(const nlohmann::json &injson);
-			bool ReadEditor(const nlohmann::json &injson);
-			void Clear(bool clearEditor);
 
-			inline Scene* GetEditorScene() {
-				return _editorScene;
-			};
+			bool SerializePrivate(const std::string &inName, nlohmann::json &outjson);
+			bool ReadPrivate(const std::string &inName, const nlohmann::json &injson);
 
-			void InitEditorScene();
+			void ClearAllPublic();
+
+			std::shared_ptr<fm::Scene> AddPrivateScene(const std::string &inName);
+			bool ClearScene(const std::string &inName);
         private:
             ~SceneManager();
             Scene* _currentScene = nullptr;
             static SceneManager _instance;
             std::map<std::string, Scene*> _scenes;
-			Scene* _editorScene = nullptr;
-
+			std::vector<std::shared_ptr<fm::Scene>> _privateScenes;
     };
 
 }

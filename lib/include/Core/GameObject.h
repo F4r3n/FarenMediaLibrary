@@ -15,7 +15,9 @@ namespace fm {
             GameObject();
             ~GameObject();
             GameObject* create();
-            GameObject* create(Scene *s);
+            GameObject* create(std::shared_ptr<Scene> s);
+			GameObject* create(fm::Scene* s);
+
             bool IsActive()
             {
                 return _entity != nullptr && _entity->active;
@@ -80,10 +82,16 @@ namespace fm {
             {
                 return (new GameObject())->create();
             }
-            static GameObject* create(Scene *scene)
+            static GameObject* create(std::shared_ptr<Scene> scene)
             {
                 return (new GameObject())->create(scene);
             }
+			static GameObject* create(fm::Scene* scene)
+			{
+				return (new GameObject())->create(scene);
+			}
+
+
             template <typename T>
             static void Destroy(size_t ID)
             {

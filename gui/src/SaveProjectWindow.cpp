@@ -3,10 +3,11 @@
 #include "dialogfilebrowser.h"
 using namespace gui;
 
-SaveProjectWindow::SaveProjectWindow(const std::string &inName) : GWindow(inName)
+SaveProjectWindow::SaveProjectWindow(const std::string &inName, std::function<void (void)> && f) : GWindow(inName)
 {
 	_isInit = false;
 	_fileBrowserOpened = true;
+	_returnFunction = f;
 }
 
 
@@ -73,7 +74,8 @@ void SaveProjectWindow::CustomDraw()
 		_projectSettings.path.CreateFolder();
 		CreateFolder(_projectSettings.resourcesFolder.c_str());
 		fm::Application::Get().SetProjectName(_projectSettings.name);
-		fm::Application::Get().Serialize(true);
+		_returnFunction();
+		
 
 		ImGui::CloseCurrentPopup();
 	}

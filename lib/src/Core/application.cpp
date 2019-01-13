@@ -5,12 +5,14 @@
 #include <nlohmann/json.hpp>
 #include "Core/SceneManager.h"
 #include <iomanip>      // std::setw
-
+#include "Core/Scene.h"
 #include <fstream>
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
 const std::string EDITOR_FILE_NAME_EXTENSION = ".editor.fml";
+const std::string TEMPORARY_SCENE_NAME = "_temp";
+
 Application::~Application()
 {
 
@@ -27,7 +29,7 @@ Application::Application()
 }
 
 
-bool Application::Serialize(bool serializeEditor)
+bool Application::Serialize(std::shared_ptr<fm::Scene> editorScene)
 {
 	{
 		nlohmann::json s;
@@ -41,10 +43,10 @@ bool Application::Serialize(bool serializeEditor)
 		o.close();
 	}
 
-	if(serializeEditor)
+	if(editorScene != nullptr)
 	{
 		nlohmann::json s;
-		SceneManager::get().SerializeEditor(s);
+		editorScene->Serialize(s);
 
 		FilePath p(_currentConfig.userDirectory);
 		p.Append(_currentConfig.name + EDITOR_FILE_NAME_EXTENSION);
@@ -68,8 +70,20 @@ bool Application::Read()
     return true;
 }
 
-void Application::Start()
+void Application::Start(bool inSandbox)
 {
+	if (inSandbox)
+	{
+		Serialize(nullptr);
+		fm::SceneManager::get().AddPrivateScene(TEMPORARY_SCENE_NAME);
+
+	}
+	_engine->Start();
+	//SceneManager::get().addScene(new fm::Scene("_temp"))
+}
+void Application::Stop()
+{
+
 }
 
 fm::Window* Application::GetWindow() const
