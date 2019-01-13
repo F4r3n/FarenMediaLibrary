@@ -8,18 +8,24 @@ class Scene;
 
 
 
-namespace fm {
-    class SceneManager {
+namespace fm 
+{
+    class SceneManager 
+	{
         public:
             SceneManager();
-            void setCurrentScene(const std::string &name);
-            void addScene(Scene *scene);
-            Scene* getScene(const std::string &name);
+            void setCurrentScene(const std::string &name, bool isPrivate);
+            void AddNewScene(const std::string &inName);
+			void AddScene(std::shared_ptr<fm::Scene> inScene);
+
+			std::shared_ptr<Scene> getScene(const std::string &name);
             static SceneManager& get();
-            inline Scene* getCurrentScene() const {
+            inline std::shared_ptr<Scene> getCurrentScene() const {
                 return _currentScene;
             }
             void Serialize(nlohmann::json &outjson);
+			void SerializeCurrentScene(nlohmann::json &outjson);
+
             bool Read(const nlohmann::json &injson);
 
 			bool SerializePrivate(const std::string &inName, nlohmann::json &outjson);
@@ -28,12 +34,13 @@ namespace fm {
 			void ClearAllPublic();
 
 			std::shared_ptr<fm::Scene> AddPrivateScene(const std::string &inName);
-			bool ClearScene(const std::string &inName);
+			bool ClearScene(const std::string &inName, bool isPrivate);
+			
         private:
             ~SceneManager();
-            Scene* _currentScene = nullptr;
+            std::shared_ptr<Scene> _currentScene = nullptr;
             static SceneManager _instance;
-            std::map<std::string, Scene*> _scenes;
+            std::map<std::string, std::shared_ptr<Scene>> _scenes;
 			std::vector<std::shared_ptr<fm::Scene>> _privateScenes;
     };
 

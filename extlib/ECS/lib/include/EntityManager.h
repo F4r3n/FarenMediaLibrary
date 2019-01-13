@@ -110,7 +110,9 @@ public:
     }
 
     bool _IsEntityActive(Entity *e) const;
-    
+	bool _IsMarkedAsWantedToDelete(Entity *e) const;
+	bool IsActive(size_t id) const;
+
 class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t> {
     public:
         EntityIteratorMask(const Mask& mask, const std::list<pEntity>::iterator iterator,
@@ -150,7 +152,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
 
             while(_it != _end)
             {
-                if( !EntityManager::get()._IsEntityActive(*_it))
+                if( EntityManager::get()._IsMarkedAsWantedToDelete(*_it))
                 {
                     if(_it == _begin)
                     {
@@ -164,7 +166,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
                 }
                 else
                 {
-                    if(valid(EntityManager::get()._getID(*_it)))
+                    if( valid(EntityManager::get()._getID(*_it)))
                         break;
                     ++_it;
                 }
@@ -173,8 +175,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
 
         inline bool valid(size_t index) const
         {
-            return EntityManager::get().Exists(index)
-            && EntityManager::get().hasComponents(index, _mask);
+            return EntityManager::get().Exists(index) && EntityManager::get().IsActive(index) && EntityManager::get().hasComponents(index, _mask);
         }
         
     private:

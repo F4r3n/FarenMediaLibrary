@@ -127,6 +127,8 @@ void EntityManager::make()
         if(e->toCreate)
         {
             e->active = true;
+			e->toDelete = false;
+			e->toCreate = false;
             _entities_alive.push_back(std::move(e));
             _capacity++;
             _listEntities.push_back(_entities_alive.back());
@@ -222,8 +224,12 @@ bool EntityManager::hasComponents(Entity* e, const Mask& bits) const{
 	return false;
 }
 
+bool EntityManager::IsActive(size_t id) const {
+	return _entities_alive[id]->active;
+}
+
+
 bool EntityManager::hasComponents(size_t id,const Mask& bits) const {
-    //std::cout <<"Has "<< id << " " << entitiesComponents[id]->has(bits) << std::endl;
     if(_entitiesComponents[id])
         return _entitiesComponents[id]->has(bits);
 	return false;
@@ -239,6 +245,7 @@ void EntityManager::deleteEntity(Entity* e) {
     _destroyEntity(e->ID, e->active);
     e->toCreate = false;
     e->active = false;
+	e->toDelete = true;
 }
 
 void EntityManager::_destroyEntity(size_t id, bool isActive) {
@@ -258,4 +265,10 @@ bool EntityManager::_IsEntityActive(Entity *e) const
 {
     return e && e->active;
 }
+
+bool EntityManager::_IsMarkedAsWantedToDelete(Entity *e) const
+{
+	return e && e->toDelete;
+}
+
 

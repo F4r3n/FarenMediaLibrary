@@ -67,12 +67,11 @@ namespace fm {
 
 
             bool Read(const nlohmann::json &inJson);
-
-            
-
+			void SetStatus(bool inStatus);
+			void ResetStatus();
         private:
             Entity* _entity = nullptr;
-
+			bool	_oldStatus;
     };
 
     class GameObjectHelper

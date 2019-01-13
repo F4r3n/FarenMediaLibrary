@@ -61,3 +61,22 @@ bool Scene::Read(const nlohmann::json &inJson)
 
     return true;
 }
+
+void Scene::SetStatusToGo(bool inStatus)
+{
+	for (auto& go : _gos)
+	{
+		go->SetStatus(false);
+	}
+}
+
+void Scene::ResetStatusGo()
+{
+	for (auto& go : _gos)
+	{
+		go->ResetStatus();
+	}
+}
+
+
+

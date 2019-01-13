@@ -116,10 +116,10 @@ class Application
 		Application();
 		fm::CircularBuffer<fm::Config,10> _lastConfigsUsed;
 
-        fm::Engine *_engine;
-        fm::Window *_window;
-        fm::Config _currentConfig;
-		
+        fm::Engine*	_engine;
+        fm::Window* _window;
+        fm::Config	_currentConfig;
+		std::string _nameLastScene;
 };
 }
 

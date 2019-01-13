@@ -74,16 +74,26 @@ void Application::Start(bool inSandbox)
 {
 	if (inSandbox)
 	{
-		Serialize(nullptr);
-		fm::SceneManager::get().AddPrivateScene(TEMPORARY_SCENE_NAME);
+		nlohmann::json save;
+		fm::SceneManager::get().SerializeCurrentScene(save);
+		std::shared_ptr<fm::Scene> current = fm::SceneManager::get().getCurrentScene();
+		_nameLastScene = current->getName();
+		std::string privateName = _nameLastScene + "_";
+		std::shared_ptr<fm::Scene> s = fm::SceneManager::get().AddPrivateScene(privateName);
+		s->Read(save);
+		current->SetStatusToGo(false);
 
+		fm::SceneManager::get().setCurrentScene(privateName, true);
 	}
 	_engine->Start();
-	//SceneManager::get().addScene(new fm::Scene("_temp"))
 }
+
 void Application::Stop()
 {
-
+	fm::SceneManager::get().ClearScene(_nameLastScene + "_", true);
+	fm::SceneManager::get().setCurrentScene(_nameLastScene, false);
+	fm::SceneManager::get().getCurrentScene()->ResetStatusGo();
+	//TODO garbage collect
 }
 
 fm::Window* Application::GetWindow() const

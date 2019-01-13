@@ -13,7 +13,7 @@ GameObject* GameObject::create()
 {
     if(_entity != nullptr) return this;
     _entity = EntityManager::get().createEntity();
-    Scene* s = SceneManager::get().getCurrentScene();
+    std::shared_ptr<Scene> s = SceneManager::get().getCurrentScene();
     s->AddGameObject(this);
     return this;
 }
@@ -42,21 +42,26 @@ GameObject::GameObject()
 void GameObject::Serialize(json &outResult)
 {
     std::vector<BaseComponent*> compos = getAllComponents();
+
+	json compo;
     for(auto c : compos)
     {
-
         json j;
         if(c->Serialize(j))
         {
-            outResult[std::to_string(c->GetType())] = j;
+			compo[std::to_string(c->GetType())] = j;
         }
-
     }
+	outResult["enabled"] = _entity->active;
+	outResult["components"] = compo;
 }
+
 
 bool GameObject::Read(const json &inJson)
 {
-    for (nlohmann::json::const_iterator it = inJson.cbegin(); it != inJson.cend(); ++it)
+	_entity->active = inJson["enabled"];
+	json compo = inJson["components"];
+    for (nlohmann::json::const_iterator it = compo.cbegin(); it != compo.cend(); ++it)
     {
         switch(std::stoi(it.key()))
         {
@@ -90,5 +95,17 @@ bool GameObject::Read(const json &inJson)
     }
     return true;
 }
+
+void GameObject::SetStatus(bool inStatus)
+{
+	_oldStatus = _entity->active;
+	_entity->active = inStatus;
+}
+
+void GameObject::ResetStatus()
+{
+	_entity->active = _oldStatus;
+}
+
 
 GameObject::~GameObject() {}

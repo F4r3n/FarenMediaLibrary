@@ -40,8 +40,8 @@ MainWindow::MainWindow()
     _configureStyle();
 
 	_editorScene = fm::SceneManager::get().AddPrivateScene("_editor");
-    fm::SceneManager::get().addScene(new fm::Scene("newScene"));
-    fm::SceneManager::get().setCurrentScene("newScene");
+    fm::SceneManager::get().AddNewScene("newScene");
+    fm::SceneManager::get().setCurrentScene("newScene", false);
 
 	//_dlight = fm::GameObjectHelper::create();
 	//_dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
@@ -202,7 +202,7 @@ void MainWindow::DrawMenu()
             {
                 if(ImGui::MenuItem("Start"))
                 {
-                    //_engine->Start();
+					fm::Application::Get().Start(true);
                 }
                 if(ImGui::MenuItem("Pause"))
                 {
@@ -210,7 +210,7 @@ void MainWindow::DrawMenu()
                 }
                 if(ImGui::MenuItem("Stop"))
                 {
-                    //_engine->Reset();
+					fm::Application::Get().Stop();
                 }
                 ImGui::EndMenu();
             }

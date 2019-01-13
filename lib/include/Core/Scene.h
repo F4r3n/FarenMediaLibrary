@@ -22,6 +22,8 @@ namespace fm {
             const std::string& getName() const{ return _name;}
             GameObject* GetGameObject(size_t id) const;
             std::vector<fm::GameObject*> getAllGameObjects() {return _gos;}
+			void SetStatusToGo(bool inStatus);
+			void ResetStatusGo();
         private:
             std::vector<GameObject*> _gos;
             std::string _name;
