@@ -1,7 +1,7 @@
 #ifndef POINTLIGHTINSPECTOR_H
 #define POINTLIGHTINSPECTOR_H
 
-#include "Inspector.hpp"
+#include "inspector.hpp"
 #include "Components/CPointLight.h"
 
 #include "macroInspectorHelper.hpp"

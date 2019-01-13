@@ -1,5 +1,5 @@
 #pragma once
-#include "Inspector.hpp"
+#include "inspector.hpp"
 #include <Components/CTransform.h>
 #include "macroInspectorHelper.hpp"
 namespace gui {

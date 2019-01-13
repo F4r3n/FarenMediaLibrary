@@ -1,5 +1,5 @@
 #pragma once
-#include "Inspector.hpp"
+#include "inspector.hpp"
 #include "Components/CMaterial.h"
 #include "macroInspectorHelper.hpp"
 #include <vector>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Inspector.hpp"
+#include "inspector.hpp"
 #include "Components/CMesh.h"
 
 #include "macroInspectorHelper.hpp"
