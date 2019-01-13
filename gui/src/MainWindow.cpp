@@ -28,9 +28,7 @@
 #include "Resource/ResourcesManager.h"
 #include "SaveProjectWindow.h"
 #include "inspector/body3DInspector.hpp"
-#ifndef PATH_MAX
-#define PATH_MAX 256
-#endif
+
 
 
 MainWindow::MainWindow() 

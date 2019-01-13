@@ -3,6 +3,7 @@
 #include "Core/FilePath.h"
 #include <list>
 #include <string>
+#include <memory>
 namespace fm
 {
 class Window;
