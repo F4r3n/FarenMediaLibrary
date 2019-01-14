@@ -1,6 +1,7 @@
 #pragma once
 #include <System.h>
-#include <Entity.h>
+#include <EntityManager.h>
+
 #include <Box2D/Box2D.h>
 #include "Components/Body2D.h"
 #include <iostream>

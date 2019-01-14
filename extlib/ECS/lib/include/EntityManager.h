@@ -1,5 +1,6 @@
 #ifndef ENTITY_MANAGER_H
 #define ENTITY_MANAGER_H
+#include "Entity.h"
 #include <array>
 #include "ComponentManager.h"
 #include <limits>
@@ -7,10 +8,10 @@
 #include <list>
 #include <functional>
 #define ADD_SIZE 200
-class Entity;
-typedef Entity* pEntity;
+
 typedef std::bitset<MAX_COMPONENTS> Mask;
-class EntityManager {
+class EntityManager 
+{
 public:
     EntityManager();
     static inline EntityManager& get() 
@@ -21,11 +22,11 @@ public:
     ~EntityManager();
 
     Entity* createEntity();
-    void getEntities(std::function<void(Entity*)> func);
+    void getEntities(std::function<void(Entity&)> func);
     std::vector<BaseComponent*> getAllComponents(Entity *e) {
-        return _entitiesComponents[_getID(e)]->getAllComponents();
+        return _entitiesComponents[e->ID]->getAllComponents();
     }
-    void getEntitiesWithComponents(std::function<void(Entity*)> func, Mask& bits);
+    void getEntitiesWithComponents(std::function<void(Entity&)> func, Mask& bits);
     void killAll();
     bool Exists(size_t id) const;
     inline bool checkID(size_t ID) const {
@@ -84,8 +85,8 @@ public:
 
     void deleteEntity(Entity* e);
     std::vector<size_t> getEntitiesAlive();
-    bool hasComponents(Entity* e, const std::vector<std::size_t>& compo) const;
-    bool hasComponents(Entity* e, const Mask& bits) const;
+    bool hasComponents(const Entity& e, const std::vector<std::size_t>& compo) const;
+    bool hasComponents(const Entity& e, const Mask& bits) const;
     void make();
     bool hasComponents(size_t id, const Mask& bits) const;
     
@@ -96,28 +97,23 @@ public:
     }
     inline Entity* getEntity(const size_t id) {
         if(checkID(id)) return nullptr;
-        return _entities_alive[id];
+        return &_entities_alive[id];
     }
     inline Entity* getEntityNotSafe(const size_t id) {
-        return _entities_alive[id];
+        return &_entities_alive[id];
     }
 
     size_t GetID(Entity *e) const;
 
-    inline std::list<pEntity>::iterator _DeleteEntity(const std::list<pEntity>::iterator &iterator )
-    {
-         return _listEntities.erase(iterator);
-    }
 
     bool _IsEntityActive(Entity *e) const;
-	bool _IsMarkedAsWantedToDelete(Entity *e) const;
 	bool IsActive(size_t id) const;
 
 class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t> {
     public:
-        EntityIteratorMask(const Mask& mask, const std::list<pEntity>::iterator iterator,
-                           const std::list<pEntity>::iterator begin,
-                           const std::list<pEntity>::iterator end) {
+        EntityIteratorMask(const Mask& mask, const std::vector<Entity>::iterator iterator,
+                           const std::vector<Entity>::iterator begin,
+                           const std::vector<Entity>::iterator end) {
             _mask = mask;
             _end = end;
             _begin = begin;
@@ -127,7 +123,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
         }
        
        Entity* operator*() {
-           return *_it;
+           return &(*_it);
        }
       
         EntityIteratorMask operator++() {
@@ -152,24 +148,13 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
 
             while(_it != _end)
             {
-                if( EntityManager::get()._IsMarkedAsWantedToDelete(*_it))
-                {
-                    if(_it == _begin)
-                    {
-                    _it = EntityManager::get()._DeleteEntity(_it);
-                    _begin = _it;
-                    }else
-                    {
-                        _it = EntityManager::get()._DeleteEntity(_it);
+               
 
-                    }
-                }
-                else
-                {
-                    if( valid(EntityManager::get()._getID(*_it)))
-                        break;
-                    ++_it;
-                }
+                
+                 if( valid(_it->ID))
+                     break;
+                 ++_it;
+                
             }
         }
 
@@ -180,54 +165,12 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
         
     private:
         Mask _mask;
-        std::list<pEntity>::iterator _it;
-        std::list<pEntity>::iterator _end;
-        std::list<pEntity>::iterator _begin;
+        std::vector<Entity>::iterator _it;
+        std::vector<Entity>::iterator _end;
+        std::vector<Entity>::iterator _begin;
     };
     
-class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
-    public:
-        EntityIterator(EntityManager &parent, const size_t capacity, const size_t index): parent(parent) {
-            this->capacity = capacity;
-            this->currentIndex = index;
-            next();
-        }
-       
-       Entity* operator*() {
-           return parent.getEntityNotSafe(currentIndex);
-       }
-      
-        EntityIterator operator++() {
-            currentIndex++;
-            next();
-            return EntityIterator(parent, capacity, currentIndex);
-        }
-        
-         EntityIterator begin(){
-             return EntityIterator(parent, capacity, 0);
-        }
-        
-         EntityIterator end() {
-             return EntityIterator(parent, capacity, capacity);
-        }
-        
-        bool operator!=(EntityIterator &i) {
-            return i.currentIndex != currentIndex;
-        }
-        
-        void next() {
-            
-            while(currentIndex < capacity && !parent.Exists(currentIndex)) {
-                ++currentIndex;
-            }
-        }
-        
-         
-    private:
-        size_t currentIndex = 0;
-        size_t capacity = 0;
-        EntityManager& parent;
-    };
+
      template <typename T>
     Mask createMask() {
         Mask mask;
@@ -242,19 +185,16 @@ class EntityIterator : public std::iterator<std::input_iterator_tag, size_t> {
     
     template <typename ...Args>
     EntityIteratorMask iterate() {
-        EntityIteratorMask iterator(createMask<Args...>(),_listEntities.begin(), _listEntities.begin(), _listEntities.end());
+        EntityIteratorMask iterator(createMask<Args...>(), _entities_alive.begin(), _entities_alive.begin(), _entities_alive.end());
         return iterator;
     }
     
     EntityIteratorMask iterate(const Mask &mask) {
-        EntityIteratorMask iterator(mask, _listEntities.begin(),_listEntities.begin(), _listEntities.end());
+        EntityIteratorMask iterator(mask, _entities_alive.begin(), _entities_alive.begin(), _entities_alive.end());
         return iterator;
     }
 
-    EntityIterator simpleIterate() {
-        EntityIterator iterator(*this, _capacity, 0);
-        return iterator;
-    }
+
     void Free();
 	void killInativeEntities();
 
@@ -266,11 +206,8 @@ private:
 
     std::queue<size_t> _free_id;
 
-    std::vector<pEntity> _entities_alive;
-    std::vector<pEntity> _temp_entities;
+    std::vector<Entity> _entities_alive;
     std::vector<size_t> _entities_killed;
-    std::vector<size_t> _entitiesToKill;
-    std::list<pEntity> _listEntities;
 
     std::vector<std::unique_ptr<ComponentManager>> _entitiesComponents;
 
@@ -279,6 +216,39 @@ private:
     
 };
 
-    
+template <typename T, typename ...Args> T* Entity::addComponent(Args&&... args)
+{
+	return EntityManager::get().addComponent<T>(this, args...);
+}
+template <typename T> T* Entity::add()
+{
+	return EntityManager::get().add<T>(this, new T());
+}
+
+template <typename T> T* Entity::addEmpty()
+{
+	return EntityManager::get().add<T>(this, new T());
+}
+template <typename T> T* Entity::add(Component<T> *c)
+{
+	return EntityManager::get().add<T>(this, c);
+}
+
+template <typename T> T* Entity::get()
+{
+	return EntityManager::get().get<T>(this);
+}
+
+template <typename T> bool Entity::has()
+{
+	return EntityManager::get().hasComponent<T>(ID);
+}
+
+template <typename T> bool Entity::remove()
+{
+	return EntityManager::get().removeComponent<T>(ID);
+}
+
+
 
 #endif

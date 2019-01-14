@@ -26,10 +26,7 @@ EntityManager::EntityManager() {
 EntityManager::~EntityManager() {
 
     make();
-    for(size_t i = 0; i < _entities_alive.size(); ++i)
-    {
-        delete _entities_alive[i];
-    }
+
 
     _entities_alive.clear();
     _entities_alive.shrink_to_fit();
@@ -44,8 +41,7 @@ void EntityManager::killInativeEntities()
 	{
 		size_t id = _entities_killed[i];
 
-		delete _entities_alive[id];
-		_entities_alive[id] = nullptr;
+		_entities_alive[id].ID = _MAX_ID;
 		_free_id.push(id);
 	}
 	_entities_killed.clear();
@@ -55,26 +51,14 @@ void EntityManager::killInativeEntities()
 void EntityManager::killAll() {
     for(auto& e : _entities_alive)
     {
-        if(e != nullptr)
-        {
-            if(!checkID(e->ID) && _entitiesComponents[e->ID])
-            {
-                _entitiesComponents[e->ID].reset();
-            }
-            
-			delete e;
-			e = nullptr;
-		}
+
+         if(!checkID(e.ID) && _entitiesComponents[e.ID])
+         {
+             _entitiesComponents[e.ID].reset();
+         }
 	}
 
-    for(size_t i = 0; i < _temp_entities.size(); ++i)
-    {
-        if(_temp_entities[i])
-        {
-            delete _temp_entities[i];
-        }
-    }
-    _temp_entities.clear();
+
 
     size_t sizeFreeID = _free_id.size();
     for(size_t i = 0; i < sizeFreeID; ++i)
@@ -108,7 +92,7 @@ bool EntityManager::Exists(size_t id) const{
      std::cout << _entities_alive[id]->ID << std::endl;
  }
 #endif
-    return (id < _capacity && _entities_alive[id] && (_entities_alive[id]->ID != _MAX_ID));
+    return (id < _capacity  && (_entities_alive[id].ID != _MAX_ID));
 }
 
 size_t EntityManager::GetID(Entity *e) const
@@ -119,26 +103,26 @@ size_t EntityManager::GetID(Entity *e) const
 
 void EntityManager::make()
 {
-	if(_temp_entities.empty())
+	/*if(_temp_entities.empty())
         return;
 
-    for(pEntity &e : _temp_entities)
+    for(Entity &e : _temp_entities)
     {
-        if(e->toCreate)
+        if(e.toCreate)
         {
-            e->active = true;
-			e->toDelete = false;
-			e->toCreate = false;
+            e.active = true;
+			e.toDelete = false;
+			e.toCreate = false;
             _entities_alive.push_back(std::move(e));
             _capacity++;
-            _listEntities.push_back(_entities_alive.back());
+            //_listEntities.push_back(_entities_alive.back());
         }
 	}
-	_temp_entities.clear();
+	_temp_entities.clear();*/
 }
 
 Entity* EntityManager::createEntity() {
-
+	size_t id = -1;
     if(_capacity == _currentMAX)
     {
         size_t firstValue = _free_id.back() + 1;
@@ -154,43 +138,43 @@ Entity* EntityManager::createEntity() {
         _entitiesComponents.resize(sizeFreeID);
     }
 
-	Entity* finalE = nullptr;
     if(_entities_killed.empty())
     {
-		_temp_entities.emplace_back(new Entity(_free_id.front()));
+		id = _free_id.front();
+		Entity e(id);
+
+		e.active = true;
+		_entities_alive.push_back(e);
+		_capacity++;
         _free_id.pop();
 
-		finalE = _temp_entities.back();
     }
 	else
     {
         //_capacity++;
-		size_t id = _entities_killed.back();
+		id = _entities_killed.back();
 
 		_entities_killed.pop_back();
-		_entities_alive[id]->active = true;
-		_entities_alive[id]->ID = id;
-		finalE = _entities_alive[id];
-		finalE->toDelete = false;
-		_listEntities.push_back(finalE);
+		_entities_alive[id].active = true;
+		_entities_alive[id].ID = id;
     }
-	return finalE;
+	return &_entities_alive[id];
 }
 
-void EntityManager::getEntities(std::function<void(Entity*)> func)
+void EntityManager::getEntities(std::function<void(Entity&)> func)
 {
-	for(pEntity& e : _entities_alive)
-        if(Exists(e->ID))
+	for(Entity& e : _entities_alive)
+        if(Exists(e.ID))
 			func(e);
 }
 
-void EntityManager::getEntitiesWithComponents(std::function<void(Entity*)> func, std::bitset<MAX_COMPONENTS>& bits) {
+void EntityManager::getEntitiesWithComponents(std::function<void(Entity&)> func, std::bitset<MAX_COMPONENTS>& bits) {
 
-	for(pEntity& e : _entities_alive) {
-		if(!e)
+	for(Entity& e : _entities_alive) {
+		if(e.ID == _MAX_ID)
 			continue;
 
-        if(Exists(e->ID) && hasComponents(e, bits)) {
+        if(Exists(e.ID) && hasComponents(e, bits)) {
 			func(e);
 		}
 	}
@@ -198,19 +182,19 @@ void EntityManager::getEntitiesWithComponents(std::function<void(Entity*)> func,
 
 std::vector<size_t> EntityManager::getEntitiesAlive() {
 	std::vector<size_t> temp;
-	for(pEntity& e : _entities_alive)
-        if(Exists(e->ID))
-			temp.push_back(e->ID);
+	for(Entity& e : _entities_alive)
+        if(Exists(e.ID))
+			temp.push_back(e.ID);
 
 	return temp;
 }
 
-bool EntityManager::hasComponents(Entity* e, const std::vector<std::size_t>& compo) const{
-    if(!e || Exists(e->ID))
+bool EntityManager::hasComponents(const Entity& e, const std::vector<std::size_t>& compo) const{
+    if(Exists(e.ID))
 		return false;
-    if(_entitiesComponents[e->ID]) {
+    if(_entitiesComponents[e.ID]) {
         for(std::size_t c : compo) {
-            if(!_entitiesComponents[e->ID]->has(c))
+            if(!_entitiesComponents[e.ID]->has(c))
                 return false;
         }
         return true;
@@ -218,16 +202,16 @@ bool EntityManager::hasComponents(Entity* e, const std::vector<std::size_t>& com
 	return false;
 }
 
-bool EntityManager::hasComponents(Entity* e, const Mask& bits) const{
-    if(!e)
+bool EntityManager::hasComponents(const Entity& e, const Mask& bits) const{
+    if(e.ID != _MAX_ID)
         return false;
-    if(_entitiesComponents[e->ID])
-        return _entitiesComponents[e->ID]->has(bits);
+    if(_entitiesComponents[e.ID])
+        return _entitiesComponents[e.ID]->has(bits);
 	return false;
 }
 
 bool EntityManager::IsActive(size_t id) const {
-	return _entities_alive[id]->active;
+	return _entities_alive[id].active;
 }
 
 
@@ -245,16 +229,14 @@ void EntityManager::deleteEntity(Entity* e) {
     }
 
     _destroyEntity(e->ID, e->active);
-    e->toCreate = false;
     e->active = false;
-	e->toDelete = true;
 }
 
 void EntityManager::_destroyEntity(size_t id, bool isActive) {
 
 	if(isActive && !_entities_alive.empty()) {
         //_capacity--;
-		_entities_alive[id]->ID = _MAX_ID;
+		_entities_alive[id].ID = _MAX_ID;
 		_entities_killed.push_back(id);
 	}
 }
@@ -267,10 +249,4 @@ bool EntityManager::_IsEntityActive(Entity *e) const
 {
     return e && e->active;
 }
-
-bool EntityManager::_IsMarkedAsWantedToDelete(Entity *e) const
-{
-	return e && e->toDelete;
-}
-
 

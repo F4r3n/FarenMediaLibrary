@@ -25,6 +25,8 @@
 #include <cassert>
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/material.hpp"
+#include <EntityManager.h>
+
 const int NUMBER_POINTLIGHT_MAX = 8;
 
 struct PointLight

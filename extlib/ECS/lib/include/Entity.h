@@ -5,7 +5,6 @@
 #include <typeinfo>
 #include <memory>
 
-#include "EntityManager.h"
 #include "Component.h"
 
 class Entity
@@ -17,45 +16,17 @@ public:
     ~Entity();
     size_t ID = std::numeric_limits<size_t>::max();
     bool active = false;
-    bool toCreate = true;
-	bool toDelete = false;
 
-    template <typename T, typename ...Args> T* addComponent(Args&&... args)
-    {
-       return EntityManager::get().addComponent<T>(this, args...);
-    }
-    template <typename T> T* add()
-    {
-       return EntityManager::get().add<T>(this, new T());
-    }
+	template <typename T, typename ...Args> T* addComponent(Args&&... args);
 
-    template <typename T> T* addEmpty()
-    {
-       return EntityManager::get().add<T>(this, new T());
-    }
-    template <typename T> T* add(Component<T> *c)
-    {
-       return EntityManager::get().add<T>(this, c);
-    }
+	template <typename T> T* add();
+	template <typename T> T* addEmpty();
+	template <typename T> T* add(Component<T> *c);
+	template <typename T> T* get();
+	template <typename T> bool has();
+	template <typename T> bool remove();
+	std::vector<BaseComponent*> getAllComponents();
 
-    template <typename T> T* get()
-    {
-        return EntityManager::get().get<T>(this);
-    }
-    
-    template <typename T> bool has()
-    {
-        return EntityManager::get().hasComponent<T>(ID);
-    }
-    
-    template <typename T> bool remove()
-    {
-        return EntityManager::get().removeComponent<T>(ID);
-    }
-    
-    std::vector<BaseComponent*> getAllComponents() {
-        return EntityManager::get().getAllComponents(this);
-    }
     
     void destroy();
 

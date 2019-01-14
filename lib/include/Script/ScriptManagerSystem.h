@@ -1,6 +1,7 @@
 #pragma once
 #include <System.h>
-#include <Entity.h>
+#include <EntityManager.h>
+
 #include <Event.h>
 #include "EventComponents.h"
 #include "Physic/Collider.h"
