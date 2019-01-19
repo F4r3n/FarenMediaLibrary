@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <nlohmann/json_fwd.hpp>
 #include "Config.h"
+#include <limits>
 class ComponentManager;
 
 
