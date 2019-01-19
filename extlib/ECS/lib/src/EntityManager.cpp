@@ -8,18 +8,17 @@
 #if DEBUG
 #include <iostream>
 #endif
-#define POOL_SIZE 10000
 
 EntityManager::EntityManager() {
-
-    for(size_t i = 0; i < POOL_SIZE; ++i)
+	const id poolSize = 10000;
+    for(id i = 0; i < poolSize; ++i)
     {
         _free_id.push(i);
     }
-    _entities_alive.reserve(POOL_SIZE);
-    _entities_killed.reserve(POOL_SIZE);
-    _entitiesComponents.resize(POOL_SIZE);
-    _currentMAX = POOL_SIZE;
+    _entities_alive.reserve(poolSize);
+    _entities_killed.reserve(poolSize);
+    _entitiesComponents.resize(poolSize);
+    _currentMAX = poolSize;
 }
 
 
@@ -37,9 +36,9 @@ EntityManager::~EntityManager() {
 
 void EntityManager::killInativeEntities()
 {
-	for (size_t i = 0; i < _entities_killed.size(); ++i)
+	for (id i = 0; i < _entities_killed.size(); ++i)
 	{
-		size_t id = _entities_killed[i];
+		id id = _entities_killed[i];
 
 		_entities_alive[id].ID = _MAX_ID;
 		_free_id.push(id);
@@ -60,8 +59,8 @@ void EntityManager::killAll() {
 
 
 
-    size_t sizeFreeID = _free_id.size();
-    for(size_t i = 0; i < sizeFreeID; ++i)
+    const size_t sizeFreeID = _free_id.size();
+    for(id i = 0; i < sizeFreeID; ++i)
     {
         _free_id.push(i);
     }
@@ -73,7 +72,7 @@ void EntityManager::killAll() {
 
 void EntityManager::Free()
 {
-    std::queue<size_t> empty;
+    std::queue<id> empty;
     std::swap( _free_id, empty );
 
 
@@ -84,7 +83,7 @@ void EntityManager::Free()
     std::swap(_entitiesComponents, emptyC);
 }
 
-bool EntityManager::Exists(size_t id) const{
+bool EntityManager::Exists(id id) const{
 #if DEBUG
  std::cout << id <<" " <<_capacity << std::endl;
  if(id < _capacity && _entities_alive[id])
@@ -95,7 +94,7 @@ bool EntityManager::Exists(size_t id) const{
     return (id < _capacity  && (_entities_alive[id].ID != _MAX_ID));
 }
 
-size_t EntityManager::GetID(Entity *e) const
+id EntityManager::GetID(Entity *e) const
 {
       return e->ID;
 }
@@ -122,13 +121,13 @@ void EntityManager::make()
 }
 
 Entity* EntityManager::createEntity() {
-	size_t id = -1;
+	id returnID = _MAX_ID;
     if(_capacity == _currentMAX)
     {
-        size_t firstValue = _free_id.back() + 1;
-        size_t sizeFreeID = firstValue + ADD_SIZE;
+        id firstValue = _free_id.back() + 1;
+        id sizeFreeID = firstValue + ADD_SIZE;
 
-        for(size_t i = firstValue; i < sizeFreeID; ++i) {
+        for(id i = firstValue; i < sizeFreeID; ++i) {
             _free_id.push(i);
         }
         _currentMAX = sizeFreeID;
@@ -140,8 +139,8 @@ Entity* EntityManager::createEntity() {
 
     if(_entities_killed.empty())
     {
-		id = _free_id.front();
-		Entity e(id);
+		returnID = _free_id.front();
+		Entity e(returnID);
 
 		e.active = true;
 		_entities_alive.push_back(e);
@@ -152,36 +151,18 @@ Entity* EntityManager::createEntity() {
 	else
     {
         //_capacity++;
-		id = _entities_killed.back();
+		returnID = _entities_killed.back();
 
 		_entities_killed.pop_back();
-		_entities_alive[id].active = true;
-		_entities_alive[id].ID = id;
+		_entities_alive[returnID].active = true;
+		_entities_alive[returnID].ID = returnID;
     }
-	return &_entities_alive[id];
+	return &_entities_alive[returnID];
 }
 
-void EntityManager::getEntities(std::function<void(Entity&)> func)
-{
-	for(Entity& e : _entities_alive)
-        if(Exists(e.ID))
-			func(e);
-}
 
-void EntityManager::getEntitiesWithComponents(std::function<void(Entity&)> func, std::bitset<MAX_COMPONENTS>& bits) {
-
-	for(Entity& e : _entities_alive) {
-		if(e.ID == _MAX_ID)
-			continue;
-
-        if(Exists(e.ID) && hasComponents(e, bits)) {
-			func(e);
-		}
-	}
-}
-
-std::vector<size_t> EntityManager::getEntitiesAlive() {
-	std::vector<size_t> temp;
+std::vector<id> EntityManager::getEntitiesAlive() {
+	std::vector<id> temp;
 	for(Entity& e : _entities_alive)
         if(Exists(e.ID))
 			temp.push_back(e.ID);
@@ -189,11 +170,11 @@ std::vector<size_t> EntityManager::getEntitiesAlive() {
 	return temp;
 }
 
-bool EntityManager::hasComponents(const Entity& e, const std::vector<std::size_t>& compo) const{
+bool EntityManager::hasComponents(const Entity& e, const std::vector<id>& compo) const{
     if(Exists(e.ID))
 		return false;
     if(_entitiesComponents[e.ID]) {
-        for(std::size_t c : compo) {
+        for(id c : compo) {
             if(!_entitiesComponents[e.ID]->has(c))
                 return false;
         }
@@ -210,12 +191,12 @@ bool EntityManager::hasComponents(const Entity& e, const Mask& bits) const{
 	return false;
 }
 
-bool EntityManager::IsActive(size_t id) const {
+bool EntityManager::IsActive(id id) const {
 	return _entities_alive[id].active;
 }
 
 
-bool EntityManager::hasComponents(size_t id,const Mask& bits) const {
+bool EntityManager::hasComponents(id id,const Mask& bits) const {
     if(_entitiesComponents[id])
         return _entitiesComponents[id]->has(bits);
 	return false;
@@ -232,7 +213,7 @@ void EntityManager::deleteEntity(Entity* e) {
     e->active = false;
 }
 
-void EntityManager::_destroyEntity(size_t id, bool isActive) {
+void EntityManager::_destroyEntity(id id, bool isActive) {
 
 	if(isActive && !_entities_alive.empty()) {
         //_capacity--;
@@ -241,9 +222,6 @@ void EntityManager::_destroyEntity(size_t id, bool isActive) {
 	}
 }
 
-size_t EntityManager::_getID(Entity* e) {
-	return e->ID;
-}
 
 bool EntityManager::_IsEntityActive(Entity *e) const
 {

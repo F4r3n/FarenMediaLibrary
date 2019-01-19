@@ -85,7 +85,7 @@ void Engine::Init()
     _systems->addSystem(new fms::ScriptManagerSystem());
     _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
 
-    _systems->init(EntityManager::get(), EventManager::get());
+    _systems->init(EntityManager::get(), EventManager::Get());
 }
 
 void Engine::Stop()
@@ -108,7 +108,7 @@ void Engine::Update(float dt)
 {
   //  auto start = std::chrono::system_clock::now();
 
-    _systems->update(dt * Time::scale, EntityManager::get(), EventManager::get());
+    _systems->update(dt * Time::scale, EntityManager::get(), EventManager::Get());
 //_numberFramesTimer++;
     //if(_numberFramesTimer == 200) {
        //  auto end = std::chrono::system_clock::now();

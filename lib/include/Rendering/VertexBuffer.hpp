@@ -1,6 +1,5 @@
 #pragma once
 #include <Core/Math/Vector2.h>
-#include <vector>
 #include "Rendering/OpenGL/OGLGraphicsDef.hpp"
 #include <Rendering/Mesh.hpp>
 namespace fm {

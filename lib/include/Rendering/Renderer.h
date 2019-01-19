@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/Config.h>
 #include "Rendering/Texture.h"
-#include <memory>
+
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Model.hpp"

@@ -10,7 +10,6 @@
 #include "Rendering/Graphics.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/MaterialValue.h"
-#include <vector>
 
 namespace fmc 
 {

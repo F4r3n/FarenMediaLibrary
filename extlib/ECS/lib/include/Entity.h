@@ -1,20 +1,16 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 #include <vector>
-#include <iostream>
-#include <typeinfo>
-#include <memory>
 
 #include "Component.h"
-
 class Entity
 {
 
 public:
     Entity();
-    Entity(size_t ID);
+    Entity(id ID);
     ~Entity();
-    size_t ID = std::numeric_limits<size_t>::max();
+	id ID = std::numeric_limits<id>::max();
     bool active = false;
 
 	template <typename T, typename ...Args> T* addComponent(Args&&... args);

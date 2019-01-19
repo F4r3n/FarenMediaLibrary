@@ -3,7 +3,7 @@
 #include <Component.h>
 
 #include "Core/serializer.hpp"
-
+#include "Config.h"
 namespace fmc
 {
 const std::string kEmpty("");

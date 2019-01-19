@@ -4,7 +4,6 @@
 
 #include <Box2D/Box2D.h>
 #include "Components/Body2D.h"
-#include <iostream>
 #include "Collider.h"
 #include <queue>
 #include "Event.h"
@@ -20,11 +19,11 @@ public:
     ~PhysicSystem();
 
     static void beginEvent(size_t idA, size_t idB) {
-        EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::BEGIN);
+        //EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::BEGIN);
     }
 
     static void endEvent(size_t idA, size_t idB) {
-        EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::END);
+       // EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::END);
     }
     class ContactListener : public b2ContactListener {
 

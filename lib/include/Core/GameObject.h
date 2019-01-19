@@ -60,7 +60,7 @@ namespace fm {
                 return _entity->getAllComponents();
             }
 
-            inline size_t getID() {return _entity->ID;} 
+            inline id getID() {return _entity->ID;} 
             std::string name;
 
             void Serialize(nlohmann::json &outResult);
@@ -92,7 +92,7 @@ namespace fm {
 
 
             template <typename T>
-            static void Destroy(size_t ID)
+            static void Destroy(id ID)
             {
                 EntityManager::get().removeComponent<T>(ID);
             }

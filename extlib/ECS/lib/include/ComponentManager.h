@@ -2,17 +2,13 @@
 #define COMPONENT_MANAGER_H
 #include "Component.h"
 #include <vector>
-#include <memory>
-#include <unordered_map>
-#include <typeinfo>
-#include <array>
 #include <bitset>
 #include "Config.h"
 
 class ComponentManager
 {
     public:
-        explicit ComponentManager(size_t ID) {_bits.reset(); currentEntityID = ID;}
+        explicit ComponentManager(id ID) {_bits.reset(); currentEntityID = ID;}
         ComponentManager() = delete;
         ~ComponentManager() {
             removeAll();
@@ -23,36 +19,36 @@ class ComponentManager
             if(!has<T>()) {
                 return nullptr;
             }
-            return dynamic_cast<T*>(_components[T::id()]);
+            return static_cast<T*>(_components[T::GetID()]);
         }
 
         template <typename T> T* add(Component<T> *c)
         {
-            _bits.set(T::id(), 1);
+            _bits.set(T::GetID(), 1);
             c->_IDEntity = currentEntityID;
-            _components[T::id()] = std::move(c);
+            _components[T::GetID()] = std::move(c);
 
-            return dynamic_cast<T*>(_components[T::id()]);
+            return static_cast<T*>(_components[T::GetID()]);
         }
 
         template <typename T, typename... Args> T* addComponent(Args&&... args)
         {
-            _bits.set(T::id(), 1);
+            _bits.set(T::GetID(), 1);
             Component<T>* c = new T(std::forward<Args>(args)...);
             c->_IDEntity = currentEntityID;
 
-            _components[T::id()] = std::move(c);
+            _components[T::GetID()] = std::move(c);
 
-            return dynamic_cast<T*>(_components[T::id()]);
+            return static_cast<T*>(_components[T::GetID()]);
         }
 
         template <typename T>
         bool has()
         {
-            return _bits.test(T::id());
+            return _bits.test(T::GetID());
         }
 
-        bool has(size_t id)
+        bool has(id id)
         {
             return _bits.test(id);
         }
@@ -63,17 +59,22 @@ class ComponentManager
         }
 
         template <typename T>
-            bool remove() {
+            bool remove() 
+			{
 
-                _bits.set(T::id(), 0);
-                delete _components[T::id()];
-                _components[T::id()] = nullptr;
+                _bits.set(T::GetID(), 0);
+                delete _components[T::GetID()];
+                _components[T::GetID()] = nullptr;
 
                 return true;
             }
-        void removeAll() {
-            for(int i = 0; i < MAX_COMPONENTS; ++i) {
-                if(_bits.test(i)) {
+
+        void removeAll() 
+		{
+            for(int i = 0; i < MAX_COMPONENTS; ++i) 
+			{
+                if(_bits.test(i)) 
+				{
                     delete _components[i];
                     _components[i] = nullptr;
                 }
@@ -81,21 +82,24 @@ class ComponentManager
             _bits.reset();
         }
 
-        void resetMask() {
+        void resetMask() 
+		{
             _bits.reset();
         }
 
-        std::vector<BaseComponent*> getAllComponents() {
+        std::vector<BaseComponent*> getAllComponents() 
+		{
             std::vector<BaseComponent*> temp;
             for(int i = 0; i < MAX_COMPONENTS; ++i) {
-                if(_bits.test(i)) {
+                if(_bits.test(i)) 
+				{
                     temp.push_back(_components[i]);
                 }
             }
             return temp;
         }
 
-        size_t currentEntityID = std::numeric_limits<size_t>::max();
+        id currentEntityID = std::numeric_limits<id>::max();
     private:
         std::bitset<MAX_COMPONENTS> _bits;
         BaseComponent* _components[MAX_COMPONENTS];

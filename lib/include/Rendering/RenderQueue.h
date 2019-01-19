@@ -1,6 +1,6 @@
 #pragma once
 
-#include <functional>
+
 #include <queue>
 #include <vector>
 #include "Components/CMaterial.h"

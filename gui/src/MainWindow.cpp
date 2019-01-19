@@ -76,7 +76,7 @@ void MainWindow::_ClearInspectorComponents()
 
 void MainWindow::displayComponents(fm::GameObject* currentEntity) {
 
-    std::vector<BaseComponent*> compos = currentEntity->getAllComponents();
+    std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
     if(_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
     {
 

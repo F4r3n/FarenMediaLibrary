@@ -4,6 +4,7 @@
 #include <memory>
 #include "Components/CTransform.h"
 #include "Components/CSource.h"
+
 //TODO WTF REMAKE ALL
 using namespace fms;
 SoundSystem::SoundSystem()
@@ -22,7 +23,7 @@ void SoundSystem::update(float dt, EntityManager& em, EventManager& event) {
 	{
         if((error = alGetError()) != 0) 
 		{
-            std::cerr << "Error openal" << std::endl;
+            //std::cerr << "Error openal" << std::endl;
             return;
         }
         fmc::CSource* sound = e->get<fmc::CSource>();

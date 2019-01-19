@@ -41,7 +41,7 @@ GameObject::GameObject()
 
 void GameObject::Serialize(json &outResult)
 {
-    std::vector<BaseComponent*> compos = getAllComponents();
+    std::vector<BaseComponent*>&& compos = getAllComponents();
 
 	json compo;
     for(auto c : compos)

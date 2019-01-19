@@ -8,7 +8,7 @@
 #include "Rendering/RenderingEvent.h"
 namespace fms {
 
-class ScriptManagerSystem : public System<ScriptManagerSystem>, public Receiver<ScriptManagerSystem> {
+class ScriptManagerSystem : public System<ScriptManagerSystem> {
 public:
     ScriptManagerSystem();
     ~ScriptManagerSystem();
@@ -18,8 +18,7 @@ public:
     void init(EntityManager& em, EventManager& event);
     void over() {
     }
-    void receive(const Collider& collider);
-    void receive(const CameraInfo &cameraInfo);
+
 	void Start() {}
 	void Stop() {}
 private:

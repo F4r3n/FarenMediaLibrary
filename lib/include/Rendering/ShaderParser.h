@@ -1,9 +1,7 @@
 #pragma once
 #include "Rendering/Shader.h"
 #include <memory>
-#include <vector>
 #include <unordered_map>
-#include <tuple>
 namespace fm {
 class ShaderParser {
     

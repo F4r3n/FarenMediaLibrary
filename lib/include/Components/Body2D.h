@@ -32,7 +32,7 @@ class Body2D : public FMComponent<Body2D> {
     float density = 0.0f;
     float friction = 0.0f;
     int number_contact = 0;
-    size_t* identity = nullptr;
+    id* identity = nullptr;
     fm::math::Vector2f size;
     bool isDynamic = false;
 

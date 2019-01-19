@@ -1,12 +1,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
-#include <vector>
-#include <string>
-#include <memory>
-#include <bitset>
-#include "Config.h"
 #include <cstddef>
-#include <typeinfo>
+#include "Config.h"
 class EventManager;
 class ComponentManager;
 class Entity;

@@ -2,11 +2,9 @@
 
 #include "Core/Math/Vector2.h"
 #include "Input/InputManager.h"
-#include <vector>
 
 #include "Script/LuaManager.h"
 #include <sol2/sol.hpp>
-#include <memory>
 #include <string>
 #include "Core/FilePath.h"
 class Entity;

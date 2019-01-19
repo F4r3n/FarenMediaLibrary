@@ -26,6 +26,9 @@
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/material.hpp"
 #include <EntityManager.h>
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define LINE_STRING STRINGIZE(__LINE__)
 
 const int NUMBER_POINTLIGHT_MAX = 8;
 
@@ -308,7 +311,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		// PROFILER_START(RenderingSort)
 		int error = glGetError();
 		if (error != 0) {
-			std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
+			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
 			exit(-1);
 		}
 		_FillQueue(cam, em);

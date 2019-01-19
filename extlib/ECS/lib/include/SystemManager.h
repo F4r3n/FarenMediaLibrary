@@ -1,10 +1,7 @@
 #pragma once
 #include "System.h"
 #include <memory>
-#include <typeinfo>
-#include <cassert>
-#include "EntityManager.h"
-#include "Event.h"
+#include <vector>
 typedef std::vector<std::unique_ptr<BaseSystem> > MapOfSystems;
 
 class SystemManager

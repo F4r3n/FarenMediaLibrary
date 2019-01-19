@@ -1,10 +1,6 @@
 #pragma once
 
-#include <unordered_map>
-
 #include "component.h"
-
-
 #include "Core/Math/Vector2.h"
 
 

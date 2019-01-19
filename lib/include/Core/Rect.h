@@ -1,5 +1,7 @@
 #pragma once
+#if DEBUG
 #include <ostream>
+#endif
 #include "Math/Vector2.h"
 namespace fm {
 
@@ -44,10 +46,12 @@ public:
 
     T x = 0, y = 0, w = 0, h = 0;
 };
+#if DEBUG
     template <typename U> std::ostream& operator<<(std::ostream& stream, const Rect<U>& rect) {
         stream << rect.x << " " << rect.y << " " << rect.w << " " << rect.h;
         return stream;
     }
+#endif
 typedef Rect<float> Rectf;
 typedef Rect<double> Rectd;
 typedef Rect<int> Recti;

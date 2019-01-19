@@ -1,15 +1,11 @@
 #pragma once
 #include <string>
-#include <memory>
-#include <typeinfo> //for 'typeid' to work
-#include <limits>
-#include <fstream>
+#include <cstddef>
 #include <nlohmann/json_fwd.hpp>
+#include "Config.h"
 class ComponentManager;
 
 
-
-#include <cstddef>
 class BaseComponent {
 public:
     BaseComponent();
@@ -20,10 +16,10 @@ public:
     virtual size_t GetType() const = 0;
     virtual void Destroy() = 0;
 protected:
-    size_t _IDEntity = std::numeric_limits<size_t>::max();
+	id _IDEntity = std::numeric_limits<id>::max();
 
     std::string _name = "";
-    static std::size_t family_counter;
+    static size_t family_counter;
 };
 
 
@@ -33,7 +29,7 @@ public:
     Component() {
     }
 
-    static size_t id() {
+    static size_t GetID() {
         static size_t i = family_counter++;
 
         return i;
@@ -48,7 +44,7 @@ public:
 
     virtual size_t GetType() const
     {
-        static size_t type = id();
+        static size_t type = GetID();
         return type;
     }
 

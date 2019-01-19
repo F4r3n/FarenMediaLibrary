@@ -1,12 +1,8 @@
 #ifndef ENTITY_MANAGER_H
 #define ENTITY_MANAGER_H
 #include "Entity.h"
-#include <array>
 #include "ComponentManager.h"
-#include <limits>
 #include <queue>
-#include <list>
-#include <functional>
 #define ADD_SIZE 200
 
 typedef std::bitset<MAX_COMPONENTS> Mask;
@@ -22,18 +18,16 @@ public:
     ~EntityManager();
 
     Entity* createEntity();
-    void getEntities(std::function<void(Entity&)> func);
     std::vector<BaseComponent*> getAllComponents(Entity *e) {
         return _entitiesComponents[e->ID]->getAllComponents();
     }
-    void getEntitiesWithComponents(std::function<void(Entity&)> func, Mask& bits);
     void killAll();
-    bool Exists(size_t id) const;
-    inline bool checkID(size_t ID) const {
+    bool Exists(id id) const;
+    inline bool checkID(id ID) const {
         return ID == _MAX_ID;
     }
     
-    template <typename T> bool removeComponent(size_t ID) {
+    template <typename T> bool removeComponent(id ID) {
          if(checkID(ID))
             return false;
         if(_entitiesComponents[ID] != nullptr) {
@@ -42,7 +36,7 @@ public:
         return false;
     }
 
-    template <typename T> T* add(size_t ID, Component<T>* c) {
+    template <typename T> T* add(id ID, Component<T>* c) {
         if(checkID(ID))
             return nullptr;
         if(_entitiesComponents[ID] != nullptr) {
@@ -53,7 +47,7 @@ public:
         }
     }
 
-    template <typename T, typename... Args> T* addComponent(size_t ID, Args &&... args) {
+    template <typename T, typename... Args> T* addComponent(id ID, Args &&... args) {
         if(checkID(ID))
             return nullptr;
         if(_entitiesComponents[ID] != nullptr) {
@@ -65,11 +59,11 @@ public:
     }
 
     template <typename T> T* add(Entity* e, Component<T>* c) {
-        return add<T>(_getID(e), c);
+        return add<T>(e->ID, c);
     }
 
     template <typename T, typename ...Args> T* addComponent(Entity* e, Args&& ...args) {
-        return addComponent<T>(_getID(e), args...);
+        return addComponent<T>(e->ID, args...);
     }
     
 
@@ -78,38 +72,38 @@ public:
     }
 
     template <typename T> T* get(Entity* e) {
-        if(!_entitiesComponents[_getID(e)])
+        if(!_entitiesComponents[e->ID])
             return nullptr;
-        return _entitiesComponents[_getID(e)]->getComponent<T>();
+        return _entitiesComponents[e->ID]->getComponent<T>();
     }
 
     void deleteEntity(Entity* e);
-    std::vector<size_t> getEntitiesAlive();
-    bool hasComponents(const Entity& e, const std::vector<std::size_t>& compo) const;
+    std::vector<id> getEntitiesAlive();
+    bool hasComponents(const Entity& e, const std::vector<id>& compo) const;
     bool hasComponents(const Entity& e, const Mask& bits) const;
     void make();
-    bool hasComponents(size_t id, const Mask& bits) const;
+    bool hasComponents(id id, const Mask& bits) const;
     
     template <typename T>
-    bool hasComponent(size_t id) {
+    bool hasComponent(id id) {
         if(checkID(id)) return false;
         return _entitiesComponents[id]->has<T>();
     }
-    inline Entity* getEntity(const size_t id) {
+    inline Entity* getEntity(const id id) {
         if(checkID(id)) return nullptr;
         return &_entities_alive[id];
     }
-    inline Entity* getEntityNotSafe(const size_t id) {
+    inline Entity* getEntityNotSafe(const id id) {
         return &_entities_alive[id];
     }
 
-    size_t GetID(Entity *e) const;
+	id GetID(Entity *e) const;
 
 
     bool _IsEntityActive(Entity *e) const;
-	bool IsActive(size_t id) const;
+	bool IsActive(id id) const;
 
-class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t> {
+class EntityIteratorMask : public std::iterator<std::input_iterator_tag, id> {
     public:
         EntityIteratorMask(const Mask& mask, const std::vector<Entity>::iterator iterator,
                            const std::vector<Entity>::iterator begin,
@@ -158,7 +152,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
             }
         }
 
-        inline bool valid(size_t index) const
+        inline bool valid(id index) const
         {
             return EntityManager::get().Exists(index) && EntityManager::get().IsActive(index) && EntityManager::get().hasComponents(index, _mask);
         }
@@ -174,7 +168,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
      template <typename T>
     Mask createMask() {
         Mask mask;
-        mask.set(T::id());
+        mask.set(T::GetID());
         return mask;
     }
     
@@ -199,15 +193,14 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, size_t>
 	void killInativeEntities();
 
 private:
-    void _destroyEntity(size_t id, bool isActive);
-    size_t _getID(Entity* e);
+    void _destroyEntity(id id, bool isActive);
 
-    const size_t _MAX_ID = std::numeric_limits<size_t>::max();
+    const id _MAX_ID = std::numeric_limits<id>::max();
 
-    std::queue<size_t> _free_id;
+    std::queue<id> _free_id;
 
     std::vector<Entity> _entities_alive;
-    std::vector<size_t> _entities_killed;
+    std::vector<id> _entities_killed;
 
     std::vector<std::unique_ptr<ComponentManager>> _entitiesComponents;
 

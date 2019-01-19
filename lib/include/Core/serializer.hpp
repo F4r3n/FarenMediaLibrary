@@ -10,9 +10,6 @@ class Serializer
         virtual bool Read(const nlohmann::json &inJSON) = 0;
         virtual ~Serializer() = default;
 };
-
-
-
 }
 
 #endif // SERIALIZER_HPP
