@@ -1,7 +1,7 @@
 #include "Components/CBody3D.h"
 #include "btBulletDynamicsCommon.h"
 #include <EntityManager.h>
-
+#include "Components/CTransform.h"
 using namespace fmc;
 
 CBody3D::CBody3D()
@@ -10,6 +10,8 @@ CBody3D::CBody3D()
 	_isInWorld = false;
 	_mass = 0.0f;
 	_shape = SHAPE::BOX;
+	_scale = fm::math::vec3(1, 1, 1);
+	_radius = 1.0f;
 }
 
 CBody3D::CBody3D(const fm::math::vec3 &inScale)
@@ -41,28 +43,30 @@ bool CBody3D::IsInit() const
 
 void CBody3D::Init()
 {
+	fmc::CTransform *transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>();
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (_mass != 0.f);
 
 
 	btTransform object;
 	object.setIdentity();
-	object.setOrigin(btVector3(0, 0, 0));
+	object.setOrigin(btVector3(transform->position.x, transform->position.y, transform->position.z));
 
-	btVector3 localInertia(0, 0, 0);
 	btCollisionShape* shape = nullptr;
 
 	switch (_shape)
 	{
 	case fmc::BOX:
-		shape = new btBoxShape(btVector3(btScalar(_scale.x), btScalar(_scale.y), btScalar(_scale.z)));
+		shape = new btBoxShape(btVector3(btScalar(_scale.x*transform->scale.x*0.5f), btScalar(_scale.y*transform->scale.y*0.5f), btScalar(_scale.z*transform->scale.z*0.5f)));
 		break;
 	case fmc::SPHERE:
-		shape = new btSphereShape(btScalar(_radius));
+		shape = new btSphereShape(btScalar(_radius*transform->scale.x));//TODO fix
 		break;
 	default:
 		break;
 	}
+
+	btVector3 localInertia(0, 0, 0);
 
 	if (isDynamic)
 	{
@@ -126,9 +130,9 @@ void CBody3D::SetScale(const fm::math::vec3 &inScale)
 void CBody3D::GetPosition(fm::math::vec3& outVec) const
 {
 	btTransform transform;
-	if (_body && _body->getMotionState())
+	if (_body)
 	{
-		transform = _body->getCenterOfMassTransform();
+		transform = _body->getWorldTransform();
 	}
 	btVector3 v = transform.getOrigin();
 	
@@ -139,9 +143,9 @@ void CBody3D::GetPosition(fm::math::vec3& outVec) const
 void CBody3D::GetRotation(fm::math::vec3& outVec) const
 {
 	btTransform transform;
-	if (_body && _body->getMotionState())
+	if (_body)
 	{
-		transform = _body->getCenterOfMassTransform();
+		transform = _body->getWorldTransform();
 	}
 	fm::math::vec3 v;
 	transform.getRotation().getEulerZYX(outVec.z, outVec.y, outVec.x);
@@ -187,6 +191,9 @@ bool CBody3D::Read(const json &inJSON)
 
 CBody3D::~CBody3D()
 {
-	//TODO Check leak, motionState, shape
+	if (_body && _body->getMotionState())
+	{
+		delete _body->getMotionState();
+	}
 	delete _body;
 }

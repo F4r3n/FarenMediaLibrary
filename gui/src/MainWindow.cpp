@@ -203,6 +203,8 @@ void MainWindow::DrawMenu()
                 if(ImGui::MenuItem("Start"))
                 {
 					fm::Application::Get().Start(true);
+					_currentEntity = nullptr;
+					//_ClearInspectorComponents();
                 }
                 if(ImGui::MenuItem("Pause"))
                 {
@@ -211,6 +213,9 @@ void MainWindow::DrawMenu()
                 if(ImGui::MenuItem("Stop"))
                 {
 					fm::Application::Get().Stop();
+					_currentEntity = nullptr;
+					//_ClearInspectorComponents();
+
                 }
                 ImGui::EndMenu();
             }

@@ -52,11 +52,22 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 	}
 }
 
+
 void SystemManager::Stop()
 {
 	_isRunning = false;
+	for (auto &s : systems)
+	{
+		s->Stop();
+	}
 }
+
+
 void SystemManager::Start()
 {
+	for (auto &s : systems)
+	{
+		s->Start();
+	}
 	_isRunning = true;
 }
