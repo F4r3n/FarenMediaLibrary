@@ -79,7 +79,6 @@ void ScriptManagerInspector::draw(bool *value)
         }
         if(!scriptsToDelete.empty())
         {
-            std::cout << scriptsToDelete.size() << std::endl;
             for(auto &s : scriptsToDelete)
             {
                 target->RemoveScript(s);

@@ -5,6 +5,9 @@
 #include <vector>
 namespace gui {
 	DECLARE_INSPECTOR_CLASS(Body3D, fmc::CBody3D)
-
+	int _currentShape;
+	float _currentMass;
+	float _currentRadius;
+	fm::math::vec3 _currentScale;
 };
 }

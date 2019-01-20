@@ -126,13 +126,13 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     _InitStandardShapes();
 
-    for(auto e : em.iterate<fmc::CMesh>()) {
+    for(auto &&e : em.iterate<fmc::CMesh>()) {
         fmc::CMesh* mesh = e->get<fmc::CMesh>();
 
         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
     }
 
-    for(auto e : em.iterate<fmc::CMaterial>())
+    for(auto &&e : em.iterate<fmc::CMaterial>())
     {
         fmc::CMaterial* material = e->get<fmc::CMaterial>();
         std::vector<fm::Material*> materials = material->GetAllMaterials();
@@ -153,7 +153,7 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
     }
 
     fm::Debug::log("INIT MainCamera");
-    for(auto e : em.iterate<fmc::CCamera>())
+    for(auto &&e : em.iterate<fmc::CCamera>())
     {
         InitCamera(e);
         break;
@@ -242,7 +242,7 @@ void RenderingSystem::_SetView(fm::math::mat& viewMatrix,
 
 void RenderingSystem::pre_update(EntityManager& em)
 {
-	for (auto e : em.iterate<fmc::CCamera>())
+	for (auto &&e : em.iterate<fmc::CCamera>())
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
 		if (!cam->Enabled)
@@ -277,7 +277,7 @@ void RenderingSystem::pre_update(EntityManager& em)
 
 void RenderingSystem::update(float, EntityManager& em, EventManager&)
 {
-	for (auto e : em.iterate<fmc::CCamera>())
+	for (auto &&e : em.iterate<fmc::CCamera>())
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
 
@@ -546,7 +546,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 	cam->_rendererConfiguration.queue.init();
     PointLight pointLights[NUMBER_POINTLIGHT_MAX];
     _lightNumber = 0;
-    for(auto e : em.iterate<fmc::CTransform>())
+    for(auto &&e : em.iterate<fmc::CTransform>())
     {
         fm::RenderNode node = {e->get<fmc::CTransform>(),
                                e->get<fmc::CMaterial>(),

@@ -8,6 +8,7 @@
 #include "Components/CMaterial.h"
 #include "Components/CMesh.h"
 #include "Components/CCamera.h"
+#include "Components/CBody3D.h"
 using namespace fm;
 GameObject* GameObject::create()
 {
@@ -66,23 +67,17 @@ bool GameObject::Read(const json &inJson)
         switch(std::stoi(it.key()))
         {
             case fmc::ComponentType::kTransform:
-                {
-                fmc::CTransform * t = add<fmc::CTransform>();
-                t->Read(it.value());
-                }
+				add<fmc::CTransform>()->Read(it.value());
             break;
             case fmc::ComponentType::kMaterial:
-                {
-                fmc::CMaterial * t = add<fmc::CMaterial>();
-                t->Read(it.value());
-                }
+				add<fmc::CMaterial>()->Read(it.value());
             break;
             case fmc::ComponentType::KMesh:
-                {
-                fmc::CMesh * t = add<fmc::CMesh>();
-                t->Read(it.value());
-                }
+				add<fmc::CMesh>()->Read(it.value());
             break;
+			case fmc::ComponentType::kBody3D:
+				add<fmc::CBody3D>()->Read(it.value());
+			break;
             case fmc::ComponentType::kCamera:
                 {
                 fmc::CCamera * t = add<fmc::CCamera>();

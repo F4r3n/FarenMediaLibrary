@@ -15,7 +15,7 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event)
 {
     world->Step(dt, 8, 2);
     
-    for(auto e : em.iterate<fmc::CTransform, fmc::Body2D>())
+    for(auto &&e : em.iterate<fmc::CTransform, fmc::Body2D>())
     {
         fmc::Body2D* body = e->get<fmc::Body2D>();
         if(!body->isReady) {
@@ -35,7 +35,7 @@ void PhysicSystem::over()
 void PhysicSystem::init(EntityManager& em, EventManager& event)
 {
 
-    for(auto e : em.iterate<fmc::CTransform, fmc::Body2D>())
+    for(auto &&e : em.iterate<fmc::CTransform, fmc::Body2D>())
     {
         fmc::Body2D* body = e->get<fmc::Body2D>();
         fmc::CTransform* transform = e->get<fmc::CTransform>();

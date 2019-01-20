@@ -4,7 +4,7 @@
 
 SystemManager::SystemManager() 
 {
-	_isRunning = true;
+	_isRunning = false;
 }
 
 void SystemManager::init(EntityManager& em, EventManager &event) 

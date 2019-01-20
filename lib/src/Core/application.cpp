@@ -93,6 +93,7 @@ void Application::Stop()
 	fm::SceneManager::get().ClearScene(_nameLastScene + "_", true);
 	fm::SceneManager::get().setCurrentScene(_nameLastScene, false);
 	fm::SceneManager::get().getCurrentScene()->ResetStatusGo();
+	_engine->Stop();
 	//TODO garbage collect
 }
 

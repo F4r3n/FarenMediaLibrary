@@ -33,7 +33,7 @@ void PhysicSystem3D::init(EntityManager& em, EventManager& event)
 void PhysicSystem3D::pre_update(EntityManager& em)
 {
 
-	for (auto e : em.iterate<fmc::CTransform, fmc::CBody3D>())
+	for (auto&& e : em.iterate<fmc::CTransform, fmc::CBody3D>())
 	{
 		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
 		if (cbody->GetBody() == NULL)
@@ -64,7 +64,7 @@ void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
 {
 	_dynamicsWorld->stepSimulation(1 / 60.0f, 10);
 
-	for (auto e : em.iterate<fmc::CTransform, fmc::CBody3D>())
+	for (auto &&e : em.iterate<fmc::CTransform, fmc::CBody3D>())
 	{
 		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
 		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
