@@ -26,7 +26,7 @@ class CEvent : public FMComponent<CEvent>
         bool Serialize(nlohmann::json &ioJson) const override;
         bool Read(const nlohmann::json &inJSON) override;
         const std::string& GetName() const override;
-        size_t GetType() const override {return kEvent;}
+		uint16_t GetType() const override {return kEvent;}
         void Destroy() override;
 
         template <typename T, typename... Args>

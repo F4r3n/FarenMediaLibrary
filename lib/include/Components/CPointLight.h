@@ -6,7 +6,7 @@ namespace fmc {
 class CPointLight : public FMComponent<CPointLight> {
     public:
         CPointLight();
-        virtual size_t GetType() const {return kPointLight;}
+        virtual uint16_t GetType() const {return kPointLight;}
 
         fm::Color color;
         float radius = 100;

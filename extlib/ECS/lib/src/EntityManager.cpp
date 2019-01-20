@@ -170,11 +170,11 @@ std::vector<id> EntityManager::getEntitiesAlive() {
 	return temp;
 }
 
-bool EntityManager::hasComponents(const Entity& e, const std::vector<id>& compo) const{
+bool EntityManager::hasComponents(const Entity& e, const std::vector<uint16_t>& compo) const{
     if(Exists(e.ID))
 		return false;
     if(_entitiesComponents[e.ID]) {
-        for(id c : compo) {
+        for(uint16_t c : compo) {
             if(!_entitiesComponents[e.ID]->has(c))
                 return false;
         }

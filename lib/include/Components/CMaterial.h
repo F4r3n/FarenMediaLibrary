@@ -20,7 +20,7 @@ class CMaterial : public FMComponent<CMaterial> {
         bool Serialize(nlohmann::json &ioJson) const override;
         bool Read(const nlohmann::json &inJSON) override;
         const std::string& GetName() const override;
-        size_t GetType() const override {return kMaterial;}
+		uint16_t GetType() const override {return kMaterial;}
         void Destroy() override;
 
 

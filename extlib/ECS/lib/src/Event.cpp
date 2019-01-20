@@ -1,4 +1,15 @@
 #include "Event.h"
 
-std::uint32_t BaseEvent::_familyCounter = 0;
+BaseEvent::Family BaseEvent::family_counter_ = 0;
+
+BaseEvent::~BaseEvent() {
+}
+
+EventManager EventManager::_instance;
+
+EventManager::EventManager() {
+}
+
+EventManager::~EventManager() {
+}
 

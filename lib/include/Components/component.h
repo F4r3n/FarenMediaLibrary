@@ -35,7 +35,7 @@ class FMComponent : public Component<T>
         virtual bool Read(const nlohmann::json &) {return false;}
         virtual const std::string & GetName() const {return Component<T>::GetName();}
         virtual ~FMComponent() = default;
-        virtual size_t GetType() const {return kNone;}
+        virtual uint16_t GetType() const {return kNone;}
         virtual void Destroy() = 0;
 		bool Enabled = true;
 };

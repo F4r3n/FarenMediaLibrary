@@ -22,7 +22,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
 		void addScriptLua(const fm::FilePath &inpath);
 
         void RemoveScript(const std::string &name);
-        virtual size_t GetType() const {return kScriptManager;}
+        virtual uint16_t GetType() const {return kScriptManager;}
 
 
         void Destroy();

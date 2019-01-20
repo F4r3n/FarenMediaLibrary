@@ -5,7 +5,7 @@
 #include <queue>
 #define ADD_SIZE 200
 
-typedef std::bitset<MAX_COMPONENTS> Mask;
+typedef BitSet Mask;
 class EntityManager 
 {
 public:
@@ -79,7 +79,7 @@ public:
 
     void deleteEntity(Entity* e);
     std::vector<id> getEntitiesAlive();
-    bool hasComponents(const Entity& e, const std::vector<id>& compo) const;
+    bool hasComponents(const Entity& e, const std::vector<uint16_t>& compo) const;
     bool hasComponents(const Entity& e, const Mask& bits) const;
     void make();
     bool hasComponents(id id, const Mask& bits) const;
@@ -168,7 +168,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, id> {
      template <typename T>
     Mask createMask() {
         Mask mask;
-        mask.set(T::GetID());
+        mask.Set(T::GetID());
         return mask;
     }
     

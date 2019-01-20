@@ -20,7 +20,7 @@ namespace fmc
 		const std::string& GetName() const override;
 		void Destroy() override;
 
-		size_t GetType() const override { return kBody3D; }
+		uint16_t GetType() const override { return kBody3D; }
 
 		CBody3D(const fm::math::vec3 &inVec3);
 		~CBody3D();

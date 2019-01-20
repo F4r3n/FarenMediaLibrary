@@ -21,10 +21,10 @@ class CTransform : public FMComponent<CTransform> {
         bool Serialize(json &ioJson) const override;
         bool Read(const json &inJSON) override;
         const std::string& GetName() const override;
-        virtual size_t GetType() const {return kTransform;}
+        virtual uint16_t GetType() const {return kTransform;}
 
 
-        void setFather(size_t id);
+        void setFather(id id);
         void setFather(Entity* e);
 
 

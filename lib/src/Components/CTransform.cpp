@@ -105,7 +105,7 @@ void CTransform::setFather(Entity* e)
 }
 
 
-void CTransform::setFather(size_t id)
+void CTransform::setFather(id id)
 {
     this->idFather = id;
 }
