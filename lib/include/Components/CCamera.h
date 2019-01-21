@@ -81,8 +81,9 @@ class CCamera : public FMComponent<CCamera>
         Shader_data shader_data;
         std::shared_ptr<fm::RenderTexture> target = nullptr;
         std::shared_ptr<fm::RenderTexture> getInternalRenderTexture() const {return _renderTexture;}
+		bool IsInit() { return _renderTexture != nullptr; }
     private:
-
+		void _InitRenderTexture();
 		RendererConfiguration _rendererConfiguration;
 
         std::shared_ptr<fm::RenderTexture> _renderTexture = nullptr;

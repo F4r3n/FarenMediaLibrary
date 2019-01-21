@@ -43,11 +43,6 @@ MainWindow::MainWindow()
     fm::SceneManager::get().AddNewScene("newScene");
     fm::SceneManager::get().setCurrentScene("newScene", false);
 
-	//_dlight = fm::GameObjectHelper::create();
-	//_dlight->addComponent<fmc::CDirectionalLight>(fm::Color(0.3, 0.3, 0.3, 1));
-	//_dlight->addComponent<fmc::CTransform>(fm::math::Vector3f(100, 50, 0), fm::math::Vector3f(20, 20, 20), fm::math::Vector3f(0, 0, 0), 1);
-	//_dlight->addComponent<fmc::CMaterial>();
-
     _mainCamera = fm::GameObjectHelper::create(_editorScene);
     _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, 4);
 

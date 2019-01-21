@@ -174,9 +174,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
 		camera->_viewMatrix = fm::math::mat();
 		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
-		//#if OPENGL_ES_VERSION > 2
-		// initUniformBufferCamera(cam);
-		//#endif
+
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 		camera->_rendererConfiguration.lightRenderTexture = std::make_shared<fm::RenderTexture>(
@@ -194,6 +192,11 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 			formats,
 			types,
 			0);
+
+
+		camera->_rendererConfiguration.lightRenderTexture->create();
+
+		camera->_rendererConfiguration.intermediate->create();
 
 		camera->_rendererConfiguration.isInit = true;
 	}
@@ -248,20 +251,16 @@ void RenderingSystem::pre_update(EntityManager& em)
 		if (!cam->Enabled)
 			continue;
 
+		if (!cam->IsInit())
+		{
+			cam->Init();
+		}
+
 		if (!cam->_rendererConfiguration.isInit)
 		{
 			InitCamera(e);
 		}
 
-
-		if (!cam->_rendererConfiguration.lightRenderTexture->isCreated())
-			cam->_rendererConfiguration.lightRenderTexture->create();
-
-		if (!cam->_rendererConfiguration.intermediate->isCreated())
-			cam->_rendererConfiguration.intermediate->create();
-
-		if (!cam->_renderTexture->isCreated())
-			cam->_renderTexture->create();
 
 		cam->UpdateRenderTexture();
 		fmc::CTransform* ct = e->get<fmc::CTransform>();

@@ -79,11 +79,7 @@ bool GameObject::Read(const json &inJson)
 				add<fmc::CBody3D>()->Read(it.value());
 			break;
             case fmc::ComponentType::kCamera:
-                {
-                fmc::CCamera * t = add<fmc::CCamera>();
-                t->Read(it.value());
-                t->Init();
-                }
+                add<fmc::CCamera>()->Read(it.value());
             break;
         }
 
