@@ -89,8 +89,8 @@ class CCamera : public FMComponent<CCamera>
         std::shared_ptr<fm::RenderTexture> _renderTexture = nullptr;
         fm::math::mat _viewMatrix;
         bool  _isOrto = false;
-        float _farPlane = 100.0f;
-        float _nearPlane = 0.0f;
+        float _farPlane = 1000.0f;
+        float _nearPlane = 0.1f;
         int _multiSampled = 0;
         int _width;
         int _height;
