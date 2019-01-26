@@ -95,7 +95,7 @@ private:
     fm::GameObject* _mainCamera;
 	std::vector<fm::Config> _lastConfigsUsed;
 
-
+	ImGuiID dockspace_id;
 };
 
 

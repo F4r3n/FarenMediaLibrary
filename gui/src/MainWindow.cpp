@@ -28,7 +28,7 @@
 #include "SaveProjectWindow.h"
 #include "inspector/body3DInspector.hpp"
 #include "Window.h"
-
+#include "imgui/imgui_internal.h"
 
 
 MainWindow::MainWindow() 
@@ -57,6 +57,8 @@ MainWindow::MainWindow()
 
     for(size_t i = 0; i < WIN_LAST; ++i)
         _windowStates[i] = false;
+
+
 }
 
 void MainWindow::_ClearInspectorComponents()
@@ -310,10 +312,7 @@ void MainWindow::menuEntity()
          nameWindowInspector += std::to_string(_currentEntity->getID());
     }
 
-
-    ImGui::SetNextWindowPos(ImVec2(0,20));
-    ImGui::SetNextWindowSize(ImVec2(300, fm::Window::kHeight-20));
-    ImGui::Begin(nameWindowInspector.c_str(),&_windowCurrentEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin(nameWindowInspector.c_str(),&_windowCurrentEntity);
 
     if(_currentEntity && _currentEntity->IsActive())
     {
@@ -362,55 +361,55 @@ void MainWindow::menuEntity()
 
 void MainWindow::listEntity()
 {
-    if(_windowListEntity)
-    {
-        static std::vector<const char*> namesEntities;
-        ImGui::SetNextWindowPos(ImVec2(fm::Window::kWidth - 256.0f,20.0f));
-        ImGui::SetNextWindowSize(ImVec2(256.0f, fm::Window::kHeight-20.0f));
-        ImGui::Begin("List entities", &_windowListEntity, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-        if(_timerListEntityUpdate > 1)
-        {
-            namesEntities = getAllEntities();
-            _timerListEntityUpdate = 0;
-        } else
-        {
-            _timerListEntityUpdate += fm::Time::dt;
-        }
-        static int number = -1;
+	static std::vector<const char*> namesEntities;
 
-        for (size_t i = 0; i < namesEntities.size(); i++)
-        {
-            fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(i);
-            fmc::CTransform *transform = o->get<fmc::CTransform>();
-            // Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-            ImGuiTreeNodeFlags node_flags = (transform->idFather !=-1) ?  ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0 | ImGuiTreeNodeFlags_Selected;
+	ImGui::Begin("List entities", &_windowListEntity);
 
-            // Node
-            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, namesEntities[i], i);
-            if (ImGui::IsItemClicked())
-                number = i;
-            if (node_open)
-            {
-                //ImGui::Text("Blah blah\nBlah Blah");
-                ImGui::TreePop();
-            }
+	if (_timerListEntityUpdate > 1)
+	{
+		namesEntities = getAllEntities();
+		_timerListEntityUpdate = 0;
+	}
+	else
+	{
+		_timerListEntityUpdate += fm::Time::dt;
+	}
+	static int number = -1;
 
+	for (size_t i = 0; i < namesEntities.size(); i++)
+	{
+		fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(i);
+		fmc::CTransform *transform = o->get<fmc::CTransform>();
+		// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+		ImGuiTreeNodeFlags node_flags = (transform->idFather != -1) ? ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0 | ImGuiTreeNodeFlags_Selected;
 
-        }
-		if(number != -1)
-			_currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
+		// Node
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, namesEntities[i], i);
+		if (ImGui::IsItemClicked())
+			number = i;
+		if (node_open)
+		{
+			//ImGui::Text("Blah blah\nBlah Blah");
+			ImGui::TreePop();
+		}
 
 
-        if(ImGui::Button("Add Entity"))
-        {
-            _currentEntity = fm::GameObjectHelper::create();
-            _currentEntity->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
-                                                          fm::math::Vector3f(1, 1, 1),
-                                                          fm::math::vec3(0,0,0));
-        }
-        ImGui::End();
-    }
+	}
+	if (number != -1)
+		_currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
+
+
+	if (ImGui::Button("Add Entity"))
+	{
+		_currentEntity = fm::GameObjectHelper::create();
+		_currentEntity->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
+			fm::math::Vector3f(1, 1, 1),
+			fm::math::vec3(0, 0, 0));
+	}
+
+	ImGui::End();
+
 }
 
 std::vector<const char*> MainWindow::getAllEntities()
@@ -438,6 +437,43 @@ void MainWindow::Update()
 
 void MainWindow::Draw() 
 {
+	bool p_open = true;
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::SetNextWindowBgAlpha(0.0f);
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("DockSpace", &p_open, window_flags);
+	ImGui::PopStyleVar(3);
+
+	dockspace_id = ImGui::GetID("MyDockspace");
+
+	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+	if (ImGui::DockBuilderGetNode(dockspace_id) == NULL)
+	{
+		ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
+		ImGui::DockBuilderAddNode(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruDockspace); // Add empty node
+
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.20f, NULL, &dockspace_id);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.20f, NULL, &dockspace_id);
+		ImGuiID dock_id_center = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_None, 0.20f, NULL, &dockspace_id);
+
+		ImGui::DockBuilderDockWindow("Inspector", dock_id_left);
+		ImGui::DockBuilderDockWindow("List entities", dock_id_right);
+		ImGui::DockBuilderDockWindow("Game View", dock_id_center);
+		
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
 
 	for (auto& window : _windows)
 	{
@@ -458,38 +494,6 @@ void MainWindow::Draw()
 	if(_windowStates[WIN_PROJECT_LOAD])
 		DisplayWindow_Load();
 
-	bool show_test_window = false;
-    ImGui::SetNextWindowPos(ImVec2(650, 300), ImGuiCond_FirstUseEver);
-    ImGui::ShowDemoWindow(&show_test_window);
-
-
-
-
-    if(ImGui::GetIO().MouseClicked[1])
-    {
-        if(!_firstRightClick)
-        {
-            _firstPosMouseRightClick = ImGui::GetIO().MousePos;
-            _firstRightClick = true;
-        }
-    }
-
-    if(ImGui::GetIO().MouseDown[1])
-    {
-        if(_firstRightClick) {
-            //_mainCameraEditorPosition->position.x += (_firstPosMouseRightClick.x - ImGui::GetIO().MousePos.x) * _coeffMouseSpeed;
-            //_mainCameraEditorPosition->position.y += (_firstPosMouseRightClick.y - ImGui::GetIO().MousePos.y) * _coeffMouseSpeed;
-            _firstPosMouseRightClick = ImGui::GetIO().MousePos;
-        }
-    }
-    else
-    {
-        _firstRightClick = false;
-    }
-
-    _gameView.draw();
-
-
     if(_windowStates[WIN_LOGGER])
     {
         std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
@@ -497,7 +501,10 @@ void MainWindow::Draw()
             _debugLogger.AddLog(messages[i]);
         _debugLogger.Draw("Logger");
     }
+	_gameView.draw();
 
+
+	ImGui::End();
 }
 
 void MainWindow::_configureStyle()

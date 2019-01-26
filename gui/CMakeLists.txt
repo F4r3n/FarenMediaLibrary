@@ -5,10 +5,11 @@ project(${PROJECT_NAME})
 
 
 
-include_directories("extlib")
+include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib/imgui)
+message(${CMAKE_CURRENT_LIST_DIR}extlib)
 set(SOURCES ${SOURCES} 
-	src/imgui_impl_sdl_gl3.cpp
-
+	src/main.cpp
 	src/imgui_impl_sdl.cpp
 	src/imgui_impl_opengl3.cpp
 	extlib/imgui/imgui.cpp
@@ -16,7 +17,7 @@ set(SOURCES ${SOURCES}
 	extlib/imgui/imgui_widgets.cpp
 	extlib/imgui/imgui_demo.cpp
 
-	src/main.cpp
+	
 	src/MainWindow.cpp
 	src/GWindow.cpp
 	src/GameView.cpp

@@ -1,6 +1,9 @@
 #define GUI
-#include <imgui/imgui.h>
-#include "imgui_impl_sdl_gl3.h"
+#define IMGUI_IMPL_OPENGL_LOADER_GLEW
+#include "imgui.h"
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_opengl3.h>
+
 #include "Core/application.h"
 
 #include "MainWindow.h"
@@ -14,8 +17,8 @@ int main()
 	fm::Config config;
 	config.name = "FML Engine";
 	config.fpsWanted = 60;
-	config.width = 1280;
-	config.height = 720;
+	config.width = 0;
+	config.height = 0;
 	fm::Application::Get().SetConfig(config);
 	fm::Application::Get().Init();
 	
@@ -25,7 +28,11 @@ int main()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui_ImplSdlGL3_Init(window->getWindow());
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+	ImGui_ImplSDL2_InitForOpenGL(window->getWindow(), window->GetContext());
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	MainWindow mainWindow;
 
@@ -34,20 +41,34 @@ int main()
 		while (SDL_PollEvent(&fm::InputManager::getInstance().getLastEvent()))
 		{
 			fm::InputManager::getInstance().processEvents();
-			ImGui_ImplSdlGL3_ProcessEvent(&fm::InputManager::getInstance().getLastEvent());
+			ImGui_ImplSDL2_ProcessEvent(&fm::InputManager::getInstance().getLastEvent());
 		}
 
 		fm::Application::Get().Update();
-		ImGui_ImplSdlGL3_NewFrame(window->getWindow());
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame(window->getWindow());
+		ImGui::NewFrame();
+
 		mainWindow.Update();
 		mainWindow.Draw();
 
 		ImGui::Render();
-		ImGui_ImplSdlGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		window->swapBuffers();
 
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+			SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+		}
+
 	}
-	ImGui_ImplSdlGL3_Shutdown();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
 	fm::Application::Get().DeInit();
 	return 0;

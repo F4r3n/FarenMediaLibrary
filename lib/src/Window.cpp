@@ -38,19 +38,27 @@ bool Window::Init()
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return false;
     }
-	if (Window::kWidth == 0 || Window::kHeight == 0)
+
+	bool isFullScreen = Window::kWidth == -1 || Window::kHeight == -1;
+	if (Window::kWidth <= 0 || Window::kHeight <= 0)
 	{
 		SDL_DisplayMode DM;
-		SDL_GetCurrentDisplayMode(0, &DM);
+		SDL_GetDesktopDisplayMode(0, &DM);
+		
 		Window::kWidth = DM.w;
 		Window::kHeight = DM.h;
 	}
+
+	size_t flags = SDL_WINDOW_OPENGL;
+	if (!isFullScreen)
+		flags = flags | SDL_WINDOW_MAXIMIZED;
     _window = SDL_CreateWindow(_nameWindow.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
-                              Window::kWidth,
+							  Window::kWidth,
                               Window::kHeight,
-                              SDL_WINDOW_OPENGL);
+                              flags);
+
 #if OPENGL_CORE == 1
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);

@@ -339,7 +339,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 
 		_finalShader->Use();
-		_finalShader->Use()->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
+		_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
 		_finalShader->setValue("viewPos", transform->position);
 
 

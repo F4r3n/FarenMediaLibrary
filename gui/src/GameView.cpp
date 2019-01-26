@@ -2,7 +2,7 @@
 #include <imgui/imgui.h>
 #include "Components/CCamera.h"
 #include "Core/SceneManager.h"
-
+#include "imgui_internal.h"
 GameView::GameView() {
 
 }
@@ -20,17 +20,26 @@ void GameView::draw() {
         float rapport = (float)preview.renderTexture->getWidth()/(float)preview.renderTexture->getHeight();
 
         float scale = 500;
-        ImGui::SetNextWindowSize(ImVec2(rapport*scale, scale));
+        //ImGui::SetNextWindowSize(ImVec2(rapport*scale, scale));
         ImGui::Begin("Game View", &show_game_view,ImGuiWindowFlags_NoScrollbar );
-        fm::Texture texture = preview.renderTexture->getColorBuffer()[0];
+		fm::Texture texture = preview.renderTexture->getColorBuffer()[0];
 
-        ImVec2 pos = ImGui::GetWindowPos();
-        pos.y += 10;
-        ImVec2 end;
-        end.x = pos.x + ImGui::GetWindowSize().x;
-        end.y = pos.y + ImGui::GetWindowSize().y;
+		ImVec2 start;
+		ImVec2 end;
+		if (ImGui::IsWindowDocked())
+		{
+			start = ImGui::GetWindowDockPos(ImGui::GetWindowDockID());
+			end = ImGui::GetWindowDockSize(ImGui::GetWindowDockID());
+		}
+		else
+		{
+			start = ImGui::GetWindowPos();
+			end = ImGui::GetWindowPos();
+		}
 
-        ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(),ImGui::GetWindowPos(), end);
+		end.x = start.x + end.x;
+		end.y = start.y + end.y;
+        ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), start, end);
 
         ImGui::End();
     }
@@ -52,8 +61,6 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 
 void GameView::RemoveCamera(fm::GameObject *inGameObject)
 {
-
-
 	auto i = std::begin(previews);
 	int idDeleted = 0;
 	while (i != std::end(previews)) {
