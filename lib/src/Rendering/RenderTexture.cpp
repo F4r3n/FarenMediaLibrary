@@ -23,17 +23,49 @@ RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampli
     _numberColors = renderTexture._numberColors;
     if(multiSampling == -1)
     _multiSampling = renderTexture._multiSampling;
-    for(unsigned int i = 0; i < renderTexture._numberColors; ++i) {
+    for(unsigned int i = 0; i < renderTexture._numberColors; ++i) 
+	{
         _formats.push_back(renderTexture._formats[i]);
         _types.push_back(renderTexture._types[i]);
     }
 }
-RenderTexture::RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment) {
-    _width = width;
-    _height = height;
-    _numberColors = numberColorAttchment;
-    _isReady = _InitFrameBuffer(nullptr, nullptr);
+
+
+const RenderTexture& RenderTexture::operator=(const RenderTexture &inRenderTexture)
+{
+	Clone(inRenderTexture);
+	return *this;
 }
+
+
+void RenderTexture::Clone(const RenderTexture &inRenderTexture)
+{
+	_width = inRenderTexture._width;
+	_height = inRenderTexture._height;
+	_depth = inRenderTexture._depth;
+	_numberColors = inRenderTexture._numberColors;
+	_multiSampling = inRenderTexture._multiSampling;
+
+	_formats.clear();
+	_types.clear();
+	for (unsigned int i = 0; i < inRenderTexture._numberColors; ++i)
+	{
+		_formats.push_back(inRenderTexture._formats[i]);
+		_types.push_back(inRenderTexture._types[i]);
+	}
+
+	_textureColorbuffer.clear();
+	for (auto && texture : inRenderTexture._textureColorbuffer)
+	{
+		_textureColorbuffer.emplace_back(texture);
+	}
+
+	_isReady = inRenderTexture._isReady;
+	_framebuffer = inRenderTexture._framebuffer;
+	_rboDepth = inRenderTexture._rboDepth;
+}
+
+
 
 void RenderTexture::create() {
 

@@ -15,6 +15,7 @@ class UniformBuffer
         void Generate(size_t size, int indexBuffer);
         void SetData(void *data, size_t size);
         void LinkWithShader(Shader *shader, int index, const std::string &name);
+		unsigned int GetBindingPoint() const { return _bindingPoint; }
         void Free();
         void Bind();
     private:

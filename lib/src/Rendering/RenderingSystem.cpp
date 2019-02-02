@@ -1,7 +1,6 @@
 #include "Rendering/RenderingSystem.h"
 #include "Components/CTransform.h"
 #include "Resource/ResourcesManager.h"
-
 #include "Rendering/Renderer.h"
 #include "Rendering/Shader.h"
 #include "Components/CMaterial.h"
@@ -26,6 +25,10 @@
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/material.hpp"
 #include <EntityManager.h>
+
+#include "Rendering/commandBuffer.hpp"
+
+
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
@@ -177,26 +180,27 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-		camera->_rendererConfiguration.lightRenderTexture = std::make_shared<fm::RenderTexture>(
-			camera->_renderTexture->getWidth(),
-			camera->_renderTexture->getHeight(),
+		camera->_rendererConfiguration.lightRenderTexture = fm::RenderTexture(
+			camera->_renderTexture.getWidth(),
+			camera->_renderTexture.getHeight(),
 			2,
 			formats,
 			types,
 			0);
 
-		camera->_rendererConfiguration.intermediate = std::make_shared<fm::RenderTexture>(
-			camera->_renderTexture->getWidth(),
-			camera->_renderTexture->getHeight(),
-			2,
+		camera->_rendererConfiguration.postProcessRenderTexture = fm::RenderTexture(
+			camera->_renderTexture.getWidth(),
+			camera->_renderTexture.getHeight(),
+			1,
 			formats,
 			types,
 			0);
 
+		camera->_rendererConfiguration.resolveMSAARenderTexture = fm::RenderTexture(camera->_renderTexture, 0);
 
-		camera->_rendererConfiguration.lightRenderTexture->create();
-
-		camera->_rendererConfiguration.intermediate->create();
+		camera->_rendererConfiguration.lightRenderTexture.create();
+		camera->_rendererConfiguration.postProcessRenderTexture.create();
+		camera->_rendererConfiguration.resolveMSAARenderTexture.create();
 
 		camera->_rendererConfiguration.isInit = true;
 	}
@@ -285,7 +289,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		fmc::CTransform* transform = e->get<fmc::CTransform>();
 
-		if (!cam->_renderTexture->isCreated())
+		if (!cam->_renderTexture.isCreated())
 		{
 			fm::Debug::logError("No render texture created");
 			return;
@@ -308,13 +312,16 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_graphics.clear(true, true);
 		}
 
-		cam->_rendererConfiguration.lightRenderTexture->bind();
+		cam->_rendererConfiguration.lightRenderTexture.bind();
 		_graphics.clear(true, true);
 
-		cam->_rendererConfiguration.intermediate->bind();
+		cam->_rendererConfiguration.postProcessRenderTexture.bind();
 		_graphics.clear(true, true);
 
-		cam->_renderTexture->bind();
+		cam->_rendererConfiguration.resolveMSAARenderTexture.bind();
+		_graphics.clear(true, true);
+
+		cam->_renderTexture.bind();
 		_graphics.setViewPort(cam->viewPort);
 		_graphics.clear(true, true);
 
@@ -335,32 +342,87 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		if (!cam->_rendererConfiguration.queue.Empty())
 		{
 			cam->_rendererConfiguration.queue.start();
-			_Draw(cam);
+			_DrawMesh(cam);
 		}
 
+		//Resolve MSAA
+		fm::Renderer::getInstance().blit(_graphics, cam->_renderTexture, cam->_rendererConfiguration.resolveMSAARenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+
+
+		cam->_rendererConfiguration.postProcessRenderTexture.bind();
 		_finalShader->Use();
 		_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
 		_finalShader->setValue("viewPos", transform->position);
+		_finalShader->setValue("screenTexture", 0);
 
+		fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.getColorBuffer()[0]);
 
-		//Copy colour texture to a target
-		fm::Renderer::getInstance().SetSources(_graphics, cam->_rendererConfiguration.lightRenderTexture->getColorBuffer(), 2);
 		if (cam->target != nullptr)
 		{
-			_finalShader->setValue("reverse", 1);
-			fm::Renderer::getInstance().blit(_graphics, *cam->target.get(), _finalShader);
+			fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, *(cam->target.get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 		}
 		else
 		{
-			fm::Renderer::getInstance().blit(_graphics, _finalShader);
+			fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 		}
+
+
+		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam);
 
 		_graphics.bindFrameBuffer(0);
 
 	}
 }
 
-void RenderingSystem::_Draw(fmc::CCamera* cam)
+void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera* currentCamera)
+{
+	std::queue<fm::CommandBuffer> &cmdBuffers = currentCamera->_commandBuffers[queue];
+
+	while (!cmdBuffers.empty())
+	{
+		fm::CommandBuffer cmdBuffer = cmdBuffers.front();
+		fm::Command && cmd = cmdBuffer.Pop();
+		if (cmd._command == fm::Command::COMMAND_KIND::BLIT)
+		{
+			fm::Shader *shader = _finalShader;
+			if (cmd._material != nullptr)
+			{
+				shader = cmd._material->shader;
+				shader->Use();
+				for (auto const& value : cmd._material->getValues())
+				{
+					shader->setValue(value.name, value.materialValue);
+				}
+			}
+
+
+			if (cmd._source.kind == fm::Command::TEXTURE_KIND::TEXTURE)
+			{
+				if (cmd._source.texture != nullptr)
+				{
+					_graphics.bindTexture2D(0, cmd._source.texture->GetKind(), cmd._source.texture->getID());
+				}
+				else
+				{
+					fm::Renderer::getInstance().SetSources(_graphics, currentCamera->_renderTexture.getColorBuffer(), 2);
+				}
+			}
+
+
+			if (cmd._destination.kind == fm::Command::TEXTURE_KIND::RENDER_TEXTURE)
+			{
+				if (cmd._destination.renderTexture != nullptr)
+				{
+					fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader);
+				}
+			}
+		}
+		cmdBuffers.pop();
+	}
+}
+
+
+void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 {
 
     bool hasLight = false;
@@ -402,15 +464,19 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 						    m->shader->compile();
 						}
 
+						fm::Shader* shader = m->shader;
+
 						if(m->Reload())
 						{
+							shader = m->shader;
+							shader->Use();
 							cam->_rendererConfiguration.uboLight->Bind();
 
-						    m->shader->SetUniformBuffer("PointLights", 2);
+							shader->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
 						    fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 						}
 
-						fm::Shader* shader = m->shader;
+						
 
 
 						if(shader != nullptr)
@@ -436,49 +502,7 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
                 }
             }
 
-            // After all lights, we compute the frame buffer
-            if(state >= fm::RENDER_QUEUE::AFTER_LIGHT &&
-				cam->_rendererConfiguration.queuePreviousValue < fm::RENDER_QUEUE::AFTER_LIGHT)
-            {
-                _ComputeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
-                computeLightDone = true;
-            }
-
-            if(state == fm::RENDER_QUEUE::TRANSPARENT)
-            {
-                if(!cam->_rendererConfiguration.blendingMode)
-                {
-					cam->_rendererConfiguration.blendingMode = true;
-
-                    _graphics.enable(fm::RENDERING_TYPE::BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                }
-                // TODO draw
-            }
-
-            if(state == fm::RENDER_QUEUE::OVERLAY)
-            {
-                if(node.text)
-                {
-                    if(!cam->_rendererConfiguration.blendingMode)
-                    {
-						cam->_rendererConfiguration.blendingMode = true;
-
-                        _graphics.enable(fm::RENDERING_TYPE::BLEND);
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    }
-
-                    fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("text");
-                    shader->Use()
-                            ->setValue("projection", _textdef.projection);
-
-                    _DrawText(worldPos.x,
-                             worldPos.y,
-                             fm::ResourcesManager::get().getResource<RFont>(
-                                 node.text->fontName),
-                             node.text);
-                }
-            }
+           
 			cam->_rendererConfiguration.queuePreviousValue = state;
 			cam->_rendererConfiguration.queue.next();
         }else if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
@@ -490,40 +514,22 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 
     }
 
-    if(cam->_rendererConfiguration.blendingMode) {
-        _graphics.disable(fm::RENDERING_TYPE::BLEND);
-    }
-	cam->_rendererConfiguration.blendingMode = false;
-
-    if(!computeLightDone) {
-        _ComputeLighting(cam->_rendererConfiguration.lightRenderTexture, cam, hasLight);
-    }
-	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 }
 
 void RenderingSystem::_ComputeLighting( std::shared_ptr<fm::RenderTexture> lightRenderTexture,
 										 fmc::CCamera* cam,
-										 bool hasLight) {
-
-    //From MSAA
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, cam->_renderTexture->GetId());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cam->_rendererConfiguration.intermediate->GetId());
-    glBlitFramebuffer(0, 0, cam->_renderTexture->getWidth(), cam->_renderTexture->getHeight(), 0, 0, 
-					cam->_rendererConfiguration.intermediate->getWidth(), 
-					cam->_rendererConfiguration.intermediate->getHeight(),
-                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
+										 bool hasLight) 
+{
 
 
-    lightRenderTexture->bind();
-    _graphics.setViewPort(cam->viewPort);
 
     if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
     {
-        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.intermediate->getColorBuffer(), hasLight);
+        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.getColorBuffer(), hasLight);
     } 
 	else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
     {
-        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.intermediate->getColorBuffer(), false);
+        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.getColorBuffer(), false);
     }
 
 }
@@ -579,7 +585,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
         }
 		cam->_rendererConfiguration.queue.addElement(node);
     }
-
+	cam->_rendererConfiguration.uboLight->Bind();
 	cam->_rendererConfiguration.uboLight->SetData(&pointLights[0], _lightNumber*sizeof(PointLight));
 }
 

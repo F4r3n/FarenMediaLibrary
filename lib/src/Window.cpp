@@ -92,16 +92,17 @@ bool Window::Init()
 void Window::_CreateMaterials()
 {
     {
-    Material *defaultMat = new fm::Material("default_material");
-    defaultMat->shaderName = "default";
-    defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default");
-    fm::ResourcesManager::get().load<Material>("default_material", defaultMat);
+		Material *defaultMat = new fm::Material("default_material");
+		defaultMat->shaderName = "default";
+		defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default");
+		fm::ResourcesManager::get().load<Material>("default_material", defaultMat);
     }
-{
-    Material *defaultMat = new fm::Material("default_light_material");
-    defaultMat->shaderName = "default_light";
-    defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default_light");
-    fm::ResourcesManager::get().load<Material>("default_light_material", defaultMat);
+
+	{
+		Material *defaultMat = new fm::Material("default_light_material");
+		defaultMat->shaderName = "default_light";
+		defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default_light");
+		fm::ResourcesManager::get().load<Material>("default_light_material", defaultMat);
     }
 }
 

@@ -1,14 +1,15 @@
 #pragma once
 #include "component.h"
-
+#include "Rendering/commandBuffer.hpp"
 
 #include "Core/Math/Matrix.h"
 #include "Core/Rect.h"
 #include "Rendering/RenderQueue.h"
 #include "Rendering/uniformbuffer.hpp"
+#include "Rendering/RenderTexture.h"
 namespace fm 
 {
-class RenderTexture;
+	class RenderTexture;
 }
 
 namespace fms 
@@ -43,14 +44,15 @@ struct RendererConfiguration
 	bool blendingMode = false;
 	int queuePreviousValue = 0;
 
-	std::shared_ptr<fm::RenderTexture> lightRenderTexture;
-	std::shared_ptr<fm::RenderTexture> intermediate;
+	fm::RenderTexture lightRenderTexture;
+	fm::RenderTexture postProcessRenderTexture;
+	fm::RenderTexture resolveMSAARenderTexture;
 
 	fm::Bounds bounds;
 	std::unique_ptr<fm::UniformBuffer> uboLight;
 };
 
-
+typedef std::unordered_map<fm::RENDER_QUEUE, std::queue<fm::CommandBuffer>> CameraCommandBuffer;
 
 class CCamera : public FMComponent<CCamera> 
 {
@@ -80,13 +82,17 @@ class CCamera : public FMComponent<CCamera>
 
         Shader_data shader_data;
         std::shared_ptr<fm::RenderTexture> target = nullptr;
-        std::shared_ptr<fm::RenderTexture> getInternalRenderTexture() const {return _renderTexture;}
-		bool IsInit() { return _renderTexture != nullptr; }
+        const fm::RenderTexture &getInternalRenderTexture() const {return _renderTexture;}
+		bool IsInit() { return _renderTexture.isCreated(); }
+		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer &inCommandBuffer);
+
     private:
+		bool HasCommandBuffer(fm::RENDER_QUEUE inQueue) const;
+
 		void _InitRenderTexture();
 		RendererConfiguration _rendererConfiguration;
 
-        std::shared_ptr<fm::RenderTexture> _renderTexture = nullptr;
+        fm::RenderTexture _renderTexture;
         fm::math::mat _viewMatrix;
         bool  _isOrto = false;
         float _farPlane = 1000.0f;
@@ -95,5 +101,7 @@ class CCamera : public FMComponent<CCamera>
         int _width;
         int _height;
         float _fovy = 60.0f;
+
+		CameraCommandBuffer _commandBuffers;
 };
 }

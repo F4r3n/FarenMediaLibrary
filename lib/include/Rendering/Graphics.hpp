@@ -3,10 +3,18 @@
 #include <Core/Rect.h>
 #include <Rendering/VertexBuffer.hpp>
 namespace fm {
-    enum RENDERING_TYPE : unsigned int{
-        BLEND,
-        DEPTH_TEST
+	enum RENDERING_TYPE : unsigned int {
+		BLEND = GL_BLEND,
+		DEPTH_TEST = GL_DEPTH_TEST
     };
+
+	enum BUFFER_BIT
+	{
+		COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT,
+		DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT,
+		STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT,
+		NONE_BUFFER_BIT = 0
+	};
     class Model;
     
     class Graphics {

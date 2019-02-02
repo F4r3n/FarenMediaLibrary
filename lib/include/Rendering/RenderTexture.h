@@ -3,13 +3,15 @@
 #include <Core/Config.h>
 #include "Rendering/Texture.h"
 
-namespace fm {
-    class RenderTexture {
+namespace fm 
+{
+
+    class RenderTexture
+	{
     public:
         RenderTexture() {}
         RenderTexture(unsigned int width, unsigned int height, 
 unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling = 0);
-        RenderTexture(unsigned int width, unsigned int height, unsigned int numberColorAttchment);
         RenderTexture(const RenderTexture &renderTexture, int multiSampling = -1);
         ~RenderTexture();
         
@@ -22,6 +24,9 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         void create();
         bool IsMultiSampled() const {return _multiSampling > 0;}
         unsigned int GetId() const {return _framebuffer;}
+
+		void Clone(const RenderTexture &inRenderTexture);
+		const RenderTexture& operator=(const RenderTexture &inRenderTexture);
     private:
         bool _isReady = false;
         unsigned int _width = 0;

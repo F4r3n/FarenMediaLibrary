@@ -19,9 +19,12 @@ public:
     void createQuadScreen();
     // void blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers);
     void lightComputation(fm::Graphics &graphics, Texture* colorBuffer, bool compute = false);
-    void postProcess(fm::Graphics &graphics,Texture* colorBuffer);
+    void postProcess(fm::Graphics &graphics, Texture& inTexture1);
     void clear(fm::Graphics &graphics);
     void blit(fm::Graphics &graphics,Texture& texture, Shader* shader) const;
+	void blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const;
+	void blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bufferBit) const;
+
     void blit(fm::Graphics &graphics,RenderTexture& source, RenderTexture& dest, Shader* shader) const;
     void blit(fm::Graphics &graphics,int ID, RenderTexture& dest, Shader* shader) const;
     void SetSources(fm::Graphics &graphics,Texture *textures, int numberIDs);

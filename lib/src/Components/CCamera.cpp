@@ -22,7 +22,6 @@ float CCamera::GetNearPlane()
 CCamera::CCamera()
 {
     _name = "Camera";
-	_renderTexture = nullptr;
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
@@ -66,14 +65,14 @@ void CCamera::_InitRenderTexture()
 #else
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 #endif
-		_renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 3, formats, types, 24, _multiSampled);
+		_renderTexture = fm::RenderTexture(_width, _height, 3, formats, types, 24, _multiSampled);
 	}
 	else if (shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
 	{
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-		_renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, 2, formats, types, 24, _multiSampled);
+		_renderTexture = fm::RenderTexture(_width, _height, 2, formats, types, 24, _multiSampled);
 	}
 }
 
@@ -82,14 +81,14 @@ void CCamera::Init()
 {
     if(_isOrto)
     {
-
         projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
         viewPort.w = static_cast<float>(_width);
         viewPort.h = static_cast<float>(_height);
         viewPort.x = 0;
         viewPort.y = 0;
 
-    }else
+    }
+	else
     {
         projection = fm::math::perspective(fm::math::radians(_fovy),(float)_width/(float)_height, _nearPlane, _farPlane);
         viewPort.w = static_cast<float>(_width);
@@ -98,13 +97,15 @@ void CCamera::Init()
         viewPort.y = 0;
 
     }
-	if (_renderTexture != nullptr && _renderTexture->isCreated())
+
+
+	if (_renderTexture.isCreated())
 	{
-		_renderTexture->release();
+		_renderTexture.release();
 	}
 
 	_InitRenderTexture();
-	_renderTexture->create();
+	_renderTexture.create();
 }
 
 CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, int multiSampled)
@@ -119,9 +120,9 @@ CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, int m
 
 CCamera::~CCamera()
 {
-    if(_renderTexture != nullptr && _renderTexture->isCreated())
+    if(_renderTexture.isCreated())
     {
-        _renderTexture->release();
+        _renderTexture.release();
     }
 }
 
@@ -137,24 +138,22 @@ void CCamera::SetNewProjection(unsigned int width, unsigned int height)
     viewPort.h = height;
     viewPort.x = 0;
     viewPort.y = 0;
-    if(_renderTexture != nullptr && _renderTexture->isCreated())
+    if(_renderTexture.isCreated())
     {
-        _renderTexture->release();
+        _renderTexture.release();
     }
 
-    _renderTexture = std::make_shared<fm::RenderTexture>(width, height, 8);
 }
 
 void CCamera::UpdateRenderTexture()
 {
-    if(_renderTexture != nullptr)
-    {
-		if (viewPort.w != _renderTexture->getWidth() || viewPort.h != _renderTexture->getHeight())
-		{
-			_renderTexture->release();
-			_InitRenderTexture();
-		}
-    }
+
+	if (viewPort.w != _renderTexture.getWidth() || viewPort.h != _renderTexture.getHeight())
+	{
+		_renderTexture.release();
+		_InitRenderTexture();
+	}
+    
 }
 
 void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int height)
@@ -165,11 +164,24 @@ void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int heig
     viewPort.h = static_cast<float>(height);
     viewPort.x = static_cast<float>(x);
     viewPort.y = static_cast<float>(y);
-    if(_renderTexture != nullptr && _renderTexture->isCreated())
+    if( _renderTexture.isCreated())
     {
-        _renderTexture->release();
+        _renderTexture.release();
     }
 	_InitRenderTexture();
 
 }
+
+bool CCamera::HasCommandBuffer(fm::RENDER_QUEUE inQueue) const
+{
+	return _commandBuffers.find(inQueue) != _commandBuffers.cend();
+}
+
+
+void CCamera::AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer &inCommandBuffer)
+{
+	_commandBuffers[inQueue].push(inCommandBuffer);
+}
+
+
 

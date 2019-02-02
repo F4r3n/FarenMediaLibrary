@@ -25,20 +25,22 @@ void GameView::draw() {
 		fm::Texture texture = preview.renderTexture->getColorBuffer()[0];
 
 		ImVec2 start;
-		ImVec2 end;
+		ImVec2 size;
 		if (ImGui::IsWindowDocked())
 		{
 			start = ImGui::GetWindowDockPos(ImGui::GetWindowDockID());
-			end = ImGui::GetWindowDockSize(ImGui::GetWindowDockID());
+			size = ImGui::GetWindowDockSize(ImGui::GetWindowDockID());
 		}
 		else
 		{
 			start = ImGui::GetWindowPos();
-			end = ImGui::GetWindowPos();
+			size = ImGui::GetWindowPos();
 		}
+		ImVec2 end;
+		end.x = start.x + size.x;
+		end.y = start.y + size.x/rapport;
+		//end.y = end.x/rapport;
 
-		end.x = start.x + end.x;
-		end.y = start.y + end.y;
         ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), start, end);
 
         ImGui::End();
@@ -52,7 +54,7 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 	CameraPreview preview;
 	preview.id = inGameObject->getID();
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
-	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(*camera->getInternalRenderTexture().get(), 0));
+	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
 	camera->target = preview.renderTexture;
 
 	previews.push_back(preview);

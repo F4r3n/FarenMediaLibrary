@@ -8,9 +8,6 @@
 using namespace fm;
 
 
-
-
-
 Texture::Texture(const std::string& path, Recti rect, bool alpha) : _path(path) {
     if(alpha) {
         _format = GL_RGBA;

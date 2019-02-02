@@ -21,7 +21,8 @@ void Renderer::lightComputation(fm::Graphics& graphics,
     fm::Shader* light;
     if(compute)
         light = ResourcesManager::get().getResource<fm::Shader>("light");
-    else {
+    else 
+	{
         light = ResourcesManager::get().getResource<fm::Shader>("no_light");
     }
     light->Use();
@@ -39,9 +40,10 @@ void Renderer::lightComputation(fm::Graphics& graphics,
     graphics.draw(quad);
 }
 
-void Renderer::postProcess(fm::Graphics& graphics, Texture* colorBuffer) {
-    graphics.bindTexture2D(0, colorBuffer[0].getID(), colorBuffer[0].GetKind());
-    graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
+void Renderer::postProcess(fm::Graphics& graphics, Texture& inTexture1) {
+	glDisable(GL_DEPTH_TEST);
+    graphics.bindTexture2D(0, inTexture1.getID(), inTexture1.GetKind());
+    //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 
     graphics.draw(quad);
 }
@@ -65,10 +67,33 @@ void Renderer::blit(fm::Graphics& graphics,
     graphics.draw(quad);
 }
 
-void Renderer::SetSources(fm::Graphics& graphics,
-                          Texture* textures,
-                          int numberIDs) {
-    for(int i = 0; i < numberIDs; ++i) {
+
+void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bufferBit) const
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, source.getWidth(), source.getHeight(), 0, 0,
+		source.getWidth(),
+		source.getHeight(),
+		bufferBit, GL_NEAREST);
+}
+
+
+void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.GetId());
+	glBlitFramebuffer(0, 0, source.getWidth(), source.getHeight(), 0, 0,
+		dest.getWidth(),
+		dest.getHeight(),
+		bufferBit, GL_NEAREST);
+}
+
+
+void Renderer::SetSources(fm::Graphics& graphics, Texture* textures, int numberIDs) 
+{
+    for(int i = 0; i < numberIDs; ++i) 
+	{
         graphics.bindTexture2D(i, textures[i].getID(), textures[i].GetKind());
     }
 }

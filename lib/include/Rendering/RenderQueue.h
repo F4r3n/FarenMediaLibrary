@@ -11,8 +11,19 @@
 #include "Components/CText.h"
 #include <bitset>
 namespace fm {
-enum RENDER_QUEUE {FIRST_STATE,  BACKGROUND,BEFORE_LIGHT, OPAQUE, TRANSPARENT,
-LIGHT, AFTER_LIGHT, SKYBOX, OVERLAY, LAST_STATE};
+enum RENDER_QUEUE {
+	FIRST_STATE,  
+	BACKGROUND,
+	BEFORE_LIGHT, 
+	OPAQUE,
+	TRANSPARENT,
+	LIGHT, 
+	AFTER_LIGHT,
+	SKYBOX, 
+	OVERLAY,
+	AFTER_RENDERING,
+	LAST_STATE
+};
 
 struct RenderNode {
     fmc::CTransform *transform;
