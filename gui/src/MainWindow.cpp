@@ -307,15 +307,16 @@ void MainWindow::menuEntity()
 
     std::string nameWindowInspector("Inspector");
 
-    if(_currentEntity && _currentEntity->IsActive())
+    /*if(_currentEntity && _currentEntity->IsActive())
     {
-         nameWindowInspector += std::to_string(_currentEntity->getID());
-    }
-
+         nameWindowInspector = nameWindowInspector + " " + std::to_string(_currentEntity->getID()) + "###" + nameWindowInspector;
+    }*/
+	
     ImGui::Begin(nameWindowInspector.c_str(),&_windowCurrentEntity);
 
     if(_currentEntity && _currentEntity->IsActive())
     {
+		ImGui::Text(_currentEntity->name.c_str());
         displayComponents(_currentEntity);
 
         if(ImGui::Button("Add Component"))
@@ -382,17 +383,24 @@ void MainWindow::listEntity()
 		fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(i);
 		fmc::CTransform *transform = o->get<fmc::CTransform>();
 		// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-		ImGuiTreeNodeFlags node_flags = (transform->idFather != -1) ? ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow : 0 | ImGuiTreeNodeFlags_Selected;
+		ImGuiTreeNodeFlags node_flags = ((number == i) ? ImGuiTreeNodeFlags_Selected : 0);
 
 		// Node
+		//ImGui::PushStyleColor(ImGuiCol_HeaderSelected, (ImVec4)ImColor::HSV(0.9f, 0.8f, 0.8f));
+
 		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, namesEntities[i], i);
+
 		if (ImGui::IsItemClicked())
 			number = i;
 		if (node_open)
 		{
 			//ImGui::Text("Blah blah\nBlah Blah");
 			ImGui::TreePop();
+
 		}
+
+		//ImGui::PopStyleColor(1);
+		
 
 
 	}
@@ -551,6 +559,7 @@ void MainWindow::_configureStyle()
     style.Colors[ImGuiCol_Header]                = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
     style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
     style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+
     style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
     style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
     style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);

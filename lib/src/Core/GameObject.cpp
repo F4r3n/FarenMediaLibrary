@@ -10,6 +10,7 @@
 #include "Components/CCamera.h"
 #include "Components/CBody3D.h"
 using namespace fm;
+size_t GameObject::_counter = 0;
 GameObject* GameObject::create()
 {
     if(_entity != nullptr) return this;
@@ -37,7 +38,7 @@ GameObject* GameObject::create(fm::Scene* s)
 
 GameObject::GameObject()
 {
-    name = "GameObject";
+    name = "GameObject " + _counter;
 }
 
 void GameObject::Serialize(json &outResult)

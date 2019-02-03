@@ -125,7 +125,7 @@ void RenderingSystem::_InitStandardShapes()
 void RenderingSystem::init(EntityManager& em, EventManager&)
 {
     fm::Debug::log("INIT Standard Shapes");
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     _InitStandardShapes();
 
@@ -324,7 +324,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		cam->_renderTexture.bind();
 		_graphics.setViewPort(cam->viewPort);
 		_graphics.clear(true, true);
-
+		_graphics.enable(fm::RENDERING_TYPE::DEPTH_TEST);
 
 		//Prepare camera data
 		cam->shader_data.FM_PV = cam->projection * cam->_viewMatrix;

@@ -27,7 +27,6 @@ namespace fm {
         private:
             std::vector<GameObject*> _gos;
             std::string _name;
-            
             //Light setting
     };
 }

@@ -72,6 +72,7 @@ namespace fm {
         private:
             Entity* _entity = nullptr;
 			bool	_oldStatus;
+			static size_t _counter;
     };
 
     class GameObjectHelper

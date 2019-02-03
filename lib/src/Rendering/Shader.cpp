@@ -149,7 +149,8 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) c
 const Shader* Shader::SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const
 {
     int b = glGetUniformBlockIndex(Program, name.c_str());
-    glUniformBlockBinding(Program, b, bindingPoint);
+	if(b !=-1)
+		glUniformBlockBinding(Program, b, bindingPoint);
     return this;
 
 }

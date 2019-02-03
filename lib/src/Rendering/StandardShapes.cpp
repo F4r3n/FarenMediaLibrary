@@ -26,13 +26,6 @@ MeshContainer* StandardShapes::CreateQuad()
 MeshContainer* StandardShapes::CreateCube()
 {
     MeshContainer* meshContainer = new MeshContainer();
-    //Front
-    AddVertex(meshContainer, {-0.5f, -0.5f, -0.5f},{0.0,0.0},{ 0.0f,  0.0f, -1.0f});
-    AddVertex(meshContainer, { 0.5f, -0.5f, -0.5f},{0.0,0.0},{ 0.0f,  0.0f, -1.0f});
-    AddVertex(meshContainer, { 0.5f,  0.5f, -0.5f},{0.0,0.0},{ 0.0f,  0.0f, -1.0f});
-    AddVertex(meshContainer, { 0.5f,  0.5f, -0.5f},{0.0,0.0},{ 0.0f,  0.0f, -1.0f});
-    AddVertex(meshContainer, {-0.5f,  0.5f, -0.5f},{0.0,0.0},{ 0.0f,  0.0f, -1.0f});
-    AddVertex(meshContainer, {-0.5f, -0.5f, -0.5f},{0.0,0.0},{ 0.0f,  0.0f, -1.0f});
 
     //Back
     AddVertex(meshContainer, {-0.5f, -0.5f,  0.5f},{0.0,0.0},{ 0.0f,  0.0f,  1.0f});
@@ -41,6 +34,14 @@ MeshContainer* StandardShapes::CreateCube()
     AddVertex(meshContainer, { 0.5f,  0.5f,  0.5f},{0.0,0.0},{ 0.0f,  0.0f,  1.0f});
     AddVertex(meshContainer, {-0.5f,  0.5f,  0.5f},{0.0,0.0},{ 0.0f,  0.0f,  1.0f});
     AddVertex(meshContainer, {-0.5f, -0.5f,  0.5f},{0.0,0.0},{ 0.0f,  0.0f,  1.0f});
+
+	//Front
+	AddVertex(meshContainer, { -0.5f, -0.5f, -0.5f }, { 0.0,0.0 }, { 0.0f,  0.0f, -1.0f });
+	AddVertex(meshContainer, { 0.5f, -0.5f, -0.5f }, { 0.0,0.0 }, { 0.0f,  0.0f, -1.0f });
+	AddVertex(meshContainer, { 0.5f,  0.5f, -0.5f }, { 0.0,0.0 }, { 0.0f,  0.0f, -1.0f });
+	AddVertex(meshContainer, { 0.5f,  0.5f, -0.5f }, { 0.0,0.0 }, { 0.0f,  0.0f, -1.0f });
+	AddVertex(meshContainer, { -0.5f,  0.5f, -0.5f }, { 0.0,0.0 }, { 0.0f,  0.0f, -1.0f });
+	AddVertex(meshContainer, { -0.5f, -0.5f, -0.5f }, { 0.0,0.0 }, { 0.0f,  0.0f, -1.0f });
 
     //Left
     AddVertex(meshContainer, {-0.5f,  0.5f,  0.5f},{0.0,0.0},{-1.0f,  0.0f,  0.0f});

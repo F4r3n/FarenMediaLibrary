@@ -260,19 +260,19 @@ void ShaderLibrary::loadShaders() {
 			float diff = max(dot(norm, lightDir), 0.0);
 
 			vec3 viewDir = normalize(viewPos - ourPosition);
-			vec3 halfwayDir = normalize(lightDir + viewDir);
-			//vec3 reflectDir = reflect(-lightDir, norm);
+			//vec3 halfwayDir = normalize(lightDir + viewDir);
+			vec3 reflectDir = reflect(-lightDir, norm);
 
-			float spec = pow(max(dot(norm, halfwayDir), 0.0), 32);
+			float spec = pow(max(dot(norm, reflectDir), 0.0), 32);
 
 			vec3 specular = 0.5*spec*pl.color.xyz;
 			vec3 diffuse = diff * pl.color.xyz;
 
-			result += diffuse + specular;
-			//result += pl.color.rgb;
+			result += diffuse + specular + vec3(0.1f);
+			//result = abs(ourNormals);
 		}
 
-		FragColor = vec4(result + vec3(0.1f),1);
+		FragColor = vec4(result*color.rgb , 1);
 
 	}
 
@@ -398,67 +398,6 @@ void ShaderLibrary::loadShaders() {
 
 
 
-
-	std::string default_fragment_light = STRING(
-
-		layout(location = 0) out vec4 FragColor;
-	layout(location = 1) out vec4 BrightColor;
-	layout(location = 2) out vec4 posTexture;
-
-	uniform vec4 mainColor;
-	uniform int BloomEffect;
-	in vec3 ourPosition;
-	in vec3 ourNormals;
-	in vec2 ourUVs;
-
-	uniform int lightNumber;
-	struct PointLight {
-		vec4 position;
-		vec4 color;
-		vec4 radius;
-	};
-
-	struct DirectionalLight {
-		vec4 color;
-	};
-
-	const int MAX_LIGHTS = 32;
-
-	layout(std140) uniform PointLights
-	{
-		PointLight light[MAX_LIGHTS];
-	};
-	uniform vec3 viewPos;
-	void main() {
-
-		FragColor = vec4(0.1f, 0.1f, 0.1f, 1.0f);
-		int i = 0;
-		for (i = 0; i < lightNumber; ++i)
-		{
-			PointLight pl = light[i];
-			vec3 norm = normalize(ourNormals);
-			vec3 lightDir = normalize(pl.position.xyz - ourPosition);
-
-			float diff = max(dot(norm, lightDir), 0.0);
-
-			vec3 viewDir = normalize(viewPos - ourPosition);
-			vec3 halfwayDir = normalize(lightDir + viewDir);
-			//vec3 reflectDir = reflect(-lightDir, norm);
-
-			float spec = pow(max(dot(norm, halfwayDir), 0.0), 32);
-
-			vec3 specular = 0.5*spec*pl.color.xyz;
-			vec3 diffuse = diff * pl.color.xyz;
-
-			FragColor += vec4(diffuse, 1.0) + vec4(specular, 1.0);
-
-		}
-		FragColor *= mainColor;
-	});
-
-
-
-
 	std::string default_vertex_sprite = STRING(
 		layout(location = 0) in vec2 position;
 	layout(location = 1) in vec2 texCoords;
@@ -549,33 +488,17 @@ void ShaderLibrary::loadShaders() {
 	void main() {
 		FragColor = texture(texture2d, ourTexCoord)*ourColor;
 	});
-	/*#if OPENGL_ES_VERSION == 2
-		fm::ResourcesManager::get().loadShader("no_light", simple_vertex, light_fragment_no_light);
-		fm::ResourcesManager::get().loadShader("default", default_vertex, default_fragment);
-		fm::ResourcesManager::get().loadShader("simple", simple_vertex, simple_fragment);
 
-		std::shared_ptr<fm::Shader> s = fm::ResourcesManager::get().getShader("simple");
-		s->Use()->setInt("screenTexture", 0)->setInt("bloomBlur", 1);
-
-		std::shared_ptr<fm::Shader> light = fm::ResourcesManager::get().getShader("no_light");
-		light->Use()->setInt("screenTexture", 0)->setInt("posTexture", 1);
-	#else*/
 
 	fm::ResourcesManager::get().load<fm::Shader>("light_deferred", new fm::Shader(simple_vertex, light_fragment_deferred, "light_deferred"));
-
 	fm::ResourcesManager::get().load<fm::Shader>("no_light", new fm::Shader(simple_vertex, light_fragment_no_light, "no_light"));
-
 	fm::ResourcesManager::get().load<fm::Shader>("blur", new fm::Shader(simple_vertex, blur_fragment, "blur"));
 	fm::ResourcesManager::get().load<fm::Shader>("text", new fm::Shader(text_vertex, text_fragment, "text"));
 	fm::ResourcesManager::get().load<fm::Shader>("instancing", new fm::Shader(instancing_vertex, instancing_fragment, "instancing"));
 	fm::ResourcesManager::get().load<fm::Shader>("default", new fm::Shader(default_vertex, default_fragment, "default"));
-	fm::ResourcesManager::get().load<fm::Shader>("default_light", new fm::Shader(default_vertex, default_fragment_light, "default_light"));
 	fm::ResourcesManager::get().load<fm::Shader>("light_forward", new fm::Shader(default_vertex, light_fragment_forward, "light_forward"));
-
-
 	fm::ResourcesManager::get().load<fm::Shader>("simple", new fm::Shader(simple_vertex, simple_fragment, "simple"));
-	//fm::ResourcesManager::get().loadShader("sprite", default_vertex_sprite, default_fragment_sprite);
-	//fm::ResourcesManager::get().loadShader("particle", default_vertex_particle, default_fragment_particle);
+
 	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>()) {
 		fm::Shader *s = static_cast<fm::Shader*>(shader.second);
 		if (s != nullptr && !s->IsReady()) {

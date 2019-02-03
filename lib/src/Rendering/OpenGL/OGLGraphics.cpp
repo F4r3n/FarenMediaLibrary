@@ -43,11 +43,11 @@ void Graphics::setViewPort(const fm::Rect<float>& rect) const
 
 void Graphics::enable(RENDERING_TYPE r) const
 {
-    glEnable(renderingType[r]);
+    glEnable(r);
 }
 void Graphics::disable(RENDERING_TYPE r) const
 {
-    glDisable(renderingType[r]);
+    glDisable(r);
 }
 
 void Graphics::draw(int primitiveType,
