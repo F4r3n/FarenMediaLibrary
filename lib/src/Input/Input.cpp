@@ -1,7 +1,7 @@
 #include "Input/Input.h"
 
 using namespace fm;
-bool Input::keyIsPressed(int key) {
+/*bool Input::keyIsPressed(int key) {
     return InputManager::getInstance().keyIsPressed(key);
 }
 
@@ -38,4 +38,4 @@ math::Vector2d Input::getMousePositionVector() {
     math::Vector2d pos;
     InputManager::getInstance().getMousePosition(pos);
     return pos;
-}
+}*/

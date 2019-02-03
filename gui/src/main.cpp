@@ -38,13 +38,14 @@ int main()
 
 	while (!window->isClosed())
 	{
-		while (SDL_PollEvent(&fm::InputManager::getInstance().getLastEvent()))
+		while (SDL_PollEvent(&fm::InputManager::Get().getLastEvent()))
 		{
-			fm::InputManager::getInstance().processEvents();
-			ImGui_ImplSDL2_ProcessEvent(&fm::InputManager::getInstance().getLastEvent());
+			fm::InputManager::Get().processEvents();
+			ImGui_ImplSDL2_ProcessEvent(&fm::InputManager::Get().getLastEvent());
 		}
 
-		fm::Application::Get().Update();
+		fm::Application::Get().Update(true);
+		fm::InputManager::Get().CaptureMousePosition();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame(window->getWindow());
 		ImGui::NewFrame();

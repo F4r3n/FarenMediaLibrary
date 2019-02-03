@@ -4,112 +4,110 @@
 #include <iostream>
 using namespace fm;
 
-std::map<int, bool> InputManager::_keys;
-std::map<int, bool> InputManager::_keysReleased;
 InputManager InputManager::_instance;
 
-float InputManager::_posX = 0;
-float InputManager::_posY = 0;
 
 InputManager::InputManager(Window& window) {
     init(window);
 }
 
 void InputManager::init(Window& window) {
-    // glfwSetKeyCallback(window.window, InputManager::key_callback);
-    // glfwSetCursorPosCallback(window.window, InputManager::cursor_position_callback);
-    // this->window = window.window;
+
 }
 
-// void InputManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-//{
-//    posX = xpos;
-//    posY = ypos;
-//}
 
-InputManager::InputManager() {
-}
-//TODO keyboard
 
-void InputManager::getMousePosition(double& posX, double& posY) {
-    int tempX, tempY;
-    SDL_GetMouseState(&tempX, &tempY);
-    posX = tempX;
-    posY = tempY;
+InputManager::InputManager() 
+{
 }
 
-float InputManager::getMousePositionX() {
-    return _posX;
-}
 
-float InputManager::getMousePositionY() {
-    return _posY;
-}
-
-int InputManager::worldKeyboard(int key) {
-    if(!_typeKeyboard)
-        return key;
-    if(key == FM_KEY_A)
-        return FM_KEY_Q;
-    if(key == FM_KEY_Z)
-        return FM_KEY_W;
-    if(key == FM_KEY_W)
-        return FM_KEY_Z;
-    if(key == FM_KEY_Q)
-        return FM_KEY_A;
-    return key;
-}
-
-InputManager& InputManager::getInstance() {
+InputManager& InputManager::Get() {
     return _instance;
 }
 
-bool InputManager::multipleKeysPressed(int number, ...) {
-    // va_list ap;
-    // int j;
-    // bool val = true;
-    // va_start(ap, number); // Requires the last fixed parameter (to get the address)
-    // for(j = 0; j < number; j++) {
-    //     int v = va_arg(ap, int);
-    //     val &= glfwGetKey(window, v);
-    // }
-    // va_end(ap);
-    // return val;
-    return false;
-}
-void InputManager::getMousePosition(math::Vector2d& pos) {
-    int tempX, tempY;
-    SDL_GetMouseState(&tempX, &tempY);
-    pos.x = tempX;
-    pos.y = tempY;
+
+void InputManager::GetMousePosition(math::Vector2f& outPos)
+{
+	outPos = _mousePos;
 }
 
-bool InputManager::keyIsPressed(int key) {
-    return _event.type == key;
+bool InputManager::IsKeyPressed(FM_KEY key)
+{
+    return _keys[key];
 }
 
-bool InputManager::keyIsReleased(int key) {
-    bool v = _keysReleased[key];
-    _keysReleased[key] = false;
-    return v;
+
+bool InputManager::IsMouseButtonPressed(FM_MOUSE_KEY id)
+{
+	return _mouseKeys[id];
 }
 
-int InputManager::getMouseButton(int id) {
-    return _event.type == id;
+void InputManager::processEvents() 
+{
+
+	switch (_event.type)
+	{
+	case SDL_MOUSEWHEEL:
+	{
+		_scrollWheel.x += _event.wheel.x;
+		_scrollWheel.y += _event.wheel.y;
+		break;
+	}
+	case SDL_MOUSEBUTTONDOWN:
+	{
+		_mouseKeys[SDL_BUTTON_LEFT - 1] = _event.button.button == SDL_BUTTON_LEFT;
+		_mouseKeys[SDL_BUTTON_RIGHT - 1] = _event.button.button == SDL_BUTTON_RIGHT;
+		_mouseKeys[SDL_BUTTON_MIDDLE - 1] = _event.button.button == SDL_BUTTON_MIDDLE;
+
+		break;
+	}
+	case SDL_TEXTINPUT:
+	{
+		//return true;
+		break;
+	}
+	case SDL_KEYDOWN:
+	case SDL_KEYUP:
+	{
+		int key = _event.key.keysym.scancode;
+		assert(key < 512);
+		_keys[key] = (_event.type == SDL_KEYDOWN);
+		_keyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+		_keyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+		_keyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+		_keySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+		break;
+	}
+	// Multi-viewport support
+	case SDL_WINDOWEVENT:
+		Uint8 window_event = _event.window.event;
+		if (window_event == SDL_WINDOWEVENT_CLOSE || window_event == SDL_WINDOWEVENT_MOVED || window_event == SDL_WINDOWEVENT_RESIZED)
+		{
+			_closed = (_event.window.event == SDL_WINDOWEVENT_CLOSE);
+		}
+		break;
+	}
+
+
 }
 
-void InputManager::processEvents() {
-            _states = SDL_GetKeyboardState(nullptr);
-        if(_event.type == SDL_WINDOWEVENT) {
-            _closed = (_event.window.event == SDL_WINDOWEVENT_CLOSE);
-        }
+void InputManager::CaptureMousePosition()
+{
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	_mousePos.x = mouseX;
+	_mousePos.y = mouseY;
 }
+
 
 void InputManager::pollEvents() {
     _closed = false;
-    while(SDL_PollEvent(&_event)) {
+    while(SDL_PollEvent(&_event)) 
+	{
         processEvents();
     }
+	CaptureMousePosition();
 }
 
 InputManager::~InputManager() {

@@ -3,7 +3,7 @@
 #include <tuple>
 namespace fm
 {
-class Input
+/*class Input
 {
 public:
     static bool keyIsPressed(int key);
@@ -15,5 +15,5 @@ public:
     static std::tuple<double, double> getMousePosition();
     static math::Vector2d getMousePositionVector();
     static int getMouseButton(int id);
-};
+};*/
 }

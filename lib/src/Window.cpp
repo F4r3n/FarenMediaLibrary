@@ -140,7 +140,7 @@ void Window::update(float fps, bool internalUpdate)
     _fpsMax = fps;
     _waitTime = 1.0f / (float)_fpsMax;
     if(internalUpdate)
-        fm::InputManager::getInstance().pollEvents();
+        fm::InputManager::Get().pollEvents();
     frameLimit(fps);
 
 }
@@ -185,7 +185,7 @@ void Window::_ErrorDisplay()
 
 bool Window::isClosed() 
 {
-    return InputManager::getInstance().isClosed();
+    return InputManager::Get().isClosed();
 }
 
 

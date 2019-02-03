@@ -114,9 +114,9 @@ void Application::Init()
     _engine->Init();
 }
 
-void Application::Update()
+void Application::Update(bool withEditor)
 {
-    _window->update(_currentConfig.fpsWanted, false);
+    _window->update(_currentConfig.fpsWanted, !withEditor);
     _engine->Update(fm::Time::dt);
 }
 

@@ -100,7 +100,7 @@ class Application
         void Init();
         void DeInit();
 
-        void Update();
+        void Update(bool withEditor);
 
         fm::Window* GetWindow() const;
         fm::Engine* GetEngine() const;
