@@ -12,8 +12,10 @@ namespace fm {
     class Shader;
 
 
-class ResourcesManager : protected fm_system::NonCopyable {
-
+class ResourcesManager : protected fm_system::NonCopyable 
+{
+	typedef std::map<std::string, Resource* > MapOfResources;
+	typedef std::array<MapOfResources, RESOURCE_TYPE::LAST_RESOURCE> ArrayOfResources;
 public:
 
 	enum LOCATION
@@ -30,9 +32,13 @@ public:
     ResourcesManager();
     ~ResourcesManager();
 
-    template <typename T> T* getResource(const std::string& name) {
-        if(resources[T::getType()].find(name) == resources[T::getType()].end()) return nullptr;
-        return dynamic_cast<T*>(resources[T::getType()][name]);
+    template <typename T> T* getResource(const std::string& name)
+	{
+		MapOfResources::const_iterator it = resources[T::getType()].find(name);
+        if(it == resources[T::getType()].cend()) 
+			return nullptr;
+
+        return dynamic_cast<T*>(it->second);
     }
 
     template <typename T> bool Exists(const std::string& name) {
@@ -56,7 +62,7 @@ public:
     }
 
 private:
-    std::array<std::map<std::string, Resource* >, RESOURCE_TYPE::LAST_RESOURCE> resources;
+	ArrayOfResources resources;
     static ResourcesManager _instance;
 };
 }

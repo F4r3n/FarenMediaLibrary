@@ -20,24 +20,19 @@ void UniformBuffer::Generate(size_t size, int indexBuffer)
     fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
 
-void UniformBuffer::Bind()
+void UniformBuffer::Bind() const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, _ubo);
 }
 
-void UniformBuffer::SetData(void *data, size_t size)
+void UniformBuffer::SetData(void *data, size_t size) const
 {
-    fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
-
     glBindBuffer(GL_UNIFORM_BUFFER, _ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
-
 }
 
-void UniformBuffer::LinkWithShader(Shader *shader, int index, const std::string &name)
+void UniformBuffer::LinkWithShader(Shader *shader, int index, const std::string &name) const
 {
     shader->SetUniformBuffer(name, _bindingPoint);
 }

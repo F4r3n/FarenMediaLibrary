@@ -28,8 +28,8 @@ class CTransform : public FMComponent<CTransform> {
         void setFather(Entity* e);
 
 
-        fm::math::Vector3f getWorldPos();
-        fm::math::Vector3f getWorldPos(EntityManager& manager);
+        fm::math::Vector3f getWorldPos() const;
+        fm::math::Vector3f getWorldPos(EntityManager& manager) const;
 
         fm::math::Vector3f position = { 0, 0, 0 };
 

@@ -31,30 +31,30 @@ void Renderer::lightComputation(fm::Graphics& graphics,
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
         exit(-1);
     }
-    graphics.bindTexture2D(0, colorBuffer[0].getID(), colorBuffer[0].GetKind());
+    graphics.BindTexture2D(0, colorBuffer[0].getID(), colorBuffer[0].GetKind());
 
     if(compute) {
-        graphics.bindTexture2D(1, colorBuffer[2].getID(), colorBuffer[2].GetKind());
+        graphics.BindTexture2D(1, colorBuffer[2].getID(), colorBuffer[2].GetKind());
     }
 
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 
 void Renderer::postProcess(fm::Graphics& graphics, Texture& inTexture1) {
 	glDisable(GL_DEPTH_TEST);
-    graphics.bindTexture2D(0, inTexture1.getID(), inTexture1.GetKind());
+    graphics.BindTexture2D(0, inTexture1.getID(), inTexture1.GetKind());
     //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 
 void Renderer::blit(fm::Graphics& graphics,
                     Texture& texture,
                     Shader* shader) const {
     shader->Use();
-    graphics.bindTexture2D(0, texture.getID(), texture.GetKind());
+    graphics.BindTexture2D(0, texture.getID(), texture.GetKind());
 
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& source,
@@ -62,9 +62,9 @@ void Renderer::blit(fm::Graphics& graphics,
                     Shader* shader) const {
     dest.bind();
     shader->Use();
-    graphics.bindTexture2D(0, source.getColorBuffer()[0].getID(), source.getColorBuffer()[0].GetKind());
+    graphics.BindTexture2D(0, source.getColorBuffer()[0].getID(), source.getColorBuffer()[0].GetKind());
 
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 
 
@@ -94,7 +94,7 @@ void Renderer::SetSources(fm::Graphics& graphics, Texture* textures, int numberI
 {
     for(int i = 0; i < numberIDs; ++i) 
 	{
-        graphics.bindTexture2D(i, textures[i].getID(), textures[i].GetKind());
+        graphics.BindTexture2D(i, textures[i].getID(), textures[i].GetKind());
     }
 }
 
@@ -107,7 +107,7 @@ void Renderer::blit(fm::Graphics& graphics,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ID);
 
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 
 void Renderer::blit(fm::Graphics& graphics,
@@ -116,17 +116,17 @@ void Renderer::blit(fm::Graphics& graphics,
 
     shader->Use();
     dest.bind();
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 void Renderer::blit(fm::Graphics& graphics, Shader* shader) {
     shader->Use();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    graphics.draw(quad);
+    graphics.Draw(quad);
 }
 
 void Renderer::clear(fm::Graphics& graphics) {
-    graphics.clear(true, true, true);
+    graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 }
 
 Renderer::~Renderer() {

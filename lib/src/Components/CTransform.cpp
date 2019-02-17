@@ -57,7 +57,7 @@ const std::string &CTransform::GetName() const
    return _name;
 }
 
-fm::math::Vector3f CTransform::getWorldPos()
+fm::math::Vector3f CTransform::getWorldPos() const
 {
     if(idFather == -1) return position;
 
@@ -79,7 +79,7 @@ fm::math::Vector3f CTransform::getWorldPos()
     return fm::math::vec3(m[3][0], m[3][1], m[3][2]);
 }
 
-fm::math::Vector3f CTransform::getWorldPos(EntityManager& manager)
+fm::math::Vector3f CTransform::getWorldPos(EntityManager& manager) const
 {
     if(idFather == -1) return position;
     Entity* father = manager.getEntity(idFather);

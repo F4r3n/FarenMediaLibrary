@@ -59,21 +59,17 @@ bool Window::Init()
                               Window::kHeight,
                               flags);
 
-#if OPENGL_CORE == 1
+
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-#elif OPENGL_ES == 1
-    Debug::logWarning(OPENGL_ES_VERSION);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_ES_VERSION);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#endif
+
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetSwapInterval(0);
     setMSAA(4);
+
     if(_Init())
     {
         _CreateShaders();
@@ -211,21 +207,15 @@ int Window::_Init()
     }
     _mainContext = SDL_GL_CreateContext(_window);
 
-#if OPENGL_ES == 0
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK) 
 	{
         return -1;
     }
-#endif
 
     _ErrorDisplay();
 
     glViewport(kX, kY, kWidth, kHeight);
-
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_DEPTH_TEST);
 
     return 1;
 }

@@ -297,9 +297,9 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 
 		//Clear buffers
-		_graphics.bindFrameBuffer(0);
-		_graphics.setViewPort(cam->viewPort);
-		_graphics.clear(true, true, false);
+		_graphics.BindFrameBuffer(0);
+		_graphics.SetViewPort(cam->viewPort);
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		if (cam->target != nullptr)
 		{
@@ -308,23 +308,23 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 				cam->target->create();
 			}
 			cam->target->bind();
-			_graphics.setViewPort(cam->viewPort);
-			_graphics.clear(true, true);
+			_graphics.SetViewPort(cam->viewPort);
+			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 		}
 
 		cam->_rendererConfiguration.lightRenderTexture.bind();
-		_graphics.clear(true, true);
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		cam->_rendererConfiguration.postProcessRenderTexture.bind();
-		_graphics.clear(true, true);
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		cam->_rendererConfiguration.resolveMSAARenderTexture.bind();
-		_graphics.clear(true, true);
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		cam->_renderTexture.bind();
-		_graphics.setViewPort(cam->viewPort);
-		_graphics.clear(true, true);
-		_graphics.enable(fm::RENDERING_TYPE::DEPTH_TEST);
+		_graphics.SetViewPort(cam->viewPort);
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+		_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
 
 		//Prepare camera data
 		cam->shader_data.FM_PV = cam->projection * cam->_viewMatrix;
@@ -369,7 +369,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam);
 
-		_graphics.bindFrameBuffer(0);
+		_graphics.BindFrameBuffer(0);
 
 	}
 }
@@ -400,7 +400,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			{
 				if (cmd._source.texture != nullptr)
 				{
-					_graphics.bindTexture2D(0, cmd._source.texture->GetKind(), cmd._source.texture->getID());
+					_graphics.BindTexture2D(0, cmd._source.texture->GetKind(), cmd._source.texture->getID());
 				}
 				else
 				{
@@ -432,14 +432,15 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
     while(!cam->_rendererConfiguration.queue.Empty())
     {
 
-        fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
-        fmc::CTransform* transform = node.transform;
+        const fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
+        const fmc::CTransform* transform = node.transform;
+		const fm::math::Vector3f worldPos = transform->getWorldPos();
+		const fm::RENDER_QUEUE state = node.state;
+
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
-        fm::math::Vector3f worldPos = transform->getWorldPos();
         //EventManager::get().emit<CameraInfo>({node.idEntity, cam});
 
-        fm::RENDER_QUEUE state = node.state;
 
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
@@ -496,7 +497,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 						        shader->setValue(value.name, value.materialValue);
 						    }
 							if(mesh->model != nullptr)
-								_graphics.draw(mesh->model);
+								_graphics.Draw(mesh->model);
 						}
                     }
                 }
@@ -553,14 +554,13 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
         bool valid = false;
         if(node.mesh)
         {
-            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) +
-                                        fm::math::vec3(node.transform->scale) / 2.0f);
+            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) + fm::math::vec3(node.transform->scale) / 2.0f);
             node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
-
 
             valid = true;
             node.state = fm::RENDER_QUEUE::OPAQUE;
         }
+
         if(node.plight)
         {
             PointLight p;
@@ -578,7 +578,6 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
             _lightNumber++;
         }
 
-        node.queue = 0;
         if(!valid)
         {
             continue;
@@ -596,7 +595,7 @@ void RenderingSystem::over()
 }
 
 void RenderingSystem::_SetModelPosition(fm::math::mat& model,
-                               fmc::CTransform* transform,
+                               const fmc::CTransform* transform,
                                const fm::math::Vector3f& worldPos, bool isOrthographic)
 {
     if(isOrthographic)
@@ -622,25 +621,29 @@ void RenderingSystem::_DrawText(int posX, int posY,
                                RFont* font,
                                fmc::CText* ctext)
 {
-    if(font == nullptr || ctext == nullptr) {
+    if(font == nullptr || ctext == nullptr) 
+	{
         fm::Debug::logError("Font not found");
         return;
     }
 
-    if(ctext->buffer == nullptr) {
+    if(ctext->buffer == nullptr) 
+	{
         ctext->buffer = new fm::rendering::VertexBuffer();
         ctext->buffer->generate();
     }
 
     font->texture->bind();
 
-    if(!(ctext->text.compare(ctext->previousText) == 0)) {
+    if(!(ctext->text.compare(ctext->previousText) == 0)) 
+	{
         fm::math::vec4 *coords = new fm::math::vec4[6 * ctext->text.size()];
         float x = posX;
         float y = posY;
         std::string::const_iterator c;
         int n = 0;
-        for(c = ctext->text.begin(); c != ctext->text.end(); c++) {
+        for(c = ctext->text.begin(); c != ctext->text.end(); c++) 
+		{
             Character ch = font->Characters[*c];
             float x2 = x + ch.b_lt.x * ctext->scale;
             float y2 = -y - ch.b_lt.y * ctext->scale;
@@ -664,9 +667,11 @@ void RenderingSystem::_DrawText(int posX, int posY,
         ctext->buffer->setBufferData(&coords[0], n, sizeof(float) * 4, false);
 		delete coords;
     }
-    if(ctext->buffer != NULL && ctext->buffer->isGenerated()) {
-        _graphics.setVertexBuffer(ctext->buffer);
-        _graphics.draw(0, 0, ctext->buffer->numberVertices);
+
+    if(ctext->buffer != NULL && ctext->buffer->isGenerated()) 
+	{
+        _graphics.BindVertexBuffer(ctext->buffer);
+        _graphics.Draw(0, 0, ctext->buffer->GetNumberVertices());
     }
 }
 
