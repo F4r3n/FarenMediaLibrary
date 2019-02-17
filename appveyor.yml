@@ -35,7 +35,7 @@ before_build:
     cmake --version
     cmake .. -G %generator%
 build:
-  project: c:\projects\FarenMediaLibary\build\template.sln
+  project: c:\projects\FarenMediaLibary\build\Project.sln
   verbosity: minimal
   parallel: true
 only_commits:
