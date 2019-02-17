@@ -1,5 +1,5 @@
 ![Build Status](https://travis-ci.org/F4r3n/FarenMediaLibrary.svg?branch=master)
-
+![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/F4r3n/FarenMediaLibrary?branch=master&svg=true)
 
 # FarenEngine
 
