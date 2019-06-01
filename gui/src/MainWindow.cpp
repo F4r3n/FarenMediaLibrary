@@ -29,7 +29,7 @@
 #include "inspector/body3DInspector.hpp"
 #include "Window.h"
 #include "imgui/imgui_internal.h"
-
+#include "GListEntities.h"
 
 MainWindow::MainWindow() 
 {
@@ -58,8 +58,16 @@ MainWindow::MainWindow()
     for(size_t i = 0; i < WIN_LAST; ++i)
         _windowStates[i] = false;
 
+	_editorListEntities = std::make_unique<gui::GListEntities>();
+
 
 }
+
+MainWindow::~MainWindow()
+{
+
+}
+
 
 void MainWindow::_ClearInspectorComponents()
 {
@@ -280,7 +288,7 @@ void MainWindow::DrawMenu()
                             fm::math::vec3(0,0,0), 1);
             }
             if(ImGui::MenuItem("List entity")) {
-                _windowListEntity = true;
+                //_windowListEntity = true;
             }
 
             ImGui::EndMenu();
@@ -362,73 +370,18 @@ void MainWindow::menuEntity()
 
 void MainWindow::listEntity()
 {
-
-	static std::vector<const char*> namesEntities;
-
-	ImGui::Begin("List entities", &_windowListEntity);
-
-	if (_timerListEntityUpdate > 1)
+	if (_editorListEntities != nullptr)
 	{
-		namesEntities = getAllEntities();
-		_timerListEntityUpdate = 0;
-	}
-	else
-	{
-		_timerListEntityUpdate += fm::Time::dt;
-	}
-	static int number = -1;
+		_editorListEntities->Update(fm::Time::dt);
+		_editorListEntities->Draw();
 
-	for (size_t i = 0; i < namesEntities.size(); i++)
-	{
-		fm::GameObject *o = fm::SceneManager::get().getCurrentScene()->GetGameObject(i);
-		fmc::CTransform *transform = o->get<fmc::CTransform>();
-		// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-		ImGuiTreeNodeFlags node_flags = ((number == i) ? ImGuiTreeNodeFlags_Selected : 0);
-
-		// Node
-		//ImGui::PushStyleColor(ImGuiCol_HeaderSelected, (ImVec4)ImColor::HSV(0.9f, 0.8f, 0.8f));
-
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, namesEntities[i], i);
-
-		if (ImGui::IsItemClicked())
-			number = i;
-		if (node_open)
+		if (_editorListEntities->HasGameObjectSelected())
 		{
-			//ImGui::Text("Blah blah\nBlah Blah");
-			ImGui::TreePop();
-
+			_currentEntity = _editorListEntities->GetGameObjectSelected();
 		}
-
-		//ImGui::PopStyleColor(1);
-		
-
-
 	}
-	if (number != -1)
-		_currentEntity = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[number];
-
-
-	if (ImGui::Button("Add Entity"))
-	{
-		_currentEntity = fm::GameObjectHelper::create();
-		_currentEntity->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
-			fm::math::Vector3f(1, 1, 1),
-			fm::math::vec3(0, 0, 0));
-	}
-
-	ImGui::End();
-
 }
 
-std::vector<const char*> MainWindow::getAllEntities()
-{
-    std::vector<const char*> names;
-    std::vector<fm::GameObject*> gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
-    for(auto e : gos) {
-        names.push_back(e->name.c_str());
-    }
-    return names;
-}
 
 void MainWindow::DisplayWindow_WorldLighEdit() {
     bool value = true;
@@ -467,21 +420,7 @@ void MainWindow::Draw()
 	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-	if (ImGui::DockBuilderGetNode(dockspace_id) == NULL)
-	{
-		ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
-		ImGui::DockBuilderAddNode(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruDockspace); // Add empty node
 
-		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.20f, NULL, &dockspace_id);
-		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.20f, NULL, &dockspace_id);
-		ImGuiID dock_id_center = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_None, 0.20f, NULL, &dockspace_id);
-
-		ImGui::DockBuilderDockWindow("Inspector", dock_id_left);
-		ImGui::DockBuilderDockWindow("List entities", dock_id_right);
-		ImGui::DockBuilderDockWindow("Game View", dock_id_center);
-		
-		ImGui::DockBuilderFinish(dockspace_id);
-	}
 
 	for (auto& window : _windows)
 	{
@@ -491,6 +430,7 @@ void MainWindow::Draw()
 
     DrawMenu();
     menuEntity();
+
     listEntity();
 
     if(_windowStates[WIN_PROJECT_SETTINGS])

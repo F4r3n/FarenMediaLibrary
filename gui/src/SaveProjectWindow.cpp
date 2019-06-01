@@ -3,7 +3,7 @@
 #include "dialogfilebrowser.h"
 using namespace gui;
 
-SaveProjectWindow::SaveProjectWindow(const std::string &inName, std::function<void (void)> && f) : GWindow(inName)
+SaveProjectWindow::SaveProjectWindow(const std::string &inName, std::function<void (void)> && f) : GWindow(inName, false)
 {
 	_isInit = false;
 	_fileBrowserOpened = true;

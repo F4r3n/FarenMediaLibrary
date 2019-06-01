@@ -20,6 +20,11 @@ class Engine;
 class Scene;
 }
 
+namespace gui
+{
+	class GListEntities;
+}
+
 typedef std::unordered_map<size_t, std::unique_ptr<gui::GWindow>> MapOfWindows;
 
 class MainWindow 
@@ -39,13 +44,12 @@ enum WINDOWS
 
 public:
     MainWindow();
-    ~MainWindow() = default;
+    ~MainWindow();
 
     void displayComponents(fm::GameObject* currentEntity);
     void DrawMenu();
     void menuEntity();
     void listEntity();
-    std::vector<const char*> getAllEntities();
     void Draw();
 	void Update();
     void displayComponentsAvailable();
@@ -58,6 +62,7 @@ public:
     void DisplayWindow_WorldLighEdit();
     void DisplayWindow_Load();
 private:
+	std::unique_ptr<gui::GListEntities> _editorListEntities;
 	std::shared_ptr<fm::Scene> _editorScene;
 	MapOfWindows _windows;
 
@@ -70,9 +75,7 @@ private:
 
     fm::GameObject* _dlight;
     bool _windowCurrentEntity = true;
-    bool _windowListEntity = false;
 
-    float _timerListEntityUpdate = 1;
 
     bool _choiceComponent = false;
 

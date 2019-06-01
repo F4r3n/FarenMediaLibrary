@@ -30,6 +30,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/transformInspector.cpp
 	src/inspector/body3DInspector.cpp
 	src/debuglogger.cpp
+	src/GListEntities.cpp
 	src/dialogfilebrowser.cpp
 
 	)

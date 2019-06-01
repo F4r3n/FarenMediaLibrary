@@ -46,32 +46,34 @@ namespace gui
 
 	};
 
-	//template <typename F, typename... Args>
-	//GButton<Args...> CreateButton(const std::string &inName, F&& f, Args&&... args)
-	//{
-	//	return GButton<Args...>(inName, std::forward<F>(f), std::forward<Args>(args)...);
-	//}
+
 
 class GWindow : public IWidget
 {
 public:
-	GWindow(const std::string &inName);
+	GWindow(const std::string &inName, bool isDockable);
 	void SetPosition(const fm::math::vec2 & inVec2);
 	void SetSize(const fm::math::vec2 & inVec2);
 
 	void Draw();
 	void AddWidget(std::unique_ptr<IWidget> && widget);
 	void SetStatus(bool inValue);
+	virtual ~GWindow() {}
+
 protected:
+	virtual void Update(float dt) {}
+
 	virtual void CustomDraw();
 	virtual void WillClose();
-private:
-	std::vector<std::unique_ptr<IWidget>> _widgets;
-	std::string _name;
 	fm::math::vec2 _position;
 	fm::math::vec2 _size;
 	bool _enabled;
+private:
+	std::vector<std::unique_ptr<IWidget>> _widgets;
+	std::string _name;
+
 	size_t _option;
+	bool	_dockable;
 };
 }
 

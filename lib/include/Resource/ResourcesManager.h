@@ -6,12 +6,11 @@
 #include <memory>
 #include "NonCopyable.h"
 #include "Core/FilePath.h"
-
+#include "Rendering/Shader.h"
+#include "Rendering/Model.hpp"
 
 namespace fm {
-    class Shader;
-
-
+  
 class ResourcesManager : protected fm_system::NonCopyable 
 {
 	typedef std::map<std::string, Resource* > MapOfResources;
@@ -41,18 +40,21 @@ public:
         return dynamic_cast<T*>(it->second);
     }
 
-    template <typename T> bool Exists(const std::string& name) {
+    template <typename T> bool Exists(const std::string& name)
+	{
         return resources[T::getType()].find(name) != resources[T::getType()].end();
     }
 
     template <typename T>
-    void load(const std::string& name, Resource* resource) {
+    void load(const std::string& name, Resource* resource) 
+	{
         if(T::getType() > RESOURCE_TYPE::LAST_RESOURCE) return;
         resources[T::getType()].insert(std::pair<std::string, Resource*>(name, resource));
     }
     
     template <typename T>
-    std::map<std::string, Resource* >& getAll() {
+    std::map<std::string, Resource* >& getAll()
+	{
         return resources[T::getType()];
     }
 

@@ -4,10 +4,11 @@ using namespace gui;
 
 
 
-GWindow::GWindow(const std::string &inName)
+GWindow::GWindow(const std::string &inName, bool isDockable)
 {
 	_enabled = false;
 	_name = inName;
+	_dockable = isDockable;
 }
 
 void GWindow::AddWidget(std::unique_ptr<IWidget> && widget)
@@ -35,10 +36,14 @@ void GWindow::Draw()
 	if (_enabled)
 	{
 		bool previousStatus = _enabled;
-		ImGui::SetNextWindowPos(ImVec2(_position.x, _position.y), ImGuiCond_FirstUseEver);
-		if (_size.x != 0 && _size.y != 0)
-			ImGui::SetNextWindowContentSize(ImVec2(_size.x, _size.y));
+		if (!_dockable)
+		{
+			ImGui::SetNextWindowPos(ImVec2(_position.x, _position.y), ImGuiCond_FirstUseEver);
+			if (_size.x != 0 && _size.y != 0)
+				ImGui::SetNextWindowContentSize(ImVec2(_size.x, _size.y));
+		}
 		ImGui::Begin(_name.c_str(), &_enabled, ImGuiWindowFlags_AlwaysAutoResize);
+
 
 		CustomDraw();
 

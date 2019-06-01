@@ -2,6 +2,9 @@
 #include "Resource/ResourcesManager.h"
 #include <iostream>
 #include "Rendering/Texture.h"
+#include "Rendering/Shader.h"
+#include "Rendering/RenderTexture.h"
+
 using namespace fm;
 
 Renderer Renderer::_instance;

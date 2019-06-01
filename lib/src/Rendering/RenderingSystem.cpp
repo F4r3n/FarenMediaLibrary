@@ -439,8 +439,6 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 
         fmc::CMaterial* material = node.mat;
         fmc::CMesh* mesh = node.mesh;
-        //EventManager::get().emit<CameraInfo>({node.idEntity, cam});
-
 
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
@@ -477,9 +475,6 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 						    fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 						}
 
-						
-
-
 						if(shader != nullptr)
 						{
 						    shader->Use()
@@ -506,13 +501,11 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
            
 			cam->_rendererConfiguration.queuePreviousValue = state;
 			cam->_rendererConfiguration.queue.next();
-        }else if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
+        }
+		else if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
         {
 
         }
-
-
-
     }
 
 }
@@ -591,7 +584,6 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 void RenderingSystem::over()
 {
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
 }
 
 void RenderingSystem::_SetModelPosition(fm::math::mat& model,

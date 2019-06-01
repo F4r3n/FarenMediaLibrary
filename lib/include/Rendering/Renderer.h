@@ -1,13 +1,17 @@
 #pragma once
 #include <Core/Config.h>
-#include "Rendering/Texture.h"
 
-#include "Rendering/Shader.h"
-#include "Rendering/RenderTexture.h"
-#include "Rendering/Model.hpp"
-#include "Resource/ResourcesManager.h"
 #include "Rendering/Graphics.hpp"
+
+namespace fm
+{
+	class RenderTexture;
+	class Shader;
+	class Texture;
+}
+
 namespace fm {
+
 class Renderer {
 public:
     Renderer();
