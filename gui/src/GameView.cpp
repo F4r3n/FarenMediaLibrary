@@ -3,23 +3,20 @@
 #include "Components/CCamera.h"
 #include "Core/SceneManager.h"
 #include "imgui_internal.h"
-GameView::GameView() {
 
-}
-
+GameView::GameView() {}
 
 GameView::~GameView() {}
 
-void GameView::draw() {
+void GameView::Draw()
+{
     static bool show_game_view = true;
     if(show_game_view && index != -1) 
 	{
 		CameraPreview preview = previews[index];
 
-
         float rapport = (float)preview.renderTexture->getWidth()/(float)preview.renderTexture->getHeight();
 
-        float scale = 500;
         //ImGui::SetNextWindowSize(ImVec2(rapport*scale, scale));
         ImGui::Begin("Game View", &show_game_view,ImGuiWindowFlags_NoScrollbar );
 		fm::Texture texture = preview.renderTexture->getColorBuffer()[0];
@@ -39,7 +36,6 @@ void GameView::draw() {
 		ImVec2 end;
 		end.x = start.x + size.x;
 		end.y = start.y + size.x/rapport;
-		//end.y = end.x/rapport;
 
         ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), start, end);
 
@@ -50,7 +46,6 @@ void GameView::draw() {
 
 void GameView::AddCamera(fm::GameObject *inGameObject)
 {
-	
 	CameraPreview preview;
 	preview.id = inGameObject->getID();
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
@@ -58,21 +53,20 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 	camera->target = preview.renderTexture;
 
 	previews.push_back(preview);
-	
 }
 
 void GameView::RemoveCamera(fm::GameObject *inGameObject)
 {
 	auto i = std::begin(previews);
-	int idDeleted = 0;
+
 	while (i != std::end(previews)) {
-		// Do some stuff
+
 		if (inGameObject->getID() == i->id)
 		{
 			i = previews.erase(i);
 			break;
 		}
-		idDeleted++;
+
 	}
 
 	if (!previews.empty())
@@ -83,7 +77,7 @@ void GameView::RemoveCamera(fm::GameObject *inGameObject)
 
 bool GameView::SetMainCamera(fm::GameObject *inGameObject)
 {
-	for (int i = 0; i < previews.size(); ++i)
+	for (size_t i = 0; i < previews.size(); ++i)
 	{
 		if (previews[i].id == inGameObject->getID())
 		{
@@ -96,5 +90,5 @@ bool GameView::SetMainCamera(fm::GameObject *inGameObject)
 
 
 
-void GameView::resize() {}
-void GameView::zoom() {}
+void GameView::Resize() {}
+void GameView::Zoom() {}

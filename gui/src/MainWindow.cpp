@@ -37,7 +37,7 @@ MainWindow::MainWindow()
 		std::make_unique<gui::SaveProjectWindow>("SaveWindow", [this] {fm::Application::Get().Serialize(this->_editorScene); })));
 
     fm::Debug::logWarning("Start init");
-    _configureStyle();
+    _ConfigureStyle();
 
 	_editorScene = fm::SceneManager::get().AddPrivateScene("_editor");
     fm::SceneManager::get().AddNewScene("newScene");
@@ -79,7 +79,7 @@ void MainWindow::_ClearInspectorComponents()
 }
 
 
-void MainWindow::displayComponents(fm::GameObject* currentEntity) {
+void MainWindow::_DrawComponents(fm::GameObject* currentEntity) {
 
     std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
     if(_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
@@ -132,14 +132,8 @@ void MainWindow::displayComponents(fm::GameObject* currentEntity) {
     }
 }
 
-void MainWindow::DisplayWindow_Save()
-{
 
-    
-}
-
-
-void MainWindow::DisplayWindow_Load()
+void MainWindow::_DisplayWindow_Load()
 {
     ImGui::Begin("Project name##Load", &_windowStates[WIN_PROJECT_LOAD], ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -180,7 +174,7 @@ void MainWindow::DisplayWindow_Load()
 }
 
 
-void MainWindow::DisplayWindow_ProjectSettings()
+void MainWindow::_DisplayWindow_ProjectSettings()
 {
     ImGui::Begin("Project name", &_windowStates[WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("%s", _projectSettings.name.c_str());
@@ -197,7 +191,7 @@ void MainWindow::DisplayWindow_ProjectSettings()
 }
 
 
-void MainWindow::DrawMenu() 
+void MainWindow::_DrawMenu() 
 {
     if(ImGui::BeginMainMenuBar())
     {
@@ -209,7 +203,6 @@ void MainWindow::DrawMenu()
                 {
 					fm::Application::Get().Start(true);
 					_currentEntity = nullptr;
-					//_ClearInspectorComponents();
                 }
                 if(ImGui::MenuItem("Pause"))
                 {
@@ -219,8 +212,6 @@ void MainWindow::DrawMenu()
                 {
 					fm::Application::Get().Stop();
 					_currentEntity = nullptr;
-					//_ClearInspectorComponents();
-
                 }
                 ImGui::EndMenu();
             }
@@ -273,7 +264,7 @@ void MainWindow::DrawMenu()
 
         if(ImGui::BeginMenu("Cameras"))
         {
-            displayListCamera();
+            _DrawListCamera();
             ImGui::EndMenu();
         }
         if(ImGui::BeginMenu("Entity"))
@@ -287,7 +278,8 @@ void MainWindow::DrawMenu()
                             fm::math::Vector3f(1, 1, 1),
                             fm::math::vec3(0,0,0), 1);
             }
-            if(ImGui::MenuItem("List entity")) {
+            if(ImGui::MenuItem("List entity")) 
+			{
                 //_windowListEntity = true;
             }
 
@@ -297,7 +289,7 @@ void MainWindow::DrawMenu()
     ImGui::EndMainMenuBar();
 }
 
-void MainWindow::displayListCamera()
+void MainWindow::_DrawListCamera()
 {
     static bool value1 = true;
     if(ImGui::MenuItem("Camera editor", "", &value1))
@@ -307,10 +299,10 @@ void MainWindow::displayListCamera()
 
 }
 
-void MainWindow::displayComponentsAvailable() {
+void MainWindow::_DrawComponentsAvailable() {
 }
 
-void MainWindow::menuEntity()
+void MainWindow::_DrawMenuEntity()
 {
 
     std::string nameWindowInspector("Inspector");
@@ -325,7 +317,7 @@ void MainWindow::menuEntity()
     if(_currentEntity && _currentEntity->IsActive())
     {
 		ImGui::Text(_currentEntity->name.c_str());
-        displayComponents(_currentEntity);
+        _DrawComponents(_currentEntity);
 
         if(ImGui::Button("Add Component"))
             ImGui::OpenPopup("popup from button");
@@ -368,7 +360,7 @@ void MainWindow::menuEntity()
 
 }
 
-void MainWindow::listEntity()
+void MainWindow::_DrawListEntity()
 {
 	if (_editorListEntities != nullptr)
 	{
@@ -383,7 +375,7 @@ void MainWindow::listEntity()
 }
 
 
-void MainWindow::DisplayWindow_WorldLighEdit() {
+void MainWindow::_DisplayWindow_WorldLighEdit() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
     ImGui::Begin("World light", &_windowStates[WIN_LIGHT_EDIT]);
@@ -428,19 +420,19 @@ void MainWindow::Draw()
 	}
 
 
-    DrawMenu();
-    menuEntity();
+    _DrawMenu();
+    _DrawMenuEntity();
 
-    listEntity();
+    _DrawListEntity();
 
     if(_windowStates[WIN_PROJECT_SETTINGS])
-        DisplayWindow_ProjectSettings();
+        _DisplayWindow_ProjectSettings();
 
 	if(_windowStates[WIN_LIGHT_EDIT])
-		DisplayWindow_WorldLighEdit();
+		_DisplayWindow_WorldLighEdit();
 
 	if(_windowStates[WIN_PROJECT_LOAD])
-		DisplayWindow_Load();
+		_DisplayWindow_Load();
 
     if(_windowStates[WIN_LOGGER])
     {
@@ -449,13 +441,13 @@ void MainWindow::Draw()
             _debugLogger.AddLog(messages[i]);
         _debugLogger.Draw("Logger");
     }
-	_gameView.draw();
+	_gameView.Draw();
 
 
 	ImGui::End();
 }
 
-void MainWindow::_configureStyle()
+void MainWindow::_ConfigureStyle()
 {
     // From https://github.com/ocornut/imgui/issues/707#issuecomment-254610737
     // Some colors may have changed

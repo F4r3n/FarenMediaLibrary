@@ -4,6 +4,12 @@
 #include <vector>
 typedef std::vector<std::unique_ptr<BaseSystem> > MapOfSystems;
 
+enum SYSTEM_MANAGER_MODE
+{
+	START = 1,
+	STOP = 2
+};
+
 class SystemManager
 {
 public:
@@ -26,5 +32,5 @@ template <typename T>
 
 private:
 	MapOfSystems systems;
-	bool _isRunning = false;
+	SYSTEM_MANAGER_MODE _mode;
 };

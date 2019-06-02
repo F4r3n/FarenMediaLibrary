@@ -16,9 +16,9 @@ class GameView
     public:
         GameView();
         ~GameView();
-        void draw();
-        void resize();
-        void zoom();
+        void Draw();
+        void Resize();
+        void Zoom();
 		void AddCamera(fm::GameObject *inGameObject);
 		void RemoveCamera(fm::GameObject *inGameObject);
 		bool SetMainCamera(fm::GameObject *inGameObject);

@@ -7,6 +7,14 @@ class ComponentManager;
 class Entity;
 class EntityManager;
 
+enum SYSTEM_MODE
+{
+	ALWAYS,
+	AT_START,
+	AT_STOP
+};
+
+
 class BaseSystem {
 	friend class SystemManager;
 public:
@@ -20,7 +28,8 @@ public:
 	virtual void Stop() = 0;
 protected:
     static std::size_t family_counter;
-	bool _IsAffectedByStartAndStop = true;
+	//bool _IsAffectedByStartAndStop = true;
+	SYSTEM_MODE _type = AT_START;
 };
 
 

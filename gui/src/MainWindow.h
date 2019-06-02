@@ -45,30 +45,31 @@ enum WINDOWS
 public:
     MainWindow();
     ~MainWindow();
-
-    void displayComponents(fm::GameObject* currentEntity);
-    void DrawMenu();
-    void menuEntity();
-    void listEntity();
-    void Draw();
+	void Draw();
 	void Update();
-    void displayComponentsAvailable();
-    
 
-    void displayListCamera();
+private:
+	void _DrawComponents(fm::GameObject* currentEntity);
+	void _DrawMenu();
+	void _DrawMenuEntity();
+	void _DrawListEntity();
 
-    void DisplayWindow_Save();
-    void DisplayWindow_ProjectSettings();
-    void DisplayWindow_WorldLighEdit();
-    void DisplayWindow_Load();
+	void _DrawComponentsAvailable();
+
+
+	void _DrawListCamera();
+
+	void _DisplayWindow_ProjectSettings();
+	void _DisplayWindow_WorldLighEdit();
+	void _DisplayWindow_Load();
+
+	void _ClearInspectorComponents();
+	void _ConfigureStyle();
 private:
 	std::unique_ptr<gui::GListEntities> _editorListEntities;
 	std::shared_ptr<fm::Scene> _editorScene;
 	MapOfWindows _windows;
 
-
-	void _ClearInspectorComponents();
-    void _configureStyle();
     GameView _gameView;
     fm::GameObject* _currentEntity = nullptr;
 
@@ -76,15 +77,11 @@ private:
     fm::GameObject* _dlight;
     bool _windowCurrentEntity = true;
 
-
-    bool _choiceComponent = false;
-
     ImVec2 _firstPosMouseRightClick;
     float _coeffMouseSpeed = -0.8f;
     bool _firstRightClick = false;
     
     
-    std::string _nameWindow;
     std::string _nameCurrentScene = "";
     
     std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> _inspectorComponents;

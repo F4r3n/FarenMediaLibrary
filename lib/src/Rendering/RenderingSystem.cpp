@@ -52,7 +52,7 @@ RenderingSystem::RenderingSystem(int width, int height)
 
     _textdef.projection = fm::math::ortho(
                 0.0f, (float)_width, 0.0f, (float)_height);
-	_IsAffectedByStartAndStop = false;
+	_type = SYSTEM_MODE::ALWAYS;
 
 }
 

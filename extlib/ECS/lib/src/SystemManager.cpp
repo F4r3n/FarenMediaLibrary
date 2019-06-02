@@ -4,7 +4,7 @@
 
 SystemManager::SystemManager() 
 {
-	_isRunning = false;
+	_mode = SYSTEM_MANAGER_MODE::STOP;
 }
 
 void SystemManager::init(EntityManager& em, EventManager &event) 
@@ -26,7 +26,7 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 {
     for(auto &s : systems)
 	{
-		if (!s->_IsAffectedByStartAndStop || (s->_IsAffectedByStartAndStop && _isRunning))
+		if (s->_type == SYSTEM_MODE::ALWAYS || (_mode == s->_type))
 		{
 			s->pre_update(em);
 		}
@@ -35,7 +35,7 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 
 	for (auto &s : systems)
 	{
-		if (!s->_IsAffectedByStartAndStop || (s->_IsAffectedByStartAndStop && _isRunning))
+		if (s->_type == SYSTEM_MODE::ALWAYS || (_mode == s->_type))
 		{
 			s->update(dt, em, event);
 		}
@@ -44,7 +44,7 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 
 	for (auto &s : systems)
 	{
-		if (!s->_IsAffectedByStartAndStop || (s->_IsAffectedByStartAndStop && _isRunning))
+		if (s->_type == SYSTEM_MODE::ALWAYS || (_mode == s->_type))
 		{
 			s->over();
 		}
@@ -55,7 +55,7 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 
 void SystemManager::Stop()
 {
-	_isRunning = false;
+	_mode = SYSTEM_MANAGER_MODE::STOP;
 	for (auto &s : systems)
 	{
 		s->Stop();
@@ -69,5 +69,5 @@ void SystemManager::Start()
 	{
 		s->Start();
 	}
-	_isRunning = true;
+	_mode = SYSTEM_MANAGER_MODE::START;
 }
