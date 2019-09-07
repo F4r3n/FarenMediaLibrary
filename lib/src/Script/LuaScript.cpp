@@ -87,7 +87,7 @@ bool LuaScript::Reload()
 }
 
 
-bool LuaScript::init(Entity* e)
+bool LuaScript::init(Entity*)
 {
 	if (_go == nullptr) return false;
 

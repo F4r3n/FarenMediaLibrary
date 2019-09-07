@@ -3,23 +3,26 @@
 #include "Rendering/RenderQueue.h"
 #include "Rendering/MaterialValue.h"
 #include "Rendering/material.hpp"
-
+#include "Core/Transform.h"
 namespace fms
 {
 	class RenderingSystem;
 }
+
 
 namespace fm
 {
 	class CommandBuffer;
 	class Texture;
 	class RenderTexture;
+	class Model;
 
 	struct Command
 	{
 		enum COMMAND_KIND
 		{
-			BLIT
+			BLIT,
+			DRAW_MESH
 		};
 
 		enum TEXTURE_KIND
@@ -40,6 +43,8 @@ namespace fm
 		TextureKind _source;
 		TextureKind _destination;
 		Material* _material;
+		Model *_model;
+		Transform _transform;
 
 		friend class CommandBuffer;
 		friend class fms::RenderingSystem;
@@ -53,7 +58,7 @@ namespace fm
 
 		void Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
 		void Blit(Texture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
-
+		void DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial);
 		Command Pop();
 		bool IsEmpty() const;
 		void Push(Command && inCommand);

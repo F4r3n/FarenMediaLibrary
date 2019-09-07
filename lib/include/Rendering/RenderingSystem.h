@@ -39,15 +39,15 @@ public:
     RenderingSystem(int width, int height);
     void InitCamera(Entity* camera);
 
-    void update(float dt, EntityManager& em, EventManager& event);
-    void over();
-    void init(EntityManager& em, EventManager& event);
-    void pre_update(EntityManager& em);
+    virtual void update(float dt, EntityManager& em, EventManager& event);
+    virtual void over();
+    virtual void init(EntityManager& em, EventManager& event);
+    virtual void pre_update(EntityManager& em);
 
-	void Start() {}
-	void Stop() {}
+	virtual void Start() {}
+	virtual void Stop() {}
  private:
-    void _SetModelPosition(fm::math::mat& model, const fmc::CTransform* transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
+    void _SetModelPosition(fm::math::mat& model, const fm::Transform& transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
     void _InitStandardShapes();
     void _InitUniformBufferCamera(fmc::CCamera* camera);
     void _UpdateUniformBufferCamera(fmc::CCamera* camera);
@@ -58,6 +58,7 @@ public:
     void _DrawMesh(fmc::CCamera *cam);
     void _SetView(fm::math::mat& viewMatrix, const fm::math::Vector3f& position, const fm::math::Vector2f& size, const fm::math::Vector3f& rotation, bool isOrthographic);
 	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
+	bool _HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 
 	~RenderingSystem();
 

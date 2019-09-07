@@ -29,8 +29,8 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 			cbody->Init();
 			fmc::CTransform *ctransform = e->get<fmc::CTransform>();
 
-			cbody->SetPosition(ctransform->position);
-			cbody->SetRotation(ctransform->rotation);
+			cbody->SetPosition(ctransform->transform.position);
+			cbody->SetRotation(ctransform->transform.rotation);
 			cbody->AddToWorld(_dynamicsWorld);
 		}
 
@@ -57,8 +57,8 @@ void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
 		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
 		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
 
-		cbody->GetPosition(ctransform->position);
-		cbody->GetRotation(ctransform->rotation);
+		cbody->GetPosition(ctransform->transform.position);
+		cbody->GetRotation(ctransform->transform.rotation);
 	}
 }
 

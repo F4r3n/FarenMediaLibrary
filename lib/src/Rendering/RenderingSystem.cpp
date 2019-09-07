@@ -176,7 +176,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 
 		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
 		camera->_viewMatrix = fm::math::mat();
-		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
+		_SetView(camera->_viewMatrix, ct->transform.position, { camera->viewPort.w, camera->viewPort.h }, ct->transform.rotation, camera->IsOrthographic());
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
@@ -209,7 +209,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 	
 }
 
-void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &outFront,fm::math::vec3 &outRight,fm::math::vec3 &outUp,  const fm::math::vec3 &worldUp)
+void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &outFront,fm::math::vec3 &outRight,fm::math::vec3 &outUp,  const fm::math::vec3 &)
 {
     // Calculate the new Front vector
     fm::math::vec3 front;
@@ -270,10 +270,10 @@ void RenderingSystem::pre_update(EntityManager& em)
 		fmc::CTransform* ct = e->get<fmc::CTransform>();
 
 		cam->_rendererConfiguration.bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, cam->GetFarPlane() - cam->GetNearPlane()));
-		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
+		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->transform.position.x, ct->transform.position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
 		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
 
-		_SetView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation, cam->IsOrthographic());
+		_SetView(cam->_viewMatrix, ct->transform.position, { cam->viewPort.w, cam->viewPort.h }, ct->transform.rotation, cam->IsOrthographic());
 	}
 
 }
@@ -337,7 +337,18 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			exit(-1);
 		}
 
-		_FillQueue(cam, em);
+		if (cam->_isAuto)
+		{
+			_FillQueue(cam, em);
+			if (_HasCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam))
+			{
+
+			}
+		}
+		else
+		{
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam);
+		}
 
 		if (!cam->_rendererConfiguration.queue.Empty())
 		{
@@ -352,18 +363,21 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		cam->_rendererConfiguration.postProcessRenderTexture.bind();
 		_finalShader->Use();
 		_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
-		_finalShader->setValue("viewPos", transform->position);
+		_finalShader->setValue("viewPos", transform->transform.position);
 		_finalShader->setValue("screenTexture", 0);
 
 		fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.getColorBuffer()[0]);
 
-		if (cam->target != nullptr)
+		if (cam->_isAuto)
 		{
-			fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, *(cam->target.get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
-		}
-		else
-		{
-			fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+			if (cam->target != nullptr)
+			{
+				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, *(cam->target.get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+			}
+			else
+			{
+				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+			}
 		}
 
 
@@ -373,6 +387,13 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 	}
 }
+
+bool RenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera)
+{
+	return currentCamera->_commandBuffers[inRenderQueue].size() > 0;
+}
+
+
 
 void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera* currentCamera)
 {
@@ -417,6 +438,10 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				}
 			}
 		}
+		else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
+		{
+			//currentCamera->_rendererConfiguration.queue.addElement(
+		}
 		cmdBuffers.pop();
 	}
 }
@@ -425,8 +450,6 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 {
 
-    bool hasLight = false;
-    bool computeLightDone = false;
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
     while(!cam->_rendererConfiguration.queue.Empty())
@@ -442,17 +465,14 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
-
             if(state == fm::RENDER_QUEUE::OPAQUE)
             {
-
                 if(mesh && material)
                 {
                     if(mesh->model == nullptr || mesh->model->GetName().compare(mesh->GetModelType()) != 0)
                     {
                         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
                     }
-
 
 
                     for(auto &m : material->GetAllMaterials())
@@ -482,7 +502,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 						    shader->setValue("lightNumber",_lightNumber );
 						    shader->setValue("viewPos", transform->getWorldPos());
 						    fm::math::mat model = fm::math::mat();
-						    _SetModelPosition(model, transform, worldPos, cam->IsOrthographic());
+						    _SetModelPosition(model, transform->transform, worldPos, cam->IsOrthographic());
 
 						    shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
 						    shader->setValue("FM_M", model);
@@ -547,8 +567,8 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
         bool valid = false;
         if(node.mesh)
         {
-            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->position) + fm::math::vec3(node.transform->scale) / 2.0f);
-            node.mesh->bounds.setScale(fm::math::vec3(node.transform->scale));
+            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->transform.position) + fm::math::vec3(node.transform->transform.scale) / 2.0f);
+            node.mesh->bounds.setScale(fm::math::vec3(node.transform->transform.scale));
 
             valid = true;
             node.state = fm::RENDER_QUEUE::OPAQUE;
@@ -587,24 +607,25 @@ void RenderingSystem::over()
 }
 
 void RenderingSystem::_SetModelPosition(fm::math::mat& model,
-                               const fmc::CTransform* transform,
+                               const fm::Transform &transform,
                                const fm::math::Vector3f& worldPos, bool isOrthographic)
 {
     if(isOrthographic)
     {
-        model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, (float)-transform->layer));
-        model = fm::math::translate( model,fm::math::vec3( 0.5f * transform->scale.x, 0.5f * transform->scale.y, 0.0f));
-        model = fm::math::rotate( model, transform->rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
-        model = fm::math::translate( model, fm::math::vec3(-0.5f * transform->scale.x, -0.5f * transform->scale.y, 0.0f));
-        model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, 1.0f));
+		//TODO
+        //model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, (float)-transform->layer));
+        model = fm::math::translate( model,fm::math::vec3( 0.5f * transform.scale.x, 0.5f * transform.scale.y, 0.0f));
+        model = fm::math::rotate( model, transform.rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
+        model = fm::math::translate( model, fm::math::vec3(-0.5f * transform.scale.x, -0.5f * transform.scale.y, 0.0f));
+        model = fm::math::scale(model, fm::math::vec3(transform.scale.x, transform.scale.y, 1.0f));
     }else
     {
         model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, worldPos.z));
-        model = fm::math::rotate( model, fm::math::radians(transform->rotation.x), fm::math::vec3(1,0,0));
-        model = fm::math::rotate( model, fm::math::radians(transform->rotation.y), fm::math::vec3(0,1,0));
-        model = fm::math::rotate( model, fm::math::radians(transform->rotation.z), fm::math::vec3(0,0,1));
+        model = fm::math::rotate( model, fm::math::radians(transform.rotation.x), fm::math::vec3(1,0,0));
+        model = fm::math::rotate( model, fm::math::radians(transform.rotation.y), fm::math::vec3(0,1,0));
+        model = fm::math::rotate( model, fm::math::radians(transform.rotation.z), fm::math::vec3(0,0,1));
 
-        model = fm::math::scale(model, fm::math::vec3(transform->scale.x, transform->scale.y, transform->scale.z));
+        model = fm::math::scale(model, fm::math::vec3(transform.scale.x, transform.scale.y, transform.scale.z));
     }
 
 }

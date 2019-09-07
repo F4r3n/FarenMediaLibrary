@@ -29,8 +29,8 @@ struct MaterialProperty
 
     fm::MaterialProperty& operator=(fm::MaterialProperty &&m)
     {
-        strcpy(name, m.name);
-	materialValue = m.materialValue;
+        strncpy_s(name, m.name, sizeof(name)-1);
+		materialValue = m.materialValue;
 
         return *this;
     }
@@ -39,7 +39,7 @@ struct MaterialProperty
     {
         materialValue.setType(m.materialValue.getType());
         materialValue.setValue(m.materialValue.getType(), m.materialValue);
-        strcpy(name, m.name);
+        strncpy_s(name, m.name, sizeof(name)-1);
     }
 };
 
@@ -59,14 +59,14 @@ class Material : public Resource, public Serializer
 
             MaterialProperty p;
             p.materialValue = materialValue;
-            strcpy(p.name, name.c_str());
+            strncpy_s(p.name, name.c_str(), std::min(name.size() ,sizeof(p.name)-1));
             _properties.push_back(p);
         }
 
         void setValue(const std::string& name, fm::MaterialValue &inMaterialValue) {
             MaterialProperty p;
             p.materialValue = inMaterialValue;
-            strcpy(p.name, name.c_str());
+            strncpy_s(p.name, name.c_str(), std::min(name.size(), sizeof(p.name)-1));
             _properties.push_back(p);
         }
         static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MATERIAL;}

@@ -49,7 +49,7 @@ public:
     }
     virtual void start() {
     }
-    virtual void update(float dt) {
+    virtual void update(float) {
     }
     virtual SCRIPT_TYPE GetType() const
     {

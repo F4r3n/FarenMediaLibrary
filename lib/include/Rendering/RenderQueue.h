@@ -12,7 +12,8 @@
 #include <bitset>
 namespace fm {
 enum RENDER_QUEUE {
-	FIRST_STATE,  
+	FIRST_STATE,
+	BEFORE_RENDERING_FILL_QUEUE,
 	BACKGROUND,
 	BEFORE_LIGHT, 
 	OPAQUE,

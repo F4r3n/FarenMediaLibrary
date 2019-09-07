@@ -1,10 +1,13 @@
 #pragma once
 #include "component.h"
+#include "Core/Transform.h"
 #include "Core/Math/Vector3.h"
 
 
 class Entity;
 class EntityManager;
+
+
 
 namespace fmc {
 
@@ -31,12 +34,10 @@ class CTransform : public FMComponent<CTransform> {
         fm::math::Vector3f getWorldPos() const;
         fm::math::Vector3f getWorldPos(EntityManager& manager) const;
 
-        fm::math::Vector3f position = { 0, 0, 0 };
-
+		fm::Transform transform;
         long idFather = -1;
 
-        fm::math::Vector3f scale = { 1, 1, 1 };
-        fm::math::Vector3f rotation = {0,0,0};
+
         int layer = 1;
         static const std::string name;
 

@@ -24,6 +24,8 @@ void CommandBuffer::Blit(RenderTexture &inSource, RenderTexture &inDestination, 
 	cmd._source.renderTexture = &inSource;
 
 	cmd._material = inMaterial;
+	_commands.push(cmd);
+
 }
 
 
@@ -38,7 +40,19 @@ void CommandBuffer::Blit(Texture &inSource, RenderTexture &inDestination, fm::Ma
 	cmd._source.texture = &inSource;
 
 	cmd._material = inMaterial;
+	_commands.push(cmd);
 }
+
+void CommandBuffer::DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial)
+{
+	Command cmd;
+	cmd._command = Command::COMMAND_KIND::DRAW_MESH;
+	cmd._model = inModel;
+	cmd._material = inMaterial;
+	cmd._transform = inTranform;
+	_commands.push(cmd);
+}
+
 
 Command CommandBuffer::Pop()
 {

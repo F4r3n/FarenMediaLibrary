@@ -43,24 +43,24 @@ bool CBody3D::IsInit() const
 
 void CBody3D::Init()
 {
-	fmc::CTransform *transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>();
+	const fm::Transform &transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->transform;
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (_mass != 0.f);
 
 
 	btTransform object;
 	object.setIdentity();
-	object.setOrigin(btVector3(transform->position.x, transform->position.y, transform->position.z));
+	object.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
 
 	btCollisionShape* shape = nullptr;
 
 	switch (_shape)
 	{
 	case fmc::BOX:
-		shape = new btBoxShape(btVector3(btScalar(_scale.x*transform->scale.x*0.5f), btScalar(_scale.y*transform->scale.y*0.5f), btScalar(_scale.z*transform->scale.z*0.5f)));
+		shape = new btBoxShape(btVector3(btScalar(_scale.x*transform.scale.x*0.5f), btScalar(_scale.y*transform.scale.y*0.5f), btScalar(_scale.z*transform.scale.z*0.5f)));
 		break;
 	case fmc::SPHERE:
-		shape = new btSphereShape(btScalar(_radius*transform->scale.x));//TODO fix
+		shape = new btSphereShape(btScalar(_radius*transform.scale.x));//TODO fix
 		break;
 	default:
 		break;

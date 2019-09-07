@@ -44,7 +44,7 @@ MainWindow::MainWindow()
     fm::SceneManager::get().setCurrentScene("newScene", false);
 
     _mainCamera = fm::GameObjectHelper::create(_editorScene);
-    _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, 4);
+    _mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, true, 4);
 
     _mainCamera->addComponent<fmc::CTransform>();
     _mainCamera->name = "Camera";
@@ -351,7 +351,7 @@ void MainWindow::_DrawMenuEntity()
 			if (!_currentEntity->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
 			{
 				fmc::CTransform* t = _currentEntity->get<fmc::CTransform>();
-				_currentEntity->add<fmc::CBody3D>(new fmc::CBody3D(t->scale));
+				_currentEntity->add<fmc::CBody3D>(new fmc::CBody3D(t->transform.scale));
 			}
             ImGui::EndPopup();
         }

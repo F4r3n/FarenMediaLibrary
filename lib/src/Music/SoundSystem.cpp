@@ -38,7 +38,7 @@ void SoundSystem::update(float dt, EntityManager& em, EventManager& event) {
 void SoundSystem::setSettings(fmc::CTransform* transform, fmc::CSource* sound) {
     alSourcef(sound->source, AL_PITCH, sound->pitch);
     alSourcef(sound->source, AL_GAIN, sound->volume);
-    alSource3f(sound->source, AL_POSITION, transform->position.x, transform->position.y, 0);
+    alSource3f(sound->source, AL_POSITION, transform->transform.position.x, transform->transform.position.y, 0);
     alSource3f(sound->source, AL_VELOCITY, 0, 0, 0);
     alSourcei(sound->source, AL_LOOPING, sound->isLooping);
 }

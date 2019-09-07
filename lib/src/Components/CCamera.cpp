@@ -108,13 +108,14 @@ void CCamera::Init()
 	_renderTexture.create();
 }
 
-CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, int multiSampled)
+CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
 {
     _width = width;
     _height = height;
     shader_data.render_mode = mode;
     _isOrto = ortho;
     _multiSampled = multiSampled;
+	_isAuto = isAuto;
     Init();
 }
 

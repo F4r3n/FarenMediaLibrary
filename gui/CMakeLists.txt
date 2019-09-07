@@ -31,6 +31,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/body3DInspector.cpp
 	src/debuglogger.cpp
 	src/GListEntities.cpp
+	src/PickingSystem.cpp
 	src/dialogfilebrowser.cpp
 
 	)

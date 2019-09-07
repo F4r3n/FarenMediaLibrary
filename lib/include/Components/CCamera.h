@@ -59,8 +59,8 @@ class CCamera : public FMComponent<CCamera>
     public:
         friend class fms::RenderingSystem;
 
-        CCamera();
-        CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, int multiSampled = 0);
+		CCamera();
+        CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
         ~CCamera();
 
         bool  IsOrthographic();
@@ -101,6 +101,7 @@ class CCamera : public FMComponent<CCamera>
         int _width;
         int _height;
         float _fovy = 60.0f;
+		bool _isAuto = true;
 
 		CameraCommandBuffer _commandBuffers;
 };
