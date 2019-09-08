@@ -5,6 +5,7 @@ addons:
     packages:
       - g++-8
       - libgl1-mesa-dev
+      - freeglut3-dev
     sources: &sources
       - ubuntu-toolchain-r-test
 
