@@ -384,7 +384,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 bool RenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera)
 {
-	return currentCamera->_commandBuffers[inRenderQueue].size() > 0;
+	return !currentCamera->_commandBuffers[inRenderQueue].empty();
 }
 
 
@@ -434,11 +434,54 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 		}
 		else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 		{
-			//currentCamera->_rendererConfiguration.queue.addElement(
+			_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material);
 		}
 		cmdBuffers.pop();
 	}
 }
+
+void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial)
+{
+	const fm::math::Vector3f worldPos = inTransform.worldPosition;
+
+	if (inMaterial->shader != nullptr && !inMaterial->shader->IsReady())
+	{
+		inMaterial->shader->compile();
+	}
+
+	fm::Shader* shader = inMaterial->shader;
+
+	if (inMaterial->Reload())
+	{
+		shader = inMaterial->shader;
+		shader->Use();
+		cam->_rendererConfiguration.uboLight->Bind();
+
+		shader->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
+		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+	}
+
+	if (shader != nullptr)
+	{
+		shader->Use()
+			->setValue("FM_PV", cam->shader_data.FM_PV);
+		shader->setValue("lightNumber", _lightNumber);
+		shader->setValue("viewPos", worldPos);
+		fm::math::mat modelPosition = fm::math::mat();
+		_SetModelPosition(modelPosition, inTransform, worldPos, cam->IsOrthographic());
+
+		shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
+		shader->setValue("FM_M", modelPosition);
+
+		for (auto const& value : inMaterial->getValues())
+		{
+			shader->setValue(value.name, value.materialValue);
+		}
+		if (inModel != nullptr)
+			_graphics.Draw(inModel);
+	}
+}
+
 
 
 void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
@@ -450,7 +493,6 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
     {
         const fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
         const fm::Transform transform = node.transform;
-		const fm::math::Vector3f worldPos = transform.worldPosition;
 		const fm::RENDER_QUEUE state = node.state;
 		const fm::Materials* materials = node.mat;
         fm::Model* model = node.model;
@@ -463,42 +505,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
                 {
                     for(const auto &m : *materials)
                     {
-						if(m->shader != nullptr && !m->shader->IsReady())
-						{
-						    m->shader->compile();
-						}
-
-						fm::Shader* shader = m->shader;
-
-						if(m->Reload())
-						{
-							shader = m->shader;
-							shader->Use();
-							cam->_rendererConfiguration.uboLight->Bind();
-
-							shader->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
-						    fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-						}
-
-						if(shader != nullptr)
-						{
-						    shader->Use()
-						            ->setValue("FM_PV", cam->shader_data.FM_PV);
-						    shader->setValue("lightNumber",_lightNumber );
-						    shader->setValue("viewPos", worldPos);
-						    fm::math::mat modelPosition = fm::math::mat();
-						    _SetModelPosition(modelPosition, transform, worldPos, cam->IsOrthographic());
-
-						    shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
-						    shader->setValue("FM_M", modelPosition);
-
-						    for(auto const& value : m->getValues())
-						    {
-						        shader->setValue(value.name, value.materialValue);
-						    }
-							if(model != nullptr)
-								_graphics.Draw(model);
-						}
+						_DrawMesh(cam, transform, model, m);
                     }
                 }
             }
