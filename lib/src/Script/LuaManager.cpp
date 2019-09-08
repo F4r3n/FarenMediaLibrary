@@ -101,17 +101,15 @@ void LuaManager::registerComponents()
 	  "size", sol::property(&Bounds::getSize, &Bounds::setSize)
 	  );
 	lua->new_usertype<Color>("Color", "r", &Color::r, "g", &Color::g, "b", &Color::b, "a", &Color::a);
-	lua->new_usertype<Transform>("Transform",
-		"position",
-		&Transform::position,
-		"scale",
-		&Transform::scale,
-		"rotation",
-		&Transform::rotation);
+
 
 	lua->new_usertype<CTransform>("CTransform",
-	  "transform",
-	  &CTransform::transform,
+		"position",
+		&CTransform::position,
+		"scale",
+		&CTransform::scale,
+		"rotation",
+		&CTransform::rotation,
 	  "layer",
 	  &CTransform::layer);
 	lua->new_usertype<CCamera>("CCamera",

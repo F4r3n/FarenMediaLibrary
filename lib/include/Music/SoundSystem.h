@@ -7,10 +7,12 @@ class CTransform;
 class CSource;
 }
 
+
 namespace fm
 {
 	class Speaker;
 	class Listener;
+	struct Transform;
 }
 
 namespace fms {
@@ -26,7 +28,7 @@ public:
 	void Start() {}
 	void Stop() {}
 private:
-    void setSettings(fmc::CTransform* transform, fmc::CSource* sound);
+    void _SetSettings(const fm::Transform& transform, fmc::CSource* sound);
 	std::unique_ptr<fm::Speaker> _speaker;
 	std::unique_ptr<fm::Listener> _listener;
 };

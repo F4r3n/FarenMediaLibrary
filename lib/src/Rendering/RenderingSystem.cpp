@@ -125,7 +125,6 @@ void RenderingSystem::_InitStandardShapes()
 void RenderingSystem::init(EntityManager& em, EventManager&)
 {
     fm::Debug::log("INIT Standard Shapes");
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     _InitStandardShapes();
 
@@ -161,8 +160,6 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
         InitCamera(e);
         break;
     }
-    
-
 }
 
 void RenderingSystem::InitCamera(Entity* inEntityCamera)
@@ -176,7 +173,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 
 		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
 		camera->_viewMatrix = fm::math::mat();
-		_SetView(camera->_viewMatrix, ct->transform.position, { camera->viewPort.w, camera->viewPort.h }, ct->transform.rotation, camera->IsOrthographic());
+		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
@@ -204,9 +201,6 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 
 		camera->_rendererConfiguration.isInit = true;
 	}
-	
-
-	
 }
 
 void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &outFront,fm::math::vec3 &outRight,fm::math::vec3 &outUp,  const fm::math::vec3 &)
@@ -270,10 +264,10 @@ void RenderingSystem::pre_update(EntityManager& em)
 		fmc::CTransform* ct = e->get<fmc::CTransform>();
 
 		cam->_rendererConfiguration.bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, cam->GetFarPlane() - cam->GetNearPlane()));
-		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->transform.position.x, ct->transform.position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
+		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
 		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
 
-		_SetView(cam->_viewMatrix, ct->transform.position, { cam->viewPort.w, cam->viewPort.h }, ct->transform.rotation, cam->IsOrthographic());
+		_SetView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation, cam->IsOrthographic());
 	}
 
 }
@@ -363,7 +357,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		cam->_rendererConfiguration.postProcessRenderTexture.bind();
 		_finalShader->Use();
 		_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
-		_finalShader->setValue("viewPos", transform->transform.position);
+		_finalShader->setValue("viewPos", transform->position);
 		_finalShader->setValue("screenTexture", 0);
 
 		fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.getColorBuffer()[0]);
@@ -454,30 +448,21 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 
     while(!cam->_rendererConfiguration.queue.Empty())
     {
-
         const fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
-        const fmc::CTransform* transform = node.transform;
-		const fm::math::Vector3f worldPos = transform->getWorldPos();
+        const fm::Transform transform = node.transform;
+		const fm::math::Vector3f worldPos = transform.worldPosition;
 		const fm::RENDER_QUEUE state = node.state;
-
-        fmc::CMaterial* material = node.mat;
-        fmc::CMesh* mesh = node.mesh;
+		const fm::Materials* materials = node.mat;
+        fm::Model* model = node.model;
 
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
             if(state == fm::RENDER_QUEUE::OPAQUE)
             {
-                if(mesh && material)
+                if(model != nullptr)
                 {
-                    if(mesh->model == nullptr || mesh->model->GetName().compare(mesh->GetModelType()) != 0)
+                    for(const auto &m : *materials)
                     {
-                        mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
-                    }
-
-
-                    for(auto &m : material->GetAllMaterials())
-                    {
-
 						if(m->shader != nullptr && !m->shader->IsReady())
 						{
 						    m->shader->compile();
@@ -500,25 +485,24 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 						    shader->Use()
 						            ->setValue("FM_PV", cam->shader_data.FM_PV);
 						    shader->setValue("lightNumber",_lightNumber );
-						    shader->setValue("viewPos", transform->getWorldPos());
-						    fm::math::mat model = fm::math::mat();
-						    _SetModelPosition(model, transform->transform, worldPos, cam->IsOrthographic());
+						    shader->setValue("viewPos", worldPos);
+						    fm::math::mat modelPosition = fm::math::mat();
+						    _SetModelPosition(modelPosition, transform, worldPos, cam->IsOrthographic());
 
-						    shader->setValue("FM_PVM", cam->shader_data.FM_PV * model);
-						    shader->setValue("FM_M", model);
+						    shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
+						    shader->setValue("FM_M", modelPosition);
 
 						    for(auto const& value : m->getValues())
 						    {
 						        shader->setValue(value.name, value.materialValue);
 						    }
-							if(mesh->model != nullptr)
-								_graphics.Draw(mesh->model);
+							if(model != nullptr)
+								_graphics.Draw(model);
 						}
                     }
                 }
             }
 
-           
 			cam->_rendererConfiguration.queuePreviousValue = state;
 			cam->_rendererConfiguration.queue.next();
         }
@@ -555,26 +539,30 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
     _lightNumber = 0;
     for(auto &&e : em.iterate<fmc::CTransform>())
     {
-        fm::RenderNode node = {e->get<fmc::CTransform>(),
-                               e->get<fmc::CMaterial>(),
-                               e->get<fmc::CMesh>(),
+        fm::RenderNode node = {e->get<fmc::CTransform>()->GetTransform(),
+                               nullptr,
+                               nullptr,
                                e->get<fmc::CDirectionalLight>(),
                                e->get<fmc::CPointLight>(),
                                e->get<fmc::CText>(),
-                               fm::RENDER_QUEUE::BACKGROUND,
+                               fm::RENDER_QUEUE::OPAQUE,
                                0,
                                e->ID};
-        bool valid = false;
-        if(node.mesh)
-        {
-            node.mesh->bounds.setCenter(fm::math::vec3(node.transform->transform.position) + fm::math::vec3(node.transform->transform.scale) / 2.0f);
-            node.mesh->bounds.setScale(fm::math::vec3(node.transform->transform.scale));
+        
 
-            valid = true;
-            node.state = fm::RENDER_QUEUE::OPAQUE;
-        }
+		fmc::CMesh* mesh = e->get<fmc::CMesh>();
+		fmc::CMaterial* material = e->get<fmc::CMaterial>();
 
-        if(node.plight)
+		if (mesh != nullptr && material != nullptr)
+		{
+			node.model = mesh->model;
+
+			node.mat = &material->GetAllMaterials();
+			cam->_rendererConfiguration.queue.addElement(node);
+		}
+
+
+        if(node.plight != nullptr)
         {
             PointLight p;
             fm::math::vec4 c;
@@ -585,17 +573,12 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 
             p.color = c;
 
-            p.position = fm::math::vec4(node.transform->getWorldPos());
+            p.position = fm::math::vec4(node.transform.worldPosition);
             p.custom.x = node.plight->radius;
             pointLights[_lightNumber] = p;
             _lightNumber++;
         }
-
-        if(!valid)
-        {
-            continue;
-        }
-		cam->_rendererConfiguration.queue.addElement(node);
+		
     }
 	cam->_rendererConfiguration.uboLight->Bind();
 	cam->_rendererConfiguration.uboLight->SetData(&pointLights[0], _lightNumber*sizeof(PointLight));

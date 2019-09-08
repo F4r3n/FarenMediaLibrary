@@ -27,9 +27,9 @@ enum RENDER_QUEUE {
 };
 
 struct RenderNode {
-    fmc::CTransform *transform;
-    fmc::CMaterial *mat;
-    fmc::CMesh *mesh;
+    const fm::Transform transform;
+    const fm::Materials *mat;
+    fm::Model *model;
     fmc::CDirectionalLight *dlight;
     fmc::CPointLight *plight;
     fmc::CText *text;

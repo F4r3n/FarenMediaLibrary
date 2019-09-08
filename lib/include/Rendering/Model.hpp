@@ -2,6 +2,7 @@
 #include <Resource/Resource.h>
 #include <vector>
 #include <memory>
+#include "Core/Bounds.h"
 namespace fm {
 
 namespace rendering {
@@ -31,5 +32,7 @@ public:
 private:
     std::vector<Mesh> _meshes;//One model may have more than one mesh
     std::string _name = "";
+	fm::Bounds _bounds;
+
 };
 }

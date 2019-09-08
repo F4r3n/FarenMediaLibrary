@@ -3,6 +3,7 @@
 #include "Music/Listener.h"
 #include <memory>
 #include "Components/CTransform.h"
+#include "Core/Transform.h"
 #include "Components/CSource.h"
 
 //TODO WTF REMAKE ALL
@@ -17,7 +18,7 @@ SoundSystem::~SoundSystem() {
 void SoundSystem::pre_update(EntityManager& em) {
 }
 
-void SoundSystem::update(float dt, EntityManager& em, EventManager& event) {
+void SoundSystem::update(float , EntityManager& em, EventManager& ) {
     int error = 0;
     for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>()) 
 	{
@@ -30,15 +31,15 @@ void SoundSystem::update(float dt, EntityManager& em, EventManager& event) {
         fmc::CTransform* transform = e->get<fmc::CTransform>();
         if(sound->toUpdate) 
 		{
-            setSettings(transform, sound);
+            _SetSettings(transform->GetTransform(), sound);
         }
     }
 }
 
-void SoundSystem::setSettings(fmc::CTransform* transform, fmc::CSource* sound) {
+void SoundSystem::_SetSettings(const fm::Transform &inTransform, fmc::CSource* sound) {
     alSourcef(sound->source, AL_PITCH, sound->pitch);
     alSourcef(sound->source, AL_GAIN, sound->volume);
-    alSource3f(sound->source, AL_POSITION, transform->transform.position.x, transform->transform.position.y, 0);
+    alSource3f(sound->source, AL_POSITION, inTransform.position.x, inTransform.position.y, 0);
     alSource3f(sound->source, AL_VELOCITY, 0, 0, 0);
     alSourcei(sound->source, AL_LOOPING, sound->isLooping);
 }
@@ -53,7 +54,7 @@ void SoundSystem::init(EntityManager& em, EventManager& event)
         fmc::CTransform* transform = e->get<fmc::CTransform>();
        
 
-        setSettings(transform, sound);
+        _SetSettings(transform->GetTransform(), sound);
     }
 }
 void SoundSystem::over() {

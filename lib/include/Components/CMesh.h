@@ -29,7 +29,6 @@ class CMesh : public FMComponent<CMesh> {
 
 
         void SetType(const std::string &type);
-        fm::Bounds bounds;
         bool IsmodelReady();
         const std::string& GetModelType() const {return _type;}
         void SetModelType(const std::string &type) {_type = type;}

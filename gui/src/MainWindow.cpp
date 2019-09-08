@@ -351,7 +351,7 @@ void MainWindow::_DrawMenuEntity()
 			if (!_currentEntity->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
 			{
 				fmc::CTransform* t = _currentEntity->get<fmc::CTransform>();
-				_currentEntity->add<fmc::CBody3D>(new fmc::CBody3D(t->transform.scale));
+				_currentEntity->add<fmc::CBody3D>(new fmc::CBody3D(t->scale));
 			}
             ImGui::EndPopup();
         }

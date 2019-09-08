@@ -43,7 +43,7 @@ bool CBody3D::IsInit() const
 
 void CBody3D::Init()
 {
-	const fm::Transform &transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->transform;
+	const fm::Transform &&transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->GetTransform();
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (_mass != 0.f);
 

@@ -22,9 +22,9 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event)
             body->Init(world.get(), P2M);
         }
         fmc::CTransform* transform = e->get<fmc::CTransform>();
-        transform->transform.position = fm::math::vec2(body->body->GetPosition().x - body->size.x*P2M, 
+        transform->position = fm::math::vec2(body->body->GetPosition().x - body->size.x*P2M, 
         body->body->GetPosition().y - body->size.y*P2M)*M2P;
-        transform->transform.rotation.x = body->body->GetAngle();
+        transform->rotation.x = body->body->GetAngle();
     }
 }
 
@@ -38,9 +38,9 @@ void PhysicSystem::init(EntityManager& em, EventManager& event)
     for(auto &&e : em.iterate<fmc::CTransform, fmc::Body2D>())
     {
         fmc::Body2D* body = e->get<fmc::Body2D>();
-        fm::Transform* transform = &e->get<fmc::CTransform>()->transform;
+        fm::Transform &&transform = e->get<fmc::CTransform>()->GetTransform();
         body->identity = &e->ID;
-        body->body->SetTransform(b2Vec2((transform->position.x + body->size.x)*P2M, (transform->position.y + body->size.y)*P2M), transform->rotation.x);
+        body->body->SetTransform(b2Vec2((transform.position.x + body->size.x)*P2M, (transform.position.y + body->size.y)*P2M), transform.rotation.x);
         body->Init(world.get(), P2M);
     }
 }

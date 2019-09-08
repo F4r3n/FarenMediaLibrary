@@ -14,6 +14,7 @@ CMesh::CMesh()
 {
 	_name = "Mesh";
 	_type = "Quad";
+	model = fm::ResourcesManager::get().getResource<fm::Model>(_type);
 }
 
 bool CMesh::Serialize(json &ioJson) const
@@ -24,6 +25,7 @@ bool CMesh::Serialize(json &ioJson) const
 bool CMesh::Read(const json &inJSON)
 {
     _type = inJSON["type"];
+	model = fm::ResourcesManager::get().getResource<fm::Model>(_type);
 
     return true;
 }

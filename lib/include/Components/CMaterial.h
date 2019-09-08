@@ -8,9 +8,13 @@ class Shader;
 class Material;
 }
 
+namespace fm
+{
+	using Materials = std::vector<fm::Material*>;
+}
+
 
 namespace fmc {
-
 
 class CMaterial : public FMComponent<CMaterial> {
     public:
@@ -26,10 +30,10 @@ class CMaterial : public FMComponent<CMaterial> {
 
         void SetFlagHasChanged();
         bool Reload();
-        std::vector<fm::Material*>& GetAllMaterials() {return _materials;}
+        const fm::Materials& GetAllMaterials() {return _materials;}
 
     private:
-        std::vector<fm::Material*> _materials;
+        fm::Materials _materials;
         bool _hasChanged = false;
 
 };
