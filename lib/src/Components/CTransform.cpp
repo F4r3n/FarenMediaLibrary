@@ -11,6 +11,8 @@ const std::string position("position");
 const std::string scale("scale");
 const std::string rotation("rotation");
 const std::string father("father");
+const std::string layer("layer");
+
 }
 CTransform::CTransform()
 {
@@ -37,8 +39,21 @@ bool CTransform::Serialize(json &ioJson) const
     ioJson[Keys::scale] = scale;
     ioJson[Keys::rotation] = rotation;
     ioJson[Keys::father] = idFather;
+	ioJson[Keys::layer] = layer;
+
     return true;
 }
+
+
+void CTransform::From(const fmc::CTransform *inTransform)
+{
+	scale = inTransform->scale;
+	position = inTransform->position;
+	rotation = inTransform->rotation;
+	idFather = inTransform->idFather;
+	layer = inTransform->layer;
+}
+
 
 void CTransform::Destroy()
 {

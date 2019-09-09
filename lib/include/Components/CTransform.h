@@ -26,6 +26,7 @@ class CTransform : public FMComponent<CTransform> {
         const std::string& GetName() const override;
         virtual uint16_t GetType() const {return kTransform;}
 		fm::Transform GetTransform() const;
+		void From(const fmc::CTransform *inTransform);
 
         void setFather(id id);
         void setFather(Entity* e);

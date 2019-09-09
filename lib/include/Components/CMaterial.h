@@ -31,7 +31,7 @@ class CMaterial : public FMComponent<CMaterial> {
         void SetFlagHasChanged();
         bool Reload();
         const fm::Materials& GetAllMaterials() {return _materials;}
-
+		fm::Material* GetMainMaterial() const { if (!_materials.empty()) return _materials[0]; else return nullptr; }
     private:
         fm::Materials _materials;
         bool _hasChanged = false;

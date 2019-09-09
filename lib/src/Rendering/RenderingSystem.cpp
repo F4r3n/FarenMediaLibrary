@@ -334,9 +334,11 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		if (cam->_isAuto)
 		{
 			_FillQueue(cam, em);
-			if (_HasCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam))
-			{
 
+			if (!cam->_rendererConfiguration.queue.Empty())
+			{
+				cam->_rendererConfiguration.queue.start();
+				_DrawMesh(cam);
 			}
 		}
 		else
@@ -344,11 +346,6 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam);
 		}
 
-		if (!cam->_rendererConfiguration.queue.Empty())
-		{
-			cam->_rendererConfiguration.queue.start();
-			_DrawMesh(cam);
-		}
 
 		//Resolve MSAA
 		fm::Renderer::getInstance().blit(_graphics, cam->_renderTexture, cam->_rendererConfiguration.resolveMSAARenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);

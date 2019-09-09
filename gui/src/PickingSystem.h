@@ -22,5 +22,6 @@ namespace fms
 		
 	private:
 		fm::GameObject* _specialCamera;
+		fmc::CCamera* _camera;
 	};
 }
