@@ -32,7 +32,7 @@ class Shader : public Resource{
 public:
     GLuint Program;
     Shader();
-    //Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+    
     Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name);
     const Shader* setValue(const std::string& name, fm::math::mat matrix) const;
     const Shader* setValue(const std::string& name, fm::math::vec2 vector) const;

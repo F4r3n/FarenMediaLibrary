@@ -72,7 +72,7 @@ void MaterialInspector::draw(bool *value)
                     std::string currentType = fm::MaterialValueNames::ktypeName[type];
                     static char nameType[256];
 
-                    strcpy(nameType, materialValue->name);
+                    memcpy(nameType, materialValue->name, sizeof(materialValue->name));
                     {
                         DrawCombo("Type##"+ m->shaderName + materialValue->name + std::to_string(j), typesMaterial, currentType, &type);
                         std::string nameTextInput = std::string(nameType) + "##Text"+ m->shaderName + materialValue->name + std::to_string(j);

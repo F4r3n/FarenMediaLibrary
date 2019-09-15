@@ -6,13 +6,15 @@ using namespace fm;
 Shader::Shader() {
 }
 
-Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name) {
+Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name) 
+{
     _vertex = vertexCode;
     _fragment = fragmentCode;
     _name = name;
 }
 
-bool Shader::compile() {
+bool Shader::compile() 
+{
     const GLchar* vShaderCode = _vertex.c_str();
     const GLchar* fShaderCode = _fragment.c_str();
 
@@ -109,7 +111,8 @@ const Shader* Shader::setValue(const std::string& name, Color vector) const
     return setValue(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));
 }
 
-void Shader::setValue(const std::string &name, const fm::MaterialValue &value) const{
+void Shader::setValue(const std::string &name, const fm::MaterialValue &value) const
+{
     if(value.getType() == fm::ValuesType::VALUE_FLOAT)
     {
         setValue(name, value.getFloat());

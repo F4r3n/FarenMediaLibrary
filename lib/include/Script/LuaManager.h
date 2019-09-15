@@ -1,18 +1,8 @@
 #pragma once
 #include "Script.h"
 #include <sol2/sol_forward.hpp>
-#include <Entity.h>
-template <typename T> T* get(Entity* e) {
-    assert(e);
-    return e->get<T>();
-}
 
-template <typename T> T* add(Entity* e) {
-    assert(e);
-    T* t = e->addComponent<T>();
-    assert(t);
-    return t;
-}
+class Entity;
 
 namespace sol
 {

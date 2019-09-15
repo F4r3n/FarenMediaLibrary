@@ -148,13 +148,18 @@ template <typename T>
  struct vec<T, 3>
 #endif
 {
+#if SIMD
     union
        {
+
            struct { T x, y, z; };
-           #if SIMD
+
            __m128 mmvalue;
-#endif
+		   
        };
+#else
+	 T x, y, z;
+#endif
 
     vec<T, 3>(T x, T y, T z) {
         this->x = x;

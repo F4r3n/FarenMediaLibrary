@@ -14,7 +14,9 @@ struct nonesuch
     nonesuch() = delete;
     ~nonesuch() = delete;
     nonesuch(nonesuch const&) = delete;
+    nonesuch(nonesuch const&&) = delete;
     void operator=(nonesuch const&) = delete;
+    void operator=(nonesuch&&) = delete;
 };
 
 template <class Default,
@@ -52,5 +54,5 @@ using is_detected_exact = std::is_same<Expected, detected_t<Op, Args...>>;
 template <class To, template <class...> class Op, class... Args>
 using is_detected_convertible =
     std::is_convertible<detected_t<Op, Args...>, To>;
-}
-}
+}  // namespace detail
+}  // namespace nlohmann

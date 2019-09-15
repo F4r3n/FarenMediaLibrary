@@ -16,7 +16,7 @@ ScriptManagerSystem::~ScriptManagerSystem()
 {
 }
 
-void ScriptManagerSystem::init(EntityManager& em, EventManager& event)
+void ScriptManagerSystem::init(EntityManager& em, EventManager&)
 {
     fm::Debug::log("INIT scriptSystem");
 
@@ -26,7 +26,7 @@ void ScriptManagerSystem::init(EntityManager& em, EventManager& event)
     }
 }
 
-void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager& event)
+void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 {
     for(auto &&e : em.iterate<fmc::CScriptManager>())
     {

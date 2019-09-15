@@ -38,7 +38,7 @@ void CppScript::start()
 {
     if(behaviour)
     {
-		fmc::CTransform *t = behaviour->entity->get<fmc::CTransform>();
+		//fmc::CTransform *t = behaviour->entity->get<fmc::CTransform>();
         behaviour->Start();
         hasStarted = true;
     }

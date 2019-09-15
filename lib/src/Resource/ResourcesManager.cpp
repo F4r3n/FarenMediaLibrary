@@ -4,6 +4,13 @@
 #include "Rendering/ShaderLibrary.h"
 #include "Rendering/material.hpp"
 #include "Resource/RFont.h"
+#include <filesystem>
+
+#include <string>
+#include <fstream>
+#include <streambuf>
+#include <unordered_set>
+
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
 
@@ -69,9 +76,41 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	}
 }
 
+
 bool ResourcesManager::LoadShaders()
 {
 	ShaderLibrary::LoadShaders();
+
+	FilePath path = GetFilePathResource(fm::ResourcesManager::LOCATION::INTERNAL_SHADERS_LOCATION);
+
+	for (const auto & entry : std::filesystem::directory_iterator(path.GetPath()))
+	{
+		FilePath filePath(entry.path().string());
+
+		std::string extension = filePath.GetExtension();
+		if (extension == "vert")
+		{
+			FilePath fragFile = filePath.GetParent();
+			fragFile.Append(filePath.GetName(true) + ".frag");
+
+			if (fragFile.Exist())
+			{
+
+				std::ifstream fragStream(fragFile.GetPath());
+				std::string frag((std::istreambuf_iterator<char>(fragStream)),
+					std::istreambuf_iterator<char>());
+
+				std::ifstream vertStream(filePath.GetPath());
+				std::string vert((std::istreambuf_iterator<char>(vertStream)),
+					std::istreambuf_iterator<char>());
+
+				fm::ResourcesManager::get().load<fm::Shader>(filePath.GetName(true), 
+					new fm::Shader(frag, vert, filePath.GetName(true)));
+
+			}
+		}	
+	}
+
 	return true;
 }
 

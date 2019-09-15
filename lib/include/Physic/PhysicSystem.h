@@ -18,16 +18,16 @@ public:
     void pre_update(EntityManager& em);
     ~PhysicSystem();
 
-    static void beginEvent(size_t idA, size_t idB) {
+    static void beginEvent(size_t, size_t) {
         //EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::BEGIN);
     }
 
-    static void endEvent(size_t idA, size_t idB) {
+    static void endEvent(size_t, size_t) {
        // EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::END);
     }
     class ContactListener : public b2ContactListener {
 
-        void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) {
+        void PreSolve(b2Contact* contact, const b2Manifold*) {
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
            // size_t idA = -1, idB = -1;
             if(bodyUserData) {
@@ -44,7 +44,7 @@ public:
         void BeginContact(b2Contact* contact) {
             
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
-            size_t idA = -1, idB = -1;
+            uint32_t idA = -1, idB = -1;
             if(bodyUserData) {
                 fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
                 b->StartContact();

@@ -17,6 +17,7 @@
 #include "Core/Rect.h"
 #include "Resource/ResourcesManager.h"
 
+
 GameObjectLua::GameObjectLua(Entity* inEntity)
 {
 	_entity = inEntity;
@@ -28,11 +29,8 @@ fmc::CTransform* GameObjectLua::GetTransform()
 }
 
 
-//#include <filesystem>
-
-//namespace fs = std::filesystem;
-
-Entity* createEntity() {
+Entity* createEntity()
+{
   return EntityManager::get().createEntity();
 }
 
@@ -40,7 +38,8 @@ LuaManager LuaManager::instance;
 using namespace fmc;
 using namespace fm;
 
-LuaManager::LuaManager() {
+LuaManager::LuaManager() 
+{
 	lua = new sol::state;
 }
 

@@ -98,6 +98,17 @@ std::string FilePath::GetName(bool withoutExtension) const
 	return "";
 }
 
+std::string FilePath::GetExtension() const
+{
+	fs::path p(_path);
+	if (p.has_filename())
+	{
+		return p.extension().u8string();
+	}
+
+	return "";
+}
+
 
 
 FilePath FilePath::GetParent() const

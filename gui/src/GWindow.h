@@ -61,7 +61,7 @@ public:
 	virtual ~GWindow() {}
 
 protected:
-	virtual void Update(float dt) {}
+	virtual void Update(float) {}
 
 	virtual void CustomDraw();
 	virtual void WillClose();

@@ -128,7 +128,8 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     _InitStandardShapes();
 
-    for(auto &&e : em.iterate<fmc::CMesh>()) {
+    for(auto &&e : em.iterate<fmc::CMesh>()) 
+	{
         fmc::CMesh* mesh = e->get<fmc::CMesh>();
 
         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
@@ -142,9 +143,7 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
         {
             if(m->shader == nullptr && m->shaderName != "")
             {
-                m->shader =
-                        fm::ResourcesManager::get().getResource<fm::Shader>(
-                            m->shaderName);
+                m->shader = fm::ResourcesManager::get().getResource<fm::Shader>(m->shaderName);
             }
             if(m->shader != nullptr && !m->shader->IsReady())
             {

@@ -18,6 +18,7 @@ namespace fm
 		FilePath GetParent() const;
 		const std::string& GetPath() const;
 		std::string GetName(bool withoutExtension) const;
+		std::string GetExtension() const;
 		void CreateFile();
 		void CreateFolder();
 

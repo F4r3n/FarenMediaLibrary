@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Physic/Collider.h"
-#include "Rendering/RenderingEvent.h"
 #include <string>
 class Entity;
 
