@@ -70,6 +70,7 @@ public:
     }
 
 private:
+	void _LoadInternalShaders();
 	ArrayOfResources resources;
     static ResourcesManager _instance;
 };

@@ -62,7 +62,7 @@ void FilePath::CreateFolder()
 
 bool FilePath::Exist() const
 {
-	return IsFolder() || IsFile();
+	return fs::exists(_path);
 }
 
 

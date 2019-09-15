@@ -76,10 +76,8 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	}
 }
 
-
-bool ResourcesManager::LoadShaders()
+void ResourcesManager::_LoadInternalShaders()
 {
-	ShaderLibrary::LoadShaders();
 
 	FilePath path = GetFilePathResource(fm::ResourcesManager::LOCATION::INTERNAL_SHADERS_LOCATION);
 
@@ -88,7 +86,7 @@ bool ResourcesManager::LoadShaders()
 		FilePath filePath(entry.path().string());
 
 		std::string extension = filePath.GetExtension();
-		if (extension == "vert")
+		if (extension == ".vert")
 		{
 			FilePath fragFile = filePath.GetParent();
 			fragFile.Append(filePath.GetName(true) + ".frag");
@@ -104,13 +102,21 @@ bool ResourcesManager::LoadShaders()
 				std::string vert((std::istreambuf_iterator<char>(vertStream)),
 					std::istreambuf_iterator<char>());
 
-				fm::ResourcesManager::get().load<fm::Shader>(filePath.GetName(true), 
-					new fm::Shader(frag, vert, filePath.GetName(true)));
+				fm::Shader* shader = new fm::Shader(frag, vert, filePath.GetName(true));
+				shader->compile();
+				fm::ResourcesManager::get().load<fm::Shader>(filePath.GetName(true),shader);
 
 			}
-		}	
+		}
 	}
+}
 
+
+
+bool ResourcesManager::LoadShaders()
+{
+	ShaderLibrary::LoadShaders();
+	_LoadInternalShaders();
 	return true;
 }
 

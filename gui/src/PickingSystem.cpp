@@ -5,6 +5,7 @@
 #include "Components/CCamera.h"
 #include "Window.h"
 #include "Core/Scene.h"
+#include "Resource/ResourcesManager.h"
 using namespace fms;
 
 PickingSystem::PickingSystem(std::function<void(fm::GameObject*)> &&inCallback)
@@ -17,6 +18,11 @@ PickingSystem::PickingSystem(std::function<void(fm::GameObject*)> &&inCallback)
 	_camera->target = std::make_shared<fm::RenderTexture>(fm::RenderTexture(_camera->getInternalRenderTexture(), 0));
 	_callback = inCallback;
 
+	fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("picking");
+
+	_material = std::make_unique<fm::Material>("default_material");
+	_material->shaderName = "picking";
+	_material->shader = shader;
 }
 
 
@@ -37,10 +43,10 @@ fm::GameObject* PickingSystem::PickGameObject(fm::GameObject* inCurrentCamera, f
 		if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 		{
 			fmc::CMesh* mesh = go->get<fmc::CMesh>();
-			fmc::CMaterial* materials = go->get<fmc::CMaterial>();
 
 			fm::CommandBuffer commandBuffer;
-			commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), materials->GetMainMaterial());
+			_material->setValue("colorID", fm::MaterialValue((float)go->getID()));
+			commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get());
 
 			_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 		}

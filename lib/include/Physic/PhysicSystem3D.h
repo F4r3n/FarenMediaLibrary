@@ -1,4 +1,4 @@
-#pragma one
+#pragma once
 #include "ECS.h"
 
 class btDiscreteDynamicsWorld;

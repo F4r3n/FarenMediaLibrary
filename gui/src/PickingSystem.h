@@ -5,6 +5,7 @@
 namespace fm 
 {
 	class GameObject;
+	class Material;
 }
 
 class EntityManager;
@@ -25,5 +26,6 @@ namespace fms
 		std::function<void(fm::GameObject*)> _callback;
 		fm::GameObject* _specialCamera;
 		fmc::CCamera* _camera;
+		std::unique_ptr<fm::Material> _material;
 	};
 }
