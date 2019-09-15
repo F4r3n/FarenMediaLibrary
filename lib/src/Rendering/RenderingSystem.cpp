@@ -278,7 +278,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
 
-		if (!cam->Enabled)
+		if (!cam->Enabled || (!cam->_isAuto && cam->_commandBuffers.empty()))
 			continue;
 
 		fmc::CTransform* transform = e->get<fmc::CTransform>();
@@ -289,7 +289,10 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			return;
 		}
 
-
+		if (cam->_onStartRendering != nullptr)
+		{
+			cam->_onStartRendering();
+		}
 		//Clear buffers
 		_graphics.BindFrameBuffer(0);
 		_graphics.SetViewPort(cam->viewPort);
@@ -350,17 +353,17 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		//Resolve MSAA
 		fm::Renderer::getInstance().blit(_graphics, cam->_renderTexture, cam->_rendererConfiguration.resolveMSAARenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 
-
-		cam->_rendererConfiguration.postProcessRenderTexture.bind();
-		_finalShader->Use();
-		_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
-		_finalShader->setValue("viewPos", transform->position);
-		_finalShader->setValue("screenTexture", 0);
-
-		fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.getColorBuffer()[0]);
-
 		if (cam->_isAuto)
 		{
+			cam->_rendererConfiguration.postProcessRenderTexture.bind();
+			_finalShader->Use();
+			_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
+			_finalShader->setValue("viewPos", transform->position);
+			_finalShader->setValue("screenTexture", 0);
+
+			fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.getColorBuffer()[0]);
+
+
 			if (cam->target != nullptr)
 			{
 				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, *(cam->target.get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
@@ -371,13 +374,17 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			}
 		}
 
-
 		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam);
 
-		_graphics.BindFrameBuffer(0);
+		if (cam->_onPostRendering != nullptr)
+		{
+			cam->_onPostRendering();
+		}
 
+		_graphics.BindFrameBuffer(0);
 	}
 }
+
 
 bool RenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera)
 {
@@ -385,55 +392,60 @@ bool RenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCa
 }
 
 
-
 void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera* currentCamera)
 {
-	std::queue<fm::CommandBuffer> &cmdBuffers = currentCamera->_commandBuffers[queue];
+	fmc::CameraCommandBuffer::iterator it = currentCamera->_commandBuffers.find(queue);
 
-	while (!cmdBuffers.empty())
+	if (it != currentCamera->_commandBuffers.end())
 	{
-		fm::CommandBuffer cmdBuffer = cmdBuffers.front();
-		fm::Command && cmd = cmdBuffer.Pop();
-		if (cmd._command == fm::Command::COMMAND_KIND::BLIT)
+		std::queue<fm::CommandBuffer> &cmdBuffers = it->second;
+
+		while (!cmdBuffers.empty())
 		{
-			fm::Shader *shader = _finalShader;
-			if (cmd._material != nullptr)
+			fm::CommandBuffer cmdBuffer = cmdBuffers.front();
+			fm::Command && cmd = cmdBuffer.Pop();
+			if (cmd._command == fm::Command::COMMAND_KIND::BLIT)
 			{
-				shader = cmd._material->shader;
-				shader->Use();
-				for (auto const& value : cmd._material->getValues())
+				fm::Shader *shader = _finalShader;
+				if (cmd._material != nullptr)
 				{
-					shader->setValue(value.name, value.materialValue);
+					shader = cmd._material->shader;
+					shader->Use();
+					for (auto const& value : cmd._material->getValues())
+					{
+						shader->setValue(value.name, value.materialValue);
+					}
+				}
+
+
+				if (cmd._source.kind == fm::Command::TEXTURE_KIND::TEXTURE)
+				{
+					if (cmd._source.texture != nullptr)
+					{
+						_graphics.BindTexture2D(0, cmd._source.texture->GetKind(), cmd._source.texture->getID());
+					}
+					else
+					{
+						fm::Renderer::getInstance().SetSources(_graphics, currentCamera->_renderTexture.getColorBuffer(), 2);
+					}
+				}
+
+
+				if (cmd._destination.kind == fm::Command::TEXTURE_KIND::RENDER_TEXTURE)
+				{
+					if (cmd._destination.renderTexture != nullptr)
+					{
+						fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader);
+					}
 				}
 			}
-
-
-			if (cmd._source.kind == fm::Command::TEXTURE_KIND::TEXTURE)
+			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
-				if (cmd._source.texture != nullptr)
-				{
-					_graphics.BindTexture2D(0, cmd._source.texture->GetKind(), cmd._source.texture->getID());
-				}
-				else
-				{
-					fm::Renderer::getInstance().SetSources(_graphics, currentCamera->_renderTexture.getColorBuffer(), 2);
-				}
+				_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material);
 			}
-
-
-			if (cmd._destination.kind == fm::Command::TEXTURE_KIND::RENDER_TEXTURE)
-			{
-				if (cmd._destination.renderTexture != nullptr)
-				{
-					fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader);
-				}
-			}
+			cmdBuffers.pop();
 		}
-		else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
-		{
-			_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material);
-		}
-		cmdBuffers.pop();
+		currentCamera->_commandBuffers.erase(it);
 	}
 }
 

@@ -7,7 +7,7 @@
 #include "Core/Scene.h"
 using namespace fms;
 
-PickingSystem::PickingSystem()
+PickingSystem::PickingSystem(std::function<void(fm::GameObject*)> &&inCallback)
 {
 	_specialCamera = fm::GameObjectHelper::create(fm::SceneManager::get().getScene("_editor"));
 	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 4);
@@ -15,6 +15,8 @@ PickingSystem::PickingSystem()
 	_specialCamera->addComponent<fmc::CTransform>();
 	_specialCamera->name = "Camera";
 	_camera->target = std::make_shared<fm::RenderTexture>(fm::RenderTexture(_camera->getInternalRenderTexture(), 0));
+	_callback = inCallback;
+
 }
 
 
@@ -22,6 +24,14 @@ fm::GameObject* PickingSystem::PickGameObject(fm::GameObject* inCurrentCamera, f
 {
 	std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getScene("_editor");
 	_specialCamera->get<fmc::CTransform>()->From(inCurrentCamera->get<fmc::CTransform>());
+	_camera->SetCallBackOnPostRendering([this]()
+	{
+		//Read pixel
+		//Get id pixel from color
+		//Get entity from id
+		_callback(nullptr);
+	});
+
 	for (auto && go : scene->getAllGameObjects())
 	{
 		if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())

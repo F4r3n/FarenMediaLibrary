@@ -36,18 +36,12 @@ Engine::~Engine()
 void Engine::Run(Window& window)
 {
     fm::Window::setMSAA(4);
-    //auto start = std::chrono::system_clock::now();
 
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(loop,&window, 0, true);
-#else
-    while(!window.isClosed()) {
+    while(!window.isClosed()) 
+	{
 
         RunMainLoop(&window);
     }
-#endif
-
-    
 }
 
 void Engine::RunMainLoop(void* window)
@@ -60,14 +54,6 @@ void Engine::RunMainLoop(void* window)
     ((Window *)window)->swapBuffers();
 
     _numberFramesTimer++;
-    if(_numberFramesTimer == 200) {
-        // auto end = std::chrono::system_clock::now();
-        // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        // float time = elapsed.count() / (float)_numberFramesTimer;
-        // start = end;
-        // std::cout << "Time per frame " << time << " ms" << std::endl;
-        //_numberFramesTimer = 0;
-    }
     
 }
 

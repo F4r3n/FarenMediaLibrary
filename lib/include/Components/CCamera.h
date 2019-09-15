@@ -86,7 +86,12 @@ class CCamera : public FMComponent<CCamera>
 		bool IsInit() { return _renderTexture.isCreated(); }
 		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer &inCommandBuffer);
 
+		void SetCallBackOnStartRendering(std::function<void()> && inCallback) { _onStartRendering = inCallback; }
+		void SetCallBackOnPostRendering(std::function<void()> && inCallback) { _onPostRendering = inCallback; }
+
     private:
+		std::function<void()> _onStartRendering = nullptr;
+		std::function<void()> _onPostRendering = nullptr;
 		bool HasCommandBuffer(fm::RENDER_QUEUE inQueue) const;
 
 		void _InitRenderTexture();

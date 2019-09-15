@@ -4,7 +4,7 @@
 #include "Rendering/ShaderParser.h"
 
 #if OPENGL_CORE == 1
-#define SHADER_VERSION "#version 330 core\n"
+#define SHADER_VERSION "#version 420 core\n"
 #else
 #define SHADER_VERSION "#version 310 es\n"
 #endif
@@ -17,11 +17,12 @@ ShaderLibrary::ShaderLibrary() {
 
 }
 
-ShaderLibrary::~ShaderLibrary() {
-
+ShaderLibrary::~ShaderLibrary() 
+{
 }
 
-void ShaderLibrary::loadShaders() {
+void ShaderLibrary::LoadShaders() 
+{
 	std::string text_vertex = STRING(
 		layout(location = 0) in vec2 position;
 	layout(location = 1) in vec2 texCoords;
@@ -160,12 +161,12 @@ void ShaderLibrary::loadShaders() {
 
 	std::string light_fragment_deferred = STRING(
 
-		layout(location = 0) out vec4 FragColor;
+	layout(location = 0) out vec4 FragColor;
 	layout(location = 1) out vec4 BrightColor;
 
 	in vec2 TexCoords;
-	uniform sampler2D screenTexture;
-	uniform sampler2D posTexture;
+	layout(binding=0) uniform sampler2D screenTexture;
+	layout(binding=1) uniform sampler2D posTexture;
 
 	uniform vec2 screenSize;
 	uniform vec2 viewPos;
@@ -285,8 +286,8 @@ void ShaderLibrary::loadShaders() {
 	layout(location = 1) out vec4 BrightColor;
 
 	in vec2 TexCoords;
-	uniform sampler2D screenTexture;
-	uniform sampler2D posTexture;
+	layout(binding=0) uniform sampler2D screenTexture;
+	layout(binding=1) uniform sampler2D posTexture;
 
 	uniform vec2 screenSize;
 	uniform vec2 viewPos;
@@ -333,8 +334,8 @@ void ShaderLibrary::loadShaders() {
 
 		out vec4 FragColor;
 	in vec2 TexCoords;
-	uniform sampler2D screenTexture;
-	uniform sampler2D bloomBlur;
+	layout(binding=0) uniform sampler2D screenTexture;
+	layout(binding=1) uniform sampler2D bloomBlur;
 
 	uniform vec2 screenSize;
 	uniform vec2 viewPos;
@@ -426,7 +427,7 @@ void ShaderLibrary::loadShaders() {
 
 	std::string default_fragment_sprite = STRING(
 
-		layout(location = 0) out vec4 FragColor;
+	layout(location = 0) out vec4 FragColor;
 	layout(location = 1) out vec4 BrightColor;
 	layout(location = 2) out vec4 posTexture;
 
@@ -457,7 +458,7 @@ void ShaderLibrary::loadShaders() {
 
 	std::string default_vertex_particle = STRING(
 
-		layout(location = 0) in vec4 vertex;
+	layout(location = 0) in vec4 vertex;
 	uniform mat4 view;
 	uniform mat4 projection;
 	uniform float scale;
@@ -480,7 +481,7 @@ void ShaderLibrary::loadShaders() {
 
 	std::string default_fragment_particle = STRING(
 
-		in vec4 ourColor;
+	in vec4 ourColor;
 	in vec2 ourTexCoord;
 	uniform sampler2D texture2d;
 	layout(location = 0) out vec4 FragColor;
@@ -499,27 +500,18 @@ void ShaderLibrary::loadShaders() {
 	fm::ResourcesManager::get().load<fm::Shader>("light_forward", new fm::Shader(default_vertex, light_fragment_forward, "light_forward"));
 	fm::ResourcesManager::get().load<fm::Shader>("simple", new fm::Shader(simple_vertex, simple_fragment, "simple"));
 
-	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>()) {
+	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>()) 
+	{
 		fm::Shader *s = static_cast<fm::Shader*>(shader.second);
-		if (s != nullptr && !s->IsReady()) {
+		if (!s->IsReady()) 
+		{
 			s->compile();
 		}
 	}
-
-
-	fm::Shader *s = fm::ResourcesManager::get().getResource<fm::Shader>("simple");
-	s->Use()->setValue("screenTexture", 0)->setValue("bloomBlur", 1);
-
-	fm::Shader *light = fm::ResourcesManager::get().getResource<fm::Shader>("light_deferred");
-	light->Use()->setValue("screenTexture", 0)->setValue("posTexture", 1);
-
-	light = fm::ResourcesManager::get().getResource<fm::Shader>("no_light");
-	light->Use()->setValue("screenTexture", 0)->setValue("posTexture", 1);
-	//#endif
-
 }
 
-void ShaderLibrary::loadShader(const std::string& name, const std::string &path) {
+void ShaderLibrary::LoadShader(const std::string& name, const std::string &path) 
+{
 	fm::ShaderParser parser;
 
 	std::tuple<std::string, std::string> partShader = parser.parse(path);

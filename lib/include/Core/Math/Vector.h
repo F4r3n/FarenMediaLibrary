@@ -1,5 +1,5 @@
 #pragma once
-#include <ostream>
+
 #if SIMD
 #include <smmintrin.h>
 #endif
@@ -75,10 +75,6 @@ template <typename T> struct vec<T, 2> {
         return sqrt(x * x + y * y);
     }
 
-    friend std::ostream& operator<<(std::ostream& stream, const vec<T, 2> vector) {
-        stream << vector.x << " " << vector.y;
-        return stream;
-    }
 
     T const& operator[](unsigned int index) const;
     T& operator[](unsigned int index);
@@ -206,10 +202,6 @@ template <typename T>
         return sqrt(x * x + y * y + z * z);
     }
 
-    friend std::ostream& operator<<(std::ostream& stream, const vec<T, 3> vector) {
-        stream << vector.x << " " << vector.y << " " << vector.z;
-        return stream;
-    }
 
     T const& operator[](unsigned int index) const;
     T& operator[](unsigned int index);
@@ -326,11 +318,6 @@ template <typename T> struct vec<T, 4> {
 
     inline T norme() {
         return sqrt(x * x + y * y + z * z + w * w);
-    }
-
-    friend std::ostream& operator<<(std::ostream& stream, const vec<T, 4> vector) {
-        stream << vector.x << " " << vector.y << " " << vector.z << " " << vector.w;
-        return stream;
     }
 
     T const& operator[](unsigned int index) const;

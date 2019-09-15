@@ -22,6 +22,7 @@ public:
 		INTERNAL_LUA_LOCATION,
 		INTERNAL_RESOURCES_LOCATION,
 		INTERNAL_FONT_LOCATION,
+		INTERNAL_SHADERS_LOCATION,
 		USER_LOCATION,
 		USER_RESOURCES_LOCATION,
 		USER_LUA_LOCATION
@@ -59,6 +60,11 @@ public:
     }
 
 	static FilePath GetFilePathResource(LOCATION inLocation);
+
+
+	bool LoadShaders();
+	bool CreateMaterials();
+	bool LoadFonts();
  static ResourcesManager& get() {
         return _instance;
     }

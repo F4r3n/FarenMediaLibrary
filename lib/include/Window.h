@@ -1,17 +1,17 @@
 #pragma once
 
 
-#include <string>
 #include "NonCopyable.h"
-
+#include <string>
 struct SDL_Window;
+
 
 namespace fm {
 class Window   {
     friend class InputManager;
 
 public:
-    Window(int width, int height, const std::string& name);
+    Window(int width, int height);
     ~Window();
     explicit Window() {}
     void swapBuffers() const;
@@ -22,9 +22,7 @@ public:
     Window& getInstance();
     SDL_Window* getWindow() { return _window;}
     void setName(const std::string &name);
-    inline std::string getName() const {
-        return _nameWindow;
-    }
+
     static int kWidth;
     static int kHeight;
     static int kX;
@@ -33,8 +31,6 @@ public:
 	void* GetContext();
 private:
     int  _Init();
-    void _CreateShaders();
-    void _CreateMaterials();
     void _ErrorDisplay();
 
 	bool _isInit = false;
@@ -47,6 +43,5 @@ private:
     double _currFrameTime = 0;
     double _frameStart = 0;
     
-    std::string _nameWindow = "";
 };
 }

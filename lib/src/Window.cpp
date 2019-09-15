@@ -9,13 +9,11 @@
 #include "Rendering/Renderer.h"
 #include "Input/InputManager.h"
 #include "Resource/ResourcesManager.h"
-#include "Components/CMesh.h"
-#include "Resource/RFont.h"
-#include "Rendering/ShaderLibrary.h"
 
 #include "Core/Config.h"
 #include "Core/Debug.h"
-#include "Rendering/material.hpp"
+#include <string>
+
 using namespace fm;
 int Window::kWidth = 0;
 int Window::kHeight = 0;
@@ -23,13 +21,10 @@ int Window::kHeight = 0;
 int Window::kX = 0;
 int Window::kY = 0;
 
-Window::Window(int width, int height, const std::string& name) 
+Window::Window(int width, int height) 
 {
-    _nameWindow = name;
-
     Window::kWidth = width;
     Window::kHeight = height;
-
 }
 
 bool Window::Init()
@@ -52,7 +47,7 @@ bool Window::Init()
 	size_t flags = SDL_WINDOW_OPENGL;
 	if (!isFullScreen)
 		flags = flags | SDL_WINDOW_MAXIMIZED;
-    _window = SDL_CreateWindow(_nameWindow.c_str(),
+    _window = SDL_CreateWindow("FML engine",
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
 							  Window::kWidth,
@@ -62,8 +57,8 @@ bool Window::Init()
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -72,12 +67,8 @@ bool Window::Init()
 
     if(_Init())
     {
-        _CreateShaders();
-        _CreateMaterials();
 
-		fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_FONT_LOCATION);
-		p.Append("Roboto-Medium.ttf");
-        ResourcesManager::get().load<RFont>("dejavu", new RFont(p.GetPath()));
+		
         _isInit = true;
         fm::Debug::get().LogError("Init");
         return true;
@@ -85,22 +76,7 @@ bool Window::Init()
     return false;
 }
 
-void Window::_CreateMaterials()
-{
-    {
-		Material *defaultMat = new fm::Material("default_material");
-		defaultMat->shaderName = "default";
-		defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default");
-		fm::ResourcesManager::get().load<Material>("default_material", defaultMat);
-    }
 
-	{
-		Material *defaultMat = new fm::Material("default_light_material");
-		defaultMat->shaderName = "default_light";
-		defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default_light");
-		fm::ResourcesManager::get().load<Material>("default_light_material", defaultMat);
-    }
-}
 
 
 void Window::setMSAA(int value) 
@@ -118,16 +94,9 @@ void Window::setMSAA(int value)
 
 void Window::setName(const std::string& name) 
 {
-    _nameWindow = name;
     SDL_SetWindowTitle(_window, name.c_str());
 }
 
-
-void Window::_CreateShaders() 
-{
-    // Create, load and set textures shader
-    ShaderLibrary::loadShaders();
-}
 
 
 void Window::update(float fps, bool internalUpdate) 
@@ -151,7 +120,7 @@ void Window::frameLimit(unsigned short fps)
     }
 
     double frame_end = SDL_GetTicks();
-    Time::dt = (frame_end - _frameStart) / 1000.0f;
+    Time::dt = (frame_end - _frameStart) / 1000.0;
     Time::timeStamp += Time::dt;
     _frameStart = frame_end;
 }

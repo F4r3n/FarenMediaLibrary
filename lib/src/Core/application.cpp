@@ -7,6 +7,7 @@
 #include <iomanip>      // std::setw
 #include "Core/Scene.h"
 #include <fstream>
+#include "Resource/ResourcesManager.h"
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -109,8 +110,15 @@ fm::Engine* Application::GetEngine() const
 void Application::Init()
 {
     _engine = new fm::Engine();
-    _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.name);
+    _window = new fm::Window(_currentConfig.width, _currentConfig.height);
     _window->Init();
+
+	_window->setName(_currentConfig.name);
+
+	fm::ResourcesManager::get().LoadShaders();
+	fm::ResourcesManager::get().LoadFonts();
+	fm::ResourcesManager::get().CreateMaterials();
+
     _engine->Init();
 }
 
