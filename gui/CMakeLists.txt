@@ -103,11 +103,15 @@ target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${GLEW_LIBRARIES} ${OP
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES})
 
+if(MSVC)
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")
+endif(MSVC)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/Resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                    ${CMAKE_SOURCE_DIR}/Resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources)
+                    ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+

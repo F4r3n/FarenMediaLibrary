@@ -102,7 +102,7 @@ void ResourcesManager::_LoadInternalShaders()
 				std::string vert((std::istreambuf_iterator<char>(vertStream)),
 					std::istreambuf_iterator<char>());
 
-				fm::Shader* shader = new fm::Shader(frag, vert, filePath.GetName(true));
+				fm::Shader* shader = new fm::Shader(vert, frag, filePath.GetName(true));
 				shader->compile();
 				fm::ResourcesManager::get().load<fm::Shader>(filePath.GetName(true),shader);
 
