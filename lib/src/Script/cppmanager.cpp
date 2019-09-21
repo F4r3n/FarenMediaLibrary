@@ -25,7 +25,9 @@ void CPPManager::LoadPlugin()
 }
 Behaviour* CPPManager::InstantiateClass(const std::string &name)
 {
-    const char *error = '\0';
+#if !__linux__
+    const char *error;
+#endif
 
     char *cstr = new char[name.length() + 1];
     strcpy(cstr, name.c_str());
@@ -41,7 +43,7 @@ Behaviour* CPPManager::InstantiateClass(const std::string &name)
 	maker_ptr(*func)(char*) = (maker_ptr(*)(char*))GetProcAddress(hndl, "Import");
 	if (!(*func)(cstr))
 	{
-		fprintf(stderr, "Couldn't find import: %s\n", error);
+		fprintf(stderr, "Couldn't find import\n");
 		exit(1);
 	}
 #endif
