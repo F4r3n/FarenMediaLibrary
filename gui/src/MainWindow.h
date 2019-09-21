@@ -37,6 +37,8 @@ enum WINDOWS
     WIN_FILE_BROWSER_LOCATION,
     WIN_PROJECT_SETTINGS,
     WIN_PROJECT_LOAD,
+	WIN_LIST_ENTITIES,
+	WIN_GAMEVIEW,
     WIN_LAST
 };
 
@@ -52,7 +54,6 @@ private:
 	void _DrawComponents(fm::GameObject* currentEntity);
 	void _DrawMenu();
 	void _DrawMenuEntity();
-	void _DrawListEntity();
 
 	void _DrawComponentsAvailable();
 
@@ -66,11 +67,12 @@ private:
 	void _ClearInspectorComponents();
 	void _ConfigureStyle();
 private:
-	std::unique_ptr<gui::GListEntities> _editorListEntities;
+	gui::Context _context;
+
 	std::shared_ptr<fm::Scene> _editorScene;
 	MapOfWindows _windows;
 
-    GameView _gameView;
+    
     fm::GameObject* _currentEntity = nullptr;
 
 

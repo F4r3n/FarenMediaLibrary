@@ -6,10 +6,20 @@
 #include <imgui/imgui.h>
 #include <utility>
 #include <functional>
+#include <Config.h>
+
+namespace fm
+{
+	class GameObject;
+}
 
 namespace gui
 {
 
+	struct Context
+	{
+		fm::GameObject* currentGameObjectSelected;
+	};
 
 	class IWidget
 	{
@@ -51,7 +61,7 @@ namespace gui
 class GWindow : public IWidget
 {
 public:
-	GWindow(const std::string &inName, bool isDockable);
+	GWindow(const std::string &inName, bool isDockable, ImGuiWindowFlags inOption = ImGuiWindowFlags_AlwaysAutoResize);
 	void SetPosition(const fm::math::vec2 & inVec2);
 	void SetSize(const fm::math::vec2 & inVec2);
 
@@ -59,9 +69,9 @@ public:
 	void AddWidget(std::unique_ptr<IWidget> && widget);
 	void SetStatus(bool inValue);
 	virtual ~GWindow() {}
+	virtual void Update(float, Context &inContext) {}
 
 protected:
-	virtual void Update(float) {}
 
 	virtual void CustomDraw();
 	virtual void WillClose();

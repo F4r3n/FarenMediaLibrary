@@ -8,7 +8,7 @@
 #if DEBUG
 #include <iostream>
 #endif
-
+using namespace ecs;
 EntityManager::EntityManager() {
 	const id poolSize = 10000;
     for(id i = 0; i < poolSize; ++i)

@@ -52,7 +52,7 @@ public:
     void _InitStandardShapes();
     void _InitUniformBufferCamera(fmc::CCamera* camera);
     void _UpdateUniformBufferCamera(fmc::CCamera* camera);
-    void _DrawText(int posX, int posY, RFont* font, fmc::CText* ctext);
+    void _DrawText(float posX, float posY, RFont* font, fmc::CText* ctext);
     void _ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
     void _FillQueue(fmc::CCamera* cam, EntityManager& em);
     void _DrawMesh(fmc::CCamera *cam);

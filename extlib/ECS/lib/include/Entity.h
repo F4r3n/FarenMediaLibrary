@@ -8,9 +8,9 @@ class Entity
 
 public:
     Entity();
-    Entity(id ID);
+    Entity(ecs::id ID);
     ~Entity();
-	id ID = std::numeric_limits<id>::max();
+	ecs::id ID = std::numeric_limits<ecs::id>::max();
     bool active = false;
 
 	template <typename T, typename ...Args> T* addComponent(Args&&... args);

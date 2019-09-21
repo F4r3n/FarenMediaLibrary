@@ -25,7 +25,7 @@ void CPPManager::LoadPlugin()
 }
 Behaviour* CPPManager::InstantiateClass(const std::string &name)
 {
-    const char *error;
+    const char *error = '\0';
 
     char *cstr = new char[name.length() + 1];
     strcpy(cstr, name.c_str());

@@ -97,8 +97,8 @@ void InputManager::CaptureMousePosition()
 {
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	_mousePos.x = mouseX;
-	_mousePos.y = mouseY;
+	_mousePos.x = (float)mouseX;
+	_mousePos.y = (float)mouseY;
 }
 
 

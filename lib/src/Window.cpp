@@ -52,7 +52,7 @@ bool Window::Init()
                               SDL_WINDOWPOS_CENTERED,
 							  Window::kWidth,
                               Window::kHeight,
-                              flags);
+                              (Uint32)flags);
 
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
@@ -101,9 +101,8 @@ void Window::setName(const std::string& name)
 
 void Window::update(float fps, bool internalUpdate) 
 {
-    // events();
     _fpsMax = fps;
-    _waitTime = 1.0f / (float)_fpsMax;
+    _waitTime = 1.0f / _fpsMax;
     if(internalUpdate)
         fm::InputManager::Get().pollEvents();
     frameLimit(fps);
@@ -111,7 +110,7 @@ void Window::update(float fps, bool internalUpdate)
 }
 
 
-void Window::frameLimit(unsigned short fps) 
+void Window::frameLimit(float fps) 
 {
     _currFrameTime = SDL_GetTicks() - _frameStart;
     double dur = (_waitTime * 1000 - _currFrameTime);
@@ -120,7 +119,7 @@ void Window::frameLimit(unsigned short fps)
     }
 
     double frame_end = SDL_GetTicks();
-    Time::dt = (frame_end - _frameStart) / 1000.0;
+    Time::dt = (float)((frame_end - _frameStart) / 1000.0);
     Time::timeStamp += Time::dt;
     _frameStart = frame_end;
 }

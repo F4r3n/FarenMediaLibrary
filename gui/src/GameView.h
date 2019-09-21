@@ -3,27 +3,30 @@
 #include <memory>
 #include "Core/GameObject.h"
 #include <vector>
-
-class GameView
+#include "GWindow.h"
+namespace gui
 {
-	struct CameraPreview
+	class GameView : public GWindow
 	{
-		size_t id;
-		std::shared_ptr<fm::RenderTexture> renderTexture;
-	};
+		struct CameraPreview
+		{
+			size_t id;
+			std::shared_ptr<fm::RenderTexture> renderTexture;
+		};
 
 
-    public:
-        GameView();
-        ~GameView();
-        void Draw();
-        void Resize();
-        void Zoom();
+	public:
+		GameView();
+		virtual ~GameView();
+		void CustomDraw();
+		void Resize();
+		void Zoom();
 		void AddCamera(fm::GameObject *inGameObject);
 		void RemoveCamera(fm::GameObject *inGameObject);
 		bool SetMainCamera(fm::GameObject *inGameObject);
-		
-    private:
+		void Update(float dt, Context &inContext);
+	private:
 		std::vector<CameraPreview> previews;
 		int index = -1;
-};
+	};
+}

@@ -28,7 +28,7 @@ class CTransform : public FMComponent<CTransform> {
 		fm::Transform GetTransform() const;
 		void From(const fmc::CTransform *inTransform);
 
-        void setFather(id id);
+        void setFather(ecs::id id);
         void setFather(Entity* e);
 
 

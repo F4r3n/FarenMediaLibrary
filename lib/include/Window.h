@@ -17,7 +17,7 @@ public:
     void swapBuffers() const;
     static void setMSAA(int value);
     bool isClosed();
-    void frameLimit(unsigned short fps);
+    void frameLimit(float fps);
     void update(float fps, bool internalUpdate = true);
     Window& getInstance();
     SDL_Window* getWindow() { return _window;}
@@ -38,7 +38,7 @@ private:
     SDL_Window* _window = nullptr;
     void * _mainContext;
 
-    int _fpsMax = 120;
+    float _fpsMax = 120;
     double _waitTime = 1.0f / (double)_fpsMax;
     double _currFrameTime = 0;
     double _frameStart = 0;

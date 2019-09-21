@@ -22,12 +22,12 @@ public:
         return _entitiesComponents[e->ID]->getAllComponents();
     }
     void killAll();
-    bool Exists(id id) const;
-    inline bool checkID(id ID) const {
+    bool Exists(ecs::id id) const;
+    inline bool checkID(ecs::id ID) const {
         return ID == _MAX_ID;
     }
     
-    template <typename T> bool removeComponent(id ID) {
+    template <typename T> bool removeComponent(ecs::id ID) {
          if(checkID(ID))
             return false;
         if(_entitiesComponents[ID] != nullptr) {
@@ -36,7 +36,7 @@ public:
         return false;
     }
 
-    template <typename T> T* add(id ID, Component<T>* c) {
+    template <typename T> T* add(ecs::id ID, Component<T>* c) {
         if(checkID(ID))
             return nullptr;
         if(_entitiesComponents[ID] != nullptr) {
@@ -47,7 +47,7 @@ public:
         }
     }
 
-    template <typename T, typename... Args> T* addComponent(id ID, Args &&... args) {
+    template <typename T, typename... Args> T* addComponent(ecs::id ID, Args &&... args) {
         if(checkID(ID))
             return nullptr;
         if(_entitiesComponents[ID] != nullptr) {
@@ -78,32 +78,32 @@ public:
     }
 
     void deleteEntity(Entity* e);
-    std::vector<id> getEntitiesAlive();
+    std::vector<ecs::id> getEntitiesAlive();
     bool hasComponents(const Entity& e, const std::vector<uint16_t>& compo) const;
     bool hasComponents(const Entity& e, const Mask& bits) const;
     void make();
-    bool hasComponents(id id, const Mask& bits) const;
+    bool hasComponents(ecs::id id, const Mask& bits) const;
     
     template <typename T>
-    bool hasComponent(id id) {
+    bool hasComponent(ecs::id id) {
         if(checkID(id)) return false;
         return _entitiesComponents[id]->has<T>();
     }
-    inline Entity* getEntity(const id id) {
+    inline Entity* getEntity(const ecs::id id) {
         if(checkID(id)) return nullptr;
         return &_entities_alive[id];
     }
-    inline Entity* getEntityNotSafe(const id id) {
+    inline Entity* getEntityNotSafe(const ecs::id id) {
         return &_entities_alive[id];
     }
 
-	id GetID(Entity *e) const;
+	ecs::id GetID(Entity *e) const;
 
 
     bool _IsEntityActive(Entity *e) const;
-	bool IsActive(id id) const;
+	bool IsActive(ecs::id id) const;
 
-class EntityIteratorMask : public std::iterator<std::input_iterator_tag, id> {
+class EntityIteratorMask : public std::iterator<std::input_iterator_tag, ecs::id> {
     public:
         EntityIteratorMask(const Mask& mask, const std::vector<Entity>::iterator iterator,
                            const std::vector<Entity>::iterator begin,
@@ -152,7 +152,7 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, id> {
             }
         }
 
-        inline bool valid(id index) const
+        inline bool valid(ecs::id index) const
         {
             return EntityManager::get().Exists(index) && EntityManager::get().IsActive(index) && EntityManager::get().hasComponents(index, _mask);
         }
@@ -193,14 +193,14 @@ class EntityIteratorMask : public std::iterator<std::input_iterator_tag, id> {
 	void killInativeEntities();
 
 private:
-    void _destroyEntity(id id, bool isActive);
+    void _destroyEntity(ecs::id id, bool isActive);
 
-    const id _MAX_ID = std::numeric_limits<id>::max();
+    const ecs::id _MAX_ID = std::numeric_limits<ecs::id>::max();
 
-    std::queue<id> _free_id;
+    std::queue<ecs::id> _free_id;
 
     std::vector<Entity> _entities_alive;
-    std::vector<id> _entities_killed;
+    std::vector<ecs::id> _entities_killed;
 
     std::vector<std::unique_ptr<ComponentManager>> _entitiesComponents;
 

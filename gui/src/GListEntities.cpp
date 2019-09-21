@@ -27,7 +27,7 @@ void GListEntities::_RefreshAllEntities()
 
 
 
-void GListEntities::Update(float dt)
+void GListEntities::Update(float dt, Context &inContext)
 {
 	if (_timerListEntityUpdate > 1)
 	{
@@ -38,11 +38,11 @@ void GListEntities::Update(float dt)
 	{
 		_timerListEntityUpdate += dt;
 	}
+	inContext.currentGameObjectSelected = _gameObjectSelected;
 }
 
 void GListEntities::CustomDraw()
 {
-	_gameObjectSelected = nullptr;
 	for (size_t i = 0; i < _namesEntities.size(); i++)
 	{
 		// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.

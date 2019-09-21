@@ -4,21 +4,22 @@
 #include "Core/SceneManager.h"
 #include "imgui_internal.h"
 
-GameView::GameView() {}
+using namespace gui;
+GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar) 
+{
+	_enabled = true;
+}
 
 GameView::~GameView() {}
 
-void GameView::Draw()
+void GameView::CustomDraw()
 {
-    static bool show_game_view = true;
-    if(show_game_view && index != -1) 
+    if(index >= 0 && index < previews.size()) 
 	{
 		CameraPreview preview = previews[index];
 
-        float rapport = (float)preview.renderTexture->getWidth()/(float)preview.renderTexture->getHeight();
+        const float rapport = (float)preview.renderTexture->getWidth()/(float)preview.renderTexture->getHeight();
 
-        //ImGui::SetNextWindowSize(ImVec2(rapport*scale, scale));
-        ImGui::Begin("Game View", &show_game_view,ImGuiWindowFlags_NoScrollbar );
 		fm::Texture texture = preview.renderTexture->getColorBuffer()[0];
 
 		ImVec2 start;
@@ -38,11 +39,14 @@ void GameView::Draw()
 		end.y = start.y + size.x/rapport;
 
         ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), start, end);
-
-        ImGui::End();
     }
+}
+
+void GameView::Update(float dt, Context &inContext)
+{
 
 }
+
 
 void GameView::AddCamera(fm::GameObject *inGameObject)
 {
@@ -59,14 +63,13 @@ void GameView::RemoveCamera(fm::GameObject *inGameObject)
 {
 	auto i = std::begin(previews);
 
-	while (i != std::end(previews)) {
-
+	while (i != std::end(previews)) 
+	{
 		if (inGameObject->getID() == i->id)
 		{
 			i = previews.erase(i);
 			break;
 		}
-
 	}
 
 	if (!previews.empty())

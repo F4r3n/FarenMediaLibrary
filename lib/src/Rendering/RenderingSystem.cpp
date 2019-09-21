@@ -628,7 +628,7 @@ void RenderingSystem::_SetModelPosition(fm::math::mat& model,
 
 }
 
-void RenderingSystem::_DrawText(int posX, int posY,
+void RenderingSystem::_DrawText(float posX, float posY,
                                RFont* font,
                                fmc::CText* ctext)
 {

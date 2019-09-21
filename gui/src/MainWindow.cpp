@@ -49,18 +49,20 @@ MainWindow::MainWindow()
     _mainCamera->addComponent<fmc::CTransform>();
     _mainCamera->name = "Camera";
 
-	_gameView.AddCamera(_mainCamera);
-	_gameView.SetMainCamera(_mainCamera);
+	std::unique_ptr<gui::GameView> gameView = std::make_unique<gui::GameView>();
+	gameView->AddCamera(_mainCamera);
+	gameView->SetMainCamera(_mainCamera);
 
 
     fm::Debug::log("Init done");
 
-    for(size_t i = 0; i < WIN_LAST; ++i)
-        _windowStates[i] = false;
+	for (size_t i = 0; i < WIN_LAST; ++i)
+	{
+		_windowStates[i] = false;
+	}
 
-	_editorListEntities = std::make_unique<gui::GListEntities>();
-
-
+	_windows[WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
+	_windows[WIN_GAMEVIEW] = std::move(gameView);
 }
 
 MainWindow::~MainWindow()
@@ -360,22 +362,9 @@ void MainWindow::_DrawMenuEntity()
 
 }
 
-void MainWindow::_DrawListEntity()
+
+void MainWindow::_DisplayWindow_WorldLighEdit() 
 {
-	if (_editorListEntities != nullptr)
-	{
-		_editorListEntities->Update(fm::Time::dt);
-		_editorListEntities->Draw();
-
-		if (_editorListEntities->HasGameObjectSelected())
-		{
-			_currentEntity = _editorListEntities->GetGameObjectSelected();
-		}
-	}
-}
-
-
-void MainWindow::_DisplayWindow_WorldLighEdit() {
     bool value = true;
     ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
     ImGui::Begin("World light", &_windowStates[WIN_LIGHT_EDIT]);
@@ -412,18 +401,18 @@ void MainWindow::Draw()
 	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-
-
 	for (auto& window : _windows)
 	{
+		window.second->Update(fm::Time::dt, _context);
 		window.second->Draw();
 	}
+
+	_currentEntity = _context.currentGameObjectSelected;
 
 
     _DrawMenu();
     _DrawMenuEntity();
 
-    _DrawListEntity();
 
     if(_windowStates[WIN_PROJECT_SETTINGS])
         _DisplayWindow_ProjectSettings();
@@ -441,7 +430,6 @@ void MainWindow::Draw()
             _debugLogger.AddLog(messages[i]);
         _debugLogger.Draw("Logger");
     }
-	_gameView.Draw();
 
 
 	ImGui::End();

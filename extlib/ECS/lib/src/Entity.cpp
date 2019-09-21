@@ -1,11 +1,11 @@
 #include "Entity.h"
 #include "EntityManager.h"
 Entity::Entity() {
-    ID = std::numeric_limits<id>::max();
+    ID = std::numeric_limits<ecs::id>::max();
     active = false;
 }
 
-Entity::Entity(id ID) {
+Entity::Entity(ecs::id ID) {
     this->ID = ID;
 }
 

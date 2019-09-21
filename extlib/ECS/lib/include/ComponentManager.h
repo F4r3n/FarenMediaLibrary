@@ -60,7 +60,7 @@ class ComponentManager
 {
 
     public:
-        explicit ComponentManager(id ID) 
+        explicit ComponentManager(ecs::id ID)
 		{
 			_bits.Reset(); 
 			currentEntityID = ID;
@@ -159,7 +159,7 @@ class ComponentManager
             return temp;
         }
 
-        id currentEntityID = std::numeric_limits<id>::max();
+		ecs::id currentEntityID = std::numeric_limits<ecs::id>::max();
     private:
 		BitSet _bits;
         BaseComponent* _components[MAX_COMPONENTS];

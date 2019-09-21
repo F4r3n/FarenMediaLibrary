@@ -3,9 +3,9 @@
 
 #include <string>
 
-class aiMesh;
-class aiScene;
-class aiNode;
+struct aiMesh;
+struct aiScene;
+struct aiNode;
 namespace fm
 {
     class Model;

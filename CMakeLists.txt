@@ -1,9 +1,9 @@
 macro(SET_COMPILER_OPTIONS)
 
 if(MSVC)
-	add_compile_options("/W4")
+	add_compile_options("/W3")
 else(MSVC)
-		add_compile_options("-Wall")
+	add_compile_options("-Wall")
 endif(MSVC)
 endmacro(SET_COMPILER_OPTIONS)
 

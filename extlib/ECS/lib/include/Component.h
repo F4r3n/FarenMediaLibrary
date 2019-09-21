@@ -17,7 +17,7 @@ public:
     virtual uint16_t GetType() const = 0;
     virtual void Destroy() = 0;
 protected:
-	id _IDEntity = std::numeric_limits<id>::max();
+	ecs::id _IDEntity = std::numeric_limits<ecs::id>::max();
 
     std::string _name = "";
     static uint16_t family_counter;

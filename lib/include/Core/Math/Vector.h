@@ -509,7 +509,7 @@ template <typename T> vec<T, 4> normalize(const vec<T, 4>& vector) {
 
 template <typename T> vec<T, 3> normalize(const vec<T, 3>& vector) {
 #if !SIMD
-    T s = 1.0/std::sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
+    T s = (T)(1.0/std::sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z));
     return vec<T, 3>(vector.x * s, vector.y * s, vector.z * s);
 #else
 
