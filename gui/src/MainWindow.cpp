@@ -255,8 +255,9 @@ void MainWindow::_DrawMenu()
             }
             ImGui::EndMenu();
         }
-        //static bool debugLoggerMenu = _activateDebugLogger;
-        if(ImGui::BeginMenu("Options")) {
+
+        if(ImGui::BeginMenu("Options")) 
+		{
             if(ImGui::MenuItem("Logger","L", &_windowStates[WIN_LOGGER]))
             {
                 _windowStates[WIN_LOGGER] = true;

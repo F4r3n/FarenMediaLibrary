@@ -32,6 +32,7 @@ set(SOURCES ${SOURCES}
 	src/debuglogger.cpp
 	src/GListEntities.cpp
 	src/PickingSystem.cpp
+	src/PortableFileDialog.cpp
 	src/dialogfilebrowser.cpp
 
 	)

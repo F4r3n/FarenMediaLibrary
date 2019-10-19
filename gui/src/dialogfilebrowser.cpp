@@ -93,8 +93,6 @@ void DialogFileBrowser::Import(const std::string &inPath, const std::string &bro
 
     if(ImGui::BeginPopupModal(browserName.c_str(), isOpened,ImGuiWindowFlags_AlwaysAutoResize ))
     {
-
-
         if(ImGui::Button("<"))
         {
 			if (_internaldata._currentDirectory.IsFolder() && _internaldata._currentDirectory.Exist())

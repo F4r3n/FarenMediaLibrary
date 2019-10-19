@@ -25,14 +25,12 @@ void CPPManager::LoadPlugin()
 }
 Behaviour* CPPManager::InstantiateClass(const std::string &name)
 {
-#if !__linux__
-    const char *error;
-#endif
-
     char *cstr = new char[name.length() + 1];
     strcpy(cstr, name.c_str());
 
 #if __linux__
+	const char *error;
+
 	maker_ptr(*func)(char*) = (maker_ptr(*)(char*))dlsym(hndl, "Import");
 	if ((error = dlerror()))
 	{
