@@ -64,7 +64,7 @@ MainWindow::MainWindow()
 	_windows[WIN_GAMEVIEW] = std::move(gameView);
 
 	std::function<void(fm::GameObject*)> f = std::bind(&MainWindow::_CallBackFromPickingSystem, this, std::placeholders::_1);
-	_pickingSystem = new fms::PickingSystem(std::move(f));
+	_pickingSystem = std::make_unique<fms::PickingSystem>(std::move(f), _editorScene);
 }
 
 

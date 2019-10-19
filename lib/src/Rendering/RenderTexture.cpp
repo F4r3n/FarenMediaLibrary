@@ -1,6 +1,6 @@
 #include "Rendering/RenderTexture.h"
 #include <iostream>
-
+#include <cassert>
 using namespace fm;
 
 RenderTexture::RenderTexture(unsigned int width, unsigned int height,
@@ -179,6 +179,13 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
+
+const fm::Texture& RenderTexture::GetColorBufferTexture(size_t id) const
+{
+	assert(id < _numberColors && id >= 0);
+	return _textureColorbuffer[id];
+}
+
 
 void RenderTexture::bind()
 {

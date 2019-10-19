@@ -11,7 +11,7 @@ class Window   {
     friend class InputManager;
 
 public:
-    Window(int width, int height);
+    Window(int width, int height, size_t inWindowFlag);
     ~Window();
     explicit Window() {}
     void swapBuffers() const;
@@ -42,6 +42,7 @@ private:
     double _waitTime = 1.0f / (double)_fpsMax;
     double _currFrameTime = 0;
     double _frameStart = 0;
+	size_t _windowFlag;
     
 };
 }

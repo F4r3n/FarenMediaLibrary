@@ -21,10 +21,12 @@ int Window::kHeight = 0;
 int Window::kX = 0;
 int Window::kY = 0;
 
-Window::Window(int width, int height) 
+Window::Window(int width, int height, size_t inWindowFlag) 
 {
     Window::kWidth = width;
     Window::kHeight = height;
+
+	_windowFlag = inWindowFlag;
 }
 
 bool Window::Init()
@@ -34,25 +36,40 @@ bool Window::Init()
         return false;
     }
 
-	bool isFullScreen = Window::kWidth == -1 || Window::kHeight == -1;
+	//bool isFullScreen = Window::kWidth == -1 || Window::kHeight == -1;
 	if (Window::kWidth <= 0 || Window::kHeight <= 0)
 	{
-		SDL_DisplayMode DM;
-		SDL_GetDesktopDisplayMode(0, &DM);
-		
-		Window::kWidth = DM.w;
-		Window::kHeight = DM.h;
+		SDL_Rect rect;
+
+		if (_windowFlag & SDL_WINDOW_FULLSCREEN || _windowFlag & SDL_WINDOW_FULLSCREEN_DESKTOP)
+		{
+			SDL_GetDisplayBounds(0, &rect);
+		}
+		else if (_windowFlag & SDL_WINDOW_MAXIMIZED)
+		{
+			SDL_GetDisplayUsableBounds(0, &rect);
+#if _WIN32
+			rect.h -= 20;
+#endif
+		}
+		else
+		{
+			SDL_GetDisplayUsableBounds(0, &rect);
+#if _WIN32
+			rect.h -= 20;
+#endif
+		}
+		Window::kWidth = rect.w;
+		Window::kHeight = rect.h;
+
 	}
 
-	size_t flags = SDL_WINDOW_OPENGL;
-	if (!isFullScreen)
-		flags = flags | SDL_WINDOW_MAXIMIZED;
     _window = SDL_CreateWindow("FML engine",
-                              SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
 							  Window::kWidth,
                               Window::kHeight,
-                              (Uint32)flags);
+                              (Uint32)_windowFlag);
 
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,

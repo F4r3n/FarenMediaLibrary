@@ -360,7 +360,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_finalShader->setValue("viewPos", transform->position);
 			_finalShader->setValue("screenTexture", 0);
 
-			fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.getColorBuffer()[0]);
+			fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.GetColorBufferTexture(0));
 
 
 			if (cam->target != nullptr)
@@ -425,7 +425,8 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 					}
 					else
 					{
-						fm::Renderer::getInstance().SetSources(_graphics, currentCamera->_renderTexture.getColorBuffer(), 2);
+						std::vector<fm::Texture> textures = currentCamera->_renderTexture.GetColorBuffer();
+						fm::Renderer::getInstance().SetSources(_graphics, currentCamera->_renderTexture.GetColorBuffer(), textures.size());
 					}
 				}
 
@@ -536,13 +537,13 @@ void RenderingSystem::_ComputeLighting( std::shared_ptr<fm::RenderTexture> light
 
 
 
-    if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
+    //if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
+    //{
+    //    fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.getColorBuffer(), hasLight);
+    //} 
+	if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
     {
-        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.getColorBuffer(), hasLight);
-    } 
-	else if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
-    {
-        fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.getColorBuffer(), false);
+		fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.GetColorBufferTexture(0), false);
     }
 
 }

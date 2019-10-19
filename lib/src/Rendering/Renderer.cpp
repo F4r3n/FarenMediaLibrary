@@ -19,31 +19,25 @@ void Renderer::createQuadScreen() {
 }
 
 void Renderer::lightComputation(fm::Graphics& graphics,
-                                Texture* colorBuffer,
-                                bool compute) {
+                                const Texture &colorBuffer,
+                                bool compute) 
+{
     fm::Shader* light;
-    if(compute)
-        light = ResourcesManager::get().getResource<fm::Shader>("light");
-    else 
-	{
-        light = ResourcesManager::get().getResource<fm::Shader>("no_light");
-    }
+    light = ResourcesManager::get().getResource<fm::Shader>("no_light");
+
     light->Use();
     int error = glGetError();
-    if(error != 0) {
+    if(error != 0) 
+	{
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
         exit(-1);
     }
-    graphics.BindTexture2D(0, colorBuffer[0].getID(), colorBuffer[0].GetKind());
-
-    if(compute) {
-        graphics.BindTexture2D(1, colorBuffer[2].getID(), colorBuffer[2].GetKind());
-    }
-
+    graphics.BindTexture2D(0, colorBuffer.getID(), colorBuffer.GetKind());
     graphics.Draw(quad);
 }
 
-void Renderer::postProcess(fm::Graphics& graphics, Texture& inTexture1) {
+void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1) 
+{
 	glDisable(GL_DEPTH_TEST);
     graphics.BindTexture2D(0, inTexture1.getID(), inTexture1.GetKind());
     //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
@@ -65,7 +59,7 @@ void Renderer::blit(fm::Graphics& graphics,
                     Shader* shader) const {
     dest.bind();
     shader->Use();
-    graphics.BindTexture2D(0, source.getColorBuffer()[0].getID(), source.getColorBuffer()[0].GetKind());
+    graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), source.GetColorBufferTexture(0).GetKind());
 
     graphics.Draw(quad);
 }
@@ -93,9 +87,9 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture
 }
 
 
-void Renderer::SetSources(fm::Graphics& graphics, Texture* textures, int numberIDs) 
+void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture> &textures, int numberIDs) 
 {
-    for(int i = 0; i < numberIDs; ++i) 
+    for(int i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{
         graphics.BindTexture2D(i, textures[i].getID(), textures[i].GetKind());
     }

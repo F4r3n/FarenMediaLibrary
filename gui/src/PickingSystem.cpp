@@ -8,9 +8,10 @@
 #include "Resource/ResourcesManager.h"
 using namespace fms;
 
-PickingSystem::PickingSystem(std::function<void(fm::GameObject*)> &&inCallback)
+PickingSystem::PickingSystem(std::function<void(fm::GameObject*)> &&inCallback, std::shared_ptr<fm::Scene> inEditorScene)
 {
-	_specialCamera = fm::GameObjectHelper::create(fm::SceneManager::get().getScene("_editor"));
+	_editorScene = inEditorScene;
+	_specialCamera = fm::GameObjectHelper::create(_editorScene);
 	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 4);
 
 	_specialCamera->addComponent<fmc::CTransform>();
@@ -28,17 +29,18 @@ PickingSystem::PickingSystem(std::function<void(fm::GameObject*)> &&inCallback)
 
 fm::GameObject* PickingSystem::PickGameObject(fm::GameObject* inCurrentCamera, fm::math::vec2 &inPos)
 {
-	std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getScene("_editor");
 	_specialCamera->get<fmc::CTransform>()->From(inCurrentCamera->get<fmc::CTransform>());
 	_camera->SetCallBackOnPostRendering([this]()
 	{
+		fm::Texture texture = _camera->getInternalRenderTexture().GetColorBufferTexture(0);
+		//texture.
 		//Read pixel
 		//Get id pixel from color
 		//Get entity from id
 		_callback(nullptr);
 	});
 
-	for (auto && go : scene->getAllGameObjects())
+	for (auto && go : _editorScene->getAllGameObjects())
 	{
 		if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 		{

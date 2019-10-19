@@ -20,7 +20,10 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         void bind();
         inline unsigned int getWidth() {return _width;}
         inline unsigned int getHeight() {return _height;}
-        Texture* getColorBuffer() {return _textureColorbuffer.data();}
+        
+		const fm::Texture& GetColorBufferTexture(size_t id) const;
+		const std::vector<Texture>& GetColorBuffer() const { return _textureColorbuffer; }
+
         void create();
         bool IsMultiSampled() const {return _multiSampling > 0;}
         unsigned int GetId() const {return _framebuffer;}

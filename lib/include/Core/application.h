@@ -19,6 +19,7 @@ namespace fm
 		size_t width = 800;
 		size_t height = 600;
 		size_t fpsWanted = 60;
+		size_t windowFlag;
 		fm::FilePath userDirectory;
 	};
 

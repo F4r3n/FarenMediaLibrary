@@ -20,7 +20,7 @@ void GameView::CustomDraw()
 
         const float rapport = (float)preview.renderTexture->getWidth()/(float)preview.renderTexture->getHeight();
 
-		fm::Texture texture = preview.renderTexture->getColorBuffer()[0];
+		const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
 		ImVec2 start;
 		ImVec2 size;

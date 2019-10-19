@@ -6,6 +6,7 @@ namespace fm
 {
 	class GameObject;
 	class Material;
+	class Scene;
 }
 
 class EntityManager;
@@ -19,7 +20,7 @@ namespace fms
 	class PickingSystem 
 	{
 	public:
-		PickingSystem(std::function<void(fm::GameObject*)> &&inCallback);
+		PickingSystem(std::function<void(fm::GameObject*)> &&inCallback, std::shared_ptr<fm::Scene> inEditorScene);
 		fm::GameObject* PickGameObject(fm::GameObject* inCurrentCamera, fm::math::vec2 &inPos);
 		 
 	private:
@@ -27,5 +28,6 @@ namespace fms
 		fm::GameObject* _specialCamera;
 		fmc::CCamera* _camera;
 		std::unique_ptr<fm::Material> _material;
+		std::shared_ptr<fm::Scene> _editorScene;
 	};
 }
