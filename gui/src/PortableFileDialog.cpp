@@ -3,7 +3,8 @@
 #if _WIN32
 #include <shellapi.h>
 #include <commdlg.h>
-
+#else
+#include <iostream>
 #endif
 namespace pfd
 {

@@ -34,9 +34,7 @@ enum WINDOWS
     WIN_LIGHT_EDIT,
     WIN_LOGGER,
     WIN_CREATE_PROJECT,
-    WIN_FILE_BROWSER_LOCATION,
     WIN_PROJECT_SETTINGS,
-    WIN_PROJECT_LOAD,
 	WIN_LIST_ENTITIES,
 	WIN_GAMEVIEW,
     WIN_LAST
@@ -63,6 +61,7 @@ private:
 	void _DisplayWindow_ProjectSettings();
 	void _DisplayWindow_WorldLighEdit();
 	void _DisplayWindow_Load();
+	void _DisplayWindow_Save();
 
 	void _ClearInspectorComponents();
 	void _ConfigureStyle();
@@ -72,9 +71,7 @@ private:
 	std::shared_ptr<fm::Scene> _editorScene;
 	MapOfWindows _windows;
 
-    
     fm::GameObject* _currentEntity = nullptr;
-
 
     fm::GameObject* _dlight;
     bool _windowCurrentEntity = true;

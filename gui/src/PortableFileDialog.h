@@ -28,9 +28,12 @@
 #include <cstdlib>  // for std::getenv()
 #include <fcntl.h>  // for fcntl()
 #include <unistd.h> // for read()
+
 #endif
 
 #include <string>
+#include <memory>
+#include <vector>
 #include <map>
 
 
