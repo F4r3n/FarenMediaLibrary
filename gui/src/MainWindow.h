@@ -7,17 +7,25 @@
 #include "GWindow.h"
 #include "Core/application.h"
 #include "inspector/inspector.hpp"
-namespace fmc {
+namespace fmc 
+{
     class CTransform;
     class CMaterial;
     class Body2D;
     class CDirectionalLight;
 }
 
-namespace fm {
-class GameObject;
-class Engine;
-class Scene;
+namespace fm
+{
+	class GameObject;
+	class Engine;
+	class Scene;
+}
+
+
+namespace fms
+{
+	class PickingSystem;
 }
 
 namespace gui
@@ -33,14 +41,11 @@ enum WINDOWS
 {
     WIN_LIGHT_EDIT,
     WIN_LOGGER,
-    WIN_CREATE_PROJECT,
     WIN_PROJECT_SETTINGS,
 	WIN_LIST_ENTITIES,
 	WIN_GAMEVIEW,
     WIN_LAST
 };
-
-
 
 public:
     MainWindow();
@@ -52,10 +57,7 @@ private:
 	void _DrawComponents(fm::GameObject* currentEntity);
 	void _DrawMenu();
 	void _DrawMenuEntity();
-
 	void _DrawComponentsAvailable();
-
-
 	void _DrawListCamera();
 
 	void _DisplayWindow_ProjectSettings();
@@ -65,36 +67,31 @@ private:
 
 	void _ClearInspectorComponents();
 	void _ConfigureStyle();
+
+	void _CallBackFromPickingSystem(fm::GameObject* inGameObject);
 private:
 	gui::Context _context;
 
 	std::shared_ptr<fm::Scene> _editorScene;
 	MapOfWindows _windows;
+	bool _windowStates[WIN_LAST];
+
 
     fm::GameObject* _currentEntity = nullptr;
 
     fm::GameObject* _dlight;
-    bool _windowCurrentEntity = true;
-
-    ImVec2 _firstPosMouseRightClick;
-    float _coeffMouseSpeed = -0.8f;
-    bool _firstRightClick = false;
-    
-    
-    std::string _nameCurrentScene = "";
-    
+       
     std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> _inspectorComponents;
     DebugLogger _debugLogger;
 
     fm::ProjectSettings _projectSettings;
-    std::string _directoryPath;
-
-    bool _windowStates[WIN_LAST];
 
     fm::GameObject* _mainCamera;
 	std::vector<fm::Config> _lastConfigsUsed;
 
-	ImGuiID dockspace_id;
+	//==========Systems==============
+	fms::PickingSystem *_pickingSystem;
+
 };
 
 

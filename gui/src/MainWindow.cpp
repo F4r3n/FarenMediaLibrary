@@ -30,12 +30,11 @@
 #include "imgui/imgui_internal.h"
 #include "GListEntities.h"
 #include "PortableFileDialog.h"
+#include "PickingSystem.h"
+#include <functional>
 
 MainWindow::MainWindow()
 {
-	_windows.insert(std::make_pair<size_t, std::unique_ptr<gui::SaveProjectWindow>>(WIN_CREATE_PROJECT,
-		std::make_unique<gui::SaveProjectWindow>("SaveWindow", [this] {fm::Application::Get().Serialize(this->_editorScene); })));
-
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
@@ -63,6 +62,15 @@ MainWindow::MainWindow()
 
 	_windows[WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
 	_windows[WIN_GAMEVIEW] = std::move(gameView);
+
+	std::function<void(fm::GameObject*)> f = std::bind(&MainWindow::_CallBackFromPickingSystem, this, std::placeholders::_1);
+	_pickingSystem = new fms::PickingSystem(std::move(f));
+}
+
+
+void MainWindow::_CallBackFromPickingSystem(fm::GameObject* inGameObject)
+{
+
 }
 
 MainWindow::~MainWindow()
@@ -73,7 +81,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::_ClearInspectorComponents()
 {
-	for (auto& entities : _inspectorComponents)
+	for (auto&& entities : _inspectorComponents)
 	{
 		entities.second.clear();
 	}
@@ -86,12 +94,11 @@ void MainWindow::_DrawComponents(fm::GameObject* currentEntity) {
 	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
 	if (_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
 	{
-
 		_inspectorComponents[currentEntity->getID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
-
 	}
 
-	for (auto c : compos) {
+	for (auto c : compos) 
+	{
 		if (_inspectorComponents[currentEntity->getID()][c->GetType()] == nullptr)
 		{
 			if (c->GetType() == fmc::ComponentType::kTransform)
@@ -153,7 +160,6 @@ void MainWindow::_DisplayWindow_Save()
 
 void MainWindow::_DisplayWindow_Load()
 {
-
 	pfd::open_file dialog = pfd::open_file("Choose files to read", ".",
 		{ "Fml files", "*.fml",
 		  "All Files", "*" },
@@ -173,7 +179,6 @@ void MainWindow::_DisplayWindow_Load()
 
 		fm::Application::Get().Read();
 	}
-
 }
 
 
@@ -275,7 +280,6 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_windowCurrentEntity = true;
 				_currentEntity = fm::GameObjectHelper::create();
 				_currentEntity->addComponent<fmc::CTransform>(
 					fm::math::Vector3f(0, 0, 0),
@@ -311,7 +315,8 @@ void MainWindow::_DrawMenuEntity()
 
 	std::string nameWindowInspector("Inspector");
 
-	ImGui::Begin(nameWindowInspector.c_str(), &_windowCurrentEntity);
+	bool shouldBeDisplayed = _currentEntity != nullptr;
+	ImGui::Begin(nameWindowInspector.c_str(), &shouldBeDisplayed);
 
 	if (_currentEntity && _currentEntity->IsActive())
 	{
@@ -369,12 +374,27 @@ void MainWindow::_DisplayWindow_WorldLighEdit()
 
 void MainWindow::Update()
 {
+	for (auto& window : _windows)
+	{
+		window.second->Update(fm::Time::dt, _context);
+	}
 
+	if (_windowStates[WIN_LOGGER])
+	{
+		std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
+		for (size_t i = 0; i < messages.size(); ++i)
+		{
+			_debugLogger.AddLog(messages[i]);
+		}
+		_debugLogger.Draw("Logger");
+	}
 }
 
 void MainWindow::Draw()
 {
 	bool p_open = true;
+	ImGuiID dockspace_id;
+
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->Pos);
 	ImGui::SetNextWindowSize(viewport->Size);
@@ -398,7 +418,6 @@ void MainWindow::Draw()
 
 	for (auto& window : _windows)
 	{
-		window.second->Update(fm::Time::dt, _context);
 		window.second->Draw();
 	}
 
@@ -408,19 +427,18 @@ void MainWindow::Draw()
 	_DrawMenuEntity();
 
 	if (_windowStates[WIN_PROJECT_SETTINGS])
+	{
 		_DisplayWindow_ProjectSettings();
+	}
 
 	if (_windowStates[WIN_LIGHT_EDIT])
+	{
 		_DisplayWindow_WorldLighEdit();
+	}
 
 
 	if (_windowStates[WIN_LOGGER])
 	{
-		std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
-		for (size_t i = 0; i < messages.size(); ++i)
-		{
-			_debugLogger.AddLog(messages[i]);
-		}
 		_debugLogger.Draw("Logger");
 	}
 
