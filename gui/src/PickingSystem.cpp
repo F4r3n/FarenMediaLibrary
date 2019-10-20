@@ -10,6 +10,7 @@ using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 {
+	_currentScene = fm::SceneManager::get().getCurrentScene();
 	_editorScene = inEditorScene;
 	_specialCamera = fm::GameObjectHelper::create(_editorScene);
 	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 4);
@@ -35,21 +36,25 @@ void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inP
 
 		_camera->SetCallBackOnPostRendering([this, inPos]()
 		{
-			fm::Texture texture = _camera->getInternalRenderTexture().GetColorBufferTexture(0);
-			float id = texture.GetPixel<float>(inPos);
-			fm::GameObject* go = _editorScene->GetGameObject((size_t)id);
-			_callback(go);
+			fm::Texture texture = _camera->target->GetColorBufferTexture(0);
+			std::string path("C:\\Users\\guill\\Pictures\\yolo.png");
+			texture.writeToPNG(path);
+			//float id = texture.GetPixel<float>(inPos);
+			//fm::GameObject* go = _editorScene->GetGameObject((size_t)id);
+			//_callback(go);
 		});
 
-		for (auto && go : _editorScene->getAllGameObjects())
+		for (auto && go : _currentScene->getAllGameObjects())
 		{
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 			{
 				fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
 				fm::CommandBuffer commandBuffer;
-				_material->setValue("colorID", fm::MaterialValue((float)go->getID()));
-				commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get());
+				fm::MaterialProperties materialProperties = _material->GetProperties();
+				materialProperties.AddValue("colorID", fm::MaterialValue((float)go->getID()));
+
+				commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
 
 				_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 			}

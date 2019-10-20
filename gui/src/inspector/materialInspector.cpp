@@ -62,23 +62,26 @@ void MaterialInspector::draw(bool *value)
             if (ImGui::TreeNode(materialName.c_str()))
             {
                 size_t j = 0;
-                std::vector<fm::MaterialProperty>::iterator materialValue = m->getValues().begin();
+                std::vector<fm::MaterialProperty>::const_iterator materialValue = m->getValues().begin();
 
                 for (; materialValue != m->getValues().end(); )
                 {
+#if 1
+					fm::MaterialProperty currentProperty = *materialValue;
+					
 
-                    size_t type =  (size_t)materialValue->materialValue.getType();
+                    size_t type =  (size_t)currentProperty.materialValue.getType();
                     const size_t ctype = type;
                     std::string currentType = fm::MaterialValueNames::ktypeName[type];
                     static char nameType[256];
 
-                    memcpy(nameType, materialValue->name, sizeof(materialValue->name));
+                    memcpy(nameType, currentProperty.name, sizeof(currentProperty.name));
                     {
-                        DrawCombo("Type##"+ m->shaderName + materialValue->name + std::to_string(j), typesMaterial, currentType, &type);
-                        std::string nameTextInput = std::string(nameType) + "##Text"+ m->shaderName + materialValue->name + std::to_string(j);
+                        DrawCombo("Type##"+ m->shaderName + currentProperty.name + std::to_string(j), typesMaterial, currentType, &type);
+                        std::string nameTextInput = std::string(nameType) + "##Text"+ m->shaderName + currentProperty.name + std::to_string(j);
                         if(ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
                         {
-                            strncpy(materialValue->name, nameType, strlen(nameType) );
+                            strncpy(currentProperty.name, nameType, strlen(nameType) );
                         }
                     }
 
@@ -87,78 +90,83 @@ void MaterialInspector::draw(bool *value)
 
                     if(type == fm::ValuesType::VALUE_COLOR)
                     {
-                        fm::Color c =  materialValue->materialValue.getColor();
+                        fm::Color c = currentProperty.materialValue.getColor();
                         ImGui::PushID(name.c_str());
                         ImGui::ColorEdit3("##", &c.r);
                         ImGui::PopID();
 
-                        materialValue->materialValue = c;
+						currentProperty.materialValue = c;
                     }
                     else if(type == fm::ValuesType::VALUE_INT)
                     {
 
-                        int c =  materialValue->materialValue.getInt();
+                        int c = currentProperty.materialValue.getInt();
                         ImGui::PushID(name.c_str());
                         ImGui::InputInt("##", &c);
                         ImGui::PopID();
 
-                        materialValue->materialValue = c;
+						currentProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_FLOAT)
                     {
 
-                        float c =  materialValue->materialValue.getInt();
+                        float c = currentProperty.materialValue.getInt();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat("##", &c);
                         ImGui::PopID();
-                        materialValue->materialValue = c;
+						currentProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
                     {
 
-                        fm::math::vec2 c =  materialValue->materialValue.getVector2();
+                        fm::math::vec2 c = currentProperty.materialValue.getVector2();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat2("##", &c.x);
                         ImGui::PopID();
 
-                        materialValue->materialValue = c;
+						currentProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
                     {
 
-                        fm::math::vec3 c =  materialValue->materialValue.getVector3();
+                        fm::math::vec3 c = currentProperty.materialValue.getVector3();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat3("##", &c.x);
                         ImGui::PopID();
 
-                        materialValue->materialValue = c;
+						currentProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
                     {
 
-                        fm::math::vec4 c =  materialValue->materialValue.getVector4();
+                        fm::math::vec4 c = currentProperty.materialValue.getVector4();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat4("##", &c.x);
                         ImGui::PopID();
 
-                        materialValue->materialValue = c;
+						currentProperty.materialValue = c;
 
                     }
 
 
-                    j++;
+                    
 
                     if(ctype != type)
                     {
-                        materialValue->materialValue.setType((fm::ValuesType)type);
+						currentProperty.materialValue.setType((fm::ValuesType)type);
                     }
+
+					m->UpdateProperty(j, currentProperty);
+					
+					j++;
                     materialValue++;
 
                     ImGui::Separator();
+#endif
                 }
 
                 if(ImGui::Button("Add"))

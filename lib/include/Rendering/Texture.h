@@ -85,7 +85,7 @@ class Texture
     void				release();
 
 
-    void				writeToPNG(const std::string& name);
+    void				writeToPNG(const std::string& name) const;
     void				setData(void* data);
     void				setTo(int value, const fm::Recti& rect);
     void				setData(void* data, const fm::Recti& rect);

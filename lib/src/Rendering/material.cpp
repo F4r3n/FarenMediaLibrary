@@ -18,7 +18,7 @@ bool Material::Serialize(nlohmann::json &ioJson) const
     ioJson["shaderName"] = shaderName;
 
     nlohmann::json valuesJSON;
-    for(auto &value : _properties)
+    for(auto &&value : _properties.GetValues())
     {
         nlohmann::json valueJSON;
         fm::ValuesType type = value.materialValue.getType();
@@ -116,9 +116,9 @@ bool Material::Reload()
 
 
 
-std::vector<MaterialProperty> &Material::getValues()
+const std::vector<MaterialProperty> &Material::getValues() const
 {
-    return _properties;
+    return _properties.GetValues();
 }
 
 

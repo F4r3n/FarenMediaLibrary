@@ -330,7 +330,6 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		int error = glGetError();
 		if (error != 0) {
 			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
-			exit(-1);
 		}
 
 		if (cam->_isAuto)
@@ -348,10 +347,16 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam);
 		}
 
-
+		error = glGetError();
+		if (error != 0) {
+			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
+		}
 		//Resolve MSAA
 		fm::Renderer::getInstance().blit(_graphics, cam->_renderTexture, cam->_rendererConfiguration.resolveMSAARenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
-
+		error = glGetError();
+		if (error != 0) {
+			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
+		}
 		if (cam->_isAuto)
 		{
 			cam->_rendererConfiguration.postProcessRenderTexture.bind();
@@ -372,15 +377,23 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 			}
 		}
-
+		error = glGetError();
+		if (error != 0) {
+			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
+		}
 		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam);
-
+		error = glGetError();
+		if (error != 0) {
+			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
+		}
 		if (cam->_onPostRendering != nullptr)
 		{
 			cam->_onPostRendering();
 		}
 
 		_graphics.BindFrameBuffer(0);
+
+		//cam->_rendererConfiguration.postProcessRenderTexture.GetColorBufferTexture(0).writeToPNG("C:\\Users\\guill\\Pictures\\yolo.png");
 	}
 }
 
@@ -441,7 +454,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
-				_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material);
+				_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material, &cmd._materialProperties);
 			}
 			cmdBuffers.pop();
 		}
@@ -449,7 +462,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 	}
 }
 
-void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial)
+void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties)
 {
 	const fm::math::Vector3f worldPos = inTransform.worldPosition;
 
@@ -485,6 +498,14 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		for (auto const& value : inMaterial->getValues())
 		{
 			shader->setValue(value.name, value.materialValue);
+		}
+
+		if (inMaterialProperties != nullptr)
+		{
+			for (auto const& value : inMaterialProperties->GetValues())
+			{
+				shader->setValue(value.name, value.materialValue);
+			}
 		}
 		if (inModel != nullptr)
 			_graphics.Draw(inModel);

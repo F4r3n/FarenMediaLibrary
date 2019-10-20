@@ -85,6 +85,7 @@ class MaterialValue
         setValue(material.getType(), material);
     }
 
+
     void setValue(fm::ValuesType valueType, const MaterialValue& material)
     {
         switch(valueType) {
@@ -200,12 +201,12 @@ class MaterialValue
         _value.color_ = static_cast<fm::Color>(v);
     }
 
-    MaterialValue& operator=(MaterialValue & m)
-    {
-        setType(m.getType());
-        setValue(m.getType(), m);
-        return *this;
-    }
+	MaterialValue& operator=(const MaterialValue & m)
+	{
+		setType(m.getType());
+		setValue(m.getType(), m);
+		return *this;
+	}
 
     MaterialValue& operator=(int v)
 	{

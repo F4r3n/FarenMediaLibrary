@@ -30,7 +30,6 @@ void Renderer::lightComputation(fm::Graphics& graphics,
     if(error != 0) 
 	{
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
-        exit(-1);
     }
     graphics.BindTexture2D(0, colorBuffer.getID(), colorBuffer.GetKind());
     graphics.Draw(quad);

@@ -82,6 +82,13 @@ void GameView::Update(float dt, Context &inContext)
 			_pickingSystem->PickGameObject(preview.id, fm::math::vec2(mousePos.x, mousePos.y));
 		}
 	}
+
+	if (ImGui::IsMouseClicked(1))
+	{
+		CameraPreview preview = previews[index];
+		preview.renderTexture->GetColorBufferTexture(0).writeToPNG("C:\\Users\\guill\\Pictures\\yolo2.png");
+
+	}
 }
 
 

@@ -155,7 +155,6 @@ void Window::_ErrorDisplay()
     int error = glGetError();
     if(error != 0) {
         fm::Debug::get().logErrorExit(error, __FILE__, __LINE__);
-        exit(-1);
     }
 #else
     printf("Check error SDL: %s\n", SDL_GetError());

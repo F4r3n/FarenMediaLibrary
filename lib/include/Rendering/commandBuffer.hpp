@@ -42,9 +42,10 @@ namespace fm
 		fm::MaterialValue _materialValue;
 		TextureKind _source;
 		TextureKind _destination;
-		Material* _material;
+		Material *_material;
 		Model *_model;
 		Transform _transform;
+		MaterialProperties _materialProperties;
 
 		friend class CommandBuffer;
 		friend class fms::RenderingSystem;
@@ -58,7 +59,7 @@ namespace fm
 
 		void Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
 		void Blit(Texture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
-		void DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial);
+		void DrawMesh(Model *inModel, const Transform &inTranform, fm::Material *inMaterial, const fm::MaterialProperties &inMaterialProperties);
 		Command Pop();
 		bool IsEmpty() const;
 		void Push(Command && inCommand);

@@ -103,9 +103,9 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
     glGenFramebuffers(1, &_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     int error = glGetError();
-    if(error != 0) {
+    if(error != 0) 
+	{
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
     // Create a color attachment texture [FragColor and BrightColor]
     if(formats != nullptr && types != nullptr)
@@ -121,7 +121,6 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
             int error = glGetError();
             if(error != 0) {
                 std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-                exit(-1);
             }
             if(_multiSampling > 0)
             {
@@ -133,9 +132,9 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
             }
 
             error = glGetError();
-            if(error != 0) {
+            if(error != 0) 
+			{
                 std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-                exit(-1);
             }
             _textureColorbuffer.push_back(t);
         }

@@ -43,13 +43,14 @@ void CommandBuffer::Blit(Texture &inSource, RenderTexture &inDestination, fm::Ma
 	_commands.push(cmd);
 }
 
-void CommandBuffer::DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial)
+void CommandBuffer::DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial, const fm::MaterialProperties &inMaterialProperties)
 {
 	Command cmd;
 	cmd._command = Command::COMMAND_KIND::DRAW_MESH;
 	cmd._model = inModel;
 	cmd._material = inMaterial;
 	cmd._transform = inTranform;
+	cmd._materialProperties = inMaterialProperties;
 	_commands.push(cmd);
 }
 

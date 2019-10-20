@@ -164,7 +164,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     int error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
     glGenTextures(1, &_id);
     if(multiSampled > 0)
@@ -180,7 +179,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
 
     if(format == Format::RGBA) {
@@ -220,7 +218,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
     if(multiSampled <= 0)
     {
@@ -247,7 +244,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
     if(multiSampled <= 0)
     {
@@ -257,7 +253,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
     if(_textureKind == Kind::TEXTURE2D)
     {
@@ -271,7 +266,6 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-        exit(-1);
     }
 }
 
@@ -346,7 +340,8 @@ void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
                                       // accidentily mess up our texture.
 }
 
-void Texture::writeToPNG(const std::string& name) {
+void Texture::writeToPNG(const std::string& name) const
+{
 #if !OPENGL_ES
     if(_type == Type::UNSIGNED_BYTE)
     {
