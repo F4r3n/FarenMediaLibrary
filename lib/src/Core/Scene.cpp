@@ -11,7 +11,7 @@ Scene::Scene(const std::string &name)
 
 GameObject* Scene::GetGameObject(size_t id) const
 {
-    if(id < _gos.size())
+    if(id < _gos.size() && id >= 0)
         return _gos[id];
     return nullptr;
 }

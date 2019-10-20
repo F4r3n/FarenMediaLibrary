@@ -20,14 +20,16 @@ namespace fms
 	class PickingSystem 
 	{
 	public:
-		PickingSystem(std::function<void(fm::GameObject*)> &&inCallback, std::shared_ptr<fm::Scene> inEditorScene);
-		fm::GameObject* PickGameObject(fm::GameObject* inCurrentCamera, fm::math::vec2 &inPos);
-		 
+		PickingSystem(std::shared_ptr<fm::Scene> inEditorScene);
+		void PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inPos);
+		void SetCallback(std::function<void(fm::GameObject*)> &&inCallback) { _callback = inCallback; }
+		int _toto;
 	private:
 		std::function<void(fm::GameObject*)> _callback;
 		fm::GameObject* _specialCamera;
 		fmc::CCamera* _camera;
 		std::unique_ptr<fm::Material> _material;
 		std::shared_ptr<fm::Scene> _editorScene;
+
 	};
 }

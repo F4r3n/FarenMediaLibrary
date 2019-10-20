@@ -29,7 +29,8 @@ public:
         return false;
     }
 
-    template <typename U> bool contains(float x, float y) {
+    bool contains(float x, float y) 
+	{
         if(this->x < x && x + this->w > x && this->y < y && this->y + this->h > y)
             return true;
         return false;

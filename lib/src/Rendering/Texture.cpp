@@ -8,14 +8,18 @@
 using namespace fm;
 
 
-Texture::Texture(const std::string& path, Recti rect, bool alpha) : _path(path) {
-    if(alpha) {
+Texture::Texture(const std::string& path, Recti rect, bool alpha) 
+{
+    if(alpha) 
+	{
         _format = GL_RGBA;
-    } else
+    }
+	else
         _format = GL_RGB;
 
     Image image;
-    if(!image.loadImage(path)) {
+    if(!image.loadImage(path)) 
+	{
         std::cerr << "Error loading image " << path << std::endl;
     }
 
@@ -72,7 +76,6 @@ Texture::Texture(const Texture &texture)
     _textureKind = texture._textureKind;
     _format = texture._format;
     _type = texture._type;
-    _path = texture._path;
     _content = std::vector<unsigned char>(texture._content);
     _id = texture._id;
     filter = texture.filter;
@@ -87,7 +90,6 @@ Texture& Texture::operator=(const Texture &texture)
     _textureKind = texture._textureKind;
     _format = texture._format;
     _type = texture._type;
-    _path = texture._path;
     _content = std::vector<unsigned char>(texture._content);
     _id = texture._id;
     filter = texture.filter;
@@ -103,7 +105,6 @@ Texture& Texture::operator=(Texture &&texture)
     _textureKind = texture._textureKind;
     _format = texture._format;
     _type = texture._type;
-    _path = texture._path;
     _content.swap(texture._content);
     _id = texture._id;
     filter = texture.filter;
@@ -311,10 +312,10 @@ void Texture::setData(unsigned char* image, bool alpha) {
 }
 
 Texture::Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha) {
-    init(data, rect);
+    _init(data, rect);
 }
 
-void Texture::init(std::vector<unsigned char>& data, Recti& rect) {
+void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
     _width = rect.w;
     _height = rect.h;
 

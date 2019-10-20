@@ -5,6 +5,8 @@
 #include <commdlg.h>
 #else
 #include <iostream>
+#include <chrono>
+#include <thread>
 #endif
 namespace pfd
 {
@@ -388,6 +390,8 @@ namespace pfd
 #endif
 			}
 
+#if _WIN32
+
 			// Use a static function to pass as BFFCALLBACK for legacy folder select
 			int CALLBACK file_dialog::bffcallback(HWND hwnd, UINT uMsg, LPARAM, LPARAM pData)
 			{
@@ -400,6 +404,7 @@ namespace pfd
 				}
 				return 0;
 			}
+#endif
 
 
 

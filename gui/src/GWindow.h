@@ -72,7 +72,7 @@ public:
 	virtual void Update(float, Context &inContext) {}
 
 protected:
-
+	size_t		_id;
 	virtual void CustomDraw();
 	virtual void WillClose();
 	fm::math::vec2 _position;

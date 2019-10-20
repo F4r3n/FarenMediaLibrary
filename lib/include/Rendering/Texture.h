@@ -60,7 +60,8 @@ enum Wrapping {
 #endif
 };
 
-class Texture {
+class Texture 
+{
    public:
     Texture(const Image& image, Recti rect = {0, 0, -1, -1});
     Texture(const std::string& path,
@@ -68,54 +69,53 @@ class Texture {
             bool alpha = true);
     Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha = true);
     Texture(unsigned int width, unsigned int height);
-    void setData(unsigned char* image, bool alpha);
-    Texture();
-    ~Texture();
-    void bind() const;
-    void clear();
-    inline unsigned int getID() const {
-        return _id;
-    }
-    void generate(int width, int height, Format format, Type type, int multiSampled = 0);
-    void release();
-    Filter filter = NEAREST;
-    Wrapping wrapping = REPEAT;
+	Texture();
+	~Texture();
 
-    void writeToPNG(const std::string& name);
-    void setData(void* data);
-    void setTo(int value, const fm::Recti& rect);
-    void setData(void* data, const fm::Recti& rect);
-    unsigned int getWidth() const{
-        return _width;
-    }
-    unsigned int getHeight() const{
-        return _height;
-    }
-    unsigned int getNumberChannels() const{
-        return _numberChannels;
-    }
-    Kind GetKind() const{
-        return _textureKind;
-    }
-    Texture(const Texture &texture);
+	Texture(const Texture &texture);
+	Texture& operator=(const Texture &texture);
+	Texture& operator=(Texture &&texture);
 
-    Texture& operator=(const Texture &texture);
+    void				setData(unsigned char* image, bool alpha);
 
-    Texture& operator=(Texture &&texture);
+    void				bind() const;
+    void				clear();
+    inline unsigned int getID() const {return _id;}
+    void				generate(int width, int height, Format format, Type type, int multiSampled = 0);
+    void				release();
 
-    const std::string& GetPath() const {return _path;}
-    void SetPath(const std::string &path) {_path = path;}
+
+    void				writeToPNG(const std::string& name);
+    void				setData(void* data);
+    void				setTo(int value, const fm::Recti& rect);
+    void				setData(void* data, const fm::Recti& rect);
+    unsigned int		getWidth() const{ return _width; }
+    unsigned int		getHeight() const{  return _height; }
+    unsigned int		getNumberChannels() const{ return _numberChannels; }
+    Kind				GetKind() const{ return _textureKind;}
+	template <typename T>
+	T					GetPixel(const fm::math::vec2& inPosition) const
+						{
+							glBindTexture(_textureKind, _id);
+							T data;
+							glReadPixels(inPosition.x, inPosition.y, 1, 1, _format, _type, &data);
+							return data;
+						}
+
+	Filter filter = NEAREST;
+	Wrapping wrapping = REPEAT;
 
    private:
+	void				_init(std::vector<unsigned char>& data, Recti& rect);
+
+
     Kind _textureKind= Kind::TEXTURE2D;
     unsigned int _width;
     unsigned int _height;
     unsigned int _numberChannels = 4;
 
-    void init(std::vector<unsigned char>& data, Recti& rect);
     int _format;
     int _type;
-    std::string _path;
     std::vector<unsigned char> _content;
 
     GLuint _id;

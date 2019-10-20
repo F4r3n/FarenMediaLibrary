@@ -4,6 +4,11 @@
 #include "Core/GameObject.h"
 #include <vector>
 #include "GWindow.h"
+
+namespace fms
+{
+	class PickingSystem;
+}
 namespace gui
 {
 	class GameView : public GWindow
@@ -25,7 +30,12 @@ namespace gui
 		void RemoveCamera(fm::GameObject *inGameObject);
 		bool SetMainCamera(fm::GameObject *inGameObject);
 		void Update(float dt, Context &inContext);
+
+		void SetPickingSystem(fms::PickingSystem *inPickingSystem);
 	private:
+		void _CallBackPickingSystem(fm::GameObject* inGameObject);
+
+		fms::PickingSystem* _pickingSystem;
 		std::vector<CameraPreview> previews;
 		int index = -1;
 	};

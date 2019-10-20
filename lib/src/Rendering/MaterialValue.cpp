@@ -3,12 +3,12 @@
 namespace fm {
 
 void to_json(nlohmann::json& j, const Texture& p) {
-        j["path"] = p.GetPath();
+       // j["path"] = p.GetPath();
     }
 
     void from_json(const nlohmann::json& j, Texture& p) {
-        std::string path = j["path"];
-        p.SetPath(path);
+        //std::string path = j["path"];
+        //p.SetPath(path);
     }
 
 void to_json(nlohmann::json& j, const TextureMat& p) {

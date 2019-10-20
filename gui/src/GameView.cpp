@@ -3,14 +3,17 @@
 #include "Components/CCamera.h"
 #include "Core/SceneManager.h"
 #include "imgui_internal.h"
-
+#include "PickingSystem.h"
 using namespace gui;
 GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar) 
 {
 	_enabled = true;
 }
 
-GameView::~GameView() {}
+GameView::~GameView() 
+{
+	delete _pickingSystem;
+}
 
 void GameView::CustomDraw()
 {
@@ -42,9 +45,43 @@ void GameView::CustomDraw()
     }
 }
 
-void GameView::Update(float dt, Context &inContext)
+void GameView::_CallBackPickingSystem(fm::GameObject* inGameObject)
 {
 
+}
+
+
+void GameView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
+{
+	_pickingSystem = inPickingSystem;
+	std::function<void(fm::GameObject*)> f = std::bind(&gui::GameView::_CallBackPickingSystem, this, std::placeholders::_1);
+	_pickingSystem->SetCallback(std::move(f));
+}
+
+
+void GameView::Update(float dt, Context &inContext)
+{
+	if (ImGui::IsMouseClicked(0))
+	{
+		ImVec2 pos = ImGui::GetWindowDockPos(_id);
+		ImVec2 size = ImGui::GetWindowDockSize(_id);
+		
+		ImVec2 mousePos = ImGui::GetMousePos();
+
+		fm::Rectf rect;
+		rect.w = size.x;
+		rect.h = size.y;
+		rect.x = pos.x;
+		rect.y = pos.y;
+
+		CameraPreview preview = previews[index];
+
+
+		if (rect.contains(mousePos.x, mousePos.y))
+		{
+			_pickingSystem->PickGameObject(preview.id, fm::math::vec2(mousePos.x, mousePos.y));
+		}
+	}
 }
 
 

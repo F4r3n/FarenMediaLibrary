@@ -45,7 +45,7 @@ void GWindow::Draw()
 		}
 		ImGui::Begin(_name.c_str(), &_enabled, _option);
 
-
+		_id = ImGui::GetWindowDockID();
 		CustomDraw();
 
 		for (auto &widget : _widgets)

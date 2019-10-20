@@ -90,8 +90,6 @@ private:
 	std::vector<fm::Config> _lastConfigsUsed;
 
 	//==========Systems==============
-	std::unique_ptr<fms::PickingSystem> _pickingSystem;
-
 };
 
 

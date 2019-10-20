@@ -51,7 +51,7 @@ MainWindow::MainWindow()
 	std::unique_ptr<gui::GameView> gameView = std::make_unique<gui::GameView>();
 	gameView->AddCamera(_mainCamera);
 	gameView->SetMainCamera(_mainCamera);
-
+	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
 
 	fm::Debug::log("Init done");
 
@@ -63,8 +63,7 @@ MainWindow::MainWindow()
 	_windows[WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
 	_windows[WIN_GAMEVIEW] = std::move(gameView);
 
-	std::function<void(fm::GameObject*)> f = std::bind(&MainWindow::_CallBackFromPickingSystem, this, std::placeholders::_1);
-	_pickingSystem = std::make_unique<fms::PickingSystem>(std::move(f), _editorScene);
+
 }
 
 
