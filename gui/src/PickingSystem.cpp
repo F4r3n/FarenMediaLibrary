@@ -76,8 +76,6 @@ void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inP
 
 				//float colorID = go->getID();
 				materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0]/255.f, r[1]/255.f, r[2] / 255.f, r[3]/255.f)));
-
-
 				commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
 
 				_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);

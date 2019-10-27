@@ -110,9 +110,8 @@ endif(MSVC)
 
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/Resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources)
+                   ${CMAKE_SOURCE_DIR}/Resources ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources
+					COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/InternalResources/imgui.ini $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                    ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 

@@ -70,6 +70,9 @@ private:
 
 	void _CallBackFromPickingSystem(fm::GameObject* inGameObject);
 private:
+	void _DrawContentMainCamera();
+	void _InitMainCamera();
+
 	gui::Context _context;
 
 	std::shared_ptr<fm::Scene> _editorScene;

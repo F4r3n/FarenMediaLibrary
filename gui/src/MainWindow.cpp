@@ -51,11 +51,7 @@ MainWindow::MainWindow()
 	fm::SceneManager::get().AddNewScene("newScene");
 	fm::SceneManager::get().setCurrentScene("newScene", false);
 
-	_mainCamera = fm::GameObjectHelper::create(_editorScene);
-	_mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, true, 4);
-
-	_mainCamera->addComponent<fmc::CTransform>();
-	_mainCamera->name = "Camera";
+	_InitMainCamera();
 
 	std::unique_ptr<gui::GameView> gameView = std::make_unique<gui::GameView>();
 	gameView->AddCamera(_mainCamera);
@@ -68,6 +64,36 @@ MainWindow::MainWindow()
 	_windows[WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
 	fm::Debug::log("Init done");
 }
+
+void MainWindow::_InitMainCamera()
+{
+	_mainCamera = fm::GameObjectHelper::create(_editorScene);
+	_mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, true, 4);
+	_mainCamera->addComponent<fmc::CTransform>();
+	_mainCamera->name = "Camera";
+}
+
+
+void MainWindow::_DrawContentMainCamera()
+{
+	std::vector<fm::GameObject*> &&gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
+	for (auto && go : gos)
+	{
+		if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
+		{
+			fmc::CMesh* mesh = go->get<fmc::CMesh>();
+
+			fm::CommandBuffer commandBuffer;
+			fm::MaterialProperties materialProperties;
+		
+			commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
+
+			_mainCamera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+		}
+	}
+}
+
+
 
 
 void MainWindow::_CallBackFromPickingSystem(fm::GameObject* inGameObject)
@@ -419,6 +445,8 @@ void MainWindow::Draw()
 
 	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+	//_DrawContentMainCamera();
 
 	for (auto& window : _windows)
 	{
