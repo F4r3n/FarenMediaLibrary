@@ -38,7 +38,12 @@ void GListEntities::Update(float dt, Context &inContext)
 	{
 		_timerListEntityUpdate += dt;
 	}
-	inContext.currentGameObjectSelected = _gameObjectSelected;
+
+	if (_hasBeenSelected)
+	{
+		_hasBeenSelected = false;
+		inContext.currentGameObjectSelected = _gameObjectSelected;
+	}
 }
 
 void GListEntities::CustomDraw()
@@ -54,6 +59,7 @@ void GListEntities::CustomDraw()
 		{
 			_entitiesSelected = i;
 			_gameObjectSelected = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[i];
+			_hasBeenSelected = true;
 		}
 
 		if (node_open)
@@ -71,16 +77,6 @@ void GListEntities::CustomDraw()
 	}
 }
 
-
-bool GListEntities::HasGameObjectSelected()
-{
-	return _gameObjectSelected != nullptr;
-}
-
-fm::GameObject* GListEntities::GetGameObjectSelected()
-{
-	return _gameObjectSelected;
-}
 
 GListEntities::~GListEntities()
 {

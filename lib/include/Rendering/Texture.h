@@ -92,15 +92,8 @@ class Texture
     unsigned int		getWidth() const{ return _width; }
     unsigned int		getHeight() const{  return _height; }
     unsigned int		getNumberChannels() const{ return _numberChannels; }
-    Kind				GetKind() const{ return _textureKind;}
-	template <typename T>
-	T					GetPixel(const fm::math::vec2& inPosition) const
-						{
-							glBindTexture(_textureKind, _id);
-							T data;
-							glReadPixels(inPosition.x, inPosition.y, 1, 1, _format, _type, &data);
-							return data;
-						}
+	Kind				GetKind() const { return _textureKind; }
+	void				GetPixel(const fm::math::vec2& inPosition, void *outValue) const;
 
 	Filter filter = NEAREST;
 	Wrapping wrapping = REPEAT;

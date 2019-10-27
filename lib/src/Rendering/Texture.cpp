@@ -340,6 +340,16 @@ void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
                                       // accidentily mess up our texture.
 }
 
+void Texture::GetPixel(const fm::math::vec2& inPosition, void *outValue) const
+{
+	glFlush();
+	glFinish();
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glBindTexture(_textureKind, _id);
+	glReadPixels(inPosition.x, inPosition.y, 1, 1, _format, _type, outValue);
+}
+
 void Texture::writeToPNG(const std::string& name) const
 {
 #if !OPENGL_ES
@@ -357,7 +367,7 @@ void Texture::writeToPNG(const std::string& name) const
         float* data = new float[_width * _height * _numberChannels];
         glBindTexture(_textureKind, _id);
         glGetTexImage(_textureKind, 0, _format, _type, data);
-        stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels);
+        stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels*sizeof(float));
         delete data;
     }
 #endif

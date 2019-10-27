@@ -90,7 +90,7 @@ void RenderTexture::release() {
     _isReady = false;
 }
 
-bool RenderTexture::isCreated()
+bool RenderTexture::isCreated() const
 {
     return _isReady;
 }

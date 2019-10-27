@@ -357,8 +357,8 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		if (error != 0) {
 			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
 		}
-		if (cam->_isAuto)
-		{
+		//if (cam->_isAuto)
+		//{
 			cam->_rendererConfiguration.postProcessRenderTexture.bind();
 			_finalShader->Use();
 			_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
@@ -376,7 +376,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			{
 				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 			}
-		}
+		//}
 		error = glGetError();
 		if (error != 0) {
 			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));

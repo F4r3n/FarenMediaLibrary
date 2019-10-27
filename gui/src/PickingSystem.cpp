@@ -17,7 +17,23 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 
 	_specialCamera->addComponent<fmc::CTransform>();
 	_specialCamera->name = "Camera";
-	_camera->target = std::make_shared<fm::RenderTexture>(fm::RenderTexture(_camera->getInternalRenderTexture(), 0));
+
+#if 1
+	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
+	fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+	fm::RenderTexture renderTexture(_camera->getInternalRenderTexture().getWidth(),
+		_camera->getInternalRenderTexture().getHeight(),
+		3,
+		formats,
+		types,
+		24,
+		0);
+
+
+	_camera->target = std::make_shared<fm::RenderTexture>(renderTexture);
+#else
+	_camera->target = std::make_shared<fm::RenderTexture>(_camera->getInternalRenderTexture(), 0);
+#endif
 
 	fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("picking");
 
@@ -37,13 +53,15 @@ void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inP
 		_camera->SetCallBackOnPostRendering([this, inPos]()
 		{
 			fm::Texture texture = _camera->target->GetColorBufferTexture(0);
-			std::string path("C:\\Users\\guill\\Pictures\\yolo.png");
-			texture.writeToPNG(path);
-			//float id = texture.GetPixel<float>(inPos);
-			//fm::GameObject* go = _editorScene->GetGameObject((size_t)id);
-			//_callback(go);
+			
+			unsigned char pixel[4];
+			texture.GetPixel(inPos, pixel);
+			size_t id = (pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
+			fm::GameObject* go = _currentScene->GetGameObject(id);
+			_callback(go);
 		});
 
+		size_t i = 1;
 		for (auto && go : _currentScene->getAllGameObjects())
 		{
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
@@ -52,12 +70,19 @@ void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inP
 
 				fm::CommandBuffer commandBuffer;
 				fm::MaterialProperties materialProperties = _material->GetProperties();
-				materialProperties.AddValue("colorID", fm::MaterialValue((float)go->getID()));
+				unsigned char r[sizeof(i)];
+				memcpy(r, &i, sizeof(i));
+				
+
+				//float colorID = go->getID();
+				materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0]/255.f, r[1]/255.f, r[2] / 255.f, r[3]/255.f)));
+
 
 				commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
 
 				_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 			}
+			++i;
 		}
 	}
 	

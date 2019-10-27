@@ -7,6 +7,9 @@ layout(location = 2) out vec4 posTexture;
 uniform vec4 mainColor;
 uniform int BloomEffect;
 
+uniform vec4 colorID;
+
+
 in vec3 ourPosition;
 in vec2 ourUVs;
 
@@ -16,6 +19,6 @@ void main()
 {
 	vec4 color = mainColor;
 	posTexture = vec4(ourPosition, 1);
-	FragColor = color * texture(texture0, ourUVs);
-	FragColor = vec4(1,0,0,1);
+	FragColor = colorID;
+	//FragColor = vec4(1,0,0,1);
 }

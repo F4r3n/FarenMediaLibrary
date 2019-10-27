@@ -36,7 +36,12 @@ namespace gui
 		void _CallBackPickingSystem(fm::GameObject* inGameObject);
 
 		fms::PickingSystem* _pickingSystem;
-		std::vector<CameraPreview> previews;
-		int index = -1;
+		std::vector<CameraPreview> _previews;
+		int _index = -1;
+		fm::math::vec2 _startImagePos;
+		fm::math::vec2 _endImagePos;
+
+		bool _resultPicking;
+		fm::GameObject* _gameObjectSelectedByPicking;
 	};
 }

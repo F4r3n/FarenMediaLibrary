@@ -377,6 +377,8 @@ void MainWindow::Update()
 	{
 		window.second->Update(fm::Time::dt, _context);
 	}
+	_currentEntity = _context.currentGameObjectSelected;
+
 
 	if (_windowStates[WIN_LOGGER])
 	{
@@ -420,7 +422,6 @@ void MainWindow::Draw()
 		window.second->Draw();
 	}
 
-	_currentEntity = _context.currentGameObjectSelected;
 
 	_DrawMenu();
 	_DrawMenuEntity();

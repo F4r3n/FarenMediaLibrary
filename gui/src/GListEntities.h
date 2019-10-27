@@ -17,8 +17,7 @@ namespace gui
 		~GListEntities();
 		void CustomDraw();
 		void Update(float dt, Context &inContext);
-		bool HasGameObjectSelected();
-		fm::GameObject* GetGameObjectSelected();
+
 	private:
 		void _RefreshAllEntities();
 
@@ -27,6 +26,7 @@ namespace gui
 		float _timerListEntityUpdate;
 		size_t _entitiesSelected;
 		fm::GameObject* _gameObjectSelected;
+		bool _hasBeenSelected = false;
 
 	};
 }

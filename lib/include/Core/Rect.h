@@ -29,11 +29,9 @@ public:
         return false;
     }
 
-    bool contains(float x, float y) 
+    inline bool contains(float x, float y) 
 	{
-        if(this->x < x && x + this->w > x && this->y < y && this->y + this->h > y)
-            return true;
-        return false;
+		return ((x > this->x) && (x < (this->x + this->w))) && ((y > this->y) && (y < (this->y + this->h)));
     }
 
     template <typename U> bool contains(const Rect<U>& rect2) {

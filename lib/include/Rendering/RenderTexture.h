@@ -16,10 +16,10 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         ~RenderTexture();
         
         void release();
-        bool isCreated();
+        bool isCreated() const;
         void bind();
-        inline unsigned int getWidth() {return _width;}
-        inline unsigned int getHeight() {return _height;}
+        inline unsigned int getWidth() const {return _width;}
+        inline unsigned int getHeight() const {return _height;}
         
 		const fm::Texture& GetColorBufferTexture(size_t id) const;
 		const std::vector<Texture>& GetColorBuffer() const { return _textureColorbuffer; }
