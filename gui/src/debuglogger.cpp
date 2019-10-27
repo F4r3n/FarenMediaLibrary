@@ -1,26 +1,15 @@
 #include "debuglogger.h"
+using namespace gui;
 
-DebugLogger::DebugLogger()
+DebugLogger::DebugLogger() : GWindow("Logger", true)
 {
     _buffer.clear();
     _buffer.push_back(0);
     _buffer.shrink_to_fit();
+	_enabled = false;
 }
 
-DebugLogger::DebugLogger(DebugLogger && db)
-{
-    _buffer.swap(db._buffer);
-    _lineOffsets.swap(db._lineOffsets);
-    _scrollToBottom = db._scrollToBottom;
 
-}
-
-DebugLogger::DebugLogger(const DebugLogger &db)
-{
-    _buffer = db._buffer;
-    _lineOffsets = db._lineOffsets;
-    _scrollToBottom = db._scrollToBottom;
-}
 
 DebugLogger::~DebugLogger()
 {
@@ -53,10 +42,18 @@ void DebugLogger::AddLog(const fm::Debug::Message &message)
     _mutex.unlock();
 }
 
-void DebugLogger::Draw(const char* title, bool* p_open)
+void DebugLogger::Update(float, Context &inContext)
 {
-    ImGui::SetNextWindowSize(ImVec2(500,400), ImGuiCond_FirstUseEver);
-    ImGui::Begin(title, p_open);
+	std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
+	for (size_t i = 0; i < messages.size(); ++i)
+	{
+		AddLog(messages[i]);
+	}
+}
+
+void DebugLogger::CustomDraw()
+{
+
     if (ImGui::Button("Clear")) Clear();
     ImGui::SameLine();
     bool copy = ImGui::Button("Copy");
@@ -64,17 +61,14 @@ void DebugLogger::Draw(const char* title, bool* p_open)
 
     ImGui::Separator();
     ImGui::BeginChild("scrolling", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
-    if (copy) ImGui::LogToClipboard();
-
-
+    if (copy) 
+		ImGui::LogToClipboard();
 
     ImGui::TextUnformatted((const char*)&_buffer.front());
-
 
     if (_scrollToBottom)
         ImGui::SetScrollHere(1.0f);
     _scrollToBottom = false;
     ImGui::EndChild();
-    ImGui::End();
 }
 

@@ -70,7 +70,9 @@ public:
 	void SetStatus(bool inValue);
 	virtual ~GWindow() {}
 	virtual void Update(float, Context &inContext) {}
-
+	void Start() { _enabled = true; }
+	void Stop() { _enabled = false; }
+	bool IsEnabled() const { return _enabled; }
 protected:
 	size_t		_id;
 	virtual void CustomDraw();

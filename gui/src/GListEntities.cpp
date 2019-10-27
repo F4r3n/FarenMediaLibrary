@@ -8,57 +8,39 @@ using namespace gui;
 
 GListEntities::GListEntities() : GWindow("List entities", true)
 {
-	_timerListEntityUpdate = 1;
-	_entitiesSelected = 0;
 	_gameObjectSelected = nullptr;
 	_enabled = true;
 }
 
 
-void GListEntities::_RefreshAllEntities()
-{
-	_namesEntities.clear();
-	std::vector<fm::GameObject*> gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
-	for (auto e : gos) 
-	{
-		_namesEntities.push_back(e->name.c_str());
-	}
-}
-
-
-
 void GListEntities::Update(float dt, Context &inContext)
 {
-	if (_timerListEntityUpdate > 1)
-	{
-		_RefreshAllEntities();
-		_timerListEntityUpdate = 0;
-	}
-	else
-	{
-		_timerListEntityUpdate += dt;
-	}
 
 	if (_hasBeenSelected)
 	{
 		_hasBeenSelected = false;
 		inContext.currentGameObjectSelected = _gameObjectSelected;
 	}
+
+	_gameObjectSelected = inContext.currentGameObjectSelected;
 }
 
 void GListEntities::CustomDraw()
 {
-	for (size_t i = 0; i < _namesEntities.size(); i++)
+	size_t entitySelected = -1;
+	std::vector<fm::GameObject*> listEntities = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
+	for (size_t i = 0; i < listEntities.size(); i++)
 	{
+		bool isSelected = (entitySelected == i)
+			|| (_gameObjectSelected != nullptr && listEntities[i] != nullptr && (_gameObjectSelected->getID() == listEntities[i]->getID()));
 		// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-		ImGuiTreeNodeFlags node_flags = ((_entitiesSelected == i) ? ImGuiTreeNodeFlags_Selected : 0);
+		ImGuiTreeNodeFlags node_flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
 
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, _namesEntities[i], i);
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->name.c_str(), i);
 
 		if (ImGui::IsItemClicked())
 		{
-			_entitiesSelected = i;
-			_gameObjectSelected = fm::SceneManager::get().getCurrentScene()->getAllGameObjects()[i];
+			_gameObjectSelected = listEntities[i];
 			_hasBeenSelected = true;
 		}
 
@@ -70,6 +52,7 @@ void GListEntities::CustomDraw()
 
 	if (ImGui::Button("Add Entity"))
 	{
+		_hasBeenSelected = true;
 		_gameObjectSelected = fm::GameObjectHelper::create();
 		_gameObjectSelected->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
 			fm::math::Vector3f(1, 1, 1),

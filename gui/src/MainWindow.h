@@ -77,12 +77,10 @@ private:
 	bool _windowStates[WIN_LAST];
 
 
-    fm::GameObject* _currentEntity = nullptr;
-
+    fm::GameObject* _currentEntity;
     fm::GameObject* _dlight;
        
     std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> _inspectorComponents;
-    DebugLogger _debugLogger;
 
     fm::ProjectSettings _projectSettings;
 

@@ -35,6 +35,15 @@
 
 MainWindow::MainWindow()
 {
+	_currentEntity = nullptr;
+	_dlight = nullptr;
+	_context.currentGameObjectSelected = nullptr;
+	for (size_t i = 0; i < WIN_LAST; ++i)
+	{
+		_windowStates[i] = false;
+	}
+
+
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
@@ -53,17 +62,11 @@ MainWindow::MainWindow()
 	gameView->SetMainCamera(_mainCamera);
 	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
 
-	fm::Debug::log("Init done");
-
-	for (size_t i = 0; i < WIN_LAST; ++i)
-	{
-		_windowStates[i] = false;
-	}
 
 	_windows[WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
 	_windows[WIN_GAMEVIEW] = std::move(gameView);
-
-
+	_windows[WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
+	fm::Debug::log("Init done");
 }
 
 
@@ -263,9 +266,17 @@ void MainWindow::_DrawMenu()
 
 		if (ImGui::BeginMenu("Options"))
 		{
-			if (ImGui::MenuItem("Logger", "L", &_windowStates[WIN_LOGGER]))
+			bool enable = _windows[WIN_LOGGER]->IsEnabled();
+			if (ImGui::MenuItem("Logger", "L", &enable, true))
 			{
-				_windowStates[WIN_LOGGER] = true;
+				if (enable)
+				{
+					_windows[WIN_LOGGER]->Start();
+				}
+				else
+				{
+					_windows[WIN_LOGGER]->Stop();
+				}
 			}
 			ImGui::EndMenu();
 		}
@@ -373,26 +384,17 @@ void MainWindow::_DisplayWindow_WorldLighEdit()
 
 void MainWindow::Update()
 {
+
 	for (auto& window : _windows)
 	{
 		window.second->Update(fm::Time::dt, _context);
 	}
 	_currentEntity = _context.currentGameObjectSelected;
-
-
-	if (_windowStates[WIN_LOGGER])
-	{
-		std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
-		for (size_t i = 0; i < messages.size(); ++i)
-		{
-			_debugLogger.AddLog(messages[i]);
-		}
-		_debugLogger.Draw("Logger");
-	}
 }
 
 void MainWindow::Draw()
 {
+
 	bool p_open = true;
 	ImGuiID dockspace_id;
 
@@ -401,6 +403,7 @@ void MainWindow::Draw()
 	ImGui::SetNextWindowSize(viewport->Size);
 	ImGui::SetNextWindowViewport(viewport->ID);
 	ImGui::SetNextWindowBgAlpha(0.0f);
+
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
@@ -422,10 +425,9 @@ void MainWindow::Draw()
 		window.second->Draw();
 	}
 
-
 	_DrawMenu();
 	_DrawMenuEntity();
-
+	
 	if (_windowStates[WIN_PROJECT_SETTINGS])
 	{
 		_DisplayWindow_ProjectSettings();
@@ -435,13 +437,6 @@ void MainWindow::Draw()
 	{
 		_DisplayWindow_WorldLighEdit();
 	}
-
-
-	if (_windowStates[WIN_LOGGER])
-	{
-		_debugLogger.Draw("Logger");
-	}
-
 
 	ImGui::End();
 }

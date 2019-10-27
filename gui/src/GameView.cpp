@@ -9,6 +9,9 @@ GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar)
 {
 	_enabled = true;
 	_gameObjectSelectedByPicking = nullptr;
+	_index = -1;
+	_pickingSystem = nullptr;
+	_resultPicking = false;
 }
 
 GameView::~GameView() 
@@ -21,9 +24,11 @@ void GameView::CustomDraw()
     if(_index >= 0 && _index < _previews.size()) 
 	{
 		CameraPreview preview = _previews[_index];
-
-		const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
-		ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), ImVec2(_startImagePos.x, _startImagePos.y), ImVec2(_endImagePos.x, _endImagePos.y));
+		if (preview.renderTexture != nullptr && preview.renderTexture->isCreated())
+		{
+			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
+			ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), ImVec2(_startImagePos.x, _startImagePos.y), ImVec2(_endImagePos.x, _endImagePos.y));
+		}
     }
 }
 
@@ -44,69 +49,80 @@ void GameView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
 
 void GameView::Update(float dt, Context &inContext)
 {
+	bool isRenderTextureReady = false;
+
 	if (_index >= 0 && _index < _previews.size())
 	{
 		CameraPreview preview = _previews[_index];
-
-		const float rapport = (float)preview.renderTexture->getWidth() / (float)preview.renderTexture->getHeight();
-
-
-		ImVec2 start;
-		ImVec2 size;
-		if (_id != 0 || ImGui::IsWindowDocked())
-		{
-			start = ImGui::GetWindowDockPos(_id);
-			size = ImGui::GetWindowDockSize(_id);
-		}
-		else
-		{
-			start = ImGui::GetWindowPos();
-			size = ImGui::GetWindowPos();
-		}
-		ImVec2 end;
-		end.x = start.x + size.x;
-		end.y = start.y + size.x / rapport;
-
-		_startImagePos = fm::math::vec2(start.x, start.y);
-		_endImagePos = fm::math::vec2(end.x, end.y);
+		isRenderTextureReady = preview.renderTexture != nullptr && preview.renderTexture->isCreated();
 	}
 
-	if (ImGui::IsMouseClicked(0))
-	{		
-		ImVec2 mousePos = ImGui::GetMousePos();
-
-		fm::Rectf rect;
-		rect.w = _endImagePos.x - _startImagePos.x;
-		rect.h = _endImagePos.y - _startImagePos.y;
-		rect.x = _startImagePos.x;
-		rect.y = _startImagePos.y;
-
-		const CameraPreview preview = _previews[_index];
-
-
-		if (rect.contains(mousePos.x, mousePos.y))
-		{
-			fm::math::vec2 mPos(mousePos.x, mousePos.y);
-			mPos.x -= _startImagePos.x;
-			mPos.y -= _startImagePos.y;
-			mPos.x = (mPos.x /(  _endImagePos.x - _startImagePos.x))*preview.renderTexture->getWidth();
-			mPos.y = (mPos.y / (_endImagePos.y -_startImagePos.y))*preview.renderTexture->getHeight();
-
-			_pickingSystem->PickGameObject(preview.id, mPos);
-		}
-	}
-
-	if (ImGui::IsMouseClicked(1))
+	assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
+	if (isRenderTextureReady)
 	{
-		CameraPreview preview = _previews[_index];
-		preview.renderTexture->GetColorBufferTexture(0).writeToPNG("C:\\Users\\guill\\Pictures\\yolo2.png");
-	}
+		if (_index >= 0 && _index < _previews.size())
+		{
+			CameraPreview preview = _previews[_index];
 
-	if (_resultPicking)
-	{
-		inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
-		_gameObjectSelectedByPicking = nullptr;
-		_resultPicking = false;
+			const float rapport = (float)preview.renderTexture->getWidth() / (float)preview.renderTexture->getHeight();
+
+			ImVec2 start;
+			ImVec2 size;
+			if (_id != 0 || ImGui::IsWindowDocked())
+			{
+				start = ImGui::GetWindowDockPos(_id);
+				size = ImGui::GetWindowDockSize(_id);
+			}
+			else
+			{
+				start = ImGui::GetWindowPos();
+				size = ImGui::GetWindowPos();
+			}
+			ImVec2 end;
+			end.x = start.x + size.x;
+			end.y = start.y + size.x / rapport;
+
+			_startImagePos = fm::math::vec2(start.x, start.y);
+			_endImagePos = fm::math::vec2(end.x, end.y);
+		}
+
+		if (ImGui::IsMouseClicked(0))
+		{
+			ImVec2 mousePos = ImGui::GetMousePos();
+
+			fm::Rectf rect;
+			rect.w = _endImagePos.x - _startImagePos.x;
+			rect.h = _endImagePos.y - _startImagePos.y;
+			rect.x = _startImagePos.x;
+			rect.y = _startImagePos.y;
+
+			const CameraPreview preview = _previews[_index];
+
+
+			if (rect.contains(mousePos.x, mousePos.y))
+			{
+				fm::math::vec2 mPos(mousePos.x, mousePos.y);
+				mPos.x -= _startImagePos.x;
+				mPos.y -= _startImagePos.y;
+				mPos.x = (mPos.x / (_endImagePos.x - _startImagePos.x))*preview.renderTexture->getWidth();
+				mPos.y = (mPos.y / (_endImagePos.y - _startImagePos.y))*preview.renderTexture->getHeight();
+
+				_pickingSystem->PickGameObject(preview.id, mPos);
+			}
+		}
+
+		if (ImGui::IsMouseClicked(1))
+		{
+			CameraPreview preview = _previews[_index];
+			preview.renderTexture->GetColorBufferTexture(0).writeToPNG("C:\\Users\\guill\\Pictures\\yolo2.png");
+		}
+
+		if (_resultPicking)
+		{
+			inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
+			_gameObjectSelectedByPicking = nullptr;
+			_resultPicking = false;
+		}
 	}
 }
 

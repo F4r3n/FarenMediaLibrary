@@ -37,7 +37,7 @@ namespace gui
 
 		fms::PickingSystem* _pickingSystem;
 		std::vector<CameraPreview> _previews;
-		int _index = -1;
+		int _index;
 		fm::math::vec2 _startImagePos;
 		fm::math::vec2 _endImagePos;
 
