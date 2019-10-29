@@ -192,11 +192,9 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 			types,
 			0);
 
-		camera->_rendererConfiguration.resolveMSAARenderTexture = fm::RenderTexture(camera->_renderTexture, 0);
 
 		camera->_rendererConfiguration.lightRenderTexture.create();
 		camera->_rendererConfiguration.postProcessRenderTexture.create();
-		camera->_rendererConfiguration.resolveMSAARenderTexture.create();
 
 		camera->_rendererConfiguration.isInit = true;
 	}
@@ -276,9 +274,9 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 	for (auto &&e : em.iterate<fmc::CCamera>())
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
-
 		if (!cam->Enabled || (!cam->_isAuto && cam->_commandBuffers.empty()))
 			continue;
+
 
 		fmc::CTransform* transform = e->get<fmc::CTransform>();
 
@@ -308,13 +306,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 		}
 
-		cam->_rendererConfiguration.lightRenderTexture.bind();
-		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-
 		cam->_rendererConfiguration.postProcessRenderTexture.bind();
-		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-
-		cam->_rendererConfiguration.resolveMSAARenderTexture.bind();
 		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		cam->_renderTexture.bind();
@@ -351,8 +343,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		if (error != 0) {
 			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
 		}
-		//Resolve MSAA
-		fm::Renderer::getInstance().blit(_graphics, cam->_renderTexture, cam->_rendererConfiguration.resolveMSAARenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+
 		error = glGetError();
 		if (error != 0) {
 			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
@@ -365,7 +356,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_finalShader->setValue("viewPos", transform->position);
 			_finalShader->setValue("screenTexture", 0);
 
-			fm::Renderer::getInstance().postProcess(_graphics, cam->_rendererConfiguration.resolveMSAARenderTexture.GetColorBufferTexture(0));
+			fm::Renderer::getInstance().postProcess(_graphics, cam->_renderTexture.GetColorBufferTexture(0));
 
 
 			if (cam->target != nullptr)
@@ -393,7 +384,6 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		_graphics.BindFrameBuffer(0);
 
-		//cam->_rendererConfiguration.postProcessRenderTexture.GetColorBufferTexture(0).writeToPNG("C:\\Users\\guill\\Pictures\\yolo.png");
 	}
 }
 

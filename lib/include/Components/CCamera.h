@@ -7,6 +7,8 @@
 #include "Rendering/RenderQueue.h"
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/RenderTexture.h"
+#include <mutex>
+
 namespace fm 
 {
 	class RenderTexture;
@@ -46,7 +48,6 @@ struct RendererConfiguration
 
 	fm::RenderTexture lightRenderTexture;
 	fm::RenderTexture postProcessRenderTexture;
-	fm::RenderTexture resolveMSAARenderTexture;
 
 	fm::Bounds bounds;
 	std::unique_ptr<fm::UniformBuffer> uboLight;

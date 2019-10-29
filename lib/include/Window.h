@@ -15,7 +15,7 @@ public:
     ~Window();
     explicit Window() {}
     void swapBuffers() const;
-    static void setMSAA(int value);
+    void setMSAA(int value);
     bool isClosed();
     void frameLimit(float fps);
     void update(float fps, bool internalUpdate = true);
@@ -29,6 +29,7 @@ public:
     static int kY;
     bool Init();
 	void* GetContext();
+	size_t GetMSAA() const { return _msaa; }
 private:
     int  _Init();
     void _ErrorDisplay();
@@ -43,6 +44,6 @@ private:
     double _currFrameTime = 0;
     double _frameStart = 0;
 	size_t _windowFlag;
-    
+	size_t _msaa;
 };
 }

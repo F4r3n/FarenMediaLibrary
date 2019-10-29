@@ -29,11 +29,36 @@ void Graphics::SetViewPort(const fm::Rect<float>& rect) const
 
 void Graphics::Enable(RENDERING_TYPE r) const
 {
-    glEnable(r);
+	auto it = _renderingSettings.find(r);
+	if (it != _renderingSettings.end())
+	{
+		if (!it->second)
+		{
+			glEnable(r);
+		}
+	}
+	else
+	{
+		glEnable(r);
+	}
+	_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, true));
+
 }
 void Graphics::Disable(RENDERING_TYPE r) const
 {
-    glDisable(r);
+	auto it = _renderingSettings.find(r);
+	if (it != _renderingSettings.end())
+	{
+		if (it->second)
+		{
+			glDisable(r);
+		}
+	}
+	else
+	{
+		glDisable(r);
+	}
+	_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, false));
 }
 
 void Graphics::Draw(int primitiveType,
@@ -77,6 +102,16 @@ void Graphics::BindTexture2D(int number, int idTexture, int type) const
 {
     glActiveTexture(GL_TEXTURE0 + number);
     glBindTexture(type, idTexture);
+}
+
+void Graphics::RestoreSettings(const RenderingSettings &inSettings)
+{
+	_renderingSettings = inSettings;
+}
+
+const RenderingSettings& Graphics::GetRenderingSettings()
+{
+	return _renderingSettings;
 }
 
 

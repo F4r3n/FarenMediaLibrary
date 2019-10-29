@@ -27,6 +27,7 @@ Window::Window(int width, int height, size_t inWindowFlag)
     Window::kHeight = height;
 
 	_windowFlag = inWindowFlag;
+	_msaa = 0;
 }
 
 bool Window::Init()
@@ -80,7 +81,6 @@ bool Window::Init()
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetSwapInterval(0);
-    setMSAA(4);
 
     if(_Init())
     {
@@ -98,10 +98,11 @@ bool Window::Init()
 
 void Window::setMSAA(int value) 
 {
-    if(value > 0)
+	_msaa = value;
+    if(_msaa > 0)
     {
         glEnable(GL_MULTISAMPLE);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, value);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, _msaa);
     }else
     {
         glDisable(GL_MULTISAMPLE);

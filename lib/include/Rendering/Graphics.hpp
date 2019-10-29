@@ -2,10 +2,13 @@
 #include <Core/Math/Vector4.h>
 #include <Core/Rect.h>
 #include <Rendering/VertexBuffer.hpp>
+#include <unordered_map>
 namespace fm {
 	enum RENDERING_TYPE : unsigned int {
 		BLEND = GL_BLEND,
-		DEPTH_TEST = GL_DEPTH_TEST
+		DEPTH_TEST = GL_DEPTH_TEST,
+		CULL_FACE = GL_CULL_FACE,
+
     };
 
 	
@@ -21,8 +24,9 @@ namespace fm {
 		return (enum BUFFER_BIT)(uint32_t(selfValue) | uint32_t(inValue));
 	}
     class Model;
-    
-    class Graphics {
+	typedef std::unordered_map<fm::RENDERING_TYPE, bool> RenderingSettings;
+    class Graphics
+	{
       public :
         Graphics();
         ~Graphics();
@@ -37,6 +41,12 @@ namespace fm {
         void BindVertexBuffer(rendering::VertexBuffer *vertexBuffer) const;
         void BindFrameBuffer(unsigned int id) const;
         void BindTexture2D(int number, int idTexture, int type) const;
+
+
+		void RestoreSettings(const RenderingSettings &inSettings);
+		const RenderingSettings& GetRenderingSettings();
+	private:
+		mutable RenderingSettings _renderingSettings;
     };
     
 }

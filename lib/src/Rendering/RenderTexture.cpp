@@ -21,7 +21,6 @@ RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampli
     _height = renderTexture._height;
     _depth = renderTexture._depth;
     _numberColors = renderTexture._numberColors;
-    if(multiSampling == -1)
     _multiSampling = renderTexture._multiSampling;
     for(unsigned int i = 0; i < renderTexture._numberColors; ++i) 
 	{

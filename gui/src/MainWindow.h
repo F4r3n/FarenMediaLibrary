@@ -68,7 +68,6 @@ private:
 	void _ClearInspectorComponents();
 	void _ConfigureStyle();
 
-	void _CallBackFromPickingSystem(fm::GameObject* inGameObject);
 private:
 	void _DrawContentMainCamera();
 	void _InitMainCamera();

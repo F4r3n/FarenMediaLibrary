@@ -32,7 +32,7 @@
 #include "PortableFileDialog.h"
 #include "PickingSystem.h"
 #include <functional>
-
+#include "Window.h"
 MainWindow::MainWindow()
 {
 	_currentEntity = nullptr;
@@ -63,12 +63,14 @@ MainWindow::MainWindow()
 	_windows[WIN_GAMEVIEW] = std::move(gameView);
 	_windows[WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
 	fm::Debug::log("Init done");
+
 }
 
 void MainWindow::_InitMainCamera()
 {
 	_mainCamera = fm::GameObjectHelper::create(_editorScene);
-	_mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, true, 4);
+	_mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, 
+		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
 	_mainCamera->addComponent<fmc::CTransform>();
 	_mainCamera->name = "Camera";
 }
@@ -85,25 +87,17 @@ void MainWindow::_DrawContentMainCamera()
 
 			fm::CommandBuffer commandBuffer;
 			fm::MaterialProperties materialProperties;
-		
+
 			commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
 
 			_mainCamera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 		}
-	}
+	}	
 }
 
-
-
-
-void MainWindow::_CallBackFromPickingSystem(fm::GameObject* inGameObject)
-{
-
-}
 
 MainWindow::~MainWindow()
 {
-
 }
 
 
@@ -446,8 +440,7 @@ void MainWindow::Draw()
 	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-	//_DrawContentMainCamera();
-
+	_DrawContentMainCamera();
 	for (auto& window : _windows)
 	{
 		window.second->Draw();

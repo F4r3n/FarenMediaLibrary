@@ -35,7 +35,7 @@ Engine::~Engine()
 
 void Engine::Run(Window& window)
 {
-    fm::Window::setMSAA(4);
+	window.setMSAA(0);
 
     while(!window.isClosed()) 
 	{

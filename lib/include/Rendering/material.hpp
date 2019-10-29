@@ -7,6 +7,7 @@
 #include <Rendering/MaterialValue.h>
 #include <Resource/Resource.h>
 #include <Core/serializer.hpp>
+#include <Rendering/Graphics.hpp>
 namespace fm
 {
 class Shader;
@@ -79,8 +80,14 @@ public:
 		}
 	}
 
+	void AddSettings(fm::RENDERING_TYPE inRenderingType, bool value)
+	{
+		_renderingSettings[inRenderingType] = value;
+	}
+
 	const std::vector< MaterialProperty>& GetValues() const{ return _materialProperties; }
 private:
+	std::unordered_map<fm::RENDERING_TYPE, bool> _renderingSettings;
 	std::vector< MaterialProperty> _materialProperties;
 };
 
