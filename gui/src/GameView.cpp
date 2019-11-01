@@ -29,8 +29,10 @@ void GameView::CustomDraw()
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
+			ImVec2 ori = ImGui::GetCursorPos();
 			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
 			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
+			ImGui::SetCursorPos(ori);
 			ImGuizmo::SetDrawlist();
 			_EditObject();
 		}
@@ -62,7 +64,7 @@ void GameView::_EditObject()
 
 
 		ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect(_cursorPos.x, 0, io.DisplaySize.x, io.DisplaySize.y);
+		ImGuizmo::SetRect(_startImagePos.x, _startImagePos.y, _endImagePos.x, _endImagePos.y);
 		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
 		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
 		fm::math::mat model = transform->GetLocalMatrixModel();
