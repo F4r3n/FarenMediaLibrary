@@ -7,7 +7,7 @@
 #include "ImGuizmo/ImGuizmo.h"
 #include "Input/InputManager.h"
 using namespace gui;
-GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar) 
+GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoNavInputs)
 {
 	_enabled = true;
 	_gameObjectSelectedByPicking = nullptr;
@@ -52,7 +52,7 @@ void GameView::_EditObject()
 			return;
 
 		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_T))
 			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
 		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_R))
