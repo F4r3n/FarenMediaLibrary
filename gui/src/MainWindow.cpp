@@ -33,6 +33,7 @@
 #include "PickingSystem.h"
 #include <functional>
 #include "Window.h"
+#include "ImGuizmo/ImGuizmo.h"
 MainWindow::MainWindow()
 {
 	_currentEntity = nullptr;
@@ -337,7 +338,8 @@ void MainWindow::_DrawListCamera()
 
 }
 
-void MainWindow::_DrawComponentsAvailable() {
+void MainWindow::_DrawComponentsAvailable() 
+{
 }
 
 void MainWindow::_DrawMenuEntity()
@@ -412,6 +414,9 @@ void MainWindow::Update()
 	_currentEntity = _context.currentGameObjectSelected;
 }
 
+
+
+
 void MainWindow::Draw()
 {
 
@@ -460,6 +465,7 @@ void MainWindow::Draw()
 	}
 
 	ImGui::End();
+
 }
 
 void MainWindow::_ConfigureStyle()

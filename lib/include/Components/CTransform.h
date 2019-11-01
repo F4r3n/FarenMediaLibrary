@@ -2,7 +2,7 @@
 #include "component.h"
 #include "Core/Transform.h"
 #include "Core/Math/Vector3.h"
-
+#include "Core/Math/Matrix.h"
 
 class Entity;
 class EntityManager;
@@ -26,6 +26,8 @@ class CTransform : public FMComponent<CTransform> {
         const std::string& GetName() const override;
         virtual uint16_t GetType() const {return kTransform;}
 		fm::Transform GetTransform() const;
+		fm::math::mat GetLocalMatrixModel() const;
+		void SetLocalMatrixModel(const fm::math::mat &inLocalMatrix);
 		void From(const fmc::CTransform *inTransform);
 
         void setFather(ecs::id id);

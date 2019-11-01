@@ -13,9 +13,11 @@ namespace gui
 {
 	class GameView : public GWindow
 	{
+
 		struct CameraPreview
 		{
 			size_t id;
+			fm::GameObject* go;
 			std::shared_ptr<fm::RenderTexture> renderTexture;
 		};
 
@@ -33,6 +35,9 @@ namespace gui
 
 		void SetPickingSystem(fms::PickingSystem *inPickingSystem);
 	private:
+		void _EditObject();
+		void _UpdateGizmo(fm::GameObject *inGameObjectSelected);
+
 		void _CallBackPickingSystem(fm::GameObject* inGameObject);
 
 		fms::PickingSystem* _pickingSystem;

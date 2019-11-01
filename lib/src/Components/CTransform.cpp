@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include <EntityManager.h>
 #include "Core/Math/Matrix.h"
+#include "Core/Math/Functions.h"
 //#include "TransformInspector.h"
 using namespace fmc;
 const std::string CTransform::name = "Transform";
@@ -84,6 +85,27 @@ fm::Transform CTransform::GetTransform() const
 	tr.worldPosition = getWorldPos();
 	return tr;
 }
+
+void CTransform::SetLocalMatrixModel(const fm::math::mat &inLocalMatrix)
+{
+
+}
+
+
+fm::math::mat CTransform::GetLocalMatrixModel() const
+{
+	fm::math::mat model;
+	model.identity();
+
+	model = fm::math::translate(model, fm::math::vec3(position.x, position.y, position.z));
+	model = fm::math::rotate(model, fm::math::radians(rotation.x), fm::math::vec3(1, 0, 0));
+	model = fm::math::rotate(model, fm::math::radians(rotation.y), fm::math::vec3(0, 1, 0));
+	model = fm::math::rotate(model, fm::math::radians(rotation.z), fm::math::vec3(0, 0, 1));
+
+	model = fm::math::scale(model, fm::math::vec3(scale.x, scale.y, scale.z));
+	return model;
+}
+
 
 
 fm::math::Vector3f CTransform::getWorldPos() const

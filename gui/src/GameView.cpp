@@ -4,6 +4,7 @@
 #include "Core/SceneManager.h"
 #include "imgui_internal.h"
 #include "PickingSystem.h"
+#include "ImGuizmo/ImGuizmo.h"
 using namespace gui;
 GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar) 
 {
@@ -30,15 +31,49 @@ void GameView::CustomDraw()
 
 			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
 			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
-			//ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), 
-			//	ImVec2(_startImagePos.x, _startImagePos.y), 
-			//	ImVec2(_endImagePos.x, _endImagePos.y),
-			//	ImVec2( 0.0f, 0.0f),
-			//	ImVec2(0.5f, 1.0f)
-			//);
+			ImGuizmo::SetDrawlist();
+			_EditObject();
 		}
     }
 }
+
+
+
+void GameView::_EditObject()
+{
+	if (_index >= 0 && _index < _previews.size())
+	{
+		CameraPreview preview = _previews[_index];
+		fm::GameObject* camera = preview.go;
+		if (_gameObjectSelectedByPicking == nullptr)
+			return;
+
+		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+		if (ImGui::IsKeyPressed(90))
+			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+		if (ImGui::IsKeyPressed(69))
+			mCurrentGizmoOperation = ImGuizmo::ROTATE;
+		if (ImGui::IsKeyPressed(82)) // r Key
+			mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+
+		fmc::CTransform *transform = _gameObjectSelectedByPicking->get<fmc::CTransform>();
+
+
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuizmo::SetRect(_cursorPos.x, 0, io.DisplaySize.x, io.DisplaySize.y);
+		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
+		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
+		fm::math::mat model = transform->GetLocalMatrixModel();
+
+		ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
+
+		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &transform->rotation[0], &transform->scale[0]);
+	}
+
+}
+
 
 void GameView::_CallBackPickingSystem(fm::GameObject* inGameObject)
 {
@@ -132,7 +167,7 @@ void GameView::Update(float dt, Context &inContext)
 		if (_resultPicking)
 		{
 			inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
-			_gameObjectSelectedByPicking = nullptr;
+			_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;
 			_resultPicking = false;
 		}
 	}
@@ -143,6 +178,7 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 {
 	CameraPreview preview;
 	preview.id = inGameObject->getID();
+	preview.go = inGameObject;
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
 	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
 	camera->target = preview.renderTexture;
