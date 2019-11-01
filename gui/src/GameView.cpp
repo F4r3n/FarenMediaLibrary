@@ -27,7 +27,15 @@ void GameView::CustomDraw()
 		if (preview.renderTexture != nullptr && preview.renderTexture->isCreated())
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
-			ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), ImVec2(_startImagePos.x, _startImagePos.y), ImVec2(_endImagePos.x, _endImagePos.y));
+
+			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
+			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
+			//ImGui::GetWindowDrawList()->AddImage((void*)texture.getID(), 
+			//	ImVec2(_startImagePos.x, _startImagePos.y), 
+			//	ImVec2(_endImagePos.x, _endImagePos.y),
+			//	ImVec2( 0.0f, 0.0f),
+			//	ImVec2(0.5f, 1.0f)
+			//);
 		}
     }
 }
@@ -60,14 +68,15 @@ void GameView::Update(float dt, Context &inContext)
 	assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
 	if (isRenderTextureReady)
 	{
+		ImVec2 size;
+		ImVec2 start;
+
 		if (_index >= 0 && _index < _previews.size())
 		{
 			CameraPreview preview = _previews[_index];
 
 			const float rapport = (float)preview.renderTexture->getWidth() / (float)preview.renderTexture->getHeight();
 
-			ImVec2 start;
-			ImVec2 size;
 			if (_id != 0 || ImGui::IsWindowDocked())
 			{
 				start = ImGui::GetWindowDockPos(_id);
@@ -79,10 +88,15 @@ void GameView::Update(float dt, Context &inContext)
 				size = ImGui::GetWindowPos();
 			}
 			ImVec2 end;
-			end.x = start.x + size.x;
-			end.y = start.y + size.x / rapport;
+			end.x = start.x + preview.renderTexture->getWidth();
+			end.y = start.y + preview.renderTexture->getHeight();
 
-			_startImagePos = fm::math::vec2(start.x, start.y);
+			_cursorPos = fm::math::vec2(-(preview.renderTexture->getWidth() - size.x)*0.5f, 
+										-(preview.renderTexture->getHeight() - size.y)*0.5f);
+			_startImagePos = _cursorPos;
+			_startImagePos.y += start.y;
+			_startImagePos.x += start.x;
+
 			_endImagePos = fm::math::vec2(end.x, end.y);
 		}
 
@@ -91,10 +105,10 @@ void GameView::Update(float dt, Context &inContext)
 			ImVec2 mousePos = ImGui::GetMousePos();
 
 			fm::Rectf rect;
-			rect.w = _endImagePos.x - _startImagePos.x;
-			rect.h = _endImagePos.y - _startImagePos.y;
-			rect.x = _startImagePos.x;
-			rect.y = _startImagePos.y;
+			rect.w = size.x;
+			rect.h = size.y;
+			rect.x = start.x;
+			rect.y = start.y;
 
 			const CameraPreview preview = _previews[_index];
 
@@ -104,8 +118,6 @@ void GameView::Update(float dt, Context &inContext)
 				fm::math::vec2 mPos(mousePos.x, mousePos.y);
 				mPos.x -= _startImagePos.x;
 				mPos.y -= _startImagePos.y;
-				mPos.x = (mPos.x / (_endImagePos.x - _startImagePos.x))*preview.renderTexture->getWidth();
-				mPos.y = (mPos.y / (_endImagePos.y - _startImagePos.y))*preview.renderTexture->getHeight();
 
 				_pickingSystem->PickGameObject(preview.id, mPos);
 			}

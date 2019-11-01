@@ -40,6 +40,7 @@ namespace gui
 		int _index;
 		fm::math::vec2 _startImagePos;
 		fm::math::vec2 _endImagePos;
+		fm::math::vec2 _cursorPos;
 
 		bool _resultPicking;
 		fm::GameObject* _gameObjectSelectedByPicking;
