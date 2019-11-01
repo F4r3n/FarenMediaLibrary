@@ -20,7 +20,7 @@ namespace math {
     template <typename T>
     inline T radians(T a)
     {
-        return static_cast<T>(a*pi()/180);
+        return static_cast<T>(a*pi()/(T)180);
     }
 
     template <typename T> inline T mod(T a, T b) {

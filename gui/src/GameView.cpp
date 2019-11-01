@@ -5,6 +5,7 @@
 #include "imgui_internal.h"
 #include "PickingSystem.h"
 #include "ImGuizmo/ImGuizmo.h"
+#include "Input/InputManager.h"
 using namespace gui;
 GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar) 
 {
@@ -51,12 +52,12 @@ void GameView::_EditObject()
 			return;
 
 		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
-		if (ImGui::IsKeyPressed(90))
+		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_T))
 			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		if (ImGui::IsKeyPressed(69))
+		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_R))
 			mCurrentGizmoOperation = ImGuizmo::ROTATE;
-		if (ImGui::IsKeyPressed(82)) // r Key
+		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_S)) // r Key
 			mCurrentGizmoOperation = ImGuizmo::SCALE;
 
 
@@ -69,9 +70,15 @@ void GameView::_EditObject()
 		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
 		fm::math::mat model = transform->GetLocalMatrixModel();
 
+		fm::math::vec3 rotation = transform->rotation;
+		fm::math::vec3 position = transform->position;
+		fm::math::vec3 scale = transform->scale;
+		ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
+
 		ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
 
 		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &transform->rotation[0], &transform->scale[0]);
+		
 	}
 
 }
@@ -79,8 +86,11 @@ void GameView::_EditObject()
 
 void GameView::_CallBackPickingSystem(fm::GameObject* inGameObject)
 {
-	_resultPicking = true;
-	_gameObjectSelectedByPicking = inGameObject;
+	if (inGameObject != nullptr)
+	{
+		_resultPicking = true;
+		_gameObjectSelectedByPicking = inGameObject;
+	}
 }
 
 
@@ -160,11 +170,6 @@ void GameView::Update(float dt, Context &inContext)
 			}
 		}
 
-		if (ImGui::IsMouseClicked(1))
-		{
-			CameraPreview preview = _previews[_index];
-			preview.renderTexture->GetColorBufferTexture(0).writeToPNG("C:\\Users\\guill\\Pictures\\yolo2.png");
-		}
 
 		if (_resultPicking)
 		{

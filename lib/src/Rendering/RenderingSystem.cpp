@@ -383,7 +383,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 
 		_graphics.BindFrameBuffer(0);
-
+		cam->_commandBuffers.clear();
 	}
 }
 

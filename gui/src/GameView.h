@@ -36,8 +36,6 @@ namespace gui
 		void SetPickingSystem(fms::PickingSystem *inPickingSystem);
 	private:
 		void _EditObject();
-		void _UpdateGizmo(fm::GameObject *inGameObjectSelected);
-
 		void _CallBackPickingSystem(fm::GameObject* inGameObject);
 
 		fms::PickingSystem* _pickingSystem;
