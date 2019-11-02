@@ -56,14 +56,12 @@ namespace fm {
                 return _entity->remove<T>();
             }
 
-            std::vector<BaseComponent*> getAllComponents() {
-                return _entity->getAllComponents();
-            }
+			std::vector<BaseComponent*> getAllComponents() const;
 
             inline ecs::id getID() {return _entity->ID;}
             std::string name;
 
-            void Serialize(nlohmann::json &outResult);
+            void Serialize(nlohmann::json &outResult) const;
 
 
             bool Read(const nlohmann::json &inJson);

@@ -26,20 +26,31 @@ void CEvent::Destroy()
     EntityManager::get().removeComponent<CEvent>(BaseComponent::_IDEntity);
 }
 
-
+void CEvent::AddEvent(fm::BaseEvent *inEvent)
+{
+	auto it = _events.find(inEvent->GetType());
+	if (it != _events.end())
+	{
+		it->second.push(std::move(inEvent));
+	}
+	else
+	{
+		size_t id = inEvent->GetType();
+		std::queue<fm::BaseEvent*> q;
+		q.push(std::move(inEvent));
+		_events[id] = q;
+	}
+}
 
 
 bool CEvent::Serialize(nlohmann::json &ioJson) const
 {
-    nlohmann::json j;
-
-    return true;
+    return false;
 }
 
 bool CEvent::Read(const nlohmann::json &inJSON)
 {
-
-    return true;
+    return false;
 }
 
 

@@ -3,75 +3,93 @@
 #include <algorithm>
 using namespace fm;
 
-RenderQueue::RenderQueue() {
+RenderQueue::RenderQueue() 
+{
 }
 
-void RenderQueue::addElement(const RenderNode& node) {
-    int i = (int)node.state * numberElementsBetweenStates + node.queue;
-    if(!bits.test(i)) {
-        elements.push_back(i);
-        bits.set(i, true);
+void RenderQueue::addElement(const RenderNode& node) 
+{
+    size_t i = node.state * _knumberElementsBetweenStates + node.queue;
+    if(!_bits.test(i)) 
+	{
+        _elements.push_back(i);
+        _bits.set(i, true);
     }
-    nodes[(int)node.state * numberElementsBetweenStates + node.queue].push_back(node);
+    _nodes[node.state * _knumberElementsBetweenStates + node.queue].push_back(node);
 }
 
-void RenderQueue::init() {
-    for(unsigned int i = 0; i < elements.size(); ++i) {
-        nodes[elements[i]].clear();
+void RenderQueue::init() 
+{
+    for(auto && element : _elements) 
+	{
+        _nodes[element].clear();
+    }
+
+    _elements.clear();
+    _currentState = FIRST_STATE;
+    _currentQueue = 0;
+    _currentIndex = 0;
+    _currentIndexGlobal = 0;
+    _sizeCurrentVector = 0;
+
+    _indexElements = 0;
+    _bits.reset();
+}
+
+RenderQueue::~RenderQueue() 
+{
+}
+
+void RenderQueue::addElement(RenderNode&& node)
+{
+    size_t i = node.state * _knumberElementsBetweenStates + node.queue;
+    if(!_bits.test(i)) 
+	{
+        _elements.push_back(i);
+        _bits.set(i, true);
+    }
+    _nodes[node.state * _knumberElementsBetweenStates + node.queue].push_back(node);
+}
+RenderNode RenderQueue::getFrontElement() const 
+{
+    return _nodes[_currentIndexGlobal][_currentIndex];
+}
+
+void RenderQueue::nextState() 
+{
+    _currentState++;
+}
+void RenderQueue::nextQueue()
+{
+    _currentQueue++;
+}
+
+void RenderQueue::nextIndex() 
+{
+    _currentIndex++;
+}
+
+void RenderQueue::start() 
+{
     
-    }
-    elements.clear();
-    currentState = FIRST_STATE;
-    currentQueue = 0;
-    currentIndex = 0;
-    currentIndexGlobal = 0;
-    sizeCurrentVector = 0;
-
-    indexElements = 0;
-    bits.reset();
+    std::sort(_elements.begin(), _elements.end());
+    _currentIndexGlobal = _elements[_indexElements];
 }
 
-RenderQueue::~RenderQueue() {
-}
+void RenderQueue::next() 
+{
 
-void RenderQueue::addElement(RenderNode&& node) {
-    int i = (int)node.state * numberElementsBetweenStates + node.queue;
-    if(!bits.test(i)) {
-        elements.push_back(i);
-        bits.set(i, true);
-    }
-    nodes[(int)node.state * numberElementsBetweenStates + node.queue].push_back(node);
-}
-RenderNode RenderQueue::getFrontElement() const {
-    return nodes[currentIndexGlobal][currentIndex];
-}
+    _sizeCurrentVector = _nodes[_currentIndexGlobal].size();
+    _currentIndex++;
 
-void RenderQueue::nextState() {
-    currentState++;
-}
-void RenderQueue::nextQueue() {
-    currentQueue++;
-}
+    if(_currentIndex >= _sizeCurrentVector) 
+	{
+        _currentIndex = 0;
+        _indexElements++;
 
-void RenderQueue::nextIndex() {
-    currentIndex++;
-}
-
-void RenderQueue::start() {
-    
-    std::sort(elements.begin(), elements.end());
-    currentIndexGlobal = elements[indexElements];
-}
-
-void RenderQueue::next() {
-
-    sizeCurrentVector = nodes[currentIndexGlobal].size();
-    currentIndex++;
-    if(currentIndex >= sizeCurrentVector) {
-        currentIndex = 0;
-        indexElements++;
-        if(indexElements < elements.size()) {
-            currentIndexGlobal = elements[indexElements];
+        if(_indexElements < _elements.size()) 
+		{
+            _currentIndexGlobal = _elements[_indexElements];
         }
     }
 }

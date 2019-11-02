@@ -31,7 +31,7 @@ public:
 
     void blit(fm::Graphics &graphics,RenderTexture& source, RenderTexture& dest, Shader* shader) const;
     void blit(fm::Graphics &graphics,int ID, RenderTexture& dest, Shader* shader) const;
-    void SetSources(fm::Graphics &graphics, const std::vector<Texture> &intextures, int numberIDs);
+    void SetSources(fm::Graphics &graphics, const std::vector<Texture> &intextures, size_t numberIDs);
     void blit(fm::Graphics &graphics,RenderTexture& dest, Shader* shader);
     void blit(fm::Graphics &graphics,Shader* shader);
 

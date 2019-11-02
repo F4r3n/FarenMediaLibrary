@@ -13,26 +13,35 @@ using namespace fm;
 size_t GameObject::_counter = 0;
 GameObject* GameObject::create()
 {
-    if(_entity != nullptr) return this;
+    if(_entity != nullptr) 
+		return this;
+
     _entity = EntityManager::get().createEntity();
     std::shared_ptr<Scene> s = SceneManager::get().getCurrentScene();
     s->AddGameObject(this);
+
     return this;
 }
 
 GameObject* GameObject::create(std::shared_ptr<Scene> s)
 {
-    if(_entity != nullptr) return this;
+    if(_entity != nullptr) 
+		return this;
+
     _entity = EntityManager::get().createEntity();
     s->AddGameObject(this);
+
     return this;
 }
 
 GameObject* GameObject::create(fm::Scene* s)
 {
-	if (_entity != nullptr) return this;
+	if (_entity != nullptr) 
+		return this;
+
 	_entity = EntityManager::get().createEntity();
 	s->AddGameObject(this);
+
 	return this;
 }
 
@@ -41,12 +50,12 @@ GameObject::GameObject()
     name = "GameObject " + _counter;
 }
 
-void GameObject::Serialize(json &outResult)
+void GameObject::Serialize(json &outResult) const
 {
     std::vector<BaseComponent*>&& compos = getAllComponents();
 
 	json compo;
-    for(auto c : compos)
+    for(auto &&c : compos)
     {
         json j;
         if(c->Serialize(j))
@@ -62,7 +71,7 @@ void GameObject::Serialize(json &outResult)
 bool GameObject::Read(const json &inJson)
 {
 	_entity->active = inJson["enabled"];
-	json compo = inJson["components"];
+	const json compo = inJson["components"];
     for (nlohmann::json::const_iterator it = compo.cbegin(); it != compo.cend(); ++it)
     {
         switch(std::stoi(it.key()))
@@ -86,6 +95,11 @@ bool GameObject::Read(const json &inJson)
 
     }
     return true;
+}
+
+std::vector<BaseComponent*> GameObject::getAllComponents() const 
+{
+	return _entity->getAllComponents();
 }
 
 void GameObject::SetStatus(bool inStatus)

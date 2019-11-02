@@ -73,6 +73,7 @@ void MainWindow::_InitMainCamera()
 	_mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, 
 		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
 	_mainCamera->addComponent<fmc::CTransform>();
+	_mainCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
 	_mainCamera->name = "Camera";
 }
 
@@ -258,7 +259,7 @@ void MainWindow::_DrawMenu()
 				}
 				if (ImGui::MenuItem("Save"))
 				{
-					fm::Application::Get().Serialize(_editorScene);
+					fm::Application::Get().Serialize(fm::SceneManager::get().getCurrentScene());
 				}
 
 				ImGui::EndMenu();

@@ -40,7 +40,7 @@ namespace fm {
         void Draw(Model* model) const;
         void BindVertexBuffer(rendering::VertexBuffer *vertexBuffer) const;
         void BindFrameBuffer(unsigned int id) const;
-        void BindTexture2D(int number, int idTexture, int type) const;
+        void BindTexture2D(size_t number, int idTexture, int type) const;
 
 
 		void RestoreSettings(const RenderingSettings &inSettings);

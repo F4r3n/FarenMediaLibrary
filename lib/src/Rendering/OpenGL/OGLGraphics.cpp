@@ -98,7 +98,7 @@ void Graphics::BindFrameBuffer(unsigned int id) const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Graphics::BindTexture2D(int number, int idTexture, int type) const
+void Graphics::BindTexture2D(size_t number, int idTexture, int type) const
 {
     glActiveTexture(GL_TEXTURE0 + number);
     glBindTexture(type, idTexture);

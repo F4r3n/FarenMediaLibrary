@@ -48,15 +48,15 @@ template <typename T> struct vec<T, 2> {
 
     // Operator =
     vec<T, 2>& operator=(const vec<T, 2>& b){
-        this->x = b.x;
-        this->y = b.y;
+        x = b.x;
+        y = b.y;
         return *this;
     }
 
 	// Operator =
 	vec<T, 2>& operator=(const vec<T, 2>&& b) {
-		this->x = b.x;
-		this->y = b.y;
+		x = b.x;
+		y = b.y;
 		return *this;
 	}
 
@@ -94,45 +94,45 @@ template <typename T> vec<T, 2> operator+(const vec<T, 2>& a, const vec<T, 1>& b
 }
 
 template <typename T> vec<T, 2>& vec<T, 2>::operator+=(const vec<T, 1>& b) {
-    this->x += b.x;
-    this->y += b.x;
+    x += b.x;
+    y += b.x;
     return *this;
 }
 
 template <typename T> template <typename P> vec<T, 2>& vec<T, 2>::operator+=(const vec<P, 1>& b) {
-    this->x += static_cast<T>(b.x);
-    this->y += static_cast<T>(b.x);
+    x += static_cast<T>(b.x);
+    y += static_cast<T>(b.y);
     return *this;
 }
 
 template <typename T> vec<T, 2>& vec<T, 2>::operator+=(const vec<T, 2>& b) {
-    this->x += b.x;
-    this->y += b.y;
+    x += b.x;
+    y += b.y;
     return *this;
 }
 
 template <typename T> template <typename P> vec<T, 2>& vec<T, 2>::operator+=(const vec<P, 2>& b) {
-    this->x += static_cast<T>(b.x);
-    this->y += static_cast<T>(b.y);
+    x += static_cast<T>(b.x);
+    y += static_cast<T>(b.y);
     return *this;
 }
 
 
 template <typename T> vec<T, 2>& vec<T, 2>::operator*=(const vec<T, 2>& b) {
-    this->x *= b.x;
-    this->y *= b.y;
+    x *= b.x;
+    y *= b.y;
     return *this;
 }
 
 template <typename T> vec<T, 2>& vec<T, 2>::operator*=(const T& b) {
-    this->x *= b;
-    this->y *= b;
+    x *= b;
+    y *= b;
     return *this;
 }
 
 template <typename T> template <typename P> vec<T, 2>& vec<T, 2>::operator*=(const P& b) {
-    this->x *= static_cast<T>(b);
-    this->y *= static_cast<T>(b);
+    x *= static_cast<T>(b);
+    y *= static_cast<T>(b);
     return *this;
 }
 
@@ -352,48 +352,48 @@ template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 1>& b
 
 template <typename T> vec<T, 4>& vec<T, 4>::operator+=(const vec<T, 1>& b) {
     this->x += b.x;
-    this->y += b.x;
-    this->z += b.x;
-    this->w += b.w;
+    y += b.x;
+    z += b.x;
+    w += b.w;
     return *this;
 }
 
 template <typename T> template <typename P> vec<T, 4>& vec<T, 4>::operator+=(const vec<P, 1>& b) {
-    this->x += static_cast<T>(b.x);
-    this->y += static_cast<T>(b.x);
-    this->z += static_cast<T>(b.x);
-    this->w += static_cast<T>(b.x);
+    x += static_cast<T>(b.x);
+    y += static_cast<T>(b.x);
+    z += static_cast<T>(b.x);
+    w += static_cast<T>(b.x);
     return *this;
 }
 
 template <typename T> vec<T, 4>& vec<T, 4>::operator+=(const vec<T, 4>& b) {
-    this->x += b.x;
-    this->y += b.y;
-    this->z += b.z;
-    this->w += b.w;
+    x += b.x;
+    y += b.y;
+    z += b.z;
+    w += b.w;
     return *this;
 }
 
 template <typename T> template <typename P> vec<T, 4>& vec<T, 4>::operator+=(const vec<P, 4>& b) {
-    this->x += static_cast<T>(b.x);
-    this->y += static_cast<T>(b.y);
-    this->z += static_cast<T>(b.z);
-    this->w += static_cast<T>(b.w);
+    x += static_cast<T>(b.x);
+    y += static_cast<T>(b.y);
+    z += static_cast<T>(b.z);
+    w += static_cast<T>(b.w);
     return *this;
 }
 template <typename T> vec<T, 4>& vec<T, 4>::operator=(const vec<T, 4>& b) {
-    this->x = b.x;
-    this->y = b.y;
-    this->z = b.z;
-    this->w = b.w;
+    x = b.x;
+    y = b.y;
+    z = b.z;
+    w = b.w;
     return *this;
 }
 
 template <typename T> vec<T, 4>& vec<T, 4>::operator*=(const vec<T, 4>& b) {
-    this->x *= b.x;
-    this->y *= b.y;
-    this->z *= b.z;
-    this->w *= b.w;
+    x *= b.x;
+    y *= b.y;
+    z *= b.z;
+    w *= b.w;
     return *this;
 }
 

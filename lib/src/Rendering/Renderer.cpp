@@ -86,9 +86,9 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture
 }
 
 
-void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture> &textures, int numberIDs) 
+void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture> &textures, size_t numberIDs) 
 {
-    for(int i = 0; (i < numberIDs && i < textures.size()); ++i) 
+    for(size_t i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{
         graphics.BindTexture2D(i, textures[i].getID(), textures[i].GetKind());
     }

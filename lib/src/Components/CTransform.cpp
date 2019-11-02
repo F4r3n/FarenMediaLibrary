@@ -88,7 +88,7 @@ fm::Transform CTransform::GetTransform() const
 
 void CTransform::SetLocalMatrixModel(const fm::math::mat &inLocalMatrix)
 {
-
+	assert(false);
 }
 
 

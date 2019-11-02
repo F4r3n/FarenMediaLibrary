@@ -29,10 +29,10 @@ enum RENDER_QUEUE {
 struct RenderNode {
     const fm::Transform transform;
     const fm::Materials *mat;
-    fm::Model *model;
-    fmc::CDirectionalLight *dlight;
-    fmc::CPointLight *plight;
-    fmc::CText *text;
+		  fm::Model *model;
+    const fmc::CDirectionalLight *dlight;
+    const fmc::CPointLight *plight;
+    const fmc::CText *text;
     
     RENDER_QUEUE state;
     int queue = 0;
@@ -55,29 +55,29 @@ public:
     void next();
     void init();
     void start();
-    inline size_t Size()
+    inline size_t Size() const
     {
-        return elements.size();
+        return _elements.size();
     }
 
     inline bool Empty() const
     {
-        return indexElements >= elements.size() || elements.size() == 0;
+        return _indexElements >= _elements.size() || _elements.size() == 0;
     }
     
     private:
-    const static int numberElementsBetweenStates = 10;
-    std::array< std::vector<RenderNode>, RENDER_QUEUE::LAST_STATE * numberElementsBetweenStates> nodes;
-    std::vector<int> elements;
-    std::bitset<RENDER_QUEUE::LAST_STATE * numberElementsBetweenStates> bits;
+    const static size_t _knumberElementsBetweenStates = 10;
+    std::array< std::vector<RenderNode>, RENDER_QUEUE::LAST_STATE * _knumberElementsBetweenStates> _nodes;
+    std::vector<size_t> _elements;
+    std::bitset<RENDER_QUEUE::LAST_STATE * _knumberElementsBetweenStates> _bits;
     
-    unsigned int currentState = FIRST_STATE;
-    unsigned int currentQueue = 0;
-    unsigned int currentIndex = 0;
-    unsigned int currentIndexGlobal = 0;
-    unsigned int sizeCurrentVector = 0;
+    size_t _currentState = FIRST_STATE;
+    size_t _currentQueue = 0;
+    size_t _currentIndex = 0;
+    size_t _currentIndexGlobal = 0;
+    size_t _sizeCurrentVector = 0;
     
-    unsigned int indexElements = 0;
+    size_t _indexElements = 0;
     bool e = false;
 };
 

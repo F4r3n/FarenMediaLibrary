@@ -6,14 +6,13 @@
 
 namespace fm
 {
-class BaseEvent
-{
-    public:
-        BaseEvent();
-        virtual ~BaseEvent();
-        virtual size_t GetType() const = 0;
-
-};
+	class BaseEvent
+	{
+	    public:
+	        BaseEvent();
+	        virtual ~BaseEvent();
+	        virtual size_t GetType() const = 0;
+	};
 }
 
 namespace fmc
@@ -29,24 +28,10 @@ class CEvent : public FMComponent<CEvent>
 		uint16_t GetType() const override {return kEvent;}
         void Destroy() override;
 
-        template <typename T, typename... Args>
-        void AddEvent(Args&&...args)
-        {
-            std::unique_ptr<fm::BaseEvent> e = std::make_unique<T>(args...);
-             std::unordered_map<size_t, std::queue<std::unique_ptr<fm::BaseEvent>>>::iterator it = _events.find(e->GetType());
-            if(it != _events.end())
-            {
-                it->second.push(e);
-            }else
-            {
-                size_t id = e->GetType();
-                std::queue<std::unique_ptr<fm::BaseEvent>> q;
-                q.push(e);
-                _events[id] = q;
-            }
-        }
+		void AddEvent(fm::BaseEvent *inEvent);
+        
     private:
-        std::unordered_map<size_t, std::queue<std::unique_ptr<fm::BaseEvent>>> _events;
+        std::unordered_map<size_t, std::queue<fm::BaseEvent*>> _events;
 };
 
 

@@ -184,9 +184,10 @@ void GameView::Update(float dt, Context &inContext)
 		if (_resultPicking)
 		{
 			inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
-			_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;
 			_resultPicking = false;
 		}
+		_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;
+
 	}
 }
 

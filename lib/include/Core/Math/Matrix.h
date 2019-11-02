@@ -132,42 +132,43 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 
         Matrix(T a)
         {
-            this->m[0][0] = a;
-            this->m[0][1] = a;
-            this->m[0][2] = a;
-            this->m[0][3] = a;
+            m[0][0] = a;
+            m[0][1] = a;
+            m[0][2] = a;
+            m[0][3] = a;
 
-            this->m[1][0] = a;
-            this->m[1][1] = a;
-            this->m[1][2] = a;
-            this->m[1][3] = a;
+            m[1][0] = a;
+            m[1][1] = a;
+            m[1][2] = a;
+            m[1][3] = a;
 
-            this->m[2][0] = a;
-            this->m[2][1] = a;
-            this->m[2][2] = a;
-            this->m[2][3] = a;
+            m[2][0] = a;
+            m[2][1] = a;
+            m[2][2] = a;
+            m[2][3] = a;
 
-            this->m[3][0] = a;
-            this->m[3][1] = a;
-            this->m[3][2] = a;
-            this->m[3][3] = a;
+            m[3][0] = a;
+            m[3][1] = a;
+            m[3][2] = a;
+            m[3][3] = a;
         }
 
         void identity();
         Matrix();
     };
     template <typename T>
-    Matrix<T>::Matrix(const Matrix<T> &m) {
-        this->m[0] = m[0];
-        this->m[1] = m[1];
-        this->m[2] = m[2];
-        this->m[3] = m[3];
+    Matrix<T>::Matrix(const Matrix<T> &matrix) 
+	{
+        m[0] = matrix[0];
+        m[1] = matrix[1];
+        m[2] = matrix[2];
+        m[3] = matrix[3];
     }
     template <typename T> Matrix<T>::Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4) {
-        this->m[0] = l1;
-        this->m[1] = l2;
-        this->m[2] = l3;
-        this->m[3] = l4;
+        m[0] = l1;
+        m[1] = l2;
+        m[2] = l3;
+        m[3] = l4;
     }
 
     template <typename T> Matrix<T> translate(const Matrix<T>& mat, const vec<T, 3>& t) {
@@ -181,8 +182,8 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
         T const c = cos<T>(a);
         T const s = sin<T>(a);
 
-        vec<T, 3> axis(normalize(v));
-        vec<T, 3> temp((T(1) - c) * axis);
+        vec<T, 3> const axis(normalize(v));
+        vec<T, 3> const temp((T(1) - c) * axis);
 
         Matrix<T> Rotate;
         Rotate[0][0] = c + temp[0] * axis[0];
@@ -305,25 +306,25 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
                       T a31,
                       T a32,
                       T a33) {
-        this->m[0][0] = a00;
-        this->m[0][1] = a01;
-        this->m[0][2] = a02;
-        this->m[0][3] = a03;
+        m[0][0] = a00;
+        m[0][1] = a01;
+        m[0][2] = a02;
+        m[0][3] = a03;
 
-        this->m[1][0] = a10;
-        this->m[1][1] = a11;
-        this->m[1][2] = a12;
-        this->m[1][3] = a13;
+        m[1][0] = a10;
+        m[1][1] = a11;
+        m[1][2] = a12;
+        m[1][3] = a13;
 
-        this->m[2][0] = a20;
-        this->m[2][1] = a21;
-        this->m[2][2] = a22;
-        this->m[2][3] = a23;
+        m[2][0] = a20;
+        m[2][1] = a21;
+        m[2][2] = a22;
+        m[2][3] = a23;
 
-        this->m[3][0] = a30;
-        this->m[3][1] = a31;
-        this->m[3][2] = a32;
-        this->m[3][3] = a33;
+        m[3][0] = a30;
+        m[3][1] = a31;
+        m[3][2] = a32;
+        m[3][3] = a33;
     }
 
     template <typename T> Matrix<T>::Matrix() {
