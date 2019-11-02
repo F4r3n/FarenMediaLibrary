@@ -5566,17 +5566,10 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->FocusIdxAllCounter = window->FocusIdxTabCounter = -1;
         window->FocusIdxAllRequestNext = window->FocusIdxTabRequestNext = INT_MAX;
 
-        // Apply scrolling
-        if (!(flags & ImGuiWindowFlags_NoNav))
-        {
-            window->Scroll = CalcNextScrollFromScrollTargetAndClamp(window, true);
-            window->ScrollTarget = ImVec2(FLT_MAX, FLT_MAX);
-        }
-        else
-        {
-            window->Scroll = ImVec2(0,0);
-            window->ScrollTarget = ImVec2(FLT_MAX, FLT_MAX);
-        }
+
+        window->Scroll = CalcNextScrollFromScrollTargetAndClamp(window, true);
+        window->ScrollTarget = ImVec2(FLT_MAX, FLT_MAX);
+
 
         // Apply window focus (new and reactivated windows are moved to front)
         bool want_focus = false;

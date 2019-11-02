@@ -827,6 +827,10 @@ namespace ImGuizmo
       gContext.mScreenSquareMax = ImVec2(centerSSpace.x + 10.f, centerSSpace.y + 10.f);
 
       ComputeCameraRay(gContext.mRayOrigin, gContext.mRayVector);
+	  if (isnan(gContext.mRayVector.x))
+		  gContext.mRayVector.x = 0;
+	  if (isnan(gContext.mRayVector.y))
+		  gContext.mRayVector.y = 0;
    }
 
    static void ComputeColors(ImU32 *colors, int type, OPERATION operation)
@@ -1428,6 +1432,25 @@ namespace ImGuizmo
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    //
 
+   vec_t ComputeClosesPoint(int index, vec_t &outPosOnPlane, ImVec2 &outPosOnPlaneScreen)
+   {
+	   vec_t dirPlaneX, dirPlaneY, dirAxis;
+	   bool belowAxisLimit, belowPlaneLimit;
+	   ComputeTripodAxisAndVisibility(index, dirAxis, dirPlaneX, dirPlaneY, belowAxisLimit, belowPlaneLimit);
+	   dirAxis.TransformVector(gContext.mModel);
+	   dirPlaneX.TransformVector(gContext.mModel);
+	   dirPlaneY.TransformVector(gContext.mModel);
+
+	   const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, BuildPlan(gContext.mModel.v.position, dirAxis));
+	   outPosOnPlane = gContext.mRayOrigin + gContext.mRayVector * len;
+
+	   outPosOnPlaneScreen = worldToPos(outPosOnPlane, gContext.mViewProjection);
+	   const ImVec2 axisStartOnScreen = worldToPos(gContext.mModel.v.position + dirAxis * gContext.mScreenFactor * 0.1f, gContext.mViewProjection);
+	   const ImVec2 axisEndOnScreen = worldToPos(gContext.mModel.v.position + dirAxis * gContext.mScreenFactor, gContext.mViewProjection);
+
+	   return PointOnSegment(makeVect(outPosOnPlaneScreen), makeVect(axisStartOnScreen), makeVect(axisEndOnScreen));
+   }
+
    static int GetScaleType()
    {
       ImGuiIO& io = ImGui::GetIO();
@@ -1441,23 +1464,11 @@ namespace ImGuizmo
       // compute
       for (unsigned int i = 0; i < 3 && type == NONE; i++)
       {
-         vec_t dirPlaneX, dirPlaneY, dirAxis;
-         bool belowAxisLimit, belowPlaneLimit;
-         ComputeTripodAxisAndVisibility(i, dirAxis, dirPlaneX, dirPlaneY, belowAxisLimit, belowPlaneLimit);
-         dirAxis.TransformVector(gContext.mModel);
-         dirPlaneX.TransformVector(gContext.mModel);
-         dirPlaneY.TransformVector(gContext.mModel);
+		  vec_t posOnPlane;
+		  ImVec2 posOnPlaneScreen;
+		  vec_t closestPointOnAxis = ComputeClosesPoint(i, posOnPlane, posOnPlaneScreen);
 
-       const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, BuildPlan(gContext.mModel.v.position, dirAxis));
-       vec_t posOnPlan = gContext.mRayOrigin + gContext.mRayVector * len;
-
-       const ImVec2 posOnPlanScreen = worldToPos(posOnPlan, gContext.mViewProjection);
-       const ImVec2 axisStartOnScreen = worldToPos(gContext.mModel.v.position + dirAxis * gContext.mScreenFactor * 0.1f, gContext.mViewProjection);
-       const ImVec2 axisEndOnScreen = worldToPos(gContext.mModel.v.position + dirAxis * gContext.mScreenFactor, gContext.mViewProjection);
-
-       vec_t closestPointOnAxis = PointOnSegment(makeVect(posOnPlanScreen), makeVect(axisStartOnScreen), makeVect(axisEndOnScreen));
-
-       if ((closestPointOnAxis - makeVect(posOnPlanScreen)).Length() < 12.f) // pixel size
+       if ((closestPointOnAxis - makeVect(posOnPlaneScreen)).Length() < 12.f) // pixel size
           type = SCALE_X + i;
       }
       return type;
@@ -1667,6 +1678,10 @@ namespace ImGuizmo
             gContext.mMatrixOrigin = gContext.mModel.v.position;
             gContext.mScale.Set(1.f, 1.f, 1.f);
             gContext.mRelativeOrigin = (gContext.mTranslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
+			if (gContext.mRelativeOrigin.x < 0.01f)
+			{
+				int a;
+			}
             gContext.mScaleValueOrigin = makeVect(gContext.mModelSource.v.right.Length(), gContext.mModelSource.v.up.Length(), gContext.mModelSource.v.dir.Length());
             gContext.mSaveMousePosx = io.MousePos.x;
          }

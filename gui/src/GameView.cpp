@@ -7,7 +7,9 @@
 #include "ImGuizmo/ImGuizmo.h"
 #include "Input/InputManager.h"
 using namespace gui;
-GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoNavInputs)
+GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollWithMouse 
+												| ImGuiWindowFlags_NoScrollbar
+												| ImGuiWindowFlags_NoInputs)
 {
 	_enabled = true;
 	_gameObjectSelectedByPicking = nullptr;
@@ -30,10 +32,14 @@ void GameView::CustomDraw()
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
-			ImVec2 ori = ImGui::GetCursorPos();
+			//ImVec2 ori = ImGui::GetCursorPos();
 			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
+			//ImGui::PushClipRect(ImVec2(_cursorPos.x, _cursorPos.y),
+			//					ImVec2(_endImagePos.x - _startImagePos.x, _endImagePos.y - _startImagePos.y), 
+			//					true);
 			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
-			ImGui::SetCursorPos(ori);
+			//ImGui::PopClipRect();
+			//ImGui::SetCursorPos(ori);
 			ImGuizmo::SetDrawlist();
 			_EditObject();
 		}
@@ -65,7 +71,11 @@ void GameView::_EditObject()
 
 
 		ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect(_startImagePos.x, _startImagePos.y, _endImagePos.x, _endImagePos.y);
+		
+		ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x,
+						  _cursorPos.y + _startImagePos.y,
+						  preview.renderTexture->getWidth(), 
+						  preview.renderTexture->getHeight());
 		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
 		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
 		fm::math::mat model = transform->GetLocalMatrixModel();
@@ -86,11 +96,8 @@ void GameView::_EditObject()
 
 void GameView::_CallBackPickingSystem(fm::GameObject* inGameObject)
 {
-	if (inGameObject != nullptr)
-	{
-		_resultPicking = true;
-		_gameObjectSelectedByPicking = inGameObject;
-	}
+	_resultPicking = true;
+	_gameObjectSelectedByPicking = inGameObject;
 }
 
 
@@ -117,7 +124,7 @@ void GameView::Update(float dt, Context &inContext)
 	{
 		ImVec2 size;
 		ImVec2 start;
-
+		fm::math::vec2 startCursorPos;
 		if (_index >= 0 && _index < _previews.size())
 		{
 			CameraPreview preview = _previews[_index];
@@ -135,19 +142,22 @@ void GameView::Update(float dt, Context &inContext)
 				size = ImGui::GetWindowPos();
 			}
 			ImVec2 end;
-			end.x = start.x + preview.renderTexture->getWidth();
-			end.y = start.y + preview.renderTexture->getHeight();
+			end.x = start.x + size.x;
+			end.y = start.y + size.y;
+
+			_startImagePos.x = start.x;
+			_startImagePos.y = start.y;
 
 			_cursorPos = fm::math::vec2(-(preview.renderTexture->getWidth() - size.x)*0.5f, 
 										-(preview.renderTexture->getHeight() - size.y)*0.5f);
-			_startImagePos = _cursorPos;
-			_startImagePos.y += start.y;
-			_startImagePos.x += start.x;
+			startCursorPos = _cursorPos;
+			startCursorPos.y += start.y;
+			startCursorPos.x += start.x;
 
 			_endImagePos = fm::math::vec2(end.x, end.y);
 		}
 
-		if (ImGui::IsMouseClicked(0))
+		if (ImGui::IsMouseReleased(0) && !ImGuizmo::IsUsing())
 		{
 			ImVec2 mousePos = ImGui::GetMousePos();
 
@@ -163,8 +173,8 @@ void GameView::Update(float dt, Context &inContext)
 			if (rect.contains(mousePos.x, mousePos.y))
 			{
 				fm::math::vec2 mPos(mousePos.x, mousePos.y);
-				mPos.x -= _startImagePos.x;
-				mPos.y -= _startImagePos.y;
+				mPos.x -= startCursorPos.x;
+				mPos.y -= startCursorPos.y;
 
 				_pickingSystem->PickGameObject(preview.id, mPos);
 			}
