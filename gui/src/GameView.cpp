@@ -7,9 +7,9 @@
 #include "ImGuizmo/ImGuizmo.h"
 #include "Input/InputManager.h"
 using namespace gui;
-GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollWithMouse 
-												| ImGuiWindowFlags_NoScrollbar
-												| ImGuiWindowFlags_NoInputs)
+GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollWithMouse |
+													ImGuiWindowFlags_HorizontalScrollbar
+												)
 {
 	_enabled = true;
 	_gameObjectSelectedByPicking = nullptr;
@@ -32,21 +32,22 @@ void GameView::CustomDraw()
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
-			//ImVec2 ori = ImGui::GetCursorPos();
 			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
-			//ImGui::PushClipRect(ImVec2(_cursorPos.x, _cursorPos.y),
-			//					ImVec2(_endImagePos.x - _startImagePos.x, _endImagePos.y - _startImagePos.y), 
-			//					true);
 			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
-			//ImGui::PopClipRect();
-			//ImGui::SetCursorPos(ori);
 			ImGuizmo::SetDrawlist();
 			_EditObject();
 		}
     }
 }
 
-
+void GameView::BeforeWindowCreation()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+}
+void GameView::AfterWindowCreation()
+{
+	ImGui::PopStyleVar(1);
+}
 
 void GameView::_EditObject()
 {
@@ -71,9 +72,9 @@ void GameView::_EditObject()
 
 
 		ImGuiIO& io = ImGui::GetIO();
-		
-		ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x,
-						  _cursorPos.y + _startImagePos.y,
+		//float scrollPosX = ImGui::GetScrollX();
+		ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),
+						  _cursorPos.y + _startImagePos.y - ImGui::GetScrollY(),
 						  preview.renderTexture->getWidth(), 
 						  preview.renderTexture->getHeight());
 		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();

@@ -6,7 +6,7 @@ DebugLogger::DebugLogger() : GWindow("Logger", true)
     _buffer.clear();
     _buffer.push_back(0);
     _buffer.shrink_to_fit();
-	_enabled = false;
+	_enabled = true;
 }
 
 

@@ -26,6 +26,8 @@ namespace gui
 		GameView();
 		virtual ~GameView();
 		void CustomDraw();
+		void BeforeWindowCreation();
+		void AfterWindowCreation();
 		void Resize();
 		void Zoom();
 		void AddCamera(fm::GameObject *inGameObject);

@@ -43,7 +43,10 @@ void GWindow::Draw()
 			if (_size.x != 0 && _size.y != 0)
 				ImGui::SetNextWindowContentSize(ImVec2(_size.x, _size.y));
 		}
+
+		BeforeWindowCreation();
 		ImGui::Begin(_name.c_str(), &_enabled, _option);
+		AfterWindowCreation();
 
 		_id = ImGui::GetWindowDockID();
 		CustomDraw();

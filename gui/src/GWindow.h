@@ -76,16 +76,18 @@ public:
 protected:
 	size_t		_id;
 	virtual void CustomDraw();
+	virtual void BeforeWindowCreation() {}
+	virtual void AfterWindowCreation() {}
 	virtual void WillClose();
 	fm::math::vec2 _position;
 	fm::math::vec2 _size;
 	bool _enabled;
 private:
 	std::vector<std::unique_ptr<IWidget>> _widgets;
-	std::string _name;
+	std::string							  _name;
 
-	size_t _option;
-	bool	_dockable;
+	size_t								  _option;
+	bool								  _dockable;
 };
 }
 

@@ -326,7 +326,9 @@ void MainWindow::_DrawMenu()
 			ImGui::EndMenu();
 		}
 	}
+
 	ImGui::EndMainMenuBar();
+
 }
 
 void MainWindow::_DrawListCamera()
@@ -438,13 +440,46 @@ void MainWindow::Draw()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("DockSpace", &p_open, window_flags);
-	ImGui::PopStyleVar(3);
+
 
 	dockspace_id = ImGui::GetID("MyDockspace");
 
 	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+	if (!ImGui::DockBuilderGetNode(dockspace_id)) {
+		ImGui::DockBuilderRemoveNode(dockspace_id);
+		ImGui::DockBuilderAddNode(dockspace_id, viewport->Size, ImGuiDockNodeFlags_None);
+
+		ImGuiID dock_main_id = dockspace_id;
+		ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Up, 0.05f, nullptr, &dock_main_id);
+		//ImGuiID dock_right_right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
+		ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.8f, nullptr, &dock_main_id);
+		ImGuiID dock_right_id = dock_main_id;
+
+		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Down, 0.2f, nullptr, &dock_left_id);
+		ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_right_id, ImGuiDir_Down, 0.5f, nullptr, &dock_right_id);
+
+		ImGui::DockBuilderDockWindow("Actions", dock_up_id);
+		ImGui::DockBuilderDockWindow("List entities", dock_right_id);
+		ImGui::DockBuilderDockWindow("Game View", dock_left_id);
+		ImGui::DockBuilderDockWindow("Logger", dock_down_id);
+		ImGui::DockBuilderDockWindow("Inspector", dock_down_right_id);
+		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+
+		// Disable tab bar for custom toolbar
+		//ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);
+		//node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+
+		ImGui::DockBuilderFinish(dock_main_id);
+	}
+	ImGui::Begin("DockSpace", &p_open, window_flags);
+	ImGui::PopStyleVar(3);
+	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
+
+
+
+
+
 
 	_DrawContentMainCamera();
 	for (auto& window : _windows)
