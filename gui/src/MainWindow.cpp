@@ -34,6 +34,12 @@
 #include <functional>
 #include "Window.h"
 #include "ImGuizmo/ImGuizmo.h"
+#include "ToolBar.hpp"
+#include "debuglogger.h"
+#include "GameView.h"
+#include <imgui/imgui_internal.h>
+
+
 MainWindow::MainWindow()
 {
 	_currentEntity = nullptr;
@@ -60,9 +66,10 @@ MainWindow::MainWindow()
 	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
 
 
-	_windows[WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
-	_windows[WIN_GAMEVIEW] = std::move(gameView);
-	_windows[WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
+	_windows[WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
+	_windows[WINDOWS::WIN_GAME_VIEW] = std::move(gameView);
+	_windows[WINDOWS::WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
+	_windows[WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
 	fm::Debug::log("Init done");
 
 }
@@ -208,7 +215,7 @@ void MainWindow::_DisplayWindow_Load()
 
 void MainWindow::_DisplayWindow_ProjectSettings()
 {
-	ImGui::Begin("Project name", &_windowStates[WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("Project name", &_windowStates[WINDOWS::WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("%s", _projectSettings.name.c_str());
 
 	static char bufferName[256];
@@ -216,7 +223,7 @@ void MainWindow::_DisplayWindow_ProjectSettings()
 	if (ImGui::Button("Valid"))
 	{
 		_projectSettings.name = std::string(bufferName);
-		_windowStates[WIN_PROJECT_SETTINGS] = false;
+		_windowStates[WINDOWS::WIN_PROJECT_SETTINGS] = false;
 		ImGui::CloseCurrentPopup();
 	}
 	ImGui::End();
@@ -249,7 +256,7 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::MenuItem("Project Settings"))
 			{
-				_windowStates[WIN_PROJECT_SETTINGS] = true;
+				//_windowStates[WINDOWS::WIN_PROJECT_SETTINGS] = true;
 			}
 			if (ImGui::BeginMenu("Save"))
 			{
@@ -281,23 +288,23 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Light"))
 			{
-				_windowStates[WIN_LIGHT_EDIT] = true;
+				//_windowStates[WINDOWS::WIN_LIGHT_EDIT] = true;
 			}
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("Options"))
 		{
-			bool enable = _windows[WIN_LOGGER]->IsEnabled();
+			bool enable = _windows[WINDOWS::WIN_LOGGER]->IsEnabled();
 			if (ImGui::MenuItem("Logger", "L", &enable, true))
 			{
 				if (enable)
 				{
-					_windows[WIN_LOGGER]->Start();
+					_windows[WINDOWS::WIN_LOGGER]->Start();
 				}
 				else
 				{
-					_windows[WIN_LOGGER]->Stop();
+					_windows[WINDOWS::WIN_LOGGER]->Stop();
 				}
 			}
 			ImGui::EndMenu();
@@ -430,7 +437,7 @@ void MainWindow::Draw()
 	ImGui::SetNextWindowPos(viewport->Pos);
 	ImGui::SetNextWindowSize(viewport->Size);
 	ImGui::SetNextWindowViewport(viewport->ID);
-	ImGui::SetNextWindowBgAlpha(0.0f);
+	ImGui::SetNextWindowBgAlpha(1.0f);
 
 
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -444,12 +451,12 @@ void MainWindow::Draw()
 
 	dockspace_id = ImGui::GetID("MyDockspace");
 
-	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruDockspace;
+	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 	if (!ImGui::DockBuilderGetNode(dockspace_id)) {
 		ImGui::DockBuilderRemoveNode(dockspace_id);
-		ImGui::DockBuilderAddNode(dockspace_id, viewport->Size, ImGuiDockNodeFlags_None);
-
+		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None);
+		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 		ImGuiID dock_main_id = dockspace_id;
 		ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Up, 0.05f, nullptr, &dock_main_id);
 		//ImGuiID dock_right_right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
@@ -459,16 +466,16 @@ void MainWindow::Draw()
 		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Down, 0.2f, nullptr, &dock_left_id);
 		ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_right_id, ImGuiDir_Down, 0.5f, nullptr, &dock_right_id);
 
-		ImGui::DockBuilderDockWindow("Actions", dock_up_id);
-		ImGui::DockBuilderDockWindow("List entities", dock_right_id);
-		ImGui::DockBuilderDockWindow("Game View", dock_left_id);
-		ImGui::DockBuilderDockWindow("Logger", dock_down_id);
+		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_TOOLBAR]->GetTitle().c_str(), dock_up_id);
+		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LIST_ENTITIES]->GetTitle().c_str(), dock_right_id);
+		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_GAME_VIEW]->GetTitle().c_str(), dock_left_id);
+		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LOGGER]->GetTitle().c_str(), dock_down_id);
 		ImGui::DockBuilderDockWindow("Inspector", dock_down_right_id);
 		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
-
+		//ImGuiDockNodeFlags_
 		// Disable tab bar for custom toolbar
-		//ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);
-		//node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+		ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);
+		node->LocalFlags |= ImGuiDockNodeFlagsPrivate_::ImGuiDockNodeFlags_NoTabBar;
 
 		ImGui::DockBuilderFinish(dock_main_id);
 	}

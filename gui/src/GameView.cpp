@@ -1,14 +1,13 @@
 #include "GameView.h"
-#include <imgui/imgui.h>
 #include "Components/CCamera.h"
 #include "Core/SceneManager.h"
-#include "imgui_internal.h"
 #include "PickingSystem.h"
 #include "ImGuizmo/ImGuizmo.h"
 #include "Input/InputManager.h"
+#include <imgui/imgui_internal.h>
+
 using namespace gui;
-GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_NoScrollWithMouse |
-													ImGuiWindowFlags_HorizontalScrollbar
+GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar
 												)
 {
 	_enabled = true;
@@ -120,7 +119,7 @@ void GameView::Update(float dt, Context &inContext)
 		isRenderTextureReady = preview.renderTexture != nullptr && preview.renderTexture->isCreated();
 	}
 
-	assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
+	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
 	if (isRenderTextureReady)
 	{
 		ImVec2 size;
@@ -131,16 +130,18 @@ void GameView::Update(float dt, Context &inContext)
 			CameraPreview preview = _previews[_index];
 
 			const float rapport = (float)preview.renderTexture->getWidth() / (float)preview.renderTexture->getHeight();
-
+			//ImGui::IsWindowDocked
 			if (_id != 0 || ImGui::IsWindowDocked())
 			{
+
+				//ImGui::getwind
 				start = ImGui::GetWindowDockPos(_id);
 				size = ImGui::GetWindowDockSize(_id);
 			}
 			else
 			{
 				start = ImGui::GetWindowPos();
-				size = ImGui::GetWindowPos();
+				size = ImGui::GetWindowSize();
 			}
 			ImVec2 end;
 			end.x = start.x + size.x;

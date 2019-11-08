@@ -34,6 +34,7 @@ set(SOURCES ${SOURCES}
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp
 	src/dialogfilebrowser.cpp
+	src/ToolBar.cpp
 	src/ImGuizmo/ImGuizmo.cpp
 	)
 

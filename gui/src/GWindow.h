@@ -73,6 +73,7 @@ public:
 	void Start() { _enabled = true; }
 	void Stop() { _enabled = false; }
 	bool IsEnabled() const { return _enabled; }
+	const std::string& GetTitle() const { return _name; }
 protected:
 	size_t		_id;
 	virtual void CustomDraw();

@@ -1,9 +1,6 @@
 #pragma once
 #define GUI
 
-#include <imgui/imgui.h>
-#include "GameView.h"
-#include "debuglogger.h"
 #include "GWindow.h"
 #include "Core/application.h"
 #include "inspector/inspector.hpp"
@@ -33,7 +30,6 @@ namespace gui
 	class GListEntities;
 }
 
-typedef std::unordered_map<size_t, std::unique_ptr<gui::GWindow>> MapOfWindows;
 
 class MainWindow 
 {
@@ -43,9 +39,13 @@ enum WINDOWS
     WIN_LOGGER,
     WIN_PROJECT_SETTINGS,
 	WIN_LIST_ENTITIES,
-	WIN_GAMEVIEW,
+	WIN_GAME_VIEW,
+	WIN_TOOLBAR,
     WIN_LAST
+
 };
+typedef std::unordered_map<WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWindows;
+
 
 public:
     MainWindow();

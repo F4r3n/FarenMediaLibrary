@@ -1678,10 +1678,7 @@ namespace ImGuizmo
             gContext.mMatrixOrigin = gContext.mModel.v.position;
             gContext.mScale.Set(1.f, 1.f, 1.f);
             gContext.mRelativeOrigin = (gContext.mTranslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
-			if (gContext.mRelativeOrigin.x < 0.01f)
-			{
-				int a;
-			}
+
             gContext.mScaleValueOrigin = makeVect(gContext.mModelSource.v.right.Length(), gContext.mModelSource.v.up.Length(), gContext.mModelSource.v.dir.Length());
             gContext.mSaveMousePosx = io.MousePos.x;
          }
