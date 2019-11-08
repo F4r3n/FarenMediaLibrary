@@ -2,6 +2,7 @@
 
 
 #include <memory>
+#include "SystemManager.h"
 namespace fm {
     class GameObject;
 	class Window;
@@ -28,12 +29,9 @@ public:
     
     
     void RunMainLoop(void *window);
+	SYSTEM_MANAGER_MODE GetStatus() const;
 
     private:
-        std::unique_ptr<SystemManager> _systems;
-
-        bool _hasStopped = false;
-
-        size_t _numberFramesTimer = 0;
+        std::unique_ptr<SystemManager>	_systems;
 };
 }

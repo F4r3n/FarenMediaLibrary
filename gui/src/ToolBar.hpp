@@ -13,6 +13,9 @@ namespace gui
 		virtual void Update(float, Context &inContext) override;
 		virtual void CustomDraw() override;
 	private:
+		void _DrawStartStop();
+		void _DrawTransformContext();
+		void _UpdateInputTransformContext();
 		TRANSFORM_CONTEXT _state;
 	};
 }

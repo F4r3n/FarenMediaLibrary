@@ -8,6 +8,7 @@
 #include "Core/Scene.h"
 #include <fstream>
 #include "Resource/ResourcesManager.h"
+#include "SystemManager.h"
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -179,6 +180,12 @@ void Application::GetLastConfigs(std::vector<fm::Config> &outConfig)
 		outConfig.push_back(_lastConfigsUsed[i]);
 	}
 }
+
+bool Application::IsRunning() const
+{
+	return _engine->GetStatus() == SYSTEM_MANAGER_MODE::RUNNING;
+}
+
 
 
 

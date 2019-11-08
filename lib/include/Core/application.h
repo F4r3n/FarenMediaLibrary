@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <memory>
+
 namespace fm
 {
 class Window;
@@ -113,6 +114,8 @@ class Application
 		const fm::Config& GetCurrentConfig() const;
 		void RegisterCurrentConfig();
 		void GetLastConfigs(std::vector<fm::Config> &outConfig);
+		bool IsRunning() const;
+
     private:
 		Application();
 		fm::CircularBuffer<fm::Config,10> _lastConfigsUsed;

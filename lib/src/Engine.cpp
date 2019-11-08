@@ -53,7 +53,7 @@ void Engine::RunMainLoop(void* window)
 
     ((Window *)window)->swapBuffers();
 
-    _numberFramesTimer++;
+    //_numberFramesTimer++;
     
 }
 
@@ -62,6 +62,10 @@ void Engine::Start()
 	_systems->Start();
 }
 
+SYSTEM_MANAGER_MODE Engine::GetStatus() const 
+{
+	return _systems->GetStatus(); 
+}
 
 void Engine::Init()
 {
