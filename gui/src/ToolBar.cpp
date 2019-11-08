@@ -1,10 +1,11 @@
 #include "ToolBar.hpp"
-
+#include "Input/InputManager.h"
 using namespace gui;
 
-ToolBar::ToolBar() : GWindow("ToolBar", true, ImGuiWindowFlags_NoDecoration)
+ToolBar::ToolBar() : GWindow("ToolBar", true)
 {
 	_enabled = true;
+	_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
 }
 
 ToolBar::~ToolBar()
@@ -14,9 +15,48 @@ ToolBar::~ToolBar()
 
 void ToolBar::Update(float, Context &inContext)
 {
+	if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_T))
+		_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
+	else if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_R))
+		_state = gui::TRANSFORM_CONTEXT::ROTATE;
+	else if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_S))
+		_state = gui::TRANSFORM_CONTEXT::SCALE;
 
+	inContext.currentTransformContext = _state;
 }
+
 void ToolBar::CustomDraw()
 {
-	//ImGui::same
+	const ImVec2 buttonSize = ImVec2(30, 30);
+	const char* labelT = "T\0";
+	bool status = _state == gui::TRANSFORM_CONTEXT::TRANSLATE;
+	if (ImGui::PushButton(labelT, buttonSize, &status))
+	{
+		if (status)
+		{
+			_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
+		}
+	}
+
+	ImGui::SameLine();
+	const char* labelS = "S\0";
+	status = _state == gui::TRANSFORM_CONTEXT::SCALE;
+	if (ImGui::PushButton(labelS, buttonSize, &status))
+	{
+		if (status)
+		{
+			_state = gui::TRANSFORM_CONTEXT::SCALE;
+		}
+	}
+
+	ImGui::SameLine();
+	const char* labelR = "R\0";
+	status = _state == gui::TRANSFORM_CONTEXT::ROTATE;
+	if (ImGui::PushButton(labelR, buttonSize, &status))
+	{
+		if (status)
+		{
+			_state = gui::TRANSFORM_CONTEXT::ROTATE;
+		}
+	}
 }

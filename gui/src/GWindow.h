@@ -15,10 +15,18 @@ namespace fm
 
 namespace gui
 {
+	enum TRANSFORM_CONTEXT
+	{
+		TRANSLATE,
+		SCALE,
+		ROTATE,
+		LAST
+	};
 
 	struct Context
 	{
 		fm::GameObject* currentGameObjectSelected;
+		TRANSFORM_CONTEXT currentTransformContext;
 	};
 
 	class IWidget

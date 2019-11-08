@@ -49,5 +49,6 @@ namespace gui
 
 		bool _resultPicking;
 		fm::GameObject* _gameObjectSelectedByPicking;
+		gui::TRANSFORM_CONTEXT _currentTransformContext;
 	};
 }

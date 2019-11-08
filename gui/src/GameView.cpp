@@ -57,15 +57,14 @@ void GameView::_EditObject()
 		if (_gameObjectSelectedByPicking == nullptr)
 			return;
 
-		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+		ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
-		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_T))
+		if (_currentTransformContext == gui::TRANSFORM_CONTEXT::TRANSLATE)
 			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_R))
+		else if (_currentTransformContext == gui::TRANSFORM_CONTEXT::ROTATE)
 			mCurrentGizmoOperation = ImGuizmo::ROTATE;
-		if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_S)) // r Key
+		else if (_currentTransformContext == gui::TRANSFORM_CONTEXT::SCALE)
 			mCurrentGizmoOperation = ImGuizmo::SCALE;
-
 
 		fmc::CTransform *transform = _gameObjectSelectedByPicking->get<fmc::CTransform>();
 
@@ -191,6 +190,8 @@ void GameView::Update(float dt, Context &inContext)
 		_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;
 
 	}
+
+	_currentTransformContext = inContext.currentTransformContext;
 }
 
 

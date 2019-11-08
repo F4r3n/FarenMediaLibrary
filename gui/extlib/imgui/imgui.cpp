@@ -15213,6 +15213,48 @@ ImVec2 ImGui::GetWindowDockPos(ImGuiID inID)
 
 }
 
+bool ImGui::PushButton(const char* inLabel, const ImVec2& inSize, bool *ioCurrentState)
+{
+    ImVec2 buttonSize = inSize;
+    const char* label = inLabel;
+    const ImVec2 labelSize = CalcTextSize(label, NULL, true);
+    if (inSize.x == 0 || inSize.y == 0)
+        buttonSize = labelSize;
+
+    const ImVec2 cursorPos = GetCursorScreenPos();
+    InvisibleButton("##", buttonSize);
+    const bool isItemClicked = IsItemClicked();
+
+
+    ImDrawList* draw_list = GetWindowDrawList();
+    ImU32 col32 = GetColorU32(ImGuiCol_Button);;
+    if (isItemClicked)
+    {
+        col32 = GetColorU32(ImGuiCol_ButtonActive);
+    }
+    else if (*ioCurrentState)
+    {
+        col32 = GetColorU32(ImGuiCol_ButtonActive);
+    }
+    else if (IsItemHovered())
+    {
+        col32 = GetColorU32(ImGuiCol_ButtonHovered);
+    }
+
+    draw_list->AddRectFilled(cursorPos, ImVec2(cursorPos.x + buttonSize.x, cursorPos.y + buttonSize.y), col32, 3.0f);
+    draw_list->AddText(NULL,
+                        0.0f,
+                        ImVec2(cursorPos.x + buttonSize.x / 2.0f - labelSize.x / 2.0f, cursorPos.y + buttonSize.y / 2.0f - labelSize.y / 2.0f),
+                        GetColorU32(ImGuiCol_Text), label, nullptr, 0.0f, NULL);
+
+    if (isItemClicked)
+        *ioCurrentState = !*ioCurrentState;
+
+    return isItemClicked;
+}
+
+
+
 //-----------------------------------------------------------------------------
 
 // Include imgui_user.inl at the end of imgui.cpp to access private data/functions that aren't exposed.

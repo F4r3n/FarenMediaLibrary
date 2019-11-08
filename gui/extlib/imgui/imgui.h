@@ -242,8 +242,7 @@ namespace ImGui
     IMGUI_API void          ShowFontSelector(const char* label);        // add font selector block (not a window), essentially a combo listing the loaded fonts.
     IMGUI_API void          ShowUserGuide();                            // add basic help/info block (not a window): how to manipulate ImGui as a end-user (mouse/keyboard controls).
     IMGUI_API const char*   GetVersion();                               // get the compiled version string e.g. "1.23" (essentially the compiled value for IMGUI_VERSION)
-    IMGUI_API ImVec2        GetWindowDockSize(ImGuiID inID);
-    IMGUI_API ImVec2        GetWindowDockPos(ImGuiID inID);
+
 
     // Styles
     IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);    // new, recommended style (default)
@@ -748,6 +747,13 @@ namespace ImGui
     IMGUI_API void              DestroyPlatformWindows();                                       // call DestroyWindow platform functions for all viewports. call from back-end Shutdown() if you need to close platform windows before imgui shutdown. otherwise will be called by DestroyContext().
     IMGUI_API ImGuiViewport*    FindViewportByID(ImGuiID id);                                   // this is a helper for back-ends.
     IMGUI_API ImGuiViewport*    FindViewportByPlatformHandle(void* platform_handle);            // this is a helper for back-ends. the type platform_handle is decided by the back-end (e.g. HWND, MyWindow*, GLFWwindow* etc.)
+
+
+    //Custom
+    IMGUI_API ImVec2        GetWindowDockSize(ImGuiID inID);
+    IMGUI_API ImVec2        GetWindowDockPos(ImGuiID inID);
+    IMGUI_API bool          PushButton(const char* inLabel, const ImVec2& inSize, bool *ioCurrentState);
+
 
 } // namespace ImGui
 
