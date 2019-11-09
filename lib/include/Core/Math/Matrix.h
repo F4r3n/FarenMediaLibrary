@@ -206,6 +206,17 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
         return Result;
     }
 
+	template <typename T> Matrix<T> rotate(const Matrix<T>& m, const Matrix<T> &inRotate) {
+		
+
+		Matrix<T> Result;
+		Result[0] = m[0] * inRotate[0][0] + m[1] * inRotate[0][1] + m[2] * inRotate[0][2];
+		Result[1] = m[0] * inRotate[1][0] + m[1] * inRotate[1][1] + m[2] * inRotate[1][2];
+		Result[2] = m[0] * inRotate[2][0] + m[1] * inRotate[2][1] + m[2] * inRotate[2][2];
+		Result[3] = m[3];
+		return Result;
+	}
+
     template <typename T> Matrix<T> scale(const Matrix<T>& m, const vec<T, 3>& v) {
         Matrix<T> Result;
         Result[0] = m[0] * v[0];

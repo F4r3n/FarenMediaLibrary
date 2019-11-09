@@ -454,8 +454,6 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 
 void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties)
 {
-	const fm::math::Vector3f worldPos = inTransform.worldPosition;
-
 	if (inMaterial->shader != nullptr && !inMaterial->shader->IsReady())
 	{
 		inMaterial->shader->compile();
@@ -478,9 +476,8 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		shader->Use()
 			->setValue("FM_PV", cam->shader_data.FM_PV);
 		shader->setValue("lightNumber", _lightNumber);
-		shader->setValue("viewPos", worldPos);
-		fm::math::mat modelPosition = fm::math::mat();
-		_SetModelPosition(modelPosition, inTransform, worldPos, cam->IsOrthographic());
+		shader->setValue("viewPos", inTransform.GetPosition());
+		fm::math::mat modelPosition = inTransform.worldTransform;
 
 		shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
 		shader->setValue("FM_M", modelPosition);
@@ -600,7 +597,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 
             p.color = c;
 
-            p.position = fm::math::vec4(node.transform.worldPosition);
+            p.position = fm::math::vec4(node.transform.GetPosition());
             p.custom.x = node.plight->radius;
             pointLights[_lightNumber] = p;
             _lightNumber++;
@@ -616,29 +613,7 @@ void RenderingSystem::over()
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 }
 
-void RenderingSystem::_SetModelPosition(fm::math::mat& model,
-                               const fm::Transform &transform,
-                               const fm::math::Vector3f& worldPos, bool isOrthographic)
-{
-    if(isOrthographic)
-    {
-		//TODO
-        //model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, (float)-transform->layer));
-        model = fm::math::translate( model,fm::math::vec3( 0.5f * transform.scale.x, 0.5f * transform.scale.y, 0.0f));
-        model = fm::math::rotate( model, transform.rotation.x, fm::math::vec3(0.0f, 0.0f, 1.0f));
-        model = fm::math::translate( model, fm::math::vec3(-0.5f * transform.scale.x, -0.5f * transform.scale.y, 0.0f));
-        model = fm::math::scale(model, fm::math::vec3(transform.scale.x, transform.scale.y, 1.0f));
-    }else
-    {
-        model = fm::math::translate( model, fm::math::vec3(worldPos.x, worldPos.y, worldPos.z));
-        model = fm::math::rotate( model, fm::math::radians(transform.rotation.x), fm::math::vec3(1,0,0));
-        model = fm::math::rotate( model, fm::math::radians(transform.rotation.y), fm::math::vec3(0,1,0));
-        model = fm::math::rotate( model, fm::math::radians(transform.rotation.z), fm::math::vec3(0,0,1));
 
-        model = fm::math::scale(model, fm::math::vec3(transform.scale.x, transform.scale.y, transform.scale.z));
-    }
-
-}
 
 void RenderingSystem::_DrawText(float posX, float posY,
                                RFont* font,

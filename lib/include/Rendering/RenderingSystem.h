@@ -48,7 +48,6 @@ public:
 	virtual void Start() {}
 	virtual void Stop() {}
  private:
-    void _SetModelPosition(fm::math::mat& model, const fm::Transform& transform, const fm::math::Vector3f &worldPos, bool isOrthographic);
     void _InitStandardShapes();
     void _InitUniformBufferCamera(fmc::CCamera* camera);
     void _UpdateUniformBufferCamera(fmc::CCamera* camera);
