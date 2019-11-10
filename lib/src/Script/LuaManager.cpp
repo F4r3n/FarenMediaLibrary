@@ -108,7 +108,7 @@ void LuaManager::registerComponents()
 		"scale",
 		&CTransform::scale,
 		"rotation",
-		&CTransform::rotation,
+		&CTransform::GetRotation,
 	  "layer",
 	  &CTransform::layer);
 	lua->new_usertype<CCamera>("CCamera",

@@ -30,7 +30,7 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 			fmc::CTransform *ctransform = e->get<fmc::CTransform>();
 
 			cbody->SetPosition(ctransform->position);
-			cbody->SetRotation(ctransform->rotation);
+			cbody->SetRotation(ctransform->GetRotation());
 			cbody->AddToWorld(_dynamicsWorld);
 		}
 
@@ -58,7 +58,9 @@ void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
 		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
 
 		cbody->GetPosition(ctransform->position);
-		cbody->GetRotation(ctransform->rotation);
+		fm::math::Quaternion q = ctransform->GetRotation();
+		cbody->GetRotation(q);
+		ctransform->SetRotation(q);
 	}
 }
 

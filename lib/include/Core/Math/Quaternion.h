@@ -10,14 +10,15 @@ namespace fm
 		{
 		public:
 			Quaternion();
+			
 			Quaternion(const vec4& inVec4);
-			operator vec4() const { return _q; }
+			operator vec4() const { return fm::math::vec4(x, y, z, w); }
 			vec3 GetEulerAngles() const;
-			void FromEulerAngles(const vec3& inRotation);
+			static Quaternion FromEulerAngles(const vec3& inRotation);
 			Quaternion Conjugate(const Quaternion& inQuaternion);
 			mat  GetRotationMatrix() const;
 		private:
-			vec4 _q;
+			float w, x, y, z;
 		};
 	}
 }

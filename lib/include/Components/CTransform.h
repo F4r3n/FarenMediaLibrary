@@ -36,6 +36,8 @@ class CTransform : public FMComponent<CTransform> {
         void				setFather(ecs::id id);
         void				setFather(Entity* e);
 		void				RemoveFather();
+		const fm::math::Quaternion& GetRotation() const { return _rotation; }
+		void				SetRotation(const fm::math::Quaternion &inQuaternion) { _rotation = inQuaternion; }
 
         ecs::id idFather;
 
@@ -45,8 +47,9 @@ class CTransform : public FMComponent<CTransform> {
 
 		fm::math::vec3 position;
 		fm::math::vec3 scale;
-		fm::math::Quaternion rotation;//Quaternion
 private:
+		fm::math::Quaternion _rotation;//Quaternion
+
 		bool _hasFather;
 };
 }

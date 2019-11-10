@@ -92,15 +92,15 @@ void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
 }
 
 
-void CBody3D::SetRotation(const fm::math::vec3 &inRotation)
+void CBody3D::SetRotation(const fm::math::Quaternion &inRotation)
 {
 	btTransform transform;
 	if (_body && _body->getMotionState())
 	{
 		transform = _body->getCenterOfMassTransform();
 	}
-
-	transform.setRotation(btQuaternion(btScalar(inRotation.z), btScalar(inRotation.y), btScalar(inRotation.x)));
+	fm::math::vec4 r = inRotation;
+	transform.setRotation(btQuaternion(r.x, r.y, r.z, r.w));
 	_body->getMotionState()->setWorldTransform(transform);
 }
 
@@ -140,7 +140,7 @@ void CBody3D::GetPosition(fm::math::vec3& outVec) const
 }
 
 
-void CBody3D::GetRotation(fm::math::vec3& outVec) const
+void CBody3D::GetRotation(fm::math::Quaternion &outQuaternion) const
 {
 	btTransform transform;
 	if (_body)
@@ -148,7 +148,8 @@ void CBody3D::GetRotation(fm::math::vec3& outVec) const
 		transform = _body->getWorldTransform();
 	}
 	fm::math::vec3 v;
-	transform.getRotation().getEulerZYX(outVec.z, outVec.y, outVec.x);
+	btQuaternion q = transform.getRotation();
+	outQuaternion = fm::math::Quaternion(fm::math::vec4(q.x(), q.y(), q.z(), q.w()));
 }
 
 

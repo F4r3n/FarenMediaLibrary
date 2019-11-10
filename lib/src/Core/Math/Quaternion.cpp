@@ -5,41 +5,56 @@ using namespace fm::math;
 //https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 vec3 Quaternion::GetEulerAngles() const
 {
-	vec3 angle;
-	// roll (x-axis rotation)
-	const double sinr_cosp = 2 * (_q.w * _q.x + _q.y * _q.z);
-	const double cosr_cosp = 1 - 2 * (_q.x * _q.x + _q.y * _q.y);
-	angle.x = std::atan2(sinr_cosp, cosr_cosp);
-
-	// pitch (y-axis rotation)
-	const double sinp = 2 * (_q.w * _q.y - _q.z * _q.x);
-	if (std::abs(sinp) >= 1)
-		angle.y = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	fm::math::vec3 angles;
+	float test = x * y + z * w;
+	if (test > 0.499)
+	{
+		angles.y = degrees(2 * std::atan2f(x, w));
+		angles.z = 90;
+		angles.x = 0;
+	}
+	else if (test < -0.499)
+	{
+		angles.y = -degrees(2 * std::atan2f(x, w));
+		angles.z = -90;
+		angles.x = 0;
+	}
 	else
-		angle.y = std::asin(sinp);
+	{
+		angles.y = degrees(std::atan2f(2 * y*w - 2 * x*z, 1 - 2 * y*y - 2 * z*z));
+		angles.z = degrees(std::asin(2 * x*y + 2 * z*w));
+		angles.x = degrees(std::atan2f(2 * x*w - 2 * y*z, 1 - 2 * x*x + z * z));
+	}
 
-	// yaw (z-axis rotation)
-	const double siny_cosp = 2 * (_q.w * _q.z + _q.x * _q.y);
-	const double cosy_cosp = 1 - 2 * (_q.y * _q.y + _q.z * _q.z);
-	angle.z = std::atan2(siny_cosp, cosy_cosp);
-
-	return angle;
+	return angles;
 }
 
-void Quaternion::FromEulerAngles(const vec3& inRotation)
+Quaternion Quaternion::FromEulerAngles(const vec3& inRotation)
 {
-	// Abbreviations for the various angular functions
-	const double cy = cos(inRotation.x * 0.5);
-	const double sy = sin(inRotation.x * 0.5);
-	const double cp = cos(inRotation.y * 0.5);
-	const double sp = sin(inRotation.y * 0.5);
-	const double cr = cos(inRotation.z * 0.5);
-	const double sr = sin(inRotation.z * 0.5);
+	fm::math::vec3 angle = inRotation;
+	//if (angle.x > 90) angle.x -= 180;
+	//if (angle.y > 90) angle.y -= 180;
+	//if (angle.z > 90) angle.z -= 180;
 
-	_q.w = cy * cp * cr + sy * sp * sr;
-	_q.x = cy * cp * sr - sy * sp * cr;
-	_q.y = sy * cp * sr + cy * sp * cr;
-	_q.z = sy * cp * cr - cy * sp * sr;
+	angle.x = fm::math::radians(angle.x*0.5);
+	angle.y = fm::math::radians(angle.y*0.5);
+	angle.z = fm::math::radians(angle.z*0.5);
+
+	// Abbreviations for the various angular functions
+	double cy = cos(angle.z);
+	double sy = sin(angle.z);
+	double cp = cos(angle.y);
+	double sp = sin(angle.y);
+	double cr = cos(angle.x);
+	double sr = sin(angle.x);
+
+	Quaternion q;
+	q.w = cy * cp * cr - sy * sp * sr;
+	q.x = cy * cp * sr + sy * sp * cr;
+	q.y = sy * cp * sr + cy * sp * cr;
+	q.z = sy * cp * cr - cy * sp * sr;
+
+	return q;
 
 }
 
@@ -47,19 +62,19 @@ mat  Quaternion::GetRotationMatrix() const
 {
 	mat m;
 
-	m[0][0] = _q.x*_q.x + _q.y*_q.y - _q.z*_q.z - _q.w*_q.w;
-	m[0][1] = 2 * (_q.y*_q.z - _q.x*_q.w);
-	m[0][2] = 2 * (_q.x*_q.z + _q.y*_q.w);
+	m[0][0] = 1 - 2*(y*y - z*z);
+	m[0][1] = 2 * (x*y - z*w);
+	m[0][2] = 2 * (x*z + y*w);
 	m[0][3] = 0;
 
-	m[1][0] = 2 * (_q.y*_q.z + _q.x*_q.w);
-	m[1][1] = _q.x*_q.x - _q.y*_q.y + _q.z*_q.z - _q.w*_q.w;
-	m[1][2] = 2 * (_q.z*_q.w - _q.x*_q.y);
+	m[1][0] = 2 * (x*y + z*w);
+	m[1][1] = 1 - 2*(x*x - z*z);
+	m[1][2] = 2 * (y*z - x*w);
 	m[1][3] = 0;
 
-	m[2][0] = 2 * (_q.y*_q.w - _q.x*_q.z);
-	m[2][1] = 2 * (_q.x*_q.y + _q.z*_q.w);
-	m[2][2] = _q.x*_q.x - _q.y*_q.y - _q.z*_q.z + _q.w*_q.w;
+	m[2][0] = 2 * (x*z - y*w);
+	m[2][1] = 2 * (y*z + x*w);
+	m[2][2] = 1 - 2*(x*x - y*y);
 	m[2][3] = 0;
 
 	m[3][0] = m[3][1] = m[3][2] = 0;
@@ -70,22 +85,28 @@ mat  Quaternion::GetRotationMatrix() const
 
 Quaternion::Quaternion(const vec4& inVec4)
 {
-	_q = inVec4;
+	w = inVec4.w;
+	x = inVec4.x;
+	y = inVec4.y;
+	z = inVec4.z;
+
 }
 
 Quaternion::Quaternion()
 {
-	_q.x = 0;
-	_q.y = 0;
-	_q.z = 0;
-	_q.w = 1;
+	x = 0;
+	y = 0;
+	z = 0;
+	w = 1;
 }
 
 
 
 Quaternion Quaternion::Conjugate(const Quaternion& inQuaternion)
 {
-	return Quaternion(_q * inQuaternion._q);
+	fm::math::vec4 v(x, y, z, w);
+	fm::math::vec4 r = v * (vec4)inQuaternion;
+	return r;
 }
 
 

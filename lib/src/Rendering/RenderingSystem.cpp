@@ -172,7 +172,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 
 		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
 		camera->_viewMatrix = fm::math::mat();
-		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->rotation, camera->IsOrthographic());
+		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->GetRotation().GetEulerAngles(), camera->IsOrthographic());
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
@@ -264,7 +264,7 @@ void RenderingSystem::pre_update(EntityManager& em)
 		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
 		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
 
-		_SetView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->rotation, cam->IsOrthographic());
+		_SetView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->GetRotation().GetEulerAngles(), cam->IsOrthographic());
 	}
 
 }
@@ -476,7 +476,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		shader->Use()
 			->setValue("FM_PV", cam->shader_data.FM_PV);
 		shader->setValue("lightNumber", _lightNumber);
-		shader->setValue("viewPos", inTransform.GetPosition());
+		shader->setValue("viewPos", inTransform.position);
 		fm::math::mat modelPosition = inTransform.worldTransform;
 
 		shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
@@ -597,7 +597,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 
             p.color = c;
 
-            p.position = fm::math::vec4(node.transform.GetPosition());
+            p.position = fm::math::vec4(node.transform.position);
             p.custom.x = node.plight->radius;
             pointLights[_lightNumber] = p;
             _lightNumber++;

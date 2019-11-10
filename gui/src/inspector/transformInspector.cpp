@@ -17,12 +17,14 @@ void TransformInspector::draw(bool *)
         ImGui::DragFloat3("Position",&target->position.x, 0.02f, -FLT_MAX, FLT_MAX);
         ImGui::DragFloat3("Size", &target->scale.x, 0.02f, -FLT_MAX, FLT_MAX);
 
-		fm::math::Quaternion q = target->rotation;
+		fm::math::Quaternion q = target->GetRotation();
 		fm::math::vec3 euler = q.GetEulerAngles();
-        ImGui::DragFloat3("Rotation", &euler.x, 0.02f, -FLT_MAX, FLT_MAX);
-		target->rotation.FromEulerAngles(euler);
+		if (ImGui::DragFloat3("Rotation", &euler.x, 1.0f, -FLT_MAX, FLT_MAX))
+		{
+			float pitch = std::max(std::min(euler.x, 89.9f), -89.9f);
+			target->SetRotation(fm::math::Quaternion::FromEulerAngles(fm::math::vec3(pitch, euler.y, euler.z)));
+		}
 
-        ImGui::DragInt("Layer", &target->layer, 1, 0, 99);
         ImGui::PopItemWidth();
     }
 }

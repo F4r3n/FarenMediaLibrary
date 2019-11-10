@@ -77,16 +77,17 @@ void GameView::_EditObject()
 						  preview.renderTexture->getHeight());
 		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
 		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
-		fm::math::mat model = transform->GetLocalMatrixModel();
+		fm::math::mat model;
 
-		fm::math::vec3 rotation = transform->rotation;
+		fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
 		fm::math::vec3 position = transform->position;
 		fm::math::vec3 scale = transform->scale;
 		ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
-
+		
 		ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
-
-		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &transform->rotation[0], &transform->scale[0]);
+		
+		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &rotation[0], &transform->scale[0]);
+		transform->SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
 		
 	}
 

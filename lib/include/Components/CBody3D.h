@@ -1,7 +1,7 @@
 #pragma once
 #include "component.h"
 #include "Core/Math/Vector3.h"
-
+#include "Core/Math/Quaternion.h"
 class btCollisionShape;
 class btRigidBody;
 class btDiscreteDynamicsWorld;
@@ -39,10 +39,10 @@ namespace fmc
 
 		void Init();
 		void SetPosition(const fm::math::vec3 &inPosition);
-		void SetRotation(const fm::math::vec3 &inRotation);
+		void SetRotation(const fm::math::Quaternion &inRotation);
 
 		void GetPosition(fm::math::vec3& outVec) const;
-		void GetRotation(fm::math::vec3& outVec) const;
+		void GetRotation(fm::math::Quaternion &outQuaternion) const;
 
 
 		btRigidBody* GetBody() const { return _body; }

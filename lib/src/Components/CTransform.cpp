@@ -23,7 +23,7 @@ CTransform::CTransform()
 
 	position = { 0, 0, 0 };
 	scale = { 1, 1, 1 };
-	rotation = fm::math::Quaternion();
+	_rotation = fm::math::Quaternion();
 }
 
 CTransform::CTransform(const fm::math::Vector3f& inPosition,
@@ -34,7 +34,7 @@ CTransform::CTransform(const fm::math::Vector3f& inPosition,
 {
 	position = inPosition;
 	scale = inScale;
-	rotation.FromEulerAngles(inRotation);
+	_rotation.FromEulerAngles(inRotation);
     _name = "Transform";
 	idFather = 0;
 	_hasFather = false;
@@ -51,7 +51,7 @@ bool CTransform::Serialize(json &ioJson) const
 
     ioJson[Keys::position] = position;
     ioJson[Keys::scale] = scale;
-    ioJson[Keys::rotation] = (fm::math::vec4)rotation;
+    ioJson[Keys::rotation] = (fm::math::vec4)_rotation;
     ioJson[Keys::father] = idFather;
 	ioJson[Keys::layer] = layer;
 
@@ -63,7 +63,7 @@ void CTransform::From(const fmc::CTransform *inTransform)
 {
 	scale = inTransform->scale;
 	position = inTransform->position;
-	rotation = inTransform->rotation;
+	_rotation = inTransform->_rotation;
 	idFather = inTransform->idFather;
 	layer = inTransform->layer;
 }
@@ -79,7 +79,7 @@ bool CTransform::Read(const json &inJSON)
 
     position = inJSON[Keys::position];
     scale = inJSON[Keys::scale];
-    rotation = (fm::math::vec4) inJSON[Keys::rotation];
+    _rotation = (fm::math::vec4) inJSON[Keys::rotation];
     idFather = inJSON[Keys::father];
     return true;
 }
@@ -93,7 +93,9 @@ fm::Transform CTransform::GetTransform() const
 {
 	fm::Transform tr;
 	tr.worldTransform = GetWorldMatrix();
-	
+	tr.position = position;//TODO temporary fix
+	tr.rotation = _rotation;
+	tr.scale = scale;
 	return tr;
 }
 
@@ -104,7 +106,7 @@ void CTransform::SetLocalMatrixModel(const fm::math::mat &inLocalMatrix)
 
 fm::math::mat CTransform::GetWorldMatrix(bool opposePosition) const
 {
-	if (_hasFather)
+	if (!_hasFather)
 		return GetLocalMatrixModel(opposePosition);
 
 	Entity* e = EntityManager::get().getEntity(idFather);
@@ -131,7 +133,7 @@ fm::math::mat CTransform::GetLocalMatrixModel(bool opposePosition) const
 	else
 		model = fm::math::translate(model, fm::math::vec3(position.x, position.y, position.z));
 
-	model = fm::math::rotate(model, rotation.GetRotationMatrix());
+	model = fm::math::rotate(model, _rotation.GetRotationMatrix());
 	
 	model = fm::math::scale(model, fm::math::vec3(scale.x, scale.y, scale.z));
 	return model;
