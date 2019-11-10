@@ -18,6 +18,10 @@ namespace fm
 			Quaternion Conjugate(const Quaternion& inQuaternion);
 			mat  GetRotationMatrix() const;
 		private:
+			float _Roll() const;
+			float _Pitch() const;
+			float _Yaw() const;
+
 			float w, x, y, z;
 		};
 	}

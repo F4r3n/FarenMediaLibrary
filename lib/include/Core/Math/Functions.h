@@ -29,6 +29,12 @@ namespace math {
 		return static_cast<T>(a*180 / pi());
 	}
 
+	template <typename T>
+	T clamp(T x, T minX, T maxX)
+	{
+		return std::min(std::max(x, minX), maxX);
+	}
+
     template <typename T> inline T mod(T a, T b) {
         return a - b * std::floor(a / b);
     }

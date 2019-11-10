@@ -79,7 +79,7 @@ bool CTransform::Read(const json &inJSON)
 
     position = inJSON[Keys::position];
     scale = inJSON[Keys::scale];
-    _rotation = (fm::math::vec4) inJSON[Keys::rotation];
+    _rotation = static_cast<fm::math::vec4>(inJSON[Keys::rotation]);
     idFather = inJSON[Keys::father];
     return true;
 }
