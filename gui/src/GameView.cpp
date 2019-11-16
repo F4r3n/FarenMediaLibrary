@@ -54,7 +54,7 @@ void GameView::_EditObject()
 	{
 		CameraPreview preview = _previews[_index];
 		fm::GameObject* camera = preview.go;
-		if (_gameObjectSelectedByPicking == nullptr)
+		if (_gameObjectSelectedByPicking == nullptr || !_gameObjectSelectedByPicking->IsActive())
 			return;
 
 		ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);

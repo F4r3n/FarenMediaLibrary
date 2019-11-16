@@ -1,32 +1,35 @@
 #include "Components/CBody3D.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <EntityManager.h>
 #include "Components/CTransform.h"
+#include "Components/CCollider.h"
 using namespace fmc;
 
 CBody3D::CBody3D()
 {
+	_Init();
+}
+
+
+void CBody3D::_Init()
+{
+	_ghostObject = nullptr;
 	_body = nullptr;
 	_isInWorld = false;
 	_mass = 0.0f;
-	_shape = SHAPE::BOX;
-	_scale = fm::math::vec3(1, 1, 1);
-	_radius = 1.0f;
+	_isGhost = true;
+	_name = "Body3D";
 }
 
-CBody3D::CBody3D(const fm::math::vec3 &inScale)
+bool CBody3D::SetGhost(bool value)
 {
-	_body = nullptr;
-	_isInWorld = false;
-	_mass = 0.001f;
-	_shape = SHAPE::BOX;
-	_scale = inScale;
+	_isGhost = value;
+	return !IsInit();
 }
-
-CBody3D::CBody3D(float radius)
+bool CBody3D::IsGhost() const
 {
-	_radius = radius;
-	_shape = SHAPE::SPHERE;
+	return _isGhost;
 }
 
 void CBody3D::SetMass(float inMass)
@@ -37,13 +40,14 @@ void CBody3D::SetMass(float inMass)
 
 bool CBody3D::IsInit() const
 {
-	return _body != nullptr && _isInWorld;
+	return (_body != nullptr || _ghostObject != nullptr) && _isInWorld;
 }
 
 
-void CBody3D::Init()
+void CBody3D::Init(CCollider *inCollider)
 {
 	const fm::Transform &&transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->GetTransform();
+
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (_mass != 0.f);
 
@@ -52,88 +56,106 @@ void CBody3D::Init()
 	object.setIdentity();
 	object.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
 
-	btCollisionShape* shape = nullptr;
+	btCollisionShape* shape = inCollider->GetCollisionShape();
 
-	switch (_shape)
+	if (!_isGhost)
 	{
-	case fmc::BOX:
-		shape = new btBoxShape(btVector3(btScalar(_scale.x*transform.scale.x*0.5f), btScalar(_scale.y*transform.scale.y*0.5f), btScalar(_scale.z*transform.scale.z*0.5f)));
-		break;
-	case fmc::SPHERE:
-		shape = new btSphereShape(btScalar(_radius*transform.scale.x));//TODO fix
-		break;
-	default:
-		break;
+		btVector3 localInertia(0, 0, 0);
+
+		if (isDynamic)
+		{
+			shape->calculateLocalInertia(_mass, localInertia);
+		}
+
+		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, new btDefaultMotionState(object), shape, localInertia);
+		_body = new btRigidBody(rbInfo);
 	}
-
-	btVector3 localInertia(0, 0, 0);
-
-	if (isDynamic)
+	else
 	{
-		shape->calculateLocalInertia(_mass, localInertia);
+		_ghostObject = new btGhostObject();
+		_ghostObject->setCollisionShape(shape);
+		_ghostObject->setWorldTransform(object);
 	}
-
-	//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, new btDefaultMotionState(object), shape, localInertia);
-	_body = new btRigidBody(rbInfo);
-
 }
 
-void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
+void CBody3D::_GetCurrentTransform(btTransform& transform) const
 {
-	btTransform transform;
 	if (_body && _body->getMotionState())
 	{
 		transform = _body->getCenterOfMassTransform();
 	}
-	
+	else if (_ghostObject)
+	{
+		transform = _ghostObject->getWorldTransform();
+	}
+}
+
+
+void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
+{
+	btTransform transform;
+	_GetCurrentTransform(transform);
+
 	transform.setOrigin(btVector3(inPosition.x, inPosition.y, inPosition.z));
-	_body->setCenterOfMassTransform(transform);
+
+	if (!_isGhost)
+	{
+		_body->setCenterOfMassTransform(transform);
+	}
+	else
+	{
+		_ghostObject->setWorldTransform(transform);
+	}
 }
 
 
 void CBody3D::SetRotation(const fm::math::Quaternion &inRotation)
 {
 	btTransform transform;
-	if (_body && _body->getMotionState())
-	{
-		transform = _body->getCenterOfMassTransform();
-	}
+	_GetCurrentTransform(transform);
+
 	fm::math::vec4 r = inRotation;
 	transform.setRotation(btQuaternion(r.x, r.y, r.z, r.w));
-	_body->getMotionState()->setWorldTransform(transform);
-}
 
-
-void CBody3D::SetRadius(float radius)
-{
-	_radius = radius;
-	_shape = SHAPE::SPHERE;
-	if (_body)
+	if (_body != nullptr)
 	{
-		_body->getCollisionShape()->setLocalScaling(btVector3(_radius, _radius, _radius));
+		_body->getMotionState()->setWorldTransform(transform);
+	}
+	else if (_ghostObject != nullptr)
+	{
+		_ghostObject->setWorldTransform(transform);
 	}
 }
 
 
-void CBody3D::SetScale(const fm::math::vec3 &inScale)
-{
-	_scale = inScale;
-	_shape = SHAPE::BOX;
-	if (_body)
-	{
-		_body->getCollisionShape()->setLocalScaling(btVector3(inScale.x, inScale.y, inScale.z));
-	}
-}
+//void CBody3D::SetRadius(float radius)
+//{
+//	_radius = radius;
+//	_shape = SHAPE::SPHERE;
+//	if (_body)
+//	{
+//		_body->getCollisionShape()->setLocalScaling(btVector3(_radius, _radius, _radius));
+//	}
+//}
+//
+//
+//void CBody3D::SetScale(const fm::math::vec3 &inScale)
+//{
+//	_scale = inScale;
+//	_shape = SHAPE::BOX;
+//	if (_body)
+//	{
+//		_body->getCollisionShape()->setLocalScaling(btVector3(inScale.x, inScale.y, inScale.z));
+//	}
+//}
 
 
 void CBody3D::GetPosition(fm::math::vec3& outVec) const
 {
 	btTransform transform;
-	if (_body)
-	{
-		transform = _body->getWorldTransform();
-	}
+	_GetCurrentTransform(transform);
+
 	btVector3 v = transform.getOrigin();
 	
 	outVec = fm::math::vec3(v.x(), v.y(), v.z());
@@ -143,10 +165,8 @@ void CBody3D::GetPosition(fm::math::vec3& outVec) const
 void CBody3D::GetRotation(fm::math::Quaternion &outQuaternion) const
 {
 	btTransform transform;
-	if (_body)
-	{
-		transform = _body->getWorldTransform();
-	}
+	_GetCurrentTransform(transform);
+
 	fm::math::vec3 v;
 	btQuaternion q = transform.getRotation();
 	outQuaternion = fm::math::Quaternion(fm::math::vec4(q.x(), q.y(), q.z(), q.w()));
@@ -156,7 +176,14 @@ void CBody3D::GetRotation(fm::math::Quaternion &outQuaternion) const
 
 void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 {
-	inWorld->addRigidBody(_body);
+	if (_isGhost)
+	{
+		inWorld->addCollisionObject(_ghostObject);
+	}
+	else
+	{
+		inWorld->addRigidBody(_body);
+	}
 	_isInWorld = true;
 }
 
@@ -172,19 +199,16 @@ void CBody3D::Destroy()
 
 bool CBody3D::Serialize(json &ioJson) const
 {
-	ioJson["shape"] = _shape;
 	ioJson["mass"] = _mass;
-	ioJson["radius"] = _radius;
-	ioJson["scale"] = _scale;
+	ioJson["ghost"] = _isGhost;
+
 
 	return true;
 }
 bool CBody3D::Read(const json &inJSON)
 {
-	_shape = inJSON["shape"];
 	_mass = inJSON["mass"];
-	_radius = inJSON["radius"];
-	_scale = inJSON["scale"];
+	_isGhost = inJSON["ghost"];
 
 	return true;
 }

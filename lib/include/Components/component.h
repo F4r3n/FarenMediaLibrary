@@ -22,6 +22,7 @@ enum ComponentType
     kSource,
     kText,
     kEvent,
+	kCollider,
     kEND,
     kNone
 };
@@ -33,11 +34,12 @@ class FMComponent : public Component<T>
     public:
         virtual bool Serialize(nlohmann::json &) const {return false;}
         virtual bool Read(const nlohmann::json &) {return false;}
-        virtual const std::string & GetName() const {return Component<T>::GetName();}
+        virtual const std::string& GetName() const {return Component<T>::GetName();}
         virtual ~FMComponent() = default;
         virtual uint16_t GetType() const {return kNone;}
         virtual void Destroy() = 0;
 		bool Enabled = true;
+		
 };
 
 }

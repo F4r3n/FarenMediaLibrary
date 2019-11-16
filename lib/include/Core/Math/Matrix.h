@@ -394,6 +394,63 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 
                          );
     }
+
+
+	template <typename T> Matrix<T> inverse(const Matrix<T>& m) {
+		T Coef00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
+		T Coef02 = m[1][2] * m[3][3] - m[3][2] * m[1][3];
+		T Coef03 = m[1][2] * m[2][3] - m[2][2] * m[1][3];
+
+		T Coef04 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
+		T Coef06 = m[1][1] * m[3][3] - m[3][1] * m[1][3];
+		T Coef07 = m[1][1] * m[2][3] - m[2][1] * m[1][3];
+
+		T Coef08 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
+		T Coef10 = m[1][1] * m[3][2] - m[3][1] * m[1][2];
+		T Coef11 = m[1][1] * m[2][2] - m[2][1] * m[1][2];
+
+		T Coef12 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+		T Coef14 = m[1][0] * m[3][3] - m[3][0] * m[1][3];
+		T Coef15 = m[1][0] * m[2][3] - m[2][0] * m[1][3];
+
+		T Coef16 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
+		T Coef18 = m[1][0] * m[3][2] - m[3][0] * m[1][2];
+		T Coef19 = m[1][0] * m[2][2] - m[2][0] * m[1][2];
+
+		T Coef20 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
+		T Coef22 = m[1][0] * m[3][1] - m[3][0] * m[1][1];
+		T Coef23 = m[1][0] * m[2][1] - m[2][0] * m[1][1];
+
+		vec<T, 4> Fac0(Coef00, Coef00, Coef02, Coef03);
+		vec<T, 4> Fac1(Coef04, Coef04, Coef06, Coef07);
+		vec<T, 4> Fac2(Coef08, Coef08, Coef10, Coef11);
+		vec<T, 4> Fac3(Coef12, Coef12, Coef14, Coef15);
+		vec<T, 4> Fac4(Coef16, Coef16, Coef18, Coef19);
+		vec<T, 4> Fac5(Coef20, Coef20, Coef22, Coef23);
+
+		vec<T, 4> Vec0(m[1][0], m[0][0], m[0][0], m[0][0]);
+		vec<T, 4> Vec1(m[1][1], m[0][1], m[0][1], m[0][1]);
+		vec<T, 4> Vec2(m[1][2], m[0][2], m[0][2], m[0][2]);
+		vec<T, 4> Vec3(m[1][3], m[0][3], m[0][3], m[0][3]);
+
+		vec<T, 4> Inv0(Vec1 * Fac0 - Vec2 * Fac1 + Vec3 * Fac2);
+		vec<T, 4> Inv1(Vec0 * Fac0 - Vec2 * Fac3 + Vec3 * Fac4);
+		vec<T, 4> Inv2(Vec0 * Fac1 - Vec1 * Fac3 + Vec3 * Fac5);
+		vec<T, 4> Inv3(Vec0 * Fac2 - Vec1 * Fac4 + Vec2 * Fac5);
+
+		vec<T, 4> SignA(+1, -1, +1, -1);
+		vec<T, 4> SignB(-1, +1, -1, +1);
+		Matrix<T> Inverse(Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB);
+
+		vec<T, 4> Row0(Inverse[0][0], Inverse[1][0], Inverse[2][0], Inverse[3][0]);
+
+		vec<T, 4> Dot0(m[0] * Row0);
+		T Dot1 = (Dot0.x + Dot0.y) + (Dot0.z + Dot0.w);
+
+		T OneOverDeterminant = static_cast<T>(1) / Dot1;
+
+		return Inverse * OneOverDeterminant;
+	}
     template <typename T> T* value_ptr(Matrix<T>& m) {
         return &(m[0].x);
     }

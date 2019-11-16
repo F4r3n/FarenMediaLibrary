@@ -9,6 +9,7 @@
 #include "Components/CMesh.h"
 #include "Components/CCamera.h"
 #include "Components/CBody3D.h"
+#include "Components/CCollider.h"
 using namespace fm;
 size_t GameObject::_counter = 0;
 GameObject* GameObject::create()
@@ -87,6 +88,9 @@ bool GameObject::Read(const json &inJson)
             break;
 			case fmc::ComponentType::kBody3D:
 				add<fmc::CBody3D>()->Read(it.value());
+			break;
+			case fmc::ComponentType::kCollider:
+				add<fmc::CCollider>()->Read(it.value());
 			break;
             case fmc::ComponentType::kCamera:
                 add<fmc::CCamera>()->Read(it.value());

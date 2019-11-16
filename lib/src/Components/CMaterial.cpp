@@ -7,11 +7,11 @@
 
 using namespace fmc;
 using namespace fm;
-static const std::string kName = "Material";
 
 
 CMaterial::CMaterial()
 {
+	_name = "Material";
    _materials.push_back(fm::ResourcesManager::get().getResource<fm::Material>("default_material"));
 }
 
@@ -67,7 +67,7 @@ bool CMaterial::Read(const json &inJSON)
 
 const std::string& CMaterial::GetName() const
 {
-    return kName;
+    return _name;
 }
 
 

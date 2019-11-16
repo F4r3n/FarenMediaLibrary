@@ -27,7 +27,7 @@ class CMaterial : public FMComponent<CMaterial> {
 		uint16_t GetType() const override {return kMaterial;}
         void Destroy() override;
 
-
+		
         void SetFlagHasChanged();
         bool Reload();
         const fm::Materials& GetAllMaterials() {return _materials;}

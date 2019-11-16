@@ -29,6 +29,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/scriptManagerInspector.cpp
 	src/inspector/transformInspector.cpp
 	src/inspector/body3DInspector.cpp
+	src/inspector/colliderInspector.cpp
 	src/debuglogger.cpp
 	src/GListEntities.cpp
 	src/PickingSystem.cpp

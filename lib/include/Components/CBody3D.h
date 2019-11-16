@@ -2,16 +2,18 @@
 #include "component.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Quaternion.h"
+
 class btCollisionShape;
 class btRigidBody;
 class btDiscreteDynamicsWorld;
+class btGhostObject;
+class btTransform;
 namespace fmc
 {
-	enum SHAPE
-	{
-		BOX,
-		SPHERE
-	};
+	class CCollider;
+}
+namespace fmc
+{
 
 	class CBody3D : public FMComponent<CBody3D>
 	{
@@ -23,21 +25,14 @@ namespace fmc
 		void Destroy() override;
 		uint16_t GetType() const override { return kBody3D; }
 
-		CBody3D(const fm::math::vec3 &inScale);
-		CBody3D(float radius);
 		CBody3D();
 
 		~CBody3D();
 		void SetMass(float inMass);
-		void SetRadius(float radius);
-		void SetScale(const fm::math::vec3 &inScale);
 
-		float GetRadius() const { return _radius; }
-		const fm::math::vec3& GetScale() const { return _scale; }
-		SHAPE GetShape() const { return _shape; }
 		float GetMass() const { return _mass; }
 
-		void Init();
+		void Init(CCollider *inCollider);
 		void SetPosition(const fm::math::vec3 &inPosition);
 		void SetRotation(const fm::math::Quaternion &inRotation);
 
@@ -49,13 +44,16 @@ namespace fmc
 		void AddToWorld(btDiscreteDynamicsWorld *inWorld);
 		bool IsInit() const;
 
+		bool SetGhost(bool value);
+		bool IsGhost() const;
 	private:
-
+		void _GetCurrentTransform(btTransform& transform)const;
+		void _Init();
 		btRigidBody* _body;
 		float _mass;
 		bool _isInWorld;
-		fm::math::vec3 _scale;
-		float _radius;
-		SHAPE _shape;
+		btGhostObject* _ghostObject;
+		bool _isGhost;
+
 	};
 }

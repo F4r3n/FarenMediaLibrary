@@ -38,6 +38,8 @@
 #include "debuglogger.h"
 #include "GameView.h"
 #include <imgui/imgui_internal.h>
+#include "Components/CCollider.h"
+#include "inspector/colliderInspector.hpp"
 
 
 MainWindow::MainWindow()
@@ -128,7 +130,7 @@ void MainWindow::_DrawComponents(fm::GameObject* currentEntity) {
 		_inspectorComponents[currentEntity->getID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
 	}
 
-	for (auto c : compos) 
+	for (auto && c : compos) 
 	{
 		if (_inspectorComponents[currentEntity->getID()][c->GetType()] == nullptr)
 		{
@@ -155,6 +157,10 @@ void MainWindow::_DrawComponents(fm::GameObject* currentEntity) {
 			else if (c->GetType() == fmc::ComponentType::kBody3D)
 			{
 				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::Body3DInspector>(c);
+			}
+			else if (c->GetType() == fmc::ComponentType::kCollider)
+			{
+				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::ColliderInspector>(c);
 			}
 		}
 		else
@@ -370,7 +376,7 @@ void MainWindow::_DrawMenuEntity()
 
 		if (ImGui::BeginPopup("popup from button") && _currentEntity && _currentEntity->IsActive())
 		{
-			ImGui::MenuItem("Components", NULL, false, false);
+			ImGui::MenuItem("Components", nullptr, false, false);
 
 			if (!_currentEntity->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
 			{
@@ -392,10 +398,13 @@ void MainWindow::_DrawMenuEntity()
 			{
 				_currentEntity->add<fmc::CPointLight>();
 			}
+			if (!_currentEntity->has<fmc::CCollider>() && ImGui::MenuItem("Collider"))
+			{
+				_currentEntity->add<fmc::CCollider>();
+			}
 			if (!_currentEntity->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
 			{
-				fmc::CTransform* t = _currentEntity->get<fmc::CTransform>();
-				_currentEntity->add<fmc::CBody3D>(new fmc::CBody3D(t->scale));
+				_currentEntity->add<fmc::CBody3D>();
 			}
 			ImGui::EndPopup();
 		}

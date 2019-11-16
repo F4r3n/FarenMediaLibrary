@@ -51,7 +51,7 @@ void ToolBar::_DrawStartStop()
 	ImGui::SameLine();
 	{
 		const char* labelT = "Stop\0";
-		bool status = fm::Application::Get().IsRunning();
+		bool status = !fm::Application::Get().IsRunning();
 		if (ImGui::PushButton(labelT, buttonSize, &status))
 		{
 			if (status)

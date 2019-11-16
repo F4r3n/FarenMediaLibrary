@@ -2,6 +2,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "Components/CTransform.h"
 #include "Components/CBody3D.h"
+#include "Components/CCollider.h"
 using namespace fms;
 
 PhysicSystem3D::PhysicSystem3D()
@@ -21,25 +22,36 @@ void PhysicSystem3D::init(EntityManager& em, EventManager& event)
 void PhysicSystem3D::pre_update(EntityManager& em)
 {
 
-	for (auto&& e : em.iterate<fmc::CTransform, fmc::CBody3D>())
+	for (auto&& e : em.iterate<fmc::CTransform, fmc::CCollider, fmc::CBody3D>())
 	{
-		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
-		if (cbody->GetBody() == NULL)
-		{
-			cbody->Init();
-			fmc::CTransform *ctransform = e->get<fmc::CTransform>();
-
-			cbody->SetPosition(ctransform->position);
-			cbody->SetRotation(ctransform->GetRotation());
-			cbody->AddToWorld(_dynamicsWorld);
-		}
-
-		if (!cbody->IsInit())
-		{
-			cbody->AddToWorld(_dynamicsWorld);
-		}
-
+		fmc::CCollider* collider = e->get<fmc::CCollider>();
 		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
+
+
+		fm::Transform tr = ctransform->GetTransform();
+		if (collider != nullptr && !collider->IsInit())
+		{
+			collider->Init(tr);
+		}
+
+		if (collider != nullptr && collider->IsInit())
+		{
+			fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
+			if (cbody != nullptr)
+			{
+				if (!cbody->IsInit())
+				{
+					cbody->Init(collider);
+
+
+					cbody->SetPosition(tr.position);
+					cbody->SetRotation(tr.rotation);
+					cbody->AddToWorld(_dynamicsWorld);
+				}
+			}
+		}
+
+		//fmc::CTransform *ctransform = e->get<fmc::CTransform>();
 
 		//cbody->SetPosition(ctransform->position);
 		//cbody->SetRotation(ctransform->rotation);
@@ -52,7 +64,7 @@ void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
 {
 	_dynamicsWorld->stepSimulation(1 / 60.0f, 10);
 
-	for (auto &&e : em.iterate<fmc::CTransform, fmc::CBody3D>())
+	for (auto &&e : em.iterate<fmc::CTransform, fmc::CBody3D, fmc::CCollider>())
 	{
 		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
 		fmc::CTransform *ctransform = e->get<fmc::CTransform>();

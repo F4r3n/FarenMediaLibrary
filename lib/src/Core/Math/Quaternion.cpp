@@ -99,13 +99,26 @@ Quaternion::Quaternion()
 	w = 1;
 }
 
+Quaternion::Quaternion(const Quaternion &q) : x(q.x), y(q.y), z(q.z), w(q.w)
+{}
 
+Quaternion::Quaternion(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) 
+{}
 
 Quaternion Quaternion::Conjugate(const Quaternion& inQuaternion)
 {
-	fm::math::vec4 v(x, y, z, w);
-	fm::math::vec4 r = v * (vec4)inQuaternion;
-	return r;
+	return Quaternion(inQuaternion.w, -inQuaternion.x, -inQuaternion.y, -inQuaternion.z);
 }
+
+Quaternion Quaternion::Rotate(const Quaternion& q)
+{
+	Quaternion p(*this);
+	this->w = p.w * q.w - p.x * q.x - p.y * q.y - p.z * q.z;
+	this->x = p.w * q.x + p.x * q.w + p.y * q.z - p.z * q.y;
+	this->y = p.w * q.y + p.y * q.w + p.z * q.x - p.x * q.z;
+	this->z = p.w * q.z + p.z * q.w + p.x * q.y - p.y * q.x;
+	return *this;
+}
+
 
 
