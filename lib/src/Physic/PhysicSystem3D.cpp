@@ -3,11 +3,13 @@
 #include "Components/CTransform.h"
 #include "Components/CBody3D.h"
 #include "Components/CCollider.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+
 using namespace fms;
 
 PhysicSystem3D::PhysicSystem3D()
 {
-
+	_initCallback = false;
 }
 
 
@@ -15,8 +17,27 @@ PhysicSystem3D::PhysicSystem3D()
 
 void PhysicSystem3D::init(EntityManager& em, EventManager& event)
 {
+	_initCallback = false;
+}
+
+void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
+{
+	PhysicSystem3D *sys = (PhysicSystem3D*)world->getWorldUserInfo();
+
+	for (auto&& e : EntityManager::get().iterate<fmc::CTransform, fmc::CCollider, fmc::CBody3D>())
+	{
+		fmc::CBody3D* body = e->get<fmc::CBody3D>();
+
+		for (int i = 0; i < body->GetGhost()->getNumOverlappingObjects(); i++)
+		{
+			btCollisionObject *collision = (body->GetGhost()->getOverlappingObject(i));
+			fmc::CBody3D* other = (fmc::CBody3D*)collision->getUserPointer();
+			// do whatever you want to do with these pairs of colliding objects
+		}
+	}
 
 }
+
 
 
 void PhysicSystem3D::pre_update(EntityManager& em)
@@ -47,14 +68,22 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 					cbody->SetPosition(tr.position);
 					cbody->SetRotation(tr.rotation);
 					cbody->AddToWorld(_dynamicsWorld);
+					if (!_initCallback)
+					{
+						_initCallback = true;
+						_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+					}
+
 				}
 			}
+			fmc::CTransform *ctransform = e->get<fmc::CTransform>();
+
+
+			cbody->SetPosition(ctransform->position);
+			cbody->SetRotation(ctransform->GetRotation());
 		}
 
-		//fmc::CTransform *ctransform = e->get<fmc::CTransform>();
 
-		//cbody->SetPosition(ctransform->position);
-		//cbody->SetRotation(ctransform->rotation);
 		//cbody->SetScale(ctransform->scale);
 
 	}
@@ -91,6 +120,9 @@ void PhysicSystem3D::Start()
 
 	_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, config);
 	_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, true);
+
+	_initCallback = false;
 }
 
 void PhysicSystem3D::Stop() 

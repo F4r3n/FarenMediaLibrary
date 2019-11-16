@@ -11,7 +11,8 @@ void TransformInspector::init()
 
 void TransformInspector::draw(bool *)
 {
-    if(ImGui::CollapsingHeader("Transform"))
+	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
+	if(ImGui::CollapsingHeader(name.c_str()))
     {
         ImGui::PushItemWidth(120);
         ImGui::DragFloat3("Position",&target->position.x, 0.02f, -FLT_MAX, FLT_MAX);

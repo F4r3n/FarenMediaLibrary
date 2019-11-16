@@ -35,9 +35,15 @@ void GListEntities::CustomDraw()
 			|| (_gameObjectSelected != nullptr && listEntities[i] != nullptr && (_gameObjectSelected->getID() == listEntities[i]->getID()));
 		// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
 		ImGuiTreeNodeFlags node_flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
-
+		if (isSelected)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f, 0.2f, 0.2f, 1.0f));
+		}
 		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->name.c_str(), i);
-
+		if (isSelected)
+		{
+			ImGui::PopStyleColor(1);
+		}
 		if (ImGui::IsItemClicked())
 		{
 			_gameObjectSelected = listEntities[i];

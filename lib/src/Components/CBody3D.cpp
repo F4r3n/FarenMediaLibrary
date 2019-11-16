@@ -75,7 +75,9 @@ void CBody3D::Init(CCollider *inCollider)
 	{
 		_ghostObject = new btGhostObject();
 		_ghostObject->setCollisionShape(shape);
+		_ghostObject->setCollisionFlags(_ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 		_ghostObject->setWorldTransform(object);
+		_ghostObject->setUserPointer(this);
 	}
 }
 
@@ -178,7 +180,7 @@ void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 {
 	if (_isGhost)
 	{
-		inWorld->addCollisionObject(_ghostObject);
+		inWorld->addCollisionObject(_ghostObject, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger);
 	}
 	else
 	{
@@ -190,7 +192,7 @@ void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 
 const std::string& CBody3D::GetName() const
 {
-	return "Body3D";
+	return _name;
 }
 void CBody3D::Destroy()
 {

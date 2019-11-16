@@ -50,8 +50,9 @@ void MaterialInspector::init()
 void MaterialInspector::draw(bool *value)
 {
     static int numberAdded = 0;
+	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
 
-    if(ImGui::CollapsingHeader("Material", value))
+    if(ImGui::CollapsingHeader(name.c_str(), value))
     {
         size_t i = 0;
 

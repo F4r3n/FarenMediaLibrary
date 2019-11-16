@@ -13,8 +13,9 @@ void ColliderInspector::draw(bool *value)
 {
 	std::string id = "##Collider " + std::to_string(target->GetID());
 	static const char *shapeNames[] = { "CUBE", "SPHERE" };
+	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
 
-	if (ImGui::CollapsingHeader("Collider", value))
+	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
 		_currentScale = target->GetScale();
 		_currentShape = target->GetShape();

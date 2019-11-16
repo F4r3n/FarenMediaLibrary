@@ -13,8 +13,9 @@ void Body3DInspector::draw(bool *value)
 {
 	std::string id = "##BODY3D " + std::to_string(target->GetID());
 	static const char *shapeNames[] = { "CUBE", "SPHERE" };
+	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
 
-	if (ImGui::CollapsingHeader("Body3D", value))
+	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
 		_currentMass = target->GetMass();
 		_currentGhost = target->IsGhost();

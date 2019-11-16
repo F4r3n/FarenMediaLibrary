@@ -2,6 +2,12 @@
 #include "ECS.h"
 
 class btDiscreteDynamicsWorld;
+class btDynamicsWorld;
+typedef float btScalar;
+namespace fmc
+{
+	class CBody3D;
+}
 namespace fms
 {
 class PhysicSystem3D : public System<PhysicSystem3D> {
@@ -16,6 +22,8 @@ public:
 	void Stop();
 
 private:
+	//void _CheckCollision(btDynamicsWorld *world, btScalar timeStep);
 	btDiscreteDynamicsWorld* _dynamicsWorld;
+	bool _initCallback;
 };
 }

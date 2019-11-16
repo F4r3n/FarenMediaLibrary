@@ -41,6 +41,7 @@ namespace fmc
 
 
 		btRigidBody* GetBody() const { return _body; }
+		btGhostObject* GetGhost() const { return _ghostObject; }
 		void AddToWorld(btDiscreteDynamicsWorld *inWorld);
 		bool IsInit() const;
 
