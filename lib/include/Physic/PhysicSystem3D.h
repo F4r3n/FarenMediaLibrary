@@ -24,6 +24,5 @@ public:
 private:
 	//void _CheckCollision(btDynamicsWorld *world, btScalar timeStep);
 	btDiscreteDynamicsWorld* _dynamicsWorld;
-	bool _initCallback;
 };
 }

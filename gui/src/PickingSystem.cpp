@@ -10,7 +10,6 @@ using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 {
-	_currentScene = fm::SceneManager::get().getCurrentScene();
 	_editorScene = inEditorScene;
 	_specialCamera = fm::GameObjectHelper::create(_editorScene);
 	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
@@ -45,6 +44,8 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 
 void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inPos)
 {
+	std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getCurrentScene();
+
 	fm::GameObject *cameraGo = _editorScene->GetGameObject(inCameraID);
 	if (cameraGo != nullptr)
 	{
@@ -52,17 +53,19 @@ void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inP
 
 		_camera->SetCallBackOnPostRendering([this, inPos]()
 		{
+			std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getCurrentScene();
+
 			fm::Texture texture = _camera->target->GetColorBufferTexture(0);
 			
 			unsigned char pixel[4];
 			texture.GetPixel(inPos, pixel);
 			size_t id = (pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
-			fm::GameObject* go = _currentScene->GetGameObject(id);
+			fm::GameObject* go = scene->GetGameObject(id);
 			_callback(go);
 		});
 
 		size_t i = 1;
-		for (auto && go : _currentScene->getAllGameObjects())
+		for (auto && go : scene->getAllGameObjects())
 		{
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 			{

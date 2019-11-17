@@ -73,6 +73,7 @@ void CBody3D::Init(CCollider *inCollider)
 	}
 	else
 	{
+		shape->setMargin(0);
 		_ghostObject = new btGhostObject();
 		_ghostObject->setCollisionShape(shape);
 		_ghostObject->setCollisionFlags(_ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -180,7 +181,7 @@ void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 {
 	if (_isGhost)
 	{
-		inWorld->addCollisionObject(_ghostObject, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger);
+		inWorld->addCollisionObject(_ghostObject,1,1);
 	}
 	else
 	{

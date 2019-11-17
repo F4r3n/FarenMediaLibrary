@@ -30,7 +30,6 @@ namespace fms
 		fmc::CCamera* _camera;
 		std::unique_ptr<fm::Material> _material;
 		std::shared_ptr<fm::Scene> _editorScene;
-		std::shared_ptr<fm::Scene> _currentScene;
 
 	};
 }

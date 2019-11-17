@@ -208,7 +208,7 @@ void MainWindow::_DisplayWindow_Load()
 	{
 		fm::FilePath result(resultFromDialog.front());
 		fm::Application::Get().SetProjectName(result.GetName(true));
-		fm::Application::Get().SetUserDirectory(result);
+		fm::Application::Get().SetUserDirectory(result.GetParent());
 
 		fm::SceneManager::get().ClearAllPublic();
 		_ClearInspectorComponents();
