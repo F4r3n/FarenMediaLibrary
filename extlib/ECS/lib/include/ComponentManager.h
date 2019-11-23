@@ -71,6 +71,7 @@ class ComponentManager
         ~ComponentManager() 
 		{
             removeAll();
+			resetMask();
         }
 
         template <typename T> T* getComponent() const

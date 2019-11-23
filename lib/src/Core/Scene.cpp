@@ -61,6 +61,7 @@ void Scene::destroy()
     for(auto &&e : _gos)
     {
         e->destroy();
+		delete e;
     }
 	_gos.clear();
 }

@@ -59,6 +59,18 @@ CCamera::~CCamera()
 	{
 		_renderTexture.release();
 	}
+
+	if (_rendererConfiguration.isInit)
+	{
+		if (_rendererConfiguration.lightRenderTexture.isCreated())
+		{
+			_rendererConfiguration.lightRenderTexture.release();
+		}
+		if (_rendererConfiguration.postProcessRenderTexture.isCreated())
+		{
+			_rendererConfiguration.postProcessRenderTexture.release();
+		}
+	}
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const

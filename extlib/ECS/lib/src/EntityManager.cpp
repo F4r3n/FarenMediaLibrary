@@ -205,7 +205,6 @@ bool EntityManager::hasComponents(id id,const Mask& bits) const {
 void EntityManager::deleteEntity(Entity* e) {
     assert(e);
     if(_entitiesComponents[e->ID]) {
-        _entitiesComponents[e->ID]->resetMask();
         _entitiesComponents[e->ID].reset();
     }
 
