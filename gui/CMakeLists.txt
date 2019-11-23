@@ -31,6 +31,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/transformInspector.cpp
 	src/inspector/body3DInspector.cpp
 	src/inspector/colliderInspector.cpp
+	src/inspector/cameraInspector.cpp
 	src/debuglogger.cpp
 	src/GListEntities.cpp
 	src/PickingSystem.cpp

@@ -13,7 +13,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 	_editorScene = inEditorScene;
 	_specialCamera = fm::GameObjectHelper::create(_editorScene);
 	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
-
+	_camera->Init();
 	_specialCamera->addComponent<fmc::CTransform>();
 	_specialCamera->name = "Camera";
 
@@ -42,7 +42,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 }
 
 
-void PickingSystem::PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inPos)
+void PickingSystem::PickGameObject(size_t inCameraID, const fm::math::vec2 &inPos)
 {
 	std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getCurrentScene();
 

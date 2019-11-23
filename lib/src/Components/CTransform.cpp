@@ -58,6 +58,18 @@ bool CTransform::Serialize(json &ioJson) const
     return true;
 }
 
+bool CTransform::Read(const json &inJSON)
+{
+
+	position = inJSON[Keys::position];
+	scale = inJSON[Keys::scale];
+	fm::math::vec4 q = inJSON[Keys::rotation];
+	_rotation = fm::math::Quaternion(q);
+	idFather = inJSON[Keys::father];
+	return true;
+}
+
+
 
 void CTransform::From(const fmc::CTransform *inTransform)
 {
@@ -74,15 +86,6 @@ void CTransform::Destroy()
     EntityManager::get().removeComponent<CTransform>(BaseComponent::_IDEntity);
 }
 
-bool CTransform::Read(const json &inJSON)
-{
-
-    position = inJSON[Keys::position];
-    scale = inJSON[Keys::scale];
-    _rotation = static_cast<fm::math::vec4>(inJSON[Keys::rotation]);
-    idFather = inJSON[Keys::father];
-    return true;
-}
 
 const std::string &CTransform::GetName() const
 {

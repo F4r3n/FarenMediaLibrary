@@ -38,7 +38,7 @@ class FMComponent : public Component<T>
         virtual ~FMComponent() = default;
         virtual uint16_t GetType() const {return kNone;}
         virtual void Destroy() = 0;
-		ecs::id GetIDEntity() const {return _IDEntity;}
+		ecs::id GetIDEntity() const {return BaseComponent::_IDEntity;}
 		bool Enabled = true;
 		
 };

@@ -16,6 +16,41 @@ GameObject* Scene::GetGameObject(size_t id) const
     return nullptr;
 }
 
+fm::GameObject* Scene::FindGameObject(ecs::id inID)
+{
+	for (auto && e : _gos)
+	{
+		if (e->getID() == inID)
+		{
+			return e;
+		}
+	}
+	return nullptr;
+}
+
+size_t Scene::GetID(fm::GameObject* inGo)
+{
+	size_t id = std::numeric_limits<size_t>::max();
+	if(inGo != nullptr)
+		id = GetID(inGo->getID());
+	return id;
+}
+
+
+size_t Scene::GetID(ecs::id inID)
+{
+	size_t id = 0;
+	for (auto && e : _gos)
+	{
+		if (e->getID() == inID)
+		{
+			return id;
+		}
+		id++;
+	}
+	return std::numeric_limits<size_t>::max();
+}
+
 
 Scene::~Scene()
 {
@@ -23,7 +58,7 @@ Scene::~Scene()
 
 void Scene::destroy()
 {
-    for(auto e : _gos)
+    for(auto &&e : _gos)
     {
         e->destroy();
     }

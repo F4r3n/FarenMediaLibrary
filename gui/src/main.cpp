@@ -37,6 +37,7 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	MainWindow mainWindow;
+	bool isMainWindowInitialized = false;
 
 	while (!window->isClosed())
 	{
@@ -52,8 +53,16 @@ int main()
 		ImGui_ImplSDL2_NewFrame(window->getWindow());
 		ImGui::NewFrame();
 
-		mainWindow.Update();
-		mainWindow.Draw();
+		if (isMainWindowInitialized)
+		{
+			mainWindow.Update();
+			mainWindow.Draw();
+		}
+		else
+		{
+			mainWindow.Init();
+			isMainWindowInitialized = true;
+		}
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

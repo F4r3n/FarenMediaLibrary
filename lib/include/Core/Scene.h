@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <nlohmann/json_fwd.hpp>
+#include <ECS.h>
 namespace fm {
     class GameObject;
 }
@@ -24,6 +25,10 @@ namespace fm {
             std::vector<fm::GameObject*> getAllGameObjects() {return _gos;}
 			void SetStatusToGo(bool inStatus);
 			void ResetStatusGo();
+
+			fm::GameObject* FindGameObject(ecs::id inID);
+			size_t GetID(ecs::id inID);
+			size_t GetID(fm::GameObject* inGo);
         private:
             std::vector<GameObject*> _gos;
             std::string _name;

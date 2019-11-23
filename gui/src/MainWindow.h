@@ -40,6 +40,7 @@ enum WINDOWS
     WIN_PROJECT_SETTINGS,
 	WIN_LIST_ENTITIES,
 	WIN_EDITOR_VIEW,
+	WIN_SCENE_VIEW,
 	WIN_TOOLBAR,
     WIN_LAST
 
@@ -52,7 +53,7 @@ public:
     ~MainWindow();
 	void Draw();
 	void Update();
-
+	void Init();
 private:
 	void _DrawComponents(fm::GameObject* currentEntity);
 	void _DrawMenu();
@@ -68,6 +69,8 @@ private:
 	void _ClearInspectorComponents();
 	void _ConfigureStyle();
 	void _InitEditorCamera();
+
+	void _AddEmptyScene();
 
 private:
 

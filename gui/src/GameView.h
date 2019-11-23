@@ -16,9 +16,13 @@ namespace gui
 
 		struct CameraPreview
 		{
-			size_t id;
-			fm::GameObject* go;
 			std::shared_ptr<fm::RenderTexture> renderTexture;
+		};
+
+		enum ASPECT_MODE
+		{
+			ASPECT_FREE,
+			ASPECT_16_9
 		};
 
 
@@ -31,18 +35,14 @@ namespace gui
 		void Resize();
 		void Zoom();
 		void AddCamera(fm::GameObject *inGameObject);
-		void RemoveCamera(fm::GameObject *inGameObject);
-		bool SetMainCamera(fm::GameObject *inGameObject);
 		void Update(float dt, Context &inContext);
 
 	private:
 
-		fms::PickingSystem* _pickingSystem;
 		std::vector<CameraPreview> _previews;
 		int _index;
 		fm::math::vec2 _startImagePos;
 		fm::math::vec2 _endImagePos;
-		fm::math::vec2 _cursorPos;
-
+		ASPECT_MODE _aspectMode;
 	};
 }

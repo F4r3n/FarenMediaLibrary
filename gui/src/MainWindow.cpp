@@ -40,8 +40,8 @@
 #include <imgui/imgui_internal.h>
 #include "Components/CCollider.h"
 #include "inspector/colliderInspector.hpp"
-
-
+#include "inspector/cameraInspector.hpp"
+#include "GameView.h"
 MainWindow::MainWindow()
 {
 	_currentEntity = nullptr;
@@ -70,9 +70,38 @@ MainWindow::MainWindow()
 	_windows[WINDOWS::WIN_EDITOR_VIEW] = std::move(gameView);
 	_windows[WINDOWS::WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
 	_windows[WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
+	_windows[WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GameView>();
+
 	fm::Debug::log("Init done");
 
 }
+
+
+void MainWindow::_AddEmptyScene()
+{
+	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
+	//Add object
+	fm::GameObject* go = fm::GameObjectHelper::create(currentScene);
+	fmc::CTransform* tr = go->addComponent<fmc::CTransform>();
+	tr->position = fm::math::vec3(0, 0, -1);
+	go->addComponent<fmc::CMaterial>();
+	go->addComponent<fmc::CMesh>();
+
+	//Add camera
+	go = fm::GameObjectHelper::create(currentScene);
+	tr = go->addComponent<fmc::CTransform>();
+	tr->position = fm::math::vec3(0, 0, 0);
+	go->addComponent<fmc::CCamera>()->Init();
+	gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get());
+	go->name = "Main camera";
+	gv->AddCamera(currentScene->GetGameObject(currentScene->GetID(go)));
+}
+
+void MainWindow::Init()
+{
+	_AddEmptyScene();
+}
+
 
 void MainWindow::_InitEditorCamera()
 {
@@ -141,6 +170,10 @@ void MainWindow::_DrawComponents(fm::GameObject* currentEntity)
 			else if (componentType == fmc::ComponentType::kCollider)
 			{
 				inspectorComponent[componentType] = std::make_unique <gui::ColliderInspector>(c);
+			}
+			else if (componentType == fmc::ComponentType::kCamera)
+			{
+				inspectorComponent[componentType] = std::make_unique <gui::CameraInspector>(c);
 			}
 		}
 		else
@@ -448,8 +481,9 @@ void MainWindow::Draw()
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 		ImGuiID dock_main_id = dockspace_id;
 		ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Up, 0.05f, nullptr, &dock_main_id);
-		//ImGuiID dock_right_right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
 		ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.8f, nullptr, &dock_main_id);
+		ImGuiID dock_left_right_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Right, 0.2f, nullptr, &dock_left_id);
+
 		ImGuiID dock_right_id = dock_main_id;
 
 		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Down, 0.2f, nullptr, &dock_left_id);
@@ -459,8 +493,9 @@ void MainWindow::Draw()
 		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LIST_ENTITIES]->GetTitle().c_str(), dock_right_id);
 		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_EDITOR_VIEW]->GetTitle().c_str(), dock_left_id);
 		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LOGGER]->GetTitle().c_str(), dock_down_id);
+		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_SCENE_VIEW]->GetTitle().c_str(), dock_left_right_id);
 		ImGui::DockBuilderDockWindow("Inspector", dock_down_right_id);
-		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+
 		//ImGuiDockNodeFlags_
 		// Disable tab bar for custom toolbar
 		ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);

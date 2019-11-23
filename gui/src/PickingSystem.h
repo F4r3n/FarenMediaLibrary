@@ -21,7 +21,7 @@ namespace fms
 	{
 	public:
 		PickingSystem(std::shared_ptr<fm::Scene> inEditorScene);
-		void PickGameObject(ecs::id inCameraID, const fm::math::vec2 &inPos);
+		void PickGameObject(size_t inCameraID, const fm::math::vec2 &inPos);
 		void SetCallback(std::function<void(fm::GameObject*)> &&inCallback) { _callback = inCallback; }
 		int _toto;
 	private:

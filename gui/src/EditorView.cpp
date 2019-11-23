@@ -20,7 +20,7 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 
 	if (inCamera != nullptr)
 	{
-		_editorView.id = inCamera->getID();
+		_editorView.id = inScene->GetID(inCamera->getID());
 		fmc::CCamera *camera = inCamera->get<fmc::CCamera>();
 		_editorView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
 		camera->target = _editorView.renderTexture;
@@ -38,20 +38,22 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 void EditorView::_DrawContentEditorCamera()
 {
 	fm::GameObject* camera = _editorScene->GetGameObject(_editorView.id);
-
-	std::vector<fm::GameObject*> &&gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
-	for (auto && go : gos)
+	if (camera != nullptr)
 	{
-		if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
+		std::vector<fm::GameObject*> &&gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
+		for (auto && go : gos)
 		{
-			fmc::CMesh* mesh = go->get<fmc::CMesh>();
+			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
+			{
+				fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
-			fm::CommandBuffer commandBuffer;
-			fm::MaterialProperties materialProperties;
+				fm::CommandBuffer commandBuffer;
+				fm::MaterialProperties materialProperties;
 
-			commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
+				commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
 
-			camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+			}
 		}
 	}
 }

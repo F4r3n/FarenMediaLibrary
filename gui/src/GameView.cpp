@@ -5,18 +5,18 @@
 #include "ImGuizmo/ImGuizmo.h"
 #include "Input/InputManager.h"
 #include <imgui/imgui_internal.h>
-
+#include "Core/Scene.h"
 using namespace gui;
 GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar
 												)
 {
 	_enabled = true;
 	_index = -1;
+	_aspectMode = ASPECT_MODE::ASPECT_16_9;
 }
 
 GameView::~GameView() 
 {
-	delete _pickingSystem;
 }
 
 void GameView::CustomDraw()
@@ -28,8 +28,12 @@ void GameView::CustomDraw()
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
-			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
-			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
+			//ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
+			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(),
+				ImVec2(_startImagePos.x, _startImagePos.y),
+				ImVec2(_endImagePos.x, _endImagePos.y)
+			);
+			//ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
 		}
     }
 }
@@ -79,41 +83,30 @@ void GameView::Update(float dt, Context &inContext)
 				size = ImGui::GetWindowSize();
 			}
 			ImVec2 end;
-			end.x = start.x + size.x;
-			end.y = start.y + size.y;
+			if (_aspectMode == ASPECT_MODE::ASPECT_FREE)
+			{
+				end.x = start.x + size.x;
+				end.y = start.y + size.y;
+			}
+			else if (_aspectMode == ASPECT_MODE::ASPECT_16_9)
+			{
+				end.x = start.x + size.x;
+				end.y = start.y + size.x*9.0f/16.0f;
+			}
 
 			_startImagePos.x = start.x;
 			_startImagePos.y = start.y;
 
-			_cursorPos = fm::math::vec2(-(preview.renderTexture->getWidth() - size.x)*0.5f, 
-										-(preview.renderTexture->getHeight() - size.y)*0.5f);
-			startCursorPos = _cursorPos;
-			startCursorPos.y += start.y;
-			startCursorPos.x += start.x;
 
 			_endImagePos = fm::math::vec2(end.x, end.y);
-		}
 
-		if (ImGui::IsMouseReleased(0) && !ImGuizmo::IsUsing())
-		{
-			ImVec2 mousePos = ImGui::GetMousePos();
-
-			fm::Rectf rect;
-			rect.w = size.x;
-			rect.h = size.y;
-			rect.x = start.x;
-			rect.y = start.y;
-
-			const CameraPreview preview = _previews[_index];
-
-
-			if (rect.contains(mousePos.x, mousePos.y))
+			if (_aspectMode == ASPECT_MODE::ASPECT_16_9)
 			{
-				fm::math::vec2 mPos(mousePos.x, mousePos.y);
-				mPos.x -= startCursorPos.x;
-				mPos.y -= startCursorPos.y;
-
-				_pickingSystem->PickGameObject(preview.id, mPos);
+				fm::math::vec2 offset;
+				offset.x = 0;
+				offset.y = size.y*0.5f - (end.y - start.y)*0.5f;
+				_startImagePos += offset;
+				_endImagePos += offset;
 			}
 		}
 
@@ -124,46 +117,16 @@ void GameView::Update(float dt, Context &inContext)
 void GameView::AddCamera(fm::GameObject *inGameObject)
 {
 	CameraPreview preview;
-	preview.id = inGameObject->getID();
-	preview.go = inGameObject;
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
 	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
 	camera->target = preview.renderTexture;
 
 	_previews.push_back(preview);
+	_index = _previews.size() - 1;
 }
 
-void GameView::RemoveCamera(fm::GameObject *inGameObject)
-{
-	auto i = std::begin(_previews);
 
-	while (i != std::end(_previews)) 
-	{
-		if (inGameObject->getID() == i->id)
-		{
-			i = _previews.erase(i);
-			break;
-		}
-	}
 
-	if (!_previews.empty())
-	{
-		_index = 0;
-	}
-}
-
-bool GameView::SetMainCamera(fm::GameObject *inGameObject)
-{
-	for (size_t i = 0; i < _previews.size(); ++i)
-	{
-		if (_previews[i].id == inGameObject->getID())
-		{
-			_index = i;
-			return true;
-		}
-	}
-	return false;
-}
 
 
 
