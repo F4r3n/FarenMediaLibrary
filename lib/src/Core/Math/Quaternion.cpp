@@ -1,6 +1,7 @@
 
 #include "Core/Math/Quaternion.h"
 #include "Core/Math/Functions.h"
+#include <cfloat>
 using namespace fm::math;
 
 //https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -99,7 +100,7 @@ Quaternion::Quaternion()
 	w = 1;
 }
 
-Quaternion::Quaternion(const Quaternion &q) : x(q.x), y(q.y), z(q.z), w(q.w)
+Quaternion::Quaternion(const Quaternion &q) : w(q.w), x(q.x), y(q.y), z(q.z)
 {}
 
 Quaternion::Quaternion(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) 
