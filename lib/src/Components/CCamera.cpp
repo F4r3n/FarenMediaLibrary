@@ -1,6 +1,7 @@
 #include "Components/CCamera.h"
 #include "Rendering/RenderTexture.h"
 #include <EntityManager.h>
+#include "Window.h"
 using namespace fmc;
 using namespace fm;
 
@@ -22,6 +23,42 @@ float CCamera::GetNearPlane()
 CCamera::CCamera()
 {
     _name = "Camera";
+	_width = fm::Window::kWidth;
+	_height = fm::Window::kHeight;
+	_fovy = 60.0f;
+	_nearPlane = 0.1f;
+	_farPlane = 1000.0f;
+	_isOrto = false;
+	_isAuto = true;
+	_multiSampled = 0;
+	shader_data.render_mode = fmc::RENDER_MODE::FORWARD;
+
+	_isInit = false;
+}
+
+CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
+{
+	_name = "Camera";
+	_nearPlane = 0.1f;
+	_farPlane = 1000.0f;
+	_fovy = 60.0f;
+	_isInit = false;
+
+	_width = width;
+	_height = height;
+	shader_data.render_mode = mode;
+	_isOrto = ortho;
+	_multiSampled = multiSampled;
+	_isAuto = isAuto;
+
+}
+
+CCamera::~CCamera()
+{
+	if (_renderTexture.isCreated())
+	{
+		_renderTexture.release();
+	}
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
@@ -34,19 +71,23 @@ bool CCamera::Serialize(nlohmann::json &ioJson) const
     ioJson["fovy"] = _fovy;
     ioJson["Render_Mode"] = shader_data.render_mode;
     ioJson["multiSampled"] = _multiSampled;
+	ioJson["isAuto"] = _isAuto;
+
     return true;
 }
 
 bool CCamera::Read(const nlohmann::json &inJSON)
 {
-    _width = inJSON["width"];
-    _height = inJSON["height"];
-    _farPlane =  inJSON["farPlane"];
-    _nearPlane = inJSON["nearPlane"];
-    _isOrto = inJSON["isOrtho"];
+    _width					= inJSON["width"];
+    _height					= inJSON["height"];
+    _farPlane				= inJSON["farPlane"];
+    _nearPlane				= inJSON["nearPlane"];
+    _isOrto					= inJSON["isOrtho"];
     shader_data.render_mode = inJSON["Render_Mode"];
-    _fovy = inJSON["fovy"];
-    _multiSampled = inJSON["multiSampled"];
+    _fovy					= inJSON["fovy"];
+    _multiSampled			= inJSON["multiSampled"];
+	_isAuto					= inJSON["isAuto"];
+
     return true;
 }
 
@@ -106,26 +147,10 @@ void CCamera::Init()
 
 	_InitRenderTexture();
 	_renderTexture.create();
+	_isInit = true;
 }
 
-CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
-{
-    _width = width;
-    _height = height;
-    shader_data.render_mode = mode;
-    _isOrto = ortho;
-    _multiSampled = multiSampled;
-	_isAuto = isAuto;
-    Init();
-}
 
-CCamera::~CCamera()
-{
-    if(_renderTexture.isCreated())
-    {
-        _renderTexture.release();
-    }
-}
 
 void CCamera::SetNewProjection(unsigned int width, unsigned int height)
 {

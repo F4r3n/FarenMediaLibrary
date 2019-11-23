@@ -5,7 +5,6 @@
 #include "Components/CScriptManager.h"
 namespace gui {
     DECLARE_INSPECTOR_CLASS(ScriptManager, fmc::CScriptManager)
-    char nameScript[128] = "ClassName";
 
 };
 }

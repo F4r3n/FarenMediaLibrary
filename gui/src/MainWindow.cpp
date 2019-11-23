@@ -36,7 +36,7 @@
 #include "ImGuizmo/ImGuizmo.h"
 #include "ToolBar.hpp"
 #include "debuglogger.h"
-#include "GameView.h"
+#include "EditorView.h"
 #include <imgui/imgui_internal.h>
 #include "Components/CCollider.h"
 #include "inspector/colliderInspector.hpp"
@@ -60,52 +60,29 @@ MainWindow::MainWindow()
 	fm::SceneManager::get().AddNewScene("newScene");
 	fm::SceneManager::get().setCurrentScene("newScene", false);
 
-	_InitMainCamera();
+	_InitEditorCamera();
 
-	std::unique_ptr<gui::GameView> gameView = std::make_unique<gui::GameView>();
-	gameView->AddCamera(_mainCamera);
-	gameView->SetMainCamera(_mainCamera);
+	std::unique_ptr<gui::EditorView> gameView = std::make_unique<gui::EditorView>(_editorCamera, _editorScene);
 	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
 
 
 	_windows[WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
-	_windows[WINDOWS::WIN_GAME_VIEW] = std::move(gameView);
+	_windows[WINDOWS::WIN_EDITOR_VIEW] = std::move(gameView);
 	_windows[WINDOWS::WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
 	_windows[WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
 	fm::Debug::log("Init done");
 
 }
 
-void MainWindow::_InitMainCamera()
+void MainWindow::_InitEditorCamera()
 {
-	_mainCamera = fm::GameObjectHelper::create(_editorScene);
-	_mainCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, 
-		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
-	_mainCamera->addComponent<fmc::CTransform>();
-	_mainCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
-	_mainCamera->name = "Camera";
+	_editorCamera = fm::GameObjectHelper::create(_editorScene);
+	_editorCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight,
+		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
+	_editorCamera->addComponent<fmc::CTransform>();
+	_editorCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
+	_editorCamera->name = "Camera";
 }
-
-
-void MainWindow::_DrawContentMainCamera()
-{
-	std::vector<fm::GameObject*> &&gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
-	for (auto && go : gos)
-	{
-		if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
-		{
-			fmc::CMesh* mesh = go->get<fmc::CMesh>();
-
-			fm::CommandBuffer commandBuffer;
-			fm::MaterialProperties materialProperties;
-
-			commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
-
-			_mainCamera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
-		}
-	}	
-}
-
 
 MainWindow::~MainWindow()
 {
@@ -122,57 +99,60 @@ void MainWindow::_ClearInspectorComponents()
 }
 
 
-void MainWindow::_DrawComponents(fm::GameObject* currentEntity) {
+void MainWindow::_DrawComponents(fm::GameObject* currentEntity)
+{
 
 	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
 	if (_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
 	{
 		_inspectorComponents[currentEntity->getID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
 	}
+	auto &&inspectorComponent = _inspectorComponents[currentEntity->getID()];
 
 	for (auto && c : compos) 
 	{
-		if (_inspectorComponents[currentEntity->getID()][c->GetType()] == nullptr)
+		uint16_t componentType = c->GetType();
+		if (inspectorComponent[componentType] == nullptr)
 		{
-			if (c->GetType() == fmc::ComponentType::kTransform)
+			if (componentType == fmc::ComponentType::kTransform)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique<gui::TransformInspector>(c);
+				inspectorComponent[componentType] = std::make_unique<gui::TransformInspector>(c);
 			}
-			else if (c->GetType() == fmc::ComponentType::kMaterial)
+			else if (componentType == fmc::ComponentType::kMaterial)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::MaterialInspector>(c);
+				inspectorComponent[componentType] = std::make_unique <gui::MaterialInspector>(c);
 			}
-			else if (c->GetType() == fmc::ComponentType::KMesh)
+			else if (componentType == fmc::ComponentType::KMesh)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::MeshInspector>(c);
+				inspectorComponent[componentType] = std::make_unique <gui::MeshInspector>(c);
 			}
-			else if (c->GetType() == fmc::ComponentType::kScriptManager)
+			else if (componentType == fmc::ComponentType::kScriptManager)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::ScriptManagerInspector>(c);
+				inspectorComponent[componentType] = std::make_unique <gui::ScriptManagerInspector>(c);
 			}
-			else if (c->GetType() == fmc::ComponentType::kPointLight)
+			else if (componentType == fmc::ComponentType::kPointLight)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::PointLightInspector>(c);
+				inspectorComponent[componentType] = std::make_unique <gui::PointLightInspector>(c);
 			}
-			else if (c->GetType() == fmc::ComponentType::kBody3D)
+			else if (componentType == fmc::ComponentType::kBody3D)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::Body3DInspector>(c);
+				inspectorComponent[componentType] = std::make_unique <gui::Body3DInspector>(c);
 			}
-			else if (c->GetType() == fmc::ComponentType::kCollider)
+			else if (componentType == fmc::ComponentType::kCollider)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = std::make_unique <gui::ColliderInspector>(c);
+				inspectorComponent[componentType] = std::make_unique <gui::ColliderInspector>(c);
 			}
 		}
 		else
 		{
 			bool value = true;
 
-			_inspectorComponents[currentEntity->getID()][c->GetType()]->draw(&value);
+			inspectorComponent[componentType]->draw(&value);
 
 			if (!value)
 			{
-				_inspectorComponents[currentEntity->getID()][c->GetType()].reset();
-				_inspectorComponents[currentEntity->getID()][c->GetType()] = nullptr;
+				inspectorComponent[componentType].reset();
+				inspectorComponent[componentType] = nullptr;
 				c->Destroy();
 			}
 		}
@@ -477,7 +457,7 @@ void MainWindow::Draw()
 
 		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_TOOLBAR]->GetTitle().c_str(), dock_up_id);
 		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LIST_ENTITIES]->GetTitle().c_str(), dock_right_id);
-		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_GAME_VIEW]->GetTitle().c_str(), dock_left_id);
+		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_EDITOR_VIEW]->GetTitle().c_str(), dock_left_id);
 		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LOGGER]->GetTitle().c_str(), dock_down_id);
 		ImGui::DockBuilderDockWindow("Inspector", dock_down_right_id);
 		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
@@ -493,11 +473,6 @@ void MainWindow::Draw()
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
 
 
-
-
-
-
-	_DrawContentMainCamera();
 	for (auto& window : _windows)
 	{
 		window.second->Draw();

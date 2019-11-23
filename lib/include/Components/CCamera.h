@@ -84,7 +84,7 @@ class CCamera : public FMComponent<CCamera>
         Shader_data shader_data;
         std::shared_ptr<fm::RenderTexture> target = nullptr;
         const fm::RenderTexture &getInternalRenderTexture() const {return _renderTexture;}
-		bool IsInit() { return _renderTexture.isCreated(); }
+		bool IsInit() { return _renderTexture.isCreated() && _isInit; }
 		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer &inCommandBuffer);
 
 		void SetCallBackOnStartRendering(std::function<void()> && inCallback) { _onStartRendering = inCallback; }
@@ -96,19 +96,20 @@ class CCamera : public FMComponent<CCamera>
 		bool HasCommandBuffer(fm::RENDER_QUEUE inQueue) const;
 
 		void _InitRenderTexture();
-		RendererConfiguration _rendererConfiguration;
+		RendererConfiguration	_rendererConfiguration;
 
-        fm::RenderTexture _renderTexture;
-        fm::math::mat _viewMatrix;
-        bool  _isOrto = false;
-        float _farPlane = 1000.0f;
-        float _nearPlane = 0.1f;
-        int _multiSampled = 0;
-        int _width;
-        int _height;
-        float _fovy = 60.0f;
-		bool _isAuto = true;
+        fm::RenderTexture		_renderTexture;
+        fm::math::mat			_viewMatrix;
+        bool					_isOrto;
+        float					_farPlane;
+        float					_nearPlane;
+        int						_multiSampled;
+        unsigned int			_width;
+        unsigned int			_height;
+        float					_fovy;
+		bool					_isAuto;
 
-		CameraCommandBuffer _commandBuffers;
+		CameraCommandBuffer		_commandBuffers;
+		bool					_isInit;
 };
 }

@@ -16,7 +16,16 @@ void MeshInspector::draw(bool *value)
 
     if(ImGui::CollapsingHeader(name.c_str(), value))
     {
+		int current = 0;
         ImGui::PushItemWidth(120);
+		for (int i = 0; i < 3; ++i)
+		{
+			if (target->GetModelType() == shapeNames[i])
+			{
+				current = i;
+				break;
+			}
+		}
         ImGui::Combo("##Shape", &current, shapeNames, 3);
         ImGui::PopItemWidth();
 		target->SetModelType(shapeNames[current]);

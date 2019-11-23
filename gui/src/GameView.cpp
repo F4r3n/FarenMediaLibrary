@@ -11,10 +11,7 @@ GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScr
 												)
 {
 	_enabled = true;
-	_gameObjectSelectedByPicking = nullptr;
 	_index = -1;
-	_pickingSystem = nullptr;
-	_resultPicking = false;
 }
 
 GameView::~GameView() 
@@ -33,8 +30,6 @@ void GameView::CustomDraw()
 
 			ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
 			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
-			ImGuizmo::SetDrawlist();
-			_EditObject();
 		}
     }
 }
@@ -46,66 +41,6 @@ void GameView::BeforeWindowCreation()
 void GameView::AfterWindowCreation()
 {
 	ImGui::PopStyleVar(1);
-}
-
-void GameView::_EditObject()
-{
-	if (_index >= 0 && _index < _previews.size())
-	{
-		CameraPreview preview = _previews[_index];
-		fm::GameObject* camera = preview.go;
-		if (_gameObjectSelectedByPicking == nullptr || !_gameObjectSelectedByPicking->IsActive())
-			return;
-
-		ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
-		if (_currentTransformContext == gui::TRANSFORM_CONTEXT::TRANSLATE)
-			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		else if (_currentTransformContext == gui::TRANSFORM_CONTEXT::ROTATE)
-			mCurrentGizmoOperation = ImGuizmo::ROTATE;
-		else if (_currentTransformContext == gui::TRANSFORM_CONTEXT::SCALE)
-			mCurrentGizmoOperation = ImGuizmo::SCALE;
-
-		fmc::CTransform *transform = _gameObjectSelectedByPicking->get<fmc::CTransform>();
-
-
-		ImGuiIO& io = ImGui::GetIO();
-		//float scrollPosX = ImGui::GetScrollX();
-		ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),
-						  _cursorPos.y + _startImagePos.y - ImGui::GetScrollY(),
-						  preview.renderTexture->getWidth(), 
-						  preview.renderTexture->getHeight());
-		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
-		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
-		fm::math::mat model;
-
-		fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
-		fm::math::vec3 position = transform->position;
-		fm::math::vec3 scale = transform->scale;
-		ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
-		
-		ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
-		
-		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &rotation[0], &transform->scale[0]);
-		transform->SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
-		
-	}
-
-}
-
-
-void GameView::_CallBackPickingSystem(fm::GameObject* inGameObject)
-{
-	_resultPicking = true;
-	_gameObjectSelectedByPicking = inGameObject;
-}
-
-
-void GameView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
-{
-	_pickingSystem = inPickingSystem;
-	std::function<void(fm::GameObject*)> f = std::bind(&gui::GameView::_CallBackPickingSystem, this, std::placeholders::_1);
-	_pickingSystem->SetCallback(std::move(f));
 }
 
 
@@ -182,17 +117,7 @@ void GameView::Update(float dt, Context &inContext)
 			}
 		}
 
-
-		if (_resultPicking)
-		{
-			inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
-			_resultPicking = false;
-		}
-		_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;
-
 	}
-
-	_currentTransformContext = inContext.currentTransformContext;
 }
 
 

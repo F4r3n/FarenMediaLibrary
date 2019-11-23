@@ -35,10 +35,7 @@ namespace gui
 		bool SetMainCamera(fm::GameObject *inGameObject);
 		void Update(float dt, Context &inContext);
 
-		void SetPickingSystem(fms::PickingSystem *inPickingSystem);
 	private:
-		void _EditObject();
-		void _CallBackPickingSystem(fm::GameObject* inGameObject);
 
 		fms::PickingSystem* _pickingSystem;
 		std::vector<CameraPreview> _previews;
@@ -47,8 +44,5 @@ namespace gui
 		fm::math::vec2 _endImagePos;
 		fm::math::vec2 _cursorPos;
 
-		bool _resultPicking;
-		fm::GameObject* _gameObjectSelectedByPicking;
-		gui::TRANSFORM_CONTEXT _currentTransformContext;
 	};
 }

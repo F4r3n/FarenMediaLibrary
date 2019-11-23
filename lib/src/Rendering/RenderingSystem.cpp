@@ -153,12 +153,12 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     }
 
-    fm::Debug::log("INIT MainCamera");
-    for(auto &&e : em.iterate<fmc::CCamera>())
-    {
-        InitCamera(e);
-        break;
-    }
+    //fm::Debug::log("INIT MainCamera");
+    //for(auto &&e : em.iterate<fmc::CCamera>())
+    //{
+    //    InitCamera(e);
+    //    break;
+    //}
 }
 
 void RenderingSystem::InitCamera(Entity* inEntityCamera)

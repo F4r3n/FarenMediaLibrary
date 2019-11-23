@@ -39,13 +39,13 @@ enum WINDOWS
     WIN_LOGGER,
     WIN_PROJECT_SETTINGS,
 	WIN_LIST_ENTITIES,
-	WIN_GAME_VIEW,
+	WIN_EDITOR_VIEW,
 	WIN_TOOLBAR,
     WIN_LAST
 
 };
 typedef std::unordered_map<WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWindows;
-
+typedef std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
 
 public:
     MainWindow();
@@ -67,27 +67,26 @@ private:
 
 	void _ClearInspectorComponents();
 	void _ConfigureStyle();
+	void _InitEditorCamera();
 
 private:
-	void _DrawContentMainCamera();
-	void _InitMainCamera();
 
-	gui::Context _context;
+	gui::Context				_context;
 
-	std::shared_ptr<fm::Scene> _editorScene;
-	MapOfWindows _windows;
-	bool _windowStates[WIN_LAST];
+	std::shared_ptr<fm::Scene>	_editorScene;
+	MapOfWindows				_windows;
+	bool						_windowStates[WIN_LAST];
 
 
-    fm::GameObject* _currentEntity;
-    fm::GameObject* _dlight;
+    fm::GameObject*				_currentEntity;
+    fm::GameObject*				_dlight;
        
-    std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> _inspectorComponents;
+	MapOfInspectors				_inspectorComponents;
 
-    fm::ProjectSettings _projectSettings;
+    fm::ProjectSettings			_projectSettings;
 
-    fm::GameObject* _mainCamera;
-	std::vector<fm::Config> _lastConfigsUsed;
+    fm::GameObject*				_editorCamera;
+	std::vector<fm::Config>		_lastConfigsUsed;
 
 	//==========Systems==============
 };

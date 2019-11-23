@@ -20,6 +20,7 @@ set(SOURCES ${SOURCES}
 	
 	src/MainWindow.cpp
 	src/GWindow.cpp
+	src/EditorView.cpp
 	src/GameView.cpp
 	src/SaveProjectWindow.cpp
 	src/inspector/inspector.cpp

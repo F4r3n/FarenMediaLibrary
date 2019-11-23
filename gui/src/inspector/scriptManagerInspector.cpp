@@ -22,6 +22,7 @@ void ScriptManagerInspector::draw(bool *value)
 
         static int current = 0;
         static const char *shapeNames[] = {"LUA", "CPP"};
+		static char nameScript[128] = "ClassName";
 
 
         ImGui::PushItemWidth(120);
