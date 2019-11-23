@@ -31,7 +31,7 @@ namespace gui
 }
 
 
-class MainWindow 
+class MainWindow : public fm::ApplicationObserver
 {
 enum WINDOWS
 {
@@ -54,6 +54,13 @@ public:
 	void Draw();
 	void Update();
 	void Init();
+
+protected:
+	virtual void OnPreStart();
+	virtual void OnAfterStart();
+
+	virtual void OnPreStop();
+	virtual void OnAfterStop();
 private:
 	void _DrawComponents(fm::GameObject* currentEntity);
 	void _DrawMenu();

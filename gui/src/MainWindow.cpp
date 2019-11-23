@@ -530,6 +530,44 @@ void MainWindow::Draw()
 
 }
 
+
+void MainWindow::OnPreStart()
+{
+	dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->Clear();
+}
+void MainWindow::OnAfterStart()
+{
+	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
+	auto&& v = currentScene->getAllGameObjects();
+	for (auto &&o : v)
+	{
+		if (o->has<fmc::CCamera>())
+		{
+			dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->AddCamera(o);
+			break;
+		}
+	}
+}
+void MainWindow::OnPreStop()
+{
+	dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->Clear();
+}
+void MainWindow::OnAfterStop()
+{
+	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
+	auto&& v = currentScene->getAllGameObjects();
+	for (auto &&o : v)
+	{
+		if (o->has<fmc::CCamera>())
+		{
+			dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->AddCamera(o);
+			break;
+		}
+	}
+}
+
+
+
 void MainWindow::_ConfigureStyle()
 {
 	// From https://github.com/ocornut/imgui/issues/707#issuecomment-254610737

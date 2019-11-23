@@ -17,7 +17,7 @@ const std::string TEMPORARY_SCENE_NAME = "_temp";
 
 Application::~Application()
 {
-
+	_observers.clear();
 }
 
 void Application::SetConfig(const Config &inConfig)
@@ -28,6 +28,12 @@ void Application::SetConfig(const Config &inConfig)
 Application::Application()
 {
 
+}
+
+
+void Application::AddApplicationObserver(std::shared_ptr<ApplicationObserver> inObserver)
+{
+	_observers.emplace_back(inObserver);
 }
 
 
@@ -74,6 +80,10 @@ bool Application::Read()
 
 void Application::Start(bool inSandbox)
 {
+	for (auto && o : _observers)
+	{
+		o->OnPreStart();
+	}
 	if (inSandbox)
 	{
 		nlohmann::json save;
@@ -88,15 +98,31 @@ void Application::Start(bool inSandbox)
 		fm::SceneManager::get().setCurrentScene(privateName, true);
 	}
 	_engine->Start();
+
+	for (auto && o : _observers)
+	{
+		o->OnAfterStart();
+	}
 }
 
 void Application::Stop()
 {
+	for (auto && o : _observers)
+	{
+		o->OnPreStop();
+	}
+
 	fm::SceneManager::get().ClearScene(_nameLastScene + "_", true);
 	fm::SceneManager::get().setCurrentScene(_nameLastScene, false);
 	fm::SceneManager::get().getCurrentScene()->ResetStatusGo();
 	_engine->Stop();
 	//TODO garbage collect
+
+	for (auto && o : _observers)
+	{
+		o->OnAfterStop();
+	}
+
 }
 
 fm::Window* Application::GetWindow() const

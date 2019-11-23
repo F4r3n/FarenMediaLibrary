@@ -81,7 +81,7 @@ namespace fm
 
 
 
-
+	class ApplicationObserver;
 class Application
 {
     public:
@@ -116,6 +116,7 @@ class Application
 		void GetLastConfigs(std::vector<fm::Config> &outConfig);
 		bool IsRunning() const;
 
+		void AddApplicationObserver(std::shared_ptr<ApplicationObserver> inObserver);
     private:
 		Application();
 		fm::CircularBuffer<fm::Config,10> _lastConfigsUsed;
@@ -124,6 +125,20 @@ class Application
         fm::Window* _window;
         fm::Config	_currentConfig;
 		std::string _nameLastScene;
+
+		std::vector<std::shared_ptr<ApplicationObserver>> _observers;
+};
+
+class ApplicationObserver
+{
+public:
+	friend class Application;
+protected:
+	virtual void OnPreStart() {}
+	virtual void OnAfterStart() {}
+
+	virtual void OnPreStop() {}
+	virtual void OnAfterStop() {}
 };
 }
 

@@ -36,13 +36,13 @@ namespace gui
 		void Zoom();
 		void AddCamera(fm::GameObject *inGameObject);
 		void Update(float dt, Context &inContext);
-
+		void Clear();
 	private:
 
-		std::vector<CameraPreview> _previews;
-		int _index;
-		fm::math::vec2 _startImagePos;
-		fm::math::vec2 _endImagePos;
-		ASPECT_MODE _aspectMode;
+		std::vector<CameraPreview>	_previews;
+		size_t						_index;
+		fm::math::vec2				_startImagePos;
+		fm::math::vec2				_endImagePos;
+		ASPECT_MODE					_aspectMode;
 	};
 }

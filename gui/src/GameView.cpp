@@ -118,6 +118,8 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 {
 	CameraPreview preview;
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
+	if (!camera->IsInit())
+		camera->Init();
 	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
 	camera->target = preview.renderTexture;
 
@@ -126,6 +128,18 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 }
 
 
+void GameView::Clear()
+{
+	for (auto && p : _previews)
+	{
+		if (p.renderTexture->isCreated())
+		{
+			p.renderTexture->release();
+		}
+	}
+	_index = 0;
+	_previews.clear();
+}
 
 
 
