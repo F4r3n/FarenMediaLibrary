@@ -23,7 +23,10 @@ void TransformInspector::draw(bool *)
 		if (ImGui::DragFloat3("Rotation", &euler.x, 1.0f, -FLT_MAX, FLT_MAX))
 		{
 			float pitch = std::max(std::min(euler.x, 89.9f), -89.9f);
-			target->SetRotation(fm::math::Quaternion::FromEulerAngles(fm::math::vec3(pitch, euler.y, euler.z)));
+			float y = std::max(std::min(euler.y, 89.9f), -89.9f);
+			float z = std::max(std::min(euler.z, 89.9f), -89.9f);
+
+			target->SetRotation(fm::math::Quaternion::FromEulerAngles(fm::math::vec3(pitch, y, z)));
 		}
 
         ImGui::PopItemWidth();
