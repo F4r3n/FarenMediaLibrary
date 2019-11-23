@@ -534,6 +534,8 @@ void MainWindow::Draw()
 void MainWindow::OnPreStart()
 {
 	dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->Clear();
+	_currentEntity = nullptr;
+	_context.currentGameObjectSelected = nullptr;
 }
 void MainWindow::OnAfterStart()
 {
@@ -551,6 +553,8 @@ void MainWindow::OnAfterStart()
 void MainWindow::OnPreStop()
 {
 	dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->Clear();
+	_currentEntity = nullptr;
+	_context.currentGameObjectSelected = nullptr;
 }
 void MainWindow::OnAfterStop()
 {
