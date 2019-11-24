@@ -74,6 +74,8 @@ void EditorView::CustomDraw()
 		ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
 		ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
 		ImGuizmo::SetDrawlist();
+		_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
+
 		_EditObject();
 	}
     
@@ -114,7 +116,7 @@ void EditorView::_EditObject()
 					  _editorView.renderTexture->getWidth(), 
 		_editorView.renderTexture->getHeight());
 	const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
-	const fm::math::mat projecttion = camera->get<fmc::CCamera>()->projection;
+	const fm::math::mat projecttion = camera->get<fmc::CCamera>()->GetProjectionMatrix();
 	fm::math::mat model;
 
 	fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
@@ -200,8 +202,8 @@ void EditorView::Update(float dt, Context &inContext)
 			if (rect.contains(mousePos.x, mousePos.y))
 			{
 				fm::math::vec2 mPos(mousePos.x, mousePos.y);
-				mPos.x -= startCursorPos.x;
-				mPos.y -= startCursorPos.y;
+				mPos.x -= startCursorPos.x - _scrollPos.x;
+				mPos.y -= startCursorPos.y - _scrollPos.y;
 
 				_pickingSystem->PickGameObject(_editorView.id, mPos);
 			}

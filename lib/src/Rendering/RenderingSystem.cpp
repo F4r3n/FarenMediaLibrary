@@ -59,8 +59,6 @@ RenderingSystem::RenderingSystem(int width, int height)
 void RenderingSystem::_InitUniformBufferCamera(fmc::CCamera* inCamera)
 {
 
-
-#if OPENGL_ES == 0
     glGenBuffers(1, &inCamera->_rendererConfiguration.generatedBlockBinding);
     glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
     glBufferData(GL_UNIFORM_BUFFER,
@@ -79,22 +77,22 @@ void RenderingSystem::_InitUniformBufferCamera(fmc::CCamera* inCamera)
                               glGetUniformBlockIndex(s->Program, "shader_data"),
 			inCamera->_rendererConfiguration.bindingPointIndex);
     }
-#endif
+
 }
 
 RenderingSystem::~RenderingSystem()
 {
 }
 
+
 void RenderingSystem::_UpdateUniformBufferCamera(fmc::CCamera* inCamera)
 {
-#if OPENGL_ES == 0
     glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
     GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &inCamera->shader_data, sizeof(inCamera->shader_data));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
-#endif
 }
+
 
 void RenderingSystem::_InitStandardShapes()
 {
@@ -118,9 +116,8 @@ void RenderingSystem::_InitStandardShapes()
     fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
 
     fm::Renderer::getInstance().createQuadScreen();
-
-
 }
+
 
 void RenderingSystem::init(EntityManager& em, EventManager&)
 {
@@ -171,8 +168,7 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 		camera->_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
 
 		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
-		camera->_viewMatrix = fm::math::mat();
-		_SetView(camera->_viewMatrix, ct->position, { camera->viewPort.w, camera->viewPort.h }, ct->GetRotation().GetEulerAngles(), camera->IsOrthographic());
+		camera->UpdateViewMatrix(ct->GetTransform());
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
@@ -200,43 +196,6 @@ void RenderingSystem::InitCamera(Entity* inEntityCamera)
 	}
 }
 
-void UpdateCameraVectors(float yaw, float pitch, float roll, fm::math::vec3 &outFront,fm::math::vec3 &outRight,fm::math::vec3 &outUp,  const fm::math::vec3 &)
-{
-    // Calculate the new Front vector
-    fm::math::vec3 front;
-    front.x = cos(fm::math::radians(yaw)) * cos(fm::math::radians(pitch));
-    front.y = sin(fm::math::radians(pitch));
-    front.z = sin(fm::math::radians(yaw)) * cos(fm::math::radians(pitch));
-    outFront = fm::math::normalize(front);
-    // Also re-calculate the Right and Up vector
-    outRight = fm::math::normalize(fm::math::cross(outFront, fm::math::vec3(cos(fm::math::radians(roll)), sin(fm::math::radians(roll)), 0.0f)));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    outUp    = fm::math::normalize(fm::math::cross(outRight, outFront));
-}
-
-void RenderingSystem::_SetView(fm::math::mat& viewMatrix,
-                              const fm::math::Vector3f& position,
-                              const fm::math::Vector2f& size,
-                              const fm::math::Vector3f& rotation, bool isOrthographic)
-{
-
-    if(isOrthographic)
-    {
-        fm::math::mat m;
-        m.identity();
-        viewMatrix = fm::math::translate(m,fm::math::vec3(-position.x, -position.y, -position.z));
-        viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
-        viewMatrix = fm::math::rotate(viewMatrix, rotation.x, fm::math::vec3(0, 0, 1));
-        viewMatrix = fm::math::translate(viewMatrix, fm::math::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
-    }
-    else
-    {
-        viewMatrix.identity();
-        viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.x), fm::math::vec3(1,0,0));
-        viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.y), fm::math::vec3(0,1,0));
-        viewMatrix = fm::math::rotate( viewMatrix, fm::math::radians(rotation.z), fm::math::vec3(0,0,1));
-        viewMatrix = fm::math::translate(viewMatrix,fm::math::vec3(-position.x, -position.y, position.z));
-    }
-}
 
 void RenderingSystem::pre_update(EntityManager& em)
 {
@@ -260,11 +219,11 @@ void RenderingSystem::pre_update(EntityManager& em)
 		cam->UpdateRenderTexture();
 		fmc::CTransform* ct = e->get<fmc::CTransform>();
 
-		cam->_rendererConfiguration.bounds.setSize(fm::math::vec3(cam->viewPort.w, cam->viewPort.h, cam->GetFarPlane() - cam->GetNearPlane()));
+		cam->_rendererConfiguration.bounds.setSize(fm::math::vec3(cam->GetViewport().w, cam->GetViewport().h, cam->GetFarPlane() - cam->GetNearPlane()));
 		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
 		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
 
-		_SetView(cam->_viewMatrix, ct->position, { cam->viewPort.w, cam->viewPort.h }, ct->GetRotation().GetEulerAngles(), cam->IsOrthographic());
+		cam->UpdateViewMatrix(ct->GetTransform());
 	}
 
 }
@@ -292,7 +251,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 		//Clear buffers
 		_graphics.BindFrameBuffer(0);
-		_graphics.SetViewPort(cam->viewPort);
+		_graphics.SetViewPort(cam->GetViewport());
 		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		if (cam->target != nullptr)
@@ -302,7 +261,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 				cam->target->create();
 			}
 			cam->target->bind();
-			_graphics.SetViewPort(cam->viewPort);
+			_graphics.SetViewPort(cam->GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 		}
 
@@ -310,14 +269,12 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 		cam->_renderTexture.bind();
-		_graphics.SetViewPort(cam->viewPort);
+		_graphics.SetViewPort(cam->GetViewport());
 		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 		_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
 
 		//Prepare camera data
-		cam->shader_data.FM_PV = cam->projection * cam->_viewMatrix;
-		cam->shader_data.FM_P = cam->projection;
-		cam->shader_data.FM_V = cam->_viewMatrix;
+		cam->UpdateShaderData();
 
 		int error = glGetError();
 		if (error != 0) {
@@ -352,7 +309,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		//{
 			cam->_rendererConfiguration.postProcessRenderTexture.bind();
 			_finalShader->Use();
-			_finalShader->setValue("screenSize", fm::math::vec2(cam->viewPort.w, cam->viewPort.h));
+			_finalShader->setValue("screenSize", fm::math::vec2(cam->GetViewport().w, cam->GetViewport().h));
 			_finalShader->setValue("viewPos", transform->position);
 			_finalShader->setValue("screenTexture", 0);
 

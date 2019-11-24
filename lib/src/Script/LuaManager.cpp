@@ -112,7 +112,7 @@ void LuaManager::registerComponents()
 	  "layer",
 	  &CTransform::layer);
 	lua->new_usertype<CCamera>("CCamera",
-	  "viewPort", &CCamera::viewPort,
+	  "viewPort", &CCamera::GetViewport,
 	  "isOrthographic", &CCamera::IsOrthographic
 	  );
 	lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);

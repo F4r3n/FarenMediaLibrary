@@ -75,8 +75,8 @@ CCamera::~CCamera()
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
 {
-    ioJson["width"] = viewPort.w;
-    ioJson["height"] = viewPort.h;
+    ioJson["width"] = _viewPort.w;
+    ioJson["height"] = _viewPort.h;
     ioJson["farPlane"] = _farPlane;
     ioJson["nearPlane"] = _nearPlane;
     ioJson["isOrtho"] = _isOrto;
@@ -129,28 +129,33 @@ void CCamera::_InitRenderTexture()
 	}
 }
 
+void CCamera::UpdateProjectionMatrix()
+{
+	if (_isOrto)
+	{
+		_projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
+		_viewPort.w = static_cast<float>(_width);
+		_viewPort.h = static_cast<float>(_height);
+		_viewPort.x = 0;
+		_viewPort.y = 0;
+
+	}
+	else
+	{
+		_projection = fm::math::perspective(fm::math::radians(_fovy), (float)_width / (float)_height, _nearPlane, _farPlane);
+		_viewPort.w = static_cast<float>(_width);
+		_viewPort.h = static_cast<float>(_height);
+		_viewPort.x = 0;
+		_viewPort.y = 0;
+
+	}
+}
+
 
 void CCamera::Init()
 {
-    if(_isOrto)
-    {
-        projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
-        viewPort.w = static_cast<float>(_width);
-        viewPort.h = static_cast<float>(_height);
-        viewPort.x = 0;
-        viewPort.y = 0;
 
-    }
-	else
-    {
-        projection = fm::math::perspective(fm::math::radians(_fovy),(float)_width/(float)_height, _nearPlane, _farPlane);
-        viewPort.w = static_cast<float>(_width);
-        viewPort.h = static_cast<float>(_height);
-        viewPort.x = 0;
-        viewPort.y = 0;
-
-    }
-
+	UpdateProjectionMatrix();
 
 	if (_renderTexture.isCreated())
 	{
@@ -171,11 +176,11 @@ void CCamera::SetNewProjection(unsigned int width, unsigned int height)
     _isOrto = true;
     _farPlane = 100.0f;
 
-    projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, _nearPlane, _farPlane);
-    viewPort.w = width;
-    viewPort.h = height;
-    viewPort.x = 0;
-    viewPort.y = 0;
+    _projection = fm::math::ortho(0.0f, (float)width, (float)height, 0.0f, _nearPlane, _farPlane);
+    _viewPort.w = width;
+    _viewPort.h = height;
+    _viewPort.x = 0;
+    _viewPort.y = 0;
     if(_renderTexture.isCreated())
     {
         _renderTexture.release();
@@ -186,7 +191,7 @@ void CCamera::SetNewProjection(unsigned int width, unsigned int height)
 void CCamera::UpdateRenderTexture()
 {
 
-	if (viewPort.w != _renderTexture.getWidth() || viewPort.h != _renderTexture.getHeight())
+	if (_viewPort.w != _renderTexture.getWidth() || _viewPort.h != _renderTexture.getHeight())
 	{
 		_renderTexture.release();
 		_InitRenderTexture();
@@ -197,11 +202,11 @@ void CCamera::UpdateRenderTexture()
 void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int height)
 {
     _isOrto = true;
-    projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, _nearPlane, _farPlane);
-    viewPort.w = static_cast<float>(width);
-    viewPort.h = static_cast<float>(height);
-    viewPort.x = static_cast<float>(x);
-    viewPort.y = static_cast<float>(y);
+    _projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, _nearPlane, _farPlane);
+    _viewPort.w = static_cast<float>(width);
+    _viewPort.h = static_cast<float>(height);
+    _viewPort.x = static_cast<float>(x);
+    _viewPort.y = static_cast<float>(y);
     if( _renderTexture.isCreated())
     {
         _renderTexture.release();
@@ -221,5 +226,31 @@ void CCamera::AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer
 	_commandBuffers[inQueue].push(inCommandBuffer);
 }
 
+
+void CCamera::UpdateViewMatrix(const fm::Transform &inTransform)
+{
+	if (_isOrto)
+	{
+		fm::math::mat m;
+		m.identity();
+		_viewMatrix = fm::math::translate(m, fm::math::vec3(-inTransform.position.x, -inTransform.position.y, -inTransform.position.z));
+		_viewMatrix = fm::math::translate(_viewMatrix, fm::math::vec3(0.5f * _viewPort.w, 0.5f * _viewPort.h, 0.0f));
+		_viewMatrix = fm::math::rotate(_viewMatrix, inTransform.rotation.GetEulerAngles().x, fm::math::vec3(0, 0, 1));
+		_viewMatrix = fm::math::translate(_viewMatrix, fm::math::vec3(-0.5f * _viewPort.w, -0.5f * _viewPort.h, 0.0f));
+	}
+	else
+	{
+		_viewMatrix.identity();
+		_viewMatrix = fm::math::rotate(_viewMatrix, inTransform.rotation.GetRotationMatrix());
+		_viewMatrix = fm::math::translate(_viewMatrix, fm::math::vec3(-inTransform.position.x, -inTransform.position.y, inTransform.position.z));
+	}
+}
+
+void CCamera::UpdateShaderData()
+{
+	shader_data.FM_PV = _projection * _viewMatrix;
+	shader_data.FM_P = _projection;
+	shader_data.FM_V = _viewMatrix;
+}
 
 

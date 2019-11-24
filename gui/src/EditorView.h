@@ -51,6 +51,7 @@ namespace gui
 		fm::math::vec2			_startImagePos;
 		fm::math::vec2			_endImagePos;
 		fm::math::vec2			_cursorPos;
+		fm::math::vec2			_scrollPos;
 
 		bool					_resultPicking;
 		fm::GameObject*			_gameObjectSelectedByPicking;

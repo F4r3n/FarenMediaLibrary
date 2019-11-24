@@ -12,6 +12,7 @@
 namespace fm 
 {
 	class RenderTexture;
+	struct Transform;
 }
 
 namespace fms 
@@ -78,8 +79,7 @@ class CCamera : public FMComponent<CCamera>
         void SetNewViewPort(int x, int y, unsigned int width, unsigned int height);
         void Init();
 
-        fm::Rect<float> viewPort;
-        fm::math::mat projection;
+
 
         Shader_data shader_data;
         std::shared_ptr<fm::RenderTexture> target = nullptr;
@@ -90,6 +90,13 @@ class CCamera : public FMComponent<CCamera>
 		void SetCallBackOnStartRendering(std::function<void()> && inCallback) { _onStartRendering = inCallback; }
 		void SetCallBackOnPostRendering(std::function<void()> && inCallback) { _onPostRendering = inCallback; }
 
+		void UpdateProjectionMatrix();
+		void UpdateViewMatrix(const fm::Transform &inTransform);
+		void UpdateShaderData();
+
+		const fm::Rect<float>& GetViewport()const { return _viewPort; }
+		const fm::math::mat& GetProjectionMatrix()const { return _projection; }
+		const fm::math::mat& GetViewMatrix() const { return _viewMatrix; }
     private:
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;
@@ -99,7 +106,6 @@ class CCamera : public FMComponent<CCamera>
 		RendererConfiguration	_rendererConfiguration;
 
         fm::RenderTexture		_renderTexture;
-        fm::math::mat			_viewMatrix;
         bool					_isOrto;
         float					_farPlane;
         float					_nearPlane;
@@ -111,5 +117,9 @@ class CCamera : public FMComponent<CCamera>
 
 		CameraCommandBuffer		_commandBuffers;
 		bool					_isInit;
+
+		fm::Rect<float>			_viewPort;
+		fm::math::mat			_projection;
+		fm::math::mat			_viewMatrix;
 };
 }

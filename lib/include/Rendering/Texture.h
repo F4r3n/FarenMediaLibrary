@@ -7,7 +7,6 @@
 namespace fm {
 
 enum Format {
-#if OPENGL_ES == 0
     RED = GL_R,
     RGB = GL_RGB,
     RGBA = GL_RGBA,
@@ -17,17 +16,6 @@ enum Format {
     DEPTH_32F = GL_DEPTH_COMPONENT32F,
     DEPTH_STENCIL = GL_DEPTH_STENCIL,
     STENCIL = GL_STENCIL_INDEX
-    #else
-    RED = GL_RGB,
-    RGB = GL_RGB,
-    RGBA = GL_RGBA,
-    DEPTH_16 = GL_DEPTH_COMPONENT16,
-    DEPTH_24 = GL_DEPTH_COMPONENT24,
-    DEPTH_32 = GL_DEPTH_COMPONENT24,
-    DEPTH_32F = GL_DEPTH_COMPONENT32F,
-    DEPTH_STENCIL = GL_DEPTH_STENCIL,
-    STENCIL = GL_DEPTH_STENCIL
-        #endif
 };
 
 enum Type {
@@ -48,16 +36,10 @@ enum Kind
 enum Filter { NEAREST = GL_NEAREST, LINEAR = GL_LINEAR };
 
 enum Wrapping {
-#if OPENGL_ES == 0
     REPEAT = GL_REPEAT,
     CLAMP_BORDER = GL_CLAMP_TO_BORDER,
     MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
     CLAMP_EDGE = GL_CLAMP_TO_EDGE
-#else
-    REPEAT = GL_REPEAT,
-    MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
-    CLAMP_EDGE = GL_CLAMP_TO_EDGE
-#endif
 };
 
 class Texture 
