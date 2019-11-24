@@ -66,8 +66,7 @@ class CCamera : public FMComponent<CCamera>
         ~CCamera();
 
         bool  IsOrthographic();
-        float GetFarPlane();
-        float GetNearPlane();
+
 
         bool Serialize(nlohmann::json &ioJson) const override;
         bool Read(const nlohmann::json &inJSON) override;
@@ -104,6 +103,14 @@ class CCamera : public FMComponent<CCamera>
 		void UpdateRenderConfigBounds(const fm::Transform &inTransform);
 
 		const fm::RenderTexture& GetRenderTexture() const { return _renderTexture; }
+		float GetFOV() const { return _fovy; }
+		float GetFarPlane();
+		float GetNearPlane();
+
+		void SetFov(float inValue) { _fovy = inValue; }
+		void SetFarPlane(float inValue) { _farPlane = inValue; }
+		void SetNearPlane(float inValue) { _nearPlane = inValue; }
+
     private:
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;
