@@ -2,6 +2,7 @@
 #include "Rendering/RenderTexture.h"
 #include <EntityManager.h>
 #include "Window.h"
+#include "Resource/ResourcesManager.h"
 using namespace fmc;
 using namespace fm;
 
@@ -252,5 +253,84 @@ void CCamera::UpdateShaderData()
 	shader_data.FM_P = _projection;
 	shader_data.FM_V = _viewMatrix;
 }
+
+
+void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeBytesLight)
+{
+
+	if ( !_rendererConfiguration.isInit)
+	{
+		_rendererConfiguration.uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
+		//_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
+		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2);
+		UpdateViewMatrix(inTransform);
+
+		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
+		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+		_rendererConfiguration.lightRenderTexture = fm::RenderTexture(
+			_renderTexture.getWidth(),
+			_renderTexture.getHeight(),
+			2,
+			formats,
+			types,
+			0);
+
+		_rendererConfiguration.postProcessRenderTexture = fm::RenderTexture(
+			_renderTexture.getWidth(),
+			_renderTexture.getHeight(),
+			1,
+			formats,
+			types,
+			0);
+
+
+		_rendererConfiguration.lightRenderTexture.create();
+		_rendererConfiguration.postProcessRenderTexture.create();
+
+		_rendererConfiguration.isInit = true;
+	}
+}
+
+void CCamera::InitUniformBuffer()
+{
+	glGenBuffers(1, &_rendererConfiguration.generatedBlockBinding);
+	glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
+	glBufferData(GL_UNIFORM_BUFFER,
+				sizeof(shader_data),
+				&shader_data,
+				GL_DYNAMIC_COPY);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
+	{
+		fm::Shader* s = dynamic_cast<fm::Shader*>(shader.second);
+		s->Use();
+
+		glBindBufferBase(GL_UNIFORM_BUFFER,
+						_rendererConfiguration.bindingPointIndex,
+						_rendererConfiguration.generatedBlockBinding);
+		glUniformBlockBinding(s->Program,
+							  glGetUniformBlockIndex(s->Program, "shader_data"),
+							  _rendererConfiguration.bindingPointIndex);
+	}
+}
+
+void CCamera::UpdateUniformBufferCamera()
+{
+	glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
+	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+	memcpy(p, &shader_data, sizeof(shader_data));
+	glUnmapBuffer(GL_UNIFORM_BUFFER);
+}
+
+void CCamera::UpdateRenderConfigBounds(const fm::Transform &inTransform)
+{
+	_rendererConfiguration.bounds.setSize(fm::math::vec3(_viewPort.w, _viewPort.h, _farPlane - _nearPlane));
+	_rendererConfiguration.bounds.setCenter(fm::math::vec3(inTransform.position.x, inTransform.position.y, -1) + _rendererConfiguration.bounds.getSize() / 2.0f);
+	_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
+}
+
+
 
 

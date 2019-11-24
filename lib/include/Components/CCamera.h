@@ -97,6 +97,13 @@ class CCamera : public FMComponent<CCamera>
 		const fm::Rect<float>& GetViewport()const { return _viewPort; }
 		const fm::math::mat& GetProjectionMatrix()const { return _projection; }
 		const fm::math::mat& GetViewMatrix() const { return _viewMatrix; }
+		const RendererConfiguration& GetRendererConfig() const { return _rendererConfiguration; }
+		void InitRenderConfig(const fm::Transform &inTransform, size_t sizeBytesLight);
+		void InitUniformBuffer();
+		void UpdateUniformBufferCamera();
+		void UpdateRenderConfigBounds(const fm::Transform &inTransform);
+
+		const fm::RenderTexture& GetRenderTexture() const { return _renderTexture; }
     private:
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;

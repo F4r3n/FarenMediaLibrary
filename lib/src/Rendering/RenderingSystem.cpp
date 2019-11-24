@@ -56,41 +56,9 @@ RenderingSystem::RenderingSystem(int width, int height)
 
 }
 
-void RenderingSystem::_InitUniformBufferCamera(fmc::CCamera* inCamera)
-{
-
-    glGenBuffers(1, &inCamera->_rendererConfiguration.generatedBlockBinding);
-    glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
-    glBufferData(GL_UNIFORM_BUFFER,
-                 sizeof(inCamera->shader_data),
-                 &inCamera->shader_data,
-                 GL_DYNAMIC_COPY);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    for(auto shader : fm::ResourcesManager::get().getAll<fm::Shader>()) {
-        fm::Shader* s = dynamic_cast<fm::Shader*>(shader.second);
-        s->Use();
-
-        glBindBufferBase(
-                    GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.bindingPointIndex, inCamera->_rendererConfiguration.generatedBlockBinding);
-        glUniformBlockBinding(s->Program,
-                              glGetUniformBlockIndex(s->Program, "shader_data"),
-			inCamera->_rendererConfiguration.bindingPointIndex);
-    }
-
-}
 
 RenderingSystem::~RenderingSystem()
 {
-}
-
-
-void RenderingSystem::_UpdateUniformBufferCamera(fmc::CCamera* inCamera)
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, inCamera->_rendererConfiguration.generatedBlockBinding);
-    GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-    memcpy(p, &inCamera->shader_data, sizeof(inCamera->shader_data));
-    glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
 
@@ -158,50 +126,17 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
     //}
 }
 
-void RenderingSystem::InitCamera(Entity* inEntityCamera)
-{
-	fmc::CCamera* camera = inEntityCamera->get<fmc::CCamera>();
 
-	if (camera!= nullptr && !camera->_rendererConfiguration.isInit)
-	{
-		camera->_rendererConfiguration.uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
-		camera->_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
-
-		fmc::CTransform* ct = inEntityCamera->get<fmc::CTransform>();
-		camera->UpdateViewMatrix(ct->GetTransform());
-
-		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
-		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-		camera->_rendererConfiguration.lightRenderTexture = fm::RenderTexture(
-			camera->_renderTexture.getWidth(),
-			camera->_renderTexture.getHeight(),
-			2,
-			formats,
-			types,
-			0);
-
-		camera->_rendererConfiguration.postProcessRenderTexture = fm::RenderTexture(
-			camera->_renderTexture.getWidth(),
-			camera->_renderTexture.getHeight(),
-			1,
-			formats,
-			types,
-			0);
-
-
-		camera->_rendererConfiguration.lightRenderTexture.create();
-		camera->_rendererConfiguration.postProcessRenderTexture.create();
-
-		camera->_rendererConfiguration.isInit = true;
-	}
-}
 
 
 void RenderingSystem::pre_update(EntityManager& em)
 {
-	for (auto &&e : em.iterate<fmc::CCamera>())
+	for (auto &&e : em.iterate<fmc::CCamera, fmc::CTransform>())
 	{
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
+		fmc::CTransform* ct = e->get<fmc::CTransform>();
+		const fm::Transform tr = ct->GetTransform();
+
 		if (!cam->Enabled)
 			continue;
 
@@ -210,19 +145,13 @@ void RenderingSystem::pre_update(EntityManager& em)
 			cam->Init();
 		}
 
-		if (!cam->_rendererConfiguration.isInit)
+		if (!cam->GetRendererConfig().isInit)
 		{
-			InitCamera(e);
+			cam->InitRenderConfig(tr, sizeof(PointLight)*NUMBER_POINTLIGHT_MAX);
 		}
 
-
 		cam->UpdateRenderTexture();
-		fmc::CTransform* ct = e->get<fmc::CTransform>();
-
-		cam->_rendererConfiguration.bounds.setSize(fm::math::vec3(cam->GetViewport().w, cam->GetViewport().h, cam->GetFarPlane() - cam->GetNearPlane()));
-		cam->_rendererConfiguration.bounds.setCenter(fm::math::vec3(ct->position.x, ct->position.y, -1) + cam->_rendererConfiguration.bounds.getSize() / 2.0f);
-		cam->_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
-
+		cam->UpdateRenderConfigBounds(tr);
 		cam->UpdateViewMatrix(ct->GetTransform());
 	}
 
@@ -239,7 +168,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		fmc::CTransform* transform = e->get<fmc::CTransform>();
 
-		if (!cam->_renderTexture.isCreated())
+		if (!cam->GetRenderTexture().isCreated())
 		{
 			fm::Debug::logError("No render texture created");
 			return;
