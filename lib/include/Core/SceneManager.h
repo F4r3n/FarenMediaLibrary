@@ -31,7 +31,7 @@ namespace fm
 			bool SerializePrivate(const std::string &inName, nlohmann::json &outjson);
 			bool ReadPrivate(const std::string &inName, const nlohmann::json &injson);
 
-			void ClearAllPublic();
+			void ClearAll(bool clearPrivate);
 
 			std::shared_ptr<fm::Scene> AddPrivateScene(const std::string &inName);
 			bool ClearScene(const std::string &inName, bool isPrivate);

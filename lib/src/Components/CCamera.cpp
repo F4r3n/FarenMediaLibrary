@@ -3,6 +3,7 @@
 #include <EntityManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
+#include <Core/Debug.h>
 using namespace fmc;
 using namespace fm;
 
@@ -56,22 +57,12 @@ CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool 
 
 CCamera::~CCamera()
 {
-	if (_renderTexture.isCreated())
-	{
-		_renderTexture.release();
-	}
-
 	if (_rendererConfiguration.isInit)
 	{
-		if (_rendererConfiguration.lightRenderTexture.isCreated())
-		{
-			_rendererConfiguration.lightRenderTexture.release();
-		}
-		if (_rendererConfiguration.postProcessRenderTexture.isCreated())
-		{
-			_rendererConfiguration.postProcessRenderTexture.release();
-		}
+		_rendererConfiguration.uboLight->Free();
 	}
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
@@ -128,6 +119,8 @@ void CCamera::_InitRenderTexture()
 		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 		_renderTexture = fm::RenderTexture(_width, _height, 2, formats, types, 24, _multiSampled);
 	}
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
 }
 
 void CCamera::UpdateProjectionMatrix()
@@ -158,14 +151,12 @@ void CCamera::Init()
 
 	UpdateProjectionMatrix();
 
-	if (_renderTexture.isCreated())
-	{
-		_renderTexture.release();
-	}
-
 	_InitRenderTexture();
 	_renderTexture.create();
 	_isInit = true;
+
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
 }
 
 
@@ -182,10 +173,7 @@ void CCamera::SetNewProjection(unsigned int width, unsigned int height)
     _viewPort.h = height;
     _viewPort.x = 0;
     _viewPort.y = 0;
-    if(_renderTexture.isCreated())
-    {
-        _renderTexture.release();
-    }
+
 
 }
 
@@ -194,7 +182,6 @@ void CCamera::UpdateRenderTexture()
 
 	if (_viewPort.w != _renderTexture.getWidth() || _viewPort.h != _renderTexture.getHeight())
 	{
-		_renderTexture.release();
 		_InitRenderTexture();
 	}
     
@@ -208,12 +195,8 @@ void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int heig
     _viewPort.h = static_cast<float>(height);
     _viewPort.x = static_cast<float>(x);
     _viewPort.y = static_cast<float>(y);
-    if( _renderTexture.isCreated())
-    {
-        _renderTexture.release();
-    }
-	_InitRenderTexture();
 
+	_InitRenderTexture();
 }
 
 bool CCamera::HasCommandBuffer(fm::RENDER_QUEUE inQueue) const
@@ -257,6 +240,7 @@ void CCamera::UpdateShaderData()
 
 void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeBytesLight)
 {
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 	if ( !_rendererConfiguration.isInit)
 	{
@@ -289,6 +273,8 @@ void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeByte
 
 		_rendererConfiguration.isInit = true;
 	}
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
 }
 
 void CCamera::InitUniformBuffer()

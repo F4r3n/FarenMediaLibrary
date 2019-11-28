@@ -7,7 +7,7 @@
 #include <utility>
 #include <functional>
 #include <Config.h>
-
+#include <queue>
 namespace fm
 {
 	class GameObject;
@@ -77,13 +77,15 @@ public:
 	void AddWidget(std::unique_ptr<IWidget> && widget);
 	void SetStatus(bool inValue);
 	virtual ~GWindow() {}
-	virtual void Update(float, Context &inContext) {}
+	void Update(float, Context &inContext);
 	void Start() { _enabled = true; }
 	void Stop() { _enabled = false; }
 	bool IsEnabled() const { return _enabled; }
 	const std::string& GetTitle() const { return _name; }
+	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
 protected:
 	size_t		_id;
+	virtual void _Update(float, Context &inContext) {};
 	virtual void CustomDraw();
 	virtual void BeforeWindowCreation() {}
 	virtual void AfterWindowCreation() {}
@@ -91,7 +93,10 @@ protected:
 	fm::math::vec2 _position;
 	fm::math::vec2 _size;
 	bool _enabled;
+	std::queue<std::function<void(GWindow*)>> _events;
 private:
+	void _DequeueEvent();
+
 	std::vector<std::unique_ptr<IWidget>> _widgets;
 	std::string							  _name;
 

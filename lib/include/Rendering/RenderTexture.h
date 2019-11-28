@@ -15,7 +15,6 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         RenderTexture(const RenderTexture &renderTexture, int multiSampling = -1);
         ~RenderTexture();
         
-        void release();
         bool isCreated() const;
         void bind();
         inline unsigned int getWidth() const {return _width;}
@@ -31,6 +30,8 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
 		void Clone(const RenderTexture &inRenderTexture);
 		const RenderTexture& operator=(const RenderTexture &inRenderTexture);
     private:
+		void release();
+
         bool _isReady = false;
         unsigned int _width = 0;
         unsigned int _height = 0;
@@ -41,10 +42,10 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         std::vector<Type> _types;
         bool _InitFrameBuffer(Format *formats, Type *types);
         //main Framebuffer + position fragcolor bright color
-        GLuint _framebuffer;
         std::vector<Texture> _textureColorbuffer;
 
         //Texture rboDepth;
-        unsigned int _rboDepth;
+		GLuint _framebuffer = 0;
+		GLuint _rboDepth = 0;
     };
 }

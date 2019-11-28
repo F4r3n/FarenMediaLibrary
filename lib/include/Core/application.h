@@ -117,6 +117,7 @@ class Application
 		bool IsRunning() const;
 
 		void AddApplicationObserver(std::shared_ptr<ApplicationObserver> inObserver);
+		void LoadProject(const fm::FilePath& inFilePath);
     private:
 		Application();
 		fm::CircularBuffer<fm::Config,10> _lastConfigsUsed;
@@ -139,6 +140,9 @@ protected:
 
 	virtual void OnPreStop() {}
 	virtual void OnAfterStop() {}
+
+	virtual void OnPreLoad() {};
+	virtual void OnAfterLoad() {};
 };
 }
 

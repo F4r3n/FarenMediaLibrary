@@ -16,9 +16,10 @@ namespace gui
 		GListEntities();
 		~GListEntities();
 		void CustomDraw();
-		void Update(float dt, Context &inContext);
 
 	private:
+		void _Update(float dt, Context &inContext);
+
 		fm::GameObject* _gameObjectSelected;
 		bool _hasBeenSelected = false;
 

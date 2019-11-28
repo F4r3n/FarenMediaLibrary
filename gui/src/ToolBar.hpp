@@ -10,9 +10,10 @@ namespace gui
 	public:
 		ToolBar();
 		~ToolBar();
-		virtual void Update(float, Context &inContext) override;
 		virtual void CustomDraw() override;
 	private:
+		virtual void _Update(float, Context &inContext) override;
+
 		void _DrawStartStop();
 		void _DrawTransformContext();
 		void _UpdateInputTransformContext();

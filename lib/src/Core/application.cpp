@@ -9,6 +9,7 @@
 #include <fstream>
 #include "Resource/ResourcesManager.h"
 #include "SystemManager.h"
+#include "Core/Debug.h"
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -84,19 +85,24 @@ void Application::Start(bool inSandbox)
 	{
 		o->OnPreStart();
 	}
+
+
 	if (inSandbox)
 	{
 		nlohmann::json save;
 		fm::SceneManager::get().SerializeCurrentScene(save);
+
 		std::shared_ptr<fm::Scene> current = fm::SceneManager::get().getCurrentScene();
 		_nameLastScene = current->getName();
 		std::string privateName = _nameLastScene + "_";
 		std::shared_ptr<fm::Scene> s = fm::SceneManager::get().AddPrivateScene(privateName);
 		s->Read(save);
+		
 		current->SetStatusToGo(false);
 
 		fm::SceneManager::get().setCurrentScene(privateName, true);
 	}
+	
 	_engine->Start();
 
 	for (auto && o : _observers)
@@ -149,6 +155,29 @@ void Application::Init()
     _engine->Init();
 }
 
+
+void Application::LoadProject(const fm::FilePath& inFilePath)
+{
+	for (auto && o : _observers)
+	{
+		o->OnPreLoad();
+	}
+	fm::SceneManager::get().ClearAll(false);
+	
+	SetProjectName(inFilePath.GetName(true));
+	SetUserDirectory(inFilePath.GetParent());
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
+	Read();
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
+	for (auto && o : _observers)
+	{
+		o->OnAfterLoad();
+	}
+}
+
+
 void Application::Update(bool withEditor)
 {
     _window->update(_currentConfig.fpsWanted, !withEditor);
@@ -158,8 +187,9 @@ void Application::Update(bool withEditor)
 
 void Application::DeInit()
 {
-    delete _window;
     delete _engine;
+	delete _window;
+
 }
 
 

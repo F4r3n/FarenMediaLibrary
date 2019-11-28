@@ -72,6 +72,7 @@ void RenderTexture::create() {
 }
 
 RenderTexture::~RenderTexture() {
+	release();
 }
 
 void RenderTexture::release() {
@@ -81,10 +82,14 @@ void RenderTexture::release() {
         _textureColorbuffer[i].release();
     }
     
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //rboDepth.release();
+	if(_rboDepth > 0)
+		glDeleteRenderbuffers(1, &_rboDepth);
 
-    glDeleteRenderbuffers(1, &_framebuffer);
+	if(_framebuffer > 0)
+		glDeleteRenderbuffers(1, &_framebuffer);
+
 
     _isReady = false;
 }

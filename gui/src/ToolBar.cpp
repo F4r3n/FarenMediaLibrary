@@ -14,7 +14,7 @@ ToolBar::~ToolBar()
 
 }
 
-void ToolBar::Update(float, Context &inContext)
+void ToolBar::_Update(float, Context &inContext)
 {
 	_UpdateInputTransformContext();
 

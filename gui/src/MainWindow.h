@@ -61,6 +61,9 @@ protected:
 
 	virtual void OnPreStop();
 	virtual void OnAfterStop();
+
+	virtual void OnPreLoad();
+	virtual void OnAfterLoad();
 private:
 	void _DrawComponents(fm::GameObject* currentEntity);
 	void _DrawMenu();
@@ -78,7 +81,8 @@ private:
 	void _InitEditorCamera();
 
 	void _AddEmptyScene();
-
+	void _ClearBeforeSceneChange();
+	void _InitGameView();
 private:
 
 	gui::Context				_context;

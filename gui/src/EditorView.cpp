@@ -147,7 +147,7 @@ void EditorView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
 }
 
 
-void EditorView::Update(float dt, Context &inContext)
+void EditorView::_Update(float dt, Context &inContext)
 {
 	_DrawContentEditorCamera();
 

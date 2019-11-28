@@ -141,50 +141,51 @@ void MainWindow::_DrawComponents(fm::GameObject* currentEntity)
 	for (auto && c : compos) 
 	{
 		uint16_t componentType = c->GetType();
-		if (inspectorComponent[componentType] == nullptr)
+		auto &compo = inspectorComponent[componentType];
+		if (compo == nullptr)
 		{
 			if (componentType == fmc::ComponentType::kTransform)
 			{
-				inspectorComponent[componentType] = std::make_unique<gui::TransformInspector>(c);
+				compo = std::make_unique<gui::TransformInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kMaterial)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::MaterialInspector>(c);
+				compo = std::make_unique <gui::MaterialInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::KMesh)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::MeshInspector>(c);
+				compo = std::make_unique <gui::MeshInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kScriptManager)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::ScriptManagerInspector>(c);
+				compo = std::make_unique <gui::ScriptManagerInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kPointLight)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::PointLightInspector>(c);
+				compo = std::make_unique <gui::PointLightInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kBody3D)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::Body3DInspector>(c);
+				compo = std::make_unique <gui::Body3DInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kCollider)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::ColliderInspector>(c);
+				compo = std::make_unique <gui::ColliderInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kCamera)
 			{
-				inspectorComponent[componentType] = std::make_unique <gui::CameraInspector>(c);
+				compo = std::make_unique <gui::CameraInspector>(c);
 			}
 		}
 		else
 		{
 			bool value = true;
 
-			inspectorComponent[componentType]->draw(&value);
+			compo->draw(&value);
 
 			if (!value)
 			{
-				inspectorComponent[componentType].reset();
+				compo.reset();
 				inspectorComponent[componentType] = nullptr;
 				c->Destroy();
 			}
@@ -220,14 +221,11 @@ void MainWindow::_DisplayWindow_Load()
 	if (!resultFromDialog.empty())
 	{
 		fm::FilePath result(resultFromDialog.front());
-		fm::Application::Get().SetProjectName(result.GetName(true));
-		fm::Application::Get().SetUserDirectory(result.GetParent());
+		fm::Application::Get().LoadProject(result);
 
-		fm::SceneManager::get().ClearAllPublic();
 		_ClearInspectorComponents();
 		_currentEntity = nullptr;
 
-		fm::Application::Get().Read();
 	}
 }
 
@@ -530,47 +528,56 @@ void MainWindow::Draw()
 
 }
 
-
-void MainWindow::OnPreStart()
+void MainWindow::_ClearBeforeSceneChange()
 {
-	dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->Clear();
+	_windows[WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
+		dynamic_cast<gui::GameView*>(inWindow)->Clear();
+	});
+
 	_currentEntity = nullptr;
 	_context.currentGameObjectSelected = nullptr;
+}
+void MainWindow::_InitGameView()
+{
+	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
+
+	auto&& v = currentScene->getAllGameObjects();
+	for (auto &&o : v)
+	{
+		if (o->has<fmc::CCamera>())
+		{
+			_windows[WINDOWS::WIN_SCENE_VIEW]->AddEvent([o](gui::GWindow* inWindow) {
+				dynamic_cast<gui::GameView*>(inWindow)->AddCamera(o);
+			});
+			break;
+		}
+	}
+}
+void MainWindow::OnPreStart()
+{
+	_ClearBeforeSceneChange();
 }
 void MainWindow::OnAfterStart()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
-	auto&& v = currentScene->getAllGameObjects();
-	for (auto &&o : v)
-	{
-		if (o->has<fmc::CCamera>())
-		{
-			dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->AddCamera(o);
-			break;
-		}
-	}
+	_InitGameView();
 }
 void MainWindow::OnPreStop()
 {
-	dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->Clear();
-	_currentEntity = nullptr;
-	_context.currentGameObjectSelected = nullptr;
+	_ClearBeforeSceneChange();
 }
 void MainWindow::OnAfterStop()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
-	auto&& v = currentScene->getAllGameObjects();
-	for (auto &&o : v)
-	{
-		if (o->has<fmc::CCamera>())
-		{
-			dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get())->AddCamera(o);
-			break;
-		}
-	}
+	_InitGameView();
 }
 
-
+void MainWindow::OnPreLoad()
+{
+	_ClearBeforeSceneChange();
+}
+void MainWindow::OnAfterLoad()
+{
+	_InitGameView();
+}
 
 void MainWindow::_ConfigureStyle()
 {

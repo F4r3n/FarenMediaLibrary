@@ -69,6 +69,27 @@ void GWindow::SetStatus(bool inValue)
 	_enabled = inValue;
 }
 
+void GWindow::Update(float dt, Context &inContext)
+{
+	_DequeueEvent();
+	_Update(dt, inContext);
+}
+
+
+void GWindow::_DequeueEvent()
+{
+	if (!_events.empty())
+	{
+		auto && e = _events.back();
+		if (e != nullptr)
+		{
+			e(this);
+		}
+		_events.pop();
+	}
+}
+
+
 
 void GWindow::WillClose()
 {

@@ -136,6 +136,7 @@ void RenderingSystem::pre_update(EntityManager& em)
 		fmc::CCamera* cam = e->get<fmc::CCamera>();
 		fmc::CTransform* ct = e->get<fmc::CTransform>();
 		const fm::Transform tr = ct->GetTransform();
+		fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 		if (!cam->Enabled)
 			continue;

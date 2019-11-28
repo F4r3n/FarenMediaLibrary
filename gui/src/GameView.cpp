@@ -6,6 +6,7 @@
 #include "Input/InputManager.h"
 #include <imgui/imgui_internal.h>
 #include "Core/Scene.h"
+#include "Core/Debug.h"
 using namespace gui;
 GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar
 												)
@@ -13,6 +14,7 @@ GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScr
 	_enabled = true;
 	_index = -1;
 	_aspectMode = ASPECT_MODE::ASPECT_16_9;
+	_shouldClear = false;
 }
 
 GameView::~GameView() 
@@ -21,6 +23,7 @@ GameView::~GameView()
 
 void GameView::CustomDraw()
 {
+
     if(_index >= 0 && _index < _previews.size()) 
 	{
 		CameraPreview preview = _previews[_index];
@@ -36,6 +39,7 @@ void GameView::CustomDraw()
 			//ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
 		}
     }
+
 }
 
 void GameView::BeforeWindowCreation()
@@ -48,8 +52,14 @@ void GameView::AfterWindowCreation()
 }
 
 
-void GameView::Update(float dt, Context &inContext)
+void GameView::_Update(float dt, Context &inContext)
 {
+	if (_shouldClear)
+	{
+		_Clear();
+		_shouldClear = false;
+	}
+
 	bool isRenderTextureReady = false;
 
 	if (_index >= 0 && _index < _previews.size())
@@ -122,23 +132,21 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 		camera->Init();
 	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
 	camera->target = preview.renderTexture;
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 	_previews.push_back(preview);
 	_index = _previews.size() - 1;
 }
 
-
 void GameView::Clear()
 {
-	for (auto && p : _previews)
-	{
-		if (p.renderTexture->isCreated())
-		{
-			p.renderTexture->release();
-		}
-	}
+	_shouldClear = true;
+}
+void GameView::_Clear()
+{
 	_index = 0;
 	_previews.clear();
+
 }
 
 

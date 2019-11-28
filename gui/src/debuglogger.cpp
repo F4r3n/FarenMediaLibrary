@@ -42,7 +42,7 @@ void DebugLogger::AddLog(const fm::Debug::Message &message)
     _mutex.unlock();
 }
 
-void DebugLogger::Update(float, Context &inContext)
+void DebugLogger::_Update(float, Context &inContext)
 {
 	std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
 	for (size_t i = 0; i < messages.size(); ++i)

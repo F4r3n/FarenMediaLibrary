@@ -35,10 +35,11 @@ namespace gui
 		void AfterWindowCreation();
 		void Resize();
 		void Zoom();
-		void Update(float dt, Context &inContext);
 
 		void SetPickingSystem(fms::PickingSystem *inPickingSystem);
 	private:
+		void _Update(float dt, Context &inContext);
+
 		void _DrawContentEditorCamera();
 
 		void _EditObject();

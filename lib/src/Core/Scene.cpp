@@ -93,7 +93,6 @@ bool Scene::Read(const nlohmann::json &inJson)
         GameObject *go = GameObjectHelper::create(this);
         go->Read(*it);
     }
-    EntityManager::get().make();
 
     return true;
 }

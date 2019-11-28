@@ -9,7 +9,7 @@
 #include "MainWindow.h"
 #include <Core/Debug.h>
 #include <Input/InputManager.h>
-
+#include "Rendering/Renderer.h"
 
 int main()
 {
@@ -47,12 +47,12 @@ int main()
 			fm::InputManager::Get().processEvents();
 			ImGui_ImplSDL2_ProcessEvent(&fm::InputManager::Get().getLastEvent());
 		}
-
 		fm::Application::Get().Update(true);
 		fm::InputManager::Get().CaptureMousePosition();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame(window->getWindow());
 		ImGui::NewFrame();
+
 
 		if (isMainWindowInitialized)
 		{
@@ -78,11 +78,13 @@ int main()
 			SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
 		}
 
+
 	}
+	fm::Application::Get().DeInit();
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
 
-	fm::Application::Get().DeInit();
 	return 0;
 }

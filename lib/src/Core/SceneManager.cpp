@@ -131,11 +131,10 @@ std::shared_ptr<fm::Scene> SceneManager::AddPrivateScene(const std::string &inNa
 		}
 	}
 
-	_privateScenes.emplace_back(std::make_shared<fm::Scene>(inName));
-	return _privateScenes[_privateScenes.size() - 1];
+	return _privateScenes.emplace_back(std::make_shared<fm::Scene>(inName));
 }
 
-void SceneManager::ClearAllPublic()
+void SceneManager::ClearAll(bool clearPrivate)
 {
 
 	for (auto &scene : _scenes)
@@ -143,6 +142,15 @@ void SceneManager::ClearAllPublic()
 		scene.second->destroy();
 	}
 	_scenes.clear();
+
+	if (clearPrivate)
+	{
+		for (auto &scene : _privateScenes)
+		{
+			scene->destroy();
+		}
+		_privateScenes.clear();
+	}
 }
 
 

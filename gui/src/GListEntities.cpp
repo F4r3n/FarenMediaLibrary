@@ -13,7 +13,7 @@ GListEntities::GListEntities() : GWindow("List entities", true)
 }
 
 
-void GListEntities::Update(float dt, Context &inContext)
+void GListEntities::_Update(float dt, Context &inContext)
 {
 
 	if (_hasBeenSelected)

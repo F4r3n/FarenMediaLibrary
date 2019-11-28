@@ -14,10 +14,11 @@ namespace gui
 		~DebugLogger();
 		void    Clear();
 		void    CustomDraw() override;
-		void	Update(float, Context &inContex) override;
 		void    AddLog(const fm::Debug::Message &message);
 
 	private:
+		void	_Update(float, Context &inContex) override;
+
 		std::vector<char>   _buffer;
 		ImVector<int>       _lineOffsets;        // Index to lines offset
 		bool                _scrollToBottom;
