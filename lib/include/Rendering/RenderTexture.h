@@ -28,7 +28,9 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         unsigned int GetId() const {return _framebuffer;}
 
 		void Clone(const RenderTexture &inRenderTexture);
+		const RenderTexture& operator=(const RenderTexture &&inRenderTexture);
 		const RenderTexture& operator=(const RenderTexture &inRenderTexture);
+
     private:
 		void release();
 

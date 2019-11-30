@@ -35,7 +35,6 @@ namespace gui
 		void Resize();
 		void Zoom();
 		void AddCamera(fm::GameObject *inGameObject);
-		void _Clear();
 		void Clear();
 	private:
 		void _Update(float dt, Context &inContext);
@@ -45,6 +44,5 @@ namespace gui
 		fm::math::vec2				_startImagePos;
 		fm::math::vec2				_endImagePos;
 		ASPECT_MODE					_aspectMode;
-		bool						_shouldClear;
 	};
 }

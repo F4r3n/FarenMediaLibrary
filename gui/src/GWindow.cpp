@@ -80,7 +80,7 @@ void GWindow::_DequeueEvent()
 {
 	if (!_events.empty())
 	{
-		auto && e = _events.back();
+		auto && e = _events.front();
 		if (e != nullptr)
 		{
 			e(this);

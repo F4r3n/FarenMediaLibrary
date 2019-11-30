@@ -60,7 +60,8 @@ void ScriptManagerInspector::draw(bool *value)
         }
         std::vector<std::string> scriptsToDelete;
         //ImGui::ColorEdit3("Color", &target->color.r);
-        for(auto &script : target->scripts)
+		fmc::Scripts &&scripts = target->GetScripts();
+        for(auto &&script : scripts)
         {
             const char* t = script->GetScriptName().c_str();
            ImGui::BulletText("%s",t);

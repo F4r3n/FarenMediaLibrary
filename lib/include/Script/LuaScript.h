@@ -1,37 +1,41 @@
 #pragma once
 
-#include "Core/Math/Vector2.h"
-#include "Input/InputManager.h"
 
 #include "Script/LuaManager.h"
 #include <sol2/sol.hpp>
 #include <string>
 #include "Core/FilePath.h"
+
 class Entity;
 
 
+namespace fm
+{
+	class LuaScript : public Script
+	{
 
 
-namespace fm {
-class LuaScript : public Script {
-public:
-    LuaScript(const fm::FilePath &inPath, Entity* inEntity);
-    ~LuaScript();
-    void update(float dt);
-    void start();
-    bool init(Entity* e);
+	public:
+	    LuaScript(const fm::FilePath &inPath, Entity* inEntity);
+	    ~LuaScript();
+	    virtual void update(float dt) override;
+	    virtual void start() override;
+	    virtual bool init(Entity* e) override;
+		virtual void Stop(Entity* e) override;
+		virtual bool Serialize(nlohmann::json &ioJson) const override;
+		virtual bool Read(const nlohmann::json &inJSON) override;
+	
+	    fm::Script::SCRIPT_TYPE GetType() const override
+	    {
+	        return fm::Script::SCRIPT_TYPE::LUA;
+	    }
+		virtual bool Reload() override;
 
-    fm::Script::SCRIPT_TYPE GetType() const override
-    {
-        return fm::Script::SCRIPT_TYPE::LUA;
-    }
-	virtual bool Reload() override;
- private:
-	 bool _hasAnErrorOccured = false;
-	sol::table _table;
 
-	GameObjectLua *_go;
-	std::string _name;
-	fm::FilePath _path;
-};
+	 private:
+		bool			_hasAnErrorOccured;
+		sol::table		_table;
+	
+		GameObjectLua*	_go;
+	};
 }

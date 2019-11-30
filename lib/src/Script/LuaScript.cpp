@@ -12,7 +12,9 @@ using namespace fm;
 LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity)
 {
 	_path = inPath;
-	_name = inPath.GetName(true);
+	_scriptName = inPath.GetName(true);
+	_hasStarted = false;
+	_isInit = false;
 	try
 	{
 		if (LuaManager::get().ReadFile(inPath.GetPath()))
@@ -35,25 +37,34 @@ LuaScript::~LuaScript()
 
 void LuaScript::start()
 {
-	if (_hasAnErrorOccured) return;
+	if (_hasAnErrorOccured || !_isInit) return;
 	try
 	{
 		_table["start"](_table);
-		hasStarted = true;
+		_hasStarted = true;
 
 	}
 	catch(std::exception &e)
 	{
-		hasStarted = false;
+		_hasStarted = false;
 		_hasAnErrorOccured = true;
 
 		fm::Debug::get().logError(e.what());
 	}
 }
 
+void LuaScript::Stop(Entity* e)
+{
+	_hasStarted = false;
+	_isInit = false;
+	_hasAnErrorOccured = false;
+	_table = nullptr;
+}
+
+
 void LuaScript::update(float dt)
 {
-	if (_hasAnErrorOccured) return;
+	if (_hasAnErrorOccured || !_hasStarted || !_isInit) return;
 
 	try
 	{
@@ -86,20 +97,30 @@ bool LuaScript::Reload()
 	return resultScript;
 }
 
+bool LuaScript::Serialize(nlohmann::json &ioJson) const
+{
+	//Set values from inspector
+	return false;
+}
+
+bool LuaScript::Read(const nlohmann::json &inJSON)
+{
+	return false;
+}
 
 bool LuaScript::init(Entity*)
 {
 	if (_go == nullptr) return false;
 
 	sol::state *lua = (LuaManager::get().GetState());
-	sol::table cclass = (*lua)[_name];
+	sol::table cclass = (*lua)[_scriptName];
 	_table = cclass["create"](cclass);
-	
+
 	sol::table tempGoClass = (*lua)["GameObject"];
 	_table["Go"] = tempGoClass["create"](tempGoClass);
 	_table["Go"]["_internal"] = _go;
-	isInit = true;
+	_isInit = true;
 	_hasAnErrorOccured = false;
-	hasStarted = false;
+	_hasStarted = false;
     return true;
 }

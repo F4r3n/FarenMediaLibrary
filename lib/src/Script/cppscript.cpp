@@ -8,7 +8,12 @@ using namespace fm;
 
 CppScript::CppScript(const std::string &nameClass)
 {
-    this->_scriptName = nameClass;
+    _scriptName = nameClass;
+}
+
+CppScript::CppScript()
+{
+
 }
 
 CppScript::~CppScript()
@@ -22,7 +27,7 @@ bool CppScript::init(Entity* e)
     currentEntity = e;
     behaviour = CPPManager::get().InstantiateClass(_scriptName);
     behaviour->entity = currentEntity;
-    isInit = true;
+    _isInit = true;
     if(behaviour == nullptr)
         fm::Debug::get().LogError("Unable to create the  class");
     return true;
@@ -33,6 +38,16 @@ Behaviour* CppScript::GetBehaviour() const
     return behaviour;
 }
 
+bool CppScript::Serialize(nlohmann::json &ioJson) const
+{
+	//Set values from inspector
+	return false;
+}
+
+bool CppScript::Read(const nlohmann::json &inJSON)
+{
+	return false;
+}
 
 void CppScript::start()
 {
@@ -40,7 +55,7 @@ void CppScript::start()
     {
 		//fmc::CTransform *t = behaviour->entity->get<fmc::CTransform>();
         behaviour->Start();
-        hasStarted = true;
+        _hasStarted = true;
     }
 }
 
@@ -52,3 +67,9 @@ void CppScript::update(float dt)
         behaviour->Update();
     }
 }
+
+void CppScript::Stop(Entity* e)
+{
+
+}
+

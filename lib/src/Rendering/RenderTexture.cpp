@@ -28,9 +28,33 @@ RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampli
         _types.push_back(renderTexture._types[i]);
     }
 }
-
-
 const RenderTexture& RenderTexture::operator=(const RenderTexture &inRenderTexture)
+{
+	_width = inRenderTexture._width;
+	_height = inRenderTexture._height;
+	_depth = inRenderTexture._depth;
+	_numberColors = inRenderTexture._numberColors;
+	_multiSampling = inRenderTexture._multiSampling;
+
+	_formats.clear();
+	_types.clear();
+	for (unsigned int i = 0; i < inRenderTexture._numberColors; ++i)
+	{
+		_formats.push_back(inRenderTexture._formats[i]);
+		_types.push_back(inRenderTexture._types[i]);
+	}
+
+	_textureColorbuffer.clear();
+	for (auto && texture : inRenderTexture._textureColorbuffer)
+	{
+		_textureColorbuffer.emplace_back(texture);
+	}
+	_isReady = false;
+	return *this;
+}
+
+
+const RenderTexture& RenderTexture::operator=(const RenderTexture &&inRenderTexture)
 {
 	Clone(inRenderTexture);
 	return *this;

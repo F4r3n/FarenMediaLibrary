@@ -13,7 +13,6 @@ const std::string scale("scale");
 const std::string rotation("rotation");
 const std::string father("father");
 const std::string layer("layer");
-
 }
 CTransform::CTransform()
 {

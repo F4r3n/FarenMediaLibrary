@@ -22,8 +22,7 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 	{
 		_editorView.id = inScene->GetID(inCamera->getID());
 		fmc::CCamera *camera = inCamera->get<fmc::CCamera>();
-		_editorView.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
-		camera->target = _editorView.renderTexture;
+		_editorView.renderTexture = camera->SetTarget();
 		_editorView.enabled = true;
 
 	}

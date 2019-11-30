@@ -12,15 +12,17 @@ class CppScript : public fm::Script
         CppScript(const std::string &nameClass);
         CppScript();
         ~CppScript();
-        bool init(Entity* e) override;
-        void start() override;
-        void update(float dt) override;
+        virtual bool init(Entity* e) override;
+        virtual void start() override;
+        virtual void update(float dt) override;
+		virtual void Stop(Entity* e) override;
         fm::Script::SCRIPT_TYPE GetType() const override
         {
             return fm::Script::SCRIPT_TYPE::CPP;
         }
         Behaviour* GetBehaviour() const;
-
+		virtual bool Serialize(nlohmann::json &ioJson) const override;
+		virtual bool Read(const nlohmann::json &inJSON) override;
     private:
         Entity* currentEntity;
         Behaviour* behaviour;

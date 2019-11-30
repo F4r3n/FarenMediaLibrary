@@ -14,7 +14,6 @@ GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScr
 	_enabled = true;
 	_index = -1;
 	_aspectMode = ASPECT_MODE::ASPECT_16_9;
-	_shouldClear = false;
 }
 
 GameView::~GameView() 
@@ -54,11 +53,6 @@ void GameView::AfterWindowCreation()
 
 void GameView::_Update(float dt, Context &inContext)
 {
-	if (_shouldClear)
-	{
-		_Clear();
-		_shouldClear = false;
-	}
 
 	bool isRenderTextureReady = false;
 
@@ -130,8 +124,15 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
 	if (!camera->IsInit())
 		camera->Init();
-	preview.renderTexture = std::make_shared<fm::RenderTexture>(fm::RenderTexture(camera->getInternalRenderTexture(), 0));
-	camera->target = preview.renderTexture;
+	if (camera->HasTarget() && camera->GetTarget()->isCreated())
+	{
+		preview.renderTexture = camera->GetTarget();
+	}
+	else
+	{
+		preview.renderTexture = camera->SetTarget();
+	}
+
 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 	_previews.push_back(preview);
@@ -140,14 +141,10 @@ void GameView::AddCamera(fm::GameObject *inGameObject)
 
 void GameView::Clear()
 {
-	_shouldClear = true;
-}
-void GameView::_Clear()
-{
 	_index = 0;
 	_previews.clear();
-
 }
+
 
 
 

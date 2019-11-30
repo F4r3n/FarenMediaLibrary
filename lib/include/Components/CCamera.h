@@ -81,7 +81,6 @@ class CCamera : public FMComponent<CCamera>
 
 
         Shader_data shader_data;
-        std::shared_ptr<fm::RenderTexture> target = nullptr;
         const fm::RenderTexture &getInternalRenderTexture() const {return _renderTexture;}
 		bool IsInit() { return _renderTexture.isCreated() && _isInit; }
 		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer &inCommandBuffer);
@@ -111,7 +110,12 @@ class CCamera : public FMComponent<CCamera>
 		void SetFarPlane(float inValue) { _farPlane = inValue; }
 		void SetNearPlane(float inValue) { _nearPlane = inValue; }
 
+		std::shared_ptr<fm::RenderTexture> SetTarget(fm::RenderTexture *inRenderTexture = nullptr);
+		std::shared_ptr<fm::RenderTexture> GetTarget() const { return _target; }
+		bool HasTarget() const { return _target != nullptr; }
     private:
+		std::shared_ptr<fm::RenderTexture> _target = nullptr;
+
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;
 		bool HasCommandBuffer(fm::RENDER_QUEUE inQueue) const;

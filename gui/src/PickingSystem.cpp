@@ -29,7 +29,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		0);
 
 
-	_camera->target = std::make_shared<fm::RenderTexture>(renderTexture);
+	_camera->SetTarget(&renderTexture);
 #else
 	_camera->target = std::make_shared<fm::RenderTexture>(_camera->getInternalRenderTexture(), 0);
 #endif
@@ -55,7 +55,7 @@ void PickingSystem::PickGameObject(size_t inCameraID, const fm::math::vec2 &inPo
 		{
 			std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getCurrentScene();
 
-			fm::Texture texture = _camera->target->GetColorBufferTexture(0);
+			fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
 			
 			unsigned char pixel[4];
 			texture.GetPixel(inPos, pixel);

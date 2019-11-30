@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <Core/FilePath.h>
+#include <nlohmann/json_fwd.hpp>
 class Entity;
 
 namespace fm {
@@ -42,29 +44,28 @@ public:
 
     Script() {}
     ~Script() {}
-    virtual bool init(Entity*) {
-        return true;
-    }
-    virtual void start() {
-    }
-    virtual void update(float) {
-    }
-    virtual SCRIPT_TYPE GetType() const
-    {
-        return NONE;
-    }
-    const std::string& GetScriptName() const
-    {
-        return _scriptName;
-    }
+	virtual bool init(Entity*) = 0;
+	virtual void start() = 0;
+	virtual void update(float) = 0;
+	virtual void Stop(Entity* e) = 0;
+	virtual bool Serialize(nlohmann::json &ioJson) const = 0;
+	virtual bool Read(const nlohmann::json &inJSON) = 0;
+
+	virtual SCRIPT_TYPE GetType() const = 0;
+    
 
 	virtual bool Reload() { return false; }
 
+	const fm::FilePath& GetFilePath() const { return _path; }
+	const std::string& GetScriptName() const { return _scriptName; }
 
-    bool hasStarted = false;
-    bool isInit = false;
    protected:
-    std::string _scriptName;
+    std::string		_scriptName;
+	bool			_hasStarted;
+	bool			_isInit;
+	fm::FilePath	_path;
+
 private:
+
 };
 }

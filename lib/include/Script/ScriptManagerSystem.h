@@ -19,8 +19,8 @@ public:
     void over() {
     }
 
-	void Start() {}
-	void Stop() {}
+	void Start();
+	void Stop();
 private:
 
     void processCollision(size_t idA, size_t idB, EVENT_COLLISION event);

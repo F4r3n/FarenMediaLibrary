@@ -52,6 +52,7 @@ CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool 
 	_isOrto = ortho;
 	_multiSampled = multiSampled;
 	_isAuto = isAuto;
+	_target = nullptr;
 
 }
 
@@ -319,4 +320,16 @@ void CCamera::UpdateRenderConfigBounds(const fm::Transform &inTransform)
 
 
 
+std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(fm::RenderTexture *inRenderTexture)
+{
+	if (inRenderTexture == nullptr)
+	{
+		_target = std::make_shared<fm::RenderTexture>(fm::RenderTexture(getInternalRenderTexture(), 0));
+	}
+	else
+	{
+		_target = std::make_shared<fm::RenderTexture>(*inRenderTexture);
+	}
+	return _target;
+}
 

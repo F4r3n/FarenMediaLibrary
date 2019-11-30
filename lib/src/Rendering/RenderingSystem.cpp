@@ -184,13 +184,13 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		_graphics.SetViewPort(cam->GetViewport());
 		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
-		if (cam->target != nullptr)
+		if (cam->_target != nullptr)
 		{
-			if (!cam->target->isCreated())
+			if (!cam->_target->isCreated())
 			{
-				cam->target->create();
+				cam->_target->create();
 			}
-			cam->target->bind();
+			cam->_target->bind();
 			_graphics.SetViewPort(cam->GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 		}
@@ -246,9 +246,9 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			fm::Renderer::getInstance().postProcess(_graphics, cam->_renderTexture.GetColorBufferTexture(0));
 
 
-			if (cam->target != nullptr)
+			if (cam->_target != nullptr)
 			{
-				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, *(cam->target.get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, *(cam->_target.get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 			}
 			else
 			{

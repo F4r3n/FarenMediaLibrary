@@ -7,8 +7,7 @@
 using namespace fms;
 ScriptManagerSystem::ScriptManagerSystem()
 {
-    LuaManager::get().openLibraries();
-    CPPManager::get().LoadPlugin();
+
 }
 
 
@@ -18,13 +17,35 @@ ScriptManagerSystem::~ScriptManagerSystem()
 
 void ScriptManagerSystem::init(EntityManager& em, EventManager&)
 {
+	LuaManager::get().openLibraries();
+	CPPManager::get().LoadPlugin();
+
+
     fm::Debug::log("INIT scriptSystem");
 
-    for(auto &&e : em.iterate<fmc::CScriptManager>()) {
-        fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-        scriptManager->init(e);
-    }
+
 }
+
+void ScriptManagerSystem::Start()
+{
+	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
+	{
+		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+		scriptManager->init(e);
+		scriptManager->Start(e);
+
+	}
+}
+
+void ScriptManagerSystem::Stop()
+{
+	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
+	{
+		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+		scriptManager->init(e);
+	}
+}
+
 
 void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 {
