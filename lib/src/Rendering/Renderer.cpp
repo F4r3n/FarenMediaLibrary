@@ -37,7 +37,7 @@ void Renderer::lightComputation(fm::Graphics& graphics,
 
 void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1) 
 {
-	glDisable(GL_DEPTH_TEST);
+	graphics.Disable(DEPTH_TEST);
     graphics.BindTexture2D(0, inTexture1.getID(), inTexture1.GetKind());
     //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 

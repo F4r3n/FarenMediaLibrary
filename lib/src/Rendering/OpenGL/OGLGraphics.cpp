@@ -36,12 +36,13 @@ void Graphics::Enable(RENDERING_TYPE r) const
 		{
 			glEnable(r);
 		}
+		it->second = true;
 	}
 	else
 	{
 		glEnable(r);
+		_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, true));
 	}
-	_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, true));
 
 }
 void Graphics::Disable(RENDERING_TYPE r) const
@@ -53,12 +54,13 @@ void Graphics::Disable(RENDERING_TYPE r) const
 		{
 			glDisable(r);
 		}
+		it->second = false;
 	}
 	else
 	{
 		glDisable(r);
+		_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, false));
 	}
-	_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, false));
 }
 
 void Graphics::Draw(int primitiveType,

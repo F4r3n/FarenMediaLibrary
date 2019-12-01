@@ -6,6 +6,7 @@
 #include "ImGuizmo/ImGuizmo.h"
 #include "Input/InputManager.h"
 #include <imgui/imgui_internal.h>
+#include "Core/application.h"
 
 using namespace gui;
 EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inScene) : GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar
@@ -37,9 +38,10 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 void EditorView::_DrawContentEditorCamera(Context &inContext)
 {
 	fm::GameObject* camera = _editorScene->GetGameObject(_editorView.id);
-	if (camera != nullptr && inContext.currentScene != nullptr)
+	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
+	if (camera != nullptr && currentScene != nullptr)
 	{
-		std::vector<fm::GameObject*> &&gos = inContext.currentScene->getAllGameObjects();
+		std::vector<fm::GameObject*> &&gos = currentScene->getAllGameObjects();
 		for (auto && go : gos)
 		{
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
@@ -204,7 +206,7 @@ void EditorView::_Update(float dt, Context &inContext)
 				mPos.x -= startCursorPos.x - _scrollPos.x;
 				mPos.y -= startCursorPos.y - _scrollPos.y;
 
-				_pickingSystem->PickGameObject(_editorView.id, mPos);
+				_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id, mPos);
 			}
 		}
 

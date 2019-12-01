@@ -3,6 +3,7 @@
 
 class btDiscreteDynamicsWorld;
 class btDynamicsWorld;
+class btGhostPairCallback;
 typedef float btScalar;
 namespace fmc
 {
@@ -23,6 +24,7 @@ public:
 
 private:
 	//void _CheckCollision(btDynamicsWorld *world, btScalar timeStep);
-	btDiscreteDynamicsWorld* _dynamicsWorld;
+	btDiscreteDynamicsWorld*	_dynamicsWorld;
+	btGhostPairCallback*		_ghostPairCallback;
 };
 }

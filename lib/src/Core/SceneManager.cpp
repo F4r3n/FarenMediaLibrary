@@ -110,10 +110,17 @@ void SceneManager::AddNewScene(const std::string &inName)
 
 std::shared_ptr<Scene> SceneManager::getScene(const std::string &name)
 {
-    if(_scenes.find(name) != _scenes.end())
-    {
-        return _scenes[name];
-    }
+	if (!name.empty())
+	{
+		if (_currentScene->getName() == name)
+		{
+			return _currentScene;
+		}
+		else if (_scenes.find(name) != _scenes.end())
+		{
+			return _scenes[name];
+		}
+	}
     return nullptr;
 }
 
@@ -153,29 +160,36 @@ void SceneManager::ClearAll(bool clearPrivate)
 
 bool SceneManager::ClearScene(const std::string &inName, bool isPrivate)
 {
+	bool isFound = false;
 	if (!isPrivate)
 	{
 		std::map<std::string, std::shared_ptr<Scene>>::iterator it = _scenes.find(inName);
 		if (it != _scenes.end())
 		{
 			it->second->destroy();
-			return true;
+			isFound = true;
 		}
 	}
 	else
 	{
-		for (auto& s : _privateScenes)
+		std::vector<std::shared_ptr<fm::Scene>>::iterator it = _privateScenes.begin();
+		for (it; it != _privateScenes.end(); it++)
 		{
-			if (s->getName() == inName)
+			if ((*it)->getName() == inName)
 			{
-				s->destroy();
-				return true;
+				(*it)->destroy();
+				isFound = true;
+				break;
 			}
+		}
+		if (isFound)
+		{
+			_privateScenes.erase(it);
 		}
 	}
 
 
-	return false;
+	return isFound;
 }
 
 

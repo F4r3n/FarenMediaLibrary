@@ -124,7 +124,8 @@ void PhysicSystem3D::Start()
 	_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, config);
 	_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, true);
-	_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	_ghostPairCallback = new btGhostPairCallback();
+	_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(_ghostPairCallback);
 
 }
 
@@ -144,6 +145,7 @@ void PhysicSystem3D::Stop()
 	delete static_cast<btCollisionDispatcher*>(_dynamicsWorld->getDispatcher())->getCollisionConfiguration();
 	delete _dynamicsWorld->getDispatcher();
 	delete _dynamicsWorld->getConstraintSolver();
+	delete _ghostPairCallback;
 	delete _dynamicsWorld->getBroadphase();
 	delete _dynamicsWorld;
 }

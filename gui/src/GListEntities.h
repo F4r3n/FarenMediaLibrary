@@ -22,6 +22,7 @@ namespace gui
 
 		fm::GameObject* _gameObjectSelected;
 		bool _hasBeenSelected = false;
+		std::string _currentSceneName;
 
 	};
 }

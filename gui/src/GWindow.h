@@ -27,7 +27,7 @@ namespace gui
 	struct Context
 	{
 		fm::GameObject*					currentGameObjectSelected;
-		std::shared_ptr<fm::Scene>		currentScene;
+		std::string						currentSceneName;
 		TRANSFORM_CONTEXT				currentTransformContext;
 	};
 

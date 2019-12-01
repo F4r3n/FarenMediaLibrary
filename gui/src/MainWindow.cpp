@@ -56,7 +56,7 @@ MainWindow::MainWindow()
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
-	_context.currentScene = fm::Application::Get().CreateNewScene("newScene");
+	_context.currentSceneName = fm::Application::Get().CreateNewScene("newScene")->getName();
 	_editorScene = fm::Application::Get().CreateEditorScene();
 
 	_InitEditorCamera();
@@ -78,7 +78,7 @@ MainWindow::MainWindow()
 
 void MainWindow::_AddEmptyScene()
 {
-	std::shared_ptr<fm::Scene> currentScene = _context.currentScene;
+	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
 	//Add object
 	fm::GameObject* go = fm::GameObjectHelper::create(currentScene);
 	fmc::CTransform* tr = go->addComponent<fmc::CTransform>();
@@ -335,7 +335,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = fm::GameObjectHelper::create(_context.currentScene);
+				_currentEntity = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName));
 				_currentEntity->addComponent<fmc::CTransform>(
 					fm::math::Vector3f(0, 0, 0),
 					fm::math::Vector3f(1, 1, 1),
@@ -534,11 +534,11 @@ void MainWindow::_ClearBeforeSceneChange()
 
 	_currentEntity = nullptr;
 	_context.currentGameObjectSelected = nullptr;
-	_context.currentScene = nullptr;
+	_context.currentSceneName = "";
 }
 void MainWindow::_InitGameView()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetCurrentScene();
+	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
 
 	auto&& v = currentScene->getAllGameObjects();
 	for (auto &&o : v)
@@ -558,6 +558,7 @@ void MainWindow::OnPreStart()
 }
 void MainWindow::OnAfterStart()
 {
+	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
 }
 void MainWindow::OnPreStop()
@@ -566,6 +567,7 @@ void MainWindow::OnPreStop()
 }
 void MainWindow::OnAfterStop()
 {
+	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
 }
 
@@ -575,6 +577,7 @@ void MainWindow::OnPreLoad()
 }
 void MainWindow::OnAfterLoad()
 {
+	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
 }
 

@@ -179,10 +179,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		{
 			cam->_onStartRendering();
 		}
-		//Clear buffers
-		_graphics.BindFrameBuffer(0);
-		_graphics.SetViewPort(cam->GetViewport());
-		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+
 
 		if (cam->_target != nullptr)
 		{
@@ -191,6 +188,13 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 				cam->_target->create();
 			}
 			cam->_target->bind();
+			_graphics.SetViewPort(cam->GetViewport());
+			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+		}
+		else
+		{
+			//Clear buffers
+			_graphics.BindFrameBuffer(0);
 			_graphics.SetViewPort(cam->GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 		}
@@ -270,6 +274,10 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 
 		_graphics.BindFrameBuffer(0);
+		for (auto && c : cam->_commandBuffers)
+		{
+			while (!c.second.empty()) c.second.pop();
+		}
 		cam->_commandBuffers.clear();
 	}
 }

@@ -43,26 +43,28 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 }
 
 
-void PickingSystem::PickGameObject(size_t inCameraID, const fm::math::vec2 &inPos)
+void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCameraID, const fm::math::vec2 &inPos)
 {
-	std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetCurrentScene();
+	std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 
 	fm::GameObject *cameraGo = _editorScene->GetGameObject(inCameraID);
-	if (cameraGo != nullptr)
+	if (cameraGo != nullptr && scene != nullptr)
 	{
 		_specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
 
-		_camera->SetCallBackOnPostRendering([this, inPos]()
+		_camera->SetCallBackOnPostRendering([this, inPos, inSceneName]()
 		{
-			std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetCurrentScene();
+			std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
+			if (scene != nullptr)
+			{
+				fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
 
-			fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
-			
-			unsigned char pixel[4];
-			texture.GetPixel(inPos, pixel);
-			size_t id = (pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
-			fm::GameObject* go = scene->GetGameObject(id);
-			_callback(go);
+				unsigned char pixel[4];
+				texture.GetPixel(inPos, pixel);
+				size_t id = (pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
+				fm::GameObject* go = scene->GetGameObject(id);
+				_callback(go);
+			}
 		});
 
 		size_t i = 1;
