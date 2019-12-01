@@ -6,6 +6,7 @@
 #include "Window.h"
 #include "Core/Scene.h"
 #include "Resource/ResourcesManager.h"
+#include "Core/application.h"
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
@@ -44,7 +45,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 
 void PickingSystem::PickGameObject(size_t inCameraID, const fm::math::vec2 &inPos)
 {
-	std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getCurrentScene();
+	std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetCurrentScene();
 
 	fm::GameObject *cameraGo = _editorScene->GetGameObject(inCameraID);
 	if (cameraGo != nullptr)
@@ -53,7 +54,7 @@ void PickingSystem::PickGameObject(size_t inCameraID, const fm::math::vec2 &inPo
 
 		_camera->SetCallBackOnPostRendering([this, inPos]()
 		{
-			std::shared_ptr<fm::Scene> scene = fm::SceneManager::get().getCurrentScene();
+			std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetCurrentScene();
 
 			fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
 			

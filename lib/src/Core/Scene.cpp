@@ -90,7 +90,8 @@ bool Scene::Read(const nlohmann::json &inJson)
 
     for (nlohmann::json::const_iterator it = entities.cbegin(); it != entities.cend(); ++it)
     {
-        GameObject *go = GameObjectHelper::create(this);
+        GameObject *go = GameObjectHelper::create(nullptr);
+		AddGameObject(go);
         go->Read(*it);
     }
 

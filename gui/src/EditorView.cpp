@@ -34,12 +34,12 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 	}
 }
 
-void EditorView::_DrawContentEditorCamera()
+void EditorView::_DrawContentEditorCamera(Context &inContext)
 {
 	fm::GameObject* camera = _editorScene->GetGameObject(_editorView.id);
-	if (camera != nullptr)
+	if (camera != nullptr && inContext.currentScene != nullptr)
 	{
-		std::vector<fm::GameObject*> &&gos = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
+		std::vector<fm::GameObject*> &&gos = inContext.currentScene->getAllGameObjects();
 		for (auto && go : gos)
 		{
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
@@ -148,7 +148,7 @@ void EditorView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
 
 void EditorView::_Update(float dt, Context &inContext)
 {
-	_DrawContentEditorCamera();
+	_DrawContentEditorCamera(inContext);
 
 	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
 	if (_editorView.enabled && _editorView.renderTexture != nullptr && _editorView.renderTexture->isCreated())

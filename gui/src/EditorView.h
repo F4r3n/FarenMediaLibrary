@@ -40,7 +40,7 @@ namespace gui
 	private:
 		void _Update(float dt, Context &inContext);
 
-		void _DrawContentEditorCamera();
+		void _DrawContentEditorCamera(Context &inContext);
 
 		void _EditObject();
 		void _CallBackPickingSystem(fm::GameObject* inGameObject);

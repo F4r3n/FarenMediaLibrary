@@ -28,7 +28,7 @@ void Application::SetConfig(const Config &inConfig)
 
 Application::Application()
 {
-
+	_sceneManager = std::make_unique<fm::SceneManager>();
 }
 
 
@@ -37,12 +37,28 @@ void Application::AddApplicationObserver(std::shared_ptr<ApplicationObserver> in
 	_observers.emplace_back(inObserver);
 }
 
+bool Application::SerializeCurrentScene() const
+{
+	return Serialize(_sceneManager->getCurrentScene());
+}
 
-bool Application::Serialize(std::shared_ptr<fm::Scene> editorScene)
+std::shared_ptr<fm::Scene> Application::CreateNewScene(const std::string &inNewSceneName)
+{
+	_sceneManager->AddNewScene("newScene");
+	_sceneManager->setCurrentScene("newScene", false);
+	return _sceneManager->getCurrentScene();
+}
+
+std::shared_ptr<fm::Scene> Application::CreateEditorScene()
+{
+	return _sceneManager->AddPrivateScene("_editor");
+}
+
+bool Application::Serialize(const std::shared_ptr<fm::Scene> editorScene) const
 {
 	{
 		nlohmann::json s;
-		SceneManager::get().Serialize(s);
+		_sceneManager->Serialize(s);
 
 		FilePath p(_currentConfig.userDirectory);
 		p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
@@ -75,7 +91,7 @@ bool Application::Read()
     std::ifstream i(p.GetPath());
     nlohmann::json j;
     i >> j;
-    SceneManager::get().Read(j);
+	_sceneManager->Read(j);
     return true;
 }
 
@@ -90,17 +106,17 @@ void Application::Start(bool inSandbox)
 	if (inSandbox)
 	{
 		nlohmann::json save;
-		fm::SceneManager::get().SerializeCurrentScene(save);
+		_sceneManager->SerializeCurrentScene(save);
 
-		std::shared_ptr<fm::Scene> current = fm::SceneManager::get().getCurrentScene();
+		std::shared_ptr<fm::Scene> current = _sceneManager->getCurrentScene();
 		_nameLastScene = current->getName();
 		std::string privateName = _nameLastScene + "_";
-		std::shared_ptr<fm::Scene> s = fm::SceneManager::get().AddPrivateScene(privateName);
+		std::shared_ptr<fm::Scene> s = _sceneManager->AddPrivateScene(privateName);
 		s->Read(save);
 		
 		current->SetStatusToGo(false);
 
-		fm::SceneManager::get().setCurrentScene(privateName, true);
+		_sceneManager->setCurrentScene(privateName, true);
 	}
 	
 	_engine->Start();
@@ -118,9 +134,9 @@ void Application::Stop()
 		o->OnPreStop();
 	}
 
-	fm::SceneManager::get().ClearScene(_nameLastScene + "_", true);
-	fm::SceneManager::get().setCurrentScene(_nameLastScene, false);
-	fm::SceneManager::get().getCurrentScene()->ResetStatusGo();
+	_sceneManager->ClearScene(_nameLastScene + "_", true);
+	_sceneManager->setCurrentScene(_nameLastScene, false);
+	_sceneManager->getCurrentScene()->ResetStatusGo();
 	_engine->Stop();
 	//TODO garbage collect
 
@@ -162,7 +178,7 @@ void Application::LoadProject(const fm::FilePath& inFilePath)
 	{
 		o->OnPreLoad();
 	}
-	fm::SceneManager::get().ClearAll(false);
+	_sceneManager->ClearAll(false);
 	
 	SetProjectName(inFilePath.GetName(true));
 	SetUserDirectory(inFilePath.GetParent());
@@ -212,6 +228,12 @@ const fm::Config& Application::GetCurrentConfig() const
 {
 	return _currentConfig;
 }
+
+std::shared_ptr<fm::Scene> Application::GetCurrentScene() const
+{
+	return _sceneManager->getCurrentScene();
+}
+
 
 void Application::RegisterCurrentConfig()
 {

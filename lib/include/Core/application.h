@@ -10,6 +10,7 @@ namespace fm
 class Window;
 class Engine;
 class Scene;
+class SceneManager;
 }
 
 namespace fm
@@ -93,7 +94,9 @@ class Application
 			return app;
 		}
 
-        bool Serialize(std::shared_ptr<fm::Scene> editorScene);
+        bool Serialize(const std::shared_ptr<fm::Scene> editorScene) const;
+		bool SerializeCurrentScene() const;
+
         bool Read();
 
         void Start(bool inSandbox);
@@ -118,6 +121,10 @@ class Application
 
 		void AddApplicationObserver(std::shared_ptr<ApplicationObserver> inObserver);
 		void LoadProject(const fm::FilePath& inFilePath);
+
+		std::shared_ptr<fm::Scene> GetCurrentScene() const;
+		std::shared_ptr<fm::Scene> CreateNewScene(const std::string &inNewSceneName);
+		std::shared_ptr<fm::Scene> CreateEditorScene();
     private:
 		Application();
 		fm::CircularBuffer<fm::Config,10> _lastConfigsUsed;
@@ -126,6 +133,7 @@ class Application
         fm::Window* _window;
         fm::Config	_currentConfig;
 		std::string _nameLastScene;
+		std::unique_ptr<fm::SceneManager> _sceneManager;
 
 		std::vector<std::shared_ptr<ApplicationObserver>> _observers;
 };

@@ -14,9 +14,7 @@ namespace fm {
         public:
             GameObject();
             ~GameObject();
-            GameObject* create();
             GameObject* create(std::shared_ptr<Scene> s);
-			GameObject* create(fm::Scene* s);
 
             bool IsActive()
             {
@@ -76,18 +74,11 @@ namespace fm {
     class GameObjectHelper
     {
         public:
-            static GameObject* create()
-            {
-                return (new GameObject())->create();
-            }
+
             static GameObject* create(std::shared_ptr<Scene> scene)
             {
                 return (new GameObject())->create(scene);
             }
-			static GameObject* create(fm::Scene* scene)
-			{
-				return (new GameObject())->create(scene);
-			}
 
 
             template <typename T>

@@ -19,7 +19,6 @@ namespace fm
 			void AddScene(std::shared_ptr<fm::Scene> inScene);
 
 			std::shared_ptr<Scene> getScene(const std::string &name);
-            static SceneManager& get();
             inline std::shared_ptr<Scene> getCurrentScene() const {
                 return _currentScene;
             }
@@ -35,11 +34,10 @@ namespace fm
 
 			std::shared_ptr<fm::Scene> AddPrivateScene(const std::string &inName);
 			bool ClearScene(const std::string &inName, bool isPrivate);
-			
+			~SceneManager();
+
         private:
-            ~SceneManager();
             std::shared_ptr<Scene> _currentScene = nullptr;
-            static SceneManager _instance;
             std::map<std::string, std::shared_ptr<Scene>> _scenes;
 			std::vector<std::shared_ptr<fm::Scene>> _privateScenes;
     };

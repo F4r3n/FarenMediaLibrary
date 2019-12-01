@@ -56,9 +56,8 @@ MainWindow::MainWindow()
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
-	_editorScene = fm::SceneManager::get().AddPrivateScene("_editor");
-	fm::SceneManager::get().AddNewScene("newScene");
-	fm::SceneManager::get().setCurrentScene("newScene", false);
+	_context.currentScene = fm::Application::Get().CreateNewScene("newScene");
+	_editorScene = fm::Application::Get().CreateEditorScene();
 
 	_InitEditorCamera();
 
@@ -79,7 +78,7 @@ MainWindow::MainWindow()
 
 void MainWindow::_AddEmptyScene()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
+	std::shared_ptr<fm::Scene> currentScene = _context.currentScene;
 	//Add object
 	fm::GameObject* go = fm::GameObjectHelper::create(currentScene);
 	fmc::CTransform* tr = go->addComponent<fmc::CTransform>();
@@ -283,7 +282,7 @@ void MainWindow::_DrawMenu()
 				}
 				if (ImGui::MenuItem("Save"))
 				{
-					fm::Application::Get().Serialize(fm::SceneManager::get().getCurrentScene());
+					fm::Application::Get().SerializeCurrentScene();
 				}
 
 				ImGui::EndMenu();
@@ -336,7 +335,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = fm::GameObjectHelper::create();
+				_currentEntity = fm::GameObjectHelper::create(_context.currentScene);
 				_currentEntity->addComponent<fmc::CTransform>(
 					fm::math::Vector3f(0, 0, 0),
 					fm::math::Vector3f(1, 1, 1),
@@ -436,7 +435,6 @@ void MainWindow::_DisplayWindow_WorldLighEdit()
 
 void MainWindow::Update()
 {
-
 	for (auto& window : _windows)
 	{
 		window.second->Update(fm::Time::dt, _context);
@@ -536,10 +534,11 @@ void MainWindow::_ClearBeforeSceneChange()
 
 	_currentEntity = nullptr;
 	_context.currentGameObjectSelected = nullptr;
+	_context.currentScene = nullptr;
 }
 void MainWindow::_InitGameView()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::SceneManager::get().getCurrentScene();
+	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetCurrentScene();
 
 	auto&& v = currentScene->getAllGameObjects();
 	for (auto &&o : v)

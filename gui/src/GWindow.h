@@ -11,6 +11,7 @@
 namespace fm
 {
 	class GameObject;
+	class Scene;
 }
 
 namespace gui
@@ -25,8 +26,9 @@ namespace gui
 
 	struct Context
 	{
-		fm::GameObject* currentGameObjectSelected;
-		TRANSFORM_CONTEXT currentTransformContext;
+		fm::GameObject*					currentGameObjectSelected;
+		std::shared_ptr<fm::Scene>		currentScene;
+		TRANSFORM_CONTEXT				currentTransformContext;
 	};
 
 	class IWidget

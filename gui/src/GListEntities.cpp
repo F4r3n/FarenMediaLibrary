@@ -4,6 +4,7 @@
 #include "Core/GameObject.h"
 #include "Core/Scene.h"
 #include "Components/CTransform.h"
+#include "Core/application.h"
 using namespace gui;
 
 GListEntities::GListEntities() : GWindow("List entities", true)
@@ -28,7 +29,7 @@ void GListEntities::_Update(float dt, Context &inContext)
 void GListEntities::CustomDraw()
 {
 	size_t entitySelected = -1;
-	std::vector<fm::GameObject*> listEntities = fm::SceneManager::get().getCurrentScene()->getAllGameObjects();
+	std::vector<fm::GameObject*> listEntities = fm::Application::Get().GetCurrentScene()->getAllGameObjects();
 	for (size_t i = 0; i < listEntities.size(); i++)
 	{
 		bool isSelected = (entitySelected == i)
@@ -59,7 +60,7 @@ void GListEntities::CustomDraw()
 	if (ImGui::Button("Add Entity"))
 	{
 		_hasBeenSelected = true;
-		_gameObjectSelected = fm::GameObjectHelper::create();
+		_gameObjectSelected = fm::GameObjectHelper::create(fm::Application::Get().GetCurrentScene());
 		_gameObjectSelected->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
 			fm::math::Vector3f(1, 1, 1),
 			fm::math::vec3(0, 0, 0));

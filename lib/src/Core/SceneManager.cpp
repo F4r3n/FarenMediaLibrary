@@ -5,7 +5,6 @@
 #include "Core/SceneManager.h"
 #include "Core/GameObject.h"
 using namespace fm;
-SceneManager SceneManager::_instance;
 SceneManager::SceneManager() {
 
 }
@@ -39,10 +38,7 @@ void SceneManager::setCurrentScene(const std::string &name, bool isPrivate) {
 
 }
 
-SceneManager& SceneManager::get() 
-{
-    return _instance;
-}
+
 void SceneManager::Serialize(nlohmann::json &outjson)
 {
     for(auto &scene : _scenes)
