@@ -8,6 +8,7 @@ namespace fm
 {
 class Script;
 class FilePath;
+class BaseEvent;
 }
 class Entity;
 
@@ -23,6 +24,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
         void update(Entity *e, float dt);
 		void Start(Entity* e);
 		void Stop(Entity* e);
+		void CallEvent(fm::BaseEvent* inEvent);
 		void addScriptLua(const fm::FilePath &inpath);
 
         void RemoveScript(const std::string &name);

@@ -15,10 +15,26 @@
 #include "Core/Config.h"
 #include "Core/GameObject.h"
 #include "Physic/PhysicSystem3D.h"
+#include "Components/cevent.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 using namespace fm;
+
+class GarbageCollector
+{
+public:
+	static void Collect()
+	{
+		for (auto && e : EntityManager::get().iterate<fmc::CEvent>())
+		{
+			fmc::CEvent* event = e->get<fmc::CEvent>();
+			event->Clear();
+		}
+	}
+};
+
+
 Engine::Engine()
 {
 	_systems = std::unique_ptr<SystemManager>(new SystemManager());
@@ -99,6 +115,7 @@ void Engine::Update(float dt)
   //  auto start = std::chrono::system_clock::now();
 
     _systems->update(dt * Time::scale, EntityManager::get(), EventManager::Get());
+	GarbageCollector::Collect();
 //_numberFramesTimer++;
     //if(_numberFramesTimer == 200) {
        //  auto end = std::chrono::system_clock::now();

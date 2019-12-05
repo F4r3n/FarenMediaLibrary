@@ -4,7 +4,7 @@
 #include "Components/CBody3D.h"
 #include "Components/CCollider.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-
+#include "Components/cevent.hpp"
 using namespace fms;
 
 PhysicSystem3D::PhysicSystem3D()
@@ -39,6 +39,29 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 
 				fmc::CBody3D* bodyA = static_cast<fmc::CBody3D*>(obA->getUserPointer());
 				fmc::CBody3D* bodyB = static_cast<fmc::CBody3D*>(obA->getUserPointer());
+
+				Entity* entityA = EntityManager::get().getEntity(bodyA->GetIDEntity());
+				Entity* entityB = EntityManager::get().getEntity(bodyB->GetIDEntity());
+
+				if (entityA != nullptr && entityA->active)
+				{
+					fmc::CEvent* eventA = nullptr;
+					if (!entityA->has<fmc::CEvent>())
+					{
+						eventA = entityA->add<fmc::CEvent>();
+					}
+					eventA->AddEvent(new fm::CollisionEvent(entityB->ID));
+				}
+
+				if (entityB != nullptr && entityB->active)
+				{
+					fmc::CEvent* event = nullptr;
+					if (!entityB->has<fmc::CEvent>())
+					{
+						event = entityB->add<fmc::CEvent>();
+					}
+					event->AddEvent(new fm::CollisionEvent(entityA->ID));
+				}
 
 			}
 		}

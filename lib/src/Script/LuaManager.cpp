@@ -16,7 +16,7 @@
 #include "Components/CCamera.h"
 #include "Core/Rect.h"
 #include "Resource/ResourcesManager.h"
-
+#include "Core/Debug.h"
 
 GameObjectLua::GameObjectLua(Entity* inEntity)
 {
@@ -32,6 +32,11 @@ fmc::CTransform* GameObjectLua::GetTransform()
 Entity* createEntity()
 {
   return EntityManager::get().createEntity();
+}
+
+void Log(const std::string &inMessage)
+{
+	fm::Debug::get().LogError(inMessage);
 }
 
 LuaManager LuaManager::instance;
@@ -85,7 +90,7 @@ void LuaManager::openLibraries()
 
 void LuaManager::registerComponents() 
 {
-  
+	lua->set_function("Log", &Log);
 	lua->new_usertype<GameObjectLua>("GameObjectInternal",
 		"GetTransform", &GameObjectLua::GetTransform
 		);

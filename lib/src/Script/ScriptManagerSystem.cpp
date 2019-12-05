@@ -4,6 +4,7 @@
 #include "Script/cppscript.hpp"
 #include "Script/cppmanager.hpp"
 #include "Core/Debug.h"
+#include "Components/cevent.hpp"
 using namespace fms;
 ScriptManagerSystem::ScriptManagerSystem()
 {
@@ -49,6 +50,21 @@ void ScriptManagerSystem::Stop()
 
 void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 {
+	for (auto &&e : em.iterate<fmc::CScriptManager, fmc::CEvent>())
+	{
+		fmc::CEvent *event = e->get<fmc::CEvent>();
+		fmc::Events &&events = event->GetEvents();
+		for (const auto &a : events)
+		{
+			for (const auto &b : a)
+			{
+				
+			}
+		}
+
+	}
+
+
     for(auto &&e : em.iterate<fmc::CScriptManager>())
     {
         fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();

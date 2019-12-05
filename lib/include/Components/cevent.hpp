@@ -1,6 +1,7 @@
 #ifndef CEVENT_HPP
 #define CEVENT_HPP
 #include "component.h"
+#include <array>
 #include <unordered_map>
 #include <queue>
 
@@ -13,10 +14,19 @@ namespace fm
 	        virtual ~BaseEvent();
 	        virtual size_t GetType() const = 0;
 	};
+
+	enum EventKind
+	{
+		COLLISION,
+		LAST
+	};
 }
 
 namespace fmc
 {
+	typedef std::vector<fm::BaseEvent*> EventVector;
+	typedef std::array<EventVector, fm::EventKind::LAST> Events;
+
 class CEvent : public FMComponent<CEvent>
 {
     public:
@@ -29,9 +39,11 @@ class CEvent : public FMComponent<CEvent>
         void Destroy() override;
 
 		void AddEvent(fm::BaseEvent *inEvent);
-        
+		Events GetEvents() const { return _events; }
+		void Clear();
+
     private:
-        std::unordered_map<size_t, std::queue<fm::BaseEvent*>> _events;
+		Events _events;
 };
 
 

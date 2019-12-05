@@ -2,12 +2,30 @@
 #include "component.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Quaternion.h"
+#include "Components/cevent.hpp"
 
 class btCollisionShape;
 class btRigidBody;
 class btDiscreteDynamicsWorld;
 class btGhostObject;
 class btTransform;
+
+
+namespace fm
+{
+	class CollisionEvent : public BaseEvent
+	{
+	public:
+		CollisionEvent() { _other = 0; }
+		CollisionEvent(ecs::id inId) { _other = inId; }
+		~CollisionEvent() {}
+		size_t GetType() const {return EventKind::COLLISION;}
+		ecs::id GetID() const { return _other; }
+	private:
+		ecs::id _other = 0;
+	};
+}
+
 namespace fmc
 {
 	class CCollider;

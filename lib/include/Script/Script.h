@@ -7,6 +7,7 @@ class Entity;
 
 namespace fm {
 class CppScript;
+class BaseEvent;
 }
 namespace fmc
 {
@@ -52,7 +53,7 @@ public:
 	virtual bool Read(const nlohmann::json &inJSON) = 0;
 
 	virtual SCRIPT_TYPE GetType() const = 0;
-    
+	virtual void CallEvent(fm::BaseEvent* inEvent) {}
 
 	virtual bool Reload() { return false; }
 

@@ -5,6 +5,10 @@
 #include <sol2/sol.hpp>
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
+#include <Components/cevent.hpp>
+#include <Components/CBody3D.h>
+#include <ECS.h>
+#include <Components/CScriptManager.h>
 using namespace fm;
 
 
@@ -91,7 +95,12 @@ bool LuaScript::Reload()
 	}
 	if (resultScript)
 	{
-		return init(nullptr);
+		bool ok = init(nullptr);
+		if (ok)
+		{
+			start();
+		}
+		return ok && !_hasAnErrorOccured;
 	}
 
 	return resultScript;
@@ -123,4 +132,20 @@ bool LuaScript::init(Entity*)
 	_hasAnErrorOccured = false;
 	_hasStarted = false;
     return true;
+}
+
+
+void LuaScript::CallEvent(fm::BaseEvent* inEvent)
+{
+	if (inEvent->GetType() == EventKind::COLLISION)
+	{
+		fm::CollisionEvent* collisionEvent = dynamic_cast<fm::CollisionEvent*>(inEvent);
+		Entity* other = EntityManager::get().getEntity(collisionEvent->GetID());
+		if (other != nullptr)
+		{
+			std::shared_ptr<fm::LuaScript> luaScript = std::dynamic_pointer_cast<fm::LuaScript>(other->get<fmc::CScriptManager>()->GetScripts().front());
+			_table["Collision"](_table, luaScript->_table["Go"]);
+		}
+		//_table["Collision"](_table, dt);
+	}
 }

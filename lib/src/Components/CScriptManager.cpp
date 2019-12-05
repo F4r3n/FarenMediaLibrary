@@ -134,3 +134,12 @@ void CScriptManager::ReloadScript(const std::string &inName)
 	}
 }
 
+void CScriptManager::CallEvent(fm::BaseEvent* inEvent)
+{
+	for (auto &s : _scripts)
+	{
+
+	}
+}
+
+

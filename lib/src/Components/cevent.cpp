@@ -19,6 +19,7 @@ CEvent::CEvent()
 
 CEvent::~CEvent()
 {
+	Clear();
 }
 
 void CEvent::Destroy()
@@ -28,18 +29,8 @@ void CEvent::Destroy()
 
 void CEvent::AddEvent(fm::BaseEvent *inEvent)
 {
-	auto it = _events.find(inEvent->GetType());
-	if (it != _events.end())
-	{
-		it->second.push(std::move(inEvent));
-	}
-	else
-	{
-		size_t id = inEvent->GetType();
-		std::queue<fm::BaseEvent*> q;
-		q.push(std::move(inEvent));
-		_events[id] = q;
-	}
+	auto it = _events[inEvent->GetType()];
+	it.emplace_back(std::move(inEvent));
 }
 
 
@@ -57,6 +48,18 @@ bool CEvent::Read(const nlohmann::json &inJSON)
 const std::string& CEvent::GetName() const
 {
     return kName;
+}
+
+void CEvent::Clear()
+{
+	for (auto && events : _events)
+	{
+		for (auto &&e : events)
+		{
+			delete e;
+		}
+		events.clear();
+	}
 }
 
 
