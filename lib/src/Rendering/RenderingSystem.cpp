@@ -274,11 +274,8 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 
 		_graphics.BindFrameBuffer(0);
-		for (auto && c : cam->_commandBuffers)
-		{
-			while (!c.second.empty()) c.second.pop();
-		}
-		cam->_commandBuffers.clear();
+
+		fmc::CameraCommandBuffer().swap(cam->_commandBuffers);
 	}
 }
 

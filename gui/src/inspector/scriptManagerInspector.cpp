@@ -18,67 +18,46 @@ void ScriptManagerInspector::draw(bool *value)
 {
     if(ImGui::CollapsingHeader("ScriptManagerInspector", value))
     {
+		std::vector<std::string> scriptsToDelete;
 
 
-        static int current = 0;
-        static const char *shapeNames[] = {"LUA", "CPP"};
+		fmc::Scripts &&scripts = target->GetScripts();
+		for (auto &&script : scripts)
+		{
+			std::string scriptName = script->GetScriptName() + "##" + std::to_string(target->GetIDEntity());
+			bool toKeep = true;
+			if (ImGui::CollapsingHeader(scriptName.c_str(), &toKeep))
+			{
+
+			}
+			if (ImGui::Button("Reload"))
+			{
+				script->Reload();
+			}
+			if (!toKeep)
+			{
+				scriptsToDelete.emplace_back(script->GetScriptName());
+			}
+		}
+
 		static char nameScript[128] = "ClassName";
 
-
-        ImGui::PushItemWidth(120);
-        ImGui::Combo("##Type", &current, shapeNames, 2);
-        ImGui::PopItemWidth();
-        if(current == fm::Script::SCRIPT_TYPE::CPP)
-        {
-            ImGui::InputText("Class Name", nameScript, IM_ARRAYSIZE(nameScript));
-
-        }else if(current == fm::Script::SCRIPT_TYPE::LUA)
-        {
-			ImGui::InputText("Class Name", nameScript, IM_ARRAYSIZE(nameScript));
-        }
-
+		ImGui::InputText("Class Name", nameScript, IM_ARRAYSIZE(nameScript));
         if(ImGui::Button("Add Script"))
         {
-            if(current == fm::Script::SCRIPT_TYPE::CPP)
-            {
-             //   target->addScript(std::make_shared<fm::CppScript>(nameScript));
-            }
-			else if (current == fm::Script::SCRIPT_TYPE::LUA)
+
+			fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::USER_LUA_LOCATION);
+			if (p.GetPath().empty())
 			{
-				fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::USER_LUA_LOCATION);
-				if (p.GetPath().empty())
-				{
-					p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_RESOURCES_LOCATION);
-				}
-				std::string fileName = std::string(nameScript) + ".lua";
-				p.Append(fileName);
-				
-				target->addScriptLua(p);
+				p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_RESOURCES_LOCATION);
 			}
-
-
+			std::string fileName = std::string(nameScript) + ".lua";
+			p.Append(fileName);
+			
+			target->addScriptLua(p);
+			
         }
-        std::vector<std::string> scriptsToDelete;
-        //ImGui::ColorEdit3("Color", &target->color.r);
-		fmc::Scripts &&scripts = target->GetScripts();
-        for(auto &&script : scripts)
-        {
-            const char* t = script->GetScriptName().c_str();
-           ImGui::BulletText("%s",t);
-           ImGui::SameLine();
 
-		   if (ImGui::Button("Reload"))
-		   {
-			   script->Reload();
-		   }
-		   ImGui::SameLine();
-
-           if(ImGui::SmallButton("X"))
-           {
-              scriptsToDelete.emplace_back(std::string(t));
-           }
-
-        }
         if(!scriptsToDelete.empty())
         {
             for(auto &s : scriptsToDelete)

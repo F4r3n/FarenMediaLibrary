@@ -43,7 +43,10 @@ LuaManager::LuaManager()
 	lua = new sol::state;
 }
 
-LuaManager::~LuaManager() {}
+LuaManager::~LuaManager()
+{
+	delete lua;
+}
 
 void LuaManager::_OpenInternalLibs()
 {

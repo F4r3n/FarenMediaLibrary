@@ -10,6 +10,7 @@
 #include "Components/CCamera.h"
 #include "Components/CBody3D.h"
 #include "Components/CCollider.h"
+#include "Components/CScriptManager.h"
 using namespace fm;
 size_t GameObject::_counter = 0;
 
@@ -44,6 +45,7 @@ void GameObject::Serialize(json &outResult) const
 			compo[std::to_string(c->GetType())] = j;
         }
     }
+	outResult["name"] = name;
 	outResult["enabled"] = _entity->active;
 	outResult["components"] = compo;
 }
@@ -51,6 +53,7 @@ void GameObject::Serialize(json &outResult) const
 
 bool GameObject::Read(const json &inJson)
 {
+	name = inJson["name"];
 	_entity->active = inJson["enabled"];
 	const json compo = inJson["components"];
     for (nlohmann::json::const_iterator it = compo.cbegin(); it != compo.cend(); ++it)
@@ -75,6 +78,9 @@ bool GameObject::Read(const json &inJson)
             case fmc::ComponentType::kCamera:
                 add<fmc::CCamera>()->Read(it.value());
             break;
+			case fmc::ComponentType::kScriptManager:
+				add<fmc::CScriptManager>()->Read(it.value());
+			break;
         }
 
     }
