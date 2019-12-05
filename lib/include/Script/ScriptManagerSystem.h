@@ -23,7 +23,6 @@ public:
 	void Stop();
 private:
 
-    void processCollision(size_t idA, size_t idB, EVENT_COLLISION event);
     
 };
 }

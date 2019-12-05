@@ -21,7 +21,7 @@ void ScriptManagerInspector::draw(bool *value)
 		std::vector<std::string> scriptsToDelete;
 
 
-		fmc::Scripts &&scripts = target->GetScripts();
+		fmc::LuaScripts &&scripts = target->GetLuaScripts();
 		for (auto &&script : scripts)
 		{
 			std::string scriptName = script->GetScriptName() + "##" + std::to_string(target->GetIDEntity());

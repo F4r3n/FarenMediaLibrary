@@ -28,14 +28,14 @@ namespace fm
 		virtual void Stop(Entity* e) override;
 		virtual bool Serialize(nlohmann::json &ioJson) const override;
 		virtual bool Read(const nlohmann::json &inJSON) override;
-		virtual void CallEvent(fm::BaseEvent* inEvent);
+		void CallEvent(fm::BaseEvent* inEvent, sol::table &inTable);
 
 	    fm::Script::SCRIPT_TYPE GetType() const override
 	    {
 	        return fm::Script::SCRIPT_TYPE::LUA;
 	    }
 		virtual bool Reload() override;
-
+		void SetGoTable(sol::table &inTable);
 
 	 private:
 		bool			_hasAnErrorOccured;

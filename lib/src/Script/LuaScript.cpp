@@ -117,6 +117,13 @@ bool LuaScript::Read(const nlohmann::json &inJSON)
 	return false;
 }
 
+void LuaScript::SetGoTable(sol::table &inTable)
+{
+	_table["Go"] = inTable;
+	_table["Go"]["_internal"] = _go;
+}
+
+
 bool LuaScript::init(Entity*)
 {
 	if (_go == nullptr) return false;
@@ -125,9 +132,6 @@ bool LuaScript::init(Entity*)
 	sol::table cclass = (*lua)[_scriptName];
 	_table = cclass["create"](cclass);
 
-	sol::table tempGoClass = (*lua)["GameObject"];
-	_table["Go"] = tempGoClass["create"](tempGoClass);
-	_table["Go"]["_internal"] = _go;
 	_isInit = true;
 	_hasAnErrorOccured = false;
 	_hasStarted = false;
@@ -135,7 +139,7 @@ bool LuaScript::init(Entity*)
 }
 
 
-void LuaScript::CallEvent(fm::BaseEvent* inEvent)
+void LuaScript::CallEvent(fm::BaseEvent* inEvent, sol::table &inTable)
 {
 	if (inEvent->GetType() == EventKind::COLLISION)
 	{
@@ -143,8 +147,7 @@ void LuaScript::CallEvent(fm::BaseEvent* inEvent)
 		Entity* other = EntityManager::get().getEntity(collisionEvent->GetID());
 		if (other != nullptr)
 		{
-			std::shared_ptr<fm::LuaScript> luaScript = std::dynamic_pointer_cast<fm::LuaScript>(other->get<fmc::CScriptManager>()->GetScripts().front());
-			_table["Collision"](_table, luaScript->_table["Go"]);
+			_table["Collision"](_table, inTable);
 		}
 		//_table["Collision"](_table, dt);
 	}

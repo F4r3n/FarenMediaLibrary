@@ -4,16 +4,20 @@
 #include "component.h"
 #include <nlohmann/json_fwd.hpp>
 
+ 
 namespace fm
 {
 class Script;
 class FilePath;
 class BaseEvent;
+class LuaScriptManager;
+class LuaScript;
 }
 class Entity;
 
 
 namespace fmc {
+	typedef std::vector<std::shared_ptr<fm::LuaScript> > LuaScripts;
 	typedef std::vector<std::shared_ptr<fm::Script> > Scripts;
 class CScriptManager : public FMComponent<CScriptManager> {
 
@@ -26,8 +30,9 @@ class CScriptManager : public FMComponent<CScriptManager> {
 		void Stop(Entity* e);
 		void CallEvent(fm::BaseEvent* inEvent);
 		void addScriptLua(const fm::FilePath &inpath);
-
+		void ReloadScript(const std::string &inName);
         void RemoveScript(const std::string &name);
+
         virtual uint16_t GetType() const {return kScriptManager;}
 
 		bool Serialize(nlohmann::json &ioJson) const override;
@@ -35,9 +40,8 @@ class CScriptManager : public FMComponent<CScriptManager> {
 
 
         void Destroy();
-		void ReloadScript(const std::string &inName);
-		Scripts GetScripts() const { return _scripts; }
+		LuaScripts GetLuaScripts() const;
 private:
-        Scripts _scripts;
+	std::unique_ptr<fm::LuaScriptManager> _luaScriptManager;
 };
 }
