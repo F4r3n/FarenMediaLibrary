@@ -109,7 +109,7 @@ void EditorView::_EditObject()
 
 	fmc::CTransform *transform = _gameObjectSelectedByPicking->get<fmc::CTransform>();
 
-
+	
 	ImGuiIO& io = ImGui::GetIO();
 	//float scrollPosX = ImGui::GetScrollX();
 	ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),

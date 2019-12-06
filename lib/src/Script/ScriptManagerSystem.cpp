@@ -40,11 +40,7 @@ void ScriptManagerSystem::Start()
 
 void ScriptManagerSystem::Stop()
 {
-	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
-	{
-		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-		scriptManager->init(e);
-	}
+	
 }
 
 
@@ -54,14 +50,15 @@ void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 	{
 		fmc::CEvent *event = e->get<fmc::CEvent>();
 		fmc::Events &&events = event->GetEvents();
+		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+
 		for (const auto &a : events)
 		{
 			for (const auto &b : a)
 			{
-				
+				scriptManager->CallEvent(b);
 			}
 		}
-
 	}
 
 

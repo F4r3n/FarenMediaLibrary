@@ -42,6 +42,10 @@
 #include "inspector/colliderInspector.hpp"
 #include "inspector/cameraInspector.hpp"
 #include "GameView.h"
+
+
+const std::string JSON_KEY = "FML";
+
 MainWindow::MainWindow()
 {
 	_currentEntity = nullptr;
@@ -345,6 +349,36 @@ void MainWindow::_DrawMenu()
 			{
 				//_windowListEntity = true;
 			}
+			if (ImGui::MenuItem("Copy", "CTRL+C"))
+			{
+				if (_currentEntity != nullptr)
+				{
+					nlohmann::json j;
+					nlohmann::json json;
+					_currentEntity->Serialize(json);
+					j[JSON_KEY] = json;
+
+					ImGui::SetClipboardText(j.dump().c_str());
+				}
+			}
+			if (ImGui::MenuItem("Paste", "CTRL+V"))
+			{
+				std::string  s(ImGui::GetClipboardText());
+				if (!s.empty())
+				{
+					nlohmann::json j = nlohmann::json::parse(s);
+					if (j.is_object())
+					{
+						nlohmann::json json = j[JSON_KEY];
+						if (json.is_object())
+						{
+							fm::GameObject* go = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName));
+							go->Read(json);
+						}
+					}
+				}
+				
+			}
 
 			ImGui::EndMenu();
 		}
@@ -521,6 +555,7 @@ void MainWindow::Draw()
 	{
 		_DisplayWindow_WorldLighEdit();
 	}
+
 
 	ImGui::End();
 
