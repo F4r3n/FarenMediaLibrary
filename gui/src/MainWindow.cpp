@@ -42,7 +42,7 @@
 #include "inspector/colliderInspector.hpp"
 #include "inspector/cameraInspector.hpp"
 #include "GameView.h"
-
+#include "SDL_scancode.h"
 
 const std::string JSON_KEY = "FML";
 
@@ -351,33 +351,11 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::MenuItem("Copy", "CTRL+C"))
 			{
-				if (_currentEntity != nullptr)
-				{
-					nlohmann::json j;
-					nlohmann::json json;
-					_currentEntity->Serialize(json);
-					j[JSON_KEY] = json;
-
-					ImGui::SetClipboardText(j.dump().c_str());
-				}
+				_Copy();
 			}
 			if (ImGui::MenuItem("Paste", "CTRL+V"))
 			{
-				std::string  s(ImGui::GetClipboardText());
-				if (!s.empty())
-				{
-					nlohmann::json j = nlohmann::json::parse(s);
-					if (j.is_object())
-					{
-						nlohmann::json json = j[JSON_KEY];
-						if (json.is_object())
-						{
-							fm::GameObject* go = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName));
-							go->Read(json);
-						}
-					}
-				}
-				
+				_Paste();
 			}
 
 			ImGui::EndMenu();
@@ -385,6 +363,39 @@ void MainWindow::_DrawMenu()
 	}
 
 	ImGui::EndMainMenuBar();
+
+}
+
+void MainWindow::_Copy()
+{
+	if (_currentEntity != nullptr)
+	{
+		nlohmann::json j;
+		nlohmann::json json;
+		_currentEntity->Serialize(json);
+		j[JSON_KEY] = json;
+
+		ImGui::SetClipboardText(j.dump().c_str());
+	}
+}
+
+
+void MainWindow::_Paste()
+{
+	std::string  s(ImGui::GetClipboardText());
+	if (!s.empty())
+	{
+		nlohmann::json j = nlohmann::json::parse(s);
+		if (j.is_object())
+		{
+			nlohmann::json json = j[JSON_KEY];
+			if (json.is_object())
+			{
+				fm::GameObject* go = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName));
+				go->Read(json);
+			}
+		}
+	}
 
 }
 
@@ -556,6 +567,21 @@ void MainWindow::Draw()
 		_DisplayWindow_WorldLighEdit();
 	}
 
+	ImGuiIO io = ImGui::GetIO();
+	//TODO check focus
+	//TODO regroup in an event class
+	if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_C, false))
+	{
+		_Copy();
+	}
+	if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_V, false))
+	{
+		_Paste();
+	}
+	if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
+	{
+		fm::Application::Get().SerializeCurrentScene();
+	}
 
 	ImGui::End();
 

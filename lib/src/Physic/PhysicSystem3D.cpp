@@ -32,16 +32,14 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 		{
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			if (pt.getDistance() < 0.f)
-			{
-				const btVector3& ptA = pt.getPositionWorldOnA();
-				const btVector3& ptB = pt.getPositionWorldOnB();
-				const btVector3& normalOnB = pt.m_normalWorldOnB;
+			{				
 
 				fmc::CBody3D* bodyA = static_cast<fmc::CBody3D*>(obA->getUserPointer());
 				fmc::CBody3D* bodyB = static_cast<fmc::CBody3D*>(obA->getUserPointer());
 
 				Entity* entityA = EntityManager::get().getEntity(bodyA->GetIDEntity());
 				Entity* entityB = EntityManager::get().getEntity(bodyB->GetIDEntity());
+				fm::math::vec3 normalB = fm::math::vec3(pt.m_normalWorldOnB.x(), pt.m_normalWorldOnB.y(), pt.m_normalWorldOnB.z());
 
 				if (entityA != nullptr && entityA->active)
 				{
@@ -50,7 +48,12 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 					{
 						eventA = entityA->add<fmc::CEvent>();
 					}
-					eventA->AddEvent(new fm::CollisionEvent(entityB->ID));
+					else
+					{
+						eventA = entityA->get<fmc::CEvent>();
+					}
+					fm::math::vec3 worldPosA = fm::math::vec3(pt.m_positionWorldOnA.x(), pt.m_positionWorldOnA.y(), pt.m_positionWorldOnA.z());
+					eventA->AddEvent(new fm::CollisionEvent(entityB->ID, worldPosA, normalB));
 				}
 
 				if (entityB != nullptr && entityB->active)
@@ -60,10 +63,16 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 					{
 						event = entityB->add<fmc::CEvent>();
 					}
-					event->AddEvent(new fm::CollisionEvent(entityA->ID));
+					else
+					{
+						event = entityB->get<fmc::CEvent>();
+					}
+					fm::math::vec3 worldPosB = fm::math::vec3(pt.m_positionWorldOnB.x(), pt.m_positionWorldOnB.y(), pt.m_positionWorldOnB.z());
+					event->AddEvent(new fm::CollisionEvent(entityA->ID, worldPosB, normalB));
 				}
 
 			}
+			break;
 		}
 	}
 }

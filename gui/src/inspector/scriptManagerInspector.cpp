@@ -32,7 +32,7 @@ void ScriptManagerInspector::draw(bool *value)
 			}
 			if (ImGui::Button("Reload"))
 			{
-				script->Reload();
+				target->ReloadScript(script->GetScriptName());
 			}
 			if (!toKeep)
 			{

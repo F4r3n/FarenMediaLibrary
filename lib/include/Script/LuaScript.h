@@ -34,13 +34,13 @@ namespace fm
 	    {
 	        return fm::Script::SCRIPT_TYPE::LUA;
 	    }
-		virtual bool Reload() override;
+		virtual bool Reload(Entity*) override;
 		void SetGoTable(sol::table &inTable);
 
 	 private:
 		bool			_hasAnErrorOccured;
 		sol::table		_table;
 	
-		GameObjectLua*	_go;
+		std::unique_ptr<GameObjectLua>	_go;
 	};
 }

@@ -55,7 +55,7 @@ public:
 	virtual SCRIPT_TYPE GetType() const = 0;
 	virtual void CallEvent(fm::BaseEvent* inEvent) {}
 
-	virtual bool Reload() { return false; }
+	virtual bool Reload(Entity*) { return false; }
 
 	const fm::FilePath& GetFilePath() const { return _path; }
 	const std::string& GetScriptName() const { return _scriptName; }

@@ -122,13 +122,16 @@ void LuaScriptManager::addScriptLua(Entity* e, const fm::FilePath &inPath)
 	_scripts.emplace_back(new fm::LuaScript(inPath, e));
 }
 
-void LuaScriptManager::ReloadScript(const std::string &inName)
+void LuaScriptManager::ReloadScript(Entity* e, const std::string &inName)
 {
 	for (auto &s : _scripts)
 	{
 		if (s->GetScriptName() == inName)
 		{
-			s->Reload();
+			s->Reload(e);
+			s->SetGoTable(_table);
+
+			break;
 		}
 	}
 }

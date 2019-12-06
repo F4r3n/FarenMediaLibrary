@@ -23,12 +23,14 @@ LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity)
 	{
 		if (LuaManager::get().ReadFile(inPath.GetPath()))
 		{
-			_go = new GameObjectLua(inEntity);
+			_go = std::unique_ptr<GameObjectLua>(new GameObjectLua(inEntity));
 		}
 	}
 	catch(std::exception &e)
 	{
-		fm::Debug::get().logError(e.what());
+		std::string error = "Lua error " + inPath.GetPath();
+		error += std::string(e.what());
+		fm::Debug::get().LogError(error);
 	}
 }
 
@@ -44,7 +46,11 @@ void LuaScript::start()
 	if (_hasAnErrorOccured || !_isInit) return;
 	try
 	{
-		_table["start"](_table);
+		sol::protected_function pf = _table["start"];
+		if (pf.valid())
+		{
+			pf(_table);
+		}
 		_hasStarted = true;
 
 	}
@@ -53,7 +59,7 @@ void LuaScript::start()
 		_hasStarted = false;
 		_hasAnErrorOccured = true;
 
-		fm::Debug::get().logError(e.what());
+		fm::Debug::get().LogError(e.what());
 	}
 }
 
@@ -72,26 +78,39 @@ void LuaScript::update(float dt)
 
 	try
 	{
-		_table["update"](_table, dt);
+		sol::protected_function pf = _table["update"];
+		if (pf.valid())
+		{
+			pf(_table, dt);
+		}
 	}
 	catch (std::exception &e)
 	{
-		fm::Debug::get().logError(e.what());
+		fm::Debug::get().LogError(e.what());
 		_hasAnErrorOccured = true;
 
 	}
 }
 
-bool LuaScript::Reload()
+bool LuaScript::Reload(Entity* inEntity)
 {
 	bool resultScript = false;
 	try
 	{
 		resultScript = LuaManager::get().ReadFile(_path.GetPath());
+		if (resultScript)
+		{
+			if (_go == nullptr)
+			{
+				_go = std::unique_ptr<GameObjectLua>(new GameObjectLua(inEntity));
+			}
+		}
 	}
 	catch (std::exception &e)
 	{
-		fm::Debug::get().logError(e.what());
+		std::string error = "Lua error " + _path.GetPath();
+		error += std::string(e.what());
+		fm::Debug::get().LogError(error);
 	}
 	if (resultScript)
 	{
@@ -120,7 +139,7 @@ bool LuaScript::Read(const nlohmann::json &inJSON)
 void LuaScript::SetGoTable(sol::table &inTable)
 {
 	_table["Go"] = inTable;
-	_table["Go"]["_internal"] = _go;
+	_table["Go"]["_internal"] = _go.get();
 }
 
 
@@ -147,7 +166,12 @@ void LuaScript::CallEvent(fm::BaseEvent* inEvent, sol::table &inTable)
 		Entity* other = EntityManager::get().getEntity(collisionEvent->GetID());
 		if (other != nullptr)
 		{
-			_table["Collision"](_table, inTable);
+			
+			sol::protected_function pf = _table["Collision"];
+			if (pf.valid())
+			{
+				pf(_table, inTable, collisionEvent->GetTouchPoint(), collisionEvent->GetNormalPoint());
+			}
 		}
 		//_table["Collision"](_table, dt);
 	}

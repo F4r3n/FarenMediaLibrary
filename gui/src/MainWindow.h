@@ -83,6 +83,9 @@ private:
 	void _AddEmptyScene();
 	void _ClearBeforeSceneChange();
 	void _InitGameView();
+
+	void _Copy();
+	void _Paste();
 private:
 
 	gui::Context				_context;

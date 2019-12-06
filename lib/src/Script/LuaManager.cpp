@@ -28,6 +28,11 @@ fmc::CTransform* GameObjectLua::GetTransform()
 	return _entity->get<fmc::CTransform>();
 }
 
+char* GameObjectLua::GetName()
+{
+	return nullptr;
+}
+
 
 Entity* createEntity()
 {
@@ -73,9 +78,9 @@ bool LuaManager::ReadFile(const std::string &inPath)
 	{
 		result = lua->safe_script_file(inPath).valid();
 	}
-	catch (std::exception &e)
+	catch (std::exception &)
 	{
-		throw e;
+		throw;
 	}
 	return result;
 }

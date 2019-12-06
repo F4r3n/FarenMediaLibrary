@@ -21,6 +21,7 @@ namespace gui
 		TRANSLATE,
 		SCALE,
 		ROTATE,
+		NONE,
 		LAST
 	};
 

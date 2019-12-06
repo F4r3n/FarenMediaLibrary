@@ -71,7 +71,8 @@ void CScriptManager::addScriptLua(const fm::FilePath &inPath)
 
 void CScriptManager::ReloadScript(const std::string &inName)
 {
-	_luaScriptManager->ReloadScript(inName);
+	Entity* e = EntityManager::get().getEntity(BaseComponent::_IDEntity);
+	_luaScriptManager->ReloadScript(e, inName);
 }
 
 void CScriptManager::CallEvent(fm::BaseEvent* inEvent)

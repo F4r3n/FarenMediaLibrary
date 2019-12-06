@@ -29,7 +29,7 @@ void CEvent::Destroy()
 
 void CEvent::AddEvent(fm::BaseEvent *inEvent)
 {
-	auto it = _events[inEvent->GetType()];
+	auto &it = _events[inEvent->GetType()];
 	it.emplace_back(std::move(inEvent));
 }
 

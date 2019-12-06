@@ -17,12 +17,22 @@ namespace fm
 	{
 	public:
 		CollisionEvent() { _other = 0; }
-		CollisionEvent(ecs::id inId) { _other = inId; }
+		CollisionEvent(ecs::id inId, const fm::math::vec3 &inTouchPoint, const fm::math::vec3 &inNormalPoint)
+		{
+			_other = inId;
+			_touchPoint = inTouchPoint;
+			_normalPoint = inNormalPoint;
+		}
 		~CollisionEvent() {}
 		size_t GetType() const {return EventKind::COLLISION;}
 		ecs::id GetID() const { return _other; }
+		const fm::math::vec3& GetTouchPoint()const { return _touchPoint; }
+		const fm::math::vec3& GetNormalPoint()const { return _normalPoint; }
+
 	private:
 		ecs::id _other = 0;
+		fm::math::vec3 _touchPoint;
+		fm::math::vec3 _normalPoint;
 	};
 }
 

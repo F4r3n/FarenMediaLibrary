@@ -31,7 +31,7 @@ namespace fm
 		void Stop(Entity* e);
 		void CallEvent(fm::BaseEvent* inEvent);
 		void addScriptLua(Entity* e, const fm::FilePath &inpath);
-		void ReloadScript(const std::string &inName);
+		void ReloadScript(Entity* e, const std::string &inName);
 		void RemoveScript(const std::string &name);
 
 

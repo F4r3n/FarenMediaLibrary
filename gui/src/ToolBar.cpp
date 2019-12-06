@@ -23,12 +23,21 @@ void ToolBar::_Update(float, Context &inContext)
 
 void ToolBar::_UpdateInputTransformContext()
 {
-	if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_T))
+	ImGuiIO io = ImGui::GetIO();
+	_state = gui::TRANSFORM_CONTEXT::NONE;
+	if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_T, false))
+	{
 		_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
-	else if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_R))
+	}
+	if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_R, false))
+	{
 		_state = gui::TRANSFORM_CONTEXT::ROTATE;
-	else if (fm::InputManager::Get().IsKeyPressed(fm::FM_KEY_S))
+	}
+	if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
+	{
 		_state = gui::TRANSFORM_CONTEXT::SCALE;
+	}
+
 }
 
 void ToolBar::_DrawStartStop()
