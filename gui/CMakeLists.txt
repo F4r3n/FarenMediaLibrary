@@ -91,7 +91,7 @@ link_directories(${FML_EXTLIB_LIB}/ECS/lib)
 
 
 #FML
-include_directories(${FML_PATH}/lib/include)
+include_directories(${FML_PATH}/lib/src)
 link_directories(${FML_PATH}/build/lib)
 
 #IMGUI
