@@ -7,18 +7,17 @@
 This library enables to create 2D or 3D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
 
-![Link image](https://imgur.com/OpzrxbM.png)
+![Link image](https://i.imgur.com/NR0jOMK.png)
 
 For the moment, the FarenEngine can :
 + Camera system 
 + Display simple shapes
 + Sound
-+ Text rendering
 + Physics
 + Lua scripting
-+ Forward/Deferred
-+ Light effects
-+ Serialization systeam
++ Forward
++ Light effects (basic)
++ Serialization system
 
 ### Installation
 
@@ -41,6 +40,7 @@ It will create a static lib and the exe FarenEngine.
 The engine needs different libraries to work:
 
 + Box2D
++ Bullet
 + glew
 + openal
 + sdl2
@@ -55,7 +55,7 @@ The dependencies are all in the folder extlib.
 #### Simple Window
 
 ```c++
-fm::Config config;
+	fm::Config config;
 	config.name = "FML Engine";//Name of the window
 	config.fpsWanted = 60;//Fps wanted
 	config.width = 800;
@@ -77,14 +77,5 @@ fm::Config config;
 
 ### TODO
 
-- [x] Load mesh
-- [ ] 3D physics
-- [ ] Culling Perspective
-- [ ] 3D QuadTree
-- [x] GUI/List entities
-- [ ] GUI/Edit Shader
-- [ ] GUI/Add texture
-- [x] C++ Scripts //To improve
-- [ ] Command buffer
-- [x] Filesystem
+https://trello.com/b/Krgov6CB/fml
 ...
