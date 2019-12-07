@@ -12,8 +12,8 @@ option(FML_BUILD_SHARED OFF)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
-include_directories("include")
-file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
+include_directories("src")
+file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
