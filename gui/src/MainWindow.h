@@ -33,20 +33,8 @@ namespace gui
 
 class MainWindow : public fm::ApplicationObserver
 {
-enum WINDOWS
-{
-    WIN_LIGHT_EDIT,
-    WIN_LOGGER,
-    WIN_PROJECT_SETTINGS,
-	WIN_LIST_ENTITIES,
-	WIN_EDITOR_VIEW,
-	WIN_SCENE_VIEW,
-	WIN_TOOLBAR,
-    WIN_LAST
 
-};
-typedef std::unordered_map<WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWindows;
-typedef std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
+typedef std::unordered_map<gui::WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWindows;
 
 public:
     MainWindow();
@@ -65,18 +53,13 @@ protected:
 	virtual void OnPreLoad();
 	virtual void OnAfterLoad();
 private:
-	void _DrawComponents(fm::GameObject* currentEntity);
 	void _DrawMenu();
-	void _DrawMenuEntity();
-	void _DrawComponentsAvailable();
-	void _DrawListCamera();
 
 	void _DisplayWindow_ProjectSettings();
 	void _DisplayWindow_WorldLighEdit();
 	void _DisplayWindow_Load();
 	void _DisplayWindow_Save();
 
-	void _ClearInspectorComponents();
 	void _ConfigureStyle();
 	void _InitEditorCamera();
 
@@ -92,18 +75,18 @@ private:
 
 	std::shared_ptr<fm::Scene>	_editorScene;
 	MapOfWindows				_windows;
-	bool						_windowStates[WIN_LAST];
+	bool						_windowStates[gui::WIN_LAST];
 
 
     fm::GameObject*				_currentEntity;
     fm::GameObject*				_dlight;
        
-	MapOfInspectors				_inspectorComponents;
 
     fm::ProjectSettings			_projectSettings;
 
     fm::GameObject*				_editorCamera;
 	std::vector<fm::Config>		_lastConfigsUsed;
+	bool						_needUpdate;
 
 	//==========Systems==============
 };

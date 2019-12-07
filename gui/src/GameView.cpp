@@ -14,6 +14,8 @@ GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScr
 	_enabled = true;
 	_index = -1;
 	_aspectMode = ASPECT_MODE::ASPECT_16_9;
+	_kind = gui::WINDOWS::WIN_SCENE_VIEW;
+
 }
 
 GameView::~GameView() 

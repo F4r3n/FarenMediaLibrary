@@ -33,6 +33,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/colliderInspector.cpp
 	src/inspector/cameraInspector.cpp
 	src/debuglogger.cpp
+	src/ListComponentWindow.cpp
 	src/GListEntities.cpp
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp

@@ -7,6 +7,7 @@ ToolBar::ToolBar() : GWindow("ToolBar", true)
 {
 	_enabled = true;
 	_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
+	_kind = gui::WINDOWS::WIN_TOOLBAR;
 }
 
 ToolBar::~ToolBar()
@@ -16,26 +17,29 @@ ToolBar::~ToolBar()
 
 void ToolBar::_Update(float, Context &inContext)
 {
-	_UpdateInputTransformContext();
+	_UpdateInputTransformContext(inContext);
 
 	inContext.currentTransformContext = _state;
 }
 
-void ToolBar::_UpdateInputTransformContext()
+void ToolBar::_UpdateInputTransformContext(Context &inContext)
 {
 	ImGuiIO io = ImGui::GetIO();
-	_state = gui::TRANSFORM_CONTEXT::NONE;
-	if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_T, false))
+
+	if (inContext.currentWindowFocused == gui::WINDOWS::WIN_EDITOR_VIEW)
 	{
-		_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
-	}
-	if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_R, false))
-	{
-		_state = gui::TRANSFORM_CONTEXT::ROTATE;
-	}
-	if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
-	{
-		_state = gui::TRANSFORM_CONTEXT::SCALE;
+		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_T, false))
+		{
+			_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
+		}
+		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_R, false))
+		{
+			_state = gui::TRANSFORM_CONTEXT::ROTATE;
+		}
+		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
+		{
+			_state = gui::TRANSFORM_CONTEXT::SCALE;
+		}
 	}
 
 }
@@ -52,7 +56,9 @@ void ToolBar::_DrawStartStop()
 		{
 			if (status)
 			{
-				fm::Application::Get().Start(true);
+				AddEvent([](GWindow*) {
+					fm::Application::Get().Start(true);
+				});
 			}
 		}
 	}
@@ -65,7 +71,10 @@ void ToolBar::_DrawStartStop()
 		{
 			if (status)
 			{
-				fm::Application::Get().Stop();
+				AddEvent([](GWindow*) {
+					fm::Application::Get().Stop();
+				});
+				
 			}
 		}
 	}

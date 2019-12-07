@@ -16,7 +16,8 @@ namespace gui
 
 		void _DrawStartStop();
 		void _DrawTransformContext();
-		void _UpdateInputTransformContext();
+		void _UpdateInputTransformContext(Context &inContext);
 		TRANSFORM_CONTEXT _state;
+		 
 	};
 }

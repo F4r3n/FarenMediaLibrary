@@ -1,48 +1,36 @@
 
 #include "MainWindow.h"
-#include "Components/CCamera.h"
-#include <TimeDef.h>
-#include "Components/CMaterial.h"
-#include "Components/Body2D.h"
-#include "Components/CDirectionalLight.h"
+#include <functional>
+
+#include "TimeDef.h"
 #include "Engine.h"
-#include <Components/CTransform.h>
-#include <Components/CMaterial.h>
-#include <Components/CPointLight.h>
 #include "Rendering/RenderingSystem.h"
-#include "inspector/inspector.hpp"
-#include "inspector/transformInspector.hpp"
-#include "inspector/materialInspector.hpp"
-#include "inspector/meshInspector.hpp"
+
+#include "Components/Components.h"
+
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
-#include "inspector/scriptManagerInspector.hpp"
-#include "inspector/pointLightInspector.hpp"
 #include "Core/Debug.h"
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
-#include "dialogfilebrowser.h"
 #include "Core/application.h"
-#include "Resource/ResourcesManager.h"
+
+#include "dialogfilebrowser.h"
 #include "SaveProjectWindow.h"
-#include "inspector/body3DInspector.hpp"
-#include "Window.h"
-#include "imgui/imgui_internal.h"
 #include "GListEntities.h"
 #include "PortableFileDialog.h"
 #include "PickingSystem.h"
-#include <functional>
-#include "Window.h"
-#include "ImGuizmo/ImGuizmo.h"
 #include "ToolBar.hpp"
 #include "debuglogger.h"
 #include "EditorView.h"
-#include <imgui/imgui_internal.h>
-#include "Components/CCollider.h"
-#include "inspector/colliderInspector.hpp"
-#include "inspector/cameraInspector.hpp"
 #include "GameView.h"
+#include "Window.h"
+#include "ListComponentWindow.hpp"
+
+#include "Resource/ResourcesManager.h"
+
 #include "SDL_scancode.h"
+#include <imgui/imgui_internal.h>
 
 const std::string JSON_KEY = "FML";
 
@@ -51,7 +39,7 @@ MainWindow::MainWindow()
 	_currentEntity = nullptr;
 	_dlight = nullptr;
 	_context.currentGameObjectSelected = nullptr;
-	for (size_t i = 0; i < WIN_LAST; ++i)
+	for (size_t i = 0; i < gui::WIN_LAST; ++i)
 	{
 		_windowStates[i] = false;
 	}
@@ -69,14 +57,15 @@ MainWindow::MainWindow()
 	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
 
 
-	_windows[WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
-	_windows[WINDOWS::WIN_EDITOR_VIEW] = std::move(gameView);
-	_windows[WINDOWS::WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
-	_windows[WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
-	_windows[WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GameView>();
+	_windows[gui::WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
+	_windows[gui::WINDOWS::WIN_EDITOR_VIEW] = std::move(gameView);
+	_windows[gui::WINDOWS::WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
+	_windows[gui::WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
+	_windows[gui::WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GameView>();
+	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::ListComponentWindow>();
 
 	fm::Debug::log("Init done");
-
+	_needUpdate = false;
 }
 
 
@@ -95,7 +84,7 @@ void MainWindow::_AddEmptyScene()
 	tr = go->get<fmc::CTransform>();
 	tr->position = fm::math::vec3(0, 0, 0);
 	go->addComponent<fmc::CCamera>()->Init();
-	gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get());
+	gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
 	go->SetName("Main camera");
 	gv->AddCamera(currentScene->GetGameObject(currentScene->GetID(go)));
 }
@@ -119,81 +108,6 @@ MainWindow::~MainWindow()
 {
 }
 
-
-void MainWindow::_ClearInspectorComponents()
-{
-	for (auto&& entities : _inspectorComponents)
-	{
-		entities.second.clear();
-	}
-	_inspectorComponents.clear();
-}
-
-
-void MainWindow::_DrawComponents(fm::GameObject* currentEntity)
-{
-
-	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
-	if (_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
-	{
-		_inspectorComponents[currentEntity->getID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
-	}
-	auto &&inspectorComponent = _inspectorComponents[currentEntity->getID()];
-
-	for (auto && c : compos) 
-	{
-		uint16_t componentType = c->GetType();
-		auto &compo = inspectorComponent[componentType];
-		if (compo == nullptr)
-		{
-			if (componentType == fmc::ComponentType::kTransform)
-			{
-				compo = std::make_unique<gui::TransformInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::kMaterial)
-			{
-				compo = std::make_unique <gui::MaterialInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::KMesh)
-			{
-				compo = std::make_unique <gui::MeshInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::kScriptManager)
-			{
-				compo = std::make_unique <gui::ScriptManagerInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::kPointLight)
-			{
-				compo = std::make_unique <gui::PointLightInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::kBody3D)
-			{
-				compo = std::make_unique <gui::Body3DInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::kCollider)
-			{
-				compo = std::make_unique <gui::ColliderInspector>(c);
-			}
-			else if (componentType == fmc::ComponentType::kCamera)
-			{
-				compo = std::make_unique <gui::CameraInspector>(c);
-			}
-		}
-		else
-		{
-			bool value = true;
-
-			compo->draw(&value);
-
-			if (!value)
-			{
-				compo.reset();
-				inspectorComponent[componentType] = nullptr;
-				c->Destroy();
-			}
-		}
-	}
-}
 
 
 void MainWindow::_DisplayWindow_Save()
@@ -225,16 +139,13 @@ void MainWindow::_DisplayWindow_Load()
 		fm::FilePath result(resultFromDialog.front());
 		fm::Application::Get().LoadProject(result);
 
-		_ClearInspectorComponents();
-		_currentEntity = nullptr;
-
 	}
 }
 
 
 void MainWindow::_DisplayWindow_ProjectSettings()
 {
-	ImGui::Begin("Project name", &_windowStates[WINDOWS::WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("Project name", &_windowStates[gui::WINDOWS::WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("%s", _projectSettings.name.c_str());
 
 	static char bufferName[256];
@@ -242,7 +153,7 @@ void MainWindow::_DisplayWindow_ProjectSettings()
 	if (ImGui::Button("Valid"))
 	{
 		_projectSettings.name = std::string(bufferName);
-		_windowStates[WINDOWS::WIN_PROJECT_SETTINGS] = false;
+		_windowStates[gui::WINDOWS::WIN_PROJECT_SETTINGS] = false;
 		ImGui::CloseCurrentPopup();
 	}
 	ImGui::End();
@@ -314,16 +225,16 @@ void MainWindow::_DrawMenu()
 
 		if (ImGui::BeginMenu("Options"))
 		{
-			bool enable = _windows[WINDOWS::WIN_LOGGER]->IsEnabled();
+			bool enable = _windows[gui::WINDOWS::WIN_LOGGER]->IsEnabled();
 			if (ImGui::MenuItem("Logger", "L", &enable, true))
 			{
 				if (enable)
 				{
-					_windows[WINDOWS::WIN_LOGGER]->Start();
+					_windows[gui::WINDOWS::WIN_LOGGER]->Start();
 				}
 				else
 				{
-					_windows[WINDOWS::WIN_LOGGER]->Stop();
+					_windows[gui::WINDOWS::WIN_LOGGER]->Stop();
 				}
 			}
 			ImGui::EndMenu();
@@ -331,7 +242,6 @@ void MainWindow::_DrawMenu()
 
 		if (ImGui::BeginMenu("Cameras"))
 		{
-			_DrawListCamera();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Entity"))
@@ -395,87 +305,20 @@ void MainWindow::_Paste()
 
 }
 
-void MainWindow::_DrawListCamera()
-{
-	static bool value1 = true;
-	if (ImGui::MenuItem("Camera editor", "", &value1))
-	{
-		//_engine->SetMainCamera(_mainCamera);
-	}
-
-}
-
-void MainWindow::_DrawComponentsAvailable() 
-{
-}
-
-void MainWindow::_DrawMenuEntity()
-{
-
-	std::string nameWindowInspector("Inspector");
-
-	bool shouldBeDisplayed = _currentEntity != nullptr;
-	ImGui::Begin(nameWindowInspector.c_str(), &shouldBeDisplayed);
-
-	if (_currentEntity && _currentEntity->IsActive())
-	{
-		ImGui::Text(_currentEntity->GetName().c_str());
-		_DrawComponents(_currentEntity);
-
-		if (ImGui::Button("Add Component"))
-			ImGui::OpenPopup("popup from button");
-
-		if (ImGui::BeginPopup("popup from button") && _currentEntity && _currentEntity->IsActive())
-		{
-			ImGui::MenuItem("Components", nullptr, false, false);
-
-			if (!_currentEntity->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
-			{
-				_currentEntity->add<fmc::CTransform>();
-			}
-			if (!_currentEntity->has<fmc::CMesh>() && ImGui::MenuItem("Mesh"))
-			{
-				_currentEntity->add<fmc::CMesh>();
-			}
-			if (!_currentEntity->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
-			{
-				_currentEntity->add<fmc::CMaterial>();
-			}
-			if (!_currentEntity->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
-			{
-				_currentEntity->add<fmc::CScriptManager>();
-			}
-			if (!_currentEntity->has<fmc::CPointLight>() && ImGui::MenuItem("PointLight"))
-			{
-				_currentEntity->add<fmc::CPointLight>();
-			}
-			if (!_currentEntity->has<fmc::CCollider>() && ImGui::MenuItem("Collider"))
-			{
-				_currentEntity->add<fmc::CCollider>();
-			}
-			if (!_currentEntity->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
-			{
-				_currentEntity->add<fmc::CBody3D>();
-			}
-			ImGui::EndPopup();
-		}
-	}
-	ImGui::End();
-
-}
-
 
 void MainWindow::_DisplayWindow_WorldLighEdit()
 {
 	bool value = true;
 	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
-	ImGui::Begin("World light", &_windowStates[WIN_LIGHT_EDIT]);
+	ImGui::Begin("World light", &_windowStates[gui::WIN_LIGHT_EDIT]);
 	Inspector::OnDraw(_dlight->get<fmc::CDirectionalLight>(), &value);
 	ImGui::End();
 }
 
 void MainWindow::Update()
 {
+	_needUpdate = false;
+
 	for (auto& window : _windows)
 	{
 		window.second->Update(fm::Time::dt, _context);
@@ -526,12 +369,12 @@ void MainWindow::Draw()
 		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Down, 0.2f, nullptr, &dock_left_id);
 		ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_right_id, ImGuiDir_Down, 0.5f, nullptr, &dock_right_id);
 
-		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_TOOLBAR]->GetTitle().c_str(), dock_up_id);
-		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LIST_ENTITIES]->GetTitle().c_str(), dock_right_id);
-		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_EDITOR_VIEW]->GetTitle().c_str(), dock_left_id);
-		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_LOGGER]->GetTitle().c_str(), dock_down_id);
-		ImGui::DockBuilderDockWindow(_windows[WINDOWS::WIN_SCENE_VIEW]->GetTitle().c_str(), dock_left_right_id);
-		ImGui::DockBuilderDockWindow("Inspector", dock_down_right_id);
+		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_TOOLBAR]->GetTitle().c_str(), dock_up_id);
+		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->GetTitle().c_str(), dock_right_id);
+		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->GetTitle().c_str(), dock_left_id);
+		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_LOGGER]->GetTitle().c_str(), dock_down_id);
+		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_SCENE_VIEW]->GetTitle().c_str(), dock_left_right_id);
+		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_INSPECTOR]->GetTitle().c_str(), dock_down_right_id);
 
 		//ImGuiDockNodeFlags_
 		// Disable tab bar for custom toolbar
@@ -544,39 +387,45 @@ void MainWindow::Draw()
 	ImGui::PopStyleVar(3);
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
 
-
+	if (_needUpdate)
+	{
+		Update();
+	}
 	for (auto& window : _windows)
 	{
 		window.second->Draw();
 	}
+	
 
 	_DrawMenu();
-	_DrawMenuEntity();
 	
-	if (_windowStates[WIN_PROJECT_SETTINGS])
+
+	
+	if (_windowStates[gui::WIN_PROJECT_SETTINGS])
 	{
 		_DisplayWindow_ProjectSettings();
 	}
 
-	if (_windowStates[WIN_LIGHT_EDIT])
+	if (_windowStates[gui::WIN_LIGHT_EDIT])
 	{
 		_DisplayWindow_WorldLighEdit();
 	}
 
 	ImGuiIO io = ImGui::GetIO();
-	//TODO check focus
-	//TODO regroup in an event class
-	if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_C, false))
+	if (_context.currentWindowFocused == gui::WINDOWS::WIN_EDITOR_VIEW)
 	{
-		_Copy();
-	}
-	if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_V, false))
-	{
-		_Paste();
-	}
-	if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
-	{
-		fm::Application::Get().SerializeCurrentScene();
+		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_C, false))
+		{
+			_Copy();
+		}
+		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_V, false))
+		{
+			_Paste();
+		}
+		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
+		{
+			fm::Application::Get().SerializeCurrentScene();
+		}
 	}
 
 	ImGui::End();
@@ -585,13 +434,18 @@ void MainWindow::Draw()
 
 void MainWindow::_ClearBeforeSceneChange()
 {
-	_windows[WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
+	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
 		dynamic_cast<gui::GameView*>(inWindow)->Clear();
+	});
+
+	_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([](gui::GWindow* inWindow) {
+		dynamic_cast<gui::ListComponentWindow*>(inWindow)->ClearInspectorComponents();
 	});
 
 	_currentEntity = nullptr;
 	_context.currentGameObjectSelected = nullptr;
 	_context.currentSceneName = "";
+	_needUpdate = true;
 }
 void MainWindow::_InitGameView()
 {
@@ -602,7 +456,7 @@ void MainWindow::_InitGameView()
 	{
 		if (o->has<fmc::CCamera>())
 		{
-			_windows[WINDOWS::WIN_SCENE_VIEW]->AddEvent([o](gui::GWindow* inWindow) {
+			_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([o](gui::GWindow* inWindow) {
 				dynamic_cast<gui::GameView*>(inWindow)->AddCamera(o);
 			});
 			break;
@@ -612,11 +466,14 @@ void MainWindow::_InitGameView()
 void MainWindow::OnPreStart()
 {
 	_ClearBeforeSceneChange();
+	
 }
 void MainWindow::OnAfterStart()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
+	_needUpdate = true;
+	
 }
 void MainWindow::OnPreStop()
 {
@@ -626,6 +483,7 @@ void MainWindow::OnAfterStop()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
+	_needUpdate = true;
 }
 
 void MainWindow::OnPreLoad()
@@ -636,6 +494,7 @@ void MainWindow::OnAfterLoad()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
+	_needUpdate = true;
 }
 
 void MainWindow::_ConfigureStyle()

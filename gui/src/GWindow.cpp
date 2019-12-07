@@ -10,6 +10,8 @@ GWindow::GWindow(const std::string &inName, bool isDockable, ImGuiWindowFlags in
 	_name = inName;
 	_dockable = isDockable;
 	_option = inOption;
+	_isFocused = false;
+	_kind = WINDOWS::WIN_NO_KIND;
 }
 
 void GWindow::AddWidget(std::unique_ptr<IWidget> && widget)
@@ -49,6 +51,8 @@ void GWindow::Draw()
 		AfterWindowCreation();
 
 		_id = ImGui::GetWindowDockID();
+		_isFocused = ImGui::IsWindowFocused();
+
 		CustomDraw();
 
 		for (auto &widget : _widgets)
@@ -72,6 +76,10 @@ void GWindow::SetStatus(bool inValue)
 void GWindow::Update(float dt, Context &inContext)
 {
 	_DequeueEvent();
+	if (_isFocused)
+	{
+		inContext.currentWindowFocused = _kind;
+	}
 	_Update(dt, inContext);
 }
 

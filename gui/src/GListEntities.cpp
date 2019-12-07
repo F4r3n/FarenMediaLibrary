@@ -11,6 +11,7 @@ GListEntities::GListEntities() : GWindow("List entities", true)
 {
 	_gameObjectSelected = nullptr;
 	_enabled = true;
+	_kind = gui::WINDOWS::WIN_LIST_ENTITIES;
 }
 
 

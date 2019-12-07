@@ -7,6 +7,7 @@ DebugLogger::DebugLogger() : GWindow("Logger", true)
     _buffer.push_back(0);
     _buffer.shrink_to_fit();
 	_enabled = true;
+	_kind = gui::WINDOWS::WIN_LOGGER;
 }
 
 

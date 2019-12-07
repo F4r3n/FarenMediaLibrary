@@ -25,11 +25,27 @@ namespace gui
 		LAST
 	};
 
+	enum WINDOWS
+	{
+		WIN_LIGHT_EDIT,
+		WIN_LOGGER,
+		WIN_PROJECT_SETTINGS,
+		WIN_LIST_ENTITIES,
+		WIN_EDITOR_VIEW,
+		WIN_SCENE_VIEW,
+		WIN_TOOLBAR,
+		WIN_INSPECTOR,
+		WIN_NO_KIND,
+		WIN_LAST
+
+	};
+
 	struct Context
 	{
 		fm::GameObject*					currentGameObjectSelected;
 		std::string						currentSceneName;
 		TRANSFORM_CONTEXT				currentTransformContext;
+		WINDOWS							currentWindowFocused;
 	};
 
 	class IWidget
@@ -93,10 +109,12 @@ protected:
 	virtual void BeforeWindowCreation() {}
 	virtual void AfterWindowCreation() {}
 	virtual void WillClose();
-	fm::math::vec2 _position;
-	fm::math::vec2 _size;
-	bool _enabled;
-	std::queue<std::function<void(GWindow*)>> _events;
+	fm::math::vec2								_position;
+	fm::math::vec2								_size;
+	bool										_enabled;
+	std::queue<std::function<void(GWindow*)>>	_events;
+	WINDOWS										_kind;
+
 private:
 	void _DequeueEvent();
 
@@ -105,6 +123,7 @@ private:
 
 	size_t								  _option;
 	bool								  _dockable;
+	bool								  _isFocused;
 };
 }
 

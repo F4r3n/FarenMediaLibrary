@@ -33,6 +33,8 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 		_editorView.renderTexture = nullptr;
 		_editorView.enabled = false;
 	}
+	_kind = gui::WINDOWS::WIN_LIST_ENTITIES;
+
 }
 
 void EditorView::_DrawContentEditorCamera(Context &inContext)
