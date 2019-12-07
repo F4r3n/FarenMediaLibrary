@@ -14,7 +14,7 @@ namespace fm {
         public:
             GameObject();
             ~GameObject();
-            GameObject* create(std::shared_ptr<Scene> s);
+            GameObject* create(std::shared_ptr<Scene> s, bool defaultValue);
 
             bool IsActive()
             {
@@ -57,7 +57,6 @@ namespace fm {
 			std::vector<BaseComponent*> getAllComponents() const;
 
             inline ecs::id getID() {return _entity->ID;}
-            std::string name;
 
             void Serialize(nlohmann::json &outResult) const;
 
@@ -65,6 +64,8 @@ namespace fm {
             bool Read(const nlohmann::json &inJson);
 			void SetStatus(bool inStatus);
 			void ResetStatus();
+			void SetName(const std::string &inName);
+			const std::string& GetName() const;
         private:
             Entity* _entity = nullptr;
 			bool	_oldStatus;
@@ -75,9 +76,9 @@ namespace fm {
     {
         public:
 
-            static GameObject* create(std::shared_ptr<Scene> scene)
+            static GameObject* create(std::shared_ptr<Scene> scene, bool defaultValues)
             {
-                return (new GameObject())->create(scene);
+                return (new GameObject())->create(scene, defaultValues);
             }
 
 

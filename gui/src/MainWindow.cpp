@@ -84,19 +84,19 @@ void MainWindow::_AddEmptyScene()
 {
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
 	//Add object
-	fm::GameObject* go = fm::GameObjectHelper::create(currentScene);
-	fmc::CTransform* tr = go->addComponent<fmc::CTransform>();
+	fm::GameObject* go = fm::GameObjectHelper::create(currentScene, true);
+	fmc::CTransform* tr = go->get<fmc::CTransform>();
 	tr->position = fm::math::vec3(0, 0, -1);
 	go->addComponent<fmc::CMaterial>();
 	go->addComponent<fmc::CMesh>();
 
 	//Add camera
-	go = fm::GameObjectHelper::create(currentScene);
-	tr = go->addComponent<fmc::CTransform>();
+	go = fm::GameObjectHelper::create(currentScene, true);
+	tr = go->get<fmc::CTransform>();
 	tr->position = fm::math::vec3(0, 0, 0);
 	go->addComponent<fmc::CCamera>()->Init();
 	gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[WINDOWS::WIN_SCENE_VIEW].get());
-	go->name = "Main camera";
+	go->SetName("Main camera");
 	gv->AddCamera(currentScene->GetGameObject(currentScene->GetID(go)));
 }
 
@@ -108,12 +108,11 @@ void MainWindow::Init()
 
 void MainWindow::_InitEditorCamera()
 {
-	_editorCamera = fm::GameObjectHelper::create(_editorScene);
+	_editorCamera = fm::GameObjectHelper::create(_editorScene, true);
 	_editorCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight,
 		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
-	_editorCamera->addComponent<fmc::CTransform>();
 	_editorCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
-	_editorCamera->name = "Camera";
+	_editorCamera->SetName("Camera");
 }
 
 MainWindow::~MainWindow()
@@ -339,11 +338,8 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName));
-				_currentEntity->addComponent<fmc::CTransform>(
-					fm::math::Vector3f(0, 0, 0),
-					fm::math::Vector3f(1, 1, 1),
-					fm::math::vec3(0, 0, 0), 1);
+				_currentEntity = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName), true);
+
 			}
 			if (ImGui::MenuItem("List entity"))
 			{
@@ -391,7 +387,7 @@ void MainWindow::_Paste()
 			nlohmann::json json = j[JSON_KEY];
 			if (json.is_object())
 			{
-				fm::GameObject* go = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName));
+				fm::GameObject* go = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName), false);
 				go->Read(json);
 			}
 		}
@@ -423,7 +419,7 @@ void MainWindow::_DrawMenuEntity()
 
 	if (_currentEntity && _currentEntity->IsActive())
 	{
-		ImGui::Text(_currentEntity->name.c_str());
+		ImGui::Text(_currentEntity->GetName().c_str());
 		_DrawComponents(_currentEntity);
 
 		if (ImGui::Button("Add Component"))

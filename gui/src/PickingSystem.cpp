@@ -12,11 +12,10 @@ using namespace fms;
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 {
 	_editorScene = inEditorScene;
-	_specialCamera = fm::GameObjectHelper::create(_editorScene);
+	_specialCamera = fm::GameObjectHelper::create(_editorScene, true);
 	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
 	_camera->Init();
-	_specialCamera->addComponent<fmc::CTransform>();
-	_specialCamera->name = "Camera";
+	_specialCamera->SetName("Camera");
 
 #if 1
 	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };

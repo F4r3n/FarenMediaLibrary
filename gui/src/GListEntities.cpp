@@ -44,7 +44,7 @@ void GListEntities::CustomDraw()
 			{
 				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f, 0.2f, 0.2f, 1.0f));
 			}
-			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->name.c_str(), i);
+			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->GetName().c_str(), i);
 			if (isSelected)
 			{
 				ImGui::PopStyleColor(1);
@@ -64,10 +64,8 @@ void GListEntities::CustomDraw()
 		if (ImGui::Button("Add Entity"))
 		{
 			_hasBeenSelected = true;
-			_gameObjectSelected = fm::GameObjectHelper::create(currentScene);
-			_gameObjectSelected->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0),
-				fm::math::Vector3f(1, 1, 1),
-				fm::math::vec3(0, 0, 0));
+			_gameObjectSelected = fm::GameObjectHelper::create(currentScene, true);
+			
 		}
 	}
 }

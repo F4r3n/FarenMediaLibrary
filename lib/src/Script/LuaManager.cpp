@@ -17,6 +17,7 @@
 #include "Core/Rect.h"
 #include "Resource/ResourcesManager.h"
 #include "Core/Debug.h"
+#include "Components/CIdentity.h"
 
 GameObjectLua::GameObjectLua(Entity* inEntity)
 {
@@ -28,9 +29,9 @@ fmc::CTransform* GameObjectLua::GetTransform()
 	return _entity->get<fmc::CTransform>();
 }
 
-char* GameObjectLua::GetName()
+const char* GameObjectLua::GetName()
 {
-	return nullptr;
+	return _entity->get<fmc::CIdentity>()->GetName().c_str();
 }
 
 
@@ -97,7 +98,8 @@ void LuaManager::registerComponents()
 {
 	lua->set_function("Log", &Log);
 	lua->new_usertype<GameObjectLua>("GameObjectInternal",
-		"GetTransform", &GameObjectLua::GetTransform
+		"GetTransform", &GameObjectLua::GetTransform,
+		"GetName", &GameObjectLua::GetName
 		);
 
 	lua->new_usertype<math::Vector2f>("Vector2f",sol::constructors<sol::types<float, float>>(),

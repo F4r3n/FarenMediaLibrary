@@ -19,7 +19,7 @@ class GameObjectLua
 public:
 	GameObjectLua(Entity* inEntity);
 	fmc::CTransform* GetTransform();
-	char* GetName();
+	const char* GetName();
 private:
 	Entity* _entity;
 };

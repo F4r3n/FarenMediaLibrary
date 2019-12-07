@@ -11,16 +11,21 @@
 #include "Components/CBody3D.h"
 #include "Components/CCollider.h"
 #include "Components/CScriptManager.h"
+#include "Components/CIdentity.h"
 using namespace fm;
 size_t GameObject::_counter = 0;
 
 
-GameObject* GameObject::create(std::shared_ptr<Scene> s)
+GameObject* GameObject::create(std::shared_ptr<Scene> s, bool defaultValues)
 {
-    if(_entity != nullptr) 
-		return this;
 
     _entity = EntityManager::get().createEntity();
+	if (defaultValues)
+	{
+		_entity->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0), fm::math::Vector3f(1, 1, 1), fm::math::vec3(0, 0, 0));
+		_entity->add<fmc::CIdentity>();
+		_entity->get<fmc::CIdentity>()->SetNameEntity("GameObject");
+	}
 	if(s != nullptr)
 		s->AddGameObject(this);
 
@@ -29,7 +34,7 @@ GameObject* GameObject::create(std::shared_ptr<Scene> s)
 
 GameObject::GameObject()
 {
-    name = "GameObject " + _counter;
+    
 }
 
 void GameObject::Serialize(json &outResult) const
@@ -45,7 +50,6 @@ void GameObject::Serialize(json &outResult) const
 			compo[std::to_string(c->GetType())] = j;
         }
     }
-	outResult["name"] = name;
 	outResult["enabled"] = _entity->active;
 	outResult["components"] = compo;
 }
@@ -53,7 +57,6 @@ void GameObject::Serialize(json &outResult) const
 
 bool GameObject::Read(const json &inJson)
 {
-	name = inJson["name"];
 	_entity->active = inJson["enabled"];
 	const json compo = inJson["components"];
     for (nlohmann::json::const_iterator it = compo.cbegin(); it != compo.cend(); ++it)
@@ -81,6 +84,9 @@ bool GameObject::Read(const json &inJson)
 			case fmc::ComponentType::kScriptManager:
 				add<fmc::CScriptManager>()->Read(it.value());
 			break;
+			case fmc::ComponentType::kIdentity:
+				add<fmc::CIdentity>()->Read(it.value());
+			break;
         }
 
     }
@@ -101,6 +107,26 @@ void GameObject::SetStatus(bool inStatus)
 void GameObject::ResetStatus()
 {
 	_entity->active = _oldStatus;
+}
+
+void GameObject::SetName(const std::string &inName)
+{
+	if (!_entity->has<fmc::CIdentity>())
+	{
+		_entity->add<fmc::CIdentity>();
+	}
+	_entity->get<fmc::CIdentity>()->SetNameEntity(inName);
+
+}
+
+const std::string& GameObject::GetName() const
+{
+	if (!_entity->has<fmc::CIdentity>())
+	{
+		_entity->add<fmc::CIdentity>();
+	}
+
+	return _entity->get<fmc::CIdentity>()->GetNameEntity();
 }
 
 
