@@ -49,30 +49,6 @@ Engine::~Engine()
 
 
 
-void Engine::Run(Window& window)
-{
-	window.setMSAA(0);
-
-    while(!window.isClosed()) 
-	{
-
-        RunMainLoop(&window);
-    }
-}
-
-void Engine::RunMainLoop(void* window)
-{
-    //auto start = std::chrono::system_clock::now();
-    ((Window *)window)->update(120);
-    //std::cout << fm::Time::dt << std::endl;
-    Update(fm::Time::dt);
-
-    ((Window *)window)->swapBuffers();
-
-    //_numberFramesTimer++;
-    
-}
-
 void Engine::Start()
 {
 	_systems->Start();

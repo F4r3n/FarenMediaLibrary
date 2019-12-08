@@ -73,7 +73,6 @@ void CBody3D::Init(CCollider *inCollider)
 	}
 	else
 	{
-		shape->setMargin(0);
 		_ghostObject = new btGhostObject();
 		_ghostObject->setCollisionShape(shape);
 		_ghostObject->setCollisionFlags(_ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);

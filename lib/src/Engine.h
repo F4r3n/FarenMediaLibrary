@@ -28,7 +28,6 @@ public:
     void Reset();
     
     
-    void RunMainLoop(void *window);
 	SYSTEM_MANAGER_MODE GetStatus() const;
 
     private:

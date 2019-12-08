@@ -33,8 +33,10 @@ void LuaScriptManager::init(Entity* e)
 
 	for (auto &s : _scripts)
 	{
-		s->init(e);
-		s->SetGoTable(_table);
+		if (s->init(e))
+		{
+			s->SetGoTable(_table);
+		}
 	}
 }
 
@@ -128,8 +130,11 @@ void LuaScriptManager::ReloadScript(Entity* e, const std::string &inName)
 	{
 		if (s->GetScriptName() == inName)
 		{
-			s->Reload(e);
-			s->SetGoTable(_table);
+			if (s->Reload(e))
+			{
+				s->SetGoTable(_table);
+				s->start();	
+			}
 
 			break;
 		}

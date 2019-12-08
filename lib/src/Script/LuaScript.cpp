@@ -115,10 +115,6 @@ bool LuaScript::Reload(Entity* inEntity)
 	if (resultScript)
 	{
 		bool ok = init(nullptr);
-		if (ok)
-		{
-			start();
-		}
 		return ok && !_hasAnErrorOccured;
 	}
 
@@ -149,12 +145,28 @@ bool LuaScript::init(Entity*)
 
 	sol::state *lua = (LuaManager::get().GetState());
 	sol::table cclass = (*lua)[_scriptName];
-	_table = cclass["create"](cclass);
+	sol::protected_function createF = cclass["create"];
 
-	_isInit = true;
-	_hasAnErrorOccured = false;
+	bool ok = false;
+
+	if (createF.valid())
+	{
+		try
+		{
+			_table = createF(cclass);
+			ok = true;
+		}
+		catch (std::exception &e)
+		{
+			fm::Debug::get().LogError(e.what());
+		}
+	}
+
+
+	_isInit = ok;
+	_hasAnErrorOccured = !ok;
 	_hasStarted = false;
-    return true;
+    return ok;
 }
 
 

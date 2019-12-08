@@ -31,7 +31,7 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 		for (int j = 0; j < numContacts; ++j)
 		{
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
-			if (pt.getDistance() < 0.f)
+			if (pt.getDistance() <= 0.f)
 			{				
 
 				fmc::CBody3D* bodyA = static_cast<fmc::CBody3D*>(obA->getUserPointer());
@@ -72,7 +72,6 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 				}
 
 			}
-			break;
 		}
 	}
 }
@@ -126,7 +125,7 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 
 void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
 {
-	_dynamicsWorld->stepSimulation(1 / 60.0f, 10);
+	_dynamicsWorld->stepSimulation(dt);
 
 	for (auto &&e : em.iterate<fmc::CTransform, fmc::CBody3D, fmc::CCollider>())
 	{
@@ -156,6 +155,8 @@ void PhysicSystem3D::Start()
 	_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, config);
 	_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, true);
+	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, false);
+
 	_ghostPairCallback = new btGhostPairCallback();
 	_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(_ghostPairCallback);
 
