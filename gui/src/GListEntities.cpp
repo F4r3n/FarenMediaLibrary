@@ -12,6 +12,8 @@ GListEntities::GListEntities() : GWindow("List entities", true)
 	_gameObjectSelected = nullptr;
 	_enabled = true;
 	_kind = gui::WINDOWS::WIN_LIST_ENTITIES;
+	_isRenaming = false;
+	memset(_bufferName, '\0', 128);
 }
 
 
@@ -27,6 +29,8 @@ void GListEntities::_Update(float dt, Context &inContext)
 	_gameObjectSelected = inContext.currentGameObjectSelected;
 }
 
+
+
 void GListEntities::CustomDraw()
 {
 	size_t entitySelected = -1;
@@ -35,31 +39,64 @@ void GListEntities::CustomDraw()
 	if (currentScene != nullptr)
 	{
 		std::vector<fm::GameObject*> listEntities = currentScene->getAllGameObjects();
+
 		for (size_t i = 0; i < listEntities.size(); i++)
 		{
 			bool isSelected = (entitySelected == i)
 				|| (_gameObjectSelected != nullptr && listEntities[i] != nullptr && (_gameObjectSelected->getID() == listEntities[i]->getID()));
-			// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
-			ImGuiTreeNodeFlags node_flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
-			if (isSelected)
-			{
-				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f, 0.2f, 0.2f, 1.0f));
-			}
-			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->GetName().c_str(), i);
-			if (isSelected)
-			{
-				ImGui::PopStyleColor(1);
-			}
-			if (ImGui::IsItemClicked())
-			{
-				_gameObjectSelected = listEntities[i];
-				_hasBeenSelected = true;
-			}
 
-			if (node_open)
+			if (isSelected)
+				entitySelected = i;
+			if (_isRenaming && isSelected)
 			{
-				ImGui::TreePop();
+				memcpy(_bufferName, _gameObjectSelected->GetName().c_str(), std::min((size_t)127, _gameObjectSelected->GetName().size()));
+				if (ImGui::InputText("##", _bufferName, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+				{
+					std::string newName(_bufferName);
+					_gameObjectSelected->SetName(_bufferName);
+					_isRenaming = false;
+				}
 			}
+			else
+			{
+				// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+				ImGuiTreeNodeFlags node_flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
+				if (isSelected)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f, 0.2f, 0.2f, 1.0f));
+				}
+				bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->GetName().c_str(), i);
+				if (isSelected)
+				{
+					ImGui::PopStyleColor(1);
+				}
+				if (ImGui::IsItemClicked())
+				{
+					_gameObjectSelected = listEntities[i];
+					_hasBeenSelected = true;
+				}
+
+
+				if (node_open)
+				{
+					ImGui::TreePop();
+				}
+			}
+			
+		}
+
+		if (ImGui::IsMouseClicked(1) && entitySelected != -1)
+		{
+			ImGui::OpenPopup("popup from button");
+
+		}
+		if (ImGui::BeginPopup("popup from button"))
+		{
+			if (ImGui::MenuItem("Rename"))
+			{
+				_isRenaming = true;
+			}
+			ImGui::EndPopup();
 		}
 
 		if (ImGui::Button("Add Entity"))
