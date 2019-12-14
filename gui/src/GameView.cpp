@@ -32,12 +32,10 @@ void GameView::CustomDraw()
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
-			//ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
 			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(),
 				ImVec2(_startImagePos.x, _startImagePos.y),
 				ImVec2(_endImagePos.x, _endImagePos.y)
 			);
-			//ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
 		}
     }
 
@@ -64,30 +62,19 @@ void GameView::_Update(float dt, Context &inContext)
 		isRenderTextureReady = preview.renderTexture != nullptr && preview.renderTexture->isCreated();
 	}
 
-	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
-	if (isRenderTextureReady)
+	if (isRenderTextureReady && HasBeenDrawn())
 	{
-		ImVec2 size;
-		ImVec2 start;
+		fm::math::vec2 size;
+		fm::math::vec2 start;
 		fm::math::vec2 startCursorPos;
 		if (_index >= 0 && _index < _previews.size())
 		{
 			CameraPreview preview = _previews[_index];
 
 			const float rapport = (float)preview.renderTexture->getWidth() / (float)preview.renderTexture->getHeight();
-			//ImGui::IsWindowDocked
-			if (_id != 0 || ImGui::IsWindowDocked())
-			{
 
-				//ImGui::getwind
-				start = ImGui::GetWindowDockPos(_id);
-				size = ImGui::GetWindowDockSize(_id);
-			}
-			else
-			{
-				start = ImGui::GetWindowPos();
-				size = ImGui::GetWindowSize();
-			}
+			start = GetPosition();
+			size = GetSize();
 			ImVec2 end;
 			if (_aspectMode == ASPECT_MODE::ASPECT_FREE)
 			{

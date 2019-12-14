@@ -155,29 +155,15 @@ void EditorView::_Update(float dt, Context &inContext)
 	_DrawContentEditorCamera(inContext);
 
 	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
-	if (_editorView.enabled && _editorView.renderTexture != nullptr && _editorView.renderTexture->isCreated())
+	if (_editorView.enabled && _editorView.renderTexture != nullptr && _editorView.renderTexture->isCreated() && HasBeenDrawn())
 	{
-		ImVec2 size;
-		ImVec2 start;
 		fm::math::vec2 startCursorPos;
 
 		const float rapport = (float)_editorView.renderTexture->getWidth() / (float)_editorView.renderTexture->getHeight();
-		//ImGui::IsWindowDocked
-		if (_id != 0 || ImGui::IsWindowDocked())
-		{
 
-			//ImGui::getwind
-			start = ImGui::GetWindowDockPos(_id);
-			size = ImGui::GetWindowDockSize(_id);
-		}
-		else
-		{
-			start = ImGui::GetWindowPos();
-			size = ImGui::GetWindowSize();
-		}
-		ImVec2 end;
-		end.x = start.x + size.x;
-		end.y = start.y + size.y;
+		fm::math::vec2 start = GetPosition();
+		fm::math::vec2 size = GetSize();
+		fm::math::vec2 end(start.x + size.x, start.y + size.y);
 
 		_startImagePos.x = start.x;
 		_startImagePos.y = start.y;

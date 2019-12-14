@@ -52,35 +52,7 @@ namespace gui
 	{
 	public:
 		virtual void Draw() = 0;
-	};
-
-	
-
-	template <typename... T>
-	class GButton : public IWidget
-	{
-	public:
-		using bind_type = decltype(std::bind(std::declval<std::function<void(T...)>>(), std::declval<T>()...));
-
-		template <typename... ConstrT>
-		GButton(const std::string &inName, std::function<void(T...)> func, ConstrT &&... args)
-			:_bind(std::forward<std::function<void(T...)>>(func), std::forward<ConstrT>(args)...)
-		{
-			_name = inName;
-		}
-
-
-		void Draw()
-		{
-			if (ImGui::Button(_name.c_str()))
-			{
-				_bind();
-			}
-		}
-	private:
-		std::string _name;
-		bind_type _bind;
-
+		virtual void Update(float, Context &inContext) = 0;
 	};
 
 
@@ -102,15 +74,20 @@ public:
 	bool IsEnabled() const { return _enabled; }
 	const std::string& GetTitle() const { return _name; }
 	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
+
 protected:
-	size_t		_id;
-	virtual void _Update(float, Context &inContext) {};
-	virtual void CustomDraw();
-	virtual void BeforeWindowCreation() {}
-	virtual void AfterWindowCreation() {}
-	virtual void WillClose();
-	fm::math::vec2								_position;
-	fm::math::vec2								_size;
+	virtual void			_Update(float, Context &inContext) {};
+	virtual void			CustomDraw();
+	virtual void			BeforeWindowCreation() {}
+	virtual void			AfterWindowCreation() {}
+	virtual void			WillClose();
+			bool			HasFocus() const;
+	const	fm::math::vec2&	GetSize() const;
+	const	fm::math::vec2&	GetPosition() const;
+			bool			IsDocked() const;
+			bool			HasBeenDrawn() const;
+
+protected:
 	bool										_enabled;
 	std::queue<std::function<void(GWindow*)>>	_events;
 	WINDOWS										_kind;
@@ -124,6 +101,12 @@ private:
 	size_t								  _option;
 	bool								  _dockable;
 	bool								  _isFocused;
+	fm::math::vec2						  _position;
+	fm::math::vec2						  _size;
+	size_t								  _id;
+	bool								  _iswindowDocked;
+	bool								  _hasBeenDrawn;
+
 };
 }
 

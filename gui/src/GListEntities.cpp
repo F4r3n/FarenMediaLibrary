@@ -50,10 +50,14 @@ void GListEntities::CustomDraw()
 			if (_isRenaming && isSelected)
 			{
 				memcpy(_bufferName, _gameObjectSelected->GetName().c_str(), std::min((size_t)127, _gameObjectSelected->GetName().size()));
-				if (ImGui::InputText("##", _bufferName, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+				if (ImGui::InputText("##", _bufferName, 128, ImGuiInputTextFlags_EnterReturnsTrue) && HasFocus())
 				{
 					std::string newName(_bufferName);
 					_gameObjectSelected->SetName(_bufferName);
+					_isRenaming = false;
+				}
+				else
+				{
 					_isRenaming = false;
 				}
 			}
