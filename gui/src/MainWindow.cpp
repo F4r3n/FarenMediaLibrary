@@ -26,6 +26,7 @@
 #include "GameView.h"
 #include "Window.h"
 #include "ListComponentWindow.hpp"
+#include "FileNavigator.h"
 
 #include "Resource/ResourcesManager.h"
 
@@ -63,6 +64,8 @@ MainWindow::MainWindow()
 	_windows[gui::WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
 	_windows[gui::WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GameView>();
 	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::ListComponentWindow>();
+	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR] = std::make_unique<gui::GFileNavigator>();
+
 
 	fm::Debug::log("Init done");
 	_needUpdate = false;
@@ -84,9 +87,12 @@ void MainWindow::_AddEmptyScene()
 	tr = go->get<fmc::CTransform>();
 	tr->position = fm::math::vec3(0, 0, 0);
 	go->addComponent<fmc::CCamera>()->Init();
-	gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
-	go->SetName("Main camera");
-	gv->AddCamera(currentScene->GetGameObject(currentScene->GetID(go)));
+	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
+	{
+		gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
+		go->SetName("Main camera");
+		gv->AddCamera(currentScene->GetGameObject(currentScene->GetID(go)));
+	}
 }
 
 void MainWindow::Init()
@@ -122,6 +128,12 @@ void MainWindow::_DisplayWindow_Save()
 		fm::Application::Get().SetUserDirectory(result);
 		fm::Application::Get().Serialize(_editorScene);
 	}
+}
+
+bool MainWindow::IsWindowAvailable(gui::WINDOWS inWindow)
+{
+	gui::GWindow* window = _windows[inWindow].get();
+	return window != nullptr;
 }
 
 
@@ -321,11 +333,22 @@ void MainWindow::Update()
 
 	for (auto& window : _windows)
 	{
-		window.second->Update(fm::Time::dt, _context);
+		if (window.second != nullptr)
+		{
+			window.second->Update(fm::Time::dt, _context);
+		}
 	}
 	_currentEntity = _context.currentGameObjectSelected;
 }
 
+void MainWindow::_AddDock(gui::WINDOWS inWindow, ImGuiID inID)
+{
+	
+	if (_windows[inWindow] != nullptr)
+	{
+		ImGui::DockBuilderDockWindow(_windows[inWindow]->GetTitle().c_str(), inID);
+	}
+}
 
 
 
@@ -369,12 +392,12 @@ void MainWindow::Draw()
 		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Down, 0.2f, nullptr, &dock_left_id);
 		ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_right_id, ImGuiDir_Down, 0.5f, nullptr, &dock_right_id);
 
-		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_TOOLBAR]->GetTitle().c_str(), dock_up_id);
-		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->GetTitle().c_str(), dock_right_id);
-		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->GetTitle().c_str(), dock_left_id);
-		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_LOGGER]->GetTitle().c_str(), dock_down_id);
-		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_SCENE_VIEW]->GetTitle().c_str(), dock_left_right_id);
-		ImGui::DockBuilderDockWindow(_windows[gui::WINDOWS::WIN_INSPECTOR]->GetTitle().c_str(), dock_down_right_id);
+		_AddDock(gui::WINDOWS::WIN_TOOLBAR, dock_up_id);
+		_AddDock(gui::WINDOWS::WIN_LIST_ENTITIES, dock_right_id);
+		_AddDock(gui::WINDOWS::WIN_EDITOR_VIEW, dock_left_id);
+		_AddDock(gui::WINDOWS::WIN_FILE_NAVIGATOR, dock_down_id);
+		_AddDock(gui::WINDOWS::WIN_SCENE_VIEW, dock_left_right_id);
+		_AddDock(gui::WINDOWS::WIN_INSPECTOR, dock_down_right_id);
 
 		//ImGuiDockNodeFlags_
 		// Disable tab bar for custom toolbar
@@ -387,8 +410,8 @@ void MainWindow::Draw()
 	ImGui::PopStyleVar(3);
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
 
-	//bool show_demo_window = true;
-	//ImGui::ShowDemoWindow(&show_demo_window);
+	bool show_demo_window = true;
+	ImGui::ShowDemoWindow(&show_demo_window);
 
 
 	if (_needUpdate)
@@ -397,7 +420,10 @@ void MainWindow::Draw()
 	}
 	for (auto& window : _windows)
 	{
-		window.second->Draw();
+		if (window.second != nullptr)
+		{
+			window.second->Draw();
+		}
 	}
 	
 
@@ -438,13 +464,19 @@ void MainWindow::Draw()
 
 void MainWindow::_ClearBeforeSceneChange()
 {
-	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
-		dynamic_cast<gui::GameView*>(inWindow)->Clear();
-	});
+	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
+	{
+		_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
+			dynamic_cast<gui::GameView*>(inWindow)->Clear();
+		});
+	}
 
-	_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([](gui::GWindow* inWindow) {
-		dynamic_cast<gui::ListComponentWindow*>(inWindow)->ClearInspectorComponents();
-	});
+	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))
+	{
+		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([](gui::GWindow* inWindow) {
+			dynamic_cast<gui::ListComponentWindow*>(inWindow)->ClearInspectorComponents();
+		});
+	}
 
 	_currentEntity = nullptr;
 	_context.currentGameObjectSelected = nullptr;
@@ -460,9 +492,12 @@ void MainWindow::_InitGameView()
 	{
 		if (o->has<fmc::CCamera>())
 		{
-			_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([o](gui::GWindow* inWindow) {
-				dynamic_cast<gui::GameView*>(inWindow)->AddCamera(o);
-			});
+			if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
+			{
+				_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([o](gui::GWindow* inWindow) {
+					dynamic_cast<gui::GameView*>(inWindow)->AddCamera(o);
+				});
+			}
 			break;
 		}
 	}

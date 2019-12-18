@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <functional>
 namespace fm
 {
 	class FilePath
@@ -27,10 +28,18 @@ namespace fm
 		static FilePath Rename(const FilePath &currentPath, const std::string &inNewName);
 		static FilePath GetWorkingDirectory();
 		static void		GetAllFiles(const FilePath &inDirectory, const std::string &inExtension, bool recursive, std::vector<FilePath> &outPaths);
+
+		void Iterate(bool recursive, std::function<void(const fm::FilePath& inFilePath)> && inCallback) const;
+		bool IsValid() const;
+		static constexpr char GetFolderSeparator();
+		static bool GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePath &otherPath, std::string &outRelativePath);
 	private:
 		bool _IsFolder(const std::string &inPath) const;
 
 		std::string _path;
+		bool _isFolder;
+		bool _isFile;
+		bool _isInit;
 	};
 }
 

@@ -65,7 +65,7 @@ void GWindow::Draw()
 	if (_enabled)
 	{
 		bool previousStatus = _enabled;
-		if (!_dockable)
+		if (!_hasBeenDrawn)
 		{
 			ImGui::SetNextWindowPos(ImVec2(_position.x, _position.y), ImGuiCond_FirstUseEver);
 			if (_size.x != 0 && _size.y != 0)
@@ -74,39 +74,40 @@ void GWindow::Draw()
 
 
 		BeforeWindowCreation();
-		ImGui::Begin(_name.c_str(), &_enabled, _option);
-		AfterWindowCreation();
-
-		_id = ImGui::GetWindowDockID();
-		_isFocused = ImGui::IsWindowFocused();
-		_iswindowDocked = ImGui::IsWindowDocked();
-
-		ImGuiContext* context = ImGui::GetCurrentContext();
-		ImVec2 size;
-		ImVec2 pos;
-		if (_iswindowDocked)
+		if (ImGui::Begin(_name.c_str(), &_enabled, _option))
 		{
-			 size = context->CurrentWindow->DockNode->Size;
-			 pos = context->CurrentWindow->DockNode->Pos;
-		}
-		else
-		{
-			size = ImGui::GetWindowSize();
-			pos = ImGui::GetWindowPos();
-		}
-		_size.x = size.x;
-		_size.y = size.y;
+			AfterWindowCreation();
 
-		_position.x = pos.x;
-		_position.y = pos.y;
+			_isFocused = ImGui::IsWindowFocused();
+			_iswindowDocked = ImGui::IsWindowDocked();
 
-		CustomDraw();
-
-		if (!_widgets.empty())
-		{
-			for (auto && widget : _widgets)
+			ImGuiContext* context = ImGui::GetCurrentContext();
+			ImVec2 size;
+			ImVec2 pos;
+			if (_iswindowDocked)
 			{
-				widget->Draw();
+				size = context->CurrentWindow->DockNode->Size;
+				pos = context->CurrentWindow->DockNode->Pos;
+			}
+			else
+			{
+				size = ImGui::GetWindowSize();
+				pos = ImGui::GetWindowPos();
+			}
+			_size.x = size.x;
+			_size.y = size.y;
+
+			_position.x = pos.x;
+			_position.y = pos.y;
+
+			CustomDraw();
+
+			if (!_widgets.empty())
+			{
+				for (auto && widget : _widgets)
+				{
+					widget->Draw();
+				}
 			}
 		}
 
@@ -117,6 +118,7 @@ void GWindow::Draw()
 			WillClose();
 		}
 		_hasBeenDrawn = true;
+		
 	}
 }
 

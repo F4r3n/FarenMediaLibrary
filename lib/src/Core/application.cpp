@@ -24,6 +24,11 @@ Application::~Application()
 void Application::SetConfig(const Config &inConfig)
 {
 	_currentConfig = inConfig;
+
+	if (!_currentConfig.userDirectory.IsValid())
+	{
+		_currentConfig.userDirectory = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::WORKING_DIRECTORY);
+	}
 }
 
 Application::Application()

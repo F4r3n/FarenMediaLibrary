@@ -69,6 +69,8 @@ private:
 
 	void _Copy();
 	void _Paste();
+	void _AddDock(gui::WINDOWS inWindow, ImGuiID inID);
+	bool IsWindowAvailable(gui::WINDOWS inWindow);
 private:
 
 	gui::Context				_context;

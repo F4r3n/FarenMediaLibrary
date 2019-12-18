@@ -35,6 +35,7 @@ namespace gui
 		WIN_SCENE_VIEW,
 		WIN_TOOLBAR,
 		WIN_INSPECTOR,
+		WIN_FILE_NAVIGATOR,
 		WIN_NO_KIND,
 		WIN_LAST
 
@@ -103,7 +104,6 @@ private:
 	bool								  _isFocused;
 	fm::math::vec2						  _position;
 	fm::math::vec2						  _size;
-	size_t								  _id;
 	bool								  _iswindowDocked;
 	bool								  _hasBeenDrawn;
 

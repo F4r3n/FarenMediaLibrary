@@ -70,6 +70,12 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 		p.Append("lua");
 		return p;
 	}
+
+	case WORKING_DIRECTORY:
+	{
+		FilePath p = FilePath::GetWorkingDirectory();
+		return p;
+	}
 		
 	default:
 		return FilePath::GetWorkingDirectory();

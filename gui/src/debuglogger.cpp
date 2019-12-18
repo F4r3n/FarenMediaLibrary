@@ -61,15 +61,19 @@ void DebugLogger::CustomDraw()
     ImGui::SameLine();
 
     ImGui::Separator();
-    ImGui::BeginChild("scrolling", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
-    if (copy) 
-		ImGui::LogToClipboard();
+	if (ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
+	{
+		if (copy)
+			ImGui::LogToClipboard();
 
-    ImGui::TextUnformatted((const char*)&_buffer.front());
+		ImGui::TextUnformatted((const char*)&_buffer.front());
 
-    if (_scrollToBottom)
-        ImGui::SetScrollHere(1.0f);
-    _scrollToBottom = false;
-    ImGui::EndChild();
+		if (_scrollToBottom)
+			ImGui::SetScrollHere(1.0f);
+		_scrollToBottom = false;
+
+	}
+	ImGui::EndChild();
+
 }
 

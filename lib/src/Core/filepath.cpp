@@ -1,20 +1,44 @@
 #include "Core/FilePath.h"
 #include <filesystem>
 #include <fstream>
-#if __linux__
-const char FOLDER_SEPARATOR = '/';
-#elif __APPLE__
-const char FOLDER_SEPARATOR = ':';
-#else
-const char FOLDER_SEPARATOR = '\\';
-#endif
+
 
 namespace fs = std::filesystem;
 using namespace fm;
 FilePath::FilePath(const std::string &inPath)
 {
 	_path = inPath;
+	_isInit = false;
+	_isFolder = IsFolder();
+	_isFile = IsFile();
+	_isInit = true;
 }
+
+constexpr char FilePath::GetFolderSeparator()
+{
+	return fs::path::preferred_separator;
+}
+
+bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePath &other, std::string &outRelativePath)
+{
+	bool isRoot = false;
+	const std::string rootPath = inRoot.GetPath();
+	const std::string otherPath = other.GetPath();
+	if (rootPath.size() < otherPath.size())
+	{
+		isRoot = (memcmp(rootPath.c_str(), otherPath.c_str(), rootPath.size()) == 0);
+
+		if (isRoot)
+		{
+			outRelativePath.clear();
+			outRelativePath.append(otherPath.c_str(), rootPath.size() + 1, otherPath.size() - rootPath.size() - 1);
+		}
+	}
+
+	return isRoot;
+}
+
+
 
 FilePath::FilePath(const FilePath &inPath)
 {
@@ -24,12 +48,20 @@ FilePath::FilePath(const FilePath &inPath)
 
 bool FilePath::IsFolder() const
 {
+	if (_isInit)
+	{
+		return _isFolder;
+	}
 	return _IsFolder(_path);
 }
 
 bool FilePath::IsFile() const
 {
-	return !fs::is_regular_file(_path);
+	if (_isInit)
+	{
+		return _isFile;
+	}
+	return fs::is_regular_file(_path);
 }
 
 bool FilePath::_IsFolder(const std::string &inPath) const
@@ -42,7 +74,7 @@ void FilePath::Append(const std::string &inFolderName)
 {
 	std::string newPath = "";
 
-	newPath = _path + FOLDER_SEPARATOR + inFolderName;
+	newPath = _path + GetFolderSeparator() + inFolderName;
 
 	_path = newPath;
 }
@@ -120,7 +152,7 @@ FilePath FilePath::Rename(const FilePath &currentPath, const std::string &inNewN
 {
 	FilePath p(currentPath.GetPath());
 
-	p = FilePath(currentPath.GetParent().GetPath() +FOLDER_SEPARATOR + inNewName);
+	p = FilePath(currentPath.GetParent().GetPath() + GetFolderSeparator() + inNewName);
 	fs::rename(currentPath.GetPath(), p.GetPath());
 	
 	return p;
@@ -130,6 +162,26 @@ FilePath FilePath::GetWorkingDirectory()
 {
 	return FilePath(fs::current_path().u8string());
 }
+
+bool FilePath::IsValid() const
+{
+	return !_path.empty();
+}
+
+void FilePath::Iterate(bool recursive, std::function<void(const fm::FilePath& inFilePath)> && inCallback) const
+{
+	for (auto &file : fs::directory_iterator(_path, fs::directory_options::none))
+	{
+		fm::FilePath currentPath(file.path().u8string());
+		inCallback(currentPath);
+
+		if (recursive && file.is_directory())
+		{
+			currentPath.Iterate(recursive, std::move(inCallback));
+		}
+	}
+}
+
 
 void FilePath::GetAllFiles(const FilePath &directory, const std::string &inExtension, bool recursive, std::vector<FilePath> &outPaths)
 {
