@@ -31,7 +31,8 @@ namespace fm
 
 		void Iterate(bool recursive, std::function<void(const fm::FilePath& inFilePath)> && inCallback) const;
 		bool IsValid() const;
-		static constexpr char GetFolderSeparator();
+		static char GetFolderSeparator();
+
 		static bool GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePath &otherPath, std::string &outRelativePath);
 	private:
 		bool _IsFolder(const std::string &inPath) const;

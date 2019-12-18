@@ -1,6 +1,6 @@
 #include "FileNavigator.h"
 #include "Core/application.h"
-#include <stack>
+
 using namespace gui;
 
 

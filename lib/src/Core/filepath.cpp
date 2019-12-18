@@ -14,7 +14,7 @@ FilePath::FilePath(const std::string &inPath)
 	_isInit = true;
 }
 
-constexpr char FilePath::GetFolderSeparator()
+char FilePath::GetFolderSeparator()
 {
 	return fs::path::preferred_separator;
 }
