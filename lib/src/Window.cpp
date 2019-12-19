@@ -50,14 +50,14 @@ bool Window::Init()
 		{
 			SDL_GetDisplayUsableBounds(0, &rect);
 #if _WIN32
-			rect.h -= 30;
+			rect.h -= 20;
 #endif
 		}
 		else
 		{
 			SDL_GetDisplayUsableBounds(0, &rect);
 #if _WIN32
-			rect.h -= 30;
+			rect.h -= 20;
 #endif
 		}
 		Window::kWidth = rect.w;

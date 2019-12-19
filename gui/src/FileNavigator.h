@@ -37,6 +37,8 @@ public:
 	Node* AddPath(const fm::FilePath &inPath);
 	void SetRoot(const fm::FilePath& inRoot);
 	const fm::FilePath& GetRoot() const { return _rootpath; }
+	Node* GetRootNode() { return &_root; }
+
 	void Clear(const fm::FilePath& inRoot);
 	bool HasRoot() const;
 	Node* GetNode(const std::string &inRelativePath);
@@ -65,7 +67,7 @@ namespace gui
 		~GFileNavigator();
 		void CustomDraw();
 
-		void DrawHierarchy(const fm::FilePath& inFilePath);
+		void DrawHierarchy(const fm::FilePath&, Node* currentNode);
 		void SetPathSelected(const fm::FilePath& inFilePath);
 	private:
 		void _Update(float dt, Context &inContext);

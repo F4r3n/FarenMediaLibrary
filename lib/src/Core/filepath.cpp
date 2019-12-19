@@ -1,7 +1,7 @@
 #include "Core/FilePath.h"
 #include <filesystem>
 #include <fstream>
-
+#include <cstring>
 
 namespace fs = std::filesystem;
 using namespace fm;
@@ -105,34 +105,32 @@ const std::string& FilePath::GetPath() const
 
 FilePath FilePath::GetAbsolutePath(const std::string &inPath)
 {
-	std::string path = fs::absolute(inPath).u8string();
-	FilePath p(path);
-	if (fs::is_directory(path))
-	{
-		p = FilePath(path);
-	}
-	return p;
+	const std::string path(fs::absolute(inPath).u8string());
+	return FilePath(path);
 }
 
 std::string FilePath::GetName(bool withoutExtension) const
 {
-	fs::path p(_path);
+	const fs::path p(_path);
+	std::string name;
 	if (p.has_filename())
 	{
 		if (withoutExtension)
 		{
-			return p.filename().stem().u8string();
+			name = p.filename().stem().u8string();
 		}
-		else 
-			return p.filename().u8string();
+		else
+		{
+			name = p.filename().u8string();
+		}
 	}
 
-	return "";
+	return name;
 }
 
 std::string FilePath::GetExtension() const
 {
-	fs::path p(_path);
+	const fs::path p(_path);
 	if (p.has_filename())
 	{
 		return p.extension().u8string();
@@ -150,9 +148,7 @@ FilePath FilePath::GetParent() const
 
 FilePath FilePath::Rename(const FilePath &currentPath, const std::string &inNewName)
 {
-	FilePath p(currentPath.GetPath());
-
-	p = FilePath(currentPath.GetParent().GetPath() + GetFolderSeparator() + inNewName);
+	FilePath p(currentPath.GetParent().GetPath() + GetFolderSeparator() + inNewName);
 	fs::rename(currentPath.GetPath(), p.GetPath());
 	
 	return p;
@@ -170,10 +166,14 @@ bool FilePath::IsValid() const
 
 void FilePath::Iterate(bool recursive, std::function<void(const fm::FilePath& inFilePath)> && inCallback) const
 {
-	for (auto &file : fs::directory_iterator(_path, fs::directory_options::none))
+	for (const auto &file : fs::directory_iterator(_path, fs::directory_options::none))
 	{
-		fm::FilePath currentPath(file.path().u8string());
-		inCallback(currentPath);
+		const fm::FilePath currentPath(file.path().u8string());
+
+		if (inCallback != nullptr)
+		{
+			inCallback(currentPath);
+		}
 
 		if (recursive && file.is_directory())
 		{

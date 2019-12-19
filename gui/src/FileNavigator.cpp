@@ -231,34 +231,26 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 	}
 }
 
-void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot)
+void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode)
 {
-	Node* root = _cache.GetNode(inRoot);
-	if (root == nullptr)
+
+	for (auto& n : currentNode->nodes)
 	{
-		_listToRefresh.push(inRoot);
-	}
-	else
-	{
-		for (auto& n : root->nodes)
+		fm::FilePath p = inRoot;
+		p.Append(n.name);
+
+
+		bool opened = ImGui::TreeNodeEx(n.name.c_str());
+		
+		if (ImGui::IsItemClicked())
 		{
-			fm::FilePath p = inRoot;
-			p.Append(n.name);
+			_listToRefresh.push(p);
+		}
+		if (opened)
+		{
+			DrawHierarchy(p, &n);
 
-
-			bool opened = ImGui::TreeNodeEx(n.name.c_str());
-			
-			if (ImGui::IsItemClicked())
-			{
-				_listToRefresh.push(p);
-			}
-			if (opened)
-			{
-				DrawHierarchy(p);
-
-				ImGui::TreePop();
-			}
-			
+			ImGui::TreePop();
 		}
 	}
 }
@@ -274,7 +266,7 @@ void GFileNavigator::CustomDraw()
 {
 	if (ImGui::BeginChild("##folderNavigator", ImVec2(GetSize().x*0.5f, 0), false, ImGuiWindowFlags_NoTitleBar))
 	{
-		DrawHierarchy(_root);
+		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode());
 	}
 	ImGui::EndChild();
 
@@ -290,8 +282,7 @@ void GFileNavigator::CustomDraw()
 			}
 		}
 		ImGui::EndChild();
-	}
-
+	}       
 }
 
 
