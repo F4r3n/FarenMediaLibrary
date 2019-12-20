@@ -1,11 +1,11 @@
 #pragma once
-#include "Window.h"
-#include <map>
 #include "Core/Math/Vector2.h"
 #include "NonCopyable.h"
 #include <SDL_events.h>
 namespace fm
 {
+
+	class Window;
 
 enum FM_KEY {
     FM_KEY_UNKNOWN = SDL_SCANCODE_UNKNOWN,

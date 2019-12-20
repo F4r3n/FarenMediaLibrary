@@ -10,6 +10,7 @@
 #include <Core/Debug.h>
 #include <Input/InputManager.h>
 #include "Rendering/Renderer.h"
+#include "Window.h"
 
 int main()
 {

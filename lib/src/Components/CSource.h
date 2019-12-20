@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-#include <map>
 
 #include "Core/Math/Vector2.h"
 #include "component.h"

@@ -2,7 +2,7 @@
 #include "Rendering/ShaderLibrary.h"
 #include "Core/Config.h"
 #include "Rendering/ShaderParser.h"
-
+#include "Resource/ResourcesManager.h"
 #if OPENGL_CORE == 1
 #define SHADER_VERSION "#version 420 core\n"
 #else

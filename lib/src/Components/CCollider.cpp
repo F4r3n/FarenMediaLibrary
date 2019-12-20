@@ -1,6 +1,7 @@
 #include "Components/CCollider.h"
 #include "btBulletDynamicsCommon.h"
 #include "EntityManager.h"
+#include "Core/Transform.h"
 using namespace fmc;
 
 CCollider::CCollider()

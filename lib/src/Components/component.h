@@ -1,9 +1,8 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include <Component.h>
-
 #include "Core/serializer.hpp"
-#include "Config.h"
+
 namespace fmc
 {
 const std::string kEmpty("");

@@ -1,13 +1,10 @@
 #pragma once
 #include "Resource.h"
 #include <map>
-#include <unordered_map>
 #include <array>
 #include <memory>
 #include "NonCopyable.h"
 #include "Core/FilePath.h"
-#include "Rendering/Shader.h"
-#include "Rendering/Model.hpp"
 
 namespace fm {
   

@@ -5,6 +5,8 @@
 #include "Components/CTransform.h"
 #include "Core/Transform.h"
 #include "Components/CSource.h"
+#include <AL/al.h>
+#include <AL/alc.h>
 
 //TODO WTF REMAKE ALL
 using namespace fms;

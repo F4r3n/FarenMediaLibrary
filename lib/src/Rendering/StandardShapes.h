@@ -1,6 +1,15 @@
 #pragma once
 #include <Core/Math/Vector2.h>
-#include <Rendering/Mesh.hpp>
+#include <Core/Math/Vector3.h>
+
+namespace fm
+{
+	namespace rendering
+	{
+		struct MeshContainer;
+	}
+}
+
 namespace fm {
 
     class StandardShapes {

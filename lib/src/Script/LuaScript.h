@@ -4,13 +4,13 @@
 #include "Script/LuaManager.h"
 #include <sol2/sol.hpp>
 #include <string>
-#include "Core/FilePath.h"
 
 class Entity;
 
 namespace fm
 {
 	class BaseEvent;
+	class FilePath;
 }
 
 namespace fm

@@ -1,7 +1,13 @@
 #pragma once
 
-#include <AL/al.h>
-#include <AL/alc.h>
+struct ALCdevice_struct;
+struct ALCcontext_struct;
+
+/** Opaque device handle */
+typedef struct ALCdevice_struct ALCdevice;
+/** Opaque context handle */
+typedef struct ALCcontext_struct ALCcontext;
+
 
 namespace fm {
 class Speaker {

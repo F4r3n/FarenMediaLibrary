@@ -5,7 +5,6 @@
 #include <Component.h>
 #include "Core/Math/Vector2.h"
 #include "Resource/Resource.h"
-#include "Rendering/Texture.h"
 
 struct Character {
     fm::math::vec2 advance;
@@ -13,6 +12,11 @@ struct Character {
     fm::math::vec2 b_lt;
     fm::math::vec2 t;    
 };
+
+namespace fm
+{
+	class Texture;
+}
 
 class RFont : public fm::Resource {
 public:

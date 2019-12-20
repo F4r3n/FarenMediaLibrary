@@ -7,6 +7,9 @@
 #include "Input/InputManager.h"
 #include <imgui/imgui_internal.h>
 #include "Core/application.h"
+#include "Components/CTransform.h"
+#include "Components/CMesh.h"
+#include "Components/CMaterial.h"
 
 using namespace gui;
 EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inScene) : GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar

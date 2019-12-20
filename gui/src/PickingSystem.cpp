@@ -7,6 +7,10 @@
 #include "Core/Scene.h"
 #include "Resource/ResourcesManager.h"
 #include "Core/application.h"
+#include "Components/CMaterial.h"
+#include "Components/CMesh.h"
+#include "Rendering/Shader.h"
+
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)

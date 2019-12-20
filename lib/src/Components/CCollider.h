@@ -1,10 +1,16 @@
 #pragma once
 #include "component.h"
 #include "Core/Math/Vector3.h"
-#include "Core/Transform.h"
+
 class btGhostObject;
 class btCollisionShape;
 class btDynamicsWorld;
+
+namespace fm
+{
+	struct Transform;
+}
+
 namespace fmc
 {
 

@@ -3,6 +3,8 @@
 #include <EntityManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
+#include "Rendering/uniformbuffer.hpp"
+#include "Rendering/Shader.h"
 #include <Core/Debug.h>
 using namespace fmc;
 using namespace fm;

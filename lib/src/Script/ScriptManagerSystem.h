@@ -3,9 +3,8 @@
 #include <EntityManager.h>
 
 #include <Event.h>
-#include "EventComponents.h"
-#include "Physic/Collider.h"
-#include "Rendering/RenderingEvent.h"
+
+
 namespace fms {
 
 class ScriptManagerSystem : public System<ScriptManagerSystem> {

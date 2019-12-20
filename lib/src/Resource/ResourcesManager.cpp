@@ -10,6 +10,7 @@
 #include <fstream>
 #include <streambuf>
 #include <unordered_set>
+#include "Rendering/Shader.h"
 
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;

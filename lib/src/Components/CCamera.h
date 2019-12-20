@@ -5,14 +5,15 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Rect.h"
 #include "Rendering/RenderQueue.h"
-#include "Rendering/uniformbuffer.hpp"
 #include "Rendering/RenderTexture.h"
+#include "Core/Bounds.h"
 #include <mutex>
 
 namespace fm 
 {
 	class RenderTexture;
 	struct Transform;
+	class UniformBuffer;
 }
 
 namespace fms 

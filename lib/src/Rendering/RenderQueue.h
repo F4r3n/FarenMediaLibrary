@@ -3,28 +3,29 @@
 
 #include <queue>
 #include <vector>
-#include "Components/CMaterial.h"
-#include "Components/CMesh.h"
-#include "Components/CTransform.h"
-#include "Components/CDirectionalLight.h"
-#include "Components/CPointLight.h"
-#include "Components/CText.h"
 #include <bitset>
+#include "Rendering/RenderQueueEvents.hpp"
+#include "Core/Transform.h"
+
+namespace fm
+{
+	class Model;
+	class Material;
+}
+
+namespace fmc
+{
+	class CDirectionalLight;
+	class CPointLight;
+	class CText;
+}
+
+namespace fm
+{
+	using Materials = std::vector<fm::Material*>;
+}
+
 namespace fm {
-enum RENDER_QUEUE {
-	FIRST_STATE,
-	BEFORE_RENDERING_FILL_QUEUE,
-	BACKGROUND,
-	BEFORE_LIGHT, 
-	OPAQUE,
-	TRANSPARENT,
-	LIGHT, 
-	AFTER_LIGHT,
-	SKYBOX, 
-	OVERLAY,
-	AFTER_RENDERING,
-	LAST_STATE
-};
 
 struct RenderNode {
     const fm::Transform transform;

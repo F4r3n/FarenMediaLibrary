@@ -4,6 +4,7 @@
 #include "Rendering/Texture.h"
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
+#include "Rendering/Model.hpp"
 
 using namespace fm;
 

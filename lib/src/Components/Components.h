@@ -8,3 +8,4 @@
 #include "CPointLight.h"
 #include "CCollider.h"
 #include "CCamera.h"
+#include "CMesh.h"

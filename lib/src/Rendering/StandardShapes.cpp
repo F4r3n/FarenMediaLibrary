@@ -1,5 +1,7 @@
 #include <Rendering/StandardShapes.h>
 #include <Core/Math/Functions.h>
+#include <Rendering/Mesh.hpp>
+
 namespace fm {
 using namespace rendering;
 void StandardShapes::AddVertex(MeshContainer* mesh,

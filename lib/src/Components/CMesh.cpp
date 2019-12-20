@@ -1,9 +1,9 @@
 #include "Components/CMesh.h"
-#include <iostream>
 #include "Resource/ResourcesManager.h"
 #include <memory>
 #include "Core/Math/Functions.h"
 #include <EntityManager.h>
+#include "Rendering/Model.hpp"
 using namespace fmc;
 
 CMesh::~CMesh()

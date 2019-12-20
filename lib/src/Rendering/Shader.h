@@ -9,10 +9,11 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 #include <Resource/Resource.h>
-#include "Rendering/MaterialValue.h"
+
 namespace fm {
 
-   
+	class MaterialValue;
+	class Color;
 
 class Shader : public Resource{
     enum ZTEST {
@@ -40,7 +41,7 @@ public:
     const Shader* setValue(const std::string& name, fm::math::vec4 vector) const;
     const Shader* setValue(const std::string& name, float val) const;
     const Shader* setValue(const std::string& name, int val) const;
-    const Shader* setValue(const std::string& name, Color vector) const;
+    const Shader* setValue(const std::string& name, const Color &vector) const;
     const Shader* SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const;
 
     const Shader* Use() const;

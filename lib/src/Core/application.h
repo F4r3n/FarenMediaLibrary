@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 #include "Core/FilePath.h"
-#include <list>
+#include <vector>
 #include <string>
 #include <memory>
 

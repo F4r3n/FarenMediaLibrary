@@ -27,7 +27,9 @@
 #include <EntityManager.h>
 
 #include "Rendering/commandBuffer.hpp"
-
+#include "Components/CCamera.h"
+#include "Rendering/VertexBuffer.hpp"
+#include "Rendering/Model.hpp"
 
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x

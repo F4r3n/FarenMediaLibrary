@@ -1,10 +1,11 @@
 #pragma once
 #include <string>
 #include <Core/Config.h>
-#include "Image.h"
 #include "Core/Rect.h"
 #include <nlohmann/json_fwd.hpp>
 namespace fm {
+
+	class Image;
 
 enum Format {
     RED = GL_R,

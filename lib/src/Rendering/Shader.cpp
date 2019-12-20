@@ -1,6 +1,8 @@
 
 #include "Rendering/Shader.h"
 #include <iostream>
+#include "Rendering/MaterialValue.h"
+#include "Core/Color.h"
 using namespace fm;
 
 Shader::Shader() {
@@ -106,7 +108,7 @@ const Shader* Shader::setValue(const std::string& name, int val) const
     return this;
 }
 
-const Shader* Shader::setValue(const std::string& name, Color vector) const
+const Shader* Shader::setValue(const std::string& name, const Color &vector) const
 {
     return setValue(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));
 }

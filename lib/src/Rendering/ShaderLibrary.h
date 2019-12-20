@@ -1,5 +1,4 @@
 #pragma once
-#include "Resource/ResourcesManager.h"
 
 class ShaderLibrary 
 {

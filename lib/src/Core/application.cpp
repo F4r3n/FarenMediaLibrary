@@ -10,6 +10,7 @@
 #include "Resource/ResourcesManager.h"
 #include "SystemManager.h"
 #include "Core/Debug.h"
+#include "GL/glew.h"
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";

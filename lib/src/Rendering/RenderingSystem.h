@@ -1,27 +1,32 @@
 #pragma once
 #include <System.h>
 #include <Entity.h>
-#include "Components/CCamera.h"
 
-#include "Rendering/RenderQueue.h"
-#include "Rendering/Shader.h"
+#include "Rendering/RenderQueueEvents.hpp"
 #include "Resource/RFont.h"
 #include "Core/Bounds.h"
 #include "Rendering/Graphics.hpp"
-#include "Rendering/Model.hpp"
-#include "Rendering/MaterialValue.h"
+#include "Core/Math/Matrix.h"
 
 namespace fmc 
 {
 	class CText;
 	class CTransform;
 	class CMesh;
+	class CCamera;
+
 }
 
 namespace fm
 {
 	class UniformBuffer;
 	class Model;
+	class MaterialValue;
+	class Shader;
+	class MaterialProperties;
+	class RenderTexture;
+	struct Transform;
+	class Material;
 }
 
 struct TextDef 

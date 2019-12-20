@@ -1,5 +1,4 @@
 #pragma once
-#include <cassert>
 #include "Vector4.h"
 #include "Functions.h"
 namespace fm {
@@ -229,7 +228,7 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
     template<typename T>
        Matrix<T> perspective(T fovy, T aspect, T zNear, T zFar)
         {
-            assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
+            //assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
 
             T const tanHalfFovy = tan(fovy / static_cast<T>(2));
 

@@ -1,9 +1,15 @@
 #pragma once
 #include <Core/Math/Vector4.h>
 #include <Core/Rect.h>
-#include <Rendering/VertexBuffer.hpp>
 #include <unordered_map>
+#include "GL/glew.h"
 namespace fm {
+
+	namespace rendering
+	{
+		class VertexBuffer;
+	}
+
 	enum RENDERING_TYPE : unsigned int {
 		BLEND = GL_BLEND,
 		DEPTH_TEST = GL_DEPTH_TEST,

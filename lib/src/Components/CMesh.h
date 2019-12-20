@@ -1,14 +1,15 @@
 #pragma once
 #include "component.h"
 #include <string>
-#include <vector>
 #include "Core/Math/Vector2.h"
 
-#include <Core/Config.h>
 #include "Core/Color.h"
 #include "Core/Bounds.h"
 
-#include <Rendering/Model.hpp>
+namespace fm
+{
+	class Model;
+}
 
 namespace fmc {
 

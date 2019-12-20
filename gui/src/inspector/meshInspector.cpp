@@ -1,6 +1,7 @@
 #include "inspector/meshInspector.hpp"
 #include <imgui/imgui.h>
 #include "Resource/ResourcesManager.h"
+#include "Rendering/Model.hpp"
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)
 

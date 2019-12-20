@@ -4,6 +4,7 @@
 #if __linux__
 #include <dlfcn.h>
 #else
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
