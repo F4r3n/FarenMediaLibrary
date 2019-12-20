@@ -14,22 +14,12 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 
 include_directories("src")
 file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(EMSCRIPTEN)
-	add_definitions(-DEMSCRIPTEN)
-	set(FML_BUILD_STATIC ON CACHE BOOL "" FORCE)
-	set(FML_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-	set(LINK_FLAGS "${LINK_FLAGS} -s USE_SDL=2")
-else(EMSCRIPTEN)
-
-endif(EMSCRIPTEN)
 
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
-link_directories(${FML_EXTLIB_LIB}/bullet3)
 include_directories(${FML_EXTLIB}/bullet3/src)
+link_directories(${FML_EXTLIB_LIB}/bullet3)
 
 #Opengl
 find_package(OpenGL)
@@ -40,13 +30,14 @@ IF(NOT WIN32)
 ELSE()
     SET(OPENAL_LIBRARIES "OpenAL32")
 ENDIF()
-link_directories(${FML_EXTLIB_LIB}/openal)
 include_directories(${FML_EXTLIB}/openal/include)
+link_directories(${FML_EXTLIB_LIB}/openal)
+
 
 #GLEW
-set(GLEW_LIBRARIES glew)
-link_directories(${FML_EXTLIB_LIB}/glew)
+add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
+link_directories(${FML_EXTLIB_LIB}/glew)
 
 #SDL2
 include_directories(${FML_EXTLIB}/SDL2/include)
@@ -91,8 +82,8 @@ target_link_libraries(${LIB_NAME} freetype)
 target_link_libraries(${LIB_NAME} ECS)
 target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} debug SDL2d optimized SDL2)
+target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
-target_link_libraries(${LIB_NAME} ${GLEW_LIBRARIES})
 target_link_libraries(${LIB_NAME} ${OPENAL_LIBRARIES})
 target_link_libraries(${LIB_NAME} Box2D)
 target_link_libraries(${LIB_NAME} assimp)
