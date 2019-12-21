@@ -3,7 +3,7 @@
 #include <cassert>
 using namespace fm;
 
-RenderTexture::RenderTexture(unsigned int width, unsigned int height,
+RenderTexture::RenderTexture(size_t width, size_t height,
 unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling) {
     _width = width;
     _height = height;

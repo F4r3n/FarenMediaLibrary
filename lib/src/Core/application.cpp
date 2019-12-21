@@ -45,7 +45,7 @@ void Application::AddApplicationObserver(std::shared_ptr<ApplicationObserver> in
 
 bool Application::SerializeCurrentScene() const
 {
-	return Serialize(_sceneManager->getCurrentScene());
+	return Serialize();
 }
 
 std::shared_ptr<fm::Scene> Application::CreateNewScene(const std::string &inNewSceneName)
@@ -60,31 +60,19 @@ std::shared_ptr<fm::Scene> Application::CreateEditorScene()
 	return _sceneManager->AddPrivateScene("_editor");
 }
 
-bool Application::Serialize(const std::shared_ptr<fm::Scene> editorScene) const
+bool Application::Serialize() const
 {
-	{
-		nlohmann::json s;
-		_sceneManager->Serialize(s);
+	
+	nlohmann::json s;
+	_sceneManager->Serialize(s);
 
-		FilePath p(_currentConfig.userDirectory);
-		p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
-		
-		std::ofstream o(p.GetPath(), std::ofstream::out);
-		o << std::setw(4) << s << std::endl;
-		o.close();
-	}
-
-	if(editorScene != nullptr)
-	{
-		nlohmann::json s;
-		editorScene->Serialize(s);
-
-		FilePath p(_currentConfig.userDirectory);
-		p.Append(_currentConfig.name + EDITOR_FILE_NAME_EXTENSION);
-		std::ofstream o(p.GetPath(), std::ofstream::out);
-		o << std::setw(4) << s << std::endl;
-		o.close();
-	}
+	FilePath p(_currentConfig.userDirectory);
+	p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
+	
+	std::ofstream o(p.GetPath(), std::ofstream::out);
+	o << std::setw(4) << s << std::endl;
+	o.close();
+	
     return true;
 
 }
@@ -144,7 +132,6 @@ void Application::Stop()
 	_sceneManager->setCurrentScene(_nameLastScene, false);
 	_sceneManager->getCurrentScene()->ResetStatusGo();
 	_engine->Stop();
-	//TODO garbage collect
 
 	for (auto && o : _observers)
 	{
@@ -188,10 +175,8 @@ void Application::LoadProject(const fm::FilePath& inFilePath)
 	
 	SetProjectName(inFilePath.GetName(true));
 	SetUserDirectory(inFilePath.GetParent());
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 	Read();
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 	for (auto && o : _observers)
 	{
@@ -211,7 +196,6 @@ void Application::DeInit()
 {
     delete _engine;
 	delete _window;
-
 }
 
 
@@ -263,7 +247,6 @@ void Application::RegisterCurrentConfig()
 
 void Application::GetLastConfigs(std::vector<fm::Config> &outConfig)
 {
-	//Berk
 	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
 	{
 		outConfig.push_back(_lastConfigsUsed[i]);

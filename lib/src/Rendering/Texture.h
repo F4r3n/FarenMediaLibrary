@@ -7,7 +7,8 @@ namespace fm {
 
 	class Image;
 
-enum Format {
+enum class Format
+{
     RED = GL_R,
     RGB = GL_RGB,
     RGBA = GL_RGBA,
@@ -19,24 +20,28 @@ enum Format {
     STENCIL = GL_STENCIL_INDEX
 };
 
-enum Type {
-
+enum class Type
+{
     FLOAT = GL_FLOAT,
     HALF_FLOAT = GL_HALF_FLOAT,
     UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
     UNSIGNED_24_8 = GL_UNSIGNED_INT_24_8
-
 };
 
-enum Kind
+enum class Kind
 {
     TEXTURE2D = GL_TEXTURE_2D,
     TEXTURE2D_MULTISAMPLED = GL_TEXTURE_2D_MULTISAMPLE
 };
 
-enum Filter { NEAREST = GL_NEAREST, LINEAR = GL_LINEAR };
+enum class Filter
+{
+	NEAREST = GL_NEAREST,
+	LINEAR = GL_LINEAR
+};
 
-enum Wrapping {
+enum class Wrapping
+{
     REPEAT = GL_REPEAT,
     CLAMP_BORDER = GL_CLAMP_TO_BORDER,
     MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
@@ -52,7 +57,7 @@ class Texture
             bool alpha = true);
     Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha = true);
     Texture(unsigned int width, unsigned int height);
-	Texture();
+	Texture() {};
 	~Texture();
 
 	Texture(const Texture &texture);
@@ -78,8 +83,8 @@ class Texture
 	Kind				GetKind() const { return _textureKind; }
 	void				GetPixel(const fm::math::vec2& inPosition, void *outValue) const;
 
-	Filter filter = NEAREST;
-	Wrapping wrapping = REPEAT;
+	Filter filter = Filter::NEAREST;
+	Wrapping wrapping = Wrapping::REPEAT;
 
    private:
 	void				_init(std::vector<unsigned char>& data, Recti& rect);
@@ -90,8 +95,8 @@ class Texture
     unsigned int _height;
     unsigned int _numberChannels = 4;
 
-    int _format;
-    int _type;
+    Format _format;
+    Type _type;
     std::vector<unsigned char> _content;
 
     GLuint _id;

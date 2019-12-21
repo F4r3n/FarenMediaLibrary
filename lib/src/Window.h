@@ -11,9 +11,9 @@ class Window   {
     friend class InputManager;
 
 public:
-    Window(int width, int height, size_t inWindowFlag);
+    Window(size_t width, size_t height, size_t inWindowFlag);
     ~Window();
-    explicit Window() {}
+	Window() = delete;
     void swapBuffers() const;
     void setMSAA(int value);
     bool isClosed();
@@ -23,8 +23,8 @@ public:
     SDL_Window* getWindow() { return _window;}
     void setName(const std::string &name);
 
-    static int kWidth;
-    static int kHeight;
+    static size_t kWidth;
+    static size_t kHeight;
     static int kX;
     static int kY;
     bool Init();
@@ -34,16 +34,17 @@ private:
     int  _Init();
     void _ErrorDisplay();
 
-	bool _isInit = false;
+private:
+	bool		_isInit;
 
-    SDL_Window* _window = nullptr;
-    void * _mainContext;
+    SDL_Window* _window;
+    void *		_mainContext;
 
-    float _fpsMax = 120;
-    double _waitTime = 1.0f / (double)_fpsMax;
-    double _currFrameTime = 0;
-    double _frameStart = 0;
-	size_t _windowFlag;
-	size_t _msaa;
+    float		_fpsMax;
+    double		_waitTime;
+	double		_currFrameTime;
+    double		_frameStart;
+	size_t		_windowFlag;
+	int			_msaa;
 };
 }

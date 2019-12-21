@@ -40,22 +40,21 @@ CCamera::CCamera()
 	_isInit = false;
 }
 
-CCamera::CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
+CCamera::CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
+	:
+_nearPlane(0.1f),
+_farPlane(1000.0f),
+_fovy(60.0f),
+_isInit(false),
+_width(width),
+_height(height),
+_isOrto(ortho),
+_multiSampled(multiSampled),
+_isAuto(isAuto),
+_target(nullptr)
 {
 	_name = "Camera";
-	_nearPlane = 0.1f;
-	_farPlane = 1000.0f;
-	_fovy = 60.0f;
-	_isInit = false;
-
-	_width = width;
-	_height = height;
 	shader_data.render_mode = mode;
-	_isOrto = ortho;
-	_multiSampled = multiSampled;
-	_isAuto = isAuto;
-	_target = nullptr;
-
 }
 
 CCamera::~CCamera()
@@ -131,8 +130,8 @@ void CCamera::UpdateProjectionMatrix()
 	if (_isOrto)
 	{
 		_projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
-		_viewPort.w = static_cast<float>(_width);
-		_viewPort.h = static_cast<float>(_height);
+		_viewPort.w = (int)_width;
+		_viewPort.h = (int)_height;
 		_viewPort.x = 0;
 		_viewPort.y = 0;
 
@@ -140,8 +139,8 @@ void CCamera::UpdateProjectionMatrix()
 	else
 	{
 		_projection = fm::math::perspective(fm::math::radians(_fovy), (float)_width / (float)_height, _nearPlane, _farPlane);
-		_viewPort.w = static_cast<float>(_width);
-		_viewPort.h = static_cast<float>(_height);
+		_viewPort.w = (int)_width;
+		_viewPort.h = (int)_height;
 		_viewPort.x = 0;
 		_viewPort.y = 0;
 
@@ -164,7 +163,7 @@ void CCamera::Init()
 
 
 
-void CCamera::SetNewProjection(unsigned int width, unsigned int height)
+void CCamera::SetNewProjection(int width, int height)
 {
     _width = width;
     _height = height;
@@ -190,14 +189,14 @@ void CCamera::UpdateRenderTexture()
     
 }
 
-void CCamera::SetNewViewPort(int x, int y, unsigned int width, unsigned int height)
+void CCamera::SetNewViewPort(int x, int y, int width, int height)
 {
     _isOrto = true;
     _projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, _nearPlane, _farPlane);
-    _viewPort.w = static_cast<float>(width);
-    _viewPort.h = static_cast<float>(height);
-    _viewPort.x = static_cast<float>(x);
-    _viewPort.y = static_cast<float>(y);
+    _viewPort.w = width;
+    _viewPort.h = height;
+    _viewPort.x = x;
+    _viewPort.y = y;
 
 	_InitRenderTexture();
 }
@@ -315,11 +314,18 @@ void CCamera::UpdateUniformBufferCamera()
 
 void CCamera::UpdateRenderConfigBounds(const fm::Transform &inTransform)
 {
-	_rendererConfiguration.bounds.setSize(fm::math::vec3(_viewPort.w, _viewPort.h, _farPlane - _nearPlane));
+	_rendererConfiguration.bounds.setSize(fm::math::vec3(static_cast<float>(_viewPort.w),
+														 static_cast<float>(_viewPort.h),
+														 static_cast<float>(_farPlane - _nearPlane)));
 	_rendererConfiguration.bounds.setCenter(fm::math::vec3(inTransform.position.x, inTransform.position.y, -1) + _rendererConfiguration.bounds.getSize() / 2.0f);
 	_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
 }
 
+std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(const fm::RenderTexture& inRenderTexture)
+{
+	_target = std::make_shared<fm::RenderTexture>(inRenderTexture);
+	return _target;
+}
 
 
 std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(fm::RenderTexture *inRenderTexture)
@@ -327,11 +333,11 @@ std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(fm::RenderTexture *inRende
 	if (inRenderTexture == nullptr)
 	{
 		_target = std::make_shared<fm::RenderTexture>(fm::RenderTexture(getInternalRenderTexture(), 0));
+		return _target;
 	}
 	else
 	{
-		_target = std::make_shared<fm::RenderTexture>(*inRenderTexture);
+		return SetTarget(*inRenderTexture);
 	}
-	return _target;
 }
 

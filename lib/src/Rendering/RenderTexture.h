@@ -10,15 +10,15 @@ namespace fm
 	{
     public:
         RenderTexture() {}
-        RenderTexture(unsigned int width, unsigned int height, 
+        RenderTexture(size_t width, size_t height, 
 unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling = 0);
         RenderTexture(const RenderTexture &renderTexture, int multiSampling = -1);
         ~RenderTexture();
         
         bool isCreated() const;
         void bind();
-        inline unsigned int getWidth() const {return _width;}
-        inline unsigned int getHeight() const {return _height;}
+        inline size_t getWidth() const {return _width;}
+        inline size_t getHeight() const {return _height;}
         
 		const fm::Texture& GetColorBufferTexture(size_t id) const;
 		const std::vector<Texture>& GetColorBuffer() const { return _textureColorbuffer; }
@@ -35,8 +35,8 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
 		void release();
 
         bool _isReady = false;
-        unsigned int _width = 0;
-        unsigned int _height = 0;
+        size_t _width = 0;
+        size_t _height = 0;
         unsigned short _depth = 0;
         unsigned short _numberColors = 0;
         int _multiSampling = 0;

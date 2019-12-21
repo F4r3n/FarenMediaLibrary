@@ -24,16 +24,14 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 #if 1
 	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 	fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-	fm::RenderTexture renderTexture(_camera->getInternalRenderTexture().getWidth(),
+
+	_camera->SetTarget(fm::RenderTexture(_camera->getInternalRenderTexture().getWidth(),
 		_camera->getInternalRenderTexture().getHeight(),
 		3,
 		formats,
 		types,
 		24,
-		0);
-
-
-	_camera->SetTarget(&renderTexture);
+		0));
 #else
 	_camera->target = std::make_shared<fm::RenderTexture>(_camera->getInternalRenderTexture(), 0);
 #endif

@@ -10,11 +10,10 @@ namespace fm {
 struct TextureMat
 {
         TextureMat(const TextureMat& textureMat)
+			:texture(textureMat.texture)
         {
-            texture = textureMat.texture;
             position = textureMat.position;
         }
-        TextureMat() {position = 0;}
 
         fm::Texture texture;
         int position;

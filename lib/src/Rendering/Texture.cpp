@@ -13,10 +13,10 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
 {
     if(alpha) 
 	{
-        _format = GL_RGBA;
+        _format = Format::RGBA;
     }
 	else
-        _format = GL_RGB;
+        _format = Format::RGB;
 
     Image image;
     if(!image.loadImage(path)) 
@@ -28,7 +28,7 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
     // " " << texture.height << std::endl;
 
     glGenTextures(1, &_id);
-    glBindTexture(_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
+    glBindTexture((GLenum)_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
                                        // now have effect on this texture object
 
     if(rect.w == -1 && rect.h == -1) {
@@ -43,25 +43,25 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
     _width = rect.w;
     _height = rect.h;
     // std::cout << rect.w << " " << rect.h << std::endl;
-    glTexImage2D(_textureKind,
+    glTexImage2D((int)_textureKind,
                  0,
-                 _format,
+                 (int)_format,
                  rect.w,
                  rect.h,
                  0,
-                 _format,
+				(GLenum)_format,
                  GL_UNSIGNED_BYTE,
                  _content.data());
 
-    glTexParameteri(_textureKind, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_S, GL_REPEAT);
     // Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-    glTexParameteri(_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // Set texture filtering parameters
-    glTexParameteri(_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // stbi_image_free(image);
-    glBindTexture(_textureKind, 0);  // Unbind texture when done, so we won't
+    glBindTexture((GLenum)_textureKind, 0);  // Unbind texture when done, so we won't
                                       // accidentily mess up our texture.
     image.clear();
     _content.clear();
@@ -118,7 +118,7 @@ Texture::Texture(const Image& image, Recti rect) {
     // " " << texture.height << std::endl;
 
     glGenTextures(1, &_id);
-    glBindTexture(_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
+    glBindTexture((GLenum)_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
                                        // now have effect on this texture object
 
     if(rect.w == -1 && rect.h == -1) {
@@ -133,7 +133,7 @@ Texture::Texture(const Image& image, Recti rect) {
     _width = rect.w;
     _height = rect.h;
 
-    glTexImage2D(_textureKind,
+    glTexImage2D((GLenum)_textureKind,
                  0,
                  GL_RGBA,
                  rect.w,
@@ -143,17 +143,17 @@ Texture::Texture(const Image& image, Recti rect) {
                  GL_UNSIGNED_BYTE,
                  _content.data());
 
-    glTexParameteri(_textureKind,
+    glTexParameteri((GLenum)_textureKind,
                     GL_TEXTURE_WRAP_S,
                     GL_REPEAT);  // Set texture wrapping to GL_REPEAT (usually
                                  // basic wrapping method)
-    glTexParameteri(_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // Set texture filtering parameters
-    glTexParameteri(_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // stbi_image_free(image);
-    glBindTexture(_textureKind, 0);
+    glBindTexture((GLenum)_textureKind, 0);
     _content.clear();
 }
 
@@ -176,7 +176,7 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     {
         _textureKind = Kind::TEXTURE2D;
     }
-    glBindTexture(_textureKind, _id);
+    glBindTexture((GLenum)_textureKind, _id);
     error = glGetError();
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
@@ -206,7 +206,7 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
         else if(format == Format::RED)
             internalFormat = GL_R16F;
     } else if(type == Type::UNSIGNED_BYTE) {
-        internalFormat = format;
+        internalFormat = (GLenum)format;
     }
 
     if(format == Format::DEPTH_STENCIL) {
@@ -222,18 +222,18 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     }
     if(multiSampled <= 0)
     {
-        glTexImage2D(_textureKind,
+        glTexImage2D((GLenum)_textureKind,
                      0,
                      internalFormat,
                      width,
                      height,
                      0,
-                     format,
-                     type,
+			(GLenum)format,
+			(GLenum)type,
                      nullptr);
     }else
     {
-        glTexImage2DMultisample(_textureKind,
+        glTexImage2DMultisample((GLenum)_textureKind,
                      multiSampled,
                      internalFormat,
                      width,
@@ -248,8 +248,8 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     }
     if(multiSampled <= 0)
     {
-        glTexParameteri(_textureKind, GL_TEXTURE_WRAP_S, wrapping);
-        glTexParameteri(_textureKind, GL_TEXTURE_WRAP_T, wrapping);
+        glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_S, (GLint)wrapping);
+        glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, (GLint)wrapping);
     }
     error = glGetError();
     if(error != 0) {
@@ -257,12 +257,12 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     }
     if(_textureKind == Kind::TEXTURE2D)
     {
-        glTexParameteri(_textureKind, GL_TEXTURE_MIN_FILTER, filter);
-        glTexParameteri(_textureKind, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, (GLint)filter);
+        glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, (GLint)filter);
     }
 
 
-    glBindTexture(_textureKind, 0);
+    glBindTexture((GLenum)_textureKind, 0);
 
     error = glGetError();
     if(error != 0) {
@@ -274,18 +274,18 @@ Texture::Texture(unsigned int width, unsigned int height) {
     _width = width;
     _height = height;
     glGenTextures(1, &_id);
-    glBindTexture(_textureKind, _id);
+    glBindTexture((GLenum)_textureKind, _id);
 
-    glTexParameteri(_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(_textureKind, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(_textureKind, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void Texture::setData(unsigned char* image, bool alpha) {
-    glBindTexture(_textureKind, _id);
+    glBindTexture((GLenum)_textureKind, _id);
     if(!alpha)
-        glTexImage2D(_textureKind,
+        glTexImage2D((GLenum)_textureKind,
                      0,
                      GL_RGB16F,
                      _width,
@@ -295,7 +295,7 @@ void Texture::setData(unsigned char* image, bool alpha) {
                      GL_FLOAT,
                      NULL);
     else
-        glTexImage2D(_textureKind,
+        glTexImage2D((GLenum)_textureKind,
                      0,
                      GL_RGBA,
                      _width,
@@ -315,10 +315,10 @@ void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
     _height = rect.h;
 
     glGenTextures(1, &_id);
-    glBindTexture(_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
+    glBindTexture((GLenum)_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
                                        // now have effect on this texture object
 
-    glTexImage2D(_textureKind,
+    glTexImage2D((GLenum)_textureKind,
                  0,
                  GL_RGBA,
                  rect.w,
@@ -328,16 +328,16 @@ void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
                  GL_UNSIGNED_BYTE,
                  data.data());
 
-    glTexParameteri(_textureKind,
+    glTexParameteri((GLenum)_textureKind,
                     GL_TEXTURE_WRAP_S,
                     GL_REPEAT);  // Set texture wrapping to GL_REPEAT (usually
                                  // basic wrapping method)
-    glTexParameteri(_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // Set texture filtering parameters
-    glTexParameteri(_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glBindTexture(_textureKind, 0);  // Unbind texture when done, so we won't
+    glBindTexture((GLenum)_textureKind, 0);  // Unbind texture when done, so we won't
                                       // accidentily mess up our texture.
 }
 
@@ -347,8 +347,8 @@ void Texture::GetPixel(const fm::math::vec2& inPosition, void *outValue) const
 	glFinish();
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glBindTexture(_textureKind, _id);
-	glReadPixels(inPosition.x, inPosition.y, 1, 1, _format, _type, outValue);
+	glBindTexture((GLenum)_textureKind, _id);
+	glReadPixels(inPosition.x, inPosition.y, 1, 1, (GLenum)_format, (GLenum)_type, outValue);
 }
 
 void Texture::writeToPNG(const std::string& name) const
@@ -357,8 +357,8 @@ void Texture::writeToPNG(const std::string& name) const
     if(_type == Type::UNSIGNED_BYTE)
     {
         unsigned char* data =  new unsigned char[_width * _height * _numberChannels];
-        glBindTexture(_textureKind, _id);
-        glGetTexImage(_textureKind, 0, _format, _type, data);
+        glBindTexture((GLenum)_textureKind, _id);
+        glGetTexImage((GLenum)_textureKind, 0, (GLenum)_format, (GLenum)_type, data);
 
         stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels);
         delete data;
@@ -366,69 +366,69 @@ void Texture::writeToPNG(const std::string& name) const
     else if(_type == Type::FLOAT)
     {
         float* data = new float[_width * _height * _numberChannels];
-        glBindTexture(_textureKind, _id);
-        glGetTexImage(_textureKind, 0, _format, _type, data);
+        glBindTexture((GLenum)_textureKind, _id);
+        glGetTexImage((GLenum)_textureKind, 0, (GLenum)_format, (GLenum)_type, data);
         stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels*sizeof(float));
         delete data;
     }
 #endif
 }
 
-void Texture::setData(void* data, const fm::Recti& rect) {
-    glTexSubImage2D(
-        _textureKind, 0, rect.x, rect.y, rect.w, rect.h, _format, _type, data);
+void Texture::setData(void* data, const fm::Recti& rect)
+{
+    glTexSubImage2D((GLenum)_textureKind, 0, rect.x, rect.y, rect.w, rect.h, (GLenum)_format, (GLenum)_type, data);
 }
 
-void Texture::setData(void* data) {
-    glTexImage2D(
-        _textureKind, 0, _format, _width, _height, 0, _format, _type, data);
+void Texture::setData(void* data)
+{
+    glTexImage2D((GLenum)_textureKind, 0, (GLenum)_format, _width, _height, 0, (GLenum)_format, (GLenum)_type, data);
 }
 
-void Texture::setTo(int value, const fm::Recti& rect) {
-    if(_type == Type::UNSIGNED_BYTE) {
+void Texture::setTo(int value, const fm::Recti& rect)
+{
+    if(_type == Type::UNSIGNED_BYTE)
+	{
         unsigned char* tempBuffer =
             new unsigned char[_width * _height * _numberChannels];
         memset(tempBuffer, value, _width * _height * _numberChannels);
-        glTexSubImage2D(_textureKind,
+        glTexSubImage2D((GLenum)_textureKind,
                         0,
                         rect.x,
                         rect.y,
                         rect.w,
                         rect.h,
-                        _format,
-                        _type,
+                        (GLenum)_format,
+                        (GLenum)_type,
                         tempBuffer);
         delete tempBuffer;
     } else if(_type == Type::FLOAT) {
         float* tempBuffer = new float[_width * _height * _numberChannels];
         memset(tempBuffer, value, _width * _height * _numberChannels);
-        glTexSubImage2D(_textureKind,
+        glTexSubImage2D((GLenum)_textureKind,
                         0,
                         rect.x,
                         rect.y,
                         rect.w,
                         rect.h,
-                        _format,
-                        _type,
+                        (GLenum)_format,
+                        (GLenum)_type,
                         tempBuffer);
         delete tempBuffer;
     }
 }
 
-Texture::Texture() {
-}
 
-void Texture::release() {
-    // image.clear();
+void Texture::release()
+{
     glDeleteTextures(1, &_id);
 }
 
-void Texture::clear() {
-    // image.clear();
+void Texture::clear()
+{
 }
 
 void Texture::bind() const {
-    glBindTexture(_textureKind, _id);
+    glBindTexture((GLenum)_textureKind, _id);
 }
 
 Texture::~Texture() {

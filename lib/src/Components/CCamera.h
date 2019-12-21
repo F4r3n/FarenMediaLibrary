@@ -23,7 +23,7 @@ class RenderingSystem;
 namespace fmc 
 {
 
-enum RENDER_MODE 
+enum class RENDER_MODE 
 {
     FORWARD,
     DEFERRED
@@ -35,7 +35,7 @@ struct Shader_data
         fm::math::mat FM_V;
         fm::math::mat FM_P;
         fm::math::mat FM_PV;
-        int render_mode = fmc::RENDER_MODE::FORWARD;
+		RENDER_MODE render_mode = fmc::RENDER_MODE::FORWARD;
 };
 
 struct RendererConfiguration
@@ -63,7 +63,7 @@ class CCamera : public FMComponent<CCamera>
         friend class fms::RenderingSystem;
 
 		CCamera();
-        CCamera(int width, int height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
+        CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
         ~CCamera();
 
         bool  IsOrthographic();
@@ -74,9 +74,9 @@ class CCamera : public FMComponent<CCamera>
 		uint16_t GetType() const override {return kCamera;}
         void Destroy() override;
 
-        void SetNewProjection(unsigned int width, unsigned int height);
+        void SetNewProjection(int width, int height);
         void UpdateRenderTexture();
-        void SetNewViewPort(int x, int y, unsigned int width, unsigned int height);
+        void SetNewViewPort(int x, int y, int width, int height);
         void Init();
 
 
@@ -93,7 +93,7 @@ class CCamera : public FMComponent<CCamera>
 		void UpdateViewMatrix(const fm::Transform &inTransform);
 		void UpdateShaderData();
 
-		const fm::Rect<float>& GetViewport()const { return _viewPort; }
+		const fm::Rect<int>& GetViewport()const { return _viewPort; }
 		const fm::math::mat& GetProjectionMatrix()const { return _projection; }
 		const fm::math::mat& GetViewMatrix() const { return _viewMatrix; }
 		const RendererConfiguration& GetRendererConfig() const { return _rendererConfiguration; }
@@ -112,6 +112,8 @@ class CCamera : public FMComponent<CCamera>
 		void SetNearPlane(float inValue) { _nearPlane = inValue; }
 
 		std::shared_ptr<fm::RenderTexture> SetTarget(fm::RenderTexture *inRenderTexture = nullptr);
+		std::shared_ptr<fm::RenderTexture> SetTarget(const fm::RenderTexture& inRenderTexture);
+
 		std::shared_ptr<fm::RenderTexture> GetTarget() const { return _target; }
 		bool HasTarget() const { return _target != nullptr; }
     private:
@@ -129,15 +131,15 @@ class CCamera : public FMComponent<CCamera>
         float					_farPlane;
         float					_nearPlane;
         int						_multiSampled;
-        unsigned int			_width;
-        unsigned int			_height;
+        size_t					_width;
+        size_t					_height;
         float					_fovy;
 		bool					_isAuto;
 
 		CameraCommandBuffer		_commandBuffers;
 		bool					_isInit;
 
-		fm::Rect<float>			_viewPort;
+		fm::Rect<int>			_viewPort;
 		fm::math::mat			_projection;
 		fm::math::mat			_viewMatrix;
 };

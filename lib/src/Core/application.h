@@ -94,7 +94,7 @@ class Application
 			return app;
 		}
 
-        bool Serialize(const std::shared_ptr<fm::Scene> editorScene) const;
+        bool Serialize() const;
 		bool SerializeCurrentScene() const;
 
         bool Read();

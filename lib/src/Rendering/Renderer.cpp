@@ -32,14 +32,14 @@ void Renderer::lightComputation(fm::Graphics& graphics,
 	{
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
     }
-    graphics.BindTexture2D(0, colorBuffer.getID(), colorBuffer.GetKind());
+    graphics.BindTexture2D(0, colorBuffer.getID(), (int)colorBuffer.GetKind());
     graphics.Draw(quad);
 }
 
 void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1) 
 {
 	graphics.Disable(DEPTH_TEST);
-    graphics.BindTexture2D(0, inTexture1.getID(), inTexture1.GetKind());
+    graphics.BindTexture2D(0, inTexture1.getID(), (int)inTexture1.GetKind());
     //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 
     graphics.Draw(quad);
@@ -49,7 +49,7 @@ void Renderer::blit(fm::Graphics& graphics,
                     Texture& texture,
                     Shader* shader) const {
     shader->Use();
-    graphics.BindTexture2D(0, texture.getID(), texture.GetKind());
+    graphics.BindTexture2D(0, texture.getID(), (int)texture.GetKind());
 
     graphics.Draw(quad);
 }
@@ -59,7 +59,7 @@ void Renderer::blit(fm::Graphics& graphics,
                     Shader* shader) const {
     dest.bind();
     shader->Use();
-    graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), source.GetColorBufferTexture(0).GetKind());
+    graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), (int)source.GetColorBufferTexture(0).GetKind());
 
     graphics.Draw(quad);
 }
@@ -91,7 +91,7 @@ void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture>
 {
     for(size_t i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{
-        graphics.BindTexture2D(i, textures[i].getID(), textures[i].GetKind());
+        graphics.BindTexture2D(i, textures[i].getID(), (int)textures[i].GetKind());
     }
 }
 

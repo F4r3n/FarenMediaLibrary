@@ -15,19 +15,27 @@
 #include <string>
 
 using namespace fm;
-int Window::kWidth = 0;
-int Window::kHeight = 0;
+size_t Window::kWidth = 0;
+size_t Window::kHeight = 0;
 
 int Window::kX = 0;
 int Window::kY = 0;
 
-Window::Window(int width, int height, size_t inWindowFlag) 
+
+Window::Window(size_t width, size_t height, size_t inWindowFlag)
+:_isInit(false),
+_window(nullptr),
+_mainContext(nullptr),
+_fpsMax(120),
+_waitTime(1.0f/_fpsMax),
+_currFrameTime(0),
+_frameStart(0),
+_msaa(0),
+_windowFlag(inWindowFlag)
 {
     Window::kWidth = width;
     Window::kHeight = height;
 
-	_windowFlag = inWindowFlag;
-	_msaa = 0;
 }
 
 bool Window::Init()

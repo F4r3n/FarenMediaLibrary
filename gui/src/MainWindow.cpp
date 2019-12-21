@@ -126,7 +126,7 @@ void MainWindow::_DisplayWindow_Save()
 		fm::FilePath result(resultFromDialog);
 		
 		fm::Application::Get().SetUserDirectory(result);
-		fm::Application::Get().Serialize(_editorScene);
+		fm::Application::Get().Serialize();
 	}
 }
 

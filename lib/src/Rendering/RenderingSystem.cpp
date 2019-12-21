@@ -245,7 +245,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		//{
 			cam->_rendererConfiguration.postProcessRenderTexture.bind();
 			_finalShader->Use();
-			_finalShader->setValue("screenSize", fm::math::vec2(cam->GetViewport().w, cam->GetViewport().h));
+			_finalShader->setValue("screenSize", fm::math::vec2((float)cam->GetViewport().w, (float)cam->GetViewport().h));
 			_finalShader->setValue("viewPos", transform->position);
 			_finalShader->setValue("screenTexture", 0);
 
@@ -318,7 +318,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				{
 					if (cmd._source.texture != nullptr)
 					{
-						_graphics.BindTexture2D(0, cmd._source.texture->GetKind(), cmd._source.texture->getID());
+						_graphics.BindTexture2D(0, (int)cmd._source.texture->GetKind(), cmd._source.texture->getID());
 					}
 					else
 					{

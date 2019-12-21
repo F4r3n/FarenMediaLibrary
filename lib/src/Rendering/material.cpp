@@ -33,8 +33,8 @@ bool Material::Serialize(nlohmann::json &ioJson) const
             valueJSON["value"] = value.materialValue.getFloat();
         else if(type == fm::ValuesType::VALUE_MATRIX_FLOAT)
             valueJSON["value"] = value.materialValue.getMatrix();
-        else if(type == fm::ValuesType::VALUE_TEXTURE)
-            valueJSON["value"] = value.materialValue.getTexture();
+        //else if(type == fm::ValuesType::VALUE_TEXTURE)
+        //    valueJSON["value"] = value.materialValue.getTexture();
         else if(type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
             valueJSON["value"] = value.materialValue.getVector2();
         else if(type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
@@ -71,11 +71,11 @@ bool Material::Read(const nlohmann::json &inJSON)
             fm::math::mat mat = v["value"];
             setValue(v["name"], mat);
         }
-        else if(type == fm::ValuesType::VALUE_TEXTURE)
-        {
-            fm::TextureMat t = v["value"];
-            setValue(v["name"], t);
-        }
+        //else if(type == fm::ValuesType::VALUE_TEXTURE)
+        //{
+        //    fm::TextureMat t = v["value"];
+        //    setValue(v["name"], t);
+        //}
         else if(type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
         {
             fm::math::vec2 c = v["value"];

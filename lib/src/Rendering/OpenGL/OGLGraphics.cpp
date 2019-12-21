@@ -23,7 +23,7 @@ void Graphics::SetViewPort(const fm::math::vec4i& rect) const
     glViewport(rect.x, rect.y, rect.z, rect.w);
 }
 
-void Graphics::SetViewPort(const fm::Rect<float>& rect) const
+void Graphics::SetViewPort(const fm::Rect<int>& rect) const
 {
     glViewport(rect.x, rect.y, rect.w, rect.h);
 }
@@ -65,17 +65,17 @@ void Graphics::Disable(RENDERING_TYPE r) const
 }
 
 void Graphics::Draw(int primitiveType,
-                    unsigned int vertexCount,
-                    unsigned int* indices) const
+                    size_t vertexCount,
+                    size_t* indices) const
 {
-    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, indices);
+    glDrawElements(GL_TRIANGLES, (GLsizei)vertexCount, GL_UNSIGNED_INT, (void*)indices);
 }
 
 void Graphics::Draw(int primitiveType,
-                    unsigned int vertexStart,
-                    unsigned int vertexCount) const
+                    size_t vertexStart,
+                    size_t vertexCount) const
 {
-    glDrawArrays(GL_TRIANGLES, vertexStart, vertexCount);
+    glDrawArrays(GL_TRIANGLES, (GLsizei)vertexStart, (GLsizei)vertexCount);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -85,7 +85,7 @@ void Graphics::Draw(Model* model) const
     for(size_t i = 0; i < model->GetNumberMeshes(); ++i)
     {
         fm::rendering::MeshContainer* mesh = model->GetMeshContainer(i);
-        Draw(0, mesh->listIndices.size(), mesh->listIndices.data());
+        Draw((size_t)0, mesh->listIndices.size(), (size_t*)mesh->listIndices.data());
     }
 
 }
@@ -103,7 +103,7 @@ void Graphics::BindFrameBuffer(unsigned int id) const
 
 void Graphics::BindTexture2D(size_t number, int idTexture, int type) const
 {
-    glActiveTexture(GL_TEXTURE0 + number);
+    glActiveTexture(GL_TEXTURE0 + (GLenum)number);
     glBindTexture(type, idTexture);
 }
 
