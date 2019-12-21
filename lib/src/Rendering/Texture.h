@@ -56,7 +56,7 @@ class Texture
             Recti rect = {0, 0, -1, -1},
             bool alpha = true);
     Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha = true);
-    Texture(unsigned int width, unsigned int height);
+    Texture(size_t width, size_t height);
 	Texture() {};
 	~Texture();
 
@@ -69,7 +69,7 @@ class Texture
     void				bind() const;
     void				clear();
     inline unsigned int getID() const {return _id;}
-    void				generate(int width, int height, Format format, Type type, int multiSampled = 0);
+    void				generate(size_t width, size_t height, Format format, Type type, int multiSampled = 0);
     void				release();
 
 
@@ -77,9 +77,9 @@ class Texture
     void				setData(void* data);
     void				setTo(int value, const fm::Recti& rect);
     void				setData(void* data, const fm::Recti& rect);
-    unsigned int		getWidth() const{ return _width; }
-    unsigned int		getHeight() const{  return _height; }
-    unsigned int		getNumberChannels() const{ return _numberChannels; }
+    size_t				getWidth() const{ return _width; }
+    size_t				getHeight() const{  return _height; }
+    size_t				getNumberChannels() const{ return _numberChannels; }
 	Kind				GetKind() const { return _textureKind; }
 	void				GetPixel(const fm::math::vec2& inPosition, void *outValue) const;
 
@@ -91,9 +91,9 @@ class Texture
 
 
     Kind _textureKind= Kind::TEXTURE2D;
-    unsigned int _width;
-    unsigned int _height;
-    unsigned int _numberChannels = 4;
+    size_t _width;
+    size_t _height;
+    size_t _numberChannels = 4;
 
     Format _format;
     Type _type;

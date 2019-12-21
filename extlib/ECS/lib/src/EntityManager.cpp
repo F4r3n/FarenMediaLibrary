@@ -22,11 +22,8 @@ EntityManager::EntityManager() {
 }
 
 
-EntityManager::~EntityManager() {
-
-    make();
-
-
+EntityManager::~EntityManager()
+{
     _entities_alive.clear();
     _entities_alive.shrink_to_fit();
 
@@ -99,26 +96,6 @@ id EntityManager::GetID(Entity *e) const
       return e->ID;
 }
 
-
-void EntityManager::make()
-{
-	/*if(_temp_entities.empty())
-        return;
-
-    for(Entity &e : _temp_entities)
-    {
-        if(e.toCreate)
-        {
-            e.active = true;
-			e.toDelete = false;
-			e.toCreate = false;
-            _entities_alive.push_back(std::move(e));
-            _capacity++;
-            //_listEntities.push_back(_entities_alive.back());
-        }
-	}
-	_temp_entities.clear();*/
-}
 
 Entity* EntityManager::createEntity() {
 	id returnID = _MAX_ID;

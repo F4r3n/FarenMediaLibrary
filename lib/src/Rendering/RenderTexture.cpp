@@ -177,10 +177,10 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
             glBindRenderbuffer(GL_RENDERBUFFER, _rboDepth);
             if(_multiSampling > 0)
             {
-                glRenderbufferStorageMultisample(GL_RENDERBUFFER, _multiSampling, GL_DEPTH24_STENCIL8, _width, _height);
+                glRenderbufferStorageMultisample(GL_RENDERBUFFER, _multiSampling, GL_DEPTH24_STENCIL8, (GLsizei)_width, (GLsizei)_height);
             }else
             {
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, _width, _height);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)_width, (GLsizei)_height);
 
             }
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _rboDepth);
@@ -188,11 +188,11 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
     }
 
     std::vector<GLuint> attachments;
-    for(unsigned int i = 0; i < _numberColors; i++)
+    for(unsigned int i = 0; i < _numberColors; ++i)
     {
         attachments.push_back(GL_COLOR_ATTACHMENT0 + i);
     }
-    glDrawBuffers(attachments.size(), attachments.data());
+    glDrawBuffers((GLsizei)attachments.size(), attachments.data());
     GLenum statusFrameBuffer = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if( statusFrameBuffer != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -217,5 +217,4 @@ const fm::Texture& RenderTexture::GetColorBufferTexture(size_t id) const
 void RenderTexture::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-
 }

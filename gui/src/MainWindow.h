@@ -55,8 +55,6 @@ protected:
 private:
 	void _DrawMenu();
 
-	void _DisplayWindow_ProjectSettings();
-	void _DisplayWindow_WorldLighEdit();
 	void _DisplayWindow_Load();
 	void _DisplayWindow_Save();
 
@@ -77,17 +75,12 @@ private:
 
 	std::shared_ptr<fm::Scene>	_editorScene;
 	MapOfWindows				_windows;
-	bool						_windowStates[gui::WIN_LAST];
 
-
-    fm::GameObject*				_currentEntity;
-    fm::GameObject*				_dlight;
-       
+    fm::GameObject*				_currentEntity;       
 
     fm::ProjectSettings			_projectSettings;
 
     fm::GameObject*				_editorCamera;
-	std::vector<fm::Config>		_lastConfigsUsed;
 	bool						_needUpdate;
 
 	//==========Systems==============

@@ -125,18 +125,17 @@ void Window::setName(const std::string& name)
 
 
 
-void Window::update(float fps, bool internalUpdate) 
+void Window::update(size_t fps, bool internalUpdate) 
 {
     _fpsMax = fps;
-    _waitTime = 1.0f / _fpsMax;
+    _waitTime = 1.0f / (float)_fpsMax;
     if(internalUpdate)
         fm::InputManager::Get().pollEvents();
-    frameLimit(fps);
-
+	_FrameLimit();
 }
 
 
-void Window::frameLimit(float fps) 
+void Window::_FrameLimit() 
 {
     _currFrameTime = SDL_GetTicks() - _frameStart;
     double dur = (_waitTime * 1000 - _currFrameTime);
@@ -160,15 +159,10 @@ void Window::swapBuffers() const
 
 void Window::_ErrorDisplay() 
 {
-#ifndef __EMSCRIPTEN__
-    int error = glGetError();
+    const int error = glGetError();
     if(error != 0) {
         fm::Debug::get().logErrorExit(error, __FILE__, __LINE__);
     }
-#else
-    printf("Check error SDL: %s\n", SDL_GetError());
-
-#endif
 }
 
 

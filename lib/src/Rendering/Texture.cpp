@@ -157,7 +157,7 @@ Texture::Texture(const Image& image, Recti rect) {
     _content.clear();
 }
 
-void Texture::generate(int width, int height, Format format, Type type, int multiSampled) {
+void Texture::generate(size_t width, size_t height, Format format, Type type, int multiSampled) {
     _width = width;
     _height = height;
     _type = type;
@@ -225,19 +225,19 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
         glTexImage2D((GLenum)_textureKind,
                      0,
                      internalFormat,
-                     width,
-                     height,
+                     (GLsizei)width,
+                     (GLsizei)height,
                      0,
-			(GLenum)format,
-			(GLenum)type,
+					(GLenum)format,
+					(GLenum)type,
                      nullptr);
     }else
     {
         glTexImage2DMultisample((GLenum)_textureKind,
                      multiSampled,
                      internalFormat,
-                     width,
-                     height,
+                     (GLsizei)width,
+                     (GLsizei)height,
                      GL_TRUE
                        );
     }
@@ -270,7 +270,7 @@ void Texture::generate(int width, int height, Format format, Type type, int mult
     }
 }
 
-Texture::Texture(unsigned int width, unsigned int height) {
+Texture::Texture(size_t width, size_t height) {
     _width = width;
     _height = height;
     glGenTextures(1, &_id);
@@ -288,8 +288,8 @@ void Texture::setData(unsigned char* image, bool alpha) {
         glTexImage2D((GLenum)_textureKind,
                      0,
                      GL_RGB16F,
-                     _width,
-                     _height,
+                     (GLsizei)_width,
+                     (GLsizei)_height,
                      0,
                      GL_RGB,
                      GL_FLOAT,
@@ -298,8 +298,8 @@ void Texture::setData(unsigned char* image, bool alpha) {
         glTexImage2D((GLenum)_textureKind,
                      0,
                      GL_RGBA,
-                     _width,
-                     _height,
+                     (GLsizei)_width,
+                     (GLsizei)_height,
                      0,
                      GL_RGBA,
                      GL_UNSIGNED_INT,
@@ -348,7 +348,7 @@ void Texture::GetPixel(const fm::math::vec2& inPosition, void *outValue) const
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glBindTexture((GLenum)_textureKind, _id);
-	glReadPixels(inPosition.x, inPosition.y, 1, 1, (GLenum)_format, (GLenum)_type, outValue);
+	glReadPixels((int)inPosition.x, (int)inPosition.y, 1, 1, (GLenum)_format, (GLenum)_type, outValue);
 }
 
 void Texture::writeToPNG(const std::string& name) const
@@ -360,16 +360,16 @@ void Texture::writeToPNG(const std::string& name) const
         glBindTexture((GLenum)_textureKind, _id);
         glGetTexImage((GLenum)_textureKind, 0, (GLenum)_format, (GLenum)_type, data);
 
-        stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels);
-        delete data;
+        stbi_write_png( name.c_str(), (int)_width, (int)_height, 4, data, (int)(_width * _numberChannels));
+        delete [] data;
     }
     else if(_type == Type::FLOAT)
     {
         float* data = new float[_width * _height * _numberChannels];
         glBindTexture((GLenum)_textureKind, _id);
         glGetTexImage((GLenum)_textureKind, 0, (GLenum)_format, (GLenum)_type, data);
-        stbi_write_png( name.c_str(), _width, _height, 4, data, _width * _numberChannels*sizeof(float));
-        delete data;
+        stbi_write_png( name.c_str(), (GLsizei)_width, (GLsizei)_height, 4, data, (int)(_width * _numberChannels*sizeof(float)));
+        delete [] data;
     }
 #endif
 }
@@ -381,7 +381,7 @@ void Texture::setData(void* data, const fm::Recti& rect)
 
 void Texture::setData(void* data)
 {
-    glTexImage2D((GLenum)_textureKind, 0, (GLenum)_format, _width, _height, 0, (GLenum)_format, (GLenum)_type, data);
+    glTexImage2D((GLenum)_textureKind, 0, (GLenum)_format, (GLsizei)_width, (GLsizei)_height, 0, (GLenum)_format, (GLenum)_type, data);
 }
 
 void Texture::setTo(int value, const fm::Recti& rect)
@@ -400,7 +400,7 @@ void Texture::setTo(int value, const fm::Recti& rect)
                         (GLenum)_format,
                         (GLenum)_type,
                         tempBuffer);
-        delete tempBuffer;
+        delete [] tempBuffer;
     } else if(_type == Type::FLOAT) {
         float* tempBuffer = new float[_width * _height * _numberChannels];
         memset(tempBuffer, value, _width * _height * _numberChannels);
@@ -413,7 +413,7 @@ void Texture::setTo(int value, const fm::Recti& rect)
                         (GLenum)_format,
                         (GLenum)_type,
                         tempBuffer);
-        delete tempBuffer;
+        delete [] tempBuffer;
     }
 }
 

@@ -25,7 +25,7 @@ namespace gui
 		LAST
 	};
 
-	enum WINDOWS
+	enum class WINDOWS
 	{
 		WIN_LIGHT_EDIT,
 		WIN_LOGGER,

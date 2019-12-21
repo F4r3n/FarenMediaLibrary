@@ -81,7 +81,6 @@ public:
     std::vector<ecs::id> getEntitiesAlive();
     bool hasComponents(const Entity& e, const std::vector<uint16_t>& compo) const;
     bool hasComponents(const Entity& e, const Mask& bits) const;
-    void make();
     bool hasComponents(ecs::id id, const Mask& bits) const;
     
     template <typename T>

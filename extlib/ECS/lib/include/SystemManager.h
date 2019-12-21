@@ -33,7 +33,7 @@ template <typename T>
 	void Start();
 	inline SYSTEM_MANAGER_MODE GetStatus() const { return _mode; }
 private:
-	bool ShouldCallSystem(SYSTEM_MODE inSystemMode);
+	bool ShouldCallSystem(SYSTEM_MODE inSystemMode) const;
 
 
 	MapOfSystems systems;

@@ -38,13 +38,7 @@ const std::string JSON_KEY = "FML";
 MainWindow::MainWindow()
 {
 	_currentEntity = nullptr;
-	_dlight = nullptr;
 	_context.currentGameObjectSelected = nullptr;
-	for (size_t i = 0; i < gui::WIN_LAST; ++i)
-	{
-		_windowStates[i] = false;
-	}
-
 
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
@@ -152,23 +146,6 @@ void MainWindow::_DisplayWindow_Load()
 		fm::Application::Get().LoadProject(result);
 
 	}
-}
-
-
-void MainWindow::_DisplayWindow_ProjectSettings()
-{
-	ImGui::Begin("Project name", &_windowStates[gui::WINDOWS::WIN_PROJECT_SETTINGS], ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("%s", _projectSettings.name.c_str());
-
-	static char bufferName[256];
-	ImGui::InputText("Poject name", bufferName, 256);
-	if (ImGui::Button("Valid"))
-	{
-		_projectSettings.name = std::string(bufferName);
-		_windowStates[gui::WINDOWS::WIN_PROJECT_SETTINGS] = false;
-		ImGui::CloseCurrentPopup();
-	}
-	ImGui::End();
 }
 
 
@@ -318,15 +295,6 @@ void MainWindow::_Paste()
 }
 
 
-void MainWindow::_DisplayWindow_WorldLighEdit()
-{
-	bool value = true;
-	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
-	ImGui::Begin("World light", &_windowStates[gui::WIN_LIGHT_EDIT]);
-	Inspector::OnDraw(_dlight->get<fmc::CDirectionalLight>(), &value);
-	ImGui::End();
-}
-
 void MainWindow::Update()
 {
 	_needUpdate = false;
@@ -410,8 +378,8 @@ void MainWindow::Draw()
 	ImGui::PopStyleVar(3);
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
 
-	bool show_demo_window = true;
-	ImGui::ShowDemoWindow(&show_demo_window);
+	//bool show_demo_window = true;
+	//ImGui::ShowDemoWindow(&show_demo_window);
 
 
 	if (_needUpdate)
@@ -426,20 +394,7 @@ void MainWindow::Draw()
 		}
 	}
 	
-
 	_DrawMenu();
-	
-
-	
-	if (_windowStates[gui::WIN_PROJECT_SETTINGS])
-	{
-		_DisplayWindow_ProjectSettings();
-	}
-
-	if (_windowStates[gui::WIN_LIGHT_EDIT])
-	{
-		_DisplayWindow_WorldLighEdit();
-	}
 
 	ImGuiIO io = ImGui::GetIO();
 	if (_context.currentWindowFocused == gui::WINDOWS::WIN_EDITOR_VIEW)

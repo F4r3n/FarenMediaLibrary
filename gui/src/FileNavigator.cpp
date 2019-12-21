@@ -236,7 +236,7 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 
 	for (auto& n : currentNode->nodes)
 	{
-		fm::FilePath p = inRoot;
+		fm::FilePath p(inRoot);
 		p.Append(n.name);
 
 

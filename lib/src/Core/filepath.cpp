@@ -6,8 +6,25 @@
 namespace fs = std::filesystem;
 using namespace fm;
 FilePath::FilePath(const std::string &inPath)
+	:
+	_path(inPath)
 {
-	_path = inPath;
+	_Init();
+}
+
+
+FilePath::FilePath(const FilePath& inPath)
+	:
+	_path(inPath._path),
+	_isInit(inPath._isInit),
+	_isFile(inPath._isFile),
+	_isFolder(inPath._isFolder)
+
+{
+}
+
+void FilePath::_Init()
+{
 	_isInit = false;
 	_isFolder = IsFolder();
 	_isFile = IsFile();
@@ -39,13 +56,6 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 }
 
 
-
-FilePath::FilePath(const FilePath &inPath)
-{
-	_path = inPath._path;
-}
-
-
 bool FilePath::IsFolder() const
 {
 	if (_isInit)
@@ -72,11 +82,7 @@ bool FilePath::_IsFolder(const std::string &inPath) const
 
 void FilePath::Append(const std::string &inFolderName)
 {
-	std::string newPath = "";
-
-	newPath = _path + GetFolderSeparator() + inFolderName;
-
-	_path = newPath;
+	_path += GetFolderSeparator() + inFolderName;
 }
 
 void FilePath::CreateFile()

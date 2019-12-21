@@ -9,19 +9,18 @@ SystemManager::SystemManager()
 
 void SystemManager::init(EntityManager& em, EventManager &event) 
 {
-    EntityManager::get().make();
     for(auto &s : systems) 
 	{
         s->init(em, event);
     }
-    em.make();
 }
 
 void SystemManager::Free()
 {
     systems.clear();
 }
-bool SystemManager::ShouldCallSystem(SYSTEM_MODE inSystemMode)
+
+bool SystemManager::ShouldCallSystem(SYSTEM_MODE inSystemMode) const
 {
 	return _mode == SYSTEM_MANAGER_MODE::RUNNING && inSystemMode == SYSTEM_MODE::AT_START
 		|| _mode == SYSTEM_MANAGER_MODE::STOPPED && inSystemMode == SYSTEM_MODE::AT_STOP
@@ -37,7 +36,6 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 		{
 			s->pre_update(em);
 		}
-        em.make();
     }
 
 	for (auto &s : systems)
@@ -46,7 +44,6 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 		{
 			s->update(dt, em, event);
 		}
-		em.make();
 	}
 
 	for (auto &s : systems)
@@ -55,7 +52,6 @@ void SystemManager::update(float dt, EntityManager& em, EventManager &event)
 		{
 			s->over();
 		}
-		em.make();
 	}
 }
 

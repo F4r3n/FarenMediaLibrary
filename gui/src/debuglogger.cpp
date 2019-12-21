@@ -1,13 +1,14 @@
 #include "debuglogger.h"
 using namespace gui;
 
-DebugLogger::DebugLogger() : GWindow("Logger", true)
+DebugLogger::DebugLogger() : GWindow("Logger", true, 0)
 {
     _buffer.clear();
     _buffer.push_back(0);
     _buffer.shrink_to_fit();
 	_enabled = true;
 	_kind = gui::WINDOWS::WIN_LOGGER;
+	SetSize(fm::math::vec2(200, 200));
 }
 
 

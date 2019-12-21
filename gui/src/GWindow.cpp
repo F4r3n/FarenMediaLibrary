@@ -64,13 +64,15 @@ void GWindow::Draw()
 {
 	if (_enabled)
 	{
-		bool previousStatus = _enabled;
 		if (!_hasBeenDrawn)
 		{
+			ImGui::SetWindowCollapsed(false, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowPos(ImVec2(_position.x, _position.y), ImGuiCond_FirstUseEver);
 			if (_size.x != 0 && _size.y != 0)
 				ImGui::SetNextWindowContentSize(ImVec2(_size.x, _size.y));
 		}
+
+		bool previousStatus = _enabled;
 
 
 		BeforeWindowCreation();
@@ -104,22 +106,23 @@ void GWindow::Draw()
 
 			if (!_widgets.empty())
 			{
-				for (auto && widget : _widgets)
+				for (auto&& widget : _widgets)
 				{
 					widget->Draw();
 				}
 			}
+
+			if (previousStatus != _enabled)
+			{
+				WillClose();
+			}
+			_hasBeenDrawn = true;
 		}
+
 
 		ImGui::End();
-
-		if (previousStatus != _enabled)
-		{
-			WillClose();
-		}
-		_hasBeenDrawn = true;
-		
 	}
+		
 }
 
 void GWindow::SetStatus(bool inValue)
@@ -129,20 +132,24 @@ void GWindow::SetStatus(bool inValue)
 
 void GWindow::Update(float dt, Context &inContext)
 {
-	_DequeueEvent();
-	if (_isFocused)
+	if (_enabled)
 	{
-		inContext.currentWindowFocused = _kind;
-	}
-	_Update(dt, inContext);
-
-	if (!_widgets.empty())
-	{
-		for (auto && widget : _widgets)
+		_DequeueEvent();
+		if (_isFocused)
 		{
-			widget->Update(dt, inContext);
+			inContext.currentWindowFocused = _kind;
+		}
+		_Update(dt, inContext);
+
+		if (!_widgets.empty())
+		{
+			for (auto&& widget : _widgets)
+			{
+				widget->Update(dt, inContext);
+			}
 		}
 	}
+	
 }
 
 
