@@ -8,23 +8,25 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
-void ScriptManagerInspector::init()
+void ScriptManagerInspector::_Init()
 {
-
 }
 
+void ScriptManagerInspector::_DeInit()
+{
+}
 
-void ScriptManagerInspector::draw(bool *value)
+void ScriptManagerInspector::Draw(bool *value)
 {
     if(ImGui::CollapsingHeader("ScriptManagerInspector", value))
     {
 		std::vector<std::string> scriptsToDelete;
 
 
-		fmc::LuaScripts &&scripts = target->GetLuaScripts();
+		fmc::LuaScripts &&scripts = _target->GetLuaScripts();
 		for (auto &&script : scripts)
 		{
-			std::string scriptName = script->GetScriptName() + "##" + std::to_string(target->GetIDEntity());
+			std::string scriptName = script->GetScriptName() + "##" + std::to_string(_target->GetIDEntity());
 			bool toKeep = true;
 			if (ImGui::CollapsingHeader(scriptName.c_str(), &toKeep))
 			{
@@ -32,7 +34,7 @@ void ScriptManagerInspector::draw(bool *value)
 			}
 			if (ImGui::Button("Reload"))
 			{
-				target->ReloadScript(script->GetScriptName());
+				_target->ReloadScript(script->GetScriptName());
 			}
 			if (!toKeep)
 			{
@@ -54,7 +56,7 @@ void ScriptManagerInspector::draw(bool *value)
 			std::string fileName = std::string(nameScript) + ".lua";
 			p.Append(fileName);
 			
-			target->addScriptLua(p);
+			_target->addScriptLua(p);
 			
         }
 
@@ -62,7 +64,7 @@ void ScriptManagerInspector::draw(bool *value)
         {
             for(auto &s : scriptsToDelete)
             {
-                target->RemoveScript(s);
+                _target->RemoveScript(s);
             }
         }
     }

@@ -4,25 +4,28 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Body3D, fmc::CBody3D)
 
-void Body3DInspector::init()
+void Body3DInspector::_Init()
 {
-
 }
 
-void Body3DInspector::draw(bool *value)
+void Body3DInspector::_DeInit()
 {
-	std::string id = "##BODY3D " + std::to_string(target->GetID());
+}
+
+void Body3DInspector::Draw(bool *value)
+{
+	std::string id = "##BODY3D " + std::to_string(_target->GetID());
 	static const char *shapeNames[] = { "CUBE", "SPHERE" };
-	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
-		_currentMass = target->GetMass();
-		_currentGhost = target->IsGhost();
+		_currentMass = _target->GetMass();
+		_currentGhost = _target->IsGhost();
 		ImGui::DragFloat("Mass", &_currentMass, 0.001f, 0, FLT_MAX);
 		ImGui::Checkbox("Ghost", &_currentGhost);
-		target->SetGhost(_currentGhost);
-		target->SetMass(_currentMass);
+		_target->SetGhost(_currentGhost);
+		_target->SetMass(_currentMass);
 		
 	}
 }

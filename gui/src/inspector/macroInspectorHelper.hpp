@@ -1,26 +1,33 @@
 #pragma once
 
-#define DECLARE_INSPECTOR_CLASS(name, typeTarget)  \
-    class name##Inspector : public Inspector {     \
-       public:                                     \
-        void draw(bool *value);                    \
-        name##Inspector();                         \
-        name##Inspector(BaseComponent* component); \
-        void setTarget();      \
-        void init();                               \
-        typeTarget* target;                        \
+#define DECLARE_INSPECTOR_CLASS(name, typeTarget)	\
+    class name##Inspector : public Inspector {		\
+       public:										\
+        void Draw(bool *value);						\
+        name##Inspector();							\
+        ~name##Inspector();							\
+        name##Inspector(BaseComponent* component);	\
+        void SetTarget();							\
+private:											\
+        void _Init();								\
+		void _DeInit();								\
+        typeTarget* _target;						\
    // };
 
-#define DEFINE_INSPECTOR_FUNCTIONS(name, typeTarget)             \
-    name##Inspector::name##Inspector() {                         \
-        target = static_cast<typeTarget*>(_component);          \
-        init();                                                 \
-    }                                                            \
-    name##Inspector::name##Inspector(BaseComponent* component) { \
-        _component = component;                                  \
-        target = static_cast<typeTarget*>(_component);          \
-        init();                                                 \
-    }                                                            \
-    void name##Inspector::setTarget() {      \
-        target = static_cast<typeTarget*>(_component);          \
+#define DEFINE_INSPECTOR_FUNCTIONS(name, typeTarget)            \
+    name##Inspector::name##Inspector() {                        \
+        SetTarget();										    \
+        _Init();                                                \
+    }															\
+	name##Inspector::~name##Inspector() {						\
+        _DeInit();                                              \
+    }															\
+																\
+    name##Inspector::name##Inspector(BaseComponent* component) {\
+        _component = component;                                 \
+        SetTarget();										    \
+        _Init();                                                \
+    }                                                           \
+    void name##Inspector::SetTarget() {							\
+        _target = static_cast<typeTarget*>(_component);         \
     }

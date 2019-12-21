@@ -3,47 +3,50 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Camera, fmc::CCamera)
 
-void CameraInspector::init()
+void CameraInspector::_Init()
 {
-
 }
 
-void CameraInspector::draw(bool *value)
+void CameraInspector::_DeInit()
 {
-	std::string id = "##Camera " + std::to_string(target->GetID());
+}
 
-	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
+void CameraInspector::Draw(bool *value)
+{
+	std::string id = "##Camera " + std::to_string(_target->GetID());
+
+	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
-		float fov = target->GetFOV();
-		float farPlane = target->GetFarPlane();
-		float nearPlane = target->GetNearPlane();
+		float fov = _target->GetFOV();
+		float farPlane = _target->GetFarPlane();
+		float nearPlane = _target->GetNearPlane();
 
 		bool isDirty = false;
 
 		if (ImGui::DragFloat("FOV", &fov, 0.02f, -180, 180))
 		{
 			isDirty = true;
-			target->SetFov(fov);
+			_target->SetFov(fov);
 		}
 
 		if (ImGui::DragFloat("Near Plane", &nearPlane, 0.02f, 0, FLT_MAX))
 		{
 			isDirty = true;
-			target->SetNearPlane(nearPlane);
+			_target->SetNearPlane(nearPlane);
 		}
 
 		if (ImGui::DragFloat("Far plane", &farPlane, 0.02f, 0, FLT_MAX))
 		{
 			isDirty = true;
-			target->SetFarPlane(farPlane);
+			_target->SetFarPlane(farPlane);
 		}
 
 
 		if (isDirty)
 		{
-			target->UpdateProjectionMatrix();
+			_target->UpdateProjectionMatrix();
 		}
 
 	}

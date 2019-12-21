@@ -131,7 +131,7 @@ void ListComponentWindow::_DrawComponents(fm::GameObject* currentEntity)
 		{
 			bool value = true;
 
-			compo->draw(&value);
+			compo->Draw(&value);
 
 			if (!value)
 			{

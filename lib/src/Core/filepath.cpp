@@ -9,27 +9,16 @@ FilePath::FilePath(const std::string &inPath)
 	:
 	_path(inPath)
 {
-	_Init();
 }
 
 
 FilePath::FilePath(const FilePath& inPath)
 	:
-	_path(inPath._path),
-	_isInit(inPath._isInit),
-	_isFile(inPath._isFile),
-	_isFolder(inPath._isFolder)
-
+	_path(inPath._path)
 {
 }
 
-void FilePath::_Init()
-{
-	_isInit = false;
-	_isFolder = IsFolder();
-	_isFile = IsFile();
-	_isInit = true;
-}
+
 
 char FilePath::GetFolderSeparator()
 {
@@ -58,19 +47,11 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 
 bool FilePath::IsFolder() const
 {
-	if (_isInit)
-	{
-		return _isFolder;
-	}
 	return _IsFolder(_path);
 }
 
 bool FilePath::IsFile() const
 {
-	if (_isInit)
-	{
-		return _isFile;
-	}
 	return fs::is_regular_file(_path);
 }
 

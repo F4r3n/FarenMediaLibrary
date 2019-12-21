@@ -122,15 +122,15 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) c
     {
         setValue(name, value.getInt());
     }
-    else if(value.getType() == fm::VALUE_VECTOR2_FLOAT)
+    else if(value.getType() == fm::ValuesType::VALUE_VECTOR2_FLOAT)
     {
         setValue(name, value.getVector2());
     }
-    else if(value.getType() == fm::VALUE_VECTOR3_FLOAT)
+    else if(value.getType() == fm::ValuesType::VALUE_VECTOR3_FLOAT)
     {
         setValue(name, value.getVector3());
     }
-    else if(value.getType() == fm::VALUE_VECTOR4_FLOAT)
+    else if(value.getType() == fm::ValuesType::VALUE_VECTOR4_FLOAT)
     {
         setValue(name, value.getVector4());
     }

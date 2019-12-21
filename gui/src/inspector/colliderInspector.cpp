@@ -4,21 +4,24 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Collider, fmc::CCollider)
 
-void ColliderInspector::init()
+void ColliderInspector::_Init()
 {
-
 }
 
-void ColliderInspector::draw(bool *value)
+void ColliderInspector::_DeInit()
 {
-	std::string id = "##Collider " + std::to_string(target->GetID());
+}
+
+void ColliderInspector::Draw(bool *value)
+{
+	std::string id = "##Collider " + std::to_string(_target->GetID());
 	static const char *shapeNames[] = { "BOX", "SPHERE" };
-	std::string name = target->GetName() + "##" + std::to_string(target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
-		fm::math::vec3 currentScale = target->GetScale();
-		int currentShape = target->GetShape();
+		fm::math::vec3 currentScale = _target->GetScale();
+		int currentShape = _target->GetShape();
 
 		bool hasChanged = false;
 		hasChanged |= ImGui::Combo(std::string("shape" + id).c_str(), &currentShape, shapeNames, 2);
@@ -34,8 +37,8 @@ void ColliderInspector::draw(bool *value)
 
 		if (hasChanged)
 		{
-			target->SetScale(currentScale);
-			target->SetShape((fmc::SHAPE)currentShape);
+			_target->SetScale(currentScale);
+			_target->SetShape((fmc::SHAPE)currentShape);
 
 		}
 	}

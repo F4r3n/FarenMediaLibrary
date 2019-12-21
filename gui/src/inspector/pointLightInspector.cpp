@@ -4,15 +4,18 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(PointLight, fmc::CPointLight)
 
-void PointLightInspector::init()
+void PointLightInspector::_Init()
 {
-
 }
 
-void PointLightInspector::draw(bool *value)
+void PointLightInspector::_DeInit()
+{
+}
+
+void PointLightInspector::Draw(bool *value)
 {
     if(ImGui::CollapsingHeader("PointLight", value))
     {
-        ImGui::ColorEdit3("Color##PointLight", &target->color.r);
+        ImGui::ColorEdit3("Color##PointLight", &_target->color.r);
     }
 }

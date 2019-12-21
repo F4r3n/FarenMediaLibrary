@@ -27,16 +27,7 @@ void from_json(const nlohmann::json& j, TextureMat& p);
 void to_json(nlohmann::json& j, const Texture& p);
 void from_json(const nlohmann::json& j, Texture& p);
 
-namespace MaterialValueNames
-{
-static const char* const ktypeName[] =
-{
-"Int", "Float", "Vector3", "Vector4", "Vector2",
-"Matrix", "Texture", "Color", "None"
-};
-}
-
-enum ValuesType
+enum class ValuesType
 {
     VALUE_INT,
     VALUE_FLOAT,
@@ -46,8 +37,8 @@ enum ValuesType
     VALUE_MATRIX_FLOAT,
     VALUE_TEXTURE,
     VALUE_COLOR,
-    VALUE_NONE,
-    VALUE_LAST
+    VALUE_LAST,
+	VALUE_NONE
     // etc
 };
 
@@ -62,20 +53,21 @@ union VariantValue
     math::mat mat_;
     TextureMat texture_;
     fm::Color color_;
-        /// Construct uninitialized.
-    VariantValue() { }
-    /// Non-copyable.
-    VariantValue(const VariantValue &value) = delete;
-    /// Destruct.
-    ~VariantValue() { }
+
+	/// Construct uninitialized.
+	VariantValue() { } 
+	/// Non-copyable.
+	VariantValue(const VariantValue& value) = delete;
+	/// Destruct.
+	~VariantValue() { }
 };
 
 class MaterialValue 
 {
    public:
-    MaterialValue() 
+    MaterialValue()
+		:_valueType(ValuesType::VALUE_NONE)
 	{
-        _valueType = ValuesType::VALUE_NONE;
     }
 
     MaterialValue(const MaterialValue& material) 
@@ -109,7 +101,7 @@ class MaterialValue
         case ValuesType::VALUE_TEXTURE:
             _value.texture_ = material._value.texture_;
             break;
-            case ValuesType::VALUE_COLOR:
+        case ValuesType::VALUE_COLOR:
 			_value.color_ = material._value.color_;
 			break;
         default:
@@ -125,24 +117,24 @@ class MaterialValue
         _valueType = valueType;
         switch(valueType) 
 		{
-        case ValuesType::VALUE_VECTOR2_FLOAT:
-            new (&_value.vec2_) math::vec2();
-            break;
-        case ValuesType::VALUE_VECTOR3_FLOAT:
-            new (&_value.vec3_) math::vec3();
-            break;
-        case ValuesType::VALUE_VECTOR4_FLOAT:
-            new (&_value.vec4_) math::vec4();
-            break;
-        case ValuesType::VALUE_MATRIX_FLOAT:
-            new (&_value.mat_) math::mat();
-            break;
-            case ValuesType::VALUE_TEXTURE:
-                new (&_value.texture_) fm::Texture();
-                break;
-            case ValuesType::VALUE_COLOR:
-                new (&_value.color_) fm::Color();
-                break;
+		case ValuesType::VALUE_VECTOR2_FLOAT:
+			new (&_value.vec2_) math::vec2();
+			break;
+		case ValuesType::VALUE_VECTOR3_FLOAT:
+			new (&_value.vec3_) math::vec3();
+			break;
+		case ValuesType::VALUE_VECTOR4_FLOAT:
+			new (&_value.vec4_) math::vec4();
+			break;
+		case ValuesType::VALUE_MATRIX_FLOAT:
+			new (&_value.mat_) math::mat();
+			break;
+		case ValuesType::VALUE_TEXTURE:
+			new (&_value.texture_) fm::Texture();
+			break;
+		case ValuesType::VALUE_COLOR:
+			new (&_value.color_) fm::Color();
+			break;
         default:
             break;
         }
@@ -347,7 +339,7 @@ class MaterialValue
     //}
 
    private:
-    ValuesType _valueType = ValuesType::VALUE_NONE;
+    ValuesType _valueType;
     VariantValue _value;
 };
 }
