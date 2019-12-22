@@ -34,6 +34,11 @@ public:
 		return ((x > this->x) && (x < (this->x + this->w))) && ((y > this->y) && (y < (this->y + this->h)));
     }
 
+	inline bool contains(const fm::math::vec2 &inVec)
+	{
+		return contains(inVec.x, inVec.y);
+	}
+
     template <typename U> bool contains(const Rect<U>& rect2) {
         if(x < rect2.x + rect2.w && rect2.x < x + w && y < rect2.y + rect2.h && rect2.y < y + h) {
             return true;

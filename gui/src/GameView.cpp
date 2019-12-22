@@ -24,7 +24,6 @@ GameView::~GameView()
 
 void GameView::CustomDraw()
 {
-
     if(_index >= 0 && _index < _previews.size()) 
 	{
 		CameraPreview preview = _previews[_index];
@@ -32,10 +31,7 @@ void GameView::CustomDraw()
 		{
 			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
 
-			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(),
-				ImVec2(_startImagePos.x, _startImagePos.y),
-				ImVec2(_endImagePos.x, _endImagePos.y)
-			);
+			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(),_startImagePos,_endImagePos);
 		}
     }
 

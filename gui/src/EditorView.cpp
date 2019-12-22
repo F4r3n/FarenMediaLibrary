@@ -77,7 +77,7 @@ void EditorView::CustomDraw()
 	{
 		const fm::Texture texture = _editorView.renderTexture->GetColorBufferTexture(0);
 
-		ImGui::SetCursorPos(ImVec2(_cursorPos.x, _cursorPos.y));
+		ImGui::SetCursorPos(_cursorPos);
 		ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
 		ImGuizmo::SetDrawlist();
 		_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
@@ -182,7 +182,7 @@ void EditorView::_Update(float dt, Context &inContext)
 
 		if (ImGui::IsMouseReleased(0) && !ImGuizmo::IsUsing())
 		{
-			ImVec2 mousePos = ImGui::GetMousePos();
+			fm::math::vec2 mousePos = ImGui::GetMousePos();
 
 			fm::Rectf rect;
 			rect.w = size.x;
@@ -191,9 +191,9 @@ void EditorView::_Update(float dt, Context &inContext)
 			rect.y = start.y;
 
 
-			if (rect.contains(mousePos.x, mousePos.y))
+			if (rect.contains(mousePos))
 			{
-				fm::math::vec2 mPos(mousePos.x, mousePos.y);
+				fm::math::vec2 mPos(mousePos);
 				mPos.x -= startCursorPos.x - _scrollPos.x;
 				mPos.y -= startCursorPos.y - _scrollPos.y;
 

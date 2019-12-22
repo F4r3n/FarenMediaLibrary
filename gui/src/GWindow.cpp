@@ -67,9 +67,9 @@ void GWindow::Draw()
 		if (!_hasBeenDrawn)
 		{
 			ImGui::SetWindowCollapsed(false, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowPos(ImVec2(_position.x, _position.y), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowPos(_position, ImGuiCond_FirstUseEver);
 			if (_size.x != 0 && _size.y != 0)
-				ImGui::SetNextWindowContentSize(ImVec2(_size.x, _size.y));
+				ImGui::SetNextWindowContentSize(_size);
 		}
 
 		bool previousStatus = _enabled;
