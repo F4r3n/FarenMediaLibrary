@@ -48,7 +48,7 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 		if (isRoot)
 		{
 			outRelativePath.clear();
-			outRelativePath.append(otherPath.c_str(), rootPath.size() + 1, otherPath.size() - rootPath.size() - 1);
+			outRelativePath.append(otherPath.c_str(), rootPath.size(), otherPath.size() - rootPath.size());
 		}
 	}
 
