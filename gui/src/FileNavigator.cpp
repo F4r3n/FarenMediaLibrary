@@ -1,6 +1,9 @@
 #include "FileNavigator.h"
 #include "Core/application.h"
-
+#include "Rendering/material.hpp"
+#include "Resource/ResourcesManager.h"
+#include "nlohmann/json.hpp"
+#include <fstream>
 using namespace gui;
 
 
@@ -113,20 +116,21 @@ bool PathStorage::HasRoot() const
 	return !_root.name.empty();
 }
 
-void PathStorage::RefreshPath(const fm::FilePath &inPath)
+void PathStorage::RefreshPath(const fm::Folder &inPath)
 {
-	Node* n = GetNode(inPath);
+	Node* n = GetNode(inPath.GetPath());
 	if (n == nullptr)
 	{
-		n = AddPath(inPath);
+		n = AddPath(inPath.GetPath());
 	}
 	n->nodes.clear();
-	inPath.Iterate(false, [&n](const fm::FilePath &inFilePath)
+	inPath.Iterate(false, [&n](const fm::Folder* inFolder, const fm::File* inFile)
 	{
-		std::string name = inFilePath.GetName(false);
 		
-		if (inFilePath.IsFolder())
+		if (inFolder != nullptr)
 		{
+			std::string name = inFolder->GetPath().GetName(false);
+
 			Node newNode;
 			newNode.name = name;
 			n->nodes.emplace_back(newNode);
@@ -200,12 +204,12 @@ GFileNavigator::GFileNavigator() : GWindow("File Navigator", true)
 void GFileNavigator::_Update(float dt, Context &inContext)
 {
 	_root = fm::Application::Get().GetCurrentConfig().userDirectory;
-	if (!_currentFolderSelected.IsValid())
+	if (!_currentFolderSelected.Exist())
 	{
 		_currentFolderSelected = _root;
-		if (!_cache.HasRoot() || _cache.GetRoot().GetPath() != _root.GetPath())
+		if (!_cache.HasRoot() || _cache.GetRoot().GetPath() != _root.GetPath().GetPath())
 		{
-			_cache.SetRoot(_root);
+			_cache.SetRoot(_root.GetPath());
 			_cache.RefreshPath(_root);
 		}
 	}
@@ -213,11 +217,11 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 	if (!_listToRefresh.empty())
 	{
 		_listFiles.clear();
-		_currentFolderSelected.Iterate(false, [this](const fm::FilePath &inFilePath)
+		_currentFolderSelected.Iterate(false, [this](const fm::Folder* inFolder, const fm::File* inFile)
 		{
-			if (inFilePath.IsFile())
+			if (inFile)
 			{
-				_listFiles.emplace_back(inFilePath);
+				_listFiles.emplace_back(inFile->GetPath());
 			}
 		});
 	}
@@ -237,7 +241,7 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 	for (auto& n : currentNode->nodes)
 	{
 		fm::FilePath p(inRoot);
-		p.Append(n.name);
+		p.ToSubFolder(n.name);
 
 
 		bool opened = ImGui::TreeNodeEx(n.name.c_str());
@@ -272,7 +276,7 @@ void GFileNavigator::CustomDraw()
 
 	ImGui::SameLine();
 	
-	if (_currentFolderSelected.IsValid())
+	if (_currentFolderSelected.GetPath().IsValid())
 	{
 		if(ImGui::BeginChild("##files", ImVec2(0, 0), false, ImGuiWindowFlags_NoTitleBar))
 		{
@@ -281,6 +285,34 @@ void GFileNavigator::CustomDraw()
 				ImGui::Text(f.GetName(false).c_str());
 			}
 		}
+
+		if (ImGui::IsWindowFocused())
+		{
+
+			if (ImGui::IsMouseClicked(1))
+			{
+				ImGui::OpenPopup("popup from button");
+
+			}
+			if (ImGui::BeginPopup("popup from button"))
+			{
+				//if (ImGui::MenuItem("Create Material"))
+				//{
+				//	fm::FilePath newFilePath = fm::FilePath::CreateUniqueFile(_currentFolderSelected, "newMaterial", ".mat");
+				//	fm::Material* material = new fm::Material(newFilePath.GetName(true), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
+				//
+				//	nlohmann::json j;
+				//	material->Serialize(j);
+				//	std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
+				//	o << j << std::endl;
+				//	o.close();
+				//
+				//	fm::ResourcesManager::get().load<fm::Material>(material->GetName(), material);
+				//}
+				//ImGui::EndPopup();
+			}
+		}
+
 		ImGui::EndChild();
 	}       
 }

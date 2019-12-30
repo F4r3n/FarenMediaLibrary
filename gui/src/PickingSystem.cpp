@@ -21,7 +21,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 	_camera->Init();
 	_specialCamera->SetName("Camera");
 
-#if 1
+
 	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
 	fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
 
@@ -32,15 +32,10 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		types,
 		24,
 		0));
-#else
-	_camera->target = std::make_shared<fm::RenderTexture>(_camera->getInternalRenderTexture(), 0);
-#endif
 
-	fm::Shader* shader = fm::ResourcesManager::get().getResource<fm::Shader>("picking");
 
-	_material = std::make_unique<fm::Material>("default_material");
-	_material->shaderName = "picking";
-	_material->shader = shader;
+	_material = std::make_unique<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS,"default_material"), fm::ResourcesManager::get().getResource<fm::Shader>("picking"));
+	_material->Compile();
 }
 
 

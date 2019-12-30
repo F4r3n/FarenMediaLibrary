@@ -26,9 +26,9 @@ void Application::SetConfig(const Config &inConfig)
 {
 	_currentConfig = inConfig;
 
-	if (!_currentConfig.userDirectory.IsValid())
+	if (!_currentConfig.userDirectory.GetPath().IsValid())
 	{
-		_currentConfig.userDirectory = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::WORKING_DIRECTORY);
+		_currentConfig.userDirectory = Folder(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY));
 	}
 }
 
@@ -66,10 +66,9 @@ bool Application::Serialize() const
 	nlohmann::json s;
 	_sceneManager->Serialize(s);
 
-	FilePath p(_currentConfig.userDirectory);
-	p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
+	File f(_currentConfig.userDirectory, _currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
 	
-	std::ofstream o(p.GetPath(), std::ofstream::out);
+	std::ofstream o(f.GetPath().GetPath(), std::ofstream::out);
 	o << std::setw(4) << s << std::endl;
 	o.close();
 	
@@ -80,9 +79,9 @@ bool Application::Serialize() const
 bool Application::Read()
 {
     nlohmann::json s;
-	FilePath p(_currentConfig.userDirectory);
-	p.Append(_currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
-    std::ifstream i(p.GetPath());
+	File f(_currentConfig.userDirectory, _currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
+
+    std::ifstream i(f.GetPath().GetPath());
     nlohmann::json j;
     i >> j;
 	_sceneManager->Read(j);
@@ -199,12 +198,12 @@ void Application::DeInit()
 }
 
 
-void Application::SetUserDirectory(const fm::FilePath &inPath)
+void Application::SetUserDirectory(const fm::Folder &inPath)
 {
 	_currentConfig.userDirectory = inPath;
 }
 
-const fm::FilePath& Application::GetUserDirectory() const
+const fm::Folder& Application::GetUserDirectory() const
 {
 	return _currentConfig.userDirectory;
 }

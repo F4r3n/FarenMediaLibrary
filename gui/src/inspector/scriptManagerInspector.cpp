@@ -48,13 +48,13 @@ void ScriptManagerInspector::Draw(bool *value)
         if(ImGui::Button("Add Script"))
         {
 
-			fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::USER_LUA_LOCATION);
+			fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::USER_LUA_LOCATION);
 			if (p.GetPath().empty())
 			{
-				p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_RESOURCES_LOCATION);
+				p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_RESOURCES_LOCATION);
 			}
 			std::string fileName = std::string(nameScript) + ".lua";
-			p.Append(fileName);
+			p.ToSubFile(fileName);
 			
 			_target->addScriptLua(p);
 			

@@ -8,7 +8,7 @@ using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Material, fmc::CMaterial)
 
 
-void DrawCombo(const std::string &inNameCombo, const std::vector<const char*>& values, std::string &currentItem, size_t *index)
+bool DrawCombo(const std::string &inNameCombo, const std::vector<const char*>& values, std::string &currentItem, size_t *index)
 {
     const char* item_current_char = currentItem.c_str();
     std::string nameCombo = inNameCombo;
@@ -27,8 +27,9 @@ void DrawCombo(const std::string &inNameCombo, const std::vector<const char*>& v
         }
         ImGui::EndCombo();
     }
-
+	bool hasChanged = currentItem != std::string(item_current_char);
     currentItem = std::string(item_current_char);
+	return hasChanged;
 }
 
 void MaterialInspector::_DeInit()
@@ -94,22 +95,20 @@ void MaterialInspector::Draw(bool *value)
 
     if(ImGui::CollapsingHeader(name.c_str(), value))
     {
-        size_t i = 0;
-
         for(auto &m :_target->GetAllMaterials())
         {
-            std::string materialName = m->GetID() + "##Material";
+            std::string materialName = m->GetName() + "##Material";
 
             if (ImGui::TreeNode(materialName.c_str()))
             {
                 size_t j = 0;
                 std::vector<fm::MaterialProperty>::const_iterator materialValue = m->getValues().begin();
+				std::string shaderName = m->GetShader()->GetName();
 
                 for (; materialValue != m->getValues().end(); )
                 {
 #if 1
 					fm::MaterialProperty currentProperty = *materialValue;
-					
 
                     fm::ValuesType type = currentProperty.materialValue.getType();
                     const fm::ValuesType ctype = type;
@@ -120,16 +119,16 @@ void MaterialInspector::Draw(bool *value)
                     memcpy(nameType, currentProperty.name, sizeof(currentProperty.name));
                     {
 						size_t t = (size_t)type;
-                        DrawCombo("Type##"+ m->shaderName + currentProperty.name + std::to_string(j), typesMaterial, currentTypeName, &t);
+                        DrawCombo("Type##"+ shaderName + currentProperty.name + std::to_string(j), typesMaterial, currentTypeName, &t);
 						type = (fm::ValuesType)t;
-                        std::string nameTextInput = std::string(nameType) + "##Text"+ m->shaderName + currentProperty.name + std::to_string(j);
+                        std::string nameTextInput = std::string(nameType) + "##Text"+ shaderName + currentProperty.name + std::to_string(j);
                         if(ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
                         {
                             strncpy(currentProperty.name, nameType, strlen(nameType) );
                         }
                     }
 
-                    std::string name = std::string(materialValue->name) + " "+ _ValueTypeToName(type) + "##" + m->shaderName + materialValue->name;
+                    std::string name = std::string(materialValue->name) + " "+ _ValueTypeToName(type) + "##" + shaderName + materialValue->name;
                     name += std::to_string(j);
 
                     if(type == fm::ValuesType::VALUE_COLOR)
@@ -213,20 +212,15 @@ void MaterialInspector::Draw(bool *value)
                     m->setValue("NEW", (int)0);
                 }
 
-                std::string currentItem = m->shaderName.c_str();
+                std::string currentItem = shaderName.c_str();
                 size_t index = 0;
-                DrawCombo("Shader##" + m->GetID(),valuesShader, currentItem, &index);
-
-
-                if(fm::ResourcesManager::get().Exists<fm::Shader>(currentItem))
-                {
-                    m->shaderName = currentItem;
-                    m->SetFlagHasChanged();
-                }
+				if (DrawCombo("Shader##" + m->GetName(), valuesShader, currentItem, &index))
+				{
+					m->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>(currentItem));
+				}
 
                 ImGui::TreePop();
             }
-            i++;
         }
     }
 }

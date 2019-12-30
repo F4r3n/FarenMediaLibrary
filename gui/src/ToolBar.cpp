@@ -6,8 +6,8 @@ using namespace gui;
 ToolBar::ToolBar() : GWindow("ToolBar", true)
 {
 	_enabled = true;
-	_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
-	_kind = gui::WINDOWS::WIN_TOOLBAR;
+	_state = TRANSFORM_CONTEXT::TRANSLATE;
+	_kind = WINDOWS::WIN_TOOLBAR;
 }
 
 ToolBar::~ToolBar()
@@ -26,7 +26,7 @@ void ToolBar::_UpdateInputTransformContext(Context &inContext)
 {
 	ImGuiIO io = ImGui::GetIO();
 
-	if (inContext.currentWindowFocused == gui::WINDOWS::WIN_EDITOR_VIEW)
+	if (inContext.currentWindowFocused == WINDOWS::WIN_EDITOR_VIEW)
 	{
 		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_T, false))
 		{

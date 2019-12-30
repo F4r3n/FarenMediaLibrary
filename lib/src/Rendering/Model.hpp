@@ -18,7 +18,7 @@ struct Mesh
 
 class Model : public Resource{
 public:
-    Model(const std::string &inName);
+    Model(const fm::FilePath &inFilePath);
     ~Model();
     void generate();
     static const fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}

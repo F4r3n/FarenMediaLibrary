@@ -34,7 +34,7 @@ public:
     GLuint Program;
     Shader();
     
-    Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name);
+    Shader(const fm::FilePath& inFilePath, const std::string &name);
     const Shader* setValue(const std::string& name, fm::math::mat matrix) const;
     const Shader* setValue(const std::string& name, fm::math::vec2 vector) const;
     const Shader* setValue(const std::string& name, fm::math::vec3 vector) const;
@@ -52,9 +52,6 @@ public:
     void  setValue(const std::string &name, const fm::MaterialValue &value) const;
     const std::string& GetName() const{return _name;}
 private:
-    std::string _vertex, _fragment;
-    ZTEST _zTest = ZTEST::LESS;
-    BLEND _blendMode = BLEND::NONE;
     bool _isReady = false;
     std::string _name;
 };

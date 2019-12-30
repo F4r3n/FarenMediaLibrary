@@ -66,10 +66,10 @@ RenderingSystem::~RenderingSystem()
 
 void RenderingSystem::_InitStandardShapes()
 {
-    fm::Model* quad = new fm::Model("Quad");
-    fm::Model* quadFS = new fm::Model("QuadFS");
-    fm::Model* circle = new fm::Model("Circle");
-    fm::Model* cube = new fm::Model("Cube");
+    fm::Model* quad = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Quad"));
+    fm::Model* quadFS = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "QuadFS"));
+    fm::Model* circle = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Circle"));
+    fm::Model* cube = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Cube"));
     quad->AddMesh(fm::StandardShapes::CreateQuad());
     circle->AddMesh(fm::StandardShapes::CreateCircle());
     quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
@@ -108,16 +108,8 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
         std::vector<fm::Material*> materials = material->GetAllMaterials();
         for(auto &m : materials)
         {
-            if(m->shader == nullptr && m->shaderName != "")
-            {
-                m->shader = fm::ResourcesManager::get().getResource<fm::Shader>(m->shaderName);
-            }
-            if(m->shader != nullptr && !m->shader->IsReady())
-            {
-                m->shader->compile();
-            }
+			m->Compile();
         }
-
     }
 
     //fm::Debug::log("INIT MainCamera");
@@ -305,7 +297,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				fm::Shader *shader = _finalShader;
 				if (cmd._material != nullptr)
 				{
-					shader = cmd._material->shader;
+					shader = cmd._material->GetShader();
 					shader->Use();
 					for (auto const& value : cmd._material->getValues())
 					{
@@ -348,33 +340,23 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 
 void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties)
 {
-	if (inMaterial->shader != nullptr && !inMaterial->shader->IsReady())
-	{
-		inMaterial->shader->compile();
-	}
+	if (!inMaterial->IsReady()) return;
 
-	fm::Shader* shader = inMaterial->shader;
-
-	if (inMaterial->Reload())
-	{
-		shader = inMaterial->shader;
-		shader->Use();
-		cam->_rendererConfiguration.uboLight->Bind();
-
-		shader->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
-		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-	}
+	fm::Shader* shader = inMaterial->GetShader();
 
 	if (shader != nullptr)
 	{
-		shader->Use()
-			->setValue("FM_PV", cam->shader_data.FM_PV);
+		shader->Use();
+		shader->setValue("FM_PV", cam->shader_data.FM_PV);
 		shader->setValue("lightNumber", _lightNumber);
 		shader->setValue("viewPos", inTransform.position);
 		fm::math::mat modelPosition = inTransform.worldTransform;
 
 		shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
 		shader->setValue("FM_M", modelPosition);
+
+		cam->_rendererConfiguration.uboLight->Bind();
+		shader->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
 
 		for (auto const& value : inMaterial->getValues())
 		{

@@ -20,7 +20,6 @@ set(SOURCES ${SOURCES}
 	src/GWindow.cpp
 	src/EditorView.cpp
 	src/GameView.cpp
-	src/SaveProjectWindow.cpp
 	src/inspector/inspector.cpp
 	src/inspector/materialInspector.cpp
 	src/inspector/meshInspector.cpp
@@ -35,7 +34,6 @@ set(SOURCES ${SOURCES}
 	src/GListEntities.cpp
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp
-	src/dialogfilebrowser.cpp
 	src/ToolBar.cpp
 	src/FileNavigator.cpp
 	src/ImGuizmo/ImGuizmo.cpp

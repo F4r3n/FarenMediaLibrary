@@ -43,7 +43,7 @@ public:
 	bool HasRoot() const;
 	Node* GetNode(const std::string &inRelativePath);
 	Node* GetNode(const fm::FilePath &inPath);
-	void RefreshPath(const fm::FilePath &inPath);
+	void RefreshPath(const fm::Folder &inPath);
 private:
 	Node* _GetNode(const std::string &inRelativePath, Node* inCurrentNode);
 	void _GetRelative(const fm::FilePath &inPath, std::string &outRelativePath) const;
@@ -71,8 +71,8 @@ namespace gui
 		void SetPathSelected(const fm::FilePath& inFilePath);
 	private:
 		void _Update(float dt, Context &inContext);
-		fm::FilePath _root;
-		fm::FilePath _currentFolderSelected;
+		fm::Folder _root;
+		fm::Folder _currentFolderSelected;
 		bool		_hasChanged;
 		PathStorage _cache;
 		std::queue<fm::FilePath> _listToRefresh;

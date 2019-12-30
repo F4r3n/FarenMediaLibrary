@@ -25,33 +25,14 @@ void CMaterial::Destroy()
     EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
 }
 
-void CMaterial::SetFlagHasChanged() {
-    for(auto &s: _materials) s->SetFlagHasChanged();
-}
 
-
-bool CMaterial::Reload()
-{
-    if(_hasChanged)
-    {
-        for(auto &m : _materials)
-        {
-            m->Reload();
-        }
-        return true;
-    }
-
-    _hasChanged = false;
-    return false;
-
-}
 
 bool CMaterial::Serialize(json &ioJson) const
 {
     nlohmann::json j;
     for(fm::Material *s : _materials)
     {
-        nlohmann::json m = s->GetID();
+        nlohmann::json m = s->GetName();
        j.push_back(m);
     }
     ioJson["Materials"] = j;

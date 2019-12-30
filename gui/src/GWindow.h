@@ -16,7 +16,7 @@ namespace fm
 
 namespace gui
 {
-	enum TRANSFORM_CONTEXT
+	enum class TRANSFORM_CONTEXT
 	{
 		TRANSLATE,
 		SCALE,

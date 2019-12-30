@@ -6,16 +6,18 @@
 
 using namespace fm;
 
-Material::Material(const std::string &id)
+Material::Material(const fm::FilePath& inFilePath, fm::Shader* inShader)
+	:_shader(inShader),
+	_name(inFilePath.GetName(true)),
+	Resource(inFilePath)
 {
-    _id = id;
-    setValue<fm::Color>("mainColor", fm::Color(1,1,1,1));
+    setValue("mainColor", fm::Color(1,1,1,1));
 }
 
 bool Material::Serialize(nlohmann::json &ioJson) const
 {
-    ioJson["id"] = _id;
-    ioJson["shaderName"] = shaderName;
+    ioJson["name"] = _name;
+    ioJson["shaderName"] = _shader != nullptr ? _shader->GetName() : "";
 
     nlohmann::json valuesJSON;
     for(auto &&value : _properties.GetValues())
@@ -50,8 +52,9 @@ bool Material::Serialize(nlohmann::json &ioJson) const
 
 bool Material::Read(const nlohmann::json &inJSON)
 {
-    _id = inJSON["id"];
-    shaderName = inJSON["shaderName"];
+    _name = inJSON["name"];
+    std::string shaderName = inJSON["shaderName"];
+	_shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
     nlohmann::json values = inJSON["materialValues"];
     for (json::iterator it = values.begin(); it != values.end(); ++it)
     {
@@ -97,28 +100,24 @@ bool Material::Read(const nlohmann::json &inJSON)
 }
 
 
-bool Material::Reload()
-{
-    if(_hasChanged)
-        {
-            if((shader == nullptr && shaderName != "")
-              || (shader && shaderName != shader->GetName()))
-            {
-                shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
-                _hasChanged = false;
-                return true;
-            }
-        }
-
-        _hasChanged = false;
-        return false;
-}
-
-
 
 const std::vector<MaterialProperty> &Material::getValues() const
 {
     return _properties.GetValues();
 }
+
+bool Material::IsReady() const
+{
+	return _shader != nullptr && _shader->IsReady();
+}
+
+void Material::Compile()
+{
+	if (IsReady())
+	{
+		_shader->compile();
+	}
+}
+
 
 

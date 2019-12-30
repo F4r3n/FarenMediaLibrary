@@ -3,12 +3,13 @@
 #include <Rendering/Model.hpp>
 #include <Core/Debug.h>
 
+
 using namespace fm;
 using namespace rendering;
 
-Model::Model(const std::string &inName): Resource()
+Model::Model(const fm::FilePath& inFilePath): Resource(inFilePath)
 {
-    _name = inName;
+    _name = inFilePath.GetName(true);
 }
 
 

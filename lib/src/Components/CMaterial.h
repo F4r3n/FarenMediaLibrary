@@ -26,10 +26,7 @@ class CMaterial : public FMComponent<CMaterial> {
         const std::string& GetName() const override;
 		uint16_t GetType() const override {return kMaterial;}
         void Destroy() override;
-
 		
-        void SetFlagHasChanged();
-        bool Reload();
         const fm::Materials& GetAllMaterials() {return _materials;}
 		fm::Material* GetMainMaterial() const { if (!_materials.empty()) return _materials[0]; else return nullptr; }
     private:

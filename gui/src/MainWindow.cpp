@@ -15,8 +15,6 @@
 #include "Core/GameObject.h"
 #include "Core/application.h"
 
-#include "dialogfilebrowser.h"
-#include "SaveProjectWindow.h"
 #include "GListEntities.h"
 #include "PortableFileDialog.h"
 #include "PickingSystem.h"
@@ -119,7 +117,7 @@ void MainWindow::_DisplayWindow_Save()
 	{
 		fm::FilePath result(resultFromDialog);
 		
-		fm::Application::Get().SetUserDirectory(result);
+		fm::Application::Get().SetUserDirectory(fm::Folder(result));
 		fm::Application::Get().Serialize();
 	}
 }
@@ -500,8 +498,8 @@ void MainWindow::_ConfigureStyle()
 	ImGuiStyle& style = ImGui::GetStyle();
 	ImGuiIO& io = ImGui::GetIO();
 
-	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_FONT_LOCATION);
-	p.Append("Roboto-Medium.ttf");
+	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
+	p.ToSubFile("Roboto-Medium.ttf");
 	io.Fonts->AddFontFromFileTTF(p.GetPath().c_str(), 14.0f);
 	style.GrabRounding = 0.f;
 	style.WindowRounding = 0.f;

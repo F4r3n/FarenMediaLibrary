@@ -5,7 +5,7 @@
 #include <memory>
 #include "NonCopyable.h"
 #include "Core/FilePath.h"
-
+#include "Resource/FileSystem.h"
 namespace fm {
   
 class ResourcesManager : protected fm_system::NonCopyable 
@@ -13,19 +13,6 @@ class ResourcesManager : protected fm_system::NonCopyable
 	typedef std::map<std::string, Resource* > MapOfResources;
 	typedef std::array<MapOfResources, RESOURCE_TYPE::LAST_RESOURCE> ArrayOfResources;
 public:
-
-	enum LOCATION
-	{
-		INTERNAL_LUA_LOCATION,
-		INTERNAL_RESOURCES_LOCATION,
-		INTERNAL_FONT_LOCATION,
-		INTERNAL_SHADERS_LOCATION,
-		USER_LOCATION,
-		USER_RESOURCES_LOCATION,
-		USER_LUA_LOCATION,
-		USER_SETTINGS,
-		WORKING_DIRECTORY
-	};
 
 
     ResourcesManager();

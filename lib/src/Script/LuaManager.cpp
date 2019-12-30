@@ -61,15 +61,16 @@ LuaManager::~LuaManager()
 
 void LuaManager::_OpenInternalLibs()
 {
-	FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_LUA_LOCATION);
-
-	std::vector<FilePath> paths;
-	FilePath::GetAllFiles(p, ".lua", true, paths);
-
-	for (const FilePath& file : paths)
-	{
-		lua->script_file(file.GetPath(), sol::load_mode::text);
-	}
+	FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_LUA_LOCATION);
+	Folder f(p);
+	f.Iterate(true, [this](const fm::Folder* inFolder, const fm::File* inFile)
+		{
+			if (inFile != nullptr)
+			{
+				lua->script_file(inFile->GetPath().GetPath(), sol::load_mode::text);
+			}
+		}
+	);
 }
 
 bool LuaManager::ReadFile(const std::string &inPath)

@@ -5,20 +5,24 @@
 #include "Core/Color.h"
 using namespace fm;
 
-Shader::Shader() {
+Shader::Shader():Resource(fm::FilePath("")) {
 }
 
-Shader::Shader(const std::string& vertexCode, const std::string& fragmentCode, const std::string &name) 
+Shader::Shader(const fm::FilePath& inFilePath, const std::string& name) : Resource(inFilePath)
 {
-    _vertex = vertexCode;
-    _fragment = fragmentCode;
     _name = name;
 }
 
 bool Shader::compile() 
 {
-    const GLchar* vShaderCode = _vertex.c_str();
-    const GLchar* fShaderCode = _fragment.c_str();
+	File frag(Folder(_path), _path.GetName(true) + ".frag");
+	File vert(Folder(_path), _path.GetName(true) + ".vert");
+
+	const std::string vertContent = vert.GetContent();
+	const std::string fragContent = frag.GetContent();
+
+    const GLchar* vShaderCode = vertContent.c_str();
+    const GLchar* fShaderCode = fragContent.c_str();
 
     GLuint vertex, fragment;
     GLint success;

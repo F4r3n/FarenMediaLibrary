@@ -91,22 +91,20 @@ private:
 	std::vector< MaterialProperty> _materialProperties;
 };
 
-class Material : public Resource, public Serializer
+class Material : public Resource
 {
 
     public:
-        bool Serialize(nlohmann::json &ioJson) const override;
-        bool Read(const nlohmann::json &inJSON) override;
+        virtual bool Serialize(nlohmann::json &ioJson) const override;
+        virtual bool Read(const nlohmann::json &inJSON) override;
 
 		Material Clone() const
 		{
-			Material mat(_id);
+			Material mat(_name, _shader);
 			mat._properties = _properties;
-			mat._hasChanged = _hasChanged;
-			mat.shader = shader;
-			mat.shaderName = shaderName;
 		}
-        Material(const std::string &id);
+        Material(const fm::FilePath &inFilePath, fm::Shader* inShader);
+
         template <typename T>
         void setValue(const std::string& name, T value) {
             fm::MaterialValue materialValue;
@@ -129,18 +127,18 @@ class Material : public Resource, public Serializer
         const std::vector<MaterialProperty>& getValues() const;
 		const MaterialProperties& GetProperties() const { return _properties; }
 
-        std::string shaderName = "default";
 
-        fm::Shader* shader = nullptr;
 
-        inline void SetFlagHasChanged() {_hasChanged = true;}
-        bool Reload();
-        const std::string& GetID() const {return _id;}
-
+        const std::string& GetName() const {return _name;}
+		fm::Shader* GetShader() const { return _shader; }
+		void SetShader(fm::Shader* inShader) { _shader = inShader; Compile(); }
+		void Compile();
+		bool IsReady() const;
     private:
-        std::string _id = "none";
+		fm::Shader* _shader;
+
+        std::string _name;
 		MaterialProperties _properties;
-        bool _hasChanged = true;
 };
 
 

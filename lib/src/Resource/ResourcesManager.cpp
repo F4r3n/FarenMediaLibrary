@@ -1,7 +1,6 @@
 
 #include "Resource/ResourcesManager.h"
 #include "Core/application.h"
-#include "Rendering/ShaderLibrary.h"
 #include "Rendering/material.hpp"
 #include "Resource/RFont.h"
 #include <filesystem>
@@ -31,44 +30,49 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 	case LOCATION::INTERNAL_LUA_LOCATION:
 	{
-		FilePath p(GetFilePathResource(INTERNAL_RESOURCES_LOCATION));
-		p.Append("lua");
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.ToSubFolder("lua");
 		return p;
 	}
 	case LOCATION::INTERNAL_FONT_LOCATION:
 	{
-		FilePath p(GetFilePathResource(INTERNAL_RESOURCES_LOCATION));
-		p.Append("fonts");
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.ToSubFolder("fonts");
 		return p;
 	}
 	case LOCATION::INTERNAL_SHADERS_LOCATION:
 	{
-		FilePath p(GetFilePathResource(INTERNAL_RESOURCES_LOCATION));
-		p.Append("shaders");
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.ToSubFolder("shaders");
 		return p;
 	}
 	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
 		FilePath p(FilePath::GetWorkingDirectory());
-		p.Append("Resources");
+		p.ToSubFolder("Resources");
 		return p;
 	}
-
+	case LOCATION::INTERNAL_MATERIALS:
+	{
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.ToSubFolder("materials");
+		return p;
+	}
 	case LOCATION::USER_LOCATION:
 	{
-		return fm::Application::Get().GetUserDirectory();
+		return fm::Application::Get().GetUserDirectory().GetPath();
 	}
 
 	case LOCATION::USER_RESOURCES_LOCATION:
 	{
-		FilePath p(GetFilePathResource(USER_LOCATION));
-		p.Append("Resources");
+		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
+		p.ToSubFolder("Resources");
 		return p;
 	}
 	case LOCATION::USER_LUA_LOCATION:
 	{
-		FilePath p(GetFilePathResource(USER_RESOURCES_LOCATION));
-		p.Append("lua");
+		FilePath p(GetFilePathResource(LOCATION::USER_RESOURCES_LOCATION));
+		p.ToSubFolder("lua");
 		return p;
 	}
 
@@ -78,11 +82,11 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	}
 	case LOCATION::USER_SETTINGS:
 	{
-		FilePath p(GetFilePathResource(USER_LOCATION));
-		p.Append("Settings");
+		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
+		p.ToSubFolder("Settings");
 		return p;
 	}
-		
+
 	default:
 		return FilePath::GetWorkingDirectory();
 	}
@@ -91,43 +95,28 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 void ResourcesManager::_LoadInternalShaders()
 {
 
-	FilePath path = GetFilePathResource(fm::ResourcesManager::LOCATION::INTERNAL_SHADERS_LOCATION);
+	Folder shaders(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_SHADERS_LOCATION)));
 
-	for (const auto & entry : std::filesystem::directory_iterator(path.GetPath()))
+	shaders.Iterate(false, [](const fm::Folder* inFolder, const fm::File* inFile)
 	{
-		FilePath filePath(entry.path().string());
-
-		std::string extension = filePath.GetExtension();
-		if (extension == ".vert")
+		if (inFolder != nullptr)
 		{
-			FilePath fragFile = filePath.GetParent();
-			fragFile.Append(filePath.GetName(true) + ".frag");
-
-			if (fragFile.Exist())
+			if (inFolder->GetPath().GetExtension() == ".shader")
 			{
-
-				std::ifstream fragStream(fragFile.GetPath());
-				std::string frag((std::istreambuf_iterator<char>(fragStream)),
-					std::istreambuf_iterator<char>());
-
-				std::ifstream vertStream(filePath.GetPath());
-				std::string vert((std::istreambuf_iterator<char>(vertStream)),
-					std::istreambuf_iterator<char>());
-
-				fm::Shader* shader = new fm::Shader(vert, frag, filePath.GetName(true));
+				const std::string name = inFolder->GetPath().GetName(true);
+				Shader* shader = new Shader(inFolder->GetPath(), name);
 				shader->compile();
-				fm::ResourcesManager::get().load<fm::Shader>(filePath.GetName(true),shader);
-
+				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}
 		}
-	}
+	});
+
 }
 
 
 
 bool ResourcesManager::LoadShaders()
 {
-	ShaderLibrary::LoadShaders();
 	_LoadInternalShaders();
 	return true;
 }
@@ -135,16 +124,12 @@ bool ResourcesManager::LoadShaders()
 bool ResourcesManager::CreateMaterials()
 {
 	{
-		fm::Material *defaultMat = new fm::Material("default_material");
-		defaultMat->shaderName = "default";
-		defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default");
+		fm::Material *defaultMat = new fm::Material(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS, "default_material"), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
 		fm::ResourcesManager::get().load<Material>("default_material", defaultMat);
 	}
 
 	{
-		Material *defaultMat = new fm::Material("default_light_material");
-		defaultMat->shaderName = "default_light";
-		defaultMat->shader = fm::ResourcesManager::get().getResource<fm::Shader>("default_light");
+		Material *defaultMat = new fm::Material(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS, "default_light_material"), fm::ResourcesManager::get().getResource<fm::Shader>("default_light"));
 		fm::ResourcesManager::get().load<Material>("default_light_material", defaultMat);
 	}
 	return true;
@@ -152,8 +137,8 @@ bool ResourcesManager::CreateMaterials()
 
 bool ResourcesManager::LoadFonts()
 {
-	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::ResourcesManager::INTERNAL_FONT_LOCATION);
-	p.Append("Roboto-Medium.ttf");
+	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
+	p.ToSubFile("Roboto-Medium.ttf");
 	ResourcesManager::get().load<RFont>("dejavu", new RFont(p.GetPath()));
 	return true;
 }

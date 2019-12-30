@@ -8,7 +8,7 @@
 #include "Rendering/Texture.h"
 
 #define MAXWIDTH 512
-RFont::RFont(const std::string& path) : Resource() {
+RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
     unsigned int size = 32;
     FT_Face face;
     FT_Library ft;
@@ -103,7 +103,7 @@ RFont::RFont(const std::string& path) : Resource() {
     std::cout << "Font loaded " << !glGetError() << std::endl;
     // exit(-1);
 }
-RFont::RFont() : Resource() {
+RFont::RFont() : Resource(fm::FilePath("")) {
 }
 RFont::~RFont() {
 }

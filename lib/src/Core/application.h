@@ -22,7 +22,7 @@ namespace fm
 		size_t height = 600;
 		size_t fpsWanted = 60;
 		size_t windowFlag;
-		fm::FilePath userDirectory;
+		fm::Folder userDirectory;
 	};
 
 	struct ProjectSettings
@@ -110,8 +110,8 @@ class Application
         fm::Window* GetWindow() const;
         fm::Engine* GetEngine() const;
 
-		void SetUserDirectory(const fm::FilePath &inPath);
-		const fm::FilePath& GetUserDirectory() const;
+		void SetUserDirectory(const fm::Folder &inPath);
+		const fm::Folder& GetUserDirectory() const;
 
 		void SetProjectName(const std::string &inName);
 		const fm::Config& GetCurrentConfig() const;
