@@ -31,7 +31,6 @@ class Shader : public Resource{
         NONE
     };
 public:
-    GLuint Program;
     Shader();
     
     Shader(const fm::FilePath& inFilePath, const std::string &name);
@@ -43,6 +42,7 @@ public:
     const Shader* setValue(const std::string& name, int val) const;
     const Shader* setValue(const std::string& name, const Color &vector) const;
     const Shader* SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const;
+	GLuint GetUniformBlockIndex(const std::string& name) const;
 
     const Shader* Use() const;
     bool compile();
@@ -52,6 +52,8 @@ public:
     void  setValue(const std::string &name, const fm::MaterialValue &value) const;
     const std::string& GetName() const{return _name;}
 private:
+	GLuint _program;
+
     bool _isReady = false;
     std::string _name;
 };

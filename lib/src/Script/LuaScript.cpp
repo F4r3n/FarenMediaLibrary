@@ -9,6 +9,7 @@
 #include <Components/CBody3D.h>
 #include <ECS.h>
 #include <Components/CScriptManager.h>
+#include "LuaScriptManager.h"
 using namespace fm;
 
 
@@ -23,7 +24,6 @@ LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity)
 	{
 		if (LuaManager::get().ReadFile(inPath.GetPath()))
 		{
-			_go = std::unique_ptr<GameObjectLua>(new GameObjectLua(inEntity));
 		}
 	}
 	catch(std::exception &e)
@@ -98,13 +98,6 @@ bool LuaScript::Reload(Entity* inEntity)
 	try
 	{
 		resultScript = LuaManager::get().ReadFile(_path.GetPath());
-		if (resultScript)
-		{
-			if (_go == nullptr)
-			{
-				_go = std::unique_ptr<GameObjectLua>(new GameObjectLua(inEntity));
-			}
-		}
 	}
 	catch (std::exception &e)
 	{
@@ -135,13 +128,11 @@ bool LuaScript::Read(const nlohmann::json &inJSON)
 void LuaScript::SetGoTable(sol::table &inTable)
 {
 	_table["Go"] = inTable;
-	_table["Go"]["_internal"] = _go.get();
 }
 
 
 bool LuaScript::init(Entity*)
 {
-	if (_go == nullptr) return false;
 
 	sol::state *lua = (LuaManager::get().GetState());
 	sol::table cclass = (*lua)[_scriptName];
@@ -178,11 +169,17 @@ void LuaScript::CallEvent(fm::BaseEvent* inEvent, sol::table &inTable)
 		Entity* other = EntityManager::get().getEntity(collisionEvent->GetID());
 		if (other != nullptr)
 		{
+			fmc::CScriptManager* mgr = other->get<fmc::CScriptManager>();
+			sol::table t = inTable;
+			if (mgr != nullptr)
+			{
+				t = mgr->GetLuaScriptManager()->GetTable();
+			}
 			
 			sol::protected_function pf = _table["Collision"];
 			if (pf.valid())
 			{
-				pf(_table, inTable, collisionEvent->GetTouchPoint(), collisionEvent->GetNormalPoint());
+				pf(_table, t, collisionEvent->GetTouchPoint(), collisionEvent->GetNormalPoint());
 			}
 		}
 		//_table["Collision"](_table, dt);

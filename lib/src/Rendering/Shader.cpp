@@ -53,14 +53,14 @@ bool Shader::compile()
     }
     
     // Shader Program
-    this->Program = glCreateProgram();
-    glAttachShader(this->Program, vertex);
-    glAttachShader(this->Program, fragment);
-    glLinkProgram(this->Program);
+	_program = glCreateProgram();
+    glAttachShader(_program, vertex);
+    glAttachShader(_program, fragment);
+    glLinkProgram(_program);
     // Print linking errors if any
-    glGetProgramiv(this->Program, GL_LINK_STATUS, &success);
+    glGetProgramiv(_program, GL_LINK_STATUS, &success);
     if(!success) {
-        glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
+        glGetProgramInfoLog(_program, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         return false;
     }
@@ -72,43 +72,43 @@ bool Shader::compile()
 }
 
 const Shader* Shader::Use() const {
-    glUseProgram(this->Program);
+    glUseProgram(_program);
     return this;
 }
 
 const Shader* Shader::setValue(const std::string& name, fm::math::mat matrix) const
 {
-    glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
+    glUniformMatrix4fv(glGetUniformLocation(_program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
     return this;
 }
 
 const Shader* Shader::setValue(const std::string& name, fm::math::vec2 vector) const
 {
-    glUniform2f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y);
+    glUniform2f(glGetUniformLocation(_program, name.c_str()), vector.x, vector.y);
     return this;
 }
 
 const Shader* Shader::setValue(const std::string& name, fm::math::vec3 vector) const
 {
-    glUniform3f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y, vector.z);
+    glUniform3f(glGetUniformLocation(_program, name.c_str()), vector.x, vector.y, vector.z);
     return this;
 }
 
 const Shader* Shader::setValue(const std::string& name, float val) const
 {
-    glUniform1f(glGetUniformLocation(Program, name.c_str()), val);
+    glUniform1f(glGetUniformLocation(_program, name.c_str()), val);
     return this;
 }
 
 const Shader* Shader::setValue(const std::string& name, fm::math::vec4 vector) const
 {
-    glUniform4f(glGetUniformLocation(Program, name.c_str()), vector.x, vector.y, vector.z, vector.w);
+    glUniform4f(glGetUniformLocation(_program, name.c_str()), vector.x, vector.y, vector.z, vector.w);
     return this;
 }
 
 const Shader* Shader::setValue(const std::string& name, int val) const
 {
-    glUniform1i(glGetUniformLocation(Program, name.c_str()), val);
+    glUniform1i(glGetUniformLocation(_program, name.c_str()), val);
     return this;
 }
 
@@ -155,11 +155,17 @@ void Shader::setValue(const std::string &name, const fm::MaterialValue &value) c
     }
 }
 
+GLuint Shader::GetUniformBlockIndex(const std::string& name) const
+{
+	return glGetUniformBlockIndex(_program, name.c_str());
+}
+
+
 const Shader* Shader::SetUniformBuffer(const std::string &name, unsigned int bindingPoint) const
 {
-    int b = glGetUniformBlockIndex(Program, name.c_str());
+    int b = glGetUniformBlockIndex(_program, name.c_str());
 	if(b !=-1)
-		glUniformBlockBinding(Program, b, bindingPoint);
+		glUniformBlockBinding(_program, b, bindingPoint);
     return this;
 
 }

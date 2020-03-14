@@ -7,6 +7,16 @@
 namespace fs = std::filesystem;
 using namespace fm;
 
+size_t FindFromEnd(const std::string& inString, char toFind, size_t offset)
+{
+	size_t i = inString.size() - offset - 1;
+	while (i > 0 && inString[i] != toFind)
+	{
+		i--;
+	}
+	return i;
+}
+
 
 FilePath::FilePath(const std::string &inPath)
 	:
@@ -104,10 +114,8 @@ std::string FilePath::GetName(bool withoutExtension) const
 std::string FilePath::_GetName() const
 {
 	size_t offset = IsFolder() ? 1 : 0;
-	std::string path = _path.substr(0, _path.size() - offset);
-
-	size_t index = path.rfind(GetFolderSeparator());
-	std::string name = path.substr(index + 1, path.size() - index - 1);
+	size_t index = FindFromEnd(_path, GetFolderSeparator(), offset);
+	std::string name = _path.substr(index + 1, _path.size() - index - offset - 1);
 
 	return name;
 }
@@ -126,11 +134,12 @@ std::string FilePath::GetExtension() const
 
 FilePath FilePath::GetParent() const
 {
-	const size_t offset = IsFolder() ? 1 : 0;
+	assert(!_path.empty());
 
-	size_t index = _path.find_last_of(GetFolderSeparator(), _path.size() - offset);
+	size_t index = _path.rfind(GetFolderSeparator(), _path.size() - 1);
 
 	std::string s = _path.substr(0, index);
+	s += GetFolderSeparator();
 	return fm::FilePath(s);
 }
 
@@ -266,6 +275,35 @@ File File::Rename(const std::string& inNewName) const
 
 	return File(p);
 }
+
+File File::CreateUniqueFile()
+{
+
+	const fm::FilePath parent = _path.GetParent();
+	fm::FilePath path(parent);
+
+	const std::string name = _path.GetName(true);
+	const std::string extension = _path.GetExtension();
+
+	size_t i = 0;
+	do
+	{
+		path = fm::FilePath(parent);
+		if (i == 0)
+		{
+			path.ToSubFile(name + extension);
+		}
+		else
+		{
+			path.ToSubFile(name + "_" + std::to_string(i) + extension);
+		}
+		i++;
+	} while (File(path).Exist());
+	File(path).CreateFile();
+	return File(path);
+
+}
+
 
 
 bool File::Exist() const

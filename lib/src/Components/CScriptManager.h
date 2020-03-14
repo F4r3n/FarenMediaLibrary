@@ -41,6 +41,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
 
         void Destroy();
 		LuaScripts GetLuaScripts() const;
+		fm::LuaScriptManager* GetLuaScriptManager() { return _luaScriptManager.get(); }
 private:
 	std::unique_ptr<fm::LuaScriptManager> _luaScriptManager;
 };

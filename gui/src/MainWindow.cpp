@@ -115,7 +115,7 @@ void MainWindow::_DisplayWindow_Save()
 
 	if (!resultFromDialog.empty())
 	{
-		fm::FilePath result(resultFromDialog);
+		fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
 		
 		fm::Application::Get().SetUserDirectory(fm::Folder(result));
 		fm::Application::Get().Serialize();

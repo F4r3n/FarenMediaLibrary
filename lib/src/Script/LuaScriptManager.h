@@ -10,7 +10,7 @@ namespace fm
 	class FilePath;
 	class BaseEvent;
 }
-
+class GameObjectLua;
 
 namespace fmc
 {
@@ -39,8 +39,11 @@ namespace fm
 		bool Read(Entity* e, const nlohmann::json &inJSON);
 
 		fmc::LuaScripts GetLuaScripts() const { return _scripts; }
+		sol::table& GetTable();
 	private:
 		sol::table _table;
 		fmc::LuaScripts _scripts;
+		std::unique_ptr<GameObjectLua>	_go;
+
 	};
 }

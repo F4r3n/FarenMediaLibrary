@@ -26,7 +26,6 @@ namespace fm
 		//static FilePath GetAbsolutePath(const std::string &inPath);
 
 		static FilePath GetWorkingDirectory();
-		//static FilePath	CreateUniqueFile(const FilePath& inDirectory, const std::string& inName, const std::string& inExtension);
 
 		bool IsValid() const;
 		static char GetFolderSeparator();
@@ -51,6 +50,8 @@ namespace fm
 		File Rename(const std::string& inNewName) const;
 		bool Exist() const;
 		std::string GetContent() const;
+		File CreateUniqueFile();
+
 	private:
 		fm::FilePath _path;
 	};

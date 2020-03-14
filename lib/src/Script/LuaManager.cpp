@@ -31,7 +31,7 @@ fmc::CTransform* GameObjectLua::GetTransform()
 
 const char* GameObjectLua::GetName()
 {
-	return _entity->get<fmc::CIdentity>()->GetName().c_str();
+	return _entity->get<fmc::CIdentity>()->GetNameEntity().c_str();
 }
 
 

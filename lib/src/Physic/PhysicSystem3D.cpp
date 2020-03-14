@@ -21,6 +21,7 @@ void PhysicSystem3D::init(EntityManager& em, EventManager& event)
 void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 {
 	int numManifolds = world->getDispatcher()->getNumManifolds();
+	bool hasFoundOneCollision = false;
 	for (int i = 0; i < numManifolds; ++i)
 	{
 		btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
@@ -35,7 +36,7 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 			{				
 
 				fmc::CBody3D* bodyA = static_cast<fmc::CBody3D*>(obA->getUserPointer());
-				fmc::CBody3D* bodyB = static_cast<fmc::CBody3D*>(obA->getUserPointer());
+				fmc::CBody3D* bodyB = static_cast<fmc::CBody3D*>(obB->getUserPointer());
 
 				Entity* entityA = EntityManager::get().getEntity(bodyA->GetIDEntity());
 				Entity* entityB = EntityManager::get().getEntity(bodyB->GetIDEntity());
@@ -54,6 +55,7 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 					}
 					fm::math::vec3 worldPosA = fm::math::vec3(pt.m_positionWorldOnA.x(), pt.m_positionWorldOnA.y(), pt.m_positionWorldOnA.z());
 					eventA->AddEvent(new fm::CollisionEvent(entityB->ID, worldPosA, normalB));
+					hasFoundOneCollision = true;
 				}
 
 				if (entityB != nullptr && entityB->active)
@@ -70,9 +72,12 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 					fm::math::vec3 worldPosB = fm::math::vec3(pt.m_positionWorldOnB.x(), pt.m_positionWorldOnB.y(), pt.m_positionWorldOnB.z());
 					event->AddEvent(new fm::CollisionEvent(entityA->ID, worldPosB, normalB));
 				}
-
+				if(hasFoundOneCollision)
+					break;
 			}
 		}
+		if (hasFoundOneCollision)
+			break;
 	}
 }
 

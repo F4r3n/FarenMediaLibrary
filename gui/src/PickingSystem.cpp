@@ -57,7 +57,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 				unsigned char pixel[4];
 				texture.GetPixel(inPos, pixel);
-				size_t id = (pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
+				size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
 				fm::GameObject* go = scene->GetGameObject(id);
 				_callback(go);
 			}

@@ -298,9 +298,8 @@ void CCamera::InitUniformBuffer()
 		glBindBufferBase(GL_UNIFORM_BUFFER,
 						_rendererConfiguration.bindingPointIndex,
 						_rendererConfiguration.generatedBlockBinding);
-		glUniformBlockBinding(s->Program,
-							  glGetUniformBlockIndex(s->Program, "shader_data"),
-							  _rendererConfiguration.bindingPointIndex);
+
+		s->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
 	}
 }
 

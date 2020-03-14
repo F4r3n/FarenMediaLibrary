@@ -56,10 +56,7 @@ void GListEntities::CustomDraw()
 					_gameObjectSelected->SetName(_bufferName);
 					_isRenaming = false;
 				}
-				else
-				{
-					_isRenaming = false;
-				}
+				
 			}
 			else
 			{

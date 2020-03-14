@@ -29,8 +29,9 @@ void LuaScriptManager::init(Entity* e)
 
 	sol::table tempGoClass = (*lua)["GameObject"];
 	_table = tempGoClass["create"](tempGoClass);
+	_go = std::unique_ptr<GameObjectLua>(new GameObjectLua(e));
 
-
+	_table["_internal"] = _go.get();
 	for (auto &s : _scripts)
 	{
 		if (s->init(e))
@@ -148,5 +149,11 @@ void LuaScriptManager::CallEvent(fm::BaseEvent* inEvent)
 		s->CallEvent(inEvent, _table);
 	}
 }
+
+sol::table& LuaScriptManager::GetTable()
+{
+	return _table;
+}
+
 
 

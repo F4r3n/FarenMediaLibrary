@@ -39,8 +39,6 @@ namespace fm
 
 	 private:
 		bool			_hasAnErrorOccured;
-		sol::table		_table;
-	
-		std::unique_ptr<GameObjectLua>	_go;
+		sol::table		_table;	
 	};
 }
