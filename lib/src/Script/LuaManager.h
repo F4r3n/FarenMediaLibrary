@@ -1,6 +1,6 @@
 #pragma once
 #include "Script.h"
-#include <sol2/sol_forward.hpp>
+#include <sol2/forward.hpp>
 
 class Entity;
 
