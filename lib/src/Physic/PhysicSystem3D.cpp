@@ -159,7 +159,7 @@ void PhysicSystem3D::Start()
 
 	_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, config);
 	_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
-	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, true);
+	//_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, true);
 	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, false);
 
 	_ghostPairCallback = new btGhostPairCallback();
