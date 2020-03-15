@@ -105,17 +105,21 @@ void RenderTexture::release() {
     {
         _textureColorbuffer[i].release();
     }
-    
+	
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //rboDepth.release();
-	if(_rboDepth > 0)
+	if (_rboDepth > 0)
+	{
 		glDeleteRenderbuffers(1, &_rboDepth);
+	}
 
-	if(_framebuffer > 0)
-		glDeleteRenderbuffers(1, &_framebuffer);
-
+	if (_framebuffer > 0)
+	{
+		glDeleteFramebuffers(1, &_framebuffer);
+	}
 
     _isReady = false;
+
 }
 
 bool RenderTexture::isCreated() const
@@ -127,7 +131,7 @@ bool RenderTexture::isCreated() const
 bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
 {
     if( _width == 0 || _height == 0) return false;
-    
+
     glGenFramebuffers(1, &_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     int error = glGetError();
