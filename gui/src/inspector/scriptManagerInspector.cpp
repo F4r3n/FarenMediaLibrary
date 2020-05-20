@@ -8,13 +8,64 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
+std::string ScriptTypeValueToString(fm::LuaScript::ScriptTypeValue inValue)
+{
+	switch (inValue)
+	{
+	case fm::LuaScript::ScriptTypeValue::NUMERAL:
+		return "numeral";
+	case fm::LuaScript::ScriptTypeValue::STRING:
+		return "string";
+	default:
+		return "";
+		break;
+	}
+}
+
+bool IsFloat(const std::string& myString) {
+	std::istringstream iss(myString);
+	float f;
+	iss >> std::noskipws >> f; // noskipws considers leading whitespace invalid
+	// Check the entire string was consumed and if either failbit or badbit is set
+	return iss.eof() && !iss.fail();
+}
+
 void ScriptManagerInspector::_Init()
 {
+	for (size_t i = 0; i < (size_t)fm::LuaScript::ScriptTypeValue::LAST; ++i)
+	{
+		_types.push_back(ScriptTypeValueToString((fm::LuaScript::ScriptTypeValue)i));
+	}
 }
+
+bool DrawCombo(const char* inNameCombo, const std::vector<std::string> &inItems, int inCurrentIndex, int& outIndex)
+{
+	const char* item_current_char = inItems[inCurrentIndex].c_str();
+	std::string nameCombo = inNameCombo;
+	if (ImGui::BeginCombo(nameCombo.c_str(), item_current_char, 0))
+	{
+		for (size_t n = 0; n < inItems.size(); n++)
+		{
+			bool is_selected = (item_current_char == inItems[n]);
+			if (ImGui::Selectable(inItems[n].c_str(), is_selected))
+			{
+				outIndex = n;
+			}
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+	return inCurrentIndex != outIndex;
+}
+
+
+
 
 void ScriptManagerInspector::_DeInit()
 {
 }
+
 
 void ScriptManagerInspector::Draw(bool *value)
 {
@@ -31,6 +82,44 @@ void ScriptManagerInspector::Draw(bool *value)
 			if (ImGui::CollapsingHeader(scriptName.c_str(), &toKeep))
 			{
 
+
+				std::map<std::string, fm::LuaScript::ScriptArgument> valuesToStartWith = script->GetListValues();
+				for (auto && valueToStartWith : valuesToStartWith)
+				{
+					std::string name = valueToStartWith.first;
+					ImGui::Text(name.c_str());
+
+					ImGui::SameLine();
+
+					name = "##" + std::to_string(_target->GetIDEntity()) + "value" + valueToStartWith.first;
+
+					bool hasChanged = false;
+					std::any argValue = valueToStartWith.second.value;
+					if (valueToStartWith.second.typeKind == fm::LuaScript::ScriptTypeValue::NUMERAL)
+					{
+						float v = std::any_cast<float>(argValue);
+						hasChanged = ImGui::InputFloat(name.c_str(), &v, 0.01, 1, 2);
+						if (hasChanged)
+						{
+							argValue = v;
+						}
+					}
+
+					if (hasChanged)
+					{
+
+						if (script->HasStarted())
+						{
+							//TODO event
+						}
+						else
+						{
+							script->SetStartValue(valueToStartWith.first, argValue);
+						}
+						
+					}
+
+				}
 			}
 			if (ImGui::Button("Reload"))
 			{

@@ -43,6 +43,7 @@ public:
         NONE
     };
 
+
     Script() {}
     ~Script() {}
 	virtual bool init(Entity*) = 0;
@@ -55,11 +56,12 @@ public:
 	virtual SCRIPT_TYPE GetType() const = 0;
 	virtual void CallEvent(fm::BaseEvent* inEvent) {}
 
-	virtual bool Reload(Entity*) { return false; }
+	virtual bool Reload(Entity*, bool inCreateInstance) { return false; }
 
 	const fm::FilePath& GetFilePath() const { return _path; }
 	const std::string& GetScriptName() const { return _scriptName; }
 
+	bool HasStarted() const { return _hasStarted; }
    protected:
     std::string		_scriptName;
 	bool			_hasStarted;

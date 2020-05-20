@@ -182,4 +182,5 @@ private:
     bool _closed = false;
 
 };
+
 }

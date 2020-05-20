@@ -10,29 +10,109 @@
 #include <ECS.h>
 #include <Components/CScriptManager.h>
 #include "LuaScriptManager.h"
+
+#include <nlohmann/json.hpp>
+
 using namespace fm;
 
+namespace Keys
+{
+	const std::string startWith("startWith");
+
+}
 
 
-LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity)
+void fm::to_json(nlohmann::json& j, const LuaScript::ScriptArgument& p)
+{
+	std::string l;
+	LuaScript::Tokens2Str(p.location, l);
+	j["location"] = l;
+	j["kind"] = (size_t)p.typeKind;
+	if (p.typeKind == LuaScript::ScriptTypeValue::NUMERAL)
+	{
+		j["value"] = std::any_cast<float>(p.value);
+	}
+	else if (p.typeKind == LuaScript::ScriptTypeValue::STRING)
+	{
+		j["value"] = std::any_cast<std::string>(p.value);
+	}
+}
+
+void fm::from_json(const nlohmann::json& j, LuaScript::ScriptArgument& p)
+{
+	p.location = LuaScript::CreateTokens(j["location"]);
+	p.typeKind = j["kind"];
+	if (p.typeKind == LuaScript::ScriptTypeValue::NUMERAL)
+	{
+		p.value = (float)j["value"];
+	}
+	else if (p.typeKind == LuaScript::ScriptTypeValue::STRING)
+	{
+		p.value = (std::string)j["value"];
+	}
+}
+
+
+
+LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity, bool inParseInitValue)
 {
 	_path = inPath;
 	_scriptName = inPath.GetName(true);
 	_hasStarted = false;
 	_isInit = false;
+	Load(inParseInitValue);
+}
+
+bool LuaScript::Load(bool inParseInitValue)
+{
+	bool ok = false;
 	try
 	{
-		if (LuaManager::get().ReadFile(inPath.GetPath()))
+		if (LuaManager::get().ReadFile(_path.GetPath()) && inParseInitValue)
 		{
+			sol::state* lua = (LuaManager::get().GetState());
+			sol::table cclass = (*lua)[_scriptName];
+
+			sol::table meta = cclass;
+			for (auto&& pair : meta)
+			{
+				const std::string key = pair.first.as<std::string>();
+				sol::type type = pair.second.get_type();
+				ScriptArgument arg;
+				arg.location = CreateTokens(key);
+				bool valid = false;
+				if (type == sol::type::number)
+				{
+					arg.typeKind = ScriptTypeValue::NUMERAL;
+					arg.value = pair.second.as<float>();
+					valid = true;
+				}
+				else if (type == sol::type::string)
+				{
+					arg.typeKind = ScriptTypeValue::STRING;
+					arg.value = std::string(pair.second.as<char*>());
+					valid = true;
+				}
+
+				if (valid)
+				{
+					_valuesToInit.insert(std::pair<std::string, ScriptArgument>(key, arg));
+				}
+
+			}
+			ok = true;
 		}
 	}
-	catch(std::exception &e)
+	catch (std::exception& e)
 	{
-		std::string error = "Lua error " + inPath.GetPath();
+		std::string error = "Lua error " + _path.GetPath();
 		error += std::string(e.what());
 		fm::Debug::get().LogError(error);
 	}
+
+	return ok;
 }
+
 
 
 
@@ -44,6 +124,14 @@ LuaScript::~LuaScript()
 void LuaScript::start()
 {
 	if (_hasAnErrorOccured || !_isInit) return;
+
+
+	for (auto&& value : _valuesToInit)
+	{
+		SetValue(value.second);
+	}
+	
+
 	try
 	{
 		sol::protected_function pf = _table["start"];
@@ -92,20 +180,11 @@ void LuaScript::update(float dt)
 	}
 }
 
-bool LuaScript::Reload(Entity* inEntity)
+bool LuaScript::Reload(Entity* inEntity, bool inCreateInstance)
 {
-	bool resultScript = false;
-	try
-	{
-		resultScript = LuaManager::get().ReadFile(_path.GetPath());
-	}
-	catch (std::exception &e)
-	{
-		std::string error = "Lua error " + _path.GetPath();
-		error += std::string(e.what());
-		fm::Debug::get().LogError(error);
-	}
-	if (resultScript)
+	bool resultScript = Load(true);
+
+	if (resultScript && inCreateInstance)
 	{
 		bool ok = init(nullptr);
 		return ok && !_hasAnErrorOccured;
@@ -117,12 +196,32 @@ bool LuaScript::Reload(Entity* inEntity)
 bool LuaScript::Serialize(nlohmann::json &ioJson) const
 {
 	//Set values from inspector
-	return false;
+	nlohmann::json j;
+	for (auto&& v : _valuesToInit)
+	{
+		j[v.first] = v.second;
+	}
+	ioJson[Keys::startWith] = j;
+	return true;
 }
 
 bool LuaScript::Read(const nlohmann::json &inJSON)
 {
-	return false;
+	try
+	{
+		nlohmann::json jarray = inJSON.at(Keys::startWith);
+		for (nlohmann::json::const_iterator it = jarray.cbegin(); it != jarray.cend(); ++it)
+		{
+			_valuesToInit[it.key()] = it.value();
+		}
+	}
+	catch (const std::exception& e)
+	{
+
+	}
+	
+
+	return true;
 }
 
 void LuaScript::SetGoTable(sol::table &inTable)
@@ -133,31 +232,17 @@ void LuaScript::SetGoTable(sol::table &inTable)
 
 bool LuaScript::init(Entity*)
 {
-
 	sol::state *lua = (LuaManager::get().GetState());
 	sol::table cclass = (*lua)[_scriptName];
-	sol::protected_function createF = cclass["create"];
 
-	bool ok = false;
+	_table = lua->create_table();
+	_table[sol::metatable_key] = cclass;
+	cclass["__index"] = cclass;
 
-	if (createF.valid())
-	{
-		try
-		{
-			_table = createF(cclass);
-			ok = true;
-		}
-		catch (std::exception &e)
-		{
-			fm::Debug::get().LogError(e.what());
-		}
-	}
-
-
-	_isInit = ok;
-	_hasAnErrorOccured = !ok;
+	_isInit = true;
+	_hasAnErrorOccured = false;
 	_hasStarted = false;
-    return ok;
+    return _isInit && !_hasAnErrorOccured;
 }
 
 
@@ -183,5 +268,99 @@ void LuaScript::CallEvent(fm::BaseEvent* inEvent, sol::table &inTable)
 			}
 		}
 		//_table["Collision"](_table, dt);
+	}
+}
+
+const std::map<std::string, LuaScript::ScriptArgument>& LuaScript::GetListValues() const
+{
+	return _valuesToInit;
+}
+
+
+LuaScript::Tokens LuaScript::CreateTokens(const std::string& inValueName)
+{
+	std::string currentStr;
+	Tokens value;
+	for (size_t i = 0; i < inValueName.size(); ++i)
+	{
+		if (inValueName[i] == '.')
+		{
+			value.push_back(currentStr);
+			currentStr.clear();
+		}
+		else
+		{
+			currentStr += inValueName[i];
+		}
+	}
+	value.push_back(currentStr);
+
+	return value;
+}
+
+
+void LuaScript::EvaluateVariable(const ScriptArgument& inSpecialValue, std::any& out) const
+{
+	sol::table t = _table;
+	for (size_t i = 0; i < inSpecialValue.location.size(); ++i)
+	{
+		if (!t.valid())
+		{
+			break;
+		}
+
+		if (i == inSpecialValue.location.size() - 1)
+		{
+			out = t[inSpecialValue.location[i]];
+		}
+		else
+		{
+			t = t[inSpecialValue.location[i]];
+		}
+	}
+
+}
+
+bool LuaScript::SetValue(const ScriptArgument& inSpecialValue)
+{
+	sol::table t = _table;
+	for (size_t i = 0; i < inSpecialValue.location.size(); ++i)
+	{
+		if (!t.valid())
+		{
+			return false;
+		}
+
+		if (i == inSpecialValue.location.size() - 1)
+		{
+			if (inSpecialValue.typeKind == ScriptTypeValue::NUMERAL)
+				t[inSpecialValue.location[i]] = std::any_cast<float>(inSpecialValue.value);
+			else if(inSpecialValue.typeKind == ScriptTypeValue::STRING)
+				t[inSpecialValue.location[i]] = std::any_cast<std::string>(inSpecialValue.value);
+			else if (inSpecialValue.typeKind == ScriptTypeValue::LUA)
+				t[inSpecialValue.location[i]] = std::any_cast<sol::table>(inSpecialValue.value);
+
+			return true;
+		}
+		else
+		{
+			t = t[inSpecialValue.location[i]];
+		}
+	}
+
+	return false;
+}
+
+
+
+void LuaScript::Tokens2Str(const Tokens& inTokens, std::string& outText)
+{
+	for (size_t i = 0; i < inTokens.size(); ++i)
+	{
+		outText.append(inTokens[i]);
+		if (i != inTokens.size() - 1)
+		{
+			outText.push_back('.');
+		}
 	}
 }

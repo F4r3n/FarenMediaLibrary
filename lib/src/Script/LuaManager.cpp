@@ -149,4 +149,10 @@ void LuaManager::registerComponents()
 	  "applyForceCenter", &Body2D::ApplyForceCenter2,
 	  "setFriction", &Body2D::SetFriction);
 
+	lua->new_usertype<InputManager>("Input",
+		"isKeyPressed", &InputManager::IsKeyPressed,
+		"isMouseButtonPressed", &InputManager::IsMouseButtonPressed);
+
+	(*lua)["Input"] = &InputManager::Get();
+
 }

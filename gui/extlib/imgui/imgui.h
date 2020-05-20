@@ -753,8 +753,6 @@ namespace ImGui
     IMGUI_API ImVec2        GetWindowDockSize(ImGuiID inID);
     IMGUI_API ImVec2        GetWindowDockPos(ImGuiID inID);
     IMGUI_API bool          PushButton(const char* inLabel, const ImVec2& inSize, bool *ioCurrentState);
-
-
 } // namespace ImGui
 
 //-----------------------------------------------------------------------------

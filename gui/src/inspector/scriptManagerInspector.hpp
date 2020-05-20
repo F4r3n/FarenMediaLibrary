@@ -5,7 +5,8 @@
 #include "Components/CScriptManager.h"
 namespace gui {
     DECLARE_INSPECTOR_CLASS(ScriptManager, fmc::CScriptManager)
-
+private:
+	std::vector<std::string> _types;
 };
 }
 #endif // SCRIPTMANAGERINSPECTOR_HPP

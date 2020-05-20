@@ -34,12 +34,12 @@ bool DrawCombo(const std::string &inNameCombo, const std::vector<const char*>& v
 
 void MaterialInspector::_DeInit()
 {
-	for (auto&& type : typesMaterial)
+	for (auto&& type : _typesMaterial)
 	{
 		delete type;
 	}
 
-	typesMaterial.clear();
+	_typesMaterial.clear();
 }
 
 std::string MaterialInspector::_ValueTypeToName(fm::ValuesType inValueType)
@@ -76,7 +76,7 @@ void MaterialInspector::_Init()
     for(auto &r : resources)
     {
         fm::Shader *s = static_cast<fm::Shader*>(r.second);
-        valuesShader.push_back(s->GetName().c_str());
+        _valuesShader.push_back(s->GetName().c_str());
     }
 
     for(size_t i = 0; i < (size_t)fm::ValuesType::VALUE_LAST; ++i)
@@ -84,7 +84,7 @@ void MaterialInspector::_Init()
 		std::string name = _ValueTypeToName((fm::ValuesType)i);
 		char* c = new char[name.size() + 1];
 		strcpy(c, name.c_str());
-        typesMaterial.emplace_back(c);
+        _typesMaterial.emplace_back(c);
     }
 
 }
@@ -119,7 +119,7 @@ void MaterialInspector::Draw(bool *value)
                     memcpy(nameType, currentProperty.name, sizeof(currentProperty.name));
                     {
 						size_t t = (size_t)type;
-                        DrawCombo("Type##"+ shaderName + currentProperty.name + std::to_string(j), typesMaterial, currentTypeName, &t);
+                        DrawCombo("Type##"+ shaderName + currentProperty.name + std::to_string(j), _typesMaterial, currentTypeName, &t);
 						type = (fm::ValuesType)t;
                         std::string nameTextInput = std::string(nameType) + "##Text"+ shaderName + currentProperty.name + std::to_string(j);
                         if(ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -214,7 +214,7 @@ void MaterialInspector::Draw(bool *value)
 
                 std::string currentItem = shaderName.c_str();
                 size_t index = 0;
-				if (DrawCombo("Shader##" + m->GetName(), valuesShader, currentItem, &index))
+				if (DrawCombo("Shader##" + m->GetName(), _valuesShader, currentItem, &index))
 				{
 					m->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>(currentItem));
 				}

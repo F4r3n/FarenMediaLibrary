@@ -10,6 +10,7 @@ namespace Keys
 	const std::string script("script");
 	const std::string kind("kind");
 	const std::string path("path");
+	const std::string option("option");
 }
 
 
@@ -94,7 +95,7 @@ bool LuaScriptManager::Serialize(nlohmann::json &ioJson) const
 	for (const auto &script : _scripts)
 	{
 		nlohmann::json j;
-		script->Serialize(j);
+		script->Serialize(j[Keys::option]);
 		j[Keys::kind] = script->GetType();
 		j[Keys::path] = script->GetFilePath().GetPath();
 		jarray.push_back(j);
@@ -113,7 +114,20 @@ bool LuaScriptManager::Read(Entity* e, const nlohmann::json &inJSON)
 		switch (type)
 		{
 		case fm::Script::SCRIPT_TYPE::LUA:
-			_scripts.emplace_back(new fm::LuaScript(path, e));
+		{
+			fm::LuaScript* script = new fm::LuaScript(path, e, true);
+			try
+			{
+				nlohmann::json joption = it.at(Keys::option);
+				script->Read(joption);
+			}
+			catch (const std::exception&)
+			{
+
+			}
+
+			_scripts.emplace_back(script);
+		}
 			break;
 		}
 	}
@@ -122,7 +136,7 @@ bool LuaScriptManager::Read(Entity* e, const nlohmann::json &inJSON)
 
 void LuaScriptManager::addScriptLua(Entity* e, const fm::FilePath &inPath)
 {
-	_scripts.emplace_back(new fm::LuaScript(inPath, e));
+	_scripts.emplace_back(new fm::LuaScript(inPath, e, true));
 }
 
 void LuaScriptManager::ReloadScript(Entity* e, const std::string &inName)
@@ -131,7 +145,7 @@ void LuaScriptManager::ReloadScript(Entity* e, const std::string &inName)
 	{
 		if (s->GetScriptName() == inName)
 		{
-			if (s->Reload(e))
+			if (s->Reload(e, true))
 			{
 				s->SetGoTable(_table);
 				s->start();	
