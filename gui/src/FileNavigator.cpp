@@ -204,7 +204,7 @@ GFileNavigator::GFileNavigator() : GWindow("File Navigator", true)
 void GFileNavigator::_Update(float dt, Context &inContext)
 {
 	_root = fm::Application::Get().GetCurrentConfig().userDirectory;
-	if (!_currentFolderSelected.Exist())
+	if ((_root.GetPath().GetPath() != _currentFolderSelected.GetPath().GetPath()) && !_currentFolderSelected.Exist())
 	{
 		_currentFolderSelected = _root;
 		if (!_cache.HasRoot() || _cache.GetRoot().GetPath() != _root.GetPath().GetPath())

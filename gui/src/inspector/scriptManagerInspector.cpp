@@ -8,34 +8,9 @@
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
-std::string ScriptTypeValueToString(fm::LuaScript::ScriptTypeValue inValue)
-{
-	switch (inValue)
-	{
-	case fm::LuaScript::ScriptTypeValue::NUMERAL:
-		return "numeral";
-	case fm::LuaScript::ScriptTypeValue::STRING:
-		return "string";
-	default:
-		return "";
-		break;
-	}
-}
-
-bool IsFloat(const std::string& myString) {
-	std::istringstream iss(myString);
-	float f;
-	iss >> std::noskipws >> f; // noskipws considers leading whitespace invalid
-	// Check the entire string was consumed and if either failbit or badbit is set
-	return iss.eof() && !iss.fail();
-}
 
 void ScriptManagerInspector::_Init()
 {
-	for (size_t i = 0; i < (size_t)fm::LuaScript::ScriptTypeValue::LAST; ++i)
-	{
-		_types.push_back(ScriptTypeValueToString((fm::LuaScript::ScriptTypeValue)i));
-	}
 }
 
 bool DrawCombo(const char* inNameCombo, const std::vector<std::string> &inItems, int inCurrentIndex, int& outIndex)
@@ -60,8 +35,6 @@ bool DrawCombo(const char* inNameCombo, const std::vector<std::string> &inItems,
 }
 
 
-
-
 void ScriptManagerInspector::_DeInit()
 {
 }
@@ -71,8 +44,9 @@ void ScriptManagerInspector::Draw(bool *value)
 {
     if(ImGui::CollapsingHeader("ScriptManagerInspector", value))
     {
-		std::vector<std::string> scriptsToDelete;
+		ImGui::Indent(10.0f);
 
+		std::vector<std::string> scriptsToDelete;
 
 		fmc::LuaScripts &&scripts = _target->GetLuaScripts();
 		for (auto &&script : scripts)
@@ -81,7 +55,6 @@ void ScriptManagerInspector::Draw(bool *value)
 			bool toKeep = true;
 			if (ImGui::CollapsingHeader(scriptName.c_str(), &toKeep))
 			{
-
 
 				std::map<std::string, fm::LuaScript::ScriptArgument> valuesToStartWith = script->GetListValues();
 				for (auto && valueToStartWith : valuesToStartWith)
@@ -97,6 +70,10 @@ void ScriptManagerInspector::Draw(bool *value)
 					std::any argValue = valueToStartWith.second.value;
 					if (valueToStartWith.second.typeKind == fm::LuaScript::ScriptTypeValue::NUMERAL)
 					{
+						if (script->HasStarted())
+						{
+							script->EvaluateVariable(valueToStartWith.second, argValue);
+						}
 						float v = std::any_cast<float>(argValue);
 						hasChanged = ImGui::InputFloat(name.c_str(), &v, 0.01, 1, 2);
 						if (hasChanged)
@@ -116,9 +93,7 @@ void ScriptManagerInspector::Draw(bool *value)
 						{
 							script->SetStartValue(valueToStartWith.first, argValue);
 						}
-						
 					}
-
 				}
 			}
 			if (ImGui::Button("Reload"))
@@ -130,6 +105,7 @@ void ScriptManagerInspector::Draw(bool *value)
 				scriptsToDelete.emplace_back(script->GetScriptName());
 			}
 		}
+		ImGui::Unindent(10.0f);
 
 		static char nameScript[128] = "ClassName";
 
@@ -156,5 +132,7 @@ void ScriptManagerInspector::Draw(bool *value)
                 _target->RemoveScript(s);
             }
         }
+
+
     }
 }

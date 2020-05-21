@@ -73,33 +73,7 @@ bool LuaScript::Load(bool inParseInitValue)
 			sol::state* lua = (LuaManager::get().GetState());
 			sol::table cclass = (*lua)[_scriptName];
 
-			sol::table meta = cclass;
-			for (auto&& pair : meta)
-			{
-				const std::string key = pair.first.as<std::string>();
-				sol::type type = pair.second.get_type();
-				ScriptArgument arg;
-				arg.location = CreateTokens(key);
-				bool valid = false;
-				if (type == sol::type::number)
-				{
-					arg.typeKind = ScriptTypeValue::NUMERAL;
-					arg.value = pair.second.as<float>();
-					valid = true;
-				}
-				else if (type == sol::type::string)
-				{
-					arg.typeKind = ScriptTypeValue::STRING;
-					arg.value = std::string(pair.second.as<char*>());
-					valid = true;
-				}
-
-				if (valid)
-				{
-					_valuesToInit.insert(std::pair<std::string, ScriptArgument>(key, arg));
-				}
-
-			}
+			_RegisterInitVariable(cclass, "");
 			ok = true;
 		}
 	}
@@ -113,6 +87,44 @@ bool LuaScript::Load(bool inParseInitValue)
 	return ok;
 }
 
+void LuaScript::_RegisterInitVariable(sol::table& inTable, const std::string& inKey)
+{
+
+	for (auto&& pair : inTable)
+	{
+		std::string key = pair.first.as<std::string>();
+		if (!inKey.empty())
+		{
+			key = inKey + "." + key;
+		}
+		sol::type type = pair.second.get_type();
+
+		ScriptArgument arg;
+		arg.location = CreateTokens(key);
+		bool valid = false;
+		if (type == sol::type::number)
+		{
+			arg.typeKind = ScriptTypeValue::NUMERAL;
+			arg.value = pair.second.as<float>();
+			valid = true;
+		}
+		else if (type == sol::type::string)
+		{
+			arg.typeKind = ScriptTypeValue::STRING;
+			arg.value = std::string(pair.second.as<char*>());
+			valid = true;
+		}
+		else if (type == sol::type::table)
+		{
+			_RegisterInitVariable(pair.second.as<sol::table>(), key);
+		}
+
+		if (valid)
+		{
+			_valuesToInit.insert(std::pair<std::string, ScriptArgument>(key, arg));
+		}
+	}
+}
 
 
 
@@ -311,7 +323,11 @@ void LuaScript::EvaluateVariable(const ScriptArgument& inSpecialValue, std::any&
 
 		if (i == inSpecialValue.location.size() - 1)
 		{
-			out = t[inSpecialValue.location[i]];
+			auto value = t[inSpecialValue.location[i]];
+			if(inSpecialValue.typeKind == ScriptTypeValue::NUMERAL && value.get_type() == sol::type::number)
+				out = value.get<float>();
+			else if (inSpecialValue.typeKind == ScriptTypeValue::STRING && value.get_type() == sol::type::string)
+				out = std::string(value.get<char*>());
 		}
 		else
 		{
