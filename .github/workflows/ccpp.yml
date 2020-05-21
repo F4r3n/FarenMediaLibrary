@@ -36,6 +36,11 @@ jobs:
     
     - uses: ilammy/msvc-dev-cmd@v1
     
+    - uses: lukka/set-shell-env@v1
+      with:
+        CXX: ${{ matrix.cxx }}
+        CC: ${{ matrix.cc }}
+    
     - name: configure and build
       uses: lukka/run-cmake@v2
       with:
