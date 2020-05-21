@@ -103,7 +103,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 target_link_libraries(${PROJECT_NAME} glew_s)
-target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES} ${OPENAL_LIBRARIES})
 
 if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")
