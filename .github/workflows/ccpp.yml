@@ -50,6 +50,6 @@ jobs:
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeAppendedArgs: '-GNinja -DCMAKE_BUILD_TYPE=Release'
+        cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=Release'
         buildDirectory: '${{ github.workspace }}/build/'
         
