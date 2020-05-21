@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [windows-msvc, ubuntu-clang]
+        name: [windows-msvc, ubuntu-g++]
         include:
           - name: windows-msvc
             os: windows-latest
