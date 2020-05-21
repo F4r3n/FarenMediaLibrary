@@ -35,11 +35,14 @@ jobs:
       with:
         CXX: ${{ matrix.cxx }}
         CC: ${{ matrix.cc }}
-    
+    - name: Install Dependencies (Linux)
+      run: sudo apt-get install ninja-build mesa-utils
+      if: matrix.os == 'ubuntu-latest'
     - name: configure and build
       uses: lukka/run-cmake@v2
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeAppendedArgs: '-GNinja'
         cmakeBuildType: Release
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
         buildDirectory: '${{ github.workspace }}/build/'
