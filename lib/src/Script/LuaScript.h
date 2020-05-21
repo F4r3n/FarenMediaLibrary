@@ -95,7 +95,7 @@ namespace fm
 
 
 
-		void _RegisterInitVariable(sol::table& inTable, const std::string& inKey);
+		void _RegisterInitVariable(const sol::table& inTable, const std::string& inKey);
 		template<typename T>
 		std::optional<T> _EvaluateVariable(const LuaScript::Tokens& inTokens)
 		{

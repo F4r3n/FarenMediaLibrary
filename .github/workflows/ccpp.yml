@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [macos-clang, windows-msvc, ubuntu-clang]
+        name: [windows-msvc, ubuntu-clang]
         # For Windows msvc, for Linux and macOS let's use the clang compiler, use gcc for Linux.
         include:
           - name: windows-msvc

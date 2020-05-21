@@ -87,7 +87,7 @@ bool LuaScript::Load(bool inParseInitValue)
 	return ok;
 }
 
-void LuaScript::_RegisterInitVariable(sol::table& inTable, const std::string& inKey)
+void LuaScript::_RegisterInitVariable(const sol::table& inTable, const std::string& inKey)
 {
 
 	for (auto&& pair : inTable)
