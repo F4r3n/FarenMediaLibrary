@@ -25,13 +25,8 @@ link_directories(${FML_EXTLIB_LIB}/bullet3)
 find_package(OpenGL)
 
 #OpenAL
-IF(NOT WIN32)
-    SET(OPENAL_LIBRARIES "openal")
-ELSE()
-    SET(OPENAL_LIBRARIES "OpenAL32")
-ENDIF()
 include_directories(${FML_EXTLIB}/openal/include)
-link_directories(${FML_EXTLIB_LIB}/openal)
+link_directories(${FML_EXTLIB_LIB}/openal/lib)
 
 
 #GLEW
@@ -84,7 +79,7 @@ target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} debug SDL2d optimized SDL2)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
-target_link_libraries(${LIB_NAME} ${OPENAL_LIBRARIES})
+target_link_libraries(${LIB_NAME} OpenAL)
 target_link_libraries(${LIB_NAME} Box2D)
 target_link_libraries(${LIB_NAME} assimp)
 target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
