@@ -11,9 +11,9 @@ jobs:
     name: ${{ matrix.os }}-${{ matrix.cxx }}-build-and-test
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        name: [ubuntu-gcc, macos-clang, windows-msvc, ubuntu-clang]
+        name: [macos-clang, windows-msvc, ubuntu-clang]
         # For Windows msvc, for Linux and macOS let's use the clang compiler, use gcc for Linux.
         include:
           - name: windows-msvc
@@ -28,10 +28,6 @@ jobs:
             os: macos-latest
             cxx: clang++
             cc: clang
-          - name: ubuntu-gcc
-            os: ubuntu-latest
-            cxx: g++
-            cc: gcc
 
     steps:
     - uses: actions/checkout@v2
@@ -40,16 +36,11 @@ jobs:
     
     - uses: ilammy/msvc-dev-cmd@v1
     
-    - uses: lukka/set-shell-env@v1
-      with:
-        CXX: ${{ matrix.cxx }}
-        CC: ${{ matrix.cc }}
-    
     - name: configure and build
       uses: lukka/run-cmake@v2
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeBuildType: Release
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=Release'
         buildDirectory: '${{ github.workspace }}/build/'
         
