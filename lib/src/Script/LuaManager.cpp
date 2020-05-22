@@ -132,19 +132,7 @@ void LuaManager::registerComponents()
 	  "isOrthographic", &CCamera::IsOrthographic
 	  );
 	lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
-	  //registerComponent<CMesh>("CMesh",
-	  //"setShape", &CMesh::setShape,
-	  //"create", &CMesh::create,
-	  //"clean", &CMesh::clean,
-	  //"addVertex", sol::overload(&CMesh::addVertexPositionUV,&CMesh::addVertex, &CMesh::addVertexPositionUVVectors),
-	  //"removeVertex", &CMesh::removeVertex,
-	  //"removeVertices", &CMesh::removeVertices,
-	  //"addIndex", &CMesh::addIndex,
-	  //"removeIndice", &CMesh::removeIndice,
-	  //"removeIndices", &CMesh::removeIndices,
-	  //"update", &CMesh::update,
-	  //"bounds", &CMesh::bounds
-	  //);
+
 	lua->new_usertype<Body2D>("Body2D",
 	  "applyForceCenter", &Body2D::ApplyForceCenter2,
 	  "setFriction", &Body2D::SetFriction);

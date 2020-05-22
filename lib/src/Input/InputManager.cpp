@@ -2,6 +2,7 @@
 #include "Input/InputManager.h"
 #include <stdarg.h>
 #include <cassert>
+#include <iostream>
 using namespace fm;
 
 InputManager InputManager::_instance;
@@ -43,7 +44,7 @@ bool InputManager::IsMouseButtonPressed(FM_MOUSE_KEY id)
 	return _mouseKeys[id];
 }
 
-void InputManager::processEvents() 
+void InputManager::_ProcessEvents() 
 {
 
 	switch (_event.type)
@@ -54,11 +55,14 @@ void InputManager::processEvents()
 		_scrollWheel.y += _event.wheel.y;
 		break;
 	}
+	case SDL_MOUSEBUTTONUP:
 	case SDL_MOUSEBUTTONDOWN:
 	{
-		_mouseKeys[SDL_BUTTON_LEFT - 1] = _event.button.button == SDL_BUTTON_LEFT;
-		_mouseKeys[SDL_BUTTON_RIGHT - 1] = _event.button.button == SDL_BUTTON_RIGHT;
-		_mouseKeys[SDL_BUTTON_MIDDLE - 1] = _event.button.button == SDL_BUTTON_MIDDLE;
+		std::cout << _event.type << std::endl;
+		_mouseKeys[SDL_BUTTON_LEFT - 1] = _event.button.button == SDL_BUTTON_LEFT && (_event.type == SDL_MOUSEBUTTONDOWN);
+		_mouseKeys[SDL_BUTTON_RIGHT - 1] = _event.button.button == SDL_BUTTON_RIGHT && (_event.type == SDL_MOUSEBUTTONDOWN);
+		_mouseKeys[SDL_BUTTON_MIDDLE - 1] = _event.button.button == SDL_BUTTON_MIDDLE && (_event.type == SDL_MOUSEBUTTONDOWN);
+		std::cout << _mouseKeys[SDL_BUTTON_LEFT - 1] << std::endl;
 
 		break;
 	}
@@ -100,12 +104,30 @@ void InputManager::CaptureMousePosition()
 	_mousePos.y = (float)mouseY;
 }
 
+void InputManager::PollEvents(std::function<void(const SDL_Event&)>&& inCallBack)
+{
+	//memset(_mouseKeys, 0, sizeof(_mouseKeys));
+	//memset(_keys, 0, sizeof(_keys));
 
-void InputManager::pollEvents() {
+	while (SDL_PollEvent(&_event))
+	{
+		_ProcessEvents();
+		if (inCallBack != nullptr)
+		{
+			inCallBack(_event);
+		}
+	}
+	
+	CaptureMousePosition();
+}
+
+
+
+void InputManager::_PollEvents() {
     _closed = false;
     while(SDL_PollEvent(&_event)) 
 	{
-        processEvents();
+        _ProcessEvents();
     }
 	CaptureMousePosition();
 }

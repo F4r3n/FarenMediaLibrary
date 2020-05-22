@@ -2,6 +2,7 @@
 #include "Core/Math/Vector2.h"
 #include "NonCopyable.h"
 #include <SDL_events.h>
+#include <functional>
 namespace fm
 {
 
@@ -147,8 +148,7 @@ class InputManager : protected fm_system::NonCopyable
 
 public:
     
-    void pollEvents();
-    void processEvents();
+
     ~InputManager();
     bool IsKeyPressed(FM_KEY key);
 	bool IsMouseButtonPressed(FM_MOUSE_KEY id);
@@ -161,10 +161,15 @@ public:
     SDL_Event& getLastEvent() {return _event;}
     bool isClosed() {return _closed;}
 	void CaptureMousePosition();
+	void PollEvents(std::function<void(const SDL_Event&)>&& inCallBack = {});
 private:
 	InputManager();
 	InputManager(Window& window);
 
+	void _PollEvents();
+	void _ProcessEvents();
+
+private:
     bool _keys[SDL_NUM_SCANCODES];
 	bool _keyCtrl;
 	bool _keyAlt;

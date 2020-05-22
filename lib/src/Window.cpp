@@ -125,12 +125,10 @@ void Window::setName(const std::string& name)
 
 
 
-void Window::update(size_t fps, bool internalUpdate) 
+void Window::update(size_t fps) 
 {
     _fpsMax = fps;
     _waitTime = 1.0f / (float)_fpsMax;
-    if(internalUpdate)
-        fm::InputManager::Get().pollEvents();
 	_FrameLimit();
 }
 

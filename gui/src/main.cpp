@@ -43,13 +43,11 @@ int main()
 
 	while (!window->isClosed())
 	{
-		while (SDL_PollEvent(&fm::InputManager::Get().getLastEvent()))
-		{
-			fm::InputManager::Get().processEvents();
-			ImGui_ImplSDL2_ProcessEvent(&fm::InputManager::Get().getLastEvent());
-		}
+		fm::InputManager::Get().PollEvents([](const SDL_Event& e) {
+			ImGui_ImplSDL2_ProcessEvent(&e);
+			});
+
 		fm::Application::Get().Update(true);
-		fm::InputManager::Get().CaptureMousePosition();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame(window->getWindow());
 		ImGui::NewFrame();

@@ -17,7 +17,7 @@ public:
     void swapBuffers() const;
     void setMSAA(int value);
     bool isClosed();
-    void update(size_t fps, bool internalUpdate = true);
+    void update(size_t fps);
     Window& getInstance();
     SDL_Window* getWindow() { return _window;}
     void setName(const std::string &name);

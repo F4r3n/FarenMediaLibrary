@@ -186,7 +186,7 @@ void Application::LoadProject(const fm::FilePath& inFilePath)
 
 void Application::Update(bool withEditor)
 {
-    _window->update(_currentConfig.fpsWanted, !withEditor);
+    _window->update(_currentConfig.fpsWanted);
     _engine->Update(fm::Time::dt);
 }
 

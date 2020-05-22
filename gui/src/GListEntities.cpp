@@ -97,6 +97,7 @@ void GListEntities::CustomDraw()
 			{
 				_isRenaming = true;
 			}
+
 			ImGui::EndPopup();
 		}
 
