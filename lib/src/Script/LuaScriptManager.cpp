@@ -97,7 +97,7 @@ bool LuaScriptManager::Serialize(nlohmann::json &ioJson) const
 		nlohmann::json j;
 		script->Serialize(j[Keys::option]);
 		j[Keys::kind] = script->GetType();
-		j[Keys::path] = script->GetFilePath().GetPath();
+		j[Keys::path] = script->GetFile().GetPath().GetFileSystemPath();
 		jarray.push_back(j);
 	}
 	ioJson[Keys::script] = jarray;
@@ -108,14 +108,14 @@ bool LuaScriptManager::Read(Entity* e, const nlohmann::json &inJSON)
 	nlohmann::json jarray = inJSON[Keys::script];
 	for (const auto &it : jarray)
 	{
-		fm::FilePath path(it[Keys::path]);
+		std::string path(it[Keys::path]);
 		fm::Script::SCRIPT_TYPE type = it[Keys::kind];
 
 		switch (type)
 		{
 		case fm::Script::SCRIPT_TYPE::LUA:
 		{
-			fm::LuaScript* script = new fm::LuaScript(path, e, true);
+			fm::LuaScript* script = new fm::LuaScript(File(FilePath(path)), e, true);
 			try
 			{
 				nlohmann::json joption = it.at(Keys::option);

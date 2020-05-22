@@ -54,10 +54,10 @@ void fm::from_json(const nlohmann::json& j, LuaScript::ScriptArgument& p)
 
 
 
-LuaScript::LuaScript(const fm::FilePath &inPath, Entity* inEntity, bool inParseInitValue)
+LuaScript::LuaScript(const fm::File &inFile, Entity* inEntity, bool inParseInitValue)
 {
-	_path = inPath;
-	_scriptName = inPath.GetName(true);
+	_file = inFile;
+	_scriptName = _file.GetPath().GetName(true);
 	_hasStarted = false;
 	_isInit = false;
 	Load(inParseInitValue);
@@ -68,7 +68,7 @@ bool LuaScript::Load(bool inParseInitValue)
 	bool ok = false;
 	try
 	{
-		if (LuaManager::get().ReadFile(_path.GetPath()) && inParseInitValue)
+		if (LuaManager::get().ReadFile(_file.GetPath().GetPath()) && inParseInitValue)
 		{
 			sol::state* lua = (LuaManager::get().GetState());
 			sol::table cclass = (*lua)[_scriptName];
@@ -79,7 +79,7 @@ bool LuaScript::Load(bool inParseInitValue)
 	}
 	catch (std::exception& e)
 	{
-		std::string error = "Lua error " + _path.GetPath();
+		std::string error = "Lua error " + _file.GetPath().GetPath();
 		error += std::string(e.what());
 		fm::Debug::get().LogError(error);
 	}

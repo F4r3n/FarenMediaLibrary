@@ -23,8 +23,6 @@ namespace fm
 		std::string GetName(bool withoutExtension) const;
 		std::string GetExtension() const;
 
-		//static FilePath GetAbsolutePath(const std::string &inPath);
-
 		static FilePath GetWorkingDirectory();
 
 		bool IsValid() const;
@@ -32,9 +30,15 @@ namespace fm
 
 		static bool GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePath &otherPath, std::string &outRelativePath);
 		bool operator==(const fm::FilePath& Other) const;
+		std::string GetFileSystemPath() const;
+		fm::LOCATION GetFileSystemID() const{ return _fileSystemID; }
+		void SetSystemID(fm::LOCATION inSystemID) { _fileSystemID = inSystemID; }
 	private:
-		std::string _GetName() const;
-		std::string _path;
+		std::string		_GetName() const;
+
+	private:
+		std::string		_path = "";
+		fm::LOCATION	_fileSystemID = fm::LOCATION::NONE;
 	};
 
 	class Folder;
@@ -69,6 +73,14 @@ namespace fm
 
 	private:
 		fm::FilePath _path;
+	};
+
+	class FileSystem
+	{
+	public:
+		static void ConvertFileSystemToPath(const std::string& inPath, std::string &outPath, fm::LOCATION outID);
+		static std::string ConvertPathToFileSystem(const fm::FilePath& inPath);
+		static std::string ConvertFileSystemToPath(fm::LOCATION inLocation, const std::string &inRelativePath);
 	};
 }
 

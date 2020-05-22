@@ -58,7 +58,7 @@ public:
 
 	virtual bool Reload(Entity*, bool inCreateInstance) { return false; }
 
-	const fm::FilePath& GetFilePath() const { return _path; }
+	const fm::File& GetFile() const { return _file; }
 	const std::string& GetScriptName() const { return _scriptName; }
 
 	bool HasStarted() const { return _hasStarted; }
@@ -66,7 +66,7 @@ public:
     std::string		_scriptName;
 	bool			_hasStarted;
 	bool			_isInit;
-	fm::FilePath	_path;
+	fm::File		_file;
 
 private:
 

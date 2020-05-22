@@ -47,7 +47,7 @@ namespace fm
 
 
 
-	    LuaScript(const fm::FilePath &inPath, Entity* inEntity, bool inParseInitValue);
+	    LuaScript(const fm::File &inFile, Entity* inEntity, bool inParseInitValue);
 	    ~LuaScript();
 	    virtual void update(float dt) override;
 	    virtual void start() override;

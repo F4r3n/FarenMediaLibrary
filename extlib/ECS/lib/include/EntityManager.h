@@ -102,7 +102,7 @@ public:
     bool _IsEntityActive(Entity *e) const;
 	bool IsActive(ecs::id id) const;
 
-class EntityIteratorMask : public std::iterator<std::input_iterator_tag, ecs::id> {
+class EntityIteratorMask {
     public:
         EntityIteratorMask(const Mask& mask, const std::vector<Entity>::iterator iterator,
                            const std::vector<Entity>::iterator begin,

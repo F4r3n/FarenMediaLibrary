@@ -26,35 +26,41 @@ ResourcesManager::~ResourcesManager()
 
 FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 {
+	
 	switch (inLocation)
 	{
 	case LOCATION::INTERNAL_LUA_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_LUA_LOCATION);
 		p.ToSubFolder("lua");
 		return p;
 	}
 	case LOCATION::INTERNAL_FONT_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_FONT_LOCATION);
 		p.ToSubFolder("fonts");
 		return p;
 	}
 	case LOCATION::INTERNAL_SHADERS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_SHADERS_LOCATION);
 		p.ToSubFolder("shaders");
 		return p;
 	}
 	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
 		FilePath p(FilePath::GetWorkingDirectory());
+		p.SetSystemID(LOCATION::INTERNAL_RESOURCES_LOCATION);
 		p.ToSubFolder("Resources");
 		return p;
 	}
 	case LOCATION::INTERNAL_MATERIALS:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_MATERIALS);
 		p.ToSubFolder("materials");
 		return p;
 	}
@@ -66,12 +72,14 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	case LOCATION::USER_RESOURCES_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
+		p.SetSystemID(LOCATION::USER_RESOURCES_LOCATION);
 		p.ToSubFolder("Resources");
 		return p;
 	}
 	case LOCATION::USER_LUA_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::USER_LUA_LOCATION);
 		p.ToSubFolder("lua");
 		return p;
 	}
@@ -83,6 +91,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	case LOCATION::USER_SETTINGS:
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
+		p.SetSystemID(LOCATION::USER_SETTINGS);
 		p.ToSubFolder("Settings");
 		return p;
 	}

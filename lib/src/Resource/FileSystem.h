@@ -13,13 +13,10 @@ namespace fm
 		USER_RESOURCES_LOCATION,
 		USER_LUA_LOCATION,
 		USER_SETTINGS,
-		WORKING_DIRECTORY
+		WORKING_DIRECTORY,
+		NONE
 	};
 
-	class FileSystem
-	{
-	public:
-		static std::string ConvertFileSystemToPath(const std::string& inPath);
-	};
+
 
 }
