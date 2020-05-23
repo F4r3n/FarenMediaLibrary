@@ -22,6 +22,12 @@ void Body3DInspector::Draw(bool *value)
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
 		float currentMass = _target->GetMass();
+		float currentRestitution = _target->GetRestitution();
+		float currentFriction = _target->GetFriction();
+		fm::math::vec3 currentAngularFactor = _target->GetAngularFactor();
+		fm::math::vec3 currentLinearFactor = _target->GetLinearFactor();
+
+
 		bool currentGhost = _target->IsGhost();
 		fm::math::vec3 currentGravity = _target->GetGravity();
 		if (currentGhost)
@@ -32,10 +38,25 @@ void Body3DInspector::Draw(bool *value)
 		{
 			_target->SetMass(currentMass);
 		}
-		
+		if (ImGui::DragFloat("Restitution", &currentRestitution, 0.001f, 0, FLT_MAX))
+		{
+			_target->SetRestitution(currentRestitution);
+		}
+		if (ImGui::DragFloat("Friction", &currentFriction, 0.001f, 0, FLT_MAX))
+		{
+			_target->SetFriction(currentFriction);
+		}
 		if (ImGui::DragFloat3("Gravity", &currentGravity.x, 0.001f, 0, FLT_MAX))
 		{
 			_target->SetGravity(currentGravity);
+		}
+		if (ImGui::DragFloat3("Angular Factor", &currentAngularFactor.x, 0.001f, 0, FLT_MAX))
+		{
+			_target->SetAngularFactor(currentAngularFactor);
+		}
+		if (ImGui::DragFloat3("Linear factor", &currentLinearFactor.x, 0.001f, 0, FLT_MAX))
+		{
+			_target->SetLinearFactor(currentLinearFactor);
 		}
 		if (currentGhost)
 		{

@@ -77,6 +77,18 @@ namespace fmc
 
 		void SetLinearVelocity(const fm::math::vec3& inAcceleration);
 		fm::math::vec3 GetLinearVelocity() const;
+
+		void SetFriction(float inFriction);
+		float GetFriction() const;
+
+		void SetRestitution(float inMass);
+		float GetRestitution() const;
+
+		void SetLinearFactor(const fm::math::vec3& inFactor);
+		const fm::math::vec3& GetLinearFactor() const;
+
+		void SetAngularFactor(const fm::math::vec3& inFactor);
+		const fm::math::vec3& GetAngularFactor() const;
 	private:
 		btRigidBody*	_GetBody() const;
 		btGhostObject*	_GetGhost() const;
@@ -84,12 +96,17 @@ namespace fmc
 		void			_Init();
 
 	private:
-		btCollisionObject* _body;
+		btCollisionObject*		_body;
 
-		mutable fm::math::vec3	   _gravity;
-		mutable float			   _mass;
-		bool			   _isInWorld;
-		bool			   _isGhost;
+		mutable fm::math::vec3	_gravity;
+		mutable float			_mass;
+		mutable fm::math::vec3	_angularFactor;
+		mutable fm::math::vec3	_linearFactor;
+		mutable float			_friction;
+		mutable	float			_restitution;
+
+		bool					_isInWorld;
+		bool					_isGhost;
 
 	};
 }

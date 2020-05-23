@@ -19,6 +19,10 @@ void CBody3D::_Init()
 	_mass = 1.0f;
 	_isGhost = false;
 	_gravity = fm::math::vec3(0.0f, -9.81f, 0.0f);
+	_restitution = 1.0f;
+	_friction = 0.0f;
+	_angularFactor = fm::math::vec3(1.0f, 1.0f, 1.0f);
+	_linearFactor = fm::math::vec3(1.0f, 1.0f, 1.0f);
 	_name = "Body3D";
 }
 
@@ -105,6 +109,90 @@ fm::math::vec3 CBody3D::GetLinearVelocity() const
 	return velocity;
 }
 
+void CBody3D::SetFriction(float inFriction)
+{
+	_friction = inFriction;
+	if (btRigidBody* body = _GetBody())
+	{
+		body->setFriction(inFriction);
+	}
+}
+
+
+float CBody3D::GetFriction() const
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		_friction = body->getFriction();
+	}
+	return _friction;
+}
+
+void CBody3D::SetRestitution(float inRestitution)
+{
+	_restitution = inRestitution;
+	if (btRigidBody* body = _GetBody())
+	{
+		body->setRestitution(_restitution);
+	}
+}
+
+
+float CBody3D::GetRestitution() const
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		_restitution = body->getFriction();
+	}
+	return _restitution;
+}
+
+
+void CBody3D::SetLinearFactor(const fm::math::vec3& inFactor)
+{
+	_linearFactor = inFactor;
+	if (btRigidBody* body = _GetBody())
+	{
+		body->setLinearFactor(btVector3(_linearFactor.x, _linearFactor.y, _linearFactor.z));
+	}
+
+}
+const fm::math::vec3& CBody3D::GetLinearFactor() const
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		auto v = body->getLinearFactor();
+		_linearFactor.x = v.x();
+		_linearFactor.y = v.y();
+		_linearFactor.z = v.x();
+
+	}
+	return _linearFactor;
+}
+
+void CBody3D::SetAngularFactor(const fm::math::vec3& inFactor)
+{
+	_angularFactor = inFactor;
+	if (btRigidBody* body = _GetBody())
+	{
+		body->setLinearFactor(btVector3(_angularFactor.x, _angularFactor.y, _angularFactor.z));
+	}
+
+}
+
+const fm::math::vec3& CBody3D::GetAngularFactor() const
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		auto v = body->getAngularFactor();
+		_angularFactor.x = v.x();
+		_angularFactor.y = v.y();
+		_angularFactor.z = v.x();
+
+	}
+	return _angularFactor;
+}
+
 
 bool CBody3D::IsInit() const
 {
@@ -150,8 +238,10 @@ void CBody3D::Init(CCollider *inCollider)
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, new btDefaultMotionState(object), shape, localInertia);
 		_body = new btRigidBody(rbInfo);
 		_GetBody()->setGravity(btVector3(_gravity.x, _gravity.y, _gravity.z));
-		_GetBody()->setRestitution(1.0f);
-		_GetBody()->setFriction(0.0f);
+		_GetBody()->setRestitution(_restitution);
+		_GetBody()->setFriction(_friction);
+		_GetBody()->setAngularFactor(btVector3(_angularFactor.x, _angularFactor.y, _angularFactor.z));
+		_GetBody()->setLinearFactor(btVector3(_linearFactor.x, _linearFactor.y, _linearFactor.z));
 	}
 	else
 	{
@@ -268,7 +358,10 @@ bool CBody3D::Serialize(json &ioJson) const
 	ioJson["mass"] = _mass;
 	ioJson["gravity"] = _gravity;
 	ioJson["ghost"] = _isGhost;
-
+	ioJson["restitution"] = _restitution;
+	ioJson["friction"] = _friction;
+	ioJson["angularFactor"] = _angularFactor;
+	ioJson["linearFactor"] = _linearFactor;
 
 	return true;
 }
@@ -279,6 +372,11 @@ bool CBody3D::Read(const json &inJSON)
 		_mass = inJSON.at("mass");
 		_isGhost = inJSON.at("ghost");
 		_gravity = inJSON.at("gravity");
+		_restitution = inJSON.at("restitution");
+		_friction = inJSON.at("friction");
+		_angularFactor = inJSON.at("angularFactor");
+		_linearFactor = inJSON.at("linearFactor");
+
 	}
 	catch (std::exception& e)
 	{
