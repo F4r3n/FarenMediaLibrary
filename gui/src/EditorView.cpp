@@ -10,6 +10,7 @@
 #include "Components/CTransform.h"
 #include "Components/CMesh.h"
 #include "Components/CMaterial.h"
+#include "Rendering/Graphics.hpp"
 
 using namespace gui;
 EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inScene) : GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar
@@ -17,14 +18,13 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 {
 	_editorScene = inScene;
 	_enabled = true;
-	_gameObjectSelectedByPicking = nullptr;
 
 	_pickingSystem = nullptr;
 	_resultPicking = false;
 
 	if (inCamera != nullptr)
 	{
-		_editorView.id = inScene->GetID(inCamera->getID());
+		_editorView.id = inCamera->getID();
 		fmc::CCamera *camera = inCamera->get<fmc::CCamera>();
 		_editorView.renderTexture = camera->SetTarget();
 		_editorView.enabled = true;
@@ -32,7 +32,6 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 	}
 	else
 	{
-		_editorView.id = 0;
 		_editorView.renderTexture = nullptr;
 		_editorView.enabled = false;
 	}
@@ -42,13 +41,23 @@ EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inSc
 
 void EditorView::_DrawContentEditorCamera(Context &inContext)
 {
-	fm::GameObject* camera = _editorScene->GetGameObject(_editorView.id);
+	if (!_editorView.id.has_value()) return;
+
+	fm::GameObject* camera = _editorScene->GetGameObjectByID(_editorView.id.value());
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
 	if (camera != nullptr && currentScene != nullptr)
 	{
-		std::vector<fm::GameObject*> &&gos = currentScene->getAllGameObjects();
-		for (auto && go : gos)
+		fm::Scene::MapOfGameObjects gos = currentScene->getAllGameObjects();
 		{
+			fm::CommandBuffer commandBuffer;
+			commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+		}
+		for (auto && o : gos)
+		{
+			fm::GameObject* go = o.second;
+			if (!go->IsActive())
+				continue;
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 			{
 				fmc::CMesh* mesh = go->get<fmc::CMesh>();
@@ -98,10 +107,13 @@ void EditorView::AfterWindowCreation()
 
 void EditorView::_EditObject()
 {
+	if (!_editorView.id.has_value()) return;
 
-	fm::GameObject* camera = _editorScene->GetGameObject(_editorView.id);
-	if (_gameObjectSelectedByPicking == nullptr || !_gameObjectSelectedByPicking->IsActive())
+	if (!_gameObjectSelectedByPicking.has_value())
 		return;
+
+	
+	fm::GameObject* camera = _editorScene->GetGameObjectByID(_editorView.id.value());
 
 	ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
@@ -112,43 +124,46 @@ void EditorView::_EditObject()
 	else if (_currentTransformContext == gui::TRANSFORM_CONTEXT::SCALE)
 		mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-	fmc::CTransform *transform = _gameObjectSelectedByPicking->get<fmc::CTransform>();
+	fm::GameObject* go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
+	if (go != nullptr)
+	{
+		fmc::CTransform* transform = go->get<fmc::CTransform>();
 
-	
-	ImGuiIO& io = ImGui::GetIO();
-	//float scrollPosX = ImGui::GetScrollX();
-	ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),
-					  _cursorPos.y + _startImagePos.y - ImGui::GetScrollY(),
-					  _editorView.renderTexture->getWidth(), 
-		_editorView.renderTexture->getHeight());
-	const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
-	const fm::math::mat projecttion = camera->get<fmc::CCamera>()->GetProjectionMatrix();
-	fm::math::mat model;
+		ImGuiIO& io = ImGui::GetIO();
+		//float scrollPosX = ImGui::GetScrollX();
+		ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),
+			_cursorPos.y + _startImagePos.y - ImGui::GetScrollY(),
+			_editorView.renderTexture->getWidth(),
+			_editorView.renderTexture->getHeight());
+		const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
+		const fm::math::mat projecttion = camera->get<fmc::CCamera>()->GetProjectionMatrix();
+		fm::math::mat model;
 
-	fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
-	fm::math::vec3 position = transform->position;
-	fm::math::vec3 scale = transform->scale;
-	ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
-	
-	ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
-	
-	ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &rotation[0], &transform->scale[0]);
-	transform->SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
+		fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
+		fm::math::vec3 position = transform->position;
+		fm::math::vec3 scale = transform->scale;
+		ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
+
+		ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
+
+		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &rotation[0], &transform->scale[0]);
+		transform->SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
+	}
 		
 }
 
 
-void EditorView::_CallBackPickingSystem(fm::GameObject* inGameObject)
+void EditorView::_CallBackPickingSystem(ecs::id inID)
 {
 	_resultPicking = true;
-	_gameObjectSelectedByPicking = inGameObject;
+	_gameObjectSelectedByPicking = inID;
 }
 
 
 void EditorView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
 {
 	_pickingSystem = inPickingSystem;
-	std::function<void(fm::GameObject*)> f = std::bind(&gui::EditorView::_CallBackPickingSystem, this, std::placeholders::_1);
+	std::function<void(ecs::id inID)> f = std::bind(&gui::EditorView::_CallBackPickingSystem, this, std::placeholders::_1);
 	_pickingSystem->SetCallback(std::move(f));
 }
 
@@ -197,7 +212,7 @@ void EditorView::_Update(float dt, Context &inContext)
 				mPos.x -= startCursorPos.x - _scrollPos.x;
 				mPos.y -= startCursorPos.y - _scrollPos.y;
 
-				_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id, mPos);
+				_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id.value(), mPos);
 			}
 		}
 

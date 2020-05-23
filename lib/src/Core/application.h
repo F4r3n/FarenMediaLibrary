@@ -124,6 +124,8 @@ class Application
 
 		std::shared_ptr<fm::Scene> GetScene(const std::string &inName) const;
 		const std::string&		   GetCurrentSceneName() const;
+		std::shared_ptr<fm::Scene> GetCurrentScene() const;
+
 		std::shared_ptr<fm::Scene> CreateNewScene(const std::string &inNewSceneName);
 		std::shared_ptr<fm::Scene> CreateEditorScene();
     private:

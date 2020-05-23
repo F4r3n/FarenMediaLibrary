@@ -43,7 +43,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 {
 	std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 
-	fm::GameObject *cameraGo = _editorScene->GetGameObject(inCameraID);
+	fm::GameObject *cameraGo = _editorScene->GetGameObjectByID(inCameraID);
 	if (cameraGo != nullptr && scene != nullptr)
 	{
 		_specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
@@ -57,21 +57,31 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 				unsigned char pixel[4];
 				texture.GetPixel(inPos, pixel);
-				size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256) - 1;
-				fm::GameObject* go = scene->GetGameObject(id);
-				_callback(go);
+				size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
+				fm::GameObject* go = scene->GetGameObjectByID(id);
+				if (go != nullptr)
+				{
+					_callback(go->getID());
+				}
 			}
 		});
 
-		size_t i = 1;
-		for (auto && go : scene->getAllGameObjects())
 		{
+			fm::CommandBuffer commandBuffer;
+			commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			_camera->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+		}
+
+		for (auto && o : scene->getAllGameObjects())
+		{
+			fm::GameObject* go = o.second;
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 			{
 				fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
 				fm::CommandBuffer commandBuffer;
 				fm::MaterialProperties materialProperties = _material->GetProperties();
+				ecs::id i = go->getID();
 				unsigned char r[sizeof(i)];
 				memcpy(r, &i, sizeof(i));
 				
@@ -82,7 +92,6 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 				_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 			}
-			++i;
 		}
 	}
 	

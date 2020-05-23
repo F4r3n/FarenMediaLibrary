@@ -76,7 +76,7 @@ private:
 	std::shared_ptr<fm::Scene>	_editorScene;
 	MapOfWindows				_windows;
 
-    fm::GameObject*				_currentEntity;       
+    std::optional<ecs::id>		_currentEntity;       
 
     fm::ProjectSettings			_projectSettings;
 

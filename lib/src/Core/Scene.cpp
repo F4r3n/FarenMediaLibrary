@@ -9,48 +9,6 @@ Scene::Scene(const std::string &name)
     _name = name;
 }
 
-GameObject* Scene::GetGameObject(size_t id) const
-{
-    if(id < _gos.size() && id >= 0)
-        return _gos[id];
-    return nullptr;
-}
-
-fm::GameObject* Scene::FindGameObject(ecs::id inID)
-{
-	for (auto && e : _gos)
-	{
-		if (e->getID() == inID)
-		{
-			return e;
-		}
-	}
-	return nullptr;
-}
-
-size_t Scene::GetID(fm::GameObject* inGo)
-{
-	size_t id = std::numeric_limits<size_t>::max();
-	if(inGo != nullptr)
-		id = GetID(inGo->getID());
-	return id;
-}
-
-
-size_t Scene::GetID(ecs::id inID)
-{
-	size_t id = 0;
-	for (auto && e : _gos)
-	{
-		if (e->getID() == inID)
-		{
-			return id;
-		}
-		id++;
-	}
-	return std::numeric_limits<size_t>::max();
-}
-
 
 Scene::~Scene()
 {
@@ -60,15 +18,15 @@ void Scene::destroy()
 {
     for(auto &&e : _gos)
     {
-        e->destroy();
-		delete e;
+        e.second->destroy();
+		delete e.second;
     }
 	_gos.clear();
 }
 
 void Scene::AddGameObject(GameObject *e)
 {
-	_gos.push_back(e);
+	_gos[e->getID()] = e;
 }
 
 void Scene::Serialize(nlohmann::json &outJson)
@@ -77,7 +35,7 @@ void Scene::Serialize(nlohmann::json &outJson)
     for(auto e : _gos)
     {
         nlohmann::json v;
-        e->Serialize(v);
+        e.second->Serialize(v);
         entities.push_back(v);
     }
     outJson["entities"] = entities;
@@ -102,7 +60,7 @@ void Scene::SetStatusToGo(bool inStatus)
 {
 	for (auto& go : _gos)
 	{
-		go->SetStatus(false);
+		go.second->SetStatus(false);
 	}
 }
 
@@ -110,9 +68,29 @@ void Scene::ResetStatusGo()
 {
 	for (auto& go : _gos)
 	{
-		go->ResetStatus();
+		go.second->ResetStatus();
 	}
 }
 
+fm::GameObject* Scene::GetGameObjectByID(ecs::id inID)
+{
+	auto it = _gos.find(inID);
+	if (it != _gos.end())
+	{
+		return it->second;
+	}
+	return nullptr;
+}
 
+
+void Scene::DeleteGameObjectByID(ecs::id inID)
+{
+	fm::GameObject* go = GetGameObjectByID(inID);
+	if (go != nullptr)
+	{
+		go->destroy();
+		delete go;
+		_gos.erase(inID);
+	}
+}
 

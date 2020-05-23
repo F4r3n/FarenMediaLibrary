@@ -33,6 +33,7 @@ void Body3DInspector::Draw(bool *value)
 		if (currentGhost)
 		{
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 		}
 		if (ImGui::DragFloat("Mass", &currentMass, 0.001f, 0, FLT_MAX))
 		{
@@ -61,6 +62,7 @@ void Body3DInspector::Draw(bool *value)
 		if (currentGhost)
 		{
 			ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
 		}
 		if (ImGui::Checkbox("Ghost", &currentGhost))
 		{

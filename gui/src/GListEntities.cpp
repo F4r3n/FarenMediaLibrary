@@ -9,7 +9,6 @@ using namespace gui;
 
 GListEntities::GListEntities() : GWindow("List entities", true)
 {
-	_gameObjectSelected = nullptr;
 	_enabled = true;
 	_kind = gui::WINDOWS::WIN_LIST_ENTITIES;
 	_isRenaming = false;
@@ -20,10 +19,11 @@ GListEntities::GListEntities() : GWindow("List entities", true)
 void GListEntities::_Update(float dt, Context &inContext)
 {
 	_currentSceneName = inContext.currentSceneName;
-	if (_hasBeenSelected)
+	if (_goSelectedHasChanged)
 	{
-		_hasBeenSelected = false;
 		inContext.currentGameObjectSelected = _gameObjectSelected;
+		_gameObjectSelected.reset();
+		_goSelectedHasChanged = false;
 	}
 
 	_gameObjectSelected = inContext.currentGameObjectSelected;
@@ -34,18 +34,23 @@ void GListEntities::_Update(float dt, Context &inContext)
 void GListEntities::CustomDraw()
 {
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_currentSceneName);
-	size_t itemHovered = -1;
 	if (currentScene != nullptr)
 	{
-		std::vector<fm::GameObject*> listEntities = currentScene->getAllGameObjects();
-
-		for (size_t i = 0; i < listEntities.size(); i++)
+		std::map<ecs::id, fm::GameObject*> listEntities = currentScene->getAllGameObjects();
+		size_t i = 0;
+		for (auto && o : listEntities)
 		{
-			bool isSelected = _itemSelected == i;
+			bool isSelected = _itemSelected == o.first;
+
+			fm::GameObject* go = o.second;
+
+			if (!go->IsActive())
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+			}
 
 			if (_isRenaming && isSelected)
 			{
-				fm::GameObject* go = listEntities[i];
 				memcpy(_bufferName, go->GetName().c_str(), std::min((size_t)127, go->GetName().size()));
 				if (ImGui::InputText("##", _bufferName, 128, ImGuiInputTextFlags_EnterReturnsTrue) && HasFocus())
 				{
@@ -63,7 +68,7 @@ void GListEntities::CustomDraw()
 				{
 					ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f, 0.2f, 0.2f, 1.0f));
 				}
-				bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, listEntities[i]->GetName().c_str(), i);
+				bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, go->GetName().c_str(), i);
 				if (isSelected)
 				{
 					ImGui::PopStyleColor(1);
@@ -71,7 +76,7 @@ void GListEntities::CustomDraw()
 
 				if (ImGui::IsItemClicked())
 				{
-					_itemSelected = i;
+					_itemSelected = o.first;
 				}
 
 
@@ -80,10 +85,13 @@ void GListEntities::CustomDraw()
 					ImGui::TreePop();
 				}
 			}
-			
+
+			if (!go->IsActive())
+			{
+				ImGui::PopStyleVar();
+			}
+			i++;
 		}
-
-
 
 
 
@@ -92,23 +100,46 @@ void GListEntities::CustomDraw()
 			ImGui::OpenPopup("popup from button");
 		}
 
-		if (ImGui::BeginPopup("popup from button") && _itemSelected != -1)
-		{
-			if (ImGui::MenuItem("Rename"))
-			{
-				_isRenaming = true;
-			}
+		fm::GameObject* goSelected = _itemSelected != -1 ? listEntities[_itemSelected] : nullptr;
 
-			ImGui::EndPopup();
+		if (goSelected != nullptr)
+		{
+			if (ImGui::BeginPopup("popup from button"))
+			{
+				if (ImGui::MenuItem("Rename"))
+				{
+					_isRenaming = true;
+				}
+				else if (ImGui::MenuItem("Delete"))
+				{
+					size_t id = goSelected->getID();
+					std::string scene(_currentSceneName);
+					AddEvent([id, scene](gui::GWindow*) {
+						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
+						currentScene->DeleteGameObjectByID(id);
+						});
+					_itemSelected = -1;
+					_gameObjectSelected.reset();
+					_goSelectedHasChanged = true;
+				}
+				else if (goSelected->IsActive() && ImGui::MenuItem("Disable"))
+				{
+					goSelected->SetStatus(false);
+				}
+				else if (!goSelected->IsActive() && ImGui::MenuItem("Activate"))
+				{
+					goSelected->SetStatus(true);
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 
 
 
 		if (ImGui::Button("Add Entity"))
 		{
-			_hasBeenSelected = true;
-			_gameObjectSelected = fm::GameObjectHelper::create(currentScene, true);
-			
+			_gameObjectSelected = fm::GameObjectHelper::create(currentScene, true)->getID();
 		}
 	}
 }

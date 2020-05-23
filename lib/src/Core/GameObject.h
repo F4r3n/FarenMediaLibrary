@@ -16,14 +16,20 @@ namespace fm {
             ~GameObject();
             GameObject* create(std::shared_ptr<Scene> s, bool defaultValue);
 
-            bool IsActive()
+            bool IsActive() const
             {
                 return _entity != nullptr && _entity->active;
             }
 
-            void destroy() {
+            void destroy()
+			{
                 _entity->destroy();
             }
+
+			void activate(bool value)
+			{
+				_entity->active = value;
+			}
 
             template <typename T> T* add(Component<T> *c)
             {
@@ -39,12 +45,12 @@ namespace fm {
                 return _entity->add<T>();
             }
 
-            template <typename T> T* get()
+            template <typename T> T* get() const
             {
                 return _entity->get<T>();
             }
 
-            template <typename T> bool has()
+            template <typename T> bool has() const
             {
                 return _entity->has<T>();
             }

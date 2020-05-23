@@ -141,9 +141,6 @@ class EntityIteratorMask {
 
             while(_it != _end)
             {
-               
-
-                
                  if( valid(_it->ID))
                      break;
                  ++_it;

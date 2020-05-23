@@ -21,6 +21,8 @@ namespace fm
 	{
 		enum COMMAND_KIND
 		{
+			CLEAR,
+			CLEAR_ALL,
 			BLIT,
 			DRAW_MESH
 		};
@@ -46,6 +48,7 @@ namespace fm
 		Model *_model;
 		Transform _transform;
 		MaterialProperties _materialProperties;
+		BUFFER_BIT _bufferBit;
 
 		friend class CommandBuffer;
 		friend class fms::RenderingSystem;
@@ -56,6 +59,9 @@ namespace fm
 	public:
 		CommandBuffer();
 		~CommandBuffer();
+
+		void Clear(RenderTexture& inSource, BUFFER_BIT inOption);
+		void Clear(BUFFER_BIT inOption);
 
 		void Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
 		void Blit(Texture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);

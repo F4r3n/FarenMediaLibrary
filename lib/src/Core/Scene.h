@@ -13,6 +13,9 @@ namespace fm {
 
     class Scene {
         public:
+
+			using MapOfGameObjects = std::map<ecs::id, fm::GameObject*>;
+
             Scene(const std::string &name);
             ~Scene();
             void AddGameObject(GameObject *e);
@@ -21,16 +24,15 @@ namespace fm {
 
             void destroy();
             const std::string& getName() const{ return _name;}
-            GameObject* GetGameObject(size_t id) const;
-            std::vector<fm::GameObject*> getAllGameObjects() {return _gos;}
+			const MapOfGameObjects& getAllGameObjects() {return _gos;}
 			void SetStatusToGo(bool inStatus);
 			void ResetStatusGo();
 
-			fm::GameObject* FindGameObject(ecs::id inID);
-			size_t GetID(ecs::id inID);
-			size_t GetID(fm::GameObject* inGo);
+			fm::GameObject* GetGameObjectByID(ecs::id inID);
+
+			void DeleteGameObjectByID(ecs::id inID);
         private:
-            std::vector<GameObject*> _gos;
+			MapOfGameObjects _gos;
             std::string _name;
             //Light setting
     };

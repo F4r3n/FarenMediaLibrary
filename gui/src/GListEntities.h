@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <GWindow.h>
-
+#include <optional>
 namespace fm
 {
 	class GameObject;
@@ -19,12 +19,12 @@ namespace gui
 	private:
 		void _Update(float dt, Context &inContext);
 
-		fm::GameObject* _gameObjectSelected;
-		bool			_hasBeenSelected = false;
+		std::optional<ecs::id>			 _gameObjectSelected;
 		std::string		_currentSceneName;
 		bool			_isRenaming;
 		char			_bufferName[128];
-		size_t			_itemSelected = -1;
+		ecs::id			_itemSelected = -1;
+		bool			_goSelectedHasChanged = false;
 
 	};
 }

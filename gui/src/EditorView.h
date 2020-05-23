@@ -4,7 +4,7 @@
 #include "Core/GameObject.h"
 #include <vector>
 #include "GWindow.h"
-
+#include <optional>
 namespace fms
 {
 	class PickingSystem;
@@ -21,7 +21,7 @@ namespace gui
 
 		struct CameraPreview
 		{
-			size_t id;
+			std::optional<ecs::id> id;
 			std::shared_ptr<fm::RenderTexture> renderTexture;
 			bool enabled;
 		};
@@ -43,7 +43,7 @@ namespace gui
 		void _DrawContentEditorCamera(Context &inContext);
 
 		void _EditObject();
-		void _CallBackPickingSystem(fm::GameObject* inGameObject);
+		void _CallBackPickingSystem(ecs::id inID);
 
 		fms::PickingSystem*		_pickingSystem;
 		CameraPreview			_editorView;
@@ -55,7 +55,7 @@ namespace gui
 		fm::math::vec2			_scrollPos;
 
 		bool					_resultPicking;
-		fm::GameObject*			_gameObjectSelectedByPicking;
+		std::optional<ecs::id>	_gameObjectSelectedByPicking;
 		gui::TRANSFORM_CONTEXT	_currentTransformContext;
 	};
 }

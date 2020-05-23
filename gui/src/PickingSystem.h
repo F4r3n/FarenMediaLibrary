@@ -22,10 +22,10 @@ namespace fms
 	public:
 		PickingSystem(std::shared_ptr<fm::Scene> inEditorScene);
 		void PickGameObject(const std::string& inSceneName, size_t inCameraID, const fm::math::vec2 &inPos);
-		void SetCallback(std::function<void(fm::GameObject*)> &&inCallback) { _callback = inCallback; }
+		void SetCallback(std::function<void(ecs::id inID)> &&inCallback) { _callback = inCallback; }
 		int _toto;
 	private:
-		std::function<void(fm::GameObject*)> _callback;
+		std::function<void(ecs::id inID)> _callback;
 		fm::GameObject* _specialCamera;
 		fmc::CCamera* _camera;
 		std::unique_ptr<fm::Material> _material;

@@ -13,6 +13,25 @@ CommandBuffer::~CommandBuffer()
 
 }
 
+void CommandBuffer::Clear(RenderTexture& inSource, BUFFER_BIT inOption)
+{
+	Command cmd;
+	cmd._command = Command::COMMAND_KIND::CLEAR;
+	cmd._source.kind = Command::TEXTURE_KIND::RENDER_TEXTURE;
+	cmd._source.renderTexture = &inSource;
+	cmd._bufferBit = inOption;
+	_commands.push(cmd);
+}
+
+void CommandBuffer::Clear(BUFFER_BIT inOption)
+{
+	Command cmd;
+	cmd._command = Command::COMMAND_KIND::CLEAR_ALL;
+	cmd._bufferBit = inOption;
+	_commands.push(cmd);
+}
+
+
 void CommandBuffer::Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial)
 {
 	Command cmd;

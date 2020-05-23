@@ -35,9 +35,6 @@ const std::string JSON_KEY = "FML";
 
 MainWindow::MainWindow()
 {
-	_currentEntity = nullptr;
-	_context.currentGameObjectSelected = nullptr;
-
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
@@ -83,7 +80,7 @@ void MainWindow::_AddEmptyScene()
 	{
 		gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
 		go->SetName("Main camera");
-		gv->AddCamera(currentScene->GetGameObject(currentScene->GetID(go)));
+		gv->AddCamera(go);
 	}
 }
 
@@ -158,7 +155,7 @@ void MainWindow::_DrawMenu()
 				if (ImGui::MenuItem("Start"))
 				{
 					fm::Application::Get().Start(true);
-					_currentEntity = nullptr;
+					_currentEntity.reset();
 				}
 				if (ImGui::MenuItem("Pause"))
 				{
@@ -167,7 +164,7 @@ void MainWindow::_DrawMenu()
 				if (ImGui::MenuItem("Stop"))
 				{
 					fm::Application::Get().Stop();
-					_currentEntity = nullptr;
+					_currentEntity.reset();
 				}
 				ImGui::EndMenu();
 			}
@@ -235,7 +232,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName), true);
+				_currentEntity = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName), true)->getID();
 
 			}
 			if (ImGui::MenuItem("List entity"))
@@ -261,11 +258,12 @@ void MainWindow::_DrawMenu()
 
 void MainWindow::_Copy()
 {
-	if (_currentEntity != nullptr)
+	if (_currentEntity.has_value())
 	{
 		nlohmann::json j;
 		nlohmann::json json;
-		_currentEntity->Serialize(json);
+		fm::GameObject* go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentEntity.value());
+		go->Serialize(json);
 		j[JSON_KEY] = json;
 
 		ImGui::SetClipboardText(j.dump().c_str());
@@ -304,7 +302,10 @@ void MainWindow::Update()
 			window.second->Update(fm::Time::dt, _context);
 		}
 	}
-	_currentEntity = _context.currentGameObjectSelected;
+	if (_context.currentGameObjectSelected.has_value())
+	{
+		_currentEntity = _context.currentGameObjectSelected;
+	}
 }
 
 void MainWindow::_AddDock(gui::WINDOWS inWindow, ImGuiID inID)
@@ -433,8 +434,8 @@ void MainWindow::_ClearBeforeSceneChange()
 		});
 	}
 
-	_currentEntity = nullptr;
-	_context.currentGameObjectSelected = nullptr;
+	_currentEntity.reset();
+	_context.currentGameObjectSelected.reset();
 	_context.currentSceneName = "";
 	_needUpdate = true;
 }
@@ -445,12 +446,13 @@ void MainWindow::_InitGameView()
 	auto&& v = currentScene->getAllGameObjects();
 	for (auto &&o : v)
 	{
-		if (o->has<fmc::CCamera>())
+		fm::GameObject* go = o.second;
+		if (o.second->has<fmc::CCamera>())
 		{
 			if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 			{
-				_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([o](gui::GWindow* inWindow) {
-					dynamic_cast<gui::GameView*>(inWindow)->AddCamera(o);
+				_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([go](gui::GWindow* inWindow) {
+					dynamic_cast<gui::GameView*>(inWindow)->AddCamera(go);
 				});
 			}
 			break;

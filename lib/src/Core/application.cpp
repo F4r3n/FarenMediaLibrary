@@ -228,6 +228,10 @@ const std::string& Application::GetCurrentSceneName() const
 	return _sceneManager->getCurrentScene()->getName();
 }
 
+std::shared_ptr<fm::Scene> Application::GetCurrentScene() const
+{
+	return _sceneManager->getCurrentScene();
+}
 
 void Application::RegisterCurrentConfig()
 {

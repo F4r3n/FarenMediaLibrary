@@ -11,14 +11,14 @@
 #include "inspector/scriptManagerInspector.hpp"
 #include "inspector/pointLightInspector.hpp"
 #include "inspector/body3DInspector.hpp"
-
+#include "Core/application.h"
+#include "Core/Scene.h"
 using namespace gui;
 
 ListComponentWindow::ListComponentWindow() : GWindow("Inspector", true)
 {
 	_enabled = true;
 	_kind = gui::WINDOWS::WIN_INSPECTOR;
-	_currentGameObjectSelected = nullptr;
 }
 
 ListComponentWindow::~ListComponentWindow()
@@ -28,53 +28,59 @@ ListComponentWindow::~ListComponentWindow()
 
 void ListComponentWindow::_Update(float, Context &inContext)
 {
-	_currentGameObjectSelected = inContext.currentGameObjectSelected;
+	if(inContext.currentGameObjectSelected.has_value())
+		_currentGameObjectSelected = inContext.currentGameObjectSelected;
 }
 
 void ListComponentWindow::_Draw()
 {
-	if (_currentGameObjectSelected && _currentGameObjectSelected->IsActive())
+	if (_currentGameObjectSelected.has_value())
 	{
-		ImGui::Text(_currentGameObjectSelected->GetName().c_str());
-		_DrawComponents(_currentGameObjectSelected);
-
-		if (ImGui::Button("Add Component"))
-			ImGui::OpenPopup("popup from button");
-
-		if (ImGui::BeginPopup("popup from button"))
+		fm::GameObject* go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentGameObjectSelected.value());
+		if (go != nullptr)
 		{
-			ImGui::MenuItem("Components", nullptr, false, false);
+			ImGui::Text(go->GetName().c_str());
+			_DrawComponents(go);
 
-			if (!_currentGameObjectSelected->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
+			if (ImGui::Button("Add Component"))
+				ImGui::OpenPopup("popup from button");
+
+			if (ImGui::BeginPopup("popup from button"))
 			{
-				_currentGameObjectSelected->add<fmc::CTransform>();
+				ImGui::MenuItem("Components", nullptr, false, false);
+
+				if (!go->has<fmc::CTransform>() && ImGui::MenuItem("Transform"))
+				{
+					go->add<fmc::CTransform>();
+				}
+				if (!go->has<fmc::CMesh>() && ImGui::MenuItem("Mesh"))
+				{
+					go->add<fmc::CMesh>();
+				}
+				if (!go->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
+				{
+					go->add<fmc::CMaterial>();
+				}
+				if (!go->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
+				{
+					go->add<fmc::CScriptManager>();
+				}
+				if (!go->has<fmc::CPointLight>() && ImGui::MenuItem("PointLight"))
+				{
+					go->add<fmc::CPointLight>();
+				}
+				if (!go->has<fmc::CCollider>() && ImGui::MenuItem("Collider"))
+				{
+					go->add<fmc::CCollider>();
+				}
+				if (!go->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
+				{
+					go->add<fmc::CBody3D>();
+				}
+				ImGui::EndPopup();
 			}
-			if (!_currentGameObjectSelected->has<fmc::CMesh>() && ImGui::MenuItem("Mesh"))
-			{
-				_currentGameObjectSelected->add<fmc::CMesh>();
-			}
-			if (!_currentGameObjectSelected->has<fmc::CMaterial>() && ImGui::MenuItem("Material"))
-			{
-				_currentGameObjectSelected->add<fmc::CMaterial>();
-			}
-			if (!_currentGameObjectSelected->has<fmc::CScriptManager>() && ImGui::MenuItem("ScriptManager"))
-			{
-				_currentGameObjectSelected->add<fmc::CScriptManager>();
-			}
-			if (!_currentGameObjectSelected->has<fmc::CPointLight>() && ImGui::MenuItem("PointLight"))
-			{
-				_currentGameObjectSelected->add<fmc::CPointLight>();
-			}
-			if (!_currentGameObjectSelected->has<fmc::CCollider>() && ImGui::MenuItem("Collider"))
-			{
-				_currentGameObjectSelected->add<fmc::CCollider>();
-			}
-			if (!_currentGameObjectSelected->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
-			{
-				_currentGameObjectSelected->add<fmc::CBody3D>();
-			}
-			ImGui::EndPopup();
 		}
+
 	}
 }
 
@@ -150,7 +156,7 @@ void ListComponentWindow::ClearInspectorComponents()
 		entities.second.clear();
 	}
 	_inspectorComponents.clear();
-	_currentGameObjectSelected = nullptr;
+	_currentGameObjectSelected.reset();
 }
 
 

@@ -174,32 +174,44 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			cam->_onStartRendering();
 		}
 
-
 		if (cam->_target != nullptr)
 		{
 			if (!cam->_target->isCreated())
 			{
 				cam->_target->create();
 			}
-			cam->_target->bind();
+		}
+
+
+		if (cam->_isAuto)
+		{
+			if (cam->_target != nullptr)
+			{
+				cam->_target->bind();
+				_graphics.SetViewPort(cam->GetViewport());
+				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			}
+			else
+			{
+				//Clear buffers
+				_graphics.BindFrameBuffer(0);
+				_graphics.SetViewPort(cam->GetViewport());
+				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			}
+
+			cam->_rendererConfiguration.postProcessRenderTexture.bind();
+			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+
+			cam->_renderTexture.bind();
 			_graphics.SetViewPort(cam->GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
 		}
 		else
 		{
-			//Clear buffers
-			_graphics.BindFrameBuffer(0);
-			_graphics.SetViewPort(cam->GetViewport());
-			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam);
 		}
 
-		cam->_rendererConfiguration.postProcessRenderTexture.bind();
-		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-
-		cam->_renderTexture.bind();
-		_graphics.SetViewPort(cam->GetViewport());
-		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-		_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
 
 		//Prepare camera data
 		cam->UpdateShaderData();
@@ -331,6 +343,35 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
 				_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material, &cmd._materialProperties);
+			}
+			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR)
+			{
+				if(cmd._source.kind == fm::Command::TEXTURE_KIND::RENDER_TEXTURE)
+					cmd._source.renderTexture->bind();
+				_graphics.Clear(cmd._bufferBit);
+			}
+			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR_ALL)
+			{
+				if (currentCamera->_target != nullptr)
+				{
+					currentCamera->_target->bind();
+					_graphics.SetViewPort(currentCamera->GetViewport());
+					_graphics.Clear(cmd._bufferBit);
+				}
+				else
+				{
+					//Clear buffers
+					_graphics.BindFrameBuffer(0);
+					_graphics.SetViewPort(currentCamera->GetViewport());
+					_graphics.Clear(cmd._bufferBit);
+				}
+
+				currentCamera->_rendererConfiguration.postProcessRenderTexture.bind();
+				_graphics.Clear(cmd._bufferBit);
+
+				currentCamera->_renderTexture.bind();
+				_graphics.SetViewPort(currentCamera->GetViewport());
+				_graphics.Clear(cmd._bufferBit);
 			}
 			cmdBuffers.pop();
 		}

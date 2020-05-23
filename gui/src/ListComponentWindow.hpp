@@ -2,6 +2,7 @@
 #include "GWindow.h"
 #include <memory>
 #include <unordered_map>
+#include <optional>
 namespace fm
 {
 	class GameObject;
@@ -30,7 +31,7 @@ namespace gui
 		virtual void _Update(float, Context &inContext) override;
 
 	private:
-		fm::GameObject*				_currentGameObjectSelected;
+		std::optional<ecs::id>		_currentGameObjectSelected;
 		MapOfInspectors				_inspectorComponents;
 
 	};
