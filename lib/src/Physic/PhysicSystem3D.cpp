@@ -81,15 +81,12 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 	}
 }
 
-
-
-void PhysicSystem3D::pre_update(EntityManager& em)
+void PhysicSystem3D::_InitAllBodies()
 {
-
-	for (auto&& e : em.iterate<fmc::CTransform, fmc::CCollider, fmc::CBody3D>())
+	for (auto&& e : EntityManager::get().iterate<fmc::CTransform, fmc::CCollider, fmc::CBody3D>())
 	{
 		fmc::CCollider* collider = e->get<fmc::CCollider>();
-		fmc::CTransform *ctransform = e->get<fmc::CTransform>();
+		fmc::CTransform* ctransform = e->get<fmc::CTransform>();
 
 
 		fm::Transform tr = ctransform->GetTransform();
@@ -100,7 +97,7 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 
 		if (collider != nullptr && collider->IsInit())
 		{
-			fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
+			fmc::CBody3D* cbody = e->get<fmc::CBody3D>();
 			if (cbody != nullptr)
 			{
 				if (!cbody->IsInit())
@@ -115,7 +112,7 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 
 				}
 			}
-			fmc::CTransform *ctransform = e->get<fmc::CTransform>();
+			fmc::CTransform* ctransform = e->get<fmc::CTransform>();
 
 
 			cbody->SetPosition(ctransform->position);
@@ -126,6 +123,13 @@ void PhysicSystem3D::pre_update(EntityManager& em)
 		//cbody->SetScale(ctransform->scale);
 
 	}
+}
+
+
+void PhysicSystem3D::pre_update(EntityManager& em)
+{
+
+	_InitAllBodies();
 }
 
 void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
@@ -164,6 +168,9 @@ void PhysicSystem3D::Start()
 
 	_ghostPairCallback = new btGhostPairCallback();
 	_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(_ghostPairCallback);
+
+
+	_InitAllBodies();
 
 }
 

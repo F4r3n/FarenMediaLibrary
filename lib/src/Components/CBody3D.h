@@ -9,7 +9,7 @@ class btRigidBody;
 class btDiscreteDynamicsWorld;
 class btGhostObject;
 class btTransform;
-
+class btCollisionObject;
 
 namespace fm
 {
@@ -54,11 +54,7 @@ namespace fmc
 		uint16_t GetType() const override { return kBody3D; }
 
 		CBody3D();
-
 		~CBody3D();
-		void SetMass(float inMass);
-
-		float GetMass() const { return _mass; }
 
 		void Init(CCollider *inCollider);
 		void SetPosition(const fm::math::vec3 &inPosition);
@@ -67,22 +63,33 @@ namespace fmc
 		void GetPosition(fm::math::vec3& outVec) const;
 		void GetRotation(fm::math::Quaternion &outQuaternion) const;
 
-
-		btRigidBody* GetBody() const { return _body; }
-		btGhostObject* GetGhost() const { return _ghostObject; }
 		void AddToWorld(btDiscreteDynamicsWorld *inWorld);
 		bool IsInit() const;
 
 		bool SetGhost(bool value);
 		bool IsGhost() const;
+
+		void SetMass(float inMass);
+		float GetMass() const;
+
+		void SetGravity(const fm::math::vec3& inAcceleration);
+		const fm::math::vec3& GetGravity() const;
+
+		void SetLinearVelocity(const fm::math::vec3& inAcceleration);
+		fm::math::vec3 GetLinearVelocity() const;
 	private:
-		void _GetCurrentTransform(btTransform& transform)const;
-		void _Init();
-		btRigidBody* _body;
-		float _mass;
-		bool _isInWorld;
-		btGhostObject* _ghostObject;
-		bool _isGhost;
+		btRigidBody*	_GetBody() const;
+		btGhostObject*	_GetGhost() const;
+		void			_GetCurrentTransform(btTransform& transform)const;
+		void			_Init();
+
+	private:
+		btCollisionObject* _body;
+
+		mutable fm::math::vec3	   _gravity;
+		mutable float			   _mass;
+		bool			   _isInWorld;
+		bool			   _isGhost;
 
 	};
 }

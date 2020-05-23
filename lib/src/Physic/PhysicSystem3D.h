@@ -23,6 +23,7 @@ public:
 	void Stop();
 
 private:
+	void _InitAllBodies();
 	//void _CheckCollision(btDynamicsWorld *world, btScalar timeStep);
 	btDiscreteDynamicsWorld*	_dynamicsWorld;
 	btGhostPairCallback*		_ghostPairCallback;

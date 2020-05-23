@@ -14,11 +14,11 @@ CBody3D::CBody3D()
 
 void CBody3D::_Init()
 {
-	_ghostObject = nullptr;
 	_body = nullptr;
 	_isInWorld = false;
-	_mass = 0.0f;
-	_isGhost = true;
+	_mass = 1.0f;
+	_isGhost = false;
+	_gravity = fm::math::vec3(0.0f, -9.81f, 0.0f);
 	_name = "Body3D";
 }
 
@@ -35,12 +35,91 @@ bool CBody3D::IsGhost() const
 void CBody3D::SetMass(float inMass)
 {
 	_mass = inMass;
+	if (btRigidBody* body = _GetBody())
+	{
+		btVector3 localInertia(0, 0, 0);
+
+		fmc::CCollider* collider = EntityManager::get().getEntity(_IDEntity)->get<fmc::CCollider>();
+		if (collider != nullptr)
+		{
+			btCollisionShape* shape = collider->GetCollisionShape();
+
+			shape->calculateLocalInertia(_mass, localInertia);
+		}
+		
+		body->setMassProps(_mass, localInertia);
+	}
+}
+
+float CBody3D::GetMass() const
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		_mass = 1.0f / body->getInvMass();
+	}
+
+	return _mass;
+}
+
+void CBody3D::SetGravity(const fm::math::vec3& inGravity)
+{
+	_gravity = inGravity;
+	if (btRigidBody* body = _GetBody())
+	{
+		body->setGravity(btVector3(inGravity.x, inGravity.y, inGravity.z));
+		body->applyGravity();
+		if(!body->isActive())
+			body->activate();
+	}
+}
+
+const fm::math::vec3& CBody3D::GetGravity() const
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		btVector3 v = body->getGravity();
+		_gravity = fm::math::vec3(v.x(), v.y(), v.z());
+	}
+	return _gravity;
+}
+
+void CBody3D::SetLinearVelocity(const fm::math::vec3& inAcceleration)
+{
+	if (btRigidBody* body = _GetBody())
+	{
+		body->setLinearVelocity(btVector3(inAcceleration.x, inAcceleration.y, inAcceleration.z));
+		if (!body->isActive())
+			body->activate();
+	}
+}
+
+
+fm::math::vec3 CBody3D::GetLinearVelocity() const
+{
+	fm::math::vec3 velocity;
+	if (btRigidBody* body = _GetBody())
+	{
+		btVector3 v = body->getLinearVelocity();
+		velocity = fm::math::vec3(v.x(), v.y(), v.z());
+	}
+	return velocity;
 }
 
 
 bool CBody3D::IsInit() const
 {
-	return (_body != nullptr || _ghostObject != nullptr) && _isInWorld;
+	return (_body != nullptr) && _isInWorld;
+}
+
+btRigidBody* CBody3D::_GetBody() const
+{
+	return _body != nullptr ? btRigidBody::upcast(_body) : nullptr;
+}
+
+
+btGhostObject* CBody3D::_GetGhost() const
+{
+	return _body != nullptr ? btGhostObject::upcast(_body) : nullptr;
 }
 
 
@@ -70,26 +149,32 @@ void CBody3D::Init(CCollider *inCollider)
 		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, new btDefaultMotionState(object), shape, localInertia);
 		_body = new btRigidBody(rbInfo);
+		_GetBody()->setGravity(btVector3(_gravity.x, _gravity.y, _gravity.z));
+		_GetBody()->setRestitution(1.0f);
+		_GetBody()->setFriction(0.0f);
 	}
 	else
 	{
-		_ghostObject = new btGhostObject();
-		_ghostObject->setCollisionShape(shape);
-		_ghostObject->setCollisionFlags(_ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-		_ghostObject->setWorldTransform(object);
-		_ghostObject->setUserPointer(this);
+		_body = new btGhostObject();
+		_body->setCollisionFlags(_body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
 	}
+
+	_body->setCollisionShape(shape);
+	_body->setWorldTransform(object);
+	_body->setUserPointer(this);
+	
 }
 
 void CBody3D::_GetCurrentTransform(btTransform& transform) const
 {
-	if (_body && _body->getMotionState())
+	if (btRigidBody* body = _GetBody())
 	{
-		transform = _body->getCenterOfMassTransform();
+		transform = body->getCenterOfMassTransform();
 	}
-	else if (_ghostObject)
+	else if(_body != nullptr)
 	{
-		transform = _ghostObject->getWorldTransform();
+		transform = _body->getWorldTransform();
 	}
 }
 
@@ -103,11 +188,11 @@ void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
 
 	if (!_isGhost)
 	{
-		_body->setCenterOfMassTransform(transform);
+		_GetBody()->setCenterOfMassTransform(transform);
 	}
 	else
 	{
-		_ghostObject->setWorldTransform(transform);
+		_body->setWorldTransform(transform);
 	}
 }
 
@@ -120,37 +205,15 @@ void CBody3D::SetRotation(const fm::math::Quaternion &inRotation)
 	fm::math::vec4 r = inRotation;
 	transform.setRotation(btQuaternion(r.x, r.y, r.z, r.w));
 
-	if (_body != nullptr)
+	if (btRigidBody* body = _GetBody())
 	{
-		_body->getMotionState()->setWorldTransform(transform);
+		body->getMotionState()->setWorldTransform(transform);
 	}
-	else if (_ghostObject != nullptr)
+	else if (_body != nullptr)
 	{
-		_ghostObject->setWorldTransform(transform);
+		_body->setWorldTransform(transform);
 	}
 }
-
-
-//void CBody3D::SetRadius(float radius)
-//{
-//	_radius = radius;
-//	_shape = SHAPE::SPHERE;
-//	if (_body)
-//	{
-//		_body->getCollisionShape()->setLocalScaling(btVector3(_radius, _radius, _radius));
-//	}
-//}
-//
-//
-//void CBody3D::SetScale(const fm::math::vec3 &inScale)
-//{
-//	_scale = inScale;
-//	_shape = SHAPE::BOX;
-//	if (_body)
-//	{
-//		_body->getCollisionShape()->setLocalScaling(btVector3(inScale.x, inScale.y, inScale.z));
-//	}
-//}
 
 
 void CBody3D::GetPosition(fm::math::vec3& outVec) const
@@ -180,11 +243,12 @@ void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 {
 	if (_isGhost)
 	{
-		inWorld->addCollisionObject(_ghostObject,1,1);
+		inWorld->addCollisionObject(_body,1,1);
 	}
 	else
 	{
-		inWorld->addRigidBody(_body);
+		inWorld->addRigidBody(_GetBody());
+		SetGravity(_gravity);
 	}
 	_isInWorld = true;
 }
@@ -202,6 +266,7 @@ void CBody3D::Destroy()
 bool CBody3D::Serialize(json &ioJson) const
 {
 	ioJson["mass"] = _mass;
+	ioJson["gravity"] = _gravity;
 	ioJson["ghost"] = _isGhost;
 
 
@@ -209,8 +274,17 @@ bool CBody3D::Serialize(json &ioJson) const
 }
 bool CBody3D::Read(const json &inJSON)
 {
-	_mass = inJSON["mass"];
-	_isGhost = inJSON["ghost"];
+	try
+	{
+		_mass = inJSON.at("mass");
+		_isGhost = inJSON.at("ghost");
+		_gravity = inJSON.at("gravity");
+	}
+	catch (std::exception& e)
+	{
+
+	}
+
 
 	return true;
 }
@@ -218,9 +292,5 @@ bool CBody3D::Read(const json &inJSON)
 
 CBody3D::~CBody3D()
 {
-	if (_body && _body->getMotionState())
-	{
-		delete _body->getMotionState();
-	}
-	delete _body;
+
 }

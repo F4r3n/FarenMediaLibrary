@@ -29,12 +29,18 @@ void ScriptManagerSystem::init(EntityManager& em, EventManager&)
 
 void ScriptManagerSystem::Start()
 {
-	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
+
+	for (auto&& e : EntityManager::get().iterate<fmc::CScriptManager>())
 	{
 		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
 		scriptManager->init(e);
-		scriptManager->Start(e);
+	}
 
+
+	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
+	{
+		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+		scriptManager->Start(e);
 	}
 }
 

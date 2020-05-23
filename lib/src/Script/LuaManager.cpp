@@ -18,6 +18,7 @@
 #include "Resource/ResourcesManager.h"
 #include "Core/Debug.h"
 #include "Components/CIdentity.h"
+#include "Components/CBody3D.h"
 
 GameObjectLua::GameObjectLua(Entity* inEntity)
 {
@@ -33,6 +34,12 @@ const char* GameObjectLua::GetName()
 {
 	return _entity->get<fmc::CIdentity>()->GetNameEntity().c_str();
 }
+
+fmc::CBody3D* GameObjectLua::GetBody3D()
+{
+	return _entity->get<fmc::CBody3D>();
+}
+
 
 
 Entity* createEntity()
@@ -100,6 +107,7 @@ void LuaManager::registerComponents()
 	lua->set_function("Log", &Log);
 	lua->new_usertype<GameObjectLua>("GameObjectInternal",
 		"GetTransform", &GameObjectLua::GetTransform,
+		"GetBody3D", &GameObjectLua::GetBody3D,
 		"GetName", &GameObjectLua::GetName
 		);
 
@@ -136,6 +144,15 @@ void LuaManager::registerComponents()
 	lua->new_usertype<Body2D>("Body2D",
 	  "applyForceCenter", &Body2D::ApplyForceCenter2,
 	  "setFriction", &Body2D::SetFriction);
+
+	lua->new_usertype<CBody3D>("CBody3D",
+		"setLinearVelocity", &CBody3D::SetLinearVelocity,
+		"getLinearVelocity", &CBody3D::GetLinearVelocity,
+		"getGravity", &CBody3D::GetGravity,
+		"setGravity", &CBody3D::SetGravity,
+		"getMass", &CBody3D::GetMass,
+		"setMass", &CBody3D::SetMass
+		);
 
 	lua->new_usertype<InputManager>("Input",
 		"isKeyPressed", &InputManager::IsKeyPressed,

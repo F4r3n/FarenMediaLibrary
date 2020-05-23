@@ -3,7 +3,6 @@ GameObject = {}
 function GameObject:create()
    local acnt = {}             
     setmetatable(acnt,self)
-    print("Create")
    self.__index = self
    return acnt
 end
@@ -11,6 +10,10 @@ end
 
 function GameObject:GetTransform()
  return self._internal:GetTransform()
+end
+
+function GameObject:GetBody3D()
+ return self._internal:GetBody3D()
 end
 
 

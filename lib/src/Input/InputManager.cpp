@@ -2,7 +2,6 @@
 #include "Input/InputManager.h"
 #include <stdarg.h>
 #include <cassert>
-#include <iostream>
 using namespace fm;
 
 InputManager InputManager::_instance;
@@ -58,11 +57,9 @@ void InputManager::_ProcessEvents()
 	case SDL_MOUSEBUTTONUP:
 	case SDL_MOUSEBUTTONDOWN:
 	{
-		std::cout << _event.type << std::endl;
 		_mouseKeys[SDL_BUTTON_LEFT - 1] = _event.button.button == SDL_BUTTON_LEFT && (_event.type == SDL_MOUSEBUTTONDOWN);
 		_mouseKeys[SDL_BUTTON_RIGHT - 1] = _event.button.button == SDL_BUTTON_RIGHT && (_event.type == SDL_MOUSEBUTTONDOWN);
 		_mouseKeys[SDL_BUTTON_MIDDLE - 1] = _event.button.button == SDL_BUTTON_MIDDLE && (_event.type == SDL_MOUSEBUTTONDOWN);
-		std::cout << _mouseKeys[SDL_BUTTON_LEFT - 1] << std::endl;
 
 		break;
 	}

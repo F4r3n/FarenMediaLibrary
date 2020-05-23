@@ -234,9 +234,10 @@ void Application::RegisterCurrentConfig()
 	bool found = false;
 	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
 	{
-		if (_lastConfigsUsed[i].name == _currentConfig.name && _lastConfigsUsed[i].userDirectory.GetPath() == _currentConfig.userDirectory.GetPath())
+		if ((_lastConfigsUsed[i].name == _currentConfig.name) && (_lastConfigsUsed[i].userDirectory.GetPath() == _currentConfig.userDirectory.GetPath()))
 		{
 			found = true;
+			break;
 		}
 	}
 
