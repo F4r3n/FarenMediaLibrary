@@ -78,6 +78,7 @@ void GWindow::Draw()
 		BeforeWindowCreation();
 		if (ImGui::Begin(_name.c_str(), &_enabled, _option))
 		{
+			_isVisible = true;
 			AfterWindowCreation();
 
 			_isFocused = ImGui::IsWindowFocused();
@@ -118,6 +119,11 @@ void GWindow::Draw()
 			}
 			_hasBeenDrawn = true;
 		}
+		else
+		{
+			AfterWindowCreation();
+			_isVisible = false;
+		}
 
 
 		ImGui::End();
@@ -135,17 +141,21 @@ void GWindow::Update(float dt, Context &inContext)
 	if (_enabled)
 	{
 		_DequeueEvent();
-		if (_isFocused)
-		{
-			inContext.currentWindowFocused = _kind;
-		}
-		_Update(dt, inContext);
 
-		if (!_widgets.empty())
+		if (_isVisible)
 		{
-			for (auto&& widget : _widgets)
+			if (_isFocused)
 			{
-				widget->Update(dt, inContext);
+				inContext.currentWindowFocused = _kind;
+			}
+			_Update(dt, inContext);
+
+			if (!_widgets.empty())
+			{
+				for (auto&& widget : _widgets)
+				{
+					widget->Update(dt, inContext);
+				}
 			}
 		}
 	}

@@ -97,7 +97,7 @@ void MainWindow::_InitEditorCamera()
 {
 	_editorCamera = fm::GameObjectHelper::create(_editorScene, true);
 	_editorCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight,
-		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
+		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
 	_editorCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
 	_editorCamera->SetName("Camera");
 }
@@ -364,6 +364,8 @@ void MainWindow::Draw()
 		_AddDock(gui::WINDOWS::WIN_FILE_NAVIGATOR, dock_down_id);
 		_AddDock(gui::WINDOWS::WIN_SCENE_VIEW, dock_left_right_id);
 		_AddDock(gui::WINDOWS::WIN_INSPECTOR, dock_down_right_id);
+		_AddDock(gui::WINDOWS::WIN_LOGGER, dock_down_id);
+
 
 		//ImGuiDockNodeFlags_
 		// Disable tab bar for custom toolbar

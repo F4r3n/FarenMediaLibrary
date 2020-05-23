@@ -106,6 +106,7 @@ private:
 	fm::math::vec2						  _size;
 	bool								  _iswindowDocked;
 	bool								  _hasBeenDrawn;
+	bool								  _isVisible;
 
 };
 }

@@ -24,6 +24,7 @@ namespace gui
 		std::string		_currentSceneName;
 		bool			_isRenaming;
 		char			_bufferName[128];
+		size_t			_itemSelected = -1;
 
 	};
 }

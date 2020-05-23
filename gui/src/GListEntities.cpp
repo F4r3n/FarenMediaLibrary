@@ -33,27 +33,24 @@ void GListEntities::_Update(float dt, Context &inContext)
 
 void GListEntities::CustomDraw()
 {
-	size_t entitySelected = -1;
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_currentSceneName);
-
+	size_t itemHovered = -1;
 	if (currentScene != nullptr)
 	{
 		std::vector<fm::GameObject*> listEntities = currentScene->getAllGameObjects();
 
 		for (size_t i = 0; i < listEntities.size(); i++)
 		{
-			bool isSelected = (entitySelected == i)
-				|| (_gameObjectSelected != nullptr && listEntities[i] != nullptr && (_gameObjectSelected->getID() == listEntities[i]->getID()));
+			bool isSelected = _itemSelected == i;
 
-			if (isSelected)
-				entitySelected = i;
 			if (_isRenaming && isSelected)
 			{
-				memcpy(_bufferName, _gameObjectSelected->GetName().c_str(), std::min((size_t)127, _gameObjectSelected->GetName().size()));
+				fm::GameObject* go = listEntities[i];
+				memcpy(_bufferName, go->GetName().c_str(), std::min((size_t)127, go->GetName().size()));
 				if (ImGui::InputText("##", _bufferName, 128, ImGuiInputTextFlags_EnterReturnsTrue) && HasFocus())
 				{
 					std::string newName(_bufferName);
-					_gameObjectSelected->SetName(_bufferName);
+					go->SetName(_bufferName);
 					_isRenaming = false;
 				}
 				
@@ -71,10 +68,10 @@ void GListEntities::CustomDraw()
 				{
 					ImGui::PopStyleColor(1);
 				}
+
 				if (ImGui::IsItemClicked())
 				{
-					_gameObjectSelected = listEntities[i];
-					_hasBeenSelected = true;
+					_itemSelected = i;
 				}
 
 
@@ -86,12 +83,16 @@ void GListEntities::CustomDraw()
 			
 		}
 
-		if (ImGui::IsMouseClicked(1) && entitySelected != -1)
+
+
+
+
+		if (ImGui::IsMouseClicked(1))
 		{
 			ImGui::OpenPopup("popup from button");
-
 		}
-		if (ImGui::BeginPopup("popup from button"))
+
+		if (ImGui::BeginPopup("popup from button") && _itemSelected != -1)
 		{
 			if (ImGui::MenuItem("Rename"))
 			{
@@ -100,6 +101,8 @@ void GListEntities::CustomDraw()
 
 			ImGui::EndPopup();
 		}
+
+
 
 		if (ImGui::Button("Add Entity"))
 		{
