@@ -66,7 +66,6 @@ class CCamera : public FMComponent<CCamera>
         CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
         ~CCamera();
 
-        bool  IsOrthographic();
 
 
         bool Serialize(nlohmann::json &ioJson) const override;
@@ -104,12 +103,15 @@ class CCamera : public FMComponent<CCamera>
 
 		const fm::RenderTexture& GetRenderTexture() const { return _renderTexture; }
 		float GetFOV() const { return _fovy; }
-		float GetFarPlane();
-		float GetNearPlane();
+		float GetFarPlane() const { return _farPlane; }
+		float GetNearPlane() const { return _nearPlane; }
+		bool  IsOrthographic() const { return _isOrto; }
+
 
 		void SetFov(float inValue) { _fovy = inValue; }
 		void SetFarPlane(float inValue) { _farPlane = inValue; }
 		void SetNearPlane(float inValue) { _nearPlane = inValue; }
+		void SetOrthoGraphic(bool value) { _isOrto = value; }
 
 		std::shared_ptr<fm::RenderTexture> SetTarget(fm::RenderTexture *inRenderTexture = nullptr);
 		std::shared_ptr<fm::RenderTexture> SetTarget(const fm::RenderTexture& inRenderTexture);

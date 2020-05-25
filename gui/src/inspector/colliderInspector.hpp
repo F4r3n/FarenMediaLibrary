@@ -1,9 +1,9 @@
 #pragma once
 #include "inspector.hpp"
-#include "Components/CCollider.h"
+#include "Components/CCollider3D.h"
 #include "macroInspectorHelper.hpp"
-#include <vector>
+
 namespace gui {
-	DECLARE_INSPECTOR_CLASS(Collider, fmc::CCollider)
+	DECLARE_INSPECTOR_CLASS(Collider3D, fmc::CCollider3D)
 };
 }

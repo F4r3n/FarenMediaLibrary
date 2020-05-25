@@ -1,7 +1,7 @@
 #pragma once
 #include "component.h"
 #include "Core/Math/Vector3.h"
-
+#include <nlohmann/json_fwd.hpp>
 class btGhostObject;
 class btCollisionShape;
 class btDynamicsWorld;
@@ -13,31 +13,29 @@ namespace fm
 
 namespace fmc
 {
-
-	enum SHAPE
-	{
-		BOX,
-		SPHERE
-	};
-
-	class CCollider : public FMComponent<CCollider>
+	class CCollider3D : public FMComponent<CCollider3D>
 	{
 	public:
+		enum class SHAPE
+		{
+			BOX,
+			SPHERE
+		};
 
-		CCollider();
-		~CCollider();
-		bool Serialize(json &ioJson) const override;
-		bool Read(const json &inJSON) override;
+		CCollider3D();
+		~CCollider3D();
+		bool Serialize(nlohmann::json &ioJson) const override;
+		bool Read(const nlohmann::json &inJSON) override;
 		const std::string& GetName() const override;
 		void Destroy() override;
-		uint16_t GetType() const override { return kCollider; }
+		uint16_t GetType() const override { return kCollider3D; }
 
 		void Init(const fm::Transform& inTransform);
 		bool IsInit();
 
 		btCollisionShape* GetCollisionShape() const { return _collisionShape; }
 		bool SetShape(SHAPE inShape);
-		SHAPE GetShape() const;
+		CCollider3D::SHAPE GetShape() const;
 
 		const fm::math::vec3  GetScale() const;
 		void SetScale(const fm::math::vec3 &inScale);
@@ -46,7 +44,6 @@ namespace fmc
 		fm::math::vec3 _scale;
 
 		btCollisionShape *_collisionShape;
-		bool _isInWorld;
 		//TODO Position/Rotation relative to the entity
 
 	};

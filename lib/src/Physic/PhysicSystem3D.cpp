@@ -2,7 +2,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "Components/CTransform.h"
 #include "Components/CBody3D.h"
-#include "Components/CCollider.h"
+#include "Components/CCollider3D.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "Components/cevent.hpp"
 using namespace fms;
@@ -83,9 +83,9 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 
 void PhysicSystem3D::_InitAllBodies()
 {
-	for (auto&& e : EntityManager::get().iterate<fmc::CTransform, fmc::CCollider, fmc::CBody3D>())
+	for (auto&& e : EntityManager::get().iterate<fmc::CTransform, fmc::CCollider3D, fmc::CBody3D>())
 	{
-		fmc::CCollider* collider = e->get<fmc::CCollider>();
+		fmc::CCollider3D* collider = e->get<fmc::CCollider3D>();
 		fmc::CTransform* ctransform = e->get<fmc::CTransform>();
 
 
@@ -104,24 +104,15 @@ void PhysicSystem3D::_InitAllBodies()
 				{
 					cbody->Init(collider);
 
-
 					cbody->SetPosition(tr.position);
 					cbody->SetRotation(tr.rotation);
 					cbody->AddToWorld(_dynamicsWorld);
-
-
 				}
 			}
-			fmc::CTransform* ctransform = e->get<fmc::CTransform>();
 
-
-			cbody->SetPosition(ctransform->position);
-			cbody->SetRotation(ctransform->GetRotation());
+			cbody->SetPosition(tr.position);
+			cbody->SetRotation(tr.rotation);
 		}
-
-
-		//cbody->SetScale(ctransform->scale);
-
 	}
 }
 
@@ -136,7 +127,7 @@ void PhysicSystem3D::update(float dt, EntityManager& em, EventManager& event)
 {
 	_dynamicsWorld->stepSimulation(dt);
 
-	for (auto &&e : em.iterate<fmc::CTransform, fmc::CBody3D, fmc::CCollider>())
+	for (auto &&e : em.iterate<fmc::CTransform, fmc::CBody3D, fmc::CCollider3D>())
 	{
 		fmc::CBody3D *cbody = e->get<fmc::CBody3D>();
 		fmc::CTransform *ctransform = e->get<fmc::CTransform>();

@@ -5,6 +5,7 @@
 #include "Core/Math/Vector4.h"
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Quaternion.h"
+#include <nlohmann/json_fwd.hpp>
 class Entity;
 class EntityManager;
 
@@ -23,8 +24,8 @@ class CTransform : public FMComponent<CTransform> {
 		~CTransform();
         void				Destroy();
 
-        bool				Serialize(json &ioJson) const override;
-        bool				Read(const json &inJSON) override;
+        bool				Serialize(nlohmann::json &ioJson) const override;
+        bool				Read(const nlohmann::json &inJSON) override;
         const std::string&	GetName() const override;
         virtual uint16_t	GetType() const {return kTransform;}
 		fm::Transform		GetTransform() const;

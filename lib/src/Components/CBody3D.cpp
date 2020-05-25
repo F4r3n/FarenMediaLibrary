@@ -3,7 +3,7 @@
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <EntityManager.h>
 #include "Components/CTransform.h"
-#include "Components/CCollider.h"
+#include "Components/CCollider3D.h"
 using namespace fmc;
 
 CBody3D::CBody3D()
@@ -43,7 +43,7 @@ void CBody3D::SetMass(float inMass)
 	{
 		btVector3 localInertia(0, 0, 0);
 
-		fmc::CCollider* collider = EntityManager::get().getEntity(_IDEntity)->get<fmc::CCollider>();
+		fmc::CCollider3D* collider = EntityManager::get().getEntity(_IDEntity)->get<fmc::CCollider3D>();
 		if (collider != nullptr)
 		{
 			btCollisionShape* shape = collider->GetCollisionShape();
@@ -211,7 +211,7 @@ btGhostObject* CBody3D::_GetGhost() const
 }
 
 
-void CBody3D::Init(CCollider *inCollider)
+void CBody3D::Init(CCollider3D*inCollider)
 {
 	const fm::Transform &&transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->GetTransform();
 
@@ -353,7 +353,7 @@ void CBody3D::Destroy()
 	EntityManager::get().removeComponent<fmc::CBody3D>(BaseComponent::_IDEntity);
 }
 
-bool CBody3D::Serialize(json &ioJson) const
+bool CBody3D::Serialize(nlohmann::json &ioJson) const
 {
 	ioJson["mass"] = _mass;
 	ioJson["gravity"] = _gravity;
@@ -365,7 +365,7 @@ bool CBody3D::Serialize(json &ioJson) const
 
 	return true;
 }
-bool CBody3D::Read(const json &inJSON)
+bool CBody3D::Read(const nlohmann::json &inJSON)
 {
 	try
 	{
@@ -378,7 +378,7 @@ bool CBody3D::Read(const json &inJSON)
 		_linearFactor = inJSON.at("linearFactor");
 
 	}
-	catch (std::exception& e)
+	catch (std::exception&)
 	{
 
 	}

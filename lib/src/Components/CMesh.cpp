@@ -4,6 +4,7 @@
 #include "Core/Math/Functions.h"
 #include <EntityManager.h>
 #include "Rendering/Model.hpp"
+#include <nlohmann/json.hpp>
 using namespace fmc;
 
 CMesh::~CMesh()
@@ -17,12 +18,12 @@ CMesh::CMesh()
 	model = fm::ResourcesManager::get().getResource<fm::Model>(_type);
 }
 
-bool CMesh::Serialize(json &ioJson) const
+bool CMesh::Serialize(nlohmann::json &ioJson) const
 {
     ioJson["type"] = _type;
     return true;
 }
-bool CMesh::Read(const json &inJSON)
+bool CMesh::Read(const nlohmann::json &inJSON)
 {
     _type = inJSON["type"];
 	model = fm::ResourcesManager::get().getResource<fm::Model>(_type);

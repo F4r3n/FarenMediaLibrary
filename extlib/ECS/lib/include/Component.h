@@ -9,8 +9,8 @@ class ComponentManager;
 
 class BaseComponent {
 public:
+	friend class ComponentManager;
     BaseComponent();
-    virtual ~BaseComponent();
     const std::string& GetName() const {return _name;}
     virtual bool Serialize(nlohmann::json &ioJson) const = 0;
     virtual bool Read(const nlohmann::json &inJSON) = 0;
@@ -18,8 +18,7 @@ public:
     virtual void Destroy() = 0;
 protected:
 	ecs::id _IDEntity = std::numeric_limits<ecs::id>::max();
-	void operator delete (void* obj) { delete obj; }
-
+	virtual ~BaseComponent();
     std::string _name = "";
     static uint16_t family_counter;
 };
@@ -49,9 +48,6 @@ public:
         return type;
     }
 
-
-
-    friend class ComponentManager;
 protected:
 	virtual ~Component() {}
 

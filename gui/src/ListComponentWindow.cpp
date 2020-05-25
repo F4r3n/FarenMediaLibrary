@@ -69,13 +69,21 @@ void ListComponentWindow::_Draw()
 				{
 					go->add<fmc::CPointLight>();
 				}
-				if (!go->has<fmc::CCollider>() && ImGui::MenuItem("Collider"))
+				if (!go->has<fmc::CCollider3D>() && ImGui::MenuItem("Collider3D"))
 				{
-					go->add<fmc::CCollider>();
+					go->add<fmc::CCollider3D>();
 				}
 				if (!go->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
 				{
 					go->add<fmc::CBody3D>();
+				}
+				if (!go->has<fmc::CCollider2D>() && ImGui::MenuItem("Collider2D"))
+				{
+					go->add<fmc::CCollider2D>();
+				}
+				if (!go->has<fmc::CBody2D>() && ImGui::MenuItem("Body2D"))
+				{
+					go->add<fmc::CBody2D>();
 				}
 				ImGui::EndPopup();
 			}
@@ -124,9 +132,9 @@ void ListComponentWindow::_DrawComponents(fm::GameObject* currentEntity)
 			{
 				compo = std::make_unique <gui::Body3DInspector>(c);
 			}
-			else if (componentType == fmc::ComponentType::kCollider)
+			else if (componentType == fmc::ComponentType::kCollider3D)
 			{
-				compo = std::make_unique <gui::ColliderInspector>(c);
+				compo = std::make_unique <gui::Collider3DInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kCamera)
 			{

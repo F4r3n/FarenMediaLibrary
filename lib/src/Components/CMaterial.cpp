@@ -4,7 +4,7 @@
 #include <Resource/ResourcesManager.h>
 #include <EntityManager.h>
 #include "Rendering/material.hpp"
-
+#include <nlohmann/json.hpp>
 using namespace fmc;
 using namespace fm;
 
@@ -27,7 +27,7 @@ void CMaterial::Destroy()
 
 
 
-bool CMaterial::Serialize(json &ioJson) const
+bool CMaterial::Serialize(nlohmann::json &ioJson) const
 {
     nlohmann::json j;
     for(fm::Material *s : _materials)
@@ -39,7 +39,7 @@ bool CMaterial::Serialize(json &ioJson) const
     return true;
 }
 
-bool CMaterial::Read(const json &inJSON)
+bool CMaterial::Read(const nlohmann::json &inJSON)
 {
 
     return true;

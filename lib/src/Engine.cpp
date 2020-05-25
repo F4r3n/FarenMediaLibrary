@@ -63,6 +63,7 @@ void Engine::Init()
 {
     _systems->addSystem(new fms::SoundSystem());
 	_systems->addSystem(new fms::PhysicSystem3D());
+	_systems->addSystem(new fms::PhysicSystem2D());
 
     _systems->addSystem(new fms::ScriptManagerSystem());
     _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
@@ -82,7 +83,6 @@ void Engine::Resume()
 
 void Engine::Reset()
 {
-    _systems->addSystem(new fms::PhysicSystem());
     _systems->addSystem(new fms::ScriptManagerSystem());
 }
 

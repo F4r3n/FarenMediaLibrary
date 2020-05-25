@@ -9,9 +9,10 @@
 #include "Components/CMesh.h"
 #include "Components/CCamera.h"
 #include "Components/CBody3D.h"
-#include "Components/CCollider.h"
+#include "Components/CCollider3D.h"
 #include "Components/CScriptManager.h"
 #include "Components/CIdentity.h"
+#include "Components/CCollider2D.h"
 using namespace fm;
 size_t GameObject::_counter = 0;
 
@@ -37,14 +38,14 @@ GameObject::GameObject()
     
 }
 
-void GameObject::Serialize(json &outResult) const
+void GameObject::Serialize(nlohmann::json &outResult) const
 {
     std::vector<BaseComponent*>&& compos = getAllComponents();
 
-	json compo;
+	nlohmann::json compo;
     for(auto &&c : compos)
     {
-        json j;
+		nlohmann::json j;
         if(c->Serialize(j))
         {
 			compo[std::to_string(c->GetType())] = j;
@@ -55,10 +56,10 @@ void GameObject::Serialize(json &outResult) const
 }
 
 
-bool GameObject::Read(const json &inJson)
+bool GameObject::Read(const nlohmann::json &inJson)
 {
 	_entity->active = inJson["enabled"];
-	const json compo = inJson["components"];
+	const nlohmann::json compo = inJson["components"];
     for (nlohmann::json::const_iterator it = compo.cbegin(); it != compo.cend(); ++it)
     {
         switch(std::stoi(it.key()))
@@ -75,9 +76,12 @@ bool GameObject::Read(const json &inJson)
 			case fmc::ComponentType::kBody3D:
 				add<fmc::CBody3D>()->Read(it.value());
 			break;
-			case fmc::ComponentType::kCollider:
-				add<fmc::CCollider>()->Read(it.value());
+			case fmc::ComponentType::kCollider3D:
+				add<fmc::CCollider3D>()->Read(it.value());
 			break;
+			case fmc::ComponentType::kCollider2D:
+				add<fmc::CCollider2D>()->Read(it.value());
+				break;
             case fmc::ComponentType::kCamera:
                 add<fmc::CCamera>()->Read(it.value());
             break;

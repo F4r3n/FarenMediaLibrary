@@ -56,7 +56,7 @@ bool Material::Read(const nlohmann::json &inJSON)
     std::string shaderName = inJSON["shaderName"];
 	_shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
     nlohmann::json values = inJSON["materialValues"];
-    for (json::iterator it = values.begin(); it != values.end(); ++it)
+    for (nlohmann::json::iterator it = values.begin(); it != values.end(); ++it)
     {
         nlohmann::json v = *it;
         fm::ValuesType type = v["type"];

@@ -15,17 +15,6 @@ namespace fm {
 		void to_json(nlohmann::json& j, const vec2& p);
 		void from_json(const nlohmann::json& j, vec2& p);
 
-		//Remove use of template to accelerate compilation time
-
-//   template <typename T>
-//   void to_json(nlohmann::json& j, const vec<T,2>& p) {
-//           j = nlohmann::json{p.x, p.y};
-//       }
-//emplate <typename T>
-//       void from_json(const nlohmann::json& j, vec<T,2>& p) {
-//           p.x = j[0];
-//           p.y = j[1];
-//       }
 	}
 }
 

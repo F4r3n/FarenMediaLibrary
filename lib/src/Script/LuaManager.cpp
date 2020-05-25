@@ -10,8 +10,8 @@
 #include <cassert>
 #include "Components/CMesh.h"
 #include "Components/CSource.h"
-#include "Components/Body2D.h"
-#include "Physic/Collider.h"
+#include "Components/CBody2D.h"
+#include "Components/CCollider3D.h"
 #include "EventComponents.h"
 #include "Components/CCamera.h"
 #include "Core/Rect.h"
@@ -141,9 +141,9 @@ void LuaManager::registerComponents()
 	  );
 	lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
 
-	lua->new_usertype<Body2D>("Body2D",
-	  "applyForceCenter", &Body2D::ApplyForceCenter2,
-	  "setFriction", &Body2D::SetFriction);
+	//lua->new_usertype<Body2D>("Body2D",
+	//  "applyForceCenter", &Body2D::ApplyForceCenter2,
+	//  "setFriction", &Body2D::SetFriction);
 
 	lua->new_usertype<CBody3D>("CBody3D",
 		"setLinearVelocity", &CBody3D::SetLinearVelocity,

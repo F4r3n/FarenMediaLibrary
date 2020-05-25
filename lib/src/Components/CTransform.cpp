@@ -45,9 +45,8 @@ CTransform::~CTransform()
 	
 }
 
-bool CTransform::Serialize(json &ioJson) const
+bool CTransform::Serialize(nlohmann::json &ioJson) const
 {
-
     ioJson[Keys::position] = position;
     ioJson[Keys::scale] = scale;
     ioJson[Keys::rotation] = (fm::math::vec4)_rotation;
@@ -57,7 +56,7 @@ bool CTransform::Serialize(json &ioJson) const
     return true;
 }
 
-bool CTransform::Read(const json &inJSON)
+bool CTransform::Read(const nlohmann::json &inJSON)
 {
 
 	position = inJSON[Keys::position];

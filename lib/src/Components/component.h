@@ -17,11 +17,13 @@ enum ComponentType
     kIdentity,
     kPointLight,
     kScriptManager,
+	kBody2D,
 	kBody3D,
     kSource,
     kText,
     kEvent,
-	kCollider,
+	kCollider3D,
+	kCollider2D,
     kEND,
     kNone
 };

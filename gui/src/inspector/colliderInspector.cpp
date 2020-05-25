@@ -1,18 +1,18 @@
 #include "inspector/colliderInspector.hpp"
-#include "Components/CCollider.h"
+#include "Components/CCollider3D.h"
 #include <imgui/imgui.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Collider, fmc::CCollider)
+DEFINE_INSPECTOR_FUNCTIONS(Collider3D, fmc::CCollider3D)
 
-void ColliderInspector::_Init()
+void Collider3DInspector::_Init()
 {
 }
 
-void ColliderInspector::_DeInit()
+void Collider3DInspector::_DeInit()
 {
 }
 
-void ColliderInspector::Draw(bool *value)
+void Collider3DInspector::Draw(bool *value)
 {
 	std::string id = "##Collider " + std::to_string(_target->GetID());
 	static const char *shapeNames[] = { "BOX", "SPHERE" };
@@ -21,15 +21,15 @@ void ColliderInspector::Draw(bool *value)
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
 		fm::math::vec3 currentScale = _target->GetScale();
-		int currentShape = _target->GetShape();
+		int currentShape = (int)_target->GetShape();
 
 		bool hasChanged = false;
 		hasChanged |= ImGui::Combo(std::string("shape" + id).c_str(), &currentShape, shapeNames, 2);
-		if (currentShape == fmc::SHAPE::BOX)
+		if (currentShape == (int)fmc::CCollider3D::SHAPE::BOX)
 		{
 			hasChanged |= ImGui::DragFloat3("Scale", &currentScale[0], 0.02f, 0, FLT_MAX);
 		}
-		else if (currentShape == fmc::SHAPE::SPHERE)
+		else if (currentShape == (int)fmc::CCollider3D::SHAPE::SPHERE)
 		{
 			hasChanged |= ImGui::DragFloat("Radius", &currentScale[0], 0.02f, 0, FLT_MAX);
 		}
@@ -38,7 +38,7 @@ void ColliderInspector::Draw(bool *value)
 		if (hasChanged)
 		{
 			_target->SetScale(currentScale);
-			_target->SetShape((fmc::SHAPE)currentShape);
+			_target->SetShape((fmc::CCollider3D::SHAPE)currentShape);
 
 		}
 	}

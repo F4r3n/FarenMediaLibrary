@@ -3,94 +3,55 @@
 #include <EntityManager.h>
 
 #include <Box2D/Box2D.h>
-#include "Components/Body2D.h"
+#include "Components/CBody2D.h"
 #include "Collider.h"
 #include "Event.h"
 namespace fms {
 
-class PhysicSystem : public System<PhysicSystem> {
+class PhysicSystem2D : public System<PhysicSystem2D> {
 public:
-    PhysicSystem();
+    PhysicSystem2D();
     void update(float dt, EntityManager& em, EventManager& event);
     void over();
     void init(EntityManager& em, EventManager& event);
     void pre_update(EntityManager& em);
-    ~PhysicSystem();
+    ~PhysicSystem2D();
 
-    static void beginEvent(size_t, size_t) {
-        //EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::BEGIN);
-    }
 
-    static void endEvent(size_t, size_t) {
-       // EventManager::get().emit<Collider>(idA, idB, EVENT_COLLISION::END);
-    }
     class ContactListener : public b2ContactListener {
 
-        void PreSolve(b2Contact* contact, const b2Manifold*) {
+        void PreSolve(b2Contact* contact, const b2Manifold*)
+		{
             void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
            // size_t idA = -1, idB = -1;
-            if(bodyUserData) {
+            if(bodyUserData)
+			{
                 //fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
                 //contact->GetFixtureA()->SetFriction()
             }
 
             bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
-            if(bodyUserData) {
+            if(bodyUserData)
+			{
                 //fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
             }
         }
 
-        void BeginContact(b2Contact* contact) {
-            
-            void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
-            uint32_t idA = -1, idB = -1;
-            if(bodyUserData) {
-                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->StartContact();
-                idA = *b->identity;
-            }
-
-            bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
-            if(bodyUserData) {
-                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->StartContact();
-                idB = *b->identity;
-            }
-            PhysicSystem::beginEvent(idA, idB);
-        }
-
-        void EndContact(b2Contact* contact) {
-
-            void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
-            size_t idA = -1, idB = -1;
-            if(bodyUserData) {
-                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->EndContact();
-                idA = *b->identity;
-            }
-
-            bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
-            if(bodyUserData) {
-                fmc::Body2D* b = static_cast<fmc::Body2D*>(bodyUserData);
-                b->EndContact();
-                idB = *b->identity;
-            }
-            PhysicSystem::endEvent(idA, idB);
-        }
+		void BeginContact(b2Contact* contact);
+		void EndContact(b2Contact* contact);
 
         void PostSolve(b2Contact * contact, const b2ContactImpulse * impulse) {
             
         }
     };
-	void Start() {}
-	void Stop() {}
+	void Start();
+	void Stop();
 
+	constexpr static float M2P() { return 60.0f; }
+	constexpr static float P2M() { return 1 / M2P(); }
 private:
-    b2Vec2 gravity;
-    std::unique_ptr<b2World> world;
-    ContactListener contactListener;
-
-    const float M2P = 60.0f;
-    const float P2M = 1 / M2P;
+    b2Vec2 _gravity;
+    std::unique_ptr<b2World> _world;
+    ContactListener _contactListener;
 };
 }

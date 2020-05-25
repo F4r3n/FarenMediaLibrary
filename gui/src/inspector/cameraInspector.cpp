@@ -1,5 +1,7 @@
 #include "inspector/cameraInspector.hpp"
 #include <imgui/imgui.h>
+#include <imgui_internal.h>
+
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Camera, fmc::CCamera)
 
@@ -22,8 +24,21 @@ void CameraInspector::Draw(bool *value)
 		float fov = _target->GetFOV();
 		float farPlane = _target->GetFarPlane();
 		float nearPlane = _target->GetNearPlane();
+		bool isOrtho = _target->IsOrthographic();
 
 		bool isDirty = false;
+
+		if (ImGui::Checkbox("Orthographic", &isOrtho))
+		{
+			isDirty = true;
+			_target->SetOrthoGraphic(isOrtho);
+		}
+
+		if (isOrtho)
+		{
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+		}
 
 		if (ImGui::DragFloat("FOV", &fov, 0.02f, -180, 180))
 		{
@@ -41,6 +56,12 @@ void CameraInspector::Draw(bool *value)
 		{
 			isDirty = true;
 			_target->SetFarPlane(farPlane);
+		}
+
+		if (isOrtho)
+		{
+			ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
 		}
 
 

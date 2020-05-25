@@ -3,7 +3,7 @@
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Quaternion.h"
 #include "Components/cevent.hpp"
-
+#include "nlohmann/json_fwd.hpp"
 class btCollisionShape;
 class btRigidBody;
 class btDiscreteDynamicsWorld;
@@ -38,7 +38,7 @@ namespace fm
 
 namespace fmc
 {
-	class CCollider;
+	class CCollider3D;
 }
 namespace fmc
 {
@@ -47,8 +47,8 @@ namespace fmc
 	{
 	public:
 
-		bool Serialize(json &ioJson) const override;
-		bool Read(const json &inJSON) override;
+		bool Serialize(nlohmann::json &ioJson) const override;
+		bool Read(const nlohmann::json &inJSON) override;
 		const std::string& GetName() const override;
 		void Destroy() override;
 		uint16_t GetType() const override { return kBody3D; }
@@ -56,7 +56,7 @@ namespace fmc
 		CBody3D();
 		~CBody3D();
 
-		void Init(CCollider *inCollider);
+		void Init(CCollider3D*inCollider);
 		void SetPosition(const fm::math::vec3 &inPosition);
 		void SetRotation(const fm::math::Quaternion &inRotation);
 

@@ -19,8 +19,6 @@ enum SYSTEM_MODE
 class BaseSystem {
 	friend class SystemManager;
 public:
-	friend class BaseComponent;
-
     BaseSystem(){}
     virtual ~BaseSystem() {}
     virtual void pre_update(EntityManager &manager) = 0;
