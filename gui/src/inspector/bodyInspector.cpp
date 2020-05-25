@@ -1,21 +1,21 @@
-#include "inspector/body3DInspector.hpp"
-#include "Components/CBody3D.h"
+#include "inspector/bodyInspector.hpp"
+#include "Components/CBody.h"
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Body3D, fmc::CBody3D)
+DEFINE_INSPECTOR_FUNCTIONS(Body, fmc::CBody)
 
-void Body3DInspector::_Init()
+void BodyInspector::_Init()
 {
 }
 
-void Body3DInspector::_DeInit()
+void BodyInspector::_DeInit()
 {
 }
 
-void Body3DInspector::Draw(bool *value)
+void BodyInspector::Draw(bool *value)
 {
-	std::string id = "##BODY3D " + std::to_string(_target->GetID());
+	std::string id = "##BODY " + std::to_string(_target->GetID());
 	static const char *shapeNames[] = { "CUBE", "SPHERE" };
 	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
 

@@ -12,7 +12,7 @@ namespace sol
 namespace fmc
 {
 	class CTransform;
-	class CBody3D;
+	class CBody;
 }
 
 class GameObjectLua
@@ -20,7 +20,7 @@ class GameObjectLua
 public:
 	GameObjectLua(Entity* inEntity);
 	fmc::CTransform* GetTransform();
-	fmc::CBody3D* GetBody3D();
+	fmc::CBody* GetBody();
 	const char* GetName();
 private:
 	Entity* _entity;

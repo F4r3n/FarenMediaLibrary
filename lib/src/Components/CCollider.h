@@ -13,29 +13,31 @@ namespace fm
 
 namespace fmc
 {
-	class CCollider3D : public FMComponent<CCollider3D>
+	class CCollider : public FMComponent<CCollider>
 	{
 	public:
 		enum class SHAPE
 		{
 			BOX,
-			SPHERE
+			BOX2D,
+			SPHERE,
+			LAST
 		};
 
-		CCollider3D();
-		~CCollider3D();
+		CCollider();
+		~CCollider();
 		bool Serialize(nlohmann::json &ioJson) const override;
 		bool Read(const nlohmann::json &inJSON) override;
 		const std::string& GetName() const override;
 		void Destroy() override;
-		uint16_t GetType() const override { return kCollider3D; }
+		uint16_t GetType() const override { return kCollider; }
 
 		void Init(const fm::Transform& inTransform);
 		bool IsInit();
 
 		btCollisionShape* GetCollisionShape() const { return _collisionShape; }
 		bool SetShape(SHAPE inShape);
-		CCollider3D::SHAPE GetShape() const;
+		CCollider::SHAPE GetShape() const;
 
 		const fm::math::vec3  GetScale() const;
 		void SetScale(const fm::math::vec3 &inScale);

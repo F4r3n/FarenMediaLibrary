@@ -328,7 +328,7 @@ std::string File::GetContent() const
 }
 
 
-void FileSystem::ConvertFileSystemToPath(const std::string& inPath, std::string& outPath, fm::LOCATION outID)
+void FileSystem::ConvertFileSystemToPath(const std::string& inPath, std::string& outPath, fm::LOCATION &outID)
 {
 	if (!inPath.empty() && inPath.front() == '!')
 	{

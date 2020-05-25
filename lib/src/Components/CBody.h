@@ -38,12 +38,12 @@ namespace fm
 
 namespace fmc
 {
-	class CCollider3D;
+	class CCollider;
 }
 namespace fmc
 {
 
-	class CBody3D : public FMComponent<CBody3D>
+	class CBody : public FMComponent<CBody>
 	{
 	public:
 
@@ -51,12 +51,12 @@ namespace fmc
 		bool Read(const nlohmann::json &inJSON) override;
 		const std::string& GetName() const override;
 		void Destroy() override;
-		uint16_t GetType() const override { return kBody3D; }
+		uint16_t GetType() const override { return kBody; }
 
-		CBody3D();
-		~CBody3D();
+		CBody();
+		~CBody();
 
-		void Init(CCollider3D*inCollider);
+		void Init(CCollider *inCollider);
 		void SetPosition(const fm::math::vec3 &inPosition);
 		void SetRotation(const fm::math::Quaternion &inRotation);
 

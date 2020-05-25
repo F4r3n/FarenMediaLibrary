@@ -26,7 +26,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/pointLightInspector.cpp
 	src/inspector/scriptManagerInspector.cpp
 	src/inspector/transformInspector.cpp
-	src/inspector/body3DInspector.cpp
+	src/inspector/bodyInspector.cpp
 	src/inspector/colliderInspector.cpp
 	src/inspector/cameraInspector.cpp
 	src/debuglogger.cpp

@@ -6,7 +6,7 @@
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
 #include <Components/cevent.hpp>
-#include <Components/CBody3D.h>
+#include <Components/CBody.h>
 #include <ECS.h>
 #include <Components/CScriptManager.h>
 #include "LuaScriptManager.h"

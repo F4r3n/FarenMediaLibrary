@@ -78,7 +78,7 @@ namespace fm
 	class FileSystem
 	{
 	public:
-		static void ConvertFileSystemToPath(const std::string& inPath, std::string &outPath, fm::LOCATION outID);
+		static void ConvertFileSystemToPath(const std::string& inPath, std::string &outPath, fm::LOCATION &outID);
 		static std::string ConvertPathToFileSystem(const fm::FilePath& inPath);
 		static std::string ConvertFileSystemToPath(fm::LOCATION inLocation, const std::string &inRelativePath);
 	};

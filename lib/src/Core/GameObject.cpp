@@ -8,11 +8,10 @@
 #include "Components/CMaterial.h"
 #include "Components/CMesh.h"
 #include "Components/CCamera.h"
-#include "Components/CBody3D.h"
-#include "Components/CCollider3D.h"
+#include "Components/CBody.h"
+#include "Components/CCollider.h"
 #include "Components/CScriptManager.h"
 #include "Components/CIdentity.h"
-#include "Components/CCollider2D.h"
 using namespace fm;
 size_t GameObject::_counter = 0;
 
@@ -73,15 +72,12 @@ bool GameObject::Read(const nlohmann::json &inJson)
             case fmc::ComponentType::KMesh:
 				add<fmc::CMesh>()->Read(it.value());
             break;
-			case fmc::ComponentType::kBody3D:
-				add<fmc::CBody3D>()->Read(it.value());
+			case fmc::ComponentType::kBody:
+				add<fmc::CBody>()->Read(it.value());
 			break;
-			case fmc::ComponentType::kCollider3D:
-				add<fmc::CCollider3D>()->Read(it.value());
+			case fmc::ComponentType::kCollider:
+				add<fmc::CCollider>()->Read(it.value());
 			break;
-			case fmc::ComponentType::kCollider2D:
-				add<fmc::CCollider2D>()->Read(it.value());
-				break;
             case fmc::ComponentType::kCamera:
                 add<fmc::CCamera>()->Read(it.value());
             break;

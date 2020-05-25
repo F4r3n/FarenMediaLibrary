@@ -1,18 +1,18 @@
-#include "Components/CBody3D.h"
+#include "Components/CBody.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <EntityManager.h>
 #include "Components/CTransform.h"
-#include "Components/CCollider3D.h"
+#include "Components/CCollider.h"
 using namespace fmc;
 
-CBody3D::CBody3D()
+CBody::CBody()
 {
 	_Init();
 }
 
 
-void CBody3D::_Init()
+void CBody::_Init()
 {
 	_body = nullptr;
 	_isInWorld = false;
@@ -23,27 +23,27 @@ void CBody3D::_Init()
 	_friction = 0.0f;
 	_angularFactor = fm::math::vec3(1.0f, 1.0f, 1.0f);
 	_linearFactor = fm::math::vec3(1.0f, 1.0f, 1.0f);
-	_name = "Body3D";
+	_name = "Body";
 }
 
-bool CBody3D::SetGhost(bool value)
+bool CBody::SetGhost(bool value)
 {
 	_isGhost = value;
 	return !IsInit();
 }
-bool CBody3D::IsGhost() const
+bool CBody::IsGhost() const
 {
 	return _isGhost;
 }
 
-void CBody3D::SetMass(float inMass)
+void CBody::SetMass(float inMass)
 {
 	_mass = inMass;
 	if (btRigidBody* body = _GetBody())
 	{
 		btVector3 localInertia(0, 0, 0);
 
-		fmc::CCollider3D* collider = EntityManager::get().getEntity(_IDEntity)->get<fmc::CCollider3D>();
+		fmc::CCollider* collider = EntityManager::get().getEntity(_IDEntity)->get<fmc::CCollider>();
 		if (collider != nullptr)
 		{
 			btCollisionShape* shape = collider->GetCollisionShape();
@@ -55,7 +55,7 @@ void CBody3D::SetMass(float inMass)
 	}
 }
 
-float CBody3D::GetMass() const
+float CBody::GetMass() const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -65,7 +65,7 @@ float CBody3D::GetMass() const
 	return _mass;
 }
 
-void CBody3D::SetGravity(const fm::math::vec3& inGravity)
+void CBody::SetGravity(const fm::math::vec3& inGravity)
 {
 	_gravity = inGravity;
 	if (btRigidBody* body = _GetBody())
@@ -77,7 +77,7 @@ void CBody3D::SetGravity(const fm::math::vec3& inGravity)
 	}
 }
 
-const fm::math::vec3& CBody3D::GetGravity() const
+const fm::math::vec3& CBody::GetGravity() const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -87,7 +87,7 @@ const fm::math::vec3& CBody3D::GetGravity() const
 	return _gravity;
 }
 
-void CBody3D::SetLinearVelocity(const fm::math::vec3& inAcceleration)
+void CBody::SetLinearVelocity(const fm::math::vec3& inAcceleration)
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -98,7 +98,7 @@ void CBody3D::SetLinearVelocity(const fm::math::vec3& inAcceleration)
 }
 
 
-fm::math::vec3 CBody3D::GetLinearVelocity() const
+fm::math::vec3 CBody::GetLinearVelocity() const
 {
 	fm::math::vec3 velocity;
 	if (btRigidBody* body = _GetBody())
@@ -109,7 +109,7 @@ fm::math::vec3 CBody3D::GetLinearVelocity() const
 	return velocity;
 }
 
-void CBody3D::SetFriction(float inFriction)
+void CBody::SetFriction(float inFriction)
 {
 	_friction = inFriction;
 	if (btRigidBody* body = _GetBody())
@@ -119,7 +119,7 @@ void CBody3D::SetFriction(float inFriction)
 }
 
 
-float CBody3D::GetFriction() const
+float CBody::GetFriction() const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -128,7 +128,7 @@ float CBody3D::GetFriction() const
 	return _friction;
 }
 
-void CBody3D::SetRestitution(float inRestitution)
+void CBody::SetRestitution(float inRestitution)
 {
 	_restitution = inRestitution;
 	if (btRigidBody* body = _GetBody())
@@ -138,7 +138,7 @@ void CBody3D::SetRestitution(float inRestitution)
 }
 
 
-float CBody3D::GetRestitution() const
+float CBody::GetRestitution() const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -148,7 +148,7 @@ float CBody3D::GetRestitution() const
 }
 
 
-void CBody3D::SetLinearFactor(const fm::math::vec3& inFactor)
+void CBody::SetLinearFactor(const fm::math::vec3& inFactor)
 {
 	_linearFactor = inFactor;
 	if (btRigidBody* body = _GetBody())
@@ -157,7 +157,7 @@ void CBody3D::SetLinearFactor(const fm::math::vec3& inFactor)
 	}
 
 }
-const fm::math::vec3& CBody3D::GetLinearFactor() const
+const fm::math::vec3& CBody::GetLinearFactor() const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -170,7 +170,7 @@ const fm::math::vec3& CBody3D::GetLinearFactor() const
 	return _linearFactor;
 }
 
-void CBody3D::SetAngularFactor(const fm::math::vec3& inFactor)
+void CBody::SetAngularFactor(const fm::math::vec3& inFactor)
 {
 	_angularFactor = inFactor;
 	if (btRigidBody* body = _GetBody())
@@ -180,7 +180,7 @@ void CBody3D::SetAngularFactor(const fm::math::vec3& inFactor)
 
 }
 
-const fm::math::vec3& CBody3D::GetAngularFactor() const
+const fm::math::vec3& CBody::GetAngularFactor() const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -194,24 +194,24 @@ const fm::math::vec3& CBody3D::GetAngularFactor() const
 }
 
 
-bool CBody3D::IsInit() const
+bool CBody::IsInit() const
 {
 	return (_body != nullptr) && _isInWorld;
 }
 
-btRigidBody* CBody3D::_GetBody() const
+btRigidBody* CBody::_GetBody() const
 {
 	return _body != nullptr ? btRigidBody::upcast(_body) : nullptr;
 }
 
 
-btGhostObject* CBody3D::_GetGhost() const
+btGhostObject* CBody::_GetGhost() const
 {
 	return _body != nullptr ? btGhostObject::upcast(_body) : nullptr;
 }
 
 
-void CBody3D::Init(CCollider3D*inCollider)
+void CBody::Init(CCollider *inCollider)
 {
 	const fm::Transform &&transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->GetTransform();
 
@@ -256,7 +256,7 @@ void CBody3D::Init(CCollider3D*inCollider)
 	
 }
 
-void CBody3D::_GetCurrentTransform(btTransform& transform) const
+void CBody::_GetCurrentTransform(btTransform& transform) const
 {
 	if (btRigidBody* body = _GetBody())
 	{
@@ -269,7 +269,7 @@ void CBody3D::_GetCurrentTransform(btTransform& transform) const
 }
 
 
-void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
+void CBody::SetPosition(const fm::math::vec3 &inPosition)
 {
 	btTransform transform;
 	_GetCurrentTransform(transform);
@@ -287,7 +287,7 @@ void CBody3D::SetPosition(const fm::math::vec3 &inPosition)
 }
 
 
-void CBody3D::SetRotation(const fm::math::Quaternion &inRotation)
+void CBody::SetRotation(const fm::math::Quaternion &inRotation)
 {
 	btTransform transform;
 	_GetCurrentTransform(transform);
@@ -306,7 +306,7 @@ void CBody3D::SetRotation(const fm::math::Quaternion &inRotation)
 }
 
 
-void CBody3D::GetPosition(fm::math::vec3& outVec) const
+void CBody::GetPosition(fm::math::vec3& outVec) const
 {
 	btTransform transform;
 	_GetCurrentTransform(transform);
@@ -317,7 +317,7 @@ void CBody3D::GetPosition(fm::math::vec3& outVec) const
 }
 
 
-void CBody3D::GetRotation(fm::math::Quaternion &outQuaternion) const
+void CBody::GetRotation(fm::math::Quaternion &outQuaternion) const
 {
 	btTransform transform;
 	_GetCurrentTransform(transform);
@@ -329,7 +329,7 @@ void CBody3D::GetRotation(fm::math::Quaternion &outQuaternion) const
 
 
 
-void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
+void CBody::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 {
 	if (_isGhost)
 	{
@@ -344,16 +344,16 @@ void CBody3D::AddToWorld(btDiscreteDynamicsWorld *inWorld)
 }
 
 
-const std::string& CBody3D::GetName() const
+const std::string& CBody::GetName() const
 {
 	return _name;
 }
-void CBody3D::Destroy()
+void CBody::Destroy()
 {
-	EntityManager::get().removeComponent<fmc::CBody3D>(BaseComponent::_IDEntity);
+	EntityManager::get().removeComponent<fmc::CBody>(BaseComponent::_IDEntity);
 }
 
-bool CBody3D::Serialize(nlohmann::json &ioJson) const
+bool CBody::Serialize(nlohmann::json &ioJson) const
 {
 	ioJson["mass"] = _mass;
 	ioJson["gravity"] = _gravity;
@@ -365,7 +365,7 @@ bool CBody3D::Serialize(nlohmann::json &ioJson) const
 
 	return true;
 }
-bool CBody3D::Read(const nlohmann::json &inJSON)
+bool CBody::Read(const nlohmann::json &inJSON)
 {
 	try
 	{
@@ -388,7 +388,7 @@ bool CBody3D::Read(const nlohmann::json &inJSON)
 }
 
 
-CBody3D::~CBody3D()
+CBody::~CBody()
 {
 
 }

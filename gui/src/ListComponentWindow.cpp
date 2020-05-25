@@ -10,7 +10,7 @@
 #include "inspector/cameraInspector.hpp"
 #include "inspector/scriptManagerInspector.hpp"
 #include "inspector/pointLightInspector.hpp"
-#include "inspector/body3DInspector.hpp"
+#include "inspector/bodyInspector.hpp"
 #include "Core/application.h"
 #include "Core/Scene.h"
 using namespace gui;
@@ -69,22 +69,15 @@ void ListComponentWindow::_Draw()
 				{
 					go->add<fmc::CPointLight>();
 				}
-				if (!go->has<fmc::CCollider3D>() && ImGui::MenuItem("Collider3D"))
+				if (!go->has<fmc::CCollider>() && ImGui::MenuItem("Collider"))
 				{
-					go->add<fmc::CCollider3D>();
+					go->add<fmc::CCollider>();
 				}
-				if (!go->has<fmc::CBody3D>() && ImGui::MenuItem("Body3D"))
+				if (!go->has<fmc::CBody>() && ImGui::MenuItem("Body"))
 				{
-					go->add<fmc::CBody3D>();
+					go->add<fmc::CBody>();
 				}
-				if (!go->has<fmc::CCollider2D>() && ImGui::MenuItem("Collider2D"))
-				{
-					go->add<fmc::CCollider2D>();
-				}
-				if (!go->has<fmc::CBody2D>() && ImGui::MenuItem("Body2D"))
-				{
-					go->add<fmc::CBody2D>();
-				}
+
 				ImGui::EndPopup();
 			}
 		}
@@ -128,13 +121,13 @@ void ListComponentWindow::_DrawComponents(fm::GameObject* currentEntity)
 			{
 				compo = std::make_unique <gui::PointLightInspector>(c);
 			}
-			else if (componentType == fmc::ComponentType::kBody3D)
+			else if (componentType == fmc::ComponentType::kBody)
 			{
-				compo = std::make_unique <gui::Body3DInspector>(c);
+				compo = std::make_unique <gui::BodyInspector>(c);
 			}
-			else if (componentType == fmc::ComponentType::kCollider3D)
+			else if (componentType == fmc::ComponentType::kCollider)
 			{
-				compo = std::make_unique <gui::Collider3DInspector>(c);
+				compo = std::make_unique <gui::ColliderInspector>(c);
 			}
 			else if (componentType == fmc::ComponentType::kCamera)
 			{

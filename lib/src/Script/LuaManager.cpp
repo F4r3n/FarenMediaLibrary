@@ -10,15 +10,14 @@
 #include <cassert>
 #include "Components/CMesh.h"
 #include "Components/CSource.h"
-#include "Components/CBody2D.h"
-#include "Components/CCollider3D.h"
+#include "Components/CCollider.h"
 #include "EventComponents.h"
 #include "Components/CCamera.h"
 #include "Core/Rect.h"
 #include "Resource/ResourcesManager.h"
 #include "Core/Debug.h"
 #include "Components/CIdentity.h"
-#include "Components/CBody3D.h"
+#include "Components/CBody.h"
 
 GameObjectLua::GameObjectLua(Entity* inEntity)
 {
@@ -35,9 +34,9 @@ const char* GameObjectLua::GetName()
 	return _entity->get<fmc::CIdentity>()->GetNameEntity().c_str();
 }
 
-fmc::CBody3D* GameObjectLua::GetBody3D()
+fmc::CBody* GameObjectLua::GetBody()
 {
-	return _entity->get<fmc::CBody3D>();
+	return _entity->get<fmc::CBody>();
 }
 
 
@@ -107,7 +106,7 @@ void LuaManager::registerComponents()
 	lua->set_function("Log", &Log);
 	lua->new_usertype<GameObjectLua>("GameObjectInternal",
 		"GetTransform", &GameObjectLua::GetTransform,
-		"GetBody3D", &GameObjectLua::GetBody3D,
+		"GetBody3D", &GameObjectLua::GetBody,
 		"GetName", &GameObjectLua::GetName
 		);
 
@@ -145,13 +144,13 @@ void LuaManager::registerComponents()
 	//  "applyForceCenter", &Body2D::ApplyForceCenter2,
 	//  "setFriction", &Body2D::SetFriction);
 
-	lua->new_usertype<CBody3D>("CBody3D",
-		"setLinearVelocity", &CBody3D::SetLinearVelocity,
-		"getLinearVelocity", &CBody3D::GetLinearVelocity,
-		"getGravity", &CBody3D::GetGravity,
-		"setGravity", &CBody3D::SetGravity,
-		"getMass", &CBody3D::GetMass,
-		"setMass", &CBody3D::SetMass
+	lua->new_usertype<CBody>("CBody",
+		"setLinearVelocity", &CBody::SetLinearVelocity,
+		"getLinearVelocity", &CBody::GetLinearVelocity,
+		"getGravity", &CBody::GetGravity,
+		"setGravity", &CBody::SetGravity,
+		"getMass", &CBody::GetMass,
+		"setMass", &CBody::SetMass
 		);
 
 	lua->new_usertype<InputManager>("Input",

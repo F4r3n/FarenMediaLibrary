@@ -59,10 +59,6 @@ link_directories(${FML_EXTLIB_LIB}/freetype2)
 include_directories(${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
 
-#BOX2D
-include_directories(${FML_EXTLIB}/Box2D/)
-link_directories(${FML_EXTLIB_LIB}/Box2D)
-
 #Assimp
 include_directories(${FML_EXTLIB}/assimp/include)
 link_directories(${FML_EXTLIB_LIB}/assimp/code/)
@@ -80,7 +76,6 @@ target_link_libraries(${LIB_NAME} debug SDL2d optimized SDL2)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
 target_link_libraries(${LIB_NAME} OpenAL)
-target_link_libraries(${LIB_NAME} Box2D)
 target_link_libraries(${LIB_NAME} assimp)
 target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})

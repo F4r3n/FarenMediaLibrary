@@ -14,7 +14,7 @@
 #include "Profiler/ProfilerMacro.h"
 #include "Core/Config.h"
 #include "Core/GameObject.h"
-#include "Physic/PhysicSystem3D.h"
+#include "Physic/PhysicSystem.h"
 #include "Components/cevent.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -62,8 +62,7 @@ SYSTEM_MANAGER_MODE Engine::GetStatus() const
 void Engine::Init()
 {
     _systems->addSystem(new fms::SoundSystem());
-	_systems->addSystem(new fms::PhysicSystem3D());
-	_systems->addSystem(new fms::PhysicSystem2D());
+	_systems->addSystem(new fms::PhysicSystem());
 
     _systems->addSystem(new fms::ScriptManagerSystem());
     _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
