@@ -23,7 +23,7 @@ GameObject* GameObject::create(std::shared_ptr<Scene> s, bool defaultValues)
 	if (defaultValues)
 	{
 		_entity->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0), fm::math::Vector3f(1, 1, 1), fm::math::vec3(0, 0, 0));
-		_entity->add<fmc::CIdentity>();
+		_entity->addComponent<fmc::CIdentity>();
 		_entity->get<fmc::CIdentity>()->SetNameEntity("GameObject");
 	}
 	if(s != nullptr)
@@ -113,7 +113,7 @@ void GameObject::SetName(const std::string &inName)
 {
 	if (!_entity->has<fmc::CIdentity>())
 	{
-		_entity->add<fmc::CIdentity>();
+		_entity->addComponent<fmc::CIdentity>();
 	}
 	_entity->get<fmc::CIdentity>()->SetNameEntity(inName);
 
@@ -123,7 +123,7 @@ const std::string& GameObject::GetName() const
 {
 	if (!_entity->has<fmc::CIdentity>())
 	{
-		_entity->add<fmc::CIdentity>();
+		_entity->addComponent<fmc::CIdentity>();
 	}
 
 	return _entity->get<fmc::CIdentity>()->GetNameEntity();

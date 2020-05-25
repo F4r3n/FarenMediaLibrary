@@ -19,12 +19,11 @@ namespace gui
 	private:
 		void _Update(float dt, Context &inContext);
 
-		std::optional<ecs::id>			 _gameObjectSelected;
-		std::string		_currentSceneName;
-		bool			_isRenaming;
-		char			_bufferName[128];
-		ecs::id			_itemSelected = -1;
-		bool			_goSelectedHasChanged = false;
+		std::optional<ecs::id>	_gameObjectSelected;
+		std::string				_currentSceneName;
+		bool					_isRenaming;
+		char					_bufferName[128];
+		bool					_goSelectedHasChanged = false;
 
 	};
 }

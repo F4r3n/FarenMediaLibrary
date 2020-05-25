@@ -9,6 +9,7 @@ typedef BitSet Mask;
 class EntityManager 
 {
 public:
+	friend BaseComponent;
     EntityManager();
     static inline EntityManager& get() 
 	{

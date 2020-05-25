@@ -33,7 +33,7 @@ namespace fm {
 
             template <typename T> T* add(Component<T> *c)
             {
-                return _entity->add<T>(c);
+                return _entity->addComponent<T>(c);
             }
 
             template <typename T, typename ...Args> T* addComponent(Args&&...args)
@@ -42,7 +42,7 @@ namespace fm {
             }
             template <typename T> T* add()
             {
-                return _entity->add<T>();
+                return _entity->addComponent<T>();
             }
 
             template <typename T> T* get() const

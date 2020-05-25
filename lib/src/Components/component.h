@@ -34,11 +34,12 @@ class FMComponent : public Component<T>
         virtual bool Serialize(nlohmann::json &) const {return false;}
         virtual bool Read(const nlohmann::json &) {return false;}
         virtual const std::string& GetName() const {return Component<T>::GetName();}
-        virtual ~FMComponent() = default;
         virtual uint16_t GetType() const {return kNone;}
         virtual void Destroy() = 0;
 		ecs::id GetIDEntity() const {return BaseComponent::_IDEntity;}
 		bool Enabled = true;
+protected:
+		virtual ~FMComponent() = default;
 		
 };
 

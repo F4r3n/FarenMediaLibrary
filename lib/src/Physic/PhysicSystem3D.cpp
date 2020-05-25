@@ -47,7 +47,7 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 					fmc::CEvent* eventA = nullptr;
 					if (!entityA->has<fmc::CEvent>())
 					{
-						eventA = entityA->add<fmc::CEvent>();
+						eventA = entityA->addComponent<fmc::CEvent>();
 					}
 					else
 					{
@@ -63,7 +63,7 @@ void _CheckCollision(btDynamicsWorld *world, btScalar timeStep)
 					fmc::CEvent* event = nullptr;
 					if (!entityB->has<fmc::CEvent>())
 					{
-						event = entityB->add<fmc::CEvent>();
+						event = entityB->addComponent<fmc::CEvent>();
 					}
 					else
 					{

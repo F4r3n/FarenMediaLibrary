@@ -7,6 +7,8 @@ class Entity
 {
 
 public:
+	friend BaseComponent;
+
     Entity();
     Entity(ecs::id ID);
     ~Entity();

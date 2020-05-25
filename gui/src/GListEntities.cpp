@@ -40,7 +40,7 @@ void GListEntities::CustomDraw()
 		size_t i = 0;
 		for (auto && o : listEntities)
 		{
-			bool isSelected = _itemSelected == o.first;
+			bool isSelected = _gameObjectSelected.has_value() && (_gameObjectSelected.value() == o.first);
 
 			fm::GameObject* go = o.second;
 
@@ -76,7 +76,8 @@ void GListEntities::CustomDraw()
 
 				if (ImGui::IsItemClicked())
 				{
-					_itemSelected = o.first;
+					_gameObjectSelected = o.first;
+					_goSelectedHasChanged = true;
 				}
 
 
@@ -100,10 +101,11 @@ void GListEntities::CustomDraw()
 			ImGui::OpenPopup("popup from button");
 		}
 
-		fm::GameObject* goSelected = _itemSelected != -1 ? listEntities[_itemSelected] : nullptr;
+		fm::GameObject* goSelected = _gameObjectSelected.has_value() ? listEntities[_gameObjectSelected.value()] : nullptr;
 
 		if (goSelected != nullptr)
 		{
+			
 			if (ImGui::BeginPopup("popup from button"))
 			{
 				if (ImGui::MenuItem("Rename"))
@@ -118,7 +120,6 @@ void GListEntities::CustomDraw()
 						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
 						currentScene->DeleteGameObjectByID(id);
 						});
-					_itemSelected = -1;
 					_gameObjectSelected.reset();
 					_goSelectedHasChanged = true;
 				}

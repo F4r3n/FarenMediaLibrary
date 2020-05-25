@@ -18,6 +18,7 @@ public:
     virtual void Destroy() = 0;
 protected:
 	ecs::id _IDEntity = std::numeric_limits<ecs::id>::max();
+	void operator delete (void* obj) { delete obj; }
 
     std::string _name = "";
     static uint16_t family_counter;
@@ -37,8 +38,7 @@ public:
     }
 
 
-    virtual ~Component() {
-    }
+
     virtual bool Serialize(nlohmann::json &ioJson) const = 0;
     virtual bool Read(const nlohmann::json &inJSON) = 0;
     virtual void Destroy() = 0;
@@ -52,7 +52,8 @@ public:
 
 
     friend class ComponentManager;
-
+protected:
+	virtual ~Component() {}
 
 private:
 

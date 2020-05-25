@@ -107,7 +107,8 @@ void EditorView::AfterWindowCreation()
 
 void EditorView::_EditObject()
 {
-	if (!_editorView.id.has_value()) return;
+	if (!_editorView.id.has_value())
+		return;
 
 	if (!_gameObjectSelectedByPicking.has_value())
 		return;
@@ -128,7 +129,7 @@ void EditorView::_EditObject()
 	if (go != nullptr)
 	{
 		fmc::CTransform* transform = go->get<fmc::CTransform>();
-
+		//delete transform;
 		ImGuiIO& io = ImGui::GetIO();
 		//float scrollPosX = ImGui::GetScrollX();
 		ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),

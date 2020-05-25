@@ -379,8 +379,8 @@ void MainWindow::Draw()
 	ImGui::PopStyleVar(3);
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
 
-	//bool show_demo_window = true;
-	//ImGui::ShowDemoWindow(&show_demo_window);
+	bool show_demo_window = true;
+	ImGui::ShowDemoWindow(&show_demo_window);
 
 
 	if (_needUpdate)

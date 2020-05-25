@@ -44,7 +44,7 @@ namespace gui
 
 		void _EditObject();
 		void _CallBackPickingSystem(ecs::id inID);
-
+	private:
 		fms::PickingSystem*		_pickingSystem;
 		CameraPreview			_editorView;
 		std::shared_ptr<fm::Scene> _editorScene;
