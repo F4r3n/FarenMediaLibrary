@@ -13,8 +13,8 @@
 #include "Rendering/Graphics.hpp"
 
 using namespace gui;
-EditorView::EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inScene) : GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar
-												)
+EditorView::EditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
+	GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar)
 {
 	_editorScene = inScene;
 	_enabled = true;
@@ -43,9 +43,9 @@ void EditorView::_DrawContentEditorCamera(Context &inContext)
 {
 	if (!_editorView.id.has_value()) return;
 
-	fm::GameObject* camera = _editorScene->GetGameObjectByID(_editorView.id.value());
+	std::shared_ptr<fm::GameObject> camera = _editorScene->GetGameObjectByID(_editorView.id.value());
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
-	if (camera != nullptr && currentScene != nullptr)
+	if (camera != nullptr && camera->IsActive() && currentScene != nullptr)
 	{
 		fm::Scene::MapOfGameObjects gos = currentScene->getAllGameObjects();
 		{
@@ -55,7 +55,7 @@ void EditorView::_DrawContentEditorCamera(Context &inContext)
 		}
 		for (auto && o : gos)
 		{
-			fm::GameObject* go = o.second;
+			std::shared_ptr<fm::GameObject> go = o.second;
 			if (!go->IsActive())
 				continue;
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
@@ -114,7 +114,7 @@ void EditorView::_EditObject()
 		return;
 
 	
-	fm::GameObject* camera = _editorScene->GetGameObjectByID(_editorView.id.value());
+	std::shared_ptr<fm::GameObject> camera = _editorScene->GetGameObjectByID(_editorView.id.value());
 
 	ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
@@ -125,7 +125,7 @@ void EditorView::_EditObject()
 	else if (_currentTransformContext == gui::TRANSFORM_CONTEXT::SCALE)
 		mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-	fm::GameObject* go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
+	std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
 	if (go != nullptr)
 	{
 		fmc::CTransform* transform = go->get<fmc::CTransform>();

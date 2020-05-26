@@ -173,7 +173,10 @@ void PhysicSystem::Stop()
 	{
 		btCollisionObject* obj = _dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
-
+		if (body != nullptr && body->getMotionState() != nullptr)
+		{
+			delete body->getMotionState();
+		}
 		_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}

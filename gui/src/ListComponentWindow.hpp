@@ -27,7 +27,7 @@ namespace gui
 	private:
 		void _Draw();
 
-		void _DrawComponents(fm::GameObject* currentEntity);
+		void _DrawComponents(std::shared_ptr<fm::GameObject> currentEntity);
 		virtual void _Update(float, Context &inContext) override;
 
 	private:

@@ -3,6 +3,7 @@
 #include <string>
 #include <nlohmann/json_fwd.hpp>
 #include <ECS.h>
+#include <memory>
 namespace fm {
     class GameObject;
 }
@@ -14,11 +15,11 @@ namespace fm {
     class Scene {
         public:
 
-			using MapOfGameObjects = std::map<ecs::id, fm::GameObject*>;
+			using MapOfGameObjects = std::map<ecs::id, std::shared_ptr<fm::GameObject>>;
 
             Scene(const std::string &name);
             ~Scene();
-            void AddGameObject(GameObject *e);
+			std::shared_ptr<fm::GameObject> CreateGameObject(bool defaultValue);
             void Serialize(nlohmann::json &outJson);
             bool Read(const nlohmann::json &inJson);
 
@@ -28,7 +29,7 @@ namespace fm {
 			void SetStatusToGo(bool inStatus);
 			void ResetStatusGo();
 
-			fm::GameObject* GetGameObjectByID(ecs::id inID);
+			std::shared_ptr<fm::GameObject> GetGameObjectByID(ecs::id inID);
 
 			void DeleteGameObjectByID(ecs::id inID);
         private:

@@ -103,7 +103,7 @@ void GameView::_Update(float dt, Context &inContext)
 }
 
 
-void GameView::AddCamera(fm::GameObject *inGameObject)
+void GameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
 {
 	CameraPreview preview;
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();

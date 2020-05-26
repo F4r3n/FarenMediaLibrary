@@ -34,7 +34,7 @@ namespace gui
 		void AfterWindowCreation();
 		void Resize();
 		void Zoom();
-		void AddCamera(fm::GameObject *inGameObject);
+		void AddCamera(std::shared_ptr<fm::GameObject> inGameObject);
 		void Clear();
 	private:
 		void _Update(float dt, Context &inContext);

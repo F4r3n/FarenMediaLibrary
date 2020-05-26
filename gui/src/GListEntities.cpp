@@ -36,13 +36,13 @@ void GListEntities::CustomDraw()
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_currentSceneName);
 	if (currentScene != nullptr)
 	{
-		std::map<ecs::id, fm::GameObject*> listEntities = currentScene->getAllGameObjects();
+		fm::Scene::MapOfGameObjects listEntities = currentScene->getAllGameObjects();
 		size_t i = 0;
 		for (auto && o : listEntities)
 		{
 			bool isSelected = _gameObjectSelected.has_value() && (_gameObjectSelected.value() == o.first);
 
-			fm::GameObject* go = o.second;
+			std::shared_ptr<fm::GameObject> go = o.second;
 
 			if (!go->IsActive())
 			{
@@ -101,7 +101,7 @@ void GListEntities::CustomDraw()
 			ImGui::OpenPopup("popup from button");
 		}
 
-		fm::GameObject* goSelected = _gameObjectSelected.has_value() ? listEntities[_gameObjectSelected.value()] : nullptr;
+		std::shared_ptr<fm::GameObject> goSelected = _gameObjectSelected.has_value() ? listEntities[_gameObjectSelected.value()] : nullptr;
 
 		if (goSelected != nullptr)
 		{
@@ -140,7 +140,7 @@ void GListEntities::CustomDraw()
 
 		if (ImGui::Button("Add Entity"))
 		{
-			_gameObjectSelected = fm::GameObjectHelper::create(currentScene, true)->getID();
+			_gameObjectSelected = currentScene->CreateGameObject(true)->getID();
 		}
 	}
 }

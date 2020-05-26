@@ -28,7 +28,7 @@ namespace gui
 
 
 	public:
-		EditorView(fm::GameObject* inCamera, std::shared_ptr<fm::Scene> inScene);
+		EditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene);
 		virtual ~EditorView();
 		void CustomDraw();
 		void BeforeWindowCreation();

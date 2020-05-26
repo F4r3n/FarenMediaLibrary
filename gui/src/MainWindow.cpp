@@ -65,14 +65,14 @@ void MainWindow::_AddEmptyScene()
 {
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
 	//Add object
-	fm::GameObject* go = fm::GameObjectHelper::create(currentScene, true);
+	std::shared_ptr <fm::GameObject> go = currentScene->CreateGameObject(true);
 	fmc::CTransform* tr = go->get<fmc::CTransform>();
 	tr->position = fm::math::vec3(0, 0, -1);
 	go->addComponent<fmc::CMaterial>();
 	go->addComponent<fmc::CMesh>();
 
 	//Add camera
-	go = fm::GameObjectHelper::create(currentScene, true);
+	go = currentScene->CreateGameObject(true);
 	tr = go->get<fmc::CTransform>();
 	tr->position = fm::math::vec3(0, 0, 0);
 	go->addComponent<fmc::CCamera>()->Init();
@@ -92,7 +92,7 @@ void MainWindow::Init()
 
 void MainWindow::_InitEditorCamera()
 {
-	_editorCamera = fm::GameObjectHelper::create(_editorScene, true);
+	_editorCamera = _editorScene->CreateGameObject(true);
 	_editorCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight,
 		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
 	_editorCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
@@ -232,7 +232,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName), true)->getID();
+				_currentEntity = fm::Application::Get().GetScene(_context.currentSceneName)->CreateGameObject(true)->getID();
 
 			}
 			if (ImGui::MenuItem("List entity"))
@@ -262,7 +262,7 @@ void MainWindow::_Copy()
 	{
 		nlohmann::json j;
 		nlohmann::json json;
-		fm::GameObject* go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentEntity.value());
+		std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentEntity.value());
 		go->Serialize(json);
 		j[JSON_KEY] = json;
 
@@ -282,7 +282,7 @@ void MainWindow::_Paste()
 			nlohmann::json json = j[JSON_KEY];
 			if (json.is_object())
 			{
-				fm::GameObject* go = fm::GameObjectHelper::create(fm::Application::Get().GetScene(_context.currentSceneName), false);
+				std::shared_ptr <fm::GameObject> go = fm::Application::Get().GetScene(_context.currentSceneName)->CreateGameObject(false);
 				go->Read(json);
 			}
 		}
@@ -446,7 +446,7 @@ void MainWindow::_InitGameView()
 	auto&& v = currentScene->getAllGameObjects();
 	for (auto &&o : v)
 	{
-		fm::GameObject* go = o.second;
+		std::shared_ptr<fm::GameObject> go = o.second;
 		if (o.second->has<fmc::CCamera>())
 		{
 			if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))

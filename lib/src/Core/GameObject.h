@@ -8,13 +8,14 @@ namespace fm
 class Scene;
 }
 
+
+
 namespace fm {
 
     class GameObject {
         public:
             GameObject();
             ~GameObject();
-            GameObject* create(std::shared_ptr<Scene> s, bool defaultValue);
 
             bool IsActive() const
             {
@@ -78,21 +79,4 @@ namespace fm {
 			static size_t _counter;
     };
 
-    class GameObjectHelper
-    {
-        public:
-
-            static GameObject* create(std::shared_ptr<Scene> scene, bool defaultValues)
-            {
-                return (new GameObject())->create(scene, defaultValues);
-            }
-
-
-            template <typename T>
-            static void Destroy(ecs::id ID)
-            {
-                EntityManager::get().removeComponent<T>(ID);
-            }
-
-    };
 }

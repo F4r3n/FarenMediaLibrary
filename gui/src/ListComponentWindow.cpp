@@ -36,7 +36,7 @@ void ListComponentWindow::_Draw()
 {
 	if (_currentGameObjectSelected.has_value())
 	{
-		fm::GameObject* go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentGameObjectSelected.value());
+		std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentGameObjectSelected.value());
 		if (go != nullptr)
 		{
 			ImGui::Text(go->GetName().c_str());
@@ -85,7 +85,7 @@ void ListComponentWindow::_Draw()
 	}
 }
 
-void ListComponentWindow::_DrawComponents(fm::GameObject* currentEntity)
+void ListComponentWindow::_DrawComponents(std::shared_ptr<fm::GameObject> currentEntity)
 {
 
 	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();

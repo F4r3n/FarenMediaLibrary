@@ -26,7 +26,7 @@ namespace fms
 		int _toto;
 	private:
 		std::function<void(ecs::id inID)> _callback;
-		fm::GameObject* _specialCamera;
+		std::shared_ptr<fm::GameObject> _specialCamera;
 		fmc::CCamera* _camera;
 		std::unique_ptr<fm::Material> _material;
 		std::shared_ptr<fm::Scene> _editorScene;

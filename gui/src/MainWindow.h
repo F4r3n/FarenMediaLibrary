@@ -80,7 +80,7 @@ private:
 
     fm::ProjectSettings			_projectSettings;
 
-    fm::GameObject*				_editorCamera;
+	std::shared_ptr <fm::GameObject>				_editorCamera;
 	bool						_needUpdate;
 
 	//==========Systems==============

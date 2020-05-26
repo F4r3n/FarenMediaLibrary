@@ -1,7 +1,8 @@
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
 #include <nlohmann/json.hpp>
-
+#include "Components/CTransform.h"
+#include "Components/CIdentity.h"
 using namespace fm;
 
 Scene::Scene(const std::string &name)
@@ -19,14 +20,26 @@ void Scene::destroy()
     for(auto &&e : _gos)
     {
         e.second->destroy();
-		delete e.second;
     }
 	_gos.clear();
 }
 
-void Scene::AddGameObject(GameObject *e)
+
+std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 {
-	_gos[e->getID()] = e;
+	std::shared_ptr<fm::GameObject> o = std::make_shared<fm::GameObject>();
+
+	if (defaultValue)
+	{
+		o->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0), fm::math::Vector3f(1, 1, 1), fm::math::vec3(0, 0, 0));
+		o->addComponent<fmc::CIdentity>();
+		o->get<fmc::CIdentity>()->SetNameEntity("GameObject");
+	}
+	ecs::id id = o->getID();
+	_gos[o->getID()] = move(o);
+
+
+	return GetGameObjectByID(id);
 }
 
 void Scene::Serialize(nlohmann::json &outJson)
@@ -48,8 +61,7 @@ bool Scene::Read(const nlohmann::json &inJson)
 
     for (nlohmann::json::const_iterator it = entities.cbegin(); it != entities.cend(); ++it)
     {
-        GameObject *go = GameObjectHelper::create(nullptr, false);
-		AddGameObject(go);
+		std::shared_ptr<GameObject> go = CreateGameObject(false);
         go->Read(*it);
     }
 
@@ -72,7 +84,7 @@ void Scene::ResetStatusGo()
 	}
 }
 
-fm::GameObject* Scene::GetGameObjectByID(ecs::id inID)
+std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(ecs::id inID)
 {
 	auto it = _gos.find(inID);
 	if (it != _gos.end())
@@ -85,11 +97,9 @@ fm::GameObject* Scene::GetGameObjectByID(ecs::id inID)
 
 void Scene::DeleteGameObjectByID(ecs::id inID)
 {
-	fm::GameObject* go = GetGameObjectByID(inID);
-	if (go != nullptr)
+	auto it = _gos.find(inID);
+	if (it != _gos.end())
 	{
-		go->destroy();
-		delete go;
 		_gos.erase(inID);
 	}
 }
