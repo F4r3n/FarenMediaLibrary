@@ -40,13 +40,13 @@ class CText : public FMComponent<CText>
 		void							SetText(const std::string& inText);
 		const std::string&				GetText() const;
 		void							UpdateBuffer(const fm::Transform& inTransform, fm::RFont *inFont);
-		fm::rendering::VertexBuffer*	GetVertexBuffer() const { return _buffer.get(); }
+		fm::rendering::VertexBuffer*	GetVertexBuffer() const;
 		TEXT_RENDERING					GetTextType() const { return _rendering; }
 		const std::string&				GetFontName() const { return _fontName; }
 
     private:
 		TEXT_RENDERING									_rendering = TEXT_RENDERING::OVERLAY;
-		std::unique_ptr<fm::rendering::VertexBuffer>	_buffer = nullptr;
+		std::unique_ptr<fm::rendering::VertexBuffer>	_buffer;
 		std::string										_fontName = "dejavu";
 		std::string										_text = "";
 		bool											_isDirty = false;

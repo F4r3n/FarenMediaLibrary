@@ -12,6 +12,7 @@ using namespace fmc;
 CText::CText()
 {
      _name = "Text";
+	 _buffer = nullptr;
 }
 
 CText::CText(const std::string& text, const std::string& fontName)
@@ -20,6 +21,7 @@ CText::CText(const std::string& text, const std::string& fontName)
     _fontName = fontName;
 	_isDirty = true;
     _name = "Text";
+	_buffer = nullptr;
 }
 
 void CText::SetText(const std::string& inText)
@@ -30,6 +32,12 @@ void CText::SetText(const std::string& inText)
 		_text = inText;
 	}
 }
+
+fm::rendering::VertexBuffer* CText::GetVertexBuffer() const
+{
+	return _buffer.get();
+}
+
 
 void CText::UpdateBuffer(const fm::Transform& inTransform, fm::RFont* inFont)
 {
