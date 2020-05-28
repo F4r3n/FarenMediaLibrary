@@ -195,7 +195,6 @@ void EditorView::_Update(float dt, Context &inContext)
 
 		_endImagePos = fm::math::vec2(end.x, end.y);
 		
-
 		if (ImGui::IsMouseReleased(0) && !ImGuizmo::IsUsing())
 		{
 			fm::math::vec2 mousePos = ImGui::GetMousePos();

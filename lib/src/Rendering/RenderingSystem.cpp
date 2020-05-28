@@ -207,14 +207,17 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_graphics.SetViewPort(cam->GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 			_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
+
+			if (_graphics.Enable(fm::RENDERING_TYPE::BLEND))
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 		else
 		{
+			_graphics.Disable(fm::RENDERING_TYPE::BLEND);
 			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam);
 		}
 
-		if(_graphics.Enable(fm::RENDERING_TYPE::BLEND))
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		//Prepare camera data
 		cam->UpdateShaderData();
 
@@ -267,6 +270,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		if (cam->_onPostRendering != nullptr)
 		{
+			//glFinish();
 			cam->_onPostRendering();
 		}
 

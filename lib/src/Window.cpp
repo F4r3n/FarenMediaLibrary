@@ -127,8 +127,17 @@ void Window::setName(const std::string& name)
 
 void Window::update(size_t fps) 
 {
-    _fpsMax = fps;
-    _waitTime = 1.0f / (float)_fpsMax;
+	_fpsMax = fps;
+
+	if (fps == 0)
+	{
+		_waitTime = 0;
+	}
+	else
+	{
+		_waitTime = 1.0f / (double)_fpsMax;
+	}
+
 	_FrameLimit();
 }
 

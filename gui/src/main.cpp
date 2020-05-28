@@ -17,7 +17,7 @@ int main()
 
 	fm::Config config;
 	config.name = "FML Engine";
-	config.fpsWanted = 60;
+	config.fpsWanted = 200;
 	config.width = 0;
 	config.height = 0;
 	config.windowFlag = SDL_WINDOW_OPENGL;
@@ -47,11 +47,11 @@ int main()
 			ImGui_ImplSDL2_ProcessEvent(&e);
 			});
 
-		fm::Application::Get().Update(true);
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame(window->getWindow());
 		ImGui::NewFrame();
 
+		fm::Application::Get().Update(true);
 
 		if (isMainWindowInitialized)
 		{
