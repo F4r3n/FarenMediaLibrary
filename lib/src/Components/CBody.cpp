@@ -242,6 +242,8 @@ void CBody::Init(CCollider *inCollider)
 		_GetBody()->setFriction(_friction);
 		_GetBody()->setAngularFactor(btVector3(_angularFactor.x, _angularFactor.y, _angularFactor.z));
 		_GetBody()->setLinearFactor(btVector3(_linearFactor.x, _linearFactor.y, _linearFactor.z));
+		_GetBody()->setCcdMotionThreshold(1e-7);
+		_GetBody()->setCcdSweptSphereRadius(0.01f);
 	}
 	else
 	{

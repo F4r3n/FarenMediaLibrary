@@ -33,7 +33,7 @@ struct RenderNode {
 		  fm::Model *model;
     const fmc::CDirectionalLight *dlight;
     const fmc::CPointLight *plight;
-    const fmc::CText *text;
+		  fmc::CText *text;
     
     RENDER_QUEUE state;
     int queue = 0;

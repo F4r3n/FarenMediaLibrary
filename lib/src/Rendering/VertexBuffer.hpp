@@ -9,12 +9,20 @@ namespace fm
 		class VertexBuffer
 		{
 		public:
+			enum class DATA_TYPE
+			{
+				FLOAT
+			};
+			size_t DataTypeToOpengl(DATA_TYPE inType) const;
+
 			VertexBuffer();
 			~VertexBuffer();
 			void generate(const std::vector<Vertex> &vertices);
 			void generate();
-			void setBufferData(void* data, unsigned int size, unsigned int dataSize, bool staticData = true);
+			void SetVertexAttribArray(size_t index, size_t size, DATA_TYPE type, size_t stride);
+			void setBufferData(void* data, unsigned int offset, unsigned int size, unsigned int dataSize, bool staticData = true);
 			void prepareData();
+			void Bind() const;
 			void destroy();
 			bool isGenerated();
 			void GenerateEmpty(size_t maxVertices);
@@ -24,8 +32,8 @@ namespace fm
 		private:
 			bool _vaoIsSet;
 			size_t _numberVertices;
-			unsigned int _indexVBO;
-			unsigned int _indexVAO;
+			unsigned int _indexVBO = 0;
+			unsigned int _indexVAO = 0;
 		};
 	}
 }

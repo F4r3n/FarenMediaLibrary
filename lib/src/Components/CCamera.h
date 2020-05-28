@@ -118,6 +118,7 @@ class CCamera : public FMComponent<CCamera>
 
 		std::shared_ptr<fm::RenderTexture> GetTarget() const { return _target; }
 		bool HasTarget() const { return _target != nullptr; }
+		fm::math::mat GetOrthographicProjectionForText() const;
     private:
 		std::shared_ptr<fm::RenderTexture> _target = nullptr;
 

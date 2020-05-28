@@ -13,6 +13,7 @@
 #include "inspector/bodyInspector.hpp"
 #include "Core/application.h"
 #include "Core/Scene.h"
+#include "inspector/textInspector.hpp"
 using namespace gui;
 
 ListComponentWindow::ListComponentWindow() : GWindow("Inspector", true)
@@ -77,6 +78,10 @@ void ListComponentWindow::_Draw()
 				{
 					go->add<fmc::CBody>();
 				}
+				if (!go->has<fmc::CText>() && ImGui::MenuItem("Text"))
+				{
+					go->add<fmc::CText>();
+				}
 
 				ImGui::EndPopup();
 			}
@@ -132,6 +137,10 @@ void ListComponentWindow::_DrawComponents(std::shared_ptr<fm::GameObject> curren
 			else if (componentType == fmc::ComponentType::kCamera)
 			{
 				compo = std::make_unique <gui::CameraInspector>(c);
+			}
+			else if (componentType == fmc::ComponentType::kText)
+			{
+				compo = std::make_unique <gui::TextInspector>(c);
 			}
 		}
 		else

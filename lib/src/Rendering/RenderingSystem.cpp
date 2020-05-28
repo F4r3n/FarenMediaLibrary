@@ -37,6 +37,7 @@
 
 const int NUMBER_POINTLIGHT_MAX = 8;
 
+
 struct PointLight
 {
    fm::math::vec4 position;
@@ -212,7 +213,8 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam);
 		}
 
-
+		if(_graphics.Enable(fm::RENDERING_TYPE::BLEND))
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//Prepare camera data
 		cam->UpdateShaderData();
 
@@ -228,7 +230,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			if (!cam->_rendererConfiguration.queue.Empty())
 			{
 				cam->_rendererConfiguration.queue.start();
-				_DrawMesh(cam);
+				_Draw(cam);
 			}
 		}
 		else
@@ -236,15 +238,8 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam);
 		}
 
-		error = glGetError();
-		if (error != 0) {
-			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
-		}
+		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		error = glGetError();
-		if (error != 0) {
-			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
-		}
 		//if (cam->_isAuto)
 		//{
 			cam->_rendererConfiguration.postProcessRenderTexture.bind();
@@ -265,15 +260,11 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 				fm::Renderer::getInstance().blit(_graphics, cam->_rendererConfiguration.postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 			}
 		//}
-		error = glGetError();
-		if (error != 0) {
-			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
-		}
+			fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
 		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam);
-		error = glGetError();
-		if (error != 0) {
-			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
-		}
+		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
 		if (cam->_onPostRendering != nullptr)
 		{
 			cam->_onPostRendering();
@@ -418,7 +409,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 
 
 
-void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
+void RenderingSystem::_Draw(fmc::CCamera* cam)
 {
 
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
@@ -430,11 +421,19 @@ void RenderingSystem::_DrawMesh(fmc::CCamera* cam)
 		const fm::RENDER_QUEUE state = node.state;
 		const fm::Materials* materials = node.mat;
         fm::Model* model = node.model;
-
+		fmc::CText* text = node.text;
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
             if(state == fm::RENDER_QUEUE::OPAQUE)
             {
+				if (text != nullptr)
+				{
+					for (const auto& m : *materials)
+					{
+						_DrawText(cam, transform, text, m);
+					}
+				}
+
                 if(model != nullptr)
                 {
                     for(const auto &m : *materials)
@@ -459,13 +458,6 @@ void RenderingSystem::_ComputeLighting( std::shared_ptr<fm::RenderTexture> light
 										 fmc::CCamera* cam,
 										 bool hasLight) 
 {
-
-
-
-    //if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
-    //{
-    //    fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.getColorBuffer(), hasLight);
-    //} 
 	if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
     {
 		fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.GetColorBufferTexture(0), false);
@@ -493,14 +485,24 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 
 		fmc::CMesh* mesh = e->get<fmc::CMesh>();
 		fmc::CMaterial* material = e->get<fmc::CMaterial>();
-
+		bool add = false;
 		if (mesh != nullptr && material != nullptr)
 		{
 			node.model = mesh->model;
-
 			node.mat = &material->GetAllMaterials();
+			add = true;
+		}
+		else if (node.text != nullptr && material != nullptr)
+		{
+			node.mat = &material->GetAllMaterials();
+			add = true;
+		}
+
+		if (add)
+		{
 			cam->_rendererConfiguration.queue.addElement(node);
 		}
+
 
 
         if(node.plight != nullptr)
@@ -532,62 +534,53 @@ void RenderingSystem::over()
 
 
 
-void RenderingSystem::_DrawText(float posX, float posY,
-                               RFont* font,
-                               fmc::CText* ctext)
+void RenderingSystem::_DrawText(fmc::CCamera* cam,
+								const fm::Transform& inTransform,
+								fmc::CText* inText,
+								fm::Material* inMaterial)
 {
-    if(font == nullptr || ctext == nullptr) 
-	{
-        fm::Debug::logError("Font not found");
-        return;
-    }
 
-    if(ctext->buffer == nullptr) 
-	{
-        ctext->buffer = new fm::rendering::VertexBuffer();
-        ctext->buffer->generate();
-    }
+	if (inText->GetText().empty())
+		return;
 
+	fm::RFont* font = fm::ResourcesManager::get().getResource<fm::RFont>(inText->GetFontName());
+	fm::Shader* shader = inMaterial->GetShader();
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+	shader->Use();
+	shader->setValue("FM_PV", cam->shader_data.FM_PV);
+	shader->setValue("viewPos", inTransform.position);
+	fm::math::mat modelPosition = inTransform.worldTransform;
+
+	shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
+	shader->setValue("FM_M", modelPosition);
+	shader->setValue("text", 0);
+	fm::math::mat projection;
+	if (inText->GetTextType() == fmc::CText::TEXT_RENDERING::OVERLAY)
+		projection = cam->GetOrthographicProjectionForText();
+	fm::math::mat m = fmc::CTransform::CreateMatrixModel(fm::math::vec3(inTransform.position.x, inTransform.position.y, 0),
+		fm::math::vec3(inTransform.scale.x, inTransform.scale.y, 1),
+		inTransform.rotation, true);
+
+	fm::math::mat pm = m*projection;
+	shader->setValue("PM",pm);
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+	for (auto const& value : inMaterial->getValues())
+	{
+		shader->setValue(value.name, value.materialValue);
+	}
+
+	inText->UpdateBuffer(inTransform, font);
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+	_graphics.ActivateTexture2D(0);
     font->texture->bind();
+    _graphics.BindVertexBuffer(inText->GetVertexBuffer());
+    _graphics.Draw(0, 0, inText->GetVertexBuffer()->GetNumberVertices());
 
-    if(!(ctext->text.compare(ctext->previousText) == 0)) 
-	{
-        fm::math::vec4 *coords = new fm::math::vec4[6 * ctext->text.size()];
-        float x = posX;
-        float y = posY;
-        std::string::const_iterator c;
-        int n = 0;
-        for(c = ctext->text.begin(); c != ctext->text.end(); c++) 
-		{
-            Character ch = font->Characters[*c];
-            float x2 = x + ch.b_lt.x * ctext->scale;
-            float y2 = -y - ch.b_lt.y * ctext->scale;
-            float w = ch.b_wh.x * ctext->scale;
-            float h = ch.b_wh.y * ctext->scale;
-            x += ch.advance.x * ctext->scale;
-            y += ch.advance.y * ctext->scale;
-            if(!w || !h)
-                continue;
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-            coords[n++] = fm::math::vec4(x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y);
-            coords[n++] = fm::math::vec4(x2, -y2, ch.t.x, ch.t.y);
-            coords[n++] = fm::math::vec4(x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height);
-            coords[n++] = fm::math::vec4( x2 + w, -y2, ch.t.x + ch.b_wh.x / font->atlas_width, ch.t.y);
-            coords[n++] = fm::math::vec4( x2, -y2 - h, ch.t.x, ch.t.y + ch.b_wh.y / font->atlas_height);
-            coords[n++] =fm::math::vec4(x2 + w, -y2 - h,
-                    ch.t.x + ch.b_wh.x / font->atlas_width,
-                    ch.t.y + ch.b_wh.y / font->atlas_height);
-        }
-        ctext->previousText = ctext->text;
-        ctext->buffer->setBufferData(&coords[0], n, sizeof(float) * 4, false);
-		delete coords;
-    }
-
-    if(ctext->buffer != NULL && ctext->buffer->isGenerated()) 
-	{
-        _graphics.BindVertexBuffer(ctext->buffer);
-        _graphics.Draw(0, 0, ctext->buffer->GetNumberVertices());
-    }
 }
 
 }  // namespace fms

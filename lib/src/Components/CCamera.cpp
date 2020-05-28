@@ -112,6 +112,12 @@ void CCamera::_InitRenderTexture()
 
 }
 
+fm::math::mat CCamera::GetOrthographicProjectionForText() const
+{
+	return fm::math::ortho(0.0f, (float)_width, 0.0f, (float)_height, -_farPlane, _farPlane);
+}
+
+
 void CCamera::UpdateProjectionMatrix()
 {
 	if (_isOrto)

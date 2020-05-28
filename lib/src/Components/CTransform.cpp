@@ -123,6 +123,26 @@ fm::math::mat CTransform::GetWorldMatrix(bool opposePosition) const
 	return GetLocalMatrixModel();
 }
 
+fm::math::mat CTransform::CreateMatrixModel(const fm::math::vec3& pos, const fm::math::vec3& scale, const fm::math::Quaternion& q, bool ortho)
+{
+	fm::math::mat model;
+	model.identity();
+	model = fm::math::translate(model, fm::math::vec3(pos.x, pos.y, pos.z));
+
+	if (ortho)
+	{
+		model = fm::math::translate(model, fm::math::vec3(0.5f*scale.x, 0.5f * scale.y, 0.5f * scale.z));
+		model = fm::math::rotate(model, q.GetRotationMatrix());
+		model = fm::math::translate(model, fm::math::vec3(-0.5f * scale.x, -0.5f * scale.y, -0.5f * scale.z));
+	}
+	else
+	{
+		model = fm::math::rotate(model, q.GetRotationMatrix());
+	}
+
+	model = fm::math::scale(model, fm::math::vec3(scale.x, scale.y, scale.z));
+	return model;
+}
 
 
 fm::math::mat CTransform::GetLocalMatrixModel(bool opposePosition) const

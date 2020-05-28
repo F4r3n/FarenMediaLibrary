@@ -28,6 +28,11 @@ Model::~Model()
     }
 }
 
+void Model::BindIndex(size_t index) const
+{
+	_meshes[index].vertexBuffer->Bind();
+}
+
 void Model::PrepareBuffer()
 {
     for(auto &mesh : _meshes)

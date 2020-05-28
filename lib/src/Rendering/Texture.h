@@ -9,7 +9,7 @@ namespace fm {
 
 enum class Format
 {
-    RED = GL_R,
+    RED = GL_RED,
     RGB = GL_RGB,
     RGBA = GL_RGBA,
     DEPTH_16 = GL_DEPTH_COMPONENT16,

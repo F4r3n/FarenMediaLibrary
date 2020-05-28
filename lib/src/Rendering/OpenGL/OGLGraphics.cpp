@@ -28,14 +28,16 @@ void Graphics::SetViewPort(const fm::Rect<int>& rect) const
     glViewport(rect.x, rect.y, rect.w, rect.h);
 }
 
-void Graphics::Enable(RENDERING_TYPE r) const
+bool Graphics::Enable(RENDERING_TYPE r) const
 {
+	bool v = false;
 	auto it = _renderingSettings.find(r);
 	if (it != _renderingSettings.end())
 	{
 		if (!it->second)
 		{
 			glEnable(r);
+			v = true;
 		}
 		it->second = true;
 	}
@@ -43,7 +45,10 @@ void Graphics::Enable(RENDERING_TYPE r) const
 	{
 		glEnable(r);
 		_renderingSettings.insert(std::pair<fm::RENDERING_TYPE, bool>(r, true));
+		v = true;
 	}
+
+	return v;
 
 }
 void Graphics::Disable(RENDERING_TYPE r) const
@@ -81,10 +86,12 @@ void Graphics::Draw(int primitiveType,
 
 void Graphics::Draw(Model* model) const
 {
-    model->PrepareBuffer();
+	model->PrepareBuffer();
+
     for(size_t i = 0; i < model->GetNumberMeshes(); ++i)
     {
         fm::rendering::MeshContainer* mesh = model->GetMeshContainer(i);
+		model->BindIndex(i);
         Draw((size_t)0, mesh->listIndices.size(), (size_t*)mesh->listIndices.data());
     }
 
@@ -94,6 +101,7 @@ void Graphics::Draw(Model* model) const
 void Graphics::BindVertexBuffer(VertexBuffer* vertexBuffer) const
 {
     vertexBuffer->prepareData();
+	vertexBuffer->Bind();
 }
 
 void Graphics::BindFrameBuffer(unsigned int id) const
@@ -106,6 +114,12 @@ void Graphics::BindTexture2D(size_t number, int idTexture, int type) const
     glActiveTexture(GL_TEXTURE0 + (GLenum)number);
     glBindTexture(type, idTexture);
 }
+
+void Graphics::ActivateTexture2D(size_t number) const
+{
+	glActiveTexture(GL_TEXTURE0 + (GLenum)number);
+}
+
 
 void Graphics::RestoreSettings(const RenderingSettings &inSettings)
 {

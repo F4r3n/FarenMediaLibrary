@@ -54,10 +54,10 @@ public:
 	virtual void Stop() {}
  private:
     void _InitStandardShapes();
-    void _DrawText(float posX, float posY, RFont* font, fmc::CText* ctext);
     void _ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
     void _FillQueue(fmc::CCamera* cam, EntityManager& em);
-    void _DrawMesh(fmc::CCamera *cam);
+    void _Draw(fmc::CCamera *cam);
+	void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
 	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties = nullptr);
 
 	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);

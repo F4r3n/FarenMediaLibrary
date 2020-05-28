@@ -8,6 +8,7 @@
 #include "Rendering/Texture.h"
 
 #define MAXWIDTH 512
+using namespace fm;
 RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
     unsigned int size = 32;
     FT_Face face;
@@ -53,12 +54,12 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
     texture = new fm::Texture();
     texture->wrapping = fm::Wrapping::CLAMP_EDGE;
     texture->filter = fm::Filter::LINEAR;
-    texture->generate(w, h, fm::Format::RGBA, fm::Type::UNSIGNED_BYTE);
+    texture->generate(w, h, fm::Format::RED, fm::Type::UNSIGNED_BYTE);
     texture->bind();
 
     int ox = 0;
     int oy = 0;
-    int numberCanals = 4;
+    int numberCanals = 1;
 
     rowh = 0;
     for(int i = 32; i < 128; i++) {
@@ -69,10 +70,10 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
         unsigned char* tempBuffer =
             new unsigned char[g->bitmap.width * g->bitmap.rows * numberCanals];
         for(unsigned int j = 0; j < g->bitmap.width * g->bitmap.rows; ++j) {
-            tempBuffer[j * 4 + 0] = g->bitmap.buffer[j];
-            tempBuffer[j * 4 + 1] = g->bitmap.buffer[j];
-            tempBuffer[j * 4 + 2] = g->bitmap.buffer[j];
-            tempBuffer[j * 4 + 3] = 255;
+            tempBuffer[j * numberCanals + 0] = g->bitmap.buffer[j];
+            //tempBuffer[j * 4 + 1] = g->bitmap.buffer[j];
+            //tempBuffer[j * 4 + 2] = g->bitmap.buffer[j];
+            //tempBuffer[j * 4 + 3] = 255;
 
         }
 
@@ -95,7 +96,7 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
         ox += g->bitmap.width + 1;
         delete tempBuffer;
     }
-    
+	//texture->writeToPNG("C:/Users/guill/Downloads/test.png");
 
     FT_Done_Face(face);
     FT_Done_FreeType(ft);

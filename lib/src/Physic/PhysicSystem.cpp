@@ -109,7 +109,7 @@ void PhysicSystem::_InitAllBodies()
 					cbody->AddToWorld(_dynamicsWorld);
 				}
 			}
-
+			//if(tr.position)
 			cbody->SetPosition(tr.position);
 			cbody->SetRotation(tr.rotation);
 		}
@@ -125,7 +125,7 @@ void PhysicSystem::pre_update(EntityManager& em)
 
 void PhysicSystem::update(float dt, EntityManager& em, EventManager& event)
 {
-	_dynamicsWorld->stepSimulation(dt);
+	_dynamicsWorld->stepSimulation(dt, 10);
 
 	for (auto&& e : em.iterate<fmc::CTransform, fmc::CBody, fmc::CCollider>())
 	{
@@ -156,9 +156,12 @@ void PhysicSystem::Start()
 	_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 	//_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, true);
 	_dynamicsWorld->setInternalTickCallback(_CheckCollision, this, false);
+	_dynamicsWorld->getDispatchInfo().m_useContinuous = true;
+	_dynamicsWorld->getSolverInfo().m_splitImpulse = false; // Disable by default for performance
 
 	_ghostPairCallback = new btGhostPairCallback();
 	_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(_ghostPairCallback);
+	_dynamicsWorld->setSynchronizeAllMotionStates(true);
 
 
 	_InitAllBodies();

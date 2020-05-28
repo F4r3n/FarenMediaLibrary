@@ -29,6 +29,8 @@ public:
     const std::string& GetName() const {return _name;}
     size_t GetNumberMeshes() {return _meshes.size();}
     rendering::MeshContainer* GetMeshContainer(size_t index) {return _meshes[index].meshContainer;}
+	void BindIndex(size_t index) const;
+
 private:
     std::vector<Mesh> _meshes;//One model may have more than one mesh
     std::string _name = "";

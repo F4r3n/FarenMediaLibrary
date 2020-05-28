@@ -12,6 +12,8 @@
 #include "Components/CCollider.h"
 #include "Components/CScriptManager.h"
 #include "Components/CIdentity.h"
+#include "Components/CText.h"
+
 using namespace fm;
 size_t GameObject::_counter = 0;
 
@@ -72,6 +74,9 @@ bool GameObject::Read(const nlohmann::json &inJson)
 			break;
 			case fmc::ComponentType::kIdentity:
 				add<fmc::CIdentity>()->Read(it.value());
+			break;
+			case fmc::ComponentType::kText:
+				add<fmc::CText>()->Read(it.value());
 			break;
         }
 

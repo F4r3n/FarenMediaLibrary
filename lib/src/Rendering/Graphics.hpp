@@ -39,7 +39,7 @@ namespace fm {
         void Clear(BUFFER_BIT = COLOR_BUFFER_BIT) const;
         void SetViewPort(const fm::math::vec4i &rect) const;
         void SetViewPort(const fm::Rect<int> &rect) const;
-        void Enable(RENDERING_TYPE renderingTYPE) const;
+        bool Enable(RENDERING_TYPE renderingTYPE) const;
         void Disable(RENDERING_TYPE renderingTYPE) const;
         void Draw(int primitiveType, size_t vertexCount, size_t* indices) const;
         void Draw(int primitiveType, size_t vertexStart, size_t vertexCount) const;
@@ -47,7 +47,7 @@ namespace fm {
         void BindVertexBuffer(rendering::VertexBuffer *vertexBuffer) const;
         void BindFrameBuffer(unsigned int id) const;
         void BindTexture2D(size_t number, int idTexture, int type) const;
-
+		void ActivateTexture2D(size_t number) const;
 
 		void RestoreSettings(const RenderingSettings &inSettings);
 		const RenderingSettings& GetRenderingSettings();
