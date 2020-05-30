@@ -32,6 +32,7 @@ namespace fm
 		//GLuint tex;
 		int atlas_width;
 		int atlas_height;
+		void Reload(bool force = false) {}
 
 	private:
 

@@ -1,7 +1,6 @@
 #include <SDL.h>
 
 #include "Window.h"
-#include <Core/Config.h>
 
 #include <TimeDef.h>
 #include <chrono>
@@ -10,7 +9,6 @@
 #include "Input/InputManager.h"
 #include "Resource/ResourcesManager.h"
 
-#include "Core/Config.h"
 #include "Core/Debug.h"
 #include <string>
 
@@ -37,6 +35,7 @@ _windowFlag(inWindowFlag)
     Window::kHeight = height;
 
 }
+
 
 bool Window::Init()
 {
@@ -102,6 +101,10 @@ bool Window::Init()
 }
 
 
+double Window::GetTicks() const
+{
+	return SDL_GetTicks();
+}
 
 
 void Window::setMSAA(int value) 

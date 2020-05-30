@@ -1,5 +1,4 @@
 #include "Components/CText.h"
-#include "Window.h"
 #include <EntityManager.h>
 #include "Core/Math/Vector4.h"
 #include "Rendering/VertexBuffer.hpp"

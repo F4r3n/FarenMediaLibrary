@@ -9,13 +9,14 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 #include <Resource/Resource.h>
-
+#include <ctime>
 namespace fm {
 
 	class MaterialValue;
 	class Color;
 
-class Shader : public Resource{
+class Shader : public Resource
+{
     enum ZTEST {
         ALWAYS,
         GREATER,
@@ -48,10 +49,16 @@ public:
     bool compile();
     ~Shader();
     bool IsReady() const{return _isReady;}
-    static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
+    static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
     void  setValue(const std::string &name, const fm::MaterialValue &value) const;
     const std::string& GetName() const{return _name;}
+
+	void Reload(bool force = false);
+
 private:
+	std::time_t _lastTimeFrag;
+	std::time_t _lastTimeVert;
+
 	GLuint _program;
 
     bool _isReady = false;

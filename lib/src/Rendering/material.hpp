@@ -95,8 +95,8 @@ class Material : public Resource
 {
 
     public:
-        virtual bool Serialize(nlohmann::json &ioJson) const override;
-        virtual bool Read(const nlohmann::json &inJSON) override;
+        //virtual bool Serialize(nlohmann::json &ioJson) const override;
+        //virtual bool Read(const nlohmann::json &inJSON) override;
 
 		Material Clone() const
 		{

@@ -30,6 +30,7 @@ public:
     size_t GetNumberMeshes() {return _meshes.size();}
     rendering::MeshContainer* GetMeshContainer(size_t index) {return _meshes[index].meshContainer;}
 	void BindIndex(size_t index) const;
+	void Reload(bool force = false) {}
 
 private:
     std::vector<Mesh> _meshes;//One model may have more than one mesh

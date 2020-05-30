@@ -17,7 +17,7 @@ int main()
 
 	fm::Config config;
 	config.name = "FML Engine";
-	config.fpsWanted = 200;
+	config.fpsWanted = 60;
 	config.width = 0;
 	config.height = 0;
 	config.windowFlag = SDL_WINDOW_OPENGL;
@@ -53,9 +53,11 @@ int main()
 
 		fm::Application::Get().Update(true);
 
+		bool hasFocus = (SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
+
 		if (isMainWindowInitialized)
 		{
-			mainWindow->Update();
+			mainWindow->Update(hasFocus);
 			mainWindow->Draw();
 		}
 		else

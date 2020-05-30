@@ -13,7 +13,7 @@ Material::Material(const fm::FilePath& inFilePath, fm::Shader* inShader)
 {
     setValue("mainColor", fm::Color(1,1,1,1));
 }
-
+/*
 bool Material::Serialize(nlohmann::json &ioJson) const
 {
     ioJson["name"] = _name;
@@ -99,7 +99,7 @@ bool Material::Read(const nlohmann::json &inJSON)
     return true;
 }
 
-
+*/
 
 const std::vector<MaterialProperty> &Material::getValues() const
 {

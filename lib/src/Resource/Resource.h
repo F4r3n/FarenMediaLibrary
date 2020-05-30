@@ -1,7 +1,7 @@
     #pragma once
 #include <string>
 #include "Core/FilePath.h"
-#include "Core/serializer.hpp"
+#include <ctime>
 namespace fm
 {
 	class FilePath;
@@ -20,23 +20,17 @@ namespace fm
     };
     
     
-    class Resource : public Serializer
+    class Resource
 	{
     public:
 		Resource(const fm::FilePath& inFilePath);
         virtual ~Resource() {}
-		void CreateMeta(const fm::FilePath &inFilePath);
-		void ReadMeta(const fm::FilePath& inFilePath);
 
-		bool Serialize(nlohmann::json& ioJson) const;
-		bool Read(const nlohmann::json& inJSON);
-
-		bool Save();
-		bool Load();
+		virtual void Reload(bool force = false) {}
     protected:
-		fm::FilePath _path;
-	private:
-		void GetMetaPath(const fm::FilePath&, fm::FilePath& outFilePath) const;
+		fm::FilePath	_path;
+
+
     };
     
 

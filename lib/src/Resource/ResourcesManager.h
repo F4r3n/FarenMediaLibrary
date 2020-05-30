@@ -51,6 +51,8 @@ public:
 	bool LoadShaders();
 	bool CreateMaterials();
 	bool LoadFonts();
+
+	void Reload(bool force = false);
  static ResourcesManager& get() {
         return _instance;
     }

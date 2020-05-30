@@ -162,29 +162,6 @@ bool FilePath::operator==(const fm::FilePath& Other) const
 	return _path == Other._path;
 }
 
-
-//fm::FilePath FilePath::CreateUniqueFile(const FilePath& inDirectory, const std::string& inName, const std::string& inExtension)
-//{
-//	fm::FilePath path(inDirectory);
-//
-//	size_t i = 0;
-//	do
-//	{
-//		path = fm::FilePath(inDirectory);
-//		if (i == 0)
-//		{
-//			path.Append(inName + inExtension);
-//		}
-//		else
-//		{
-//			path.Append(inName + "_" + std::to_string(i) + inExtension);
-//		}
-//		i++;
-//	} while (path.Exist());
-//	path.CreateFile();
-//	return path;
-//}
-
 Folder::Folder(const fm::FilePath& inFilePath)
 {
 	_path = inFilePath;
@@ -269,6 +246,26 @@ bool File::CreateFile() const
 	ofs.close();
 	return Exist();
 }
+
+std::time_t File::GetTimeStamp() const
+{
+#if defined ( _WIN32 )
+	{
+		struct _stat64 fileInfo;
+		if (_wstati64(fs::path(_path.GetPath()).wstring().c_str(), &fileInfo) != 0)
+		{
+			throw std::runtime_error("Failed to get last write time.");
+		}
+		return fileInfo.st_mtime;
+	}
+#else
+	{
+		auto fsTime = std::filesystem::last_write_time(_path.GetPath());
+		return decltype (fsTime)::clock::to_time_t(fsTime);
+	}
+#endif
+}
+
 
 
 File File::Rename(const std::string& inNewName) const

@@ -291,8 +291,13 @@ void MainWindow::_Paste()
 }
 
 
-void MainWindow::Update()
+void MainWindow::Update(bool hasFocus)
 {
+	if (hasFocus && !_hasFocus)
+	{
+		fm::ResourcesManager::get().Reload();
+	}
+	_hasFocus = hasFocus;
 	_needUpdate = false;
 
 	for (auto& window : _windows)
@@ -345,7 +350,8 @@ void MainWindow::Draw()
 
 	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-	if (!ImGui::DockBuilderGetNode(dockspace_id)) {
+	if (!ImGui::DockBuilderGetNode(dockspace_id))
+	{
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None);
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
@@ -379,13 +385,10 @@ void MainWindow::Draw()
 	ImGui::PopStyleVar(3);
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
 
-	//bool show_demo_window = true;
-	//ImGui::ShowDemoWindow(&show_demo_window);
-
 
 	if (_needUpdate)
 	{
-		Update();
+		Update(_hasFocus);
 	}
 	for (auto& window : _windows)
 	{

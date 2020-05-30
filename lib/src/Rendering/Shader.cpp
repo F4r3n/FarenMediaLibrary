@@ -13,10 +13,31 @@ Shader::Shader(const fm::FilePath& inFilePath, const std::string& name) : Resour
     _name = name;
 }
 
+void Shader::Reload(bool force)
+{
+	if (_isReady || force)
+	{
+		File frag(Folder(_path), _path.GetName(true) + ".frag");
+		File vert(Folder(_path), _path.GetName(true) + ".vert");
+
+		if (force || (_lastTimeFrag != frag.GetTimeStamp() || _lastTimeVert != vert.GetTimeStamp()))
+		{
+			_isReady = false;
+			glDeleteShader(_program);
+			_program = 0;
+		}
+	}
+}
+
+
+
 bool Shader::compile() 
 {
 	File frag(Folder(_path), _path.GetName(true) + ".frag");
 	File vert(Folder(_path), _path.GetName(true) + ".vert");
+
+	_lastTimeFrag = frag.GetTimeStamp();
+	_lastTimeVert = vert.GetTimeStamp();
 
 	const std::string vertContent = vert.GetContent();
 	const std::string fragContent = frag.GetContent();

@@ -40,7 +40,7 @@ public:
     MainWindow();
     ~MainWindow();
 	void Draw();
-	void Update();
+	void Update(bool hasFocus);
 	void Init();
 
 protected:
@@ -52,6 +52,7 @@ protected:
 
 	virtual void OnPreLoad();
 	virtual void OnAfterLoad();
+
 private:
 	void _DrawMenu();
 
@@ -69,19 +70,16 @@ private:
 	void _Paste();
 	void _AddDock(gui::WINDOWS inWindow, ImGuiID inID);
 	bool IsWindowAvailable(gui::WINDOWS inWindow);
+
 private:
-
-	gui::Context				_context;
-
-	std::shared_ptr<fm::Scene>	_editorScene;
-	MapOfWindows				_windows;
-
-    std::optional<ecs::id>		_currentEntity;       
-
-    fm::ProjectSettings			_projectSettings;
-
-	std::shared_ptr <fm::GameObject>				_editorCamera;
-	bool						_needUpdate;
+	gui::Context						_context;
+	std::shared_ptr<fm::Scene>			_editorScene;
+	MapOfWindows						_windows;
+    std::optional<ecs::id>				_currentEntity;       
+    fm::ProjectSettings					_projectSettings;
+	std::shared_ptr <fm::GameObject>	_editorCamera;
+	bool								_needUpdate;
+	bool								_hasFocus;
 
 	//==========Systems==============
 };

@@ -29,6 +29,7 @@ public:
     bool Init();
 	void* GetContext();
 	size_t GetMSAA() const { return _msaa; }
+	double GetTicks() const;
 private:
 	void _FrameLimit();
 
