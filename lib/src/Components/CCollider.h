@@ -32,7 +32,7 @@ namespace fmc
 		void Destroy() override;
 		uint16_t GetType() const override { return kCollider; }
 
-		void Init(const fm::Transform& inTransform);
+		void Init(const fm::math::vec3& inScale);
 		bool IsInit();
 
 		btCollisionShape* GetCollisionShape() const { return _collisionShape; }

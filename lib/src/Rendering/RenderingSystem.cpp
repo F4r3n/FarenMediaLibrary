@@ -248,7 +248,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			cam->_rendererConfiguration.postProcessRenderTexture.bind();
 			_finalShader->Use();
 			_finalShader->setValue("screenSize", fm::math::vec2((float)cam->GetViewport().w, (float)cam->GetViewport().h));
-			_finalShader->setValue("viewPos", transform->position);
+			_finalShader->setValue("viewPos", transform->GetWorldPosition());
 			_finalShader->setValue("screenTexture", 0);
 
 			fm::Renderer::getInstance().postProcess(_graphics, cam->_renderTexture.GetColorBufferTexture(0));

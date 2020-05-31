@@ -126,14 +126,19 @@ void LuaManager::registerComponents()
 
 
 	lua->new_usertype<CTransform>("CTransform",
-		"position",
-		&CTransform::position,
-		"scale",
-		&CTransform::scale,
-		"rotation",
+		"getPosition",
+		&CTransform::GetPosition,
+		"setPosition",
+		&CTransform::SetPosition,
+		"getScale",
+		&CTransform::GetScale,
+		"setScale",
+		&CTransform::SetScale,
+		"getRotation",
 		&CTransform::GetRotation,
-	  "layer",
-	  &CTransform::layer);
+		"setRotation",
+		&CTransform::SetRotation);
+
 	lua->new_usertype<CCamera>("CCamera",
 	  "viewPort", &CCamera::GetViewport,
 	  "isOrthographic", &CCamera::IsOrthographic

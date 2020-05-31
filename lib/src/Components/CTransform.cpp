@@ -5,7 +5,6 @@
 #include "Core/Math/Functions.h"
 //#include "TransformInspector.h"
 using namespace fmc;
-const std::string CTransform::name = "Transform";
 namespace Keys
 {
 const std::string position("position");
@@ -17,27 +16,25 @@ const std::string layer("layer");
 CTransform::CTransform()
 {
     _name = "Transform";
-	idFather = 0;
+	_idFather = 0;
 	_hasFather = false;
 
-	position = { 0, 0, 0 };
-	scale = { 1, 1, 1 };
+	_position = { 0, 0, 0 };
+	_scale = { 1, 1, 1 };
 	_rotation = fm::math::Quaternion();
 }
 
 CTransform::CTransform(const fm::math::Vector3f& inPosition,
                        const fm::math::Vector3f& inScale,
-                       const fm::math::Vector3f& inRotation,
-                       const int& layer)
-    :  layer(layer)
+                       const fm::math::Vector3f& inRotation)
 {
-	position = inPosition;
-	scale = inScale;
-	_rotation.FromEulerAngles(inRotation);
-    _name = "Transform";
-	idFather = 0;
-	_hasFather = false;
+	SetPosition(inPosition);
+	SetScale(inScale);
+	SetRotation(_rotation.FromEulerAngles(inRotation));
 
+    _name = "Transform";
+	_idFather = 0;
+	_hasFather = false;
 }
 
 CTransform::~CTransform()
@@ -47,11 +44,10 @@ CTransform::~CTransform()
 
 bool CTransform::Serialize(nlohmann::json &ioJson) const
 {
-    ioJson[Keys::position] = position;
-    ioJson[Keys::scale] = scale;
+    ioJson[Keys::position] = _position;
+    ioJson[Keys::scale] = _scale;
     ioJson[Keys::rotation] = (fm::math::vec4)_rotation;
-    ioJson[Keys::father] = idFather;
-	ioJson[Keys::layer] = layer;
+    ioJson[Keys::father] = _idFather;
 
     return true;
 }
@@ -59,11 +55,12 @@ bool CTransform::Serialize(nlohmann::json &ioJson) const
 bool CTransform::Read(const nlohmann::json &inJSON)
 {
 
-	position = inJSON[Keys::position];
-	scale = inJSON[Keys::scale];
+	_position = inJSON[Keys::position];
+	_scale = inJSON[Keys::scale];
 	fm::math::vec4 q = inJSON[Keys::rotation];
 	_rotation = fm::math::Quaternion(q);
-	idFather = inJSON[Keys::father];
+	_idFather = inJSON[Keys::father];
+	_isDirty = true;
 	return true;
 }
 
@@ -71,11 +68,10 @@ bool CTransform::Read(const nlohmann::json &inJSON)
 
 void CTransform::From(const fmc::CTransform *inTransform)
 {
-	scale = inTransform->scale;
-	position = inTransform->position;
+	_scale = inTransform->_scale;
+	_position = inTransform->_position;
 	_rotation = inTransform->_rotation;
-	idFather = inTransform->idFather;
-	layer = inTransform->layer;
+	_idFather = inTransform->_idFather;
 }
 
 
@@ -93,35 +89,14 @@ const std::string &CTransform::GetName() const
 fm::Transform CTransform::GetTransform() const
 {
 	fm::Transform tr;
-	tr.worldTransform = GetWorldMatrix();
-	tr.position = position;//TODO temporary fix
+	tr.worldTransform = GetWorldPosMatrix();
+	tr.worldRotation = GetWorldRotation();
+	tr.position = _position;//TODO temporary fix
 	tr.rotation = _rotation;
-	tr.scale = scale;
+	tr.scale = _scale;
 	return tr;
 }
 
-void CTransform::SetLocalMatrixModel(const fm::math::mat &inLocalMatrix)
-{
-	assert(false);
-}
-
-fm::math::mat CTransform::GetWorldMatrix(bool opposePosition) const
-{
-	if (!_hasFather)
-		return GetLocalMatrixModel(opposePosition);
-
-	Entity* e = EntityManager::get().getEntity(idFather);
-	if (e != nullptr && e->active)
-	{
-		fmc::CTransform *fatherTransform = e->get<fmc::CTransform>();
-		fm::math::mat&& matrix = fatherTransform->GetWorldMatrix(opposePosition);
-		fm::math::mat&& localMatrix = GetLocalMatrixModel(opposePosition);
-
-		return matrix * localMatrix;
-	}
-
-	return GetLocalMatrixModel();
-}
 
 fm::math::mat CTransform::CreateMatrixModel(const fm::math::vec3& pos, const fm::math::vec3& scale, const fm::math::Quaternion& q, bool ortho)
 {
@@ -150,13 +125,13 @@ fm::math::mat CTransform::GetLocalMatrixModel(bool opposePosition) const
 	fm::math::mat model;
 	model.identity();
 	if(opposePosition)
-		model = fm::math::translate(model, fm::math::vec3(-position.x, -position.y, -position.z));
+		model = fm::math::translate(model, fm::math::vec3(-_position.x, -_position.y, -_position.z));
 	else
-		model = fm::math::translate(model, fm::math::vec3(position.x, position.y, position.z));
+		model = fm::math::translate(model, fm::math::vec3(_position.x, _position.y, _position.z));
 
 	model = fm::math::rotate(model, _rotation.GetRotationMatrix());
 	
-	model = fm::math::scale(model, fm::math::vec3(scale.x, scale.y, scale.z));
+	model = fm::math::scale(model, fm::math::vec3(_scale.x, _scale.y, _scale.z));
 	return model;
 }
 
@@ -169,12 +144,145 @@ void CTransform::setFather(Entity* e)
 void CTransform::RemoveFather()
 {
 	_hasFather = false;
-	idFather = 0;
+	_isDirty = true;
+	_idFather = 0;
 }
 
 
 void CTransform::setFather(ecs::id id)
 {
-    idFather = id;
+    _idFather = id;
 	_hasFather = true;
+	_isDirty = true;
+}
+
+
+void CTransform::SetRotation(const fm::math::Quaternion& inQuaternion)
+{
+	_isDirty = true;
+	_rotation = inQuaternion;
+}
+
+void CTransform::SetScale(const fm::math::vec3& inScale)
+{
+	_isDirty = true;
+	_scale = inScale;
+}
+
+
+void CTransform::SetPosition(const fm::math::vec3& inPosition)
+{
+	_isDirty = true;
+	_position = inPosition;
+}
+
+
+const fm::math::mat& CTransform::GetWorldPosMatrix() const
+{
+	if (_isDirty)
+	{
+		_UpdateWorldMatrix();
+	}
+	return _worldPosition;
+}
+
+
+void CTransform::_UpdateWorldMatrix() const
+{
+	if (_isDirty)
+	{
+		const fm::math::mat m = GetLocalMatrixModel();
+
+		if (_hasFather)
+		{
+			CTransform* father = GetFather();
+
+			_worldPosition = father->GetWorldPosMatrix() * m;
+			_worldRotation = father->GetWorldRotation() * _rotation;
+		}
+		else
+		{
+			_worldPosition = m;
+			_worldRotation = _rotation;
+		}
+
+
+		_isDirty = false;
+	}
+}
+
+
+fm::math::vec3 CTransform::GetWorldPosition() const
+{
+	if (_hasFather)
+	{
+		_UpdateWorldMatrix();
+		return _worldPosition.Position();
+	}
+
+	return _position;
+}
+
+
+
+
+const fm::math::Quaternion& CTransform::GetWorldRotation() const
+{
+	if (_hasFather)
+	{
+		_UpdateWorldMatrix();
+		return _worldRotation;
+	}
+
+	return _rotation;
+}
+
+fm::math::vec3 CTransform::GetWorldScale() const
+{
+	if (_hasFather)
+	{
+		_UpdateWorldMatrix();
+		return _worldPosition.Scale();
+	}
+
+	return _scale;
+}
+
+void CTransform::SetWorldRotation(const fm::math::Quaternion& inQuaternion)
+{
+	SetRotation(_hasFather ? GetFather()->GetWorldRotation().Inverse() * inQuaternion : inQuaternion);
+}
+
+void CTransform::SetWorldScale(const fm::math::vec3& inScale)
+{
+	SetScale(_hasFather ? GetFather()->GetWorldPosMatrix().Scale() / inScale : inScale);
+}
+
+
+void CTransform::SetWorldPosition(const fm::math::vec3& inPosition)
+{
+	SetPosition(_hasFather ? fm::math::inverse(GetFather()->GetWorldPosMatrix()) * inPosition : inPosition);
+}
+
+
+const fm::math::vec3& CTransform::GetPosition() const
+{
+	return _position;
+}
+
+const fm::math::Quaternion& CTransform::GetRotation() const
+{
+	return _rotation;
+}
+
+const fm::math::vec3& CTransform::GetScale() const
+{
+	return _scale;
+}
+
+
+CTransform* CTransform::GetFather() const
+{
+	Entity* e = EntityManager::get().getEntity(_idFather);
+	return e->get<fmc::CTransform>();
 }

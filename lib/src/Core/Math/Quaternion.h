@@ -19,6 +19,12 @@ namespace fm
 			static Quaternion Conjugate(const Quaternion& inQuaternion);
 			Quaternion Rotate(const Quaternion& q);
 			mat  GetRotationMatrix() const;
+			fm::math::Quaternion operator *(const fm::math::Quaternion& q) const;
+			fm::math::Quaternion operator *(float v) const;
+
+			fm::math::Quaternion Inverse() const;
+			fm::math::Quaternion Conjugate() const;
+			float LengthSquared() const;
 
 		private:
 			float _Roll() const;

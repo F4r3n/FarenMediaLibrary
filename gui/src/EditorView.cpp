@@ -141,13 +141,15 @@ void EditorView::_EditObject()
 		fm::math::mat model;
 
 		fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
-		fm::math::vec3 position = transform->position;
-		fm::math::vec3 scale = transform->scale;
+		fm::math::vec3 position = transform->GetPosition();
+		fm::math::vec3 scale = transform->GetScale();
 		ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
 
 		ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
 
-		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform->position[0], &rotation[0], &transform->scale[0]);
+		ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &position[0], &rotation[0], &scale[0]);
+		transform->SetPosition(position);
+		transform->SetScale(scale);
 		transform->SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
 	}
 		

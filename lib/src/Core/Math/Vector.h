@@ -346,6 +346,10 @@ template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 4>& b
     return vec<T, 4>(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 
+template <typename T> vec<T, 4> operator-(const vec<T, 4>& a, const vec<T, 4>& b) {
+	return vec<T, 4>(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+
 template <typename T> vec<T, 4> operator+(const vec<T, 4>& a, const vec<T, 1>& b) {
     return vec<T, 4>(a.x + b.x, a.y + b.x, a.z + b.x, a.w + b.x);
 }

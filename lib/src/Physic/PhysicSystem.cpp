@@ -92,7 +92,7 @@ void PhysicSystem::_InitAllBodies()
 		fm::Transform tr = ctransform->GetTransform();
 		if (collider != nullptr && !collider->IsInit())
 		{
-			collider->Init(tr);
+			collider->Init(tr.worldTransform.Scale());
 		}
 
 		if (collider != nullptr && collider->IsInit())
@@ -104,14 +104,14 @@ void PhysicSystem::_InitAllBodies()
 				{
 					cbody->Init(collider);
 
-					cbody->SetPosition(tr.position);
-					cbody->SetRotation(tr.rotation);
+					cbody->SetPosition(tr.worldTransform.Position());
+					cbody->SetRotation(tr.worldRotation);
 					cbody->AddToWorld(_dynamicsWorld);
 				}
 			}
 			//if(tr.position)
-			cbody->SetPosition(tr.position);
-			cbody->SetRotation(tr.rotation);
+			cbody->SetPosition(tr.worldTransform.Position());
+			cbody->SetRotation(tr.worldRotation);
 		}
 	}
 }
@@ -132,10 +132,13 @@ void PhysicSystem::update(float dt, EntityManager& em, EventManager& event)
 		fmc::CBody* cbody = e->get<fmc::CBody>();
 		fmc::CTransform* ctransform = e->get<fmc::CTransform>();
 
-		cbody->GetPosition(ctransform->position);
-		fm::math::Quaternion q = ctransform->GetRotation();
+		fm::math::vec3 pos;
+		cbody->GetPosition(pos);
+		ctransform->SetWorldPosition(pos);
+
+		fm::math::Quaternion q;
 		cbody->GetRotation(q);
-		ctransform->SetRotation(q);
+		ctransform->SetWorldRotation(q);
 	}
 }
 

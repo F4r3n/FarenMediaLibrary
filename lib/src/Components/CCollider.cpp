@@ -21,20 +21,24 @@ CCollider::~CCollider()
 }
 
 
-void CCollider::Init(const fm::Transform& inTransform)
+void CCollider::Init(const fm::math::vec3& inScale)
 {
 	if (_collisionShape == nullptr)
 	{
 		switch (_shape)
 		{
 		case fmc::CCollider::SHAPE::BOX:
-			_collisionShape = new btBoxShape(btVector3(btScalar(_scale.x * inTransform.scale.x * 0.5f), btScalar(_scale.y * inTransform.scale.y * 0.5f), btScalar(_scale.z * inTransform.scale.z * 0.5f)));
+			_collisionShape = new btBoxShape(btVector3(btScalar(_scale.x * inScale.x * 0.5f),
+														btScalar(_scale.y * inScale.y * 0.5f),
+														btScalar(_scale.z * inScale.z * 0.5f)));
 			break;
 		case fmc::CCollider::SHAPE::SPHERE:
-			_collisionShape = new btSphereShape(btScalar(_scale.x * inTransform.scale.x * 0.5f));
+			_collisionShape = new btSphereShape(btScalar(_scale.x * inScale.x * 0.5f));
 			break;
 		case fmc::CCollider::SHAPE::BOX2D:
-			_collisionShape = new btBox2dShape(btVector3(btScalar(_scale.x * inTransform.scale.x * 0.5f), btScalar(_scale.y * inTransform.scale.y * 0.5f), btScalar(_scale.z * inTransform.scale.z * 0.5f)));//TODO fix
+			_collisionShape = new btBox2dShape(btVector3(btScalar(_scale.x * inScale.x * 0.5f),
+														btScalar(_scale.y * inScale.y * 0.5f),
+														btScalar(_scale.z * inScale.z * 0.5f)));//TODO fix
 			break;
 		}
 	}

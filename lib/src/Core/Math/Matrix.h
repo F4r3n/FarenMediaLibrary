@@ -104,7 +104,8 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
     template <typename T> col<T>& matrix<T>::operator[](int index) {
         return m[index];
     }
-    template <typename T> struct Matrix {
+    template <typename T> struct Matrix
+	{
         matrix<T> m;
 
         col<T> const& operator[](int index) const;
@@ -154,6 +155,19 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 
         void identity();
         Matrix();
+
+		vec<T,3> Scale() const
+		{
+			return vec<T, 3>(sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]),
+				sqrt(m[1][0] * m[1][0] + m[1][1] * m[1][1] + m[1][2] * m[1][2]),
+				sqrt(m[2][0] * m[2][0] + m[2][1] * m[2][1] + m[2][2] * m[2][2]));
+		}
+
+		vec<T, 3> Position() const
+		{
+			return vec<T, 3>(m[3][0], m[3][1], m[3][2]);
+		}
+
     };
     template <typename T>
     Matrix<T>::Matrix(const Matrix<T> &matrix) 
@@ -370,6 +384,15 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
         m[3][3] = 1;
     }
 
+
+	template <typename T> fm::math::vec<T, 3> operator*(const Matrix<T>& m1, const fm::math::vec<T, 3> &m2)
+	{
+		return fm::math::vec<T, 3>(m1[0][0] * m2[0] + m1[1][0] * m2[1] + m1[2][0] * m2[2],
+			m1[0][1] * m2[0] + m1[1][1] * m2[1] + m1[2][2] * m2[2],
+			m1[0][2] * m2[0] + m1[1][2] * m2[1] + m1[2][3] * m2[2]);
+	}
+
+
     template <typename T> Matrix<T> operator*(const Matrix<T>& m1, const Matrix<T>& m2) {
         return Matrix<T>(m1[0][0] * m2[0][0] + m1[1][0] * m2[0][1] + m1[2][0] * m2[0][2] + m1[3][0] * m2[0][3],
                          m1[0][1] * m2[0][0] + m1[1][1] * m2[0][1] + m1[2][1] * m2[0][2] + m1[3][1] * m2[0][3],
@@ -393,6 +416,14 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 
                          );
     }
+
+	template <typename T> Matrix<T> operator*(const Matrix<T>& m1, T m2) {
+		return Matrix<T>(	m1[0][0]*m2, m1[0][1]*m2, m1[0][2] * m2, m1[0][3] * m2,
+			m1[1][0] * m2, m1[1][1] * m2, m1[1][2] * m2, m1[1][3] * m2,
+			m1[2][0] * m2, m1[2][1] * m2, m1[2][2] * m2, m1[2][3] * m2,
+			m1[3][0] * m2, m1[3][1] * m2, m1[3][2] * m2, m1[3][3] * m2
+			);
+	}
 
 
 	template <typename T> Matrix<T> inverse(const Matrix<T>& m) {

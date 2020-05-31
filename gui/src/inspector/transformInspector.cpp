@@ -18,8 +18,18 @@ void TransformInspector::Draw(bool *)
 	if(ImGui::CollapsingHeader(name.c_str()))
     {
         ImGui::PushItemWidth(120);
-        ImGui::DragFloat3("Position",&_target->position.x, 0.02f, -FLT_MAX, FLT_MAX);
-        ImGui::DragFloat3("Size", &_target->scale.x, 0.02f, -FLT_MAX, FLT_MAX);
+		fm::math::vec3 pos = _target->GetPosition();
+		fm::math::vec3 scale = _target->GetScale();
+
+		if (ImGui::DragFloat3("Position", &pos.x, 0.02f, -FLT_MAX, FLT_MAX))
+		{
+			_target->SetPosition(pos);
+		}
+
+		if (ImGui::DragFloat3("Size", &scale.x, 0.02f, -FLT_MAX, FLT_MAX))
+		{
+			_target->SetScale(scale);
+		}
 
 		const fm::math::Quaternion q = _target->GetRotation();
 		fm::math::vec3 euler = q.GetEulerAngles();

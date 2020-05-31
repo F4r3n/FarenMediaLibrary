@@ -7,6 +7,7 @@ namespace fm
 	struct Transform //Assume all is in worldPos
 	{
 		fm::math::mat worldTransform;
+		fm::math::Quaternion worldRotation;
 		fm::math::vec3 position;
 		fm::math::vec3 scale;
 		fm::math::Quaternion rotation;

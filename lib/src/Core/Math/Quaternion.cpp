@@ -121,5 +121,38 @@ Quaternion Quaternion::Rotate(const Quaternion& q)
 	return *this;
 }
 
+fm::math::Quaternion Quaternion::operator *(const fm::math::Quaternion& q) const
+{
+	const float w = w * q.w - x * q.x - y * q.y - z * q.z;
+	const float x = w * q.x + x * q.w + y * q.z - z * q.y;
+	const float y = w * q.y + y * q.w + z * q.x - x * q.z;
+	const float z = w * q.z + z * q.w + x * q.y - y * q.x;
+
+	return Quaternion(w, x, y, z);
+}
+
+fm::math::Quaternion Quaternion::Conjugate() const
+{
+	return Quaternion(w, -x, -y, -z);
+}
+
+float Quaternion::LengthSquared() const
+{
+	return w * w + x * x + y * y + z * z;
+}
+
+fm::math::Quaternion Quaternion::operator *(float v) const
+{
+	return Quaternion(w * v, x * v, y * v, z * v);
+}
+
+
+fm::math::Quaternion Quaternion::Inverse() const
+{
+	return Conjugate() * (1 / LengthSquared());
+}
+
+
+
 
 

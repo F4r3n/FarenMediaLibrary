@@ -67,14 +67,14 @@ void MainWindow::_AddEmptyScene()
 	//Add object
 	std::shared_ptr <fm::GameObject> go = currentScene->CreateGameObject(true);
 	fmc::CTransform* tr = go->get<fmc::CTransform>();
-	tr->position = fm::math::vec3(0, 0, -1);
+	tr->SetPosition(fm::math::vec3(0, 0, -1));
 	go->addComponent<fmc::CMaterial>();
 	go->addComponent<fmc::CMesh>();
 
 	//Add camera
 	go = currentScene->CreateGameObject(true);
 	tr = go->get<fmc::CTransform>();
-	tr->position = fm::math::vec3(0, 0, 0);
+	tr->SetPosition(fm::math::vec3(0, 0, 0));
 	go->addComponent<fmc::CCamera>()->Init();
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
@@ -95,7 +95,7 @@ void MainWindow::_InitEditorCamera()
 	_editorCamera = _editorScene->CreateGameObject(true);
 	_editorCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight,
 		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
-	_editorCamera->get<fmc::CTransform>()->position = fm::math::vec3(0, 0, -1);
+	_editorCamera->get<fmc::CTransform>()->SetPosition(fm::math::vec3(0, 0, -1));
 	_editorCamera->SetName("Camera");
 }
 
