@@ -462,34 +462,72 @@ void MainWindow::_InitGameView()
 		}
 	}
 }
-void MainWindow::OnPreStart()
+
+void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
+{
+	if (o != nullptr && o->GetName() == "Application")
+	{
+		switch ((fm::Application::Event)inEvent.eventKind)
+		{
+		case fm::Application::Event::ON_AFTER_LOAD:
+			_OnAfterLoad();
+			break;
+
+		case fm::Application::Event::ON_AFTER_START:
+			_OnAfterStart();
+			break;
+
+		case fm::Application::Event::ON_AFTER_STOP:
+			_OnAfterStop();
+			break;
+
+		case fm::Application::Event::ON_PRE_LOAD:
+			_OnPreLoad();
+			break;
+
+		case fm::Application::Event::ON_PRE_START:
+			_OnPreStart();
+			break;
+
+		case fm::Application::Event::ON_PRE_STOP:
+			_OnPreStop();
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+
+
+void MainWindow::_OnPreStart()
 {
 	_ClearBeforeSceneChange();
 	
 }
-void MainWindow::OnAfterStart()
+void MainWindow::_OnAfterStart()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
 	_needUpdate = true;
 	
 }
-void MainWindow::OnPreStop()
+void MainWindow::_OnPreStop()
 {
 	_ClearBeforeSceneChange();
 }
-void MainWindow::OnAfterStop()
+void MainWindow::_OnAfterStop()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
 	_needUpdate = true;
 }
 
-void MainWindow::OnPreLoad()
+void MainWindow::_OnPreLoad()
 {
 	_ClearBeforeSceneChange();
 }
-void MainWindow::OnAfterLoad()
+void MainWindow::_OnAfterLoad()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();

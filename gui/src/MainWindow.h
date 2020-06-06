@@ -4,6 +4,7 @@
 #include "GWindow.h"
 #include "Core/application.h"
 #include "inspector/inspector.hpp"
+#include "Core/Observer.h"
 namespace fmc 
 {
     class CTransform;
@@ -31,7 +32,7 @@ namespace gui
 }
 
 
-class MainWindow : public fm::ApplicationObserver
+class MainWindow : public fm::Observer
 {
 
 typedef std::unordered_map<gui::WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWindows;
@@ -44,14 +45,16 @@ public:
 	void Init();
 
 protected:
-	virtual void OnPreStart();
-	virtual void OnAfterStart();
+	virtual void Notify(fm::Observable*, const fm::EventObserver& inEvent) override;
 
-	virtual void OnPreStop();
-	virtual void OnAfterStop();
+	void _OnPreStart();
+	void _OnAfterStart();
 
-	virtual void OnPreLoad();
-	virtual void OnAfterLoad();
+	void _OnPreStop();
+	void _OnAfterStop();
+
+	void _OnPreLoad();
+	void _OnAfterLoad();
 
 private:
 	void _DrawMenu();

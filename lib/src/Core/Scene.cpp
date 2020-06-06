@@ -5,7 +5,7 @@
 #include "Components/CIdentity.h"
 using namespace fm;
 
-Scene::Scene(const std::string &name)
+Scene::Scene(const std::string &name) : fm::Observable("Scene")
 {
     _name = name;
 }
@@ -38,7 +38,7 @@ std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 	ecs::id id = o->getID();
 	_gos[o->getID()] = move(o);
 
-
+	NotifyAll(fm::EventObserver((size_t)Event::CREATE_GAMEOBJECT));
 	return GetGameObjectByID(id);
 }
 
@@ -102,5 +102,6 @@ void Scene::DeleteGameObjectByID(ecs::id inID)
 	{
 		_gos.erase(inID);
 	}
+	NotifyAll(fm::EventObserver((size_t)Event::DELETE_GAMEOBJECT));
 }
 

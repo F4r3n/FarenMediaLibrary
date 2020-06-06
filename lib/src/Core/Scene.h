@@ -4,17 +4,21 @@
 #include <nlohmann/json_fwd.hpp>
 #include <ECS.h>
 #include <memory>
+#include "Core/Observer.h"
 namespace fm {
     class GameObject;
 }
 
 
-
 namespace fm {
 
-    class Scene {
+    class Scene : public Observable {
         public:
-
+			enum class Event
+			{
+				CREATE_GAMEOBJECT,
+				DELETE_GAMEOBJECT
+			};
 			using MapOfGameObjects = std::map<ecs::id, std::shared_ptr<fm::GameObject>>;
 
             Scene(const std::string &name);

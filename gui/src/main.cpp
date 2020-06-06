@@ -38,7 +38,7 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	std::shared_ptr<MainWindow> mainWindow = std::make_shared<MainWindow>();
-	fm::Application::Get().AddApplicationObserver(mainWindow);
+	fm::Application::Get().Subscribe(mainWindow);
 	bool isMainWindowInitialized = false;
 
 	while (!window->isClosed())
@@ -81,6 +81,8 @@ int main()
 
 
 	}
+	fm::Application::Get().Unsubscribe(mainWindow);
+
 	fm::Application::Get().DeInit();
 
 	ImGui_ImplOpenGL3_Shutdown();

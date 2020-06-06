@@ -145,6 +145,11 @@ void GListEntities::CustomDraw()
 	}
 }
 
+void GListEntities::Notify(fm::Observable*, const fm::EventObserver& inEvent)
+{
+
+}
+
 
 GListEntities::~GListEntities()
 {

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-
+#include "Core/Observer.h"
 namespace fm
 {
 class Window;
@@ -82,10 +82,20 @@ namespace fm
 
 
 
-	class ApplicationObserver;
-class Application
+class Application : public fm::Observable
 {
     public:
+		enum class Event
+		{
+			ON_PRE_START,
+			ON_AFTER_START,
+			ON_PRE_STOP,
+			ON_AFTER_STOP,
+			ON_PRE_LOAD,
+			ON_AFTER_LOAD
+		};
+
+
         ~Application();
 
 		static Application& Get()
@@ -119,7 +129,6 @@ class Application
 		void GetLastConfigs(std::vector<fm::Config> &outConfig);
 		bool IsRunning() const;
 
-		void AddApplicationObserver(std::shared_ptr<ApplicationObserver> inObserver);
 		void LoadProject(const fm::FilePath& inFilePath);
 
 		std::shared_ptr<fm::Scene> GetScene(const std::string &inName) const;
@@ -138,23 +147,8 @@ class Application
 		std::string _nameLastScene;
 		std::unique_ptr<fm::SceneManager> _sceneManager;
 
-		std::vector<std::shared_ptr<ApplicationObserver>> _observers;
 };
 
-class ApplicationObserver
-{
-public:
-	friend class Application;
-protected:
-	virtual void OnPreStart() {}
-	virtual void OnAfterStart() {}
-
-	virtual void OnPreStop() {}
-	virtual void OnAfterStop() {}
-
-	virtual void OnPreLoad() {};
-	virtual void OnAfterLoad() {};
-};
 }
 
 #endif // APPLICATION_H

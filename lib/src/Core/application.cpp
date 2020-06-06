@@ -19,7 +19,6 @@ const std::string TEMPORARY_SCENE_NAME = "_temp";
 
 Application::~Application()
 {
-	_observers.clear();
 }
 
 void Application::SetConfig(const Config &inConfig)
@@ -32,16 +31,12 @@ void Application::SetConfig(const Config &inConfig)
 	}
 }
 
-Application::Application()
+Application::Application() : fm::Observable("Application")
 {
 	_sceneManager = std::make_unique<fm::SceneManager>();
 }
 
 
-void Application::AddApplicationObserver(std::shared_ptr<ApplicationObserver> inObserver)
-{
-	_observers.emplace_back(inObserver);
-}
 
 bool Application::SerializeCurrentScene() const
 {
@@ -90,11 +85,8 @@ bool Application::Read()
 
 void Application::Start(bool inSandbox)
 {
-	for (auto && o : _observers)
-	{
-		o->OnPreStart();
-	}
 
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_START));
 
 	if (inSandbox)
 	{
@@ -114,28 +106,21 @@ void Application::Start(bool inSandbox)
 	
 	_engine->Start();
 
-	for (auto && o : _observers)
-	{
-		o->OnAfterStart();
-	}
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_START));
+
 }
 
 void Application::Stop()
 {
-	for (auto && o : _observers)
-	{
-		o->OnPreStop();
-	}
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_STOP));
+
 
 	_sceneManager->ClearScene(_nameLastScene + "_", true);
 	_sceneManager->setCurrentScene(_nameLastScene, false);
 	_sceneManager->getCurrentScene()->ResetStatusGo();
 	_engine->Stop();
 
-	for (auto && o : _observers)
-	{
-		o->OnAfterStop();
-	}
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_STOP));
 
 }
 
@@ -166,10 +151,8 @@ void Application::Init()
 
 void Application::LoadProject(const fm::FilePath& inFilePath)
 {
-	for (auto && o : _observers)
-	{
-		o->OnPreLoad();
-	}
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD));
+
 	_sceneManager->ClearAll(false);
 	
 	SetProjectName(inFilePath.GetName(true));
@@ -177,10 +160,7 @@ void Application::LoadProject(const fm::FilePath& inFilePath)
 
 	Read();
 
-	for (auto && o : _observers)
-	{
-		o->OnAfterLoad();
-	}
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD));
 }
 
 
