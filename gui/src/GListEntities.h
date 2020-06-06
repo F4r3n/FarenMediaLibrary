@@ -27,7 +27,7 @@ namespace gui
 		char					_bufferName[128];
 		bool					_goSelectedHasChanged = false;
 
-		std::list<ecs::id>		_order;
+		//std::list<ecs::id>		_order;
 
 	};
 }
