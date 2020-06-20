@@ -95,15 +95,14 @@ class Material : public Resource
 {
 
     public:
-        //virtual bool Serialize(nlohmann::json &ioJson) const override;
-        //virtual bool Read(const nlohmann::json &inJSON) override;
 
 		Material Clone() const
 		{
-			Material mat(_name, _shader);
+			Material mat(_name);
+			mat._shader = _shader;
 			mat._properties = _properties;
 		}
-        Material(const fm::FilePath &inFilePath, fm::Shader* inShader);
+        Material(const fm::FilePath &inFilePath);
 
         template <typename T>
         void setValue(const std::string& name, T value) {
@@ -134,6 +133,11 @@ class Material : public Resource
 		void SetShader(fm::Shader* inShader) { _shader = inShader; Compile(); }
 		void Compile();
 		bool IsReady() const;
+
+
+		virtual void Save() const override;
+		virtual void Load() override;
+
     private:
 		fm::Shader* _shader;
 

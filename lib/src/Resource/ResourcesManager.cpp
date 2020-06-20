@@ -57,10 +57,10 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 		p.ToSubFolder("Resources");
 		return p;
 	}
-	case LOCATION::INTERNAL_MATERIALS:
+	case LOCATION::INTERNAL_MATERIALS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
-		p.SetSystemID(LOCATION::INTERNAL_MATERIALS);
+		p.SetSystemID(LOCATION::INTERNAL_MATERIALS_LOCATION);
 		p.ToSubFolder("materials");
 		return p;
 	}
@@ -143,18 +143,29 @@ bool ResourcesManager::LoadShaders()
 	return true;
 }
 
-bool ResourcesManager::CreateMaterials()
+bool ResourcesManager::LoadMaterials()
 {
-	{
-		fm::Material *defaultMat = new fm::Material(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS, "default_material"), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
-		fm::ResourcesManager::get().load<Material>("default_material", defaultMat);
-	}
-
-	{
-		Material *defaultMat = new fm::Material(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS, "default_light_material"), fm::ResourcesManager::get().getResource<fm::Shader>("default_light"));
-		fm::ResourcesManager::get().load<Material>("default_light_material", defaultMat);
-	}
+	_LoadInternalMaterials();
 	return true;
+}
+
+
+void ResourcesManager::_LoadInternalMaterials()
+{
+	Folder materials(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_MATERIALS_LOCATION)));
+
+	materials.Iterate(true, [](const fm::Folder* inFolder, const fm::File* inFile)
+		{
+			if (inFile != nullptr)
+			{
+				if (inFile->GetPath().GetExtension() == ".material")
+				{
+					fm::Material* mat = new fm::Material(inFile->GetPath());
+					mat->Load();
+					fm::ResourcesManager::get().load<Material>(mat->GetName(), mat);
+				}
+			}
+		});
 }
 
 bool ResourcesManager::LoadFonts()

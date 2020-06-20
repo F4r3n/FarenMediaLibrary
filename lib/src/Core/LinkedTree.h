@@ -9,12 +9,12 @@ namespace fm
 	{
 	public:
 		LinkedTree() {}
-		template <typename T>
+		template <typename P = T>
 		struct Node
 		{
-			Node(T inValue) : value(inValue) {}
-			T value;
-			std::list<std::unique_ptr<Node<T>>> nodes;
+			Node(P inValue) : value(inValue) {}
+			P value;
+			std::list<std::unique_ptr<Node<P>>> nodes;
 		};
 
 	protected:

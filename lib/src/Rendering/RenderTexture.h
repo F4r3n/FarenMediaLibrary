@@ -16,7 +16,7 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         ~RenderTexture();
         
         bool isCreated() const;
-        void bind();
+        void bind(bool isRead = false);
         inline size_t getWidth() const {return _width;}
         inline size_t getHeight() const {return _height;}
         

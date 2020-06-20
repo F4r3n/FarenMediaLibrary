@@ -218,7 +218,14 @@ const fm::Texture& RenderTexture::GetColorBufferTexture(size_t id) const
 }
 
 
-void RenderTexture::bind()
+void RenderTexture::bind(bool isRead)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	if (isRead)
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	}
 }

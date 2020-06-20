@@ -34,7 +34,8 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		0));
 
 
-	_material = std::make_unique<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS,"default_material"), fm::ResourcesManager::get().getResource<fm::Shader>("picking"));
+	_material = std::make_unique<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default_material"));
+	_material->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>("picking"));
 	_material->Compile();
 }
 
@@ -54,7 +55,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 			if (scene != nullptr)
 			{
 				fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
-
+				_camera->GetTarget()->bind(true);
 				unsigned char pixel[4];
 				texture.GetPixel(inPos, pixel);
 				size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);

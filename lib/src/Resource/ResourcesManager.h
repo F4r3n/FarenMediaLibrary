@@ -49,7 +49,7 @@ public:
 
 
 	bool LoadShaders();
-	bool CreateMaterials();
+	bool LoadMaterials();
 	bool LoadFonts();
 
 	void Reload(bool force = false);
@@ -59,6 +59,8 @@ public:
 
 private:
 	void _LoadInternalShaders();
+	void _LoadInternalMaterials();
+
 	ArrayOfResources resources;
     static ResourcesManager _instance;
 };
