@@ -147,14 +147,22 @@ void GListEntities::_UpdateTree()
 	
 }
 
-
-void GListEntities::OnBeforeLoad()
+void GListEntities::OnBeforeLoad(const std::string& inCurrentSceneName)
 {
-	std::shared_ptr<fm::Scene> oldScene = fm::Application::Get().GetScene(_currentSceneName);
+	std::shared_ptr<fm::Scene> oldScene = fm::Application::Get().GetScene(inCurrentSceneName);
 	if (oldScene != nullptr)
 		oldScene->Unsubscribe(this);
 	_order.Clear();
 	_currentSceneName = "";
+}
+
+void GListEntities::OnAfterLoad(const std::string& inCurrentSceneName)
+{
+	std::shared_ptr<fm::Scene> newScene = fm::Application::Get().GetScene(inCurrentSceneName);
+	if (newScene != nullptr)
+		newScene->Subscribe(this);
+
+	_currentSceneName = inCurrentSceneName;
 }
 
 
@@ -183,7 +191,7 @@ void GListEntities::_Update(float dt, Context &inContext)
 
 	if (_shouldUpdateListOrder)
 	{
-		
+		_UpdateTree();
 	}
 }
 
@@ -299,7 +307,6 @@ void GListEntities::CustomDraw()
 					AddEvent([id, scene](gui::GWindow* window) {
 						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
 						currentScene->DeleteGameObjectByID(id);
-						dynamic_cast<gui::GListEntities*>(window)->PurgeTree();
 
 						});
 					_gameObjectSelected.reset();
@@ -322,7 +329,6 @@ void GListEntities::CustomDraw()
 		if (ImGui::Button("Add Entity"))
 		{
 			_gameObjectSelected = currentScene->CreateGameObject(true)->getID();
-			_UpdateTree();
 		}
 	}
 }

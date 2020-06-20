@@ -45,7 +45,8 @@ namespace gui
 		~GListEntities();
 		void CustomDraw();
 		virtual void Notify(fm::Observable*, const fm::EventObserver& inEvent) override;
-		void OnBeforeLoad();
+		void OnBeforeLoad(const std::string& inCurrentSceneName);
+		void OnAfterLoad(const std::string& inCurrentSceneName);
 
 		void PurgeTree();
 

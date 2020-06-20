@@ -62,7 +62,7 @@ bool GWindow::HasBeenDrawn() const
 
 void GWindow::Draw()
 {
-	if (_enabled)
+	if (_enabled && !_needUpdate)
 	{
 		if (!_hasBeenDrawn)
 		{
@@ -158,6 +158,7 @@ void GWindow::Update(float dt, Context &inContext)
 				}
 			}
 		}
+		_needUpdate = false;
 	}
 	
 }

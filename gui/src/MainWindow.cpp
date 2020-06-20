@@ -82,6 +82,8 @@ void MainWindow::_AddEmptyScene()
 		go->SetName("Main camera");
 		gv->AddCamera(go);
 	}
+
+	_OnAfterLoad();
 }
 
 void MainWindow::Init()
@@ -423,6 +425,8 @@ void MainWindow::Draw()
 
 void MainWindow::_ClearBeforeSceneChange()
 {
+	std::string currentSceneName = _context.currentSceneName;
+
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
 		_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
@@ -432,15 +436,15 @@ void MainWindow::_ClearBeforeSceneChange()
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))
 	{
-		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([](gui::GWindow* inWindow) {
-			dynamic_cast<gui::ListComponentWindow*>(inWindow)->ClearInspectorComponents();
+		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+			dynamic_cast<gui::ListComponentWindow*>(inWindow)->OnBeforeLoad(currentSceneName);
 		});
 	}
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
 	{
-		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([](gui::GWindow* inWindow) {
-			dynamic_cast<gui::GListEntities*>(inWindow)->OnBeforeLoad();
+		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+			dynamic_cast<gui::GListEntities*>(inWindow)->OnBeforeLoad(currentSceneName);
 			});
 	}
 
@@ -538,7 +542,24 @@ void MainWindow::_OnAfterLoad()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
+
+	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))
+	{
+		std::string currentSceneName = _context.currentSceneName;
+		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+			dynamic_cast<gui::ListComponentWindow*>(inWindow)->OnAfterLoad(currentSceneName);
+			});
+	}
+	if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
+	{
+		std::string currentSceneName = _context.currentSceneName;
+		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+			dynamic_cast<gui::GListEntities*>(inWindow)->OnAfterLoad(currentSceneName);
+			});
+	}
+
 	_needUpdate = true;
+
 }
 
 void MainWindow::_ConfigureStyle()

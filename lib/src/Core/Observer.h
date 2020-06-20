@@ -1,13 +1,18 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <any>
 namespace fm
 {
 	class EventObserver
 	{
 	public:
-		EventObserver(size_t inKind): eventKind(inKind) {}
-		size_t eventKind;
+		template <typename T>
+		EventObserver(size_t inKind, const T &v): eventKind(inKind), value(v) {}
+		EventObserver(size_t inKind) : eventKind(inKind) {}
+
+		size_t eventKind = -1;
+		std::any value;
 	};
 
 

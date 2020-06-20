@@ -76,7 +76,7 @@ public:
 	bool IsEnabled() const { return _enabled; }
 	const std::string& GetTitle() const { return _name; }
 	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
-
+	void NeedUpdate() { _needUpdate = true; }
 protected:
 	virtual void			_Update(float, Context &inContext) {};
 	virtual void			CustomDraw();
@@ -108,7 +108,7 @@ private:
 	bool								  _iswindowDocked;
 	bool								  _hasBeenDrawn;
 	bool								  _isVisible;
-
+	bool								  _needUpdate = false;
 };
 }
 

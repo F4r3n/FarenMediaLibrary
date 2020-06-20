@@ -40,7 +40,7 @@ std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 	ecs::id id = o->getID();
 	_gos[o->getID()] = move(o);
 
-	NotifyAll(fm::EventObserver((size_t)Event::CREATE_GAMEOBJECT));
+	NotifyAll(fm::EventObserver((size_t)Event::CREATE_GAMEOBJECT, id));
 	return GetGameObjectByID(id);
 }
 
@@ -102,8 +102,9 @@ void Scene::DeleteGameObjectByID(ecs::id inID)
 	auto it = _gos.find(inID);
 	if (it != _gos.end())
 	{
+		it->second->destroy();
 		_gos.erase(inID);
 	}
-	NotifyAll(fm::EventObserver((size_t)Event::DELETE_GAMEOBJECT));
+	NotifyAll(fm::EventObserver((size_t)Event::DELETE_GAMEOBJECT,inID));
 }
 

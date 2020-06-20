@@ -159,7 +159,7 @@ void ListComponentWindow::_DrawComponents(std::shared_ptr<fm::GameObject> curren
 	}
 }
 
-void ListComponentWindow::ClearInspectorComponents()
+void ListComponentWindow::_ClearInspectorComponents()
 {
 	for (auto&& entities : _inspectorComponents)
 	{
@@ -173,4 +173,42 @@ void ListComponentWindow::ClearInspectorComponents()
 void ListComponentWindow::CustomDraw()
 {
 	_Draw();
+}
+
+
+void ListComponentWindow::OnBeforeLoad(const std::string& inCurrentSceneName)
+{
+	std::shared_ptr<fm::Scene> oldScene = fm::Application::Get().GetScene(inCurrentSceneName);
+	if (oldScene != nullptr)
+		oldScene->Unsubscribe(this);
+
+	_ClearInspectorComponents();
+}
+
+
+void ListComponentWindow::OnAfterLoad(const std::string& inCurrentSceneName)
+{
+	std::shared_ptr<fm::Scene> newScene = fm::Application::Get().GetScene(inCurrentSceneName);
+	if (newScene != nullptr)
+		newScene->Subscribe(this);
+}
+
+
+void ListComponentWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
+{
+	if (o->GetName() == "Scene")
+	{
+		AddEvent([inEvent, this](gui::GWindow* inWindow)
+			{
+				if (inEvent.eventKind == (size_t)fm::Scene::Event::DELETE_GAMEOBJECT)
+				{
+					if (inEvent.value.has_value())
+					{
+						_inspectorComponents[std::any_cast<ecs::id>(inEvent.value)].clear();
+					}
+				}
+			});
+		NeedUpdate();
+
+	}
 }

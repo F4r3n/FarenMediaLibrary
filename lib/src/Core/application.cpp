@@ -143,7 +143,7 @@ void Application::Init()
 
 	fm::ResourcesManager::get().LoadShaders();
 	fm::ResourcesManager::get().LoadFonts();
-	fm::ResourcesManager::get().CreateMaterials();
+	fm::ResourcesManager::get().LoadMaterials();
 
     _engine->Init();
 }
