@@ -37,8 +37,8 @@ int main()
 	ImGui_ImplSDL2_InitForOpenGL(window->getWindow(), window->GetContext());
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	std::shared_ptr<MainWindow> mainWindow = std::make_shared<MainWindow>();
-	fm::Application::Get().Subscribe(mainWindow);
+	std::unique_ptr<MainWindow> mainWindow = std::make_unique<MainWindow>();
+	fm::Application::Get().Subscribe(mainWindow.get());
 	bool isMainWindowInitialized = false;
 
 	while (!window->isClosed())
@@ -81,7 +81,7 @@ int main()
 
 
 	}
-	fm::Application::Get().Unsubscribe(mainWindow);
+	fm::Application::Get().Unsubscribe(mainWindow.get());
 
 	fm::Application::Get().DeInit();
 

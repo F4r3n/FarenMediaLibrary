@@ -280,9 +280,24 @@ const fm::math::vec3& CTransform::GetScale() const
 	return _scale;
 }
 
+bool CTransform::HasFather() const
+{
+	return _hasFather;
+}
+
+ecs::id	CTransform::GetFatherID() const
+{
+	return _idFather;
+}
+
 
 CTransform* CTransform::GetFather() const
 {
-	Entity* e = EntityManager::get().getEntity(_idFather);
-	return e->get<fmc::CTransform>();
+	if (_hasFather)
+	{
+		Entity* e = EntityManager::get().getEntity(_idFather);
+		return e->get<fmc::CTransform>();
+	}
+
+	return nullptr;
 }

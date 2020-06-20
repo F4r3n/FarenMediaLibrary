@@ -38,6 +38,7 @@ namespace fm {
 			void DeleteGameObjectByID(ecs::id inID);
         private:
 			MapOfGameObjects _gos;
+			size_t			 _UniqueIDScene = 0;
             std::string _name;
             //Light setting
     };

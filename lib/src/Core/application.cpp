@@ -46,8 +46,8 @@ bool Application::SerializeCurrentScene() const
 std::shared_ptr<fm::Scene> Application::CreateNewScene(const std::string &inNewSceneName)
 {
 	_sceneManager->AddNewScene("newScene");
-	_sceneManager->setCurrentScene("newScene", false);
-	return _sceneManager->getCurrentScene();
+	_sceneManager->SetCurrentScene("newScene", false);
+	return _sceneManager->GetCurrentScene();
 }
 
 std::shared_ptr<fm::Scene> Application::CreateEditorScene()
@@ -93,7 +93,7 @@ void Application::Start(bool inSandbox)
 		nlohmann::json save;
 		_sceneManager->SerializeCurrentScene(save);
 
-		std::shared_ptr<fm::Scene> current = _sceneManager->getCurrentScene();
+		std::shared_ptr<fm::Scene> current = _sceneManager->GetCurrentScene();
 		_nameLastScene = current->getName();
 		std::string privateName = _nameLastScene + "_";
 		std::shared_ptr<fm::Scene> s = _sceneManager->AddPrivateScene(privateName);
@@ -101,7 +101,7 @@ void Application::Start(bool inSandbox)
 		
 		current->SetStatusToGo(false);
 
-		_sceneManager->setCurrentScene(privateName, true);
+		_sceneManager->SetCurrentScene(privateName, true);
 	}
 	
 	_engine->Start();
@@ -116,8 +116,8 @@ void Application::Stop()
 
 
 	_sceneManager->ClearScene(_nameLastScene + "_", true);
-	_sceneManager->setCurrentScene(_nameLastScene, false);
-	_sceneManager->getCurrentScene()->ResetStatusGo();
+	_sceneManager->SetCurrentScene(_nameLastScene, false);
+	_sceneManager->GetCurrentScene()->ResetStatusGo();
 	_engine->Stop();
 
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_STOP));
@@ -200,17 +200,17 @@ const fm::Config& Application::GetCurrentConfig() const
 
 std::shared_ptr<fm::Scene> Application::GetScene(const std::string &inName) const
 {
-	return _sceneManager->getScene(inName);
+	return _sceneManager->GetScene(inName);
 }
 
 const std::string& Application::GetCurrentSceneName() const
 {
-	return _sceneManager->getCurrentScene()->getName();
+	return _sceneManager->GetCurrentScene()->getName();
 }
 
 std::shared_ptr<fm::Scene> Application::GetCurrentScene() const
 {
-	return _sceneManager->getCurrentScene();
+	return _sceneManager->GetCurrentScene();
 }
 
 void Application::RegisterCurrentConfig()

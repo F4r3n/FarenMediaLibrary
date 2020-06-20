@@ -58,6 +58,8 @@ class CTransform : public FMComponent<CTransform>
 
 		
 		CTransform*					GetFather() const;
+		bool						HasFather() const;
+		ecs::id						GetFatherID() const;
 
 		static fm::math::mat CreateMatrixModel(const fm::math::vec3& pos, const fm::math::vec3& scale, const fm::math::Quaternion &q, bool ortho = true);
 

@@ -13,7 +13,7 @@ SceneManager::~SceneManager() {
 
 }
 
-void SceneManager::setCurrentScene(const std::string &name, bool isPrivate) {
+void SceneManager::SetCurrentScene(const std::string &name, bool isPrivate) {
 
 	if (!isPrivate)
 	{
@@ -108,13 +108,21 @@ void SceneManager::AddNewScene(const std::string &inName)
     _scenes.insert(std::pair<std::string, std::shared_ptr<Scene>>(inName, std::make_shared<Scene>(inName)));
 }
 
-std::shared_ptr<Scene> SceneManager::getScene(const std::string &name)
+std::shared_ptr<Scene> SceneManager::GetScene(const std::string &name)
 {
 	if (!name.empty())
 	{
 		if (_currentScene->getName() == name)
 		{
 			return _currentScene;
+		}
+		else if (name.back() == '_')//Is a private scene
+		{
+			for (auto&& s : _privateScenes)
+			{
+				if (s->GetName() == name)
+					return s;
+			}
 		}
 		else if (_scenes.find(name) != _scenes.end())
 		{

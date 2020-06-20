@@ -14,12 +14,12 @@ namespace fm
 	{
         public:
             SceneManager();
-            void setCurrentScene(const std::string &name, bool isPrivate);
+            void SetCurrentScene(const std::string &name, bool isPrivate);
             void AddNewScene(const std::string &inName);
 			void AddScene(std::shared_ptr<fm::Scene> inScene);
 
-			std::shared_ptr<Scene> getScene(const std::string &name);
-            inline std::shared_ptr<Scene> getCurrentScene() const {
+			std::shared_ptr<Scene> GetScene(const std::string &name);
+            inline std::shared_ptr<Scene> GetCurrentScene() const {
                 return _currentScene;
             }
             void Serialize(nlohmann::json &outjson);
@@ -37,9 +37,9 @@ namespace fm
 			~SceneManager();
 
         private:
-            std::shared_ptr<Scene> _currentScene = nullptr;
-            std::map<std::string, std::shared_ptr<Scene>> _scenes;
-			std::vector<std::shared_ptr<fm::Scene>> _privateScenes;
+            std::shared_ptr<Scene>							_currentScene = nullptr;
+            std::map<std::string, std::shared_ptr<Scene>>	_scenes;
+			std::vector<std::shared_ptr<fm::Scene>>			_privateScenes;
     };
 
 }

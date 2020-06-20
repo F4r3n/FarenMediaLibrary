@@ -73,10 +73,13 @@ namespace fm {
 			void ResetStatus();
 			void SetName(const std::string &inName);
 			const std::string& GetName() const;
+
+			void SetOrder(size_t inOrder) { _order = inOrder; }
+			size_t GetOrder() const { return _order; }
         private:
             Entity* _entity = nullptr;
 			bool	_oldStatus;
-			static size_t _counter;
+			size_t  _order = 0;
     };
 
 }

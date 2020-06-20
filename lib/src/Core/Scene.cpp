@@ -27,8 +27,10 @@ void Scene::destroy()
 
 std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 {
-	std::shared_ptr<fm::GameObject> o = std::make_shared<fm::GameObject>();
+	_UniqueIDScene++;
 
+	std::shared_ptr<fm::GameObject> o = std::make_shared<fm::GameObject>();
+	o->SetOrder(_UniqueIDScene);
 	if (defaultValue)
 	{
 		o->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0), fm::math::Vector3f(1, 1, 1), fm::math::vec3(0, 0, 0));

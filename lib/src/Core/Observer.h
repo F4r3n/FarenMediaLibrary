@@ -22,14 +22,21 @@ namespace fm
 	{
 	public:
 		Observable(const std::string inName) : _name(inName) {}
-		void Subscribe(std::shared_ptr<Observer> inObserver)
+		void Subscribe(Observer* inObserver)
 		{
 			_observers.push_back(inObserver);
 		}
 
-		void Unsubscribe(std::shared_ptr<Observer> inObserver)
+		void Unsubscribe(Observer* inObserver)
 		{
-			_observers.erase(std::remove(_observers.begin(), _observers.end(), inObserver), _observers.end());
+			if (!_observers.empty())
+			{
+				auto&& it = std::find(_observers.begin(), _observers.end(), inObserver);
+				if (it != _observers.end())
+				{
+					_observers.erase(it, _observers.end());
+				}
+			}
 		}
 
 		void NotifyAll(const EventObserver& inEvent)
@@ -41,8 +48,8 @@ namespace fm
 		}
 		const std::string& GetName() const { return _name; }
 	private:
-		std::string							   _name;
-		std::vector<std::shared_ptr<Observer>> _observers;
+		std::string			   _name;
+		std::vector<Observer*> _observers;
 
 	};
 }

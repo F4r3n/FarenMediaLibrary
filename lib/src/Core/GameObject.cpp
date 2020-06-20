@@ -15,8 +15,6 @@
 #include "Components/CText.h"
 
 using namespace fm;
-size_t GameObject::_counter = 0;
-
 
 
 GameObject::GameObject()
@@ -40,6 +38,7 @@ void GameObject::Serialize(nlohmann::json &outResult) const
     }
 	outResult["enabled"] = _entity->active;
 	outResult["components"] = compo;
+	outResult["order"] = _order;
 }
 
 
@@ -47,6 +46,14 @@ bool GameObject::Read(const nlohmann::json &inJson)
 {
 	_entity->active = inJson["enabled"];
 	const nlohmann::json compo = inJson["components"];
+	try
+	{
+		_order = inJson.at("order");
+	}
+	catch (std::exception& e)
+	{
+
+	}
     for (nlohmann::json::const_iterator it = compo.cbegin(); it != compo.cend(); ++it)
     {
         switch(std::stoi(it.key()))

@@ -437,6 +437,13 @@ void MainWindow::_ClearBeforeSceneChange()
 		});
 	}
 
+	if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
+	{
+		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([](gui::GWindow* inWindow) {
+			dynamic_cast<gui::GListEntities*>(inWindow)->OnBeforeLoad();
+			});
+	}
+
 	_currentEntity.reset();
 	_context.currentGameObjectSelected.reset();
 	_context.currentSceneName = "";
