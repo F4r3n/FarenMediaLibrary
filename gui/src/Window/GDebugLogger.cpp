@@ -1,7 +1,7 @@
-#include "debuglogger.h"
+#include "Window/GDebugLogger.h"
 using namespace gui;
 
-DebugLogger::DebugLogger() : GWindow("Logger", true, 0)
+GDebugLogger::GDebugLogger() : GWindow("Logger", true, 0)
 {
     _buffer.clear();
     _buffer.push_back(0);
@@ -13,12 +13,12 @@ DebugLogger::DebugLogger() : GWindow("Logger", true, 0)
 
 
 
-DebugLogger::~DebugLogger()
+GDebugLogger::~GDebugLogger()
 {
 
 }
 
-void DebugLogger::Clear()
+void GDebugLogger::Clear()
 {
     _mutex.lock();
     _buffer.clear();
@@ -27,7 +27,7 @@ void DebugLogger::Clear()
     _mutex.unlock();
 }
 
-void DebugLogger::AddLog(const fm::Debug::Message &message)
+void GDebugLogger::AddLog(const fm::Debug::Message &message)
 {
     _mutex.lock();
     if(_buffer.size() > 0 && _buffer[0] == 0)
@@ -44,7 +44,7 @@ void DebugLogger::AddLog(const fm::Debug::Message &message)
     _mutex.unlock();
 }
 
-void DebugLogger::_Update(float, Context &inContext)
+void GDebugLogger::_Update(float, Context &inContext)
 {
 	std::vector<fm::Debug::Message> messages = fm::Debug::get().Flush();
 	for (size_t i = 0; i < messages.size(); ++i)
@@ -53,7 +53,7 @@ void DebugLogger::_Update(float, Context &inContext)
 	}
 }
 
-void DebugLogger::CustomDraw()
+void GDebugLogger::CustomDraw()
 {
 
     if (ImGui::Button("Clear")) Clear();

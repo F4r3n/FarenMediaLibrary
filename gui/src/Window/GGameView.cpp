@@ -1,4 +1,4 @@
-#include "GameView.h"
+#include "GGameView.h"
 #include "Components/CCamera.h"
 #include "Core/SceneManager.h"
 #include "PickingSystem.h"
@@ -8,7 +8,7 @@
 #include "Core/Scene.h"
 #include "Core/Debug.h"
 using namespace gui;
-GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar
+GGameView::GGameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar
 												)
 {
 	_enabled = true;
@@ -18,11 +18,11 @@ GameView::GameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScr
 
 }
 
-GameView::~GameView() 
+GGameView::~GGameView() 
 {
 }
 
-void GameView::CustomDraw()
+void GGameView::CustomDraw()
 {
     if(_index >= 0 && _index < _previews.size()) 
 	{
@@ -37,17 +37,17 @@ void GameView::CustomDraw()
 
 }
 
-void GameView::BeforeWindowCreation()
+void GGameView::BeforeWindowCreation()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 }
-void GameView::AfterWindowCreation()
+void GGameView::AfterWindowCreation()
 {
 	ImGui::PopStyleVar(1);
 }
 
 
-void GameView::_Update(float dt, Context &inContext)
+void GGameView::_Update(float dt, Context &inContext)
 {
 
 	bool isRenderTextureReady = false;
@@ -103,7 +103,7 @@ void GameView::_Update(float dt, Context &inContext)
 }
 
 
-void GameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
+void GGameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
 {
 	CameraPreview preview;
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
@@ -124,7 +124,7 @@ void GameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
 	_index = _previews.size() - 1;
 }
 
-void GameView::Clear()
+void GGameView::Clear()
 {
 	_index = 0;
 	_previews.clear();
@@ -134,5 +134,5 @@ void GameView::Clear()
 
 
 
-void GameView::Resize() {}
-void GameView::Zoom() {}
+void GGameView::Resize() {}
+void GGameView::Zoom() {}

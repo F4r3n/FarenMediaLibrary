@@ -3,13 +3,13 @@
 
 namespace gui
 {
-	class ToolBar : public GWindow
+	class GToolBar : public GWindow
 	{
 
 
 	public:
-		ToolBar();
-		~ToolBar();
+		GToolBar();
+		~GToolBar();
 		virtual void CustomDraw() override;
 	private:
 		virtual void _Update(float, Context &inContext) override;

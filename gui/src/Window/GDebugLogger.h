@@ -3,15 +3,15 @@
 #include <Core/Debug.h>
 #include <imgui/imgui.h>
 #include <mutex>
-#include <GWindow.h>
+#include "Window/GWindow.h"
 
 namespace gui
 {
-	class DebugLogger : public gui::GWindow
+	class GDebugLogger : public gui::GWindow
 	{
 	public:
-		DebugLogger();
-		~DebugLogger();
+		GDebugLogger();
+		~GDebugLogger();
 		void    Clear();
 		void    CustomDraw() override;
 		void    AddLog(const fm::Debug::Message &message);

@@ -1,7 +1,7 @@
 #pragma once
 #define GUI
 
-#include "GWindow.h"
+#include "Window/GWindow.h"
 #include "Core/application.h"
 #include "inspector/inspector.hpp"
 #include "Core/Observer.h"

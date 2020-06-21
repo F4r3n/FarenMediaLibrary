@@ -1,5 +1,5 @@
 #pragma once
-#include "GWindow.h"
+#include "Window/GWindow.h"
 #include <memory>
 #include <unordered_map>
 #include <optional>
@@ -16,13 +16,13 @@ namespace gui
 {
 	typedef std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
 
-	class ListComponentWindow : public GWindow, public fm::Observer
+	class GListComponent : public GWindow, public fm::Observer
 	{
 
 
 	public:
-		ListComponentWindow();
-		~ListComponentWindow();
+		GListComponent();
+		~GListComponent();
 		virtual void CustomDraw() override;
 
 		void OnBeforeLoad(const std::string& inCurrentSceneName);

@@ -1,4 +1,4 @@
-#include "FileNavigator.h"
+#include "GFileNavigator.h"
 #include "Core/application.h"
 #include "Rendering/material.hpp"
 #include "Resource/ResourcesManager.h"

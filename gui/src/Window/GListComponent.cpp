@@ -1,4 +1,4 @@
-#include "ListComponentWindow.hpp"
+#include "GListComponent.hpp"
 #include "Core/GameObject.h"
 #include "Components/Components.h"
 
@@ -16,24 +16,24 @@
 #include "inspector/textInspector.hpp"
 using namespace gui;
 
-ListComponentWindow::ListComponentWindow() : GWindow("Inspector", true)
+GListComponent::GListComponent() : GWindow("Inspector", true)
 {
 	_enabled = true;
 	_kind = gui::WINDOWS::WIN_INSPECTOR;
 }
 
-ListComponentWindow::~ListComponentWindow()
+GListComponent::~GListComponent()
 {
 
 }
 
-void ListComponentWindow::_Update(float, Context &inContext)
+void GListComponent::_Update(float, Context &inContext)
 {
 	if(inContext.currentGameObjectSelected.has_value())
 		_currentGameObjectSelected = inContext.currentGameObjectSelected;
 }
 
-void ListComponentWindow::_Draw()
+void GListComponent::_Draw()
 {
 	if (_currentGameObjectSelected.has_value())
 	{
@@ -90,7 +90,7 @@ void ListComponentWindow::_Draw()
 	}
 }
 
-void ListComponentWindow::_DrawComponents(std::shared_ptr<fm::GameObject> currentEntity)
+void GListComponent::_DrawComponents(std::shared_ptr<fm::GameObject> currentEntity)
 {
 
 	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
@@ -159,7 +159,7 @@ void ListComponentWindow::_DrawComponents(std::shared_ptr<fm::GameObject> curren
 	}
 }
 
-void ListComponentWindow::_ClearInspectorComponents()
+void GListComponent::_ClearInspectorComponents()
 {
 	for (auto&& entities : _inspectorComponents)
 	{
@@ -170,13 +170,13 @@ void ListComponentWindow::_ClearInspectorComponents()
 }
 
 
-void ListComponentWindow::CustomDraw()
+void GListComponent::CustomDraw()
 {
 	_Draw();
 }
 
 
-void ListComponentWindow::OnBeforeLoad(const std::string& inCurrentSceneName)
+void GListComponent::OnBeforeLoad(const std::string& inCurrentSceneName)
 {
 	std::shared_ptr<fm::Scene> oldScene = fm::Application::Get().GetScene(inCurrentSceneName);
 	if (oldScene != nullptr)
@@ -186,7 +186,7 @@ void ListComponentWindow::OnBeforeLoad(const std::string& inCurrentSceneName)
 }
 
 
-void ListComponentWindow::OnAfterLoad(const std::string& inCurrentSceneName)
+void GListComponent::OnAfterLoad(const std::string& inCurrentSceneName)
 {
 	std::shared_ptr<fm::Scene> newScene = fm::Application::Get().GetScene(inCurrentSceneName);
 	if (newScene != nullptr)
@@ -194,7 +194,7 @@ void ListComponentWindow::OnAfterLoad(const std::string& inCurrentSceneName)
 }
 
 
-void ListComponentWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
+void GListComponent::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 {
 	if (o->GetName() == "Scene")
 	{

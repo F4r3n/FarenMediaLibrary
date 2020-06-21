@@ -11,7 +11,7 @@ namespace fms
 }
 namespace gui
 {
-	class GameView : public GWindow
+	class GGameView : public GWindow
 	{
 
 		struct CameraPreview
@@ -27,8 +27,8 @@ namespace gui
 
 
 	public:
-		GameView();
-		virtual ~GameView();
+		GGameView();
+		virtual ~GGameView();
 		void CustomDraw();
 		void BeforeWindowCreation();
 		void AfterWindowCreation();

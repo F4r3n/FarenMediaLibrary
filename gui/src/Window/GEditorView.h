@@ -16,7 +16,7 @@ namespace fm
 }
 namespace gui
 {
-	class EditorView : public GWindow
+	class GEditorView : public GWindow
 	{
 
 		struct CameraPreview
@@ -28,8 +28,8 @@ namespace gui
 
 
 	public:
-		EditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene);
-		virtual ~EditorView();
+		GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene);
+		virtual ~GEditorView();
 		void CustomDraw();
 		void BeforeWindowCreation();
 		void AfterWindowCreation();

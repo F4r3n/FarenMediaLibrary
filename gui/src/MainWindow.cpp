@@ -15,16 +15,18 @@
 #include "Core/GameObject.h"
 #include "Core/application.h"
 
-#include "GListEntities.h"
 #include "PortableFileDialog.h"
 #include "PickingSystem.h"
-#include "ToolBar.hpp"
-#include "debuglogger.h"
-#include "EditorView.h"
-#include "GameView.h"
 #include "Window.h"
-#include "ListComponentWindow.hpp"
-#include "FileNavigator.h"
+
+#include "Window/GListEntities.h"
+#include "Window/GToolBar.hpp"
+#include "Window/GDebugLogger.h"
+#include "Window/GEditorView.h"
+#include "Window/GGameView.h"
+#include "Window/GListComponent.hpp"
+#include "Window/GFileNavigator.h"
+#include "Window/GMaterialEditor.h"
 
 #include "Resource/ResourcesManager.h"
 
@@ -43,17 +45,18 @@ MainWindow::MainWindow()
 
 	_InitEditorCamera();
 
-	std::unique_ptr<gui::EditorView> gameView = std::make_unique<gui::EditorView>(_editorCamera, _editorScene);
+	std::unique_ptr<gui::GEditorView> gameView = std::make_unique<gui::GEditorView>(_editorCamera, _editorScene);
 	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
 
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
 	_windows[gui::WINDOWS::WIN_EDITOR_VIEW] = std::move(gameView);
-	_windows[gui::WINDOWS::WIN_LOGGER] = std::make_unique<gui::DebugLogger>();
-	_windows[gui::WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::ToolBar>();
-	_windows[gui::WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GameView>();
-	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::ListComponentWindow>();
+	_windows[gui::WINDOWS::WIN_LOGGER] = std::make_unique<gui::GDebugLogger>();
+	_windows[gui::WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::GToolBar>();
+	_windows[gui::WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GGameView>();
+	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::GListComponent>();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR] = std::make_unique<gui::GFileNavigator>();
+	_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR] = std::make_unique<gui::GMaterialEditor>();
 
 
 	fm::Debug::log("Init done");
@@ -78,7 +81,7 @@ void MainWindow::_AddEmptyScene()
 	go->addComponent<fmc::CCamera>()->Init();
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
-		gui::GameView* gv = dynamic_cast<gui::GameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
+		gui::GGameView* gv = dynamic_cast<gui::GGameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
 		go->SetName("Main camera");
 		gv->AddCamera(go);
 	}
@@ -430,14 +433,14 @@ void MainWindow::_ClearBeforeSceneChange()
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
 		_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
-			dynamic_cast<gui::GameView*>(inWindow)->Clear();
+			dynamic_cast<gui::GGameView*>(inWindow)->Clear();
 		});
 	}
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))
 	{
 		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
-			dynamic_cast<gui::ListComponentWindow*>(inWindow)->OnBeforeLoad(currentSceneName);
+			dynamic_cast<gui::GListComponent*>(inWindow)->OnBeforeLoad(currentSceneName);
 		});
 	}
 
@@ -466,7 +469,7 @@ void MainWindow::_InitGameView()
 			if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 			{
 				_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([go](gui::GWindow* inWindow) {
-					dynamic_cast<gui::GameView*>(inWindow)->AddCamera(go);
+					dynamic_cast<gui::GGameView*>(inWindow)->AddCamera(go);
 				});
 			}
 			break;
@@ -547,7 +550,7 @@ void MainWindow::_OnAfterLoad()
 	{
 		std::string currentSceneName = _context.currentSceneName;
 		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
-			dynamic_cast<gui::ListComponentWindow*>(inWindow)->OnAfterLoad(currentSceneName);
+			dynamic_cast<gui::GListComponent*>(inWindow)->OnAfterLoad(currentSceneName);
 			});
 	}
 	if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))

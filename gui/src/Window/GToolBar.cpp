@@ -1,28 +1,28 @@
-#include "ToolBar.hpp"
+#include "GToolBar.hpp"
 #include "Input/InputManager.h"
 #include "Core/application.h"
 using namespace gui;
 
-ToolBar::ToolBar() : GWindow("ToolBar", true)
+GToolBar::GToolBar() : GWindow("GToolBar", true)
 {
 	_enabled = true;
 	_state = TRANSFORM_CONTEXT::TRANSLATE;
 	_kind = WINDOWS::WIN_TOOLBAR;
 }
 
-ToolBar::~ToolBar()
+GToolBar::~GToolBar()
 {
 
 }
 
-void ToolBar::_Update(float, Context &inContext)
+void GToolBar::_Update(float, Context &inContext)
 {
 	_UpdateInputTransformContext(inContext);
 
 	inContext.currentTransformContext = _state;
 }
 
-void ToolBar::_UpdateInputTransformContext(Context &inContext)
+void GToolBar::_UpdateInputTransformContext(Context &inContext)
 {
 	ImGuiIO io = ImGui::GetIO();
 
@@ -44,7 +44,7 @@ void ToolBar::_UpdateInputTransformContext(Context &inContext)
 
 }
 
-void ToolBar::_DrawStartStop()
+void GToolBar::_DrawStartStop()
 {
 	ImVec2 windowsize = ImGui::GetWindowSize();
 	ImGui::SameLine(windowsize.x/2.0f - 3*50);
@@ -82,7 +82,7 @@ void ToolBar::_DrawStartStop()
 
 
 
-void ToolBar::_DrawTransformContext()
+void GToolBar::_DrawTransformContext()
 {
 	const ImVec2 buttonSize = ImVec2(30, 30);
 	const char* labelT = "T\0";
@@ -119,7 +119,7 @@ void ToolBar::_DrawTransformContext()
 }
 
 
-void ToolBar::CustomDraw()
+void GToolBar::CustomDraw()
 {
 	_DrawTransformContext();
 	_DrawStartStop();

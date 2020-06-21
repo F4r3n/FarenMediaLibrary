@@ -15,11 +15,6 @@ set(SOURCES ${SOURCES}
 	extlib/imgui/imgui_widgets.cpp
 	extlib/imgui/imgui_demo.cpp
 
-	
-	src/MainWindow.cpp
-	src/GWindow.cpp
-	src/EditorView.cpp
-	src/GameView.cpp
 	src/inspector/inspector.cpp
 	src/inspector/materialInspector.cpp
 	src/inspector/meshInspector.cpp
@@ -30,13 +25,22 @@ set(SOURCES ${SOURCES}
 	src/inspector/bodyInspector.cpp
 	src/inspector/colliderInspector.cpp
 	src/inspector/cameraInspector.cpp
-	src/debuglogger.cpp
-	src/ListComponentWindow.cpp
-	src/GListEntities.cpp
+	
+	src/MainWindow.cpp
+	src/Window/GWindow.cpp
+	src/Window/GEditorView.cpp
+	src/Window/GGameView.cpp
+	src/Window/GDebugLogger.cpp
+	src/Window/GListComponent.cpp
+	src/Window/GListEntities.cpp
+	src/Window/GToolBar.cpp
+	src/Window/GFileNavigator.cpp
+	src/Window/GWindow.cpp
+	src/Window/GMaterialEditor.cpp
+
+
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp
-	src/ToolBar.cpp
-	src/FileNavigator.cpp
 	src/ImGuizmo/ImGuizmo.cpp
 	)
 

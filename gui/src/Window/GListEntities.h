@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <GWindow.h>
+#include "Window/GWindow.h"
 #include <optional>
 #include "Core/Observer.h"
 #include <list>

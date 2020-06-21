@@ -1,4 +1,4 @@
-#include "EditorView.h"
+#include "GEditorView.h"
 #include "Components/CCamera.h"
 #include "Core/Scene.h"
 #include "Core/SceneManager.h"
@@ -13,7 +13,7 @@
 #include "Rendering/Graphics.hpp"
 
 using namespace gui;
-EditorView::EditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
+GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
 	GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar)
 {
 	_editorScene = inScene;
@@ -39,7 +39,7 @@ EditorView::EditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr
 
 }
 
-void EditorView::_DrawContentEditorCamera(Context &inContext)
+void GEditorView::_DrawContentEditorCamera(Context &inContext)
 {
 	if (!_editorView.id.has_value()) return;
 
@@ -74,12 +74,12 @@ void EditorView::_DrawContentEditorCamera(Context &inContext)
 }
 
 
-EditorView::~EditorView()
+GEditorView::~GEditorView()
 {
 	delete _pickingSystem;
 }
 
-void EditorView::CustomDraw()
+void GEditorView::CustomDraw()
 {
 
 	if (_editorView.renderTexture != nullptr && _editorView.renderTexture->isCreated())
@@ -96,16 +96,16 @@ void EditorView::CustomDraw()
     
 }
 
-void EditorView::BeforeWindowCreation()
+void GEditorView::BeforeWindowCreation()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 }
-void EditorView::AfterWindowCreation()
+void GEditorView::AfterWindowCreation()
 {
 	ImGui::PopStyleVar(1);
 }
 
-void EditorView::_EditObject()
+void GEditorView::_EditObject()
 {
 	if (!_editorView.id.has_value())
 		return;
@@ -156,22 +156,22 @@ void EditorView::_EditObject()
 }
 
 
-void EditorView::_CallBackPickingSystem(ecs::id inID)
+void GEditorView::_CallBackPickingSystem(ecs::id inID)
 {
 	_resultPicking = true;
 	_gameObjectSelectedByPicking = inID;
 }
 
 
-void EditorView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
+void GEditorView::SetPickingSystem(fms::PickingSystem *inPickingSystem)
 {
 	_pickingSystem = inPickingSystem;
-	std::function<void(ecs::id inID)> f = std::bind(&gui::EditorView::_CallBackPickingSystem, this, std::placeholders::_1);
+	std::function<void(ecs::id inID)> f = std::bind(&gui::GEditorView::_CallBackPickingSystem, this, std::placeholders::_1);
 	_pickingSystem->SetCallback(std::move(f));
 }
 
 
-void EditorView::_Update(float dt, Context &inContext)
+void GEditorView::_Update(float dt, Context &inContext)
 {
 	_DrawContentEditorCamera(inContext);
 
@@ -233,5 +233,5 @@ void EditorView::_Update(float dt, Context &inContext)
 
 
 
-void EditorView::Resize() {}
-void EditorView::Zoom() {}
+void GEditorView::Resize() {}
+void GEditorView::Zoom() {}
