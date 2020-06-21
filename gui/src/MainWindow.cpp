@@ -222,13 +222,22 @@ void MainWindow::_DrawMenu()
 
 					if (scene != nullptr && scene->GetName() == scene->GetPath().GetPath())
 					{
-						pfd::select_folder dialog = pfd::select_folder("Save to...", scene->GetName() + ".scene");
+						pfd::save_file dialog = pfd::save_file("Save to...", scene->GetName() + ".scene");
 						std::string&& resultFromDialog = dialog.result();
 
 						if (!resultFromDialog.empty())
 						{
-							fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
-							
+							fm::FilePath result(resultFromDialog);
+							fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::USER_LOCATION);
+
+							std::string relative;
+							fm::FilePath::GetRelativeFromRoot(p, result, relative);
+
+							if(!relative.empty())
+								result = fm::FilePath(fm::LOCATION::USER_LOCATION, relative);
+
+							scene = fm::Application::Get().RenameScene(scene, result);
+							fm::Application::Get().SetCurrentScene(scene->GetName());
 						}
 					}
 
@@ -581,7 +590,15 @@ void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 			break;
 
 		case fm::Application::Event::ON_PRE_STOP:
+			_OnPreLoad();
+			break;
+
+		case fm::Application::Event::ON_PRE_SCENE_LOAD:
 			_OnPreStop();
+			break;
+
+		case fm::Application::Event::ON_AFTER_SCENE_LOAD:
+			_OnAfterLoad();
 			break;
 		default:
 			break;

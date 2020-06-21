@@ -9,12 +9,15 @@ using namespace fm;
 
 size_t FindFromEnd(const std::string& inString, char toFind, size_t offset)
 {
+	if (inString.empty()) return std::string::npos;
+
 	size_t i = inString.size() - offset - 1;
+
 	while (i > 0 && inString[i] != toFind)
 	{
 		i--;
 	}
-	return i;
+	return i == 0 && inString[i] != toFind ? std::string::npos : i;
 }
 
 
@@ -107,8 +110,9 @@ std::string FilePath::GetName(bool withoutExtension) const
 
 	if (withoutExtension)
 	{
-		size_t index = name.rfind('.', name.size());
-		name = name.substr(0, index);
+		const size_t index = name.rfind('.', name.size());
+		if(index != std::string::npos)
+			name = name.substr(0, index);
 	}
 
 	return name;
@@ -116,9 +120,11 @@ std::string FilePath::GetName(bool withoutExtension) const
 
 std::string FilePath::_GetName() const
 {
-	size_t offset = IsFolder() ? 1 : 0;
-	size_t index = FindFromEnd(_path, GetFolderSeparator(), offset);
-	std::string name = _path.substr(index + 1, _path.size() - index - offset - 1);
+	const size_t offset = IsFolder() ? 1 : 0;
+	const size_t index = FindFromEnd(_path, GetFolderSeparator(), offset);
+	std::string name(_path);
+	if(index != std::string::npos)
+		name = _path.substr(index + 1, _path.size() - index - offset - 1);
 
 	return name;
 }

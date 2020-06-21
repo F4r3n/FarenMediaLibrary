@@ -37,7 +37,7 @@ namespace fm
 			void							ClearAll(bool clearPrivate);
 
 			std::shared_ptr<fm::Scene>		AddPrivateScene(const std::string &inName);
-			bool							ClearScene(const std::string &inName, bool isPrivate);
+			bool							ClearScene(const std::string &inName, bool isPrivate, bool remove = false);
 			std::shared_ptr<Scene>			RenameScene(std::shared_ptr<Scene> inCurrentScene, const fm::FilePath& inPath);
         private:
             std::shared_ptr<Scene>							_currentScene = nullptr;
