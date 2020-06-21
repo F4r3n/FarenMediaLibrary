@@ -40,7 +40,7 @@ MainWindow::MainWindow()
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
-	_context.currentSceneName = fm::Application::Get().CreateNewScene("newScene")->getName();
+	_context.currentSceneName = fm::Application::Get().CreateNewScene(fm::FilePath("newScene"))->GetName();
 	_editorScene = fm::Application::Get().CreateEditorScene();
 
 	_InitEditorCamera();
@@ -108,9 +108,22 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::_DisplayWindow_Create_Project()
+{
+	pfd::select_folder dialog = pfd::select_folder("Create to...", ".");
+	std::string&& resultFromDialog = dialog.result();
+
+	if (!resultFromDialog.empty())
+	{
+		fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
+
+		fm::Application::Get().SetUserDirectory(fm::Folder(result));
+		fm::Application::Get().Serialize();
+	}
+}
 
 
-void MainWindow::_DisplayWindow_Save()
+void MainWindow::_DisplayWindow_Save_Project()
 {
 	pfd::select_folder dialog = pfd::select_folder("Save to...", ".");
 	std::string&& resultFromDialog = dialog.result();
@@ -124,6 +137,27 @@ void MainWindow::_DisplayWindow_Save()
 	}
 }
 
+
+void MainWindow::_DisplayWindow_Create_Scene()
+{
+	auto scene = fm::Application::Get().GetCurrentScene();
+	if (scene != nullptr)
+	{
+		scene->Save();
+	}
+	
+	pfd::save_file dialog = pfd::save_file("Create to...", "newScene.scene");
+	std::string&& resultFromDialog = dialog.result();
+
+	if (!resultFromDialog.empty())
+	{
+		fm::FilePath result(resultFromDialog);
+
+		fm::Application::Get().CreateNewScene(result);
+	}
+}
+
+
 bool MainWindow::IsWindowAvailable(gui::WINDOWS inWindow)
 {
 	gui::GWindow* window = _windows[inWindow].get();
@@ -131,7 +165,7 @@ bool MainWindow::IsWindowAvailable(gui::WINDOWS inWindow)
 }
 
 
-void MainWindow::_DisplayWindow_Load()
+void MainWindow::_DisplayWindow_Load_Project()
 {
 	pfd::open_file dialog = pfd::open_file("Choose files to read", ".",
 		{ "Fml files", "*.fml",
@@ -144,7 +178,6 @@ void MainWindow::_DisplayWindow_Load()
 	{
 		fm::FilePath result(resultFromDialog.front());
 		fm::Application::Get().LoadProject(result);
-
 	}
 }
 
@@ -179,24 +212,68 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::BeginMenu("Save"))
 			{
-				if (ImGui::MenuItem("Save to ..."))
+				if (ImGui::MenuItem("Project to ..."))
 				{
-					_DisplayWindow_Save();
+					_DisplayWindow_Save_Project();
 				}
-				if (ImGui::MenuItem("Save"))
+				if (ImGui::MenuItem("Scene"))
 				{
+					auto scene = fm::Application::Get().GetCurrentScene();
+
+					if (scene != nullptr && scene->GetName() == scene->GetPath().GetPath())
+					{
+						pfd::select_folder dialog = pfd::select_folder("Save to...", scene->GetName() + ".scene");
+						std::string&& resultFromDialog = dialog.result();
+
+						if (!resultFromDialog.empty())
+						{
+							fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
+							
+						}
+					}
+
 					fm::Application::Get().SerializeCurrentScene();
 				}
 
 				ImGui::EndMenu();
 			}
-
+			if (ImGui::BeginMenu("New"))
+			{
+				if (ImGui::MenuItem("Project"))
+				{
+					_DisplayWindow_Create_Project();
+				}
+				if (ImGui::MenuItem("Scene"))
+				{
+					_DisplayWindow_Create_Scene();
+				}
+				ImGui::EndMenu();
+			}
 			if (ImGui::BeginMenu("Load"))
 			{
-
-				if (ImGui::MenuItem("Load from ..."))
+				if (ImGui::MenuItem("Project ..."))
 				{
-					_DisplayWindow_Load();
+					_DisplayWindow_Load_Project();
+				}
+				if (ImGui::MenuItem("Scene ..."))
+				{
+					pfd::open_file dialog = pfd::open_file("Choose files to read", ".",
+						{ "scene files", "*.scene",
+						  "All Files", "*" },
+						false);
+
+					std::vector<std::string> resultFromDialog = dialog.result();
+
+					if (!resultFromDialog.empty())
+					{
+						fm::FilePath result(resultFromDialog.front());
+						auto s = fm::Application::Get().LoadScene(result);
+
+						if (s != nullptr)
+						{
+							fm::Application::Get().SetCurrentScene(s->GetName());
+						}
+					}
 				}
 				ImGui::EndMenu();
 			}
@@ -460,7 +537,7 @@ void MainWindow::_InitGameView()
 {
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
 
-	auto&& v = currentScene->getAllGameObjects();
+	auto&& v = currentScene->GetAllGameObjects();
 	for (auto &&o : v)
 	{
 		std::shared_ptr<fm::GameObject> go = o.second;

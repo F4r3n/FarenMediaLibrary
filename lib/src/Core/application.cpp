@@ -21,6 +21,7 @@ Application::~Application()
 {
 }
 
+
 void Application::SetConfig(const Config &inConfig)
 {
 	_currentConfig = inConfig;
@@ -31,22 +32,27 @@ void Application::SetConfig(const Config &inConfig)
 	}
 }
 
+
 Application::Application() : fm::Observable("Application")
 {
 	_sceneManager = std::make_unique<fm::SceneManager>();
 }
 
 
-
 bool Application::SerializeCurrentScene() const
 {
+	_sceneManager->GetCurrentScene()->Save();
 	return Serialize();
 }
 
-std::shared_ptr<fm::Scene> Application::CreateNewScene(const std::string &inNewSceneName)
+
+std::shared_ptr<fm::Scene> Application::CreateNewScene(const fm::FilePath& inScenePath)
 {
-	_sceneManager->AddNewScene("newScene");
-	_sceneManager->SetCurrentScene("newScene", false);
+	std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(inScenePath);
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_SCENE_LOAD));
+	_sceneManager->SetCurrentScene(scene->GetName(), false);
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_SCENE_LOAD));
+
 	return _sceneManager->GetCurrentScene();
 }
 
@@ -71,6 +77,7 @@ bool Application::Serialize() const
 
 }
 
+
 bool Application::Read()
 {
     nlohmann::json s;
@@ -83,6 +90,7 @@ bool Application::Read()
     return true;
 }
 
+
 void Application::Start(bool inSandbox)
 {
 
@@ -94,7 +102,7 @@ void Application::Start(bool inSandbox)
 		_sceneManager->SerializeCurrentScene(save);
 
 		std::shared_ptr<fm::Scene> current = _sceneManager->GetCurrentScene();
-		_nameLastScene = current->getName();
+		_nameLastScene = current->GetName();
 		std::string privateName = _nameLastScene + "_";
 		std::shared_ptr<fm::Scene> s = _sceneManager->AddPrivateScene(privateName);
 		s->Read(save);
@@ -110,6 +118,7 @@ void Application::Start(bool inSandbox)
 
 }
 
+
 void Application::Stop()
 {
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_STOP));
@@ -123,6 +132,7 @@ void Application::Stop()
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_STOP));
 
 }
+
 
 fm::Window* Application::GetWindow() const
 {
@@ -183,35 +193,42 @@ void Application::SetUserDirectory(const fm::Folder &inPath)
 	_currentConfig.userDirectory = inPath;
 }
 
+
 const fm::Folder& Application::GetUserDirectory() const
 {
 	return _currentConfig.userDirectory;
 }
+
 
 void Application::SetProjectName(const std::string &inName)
 {
 	_currentConfig.name = inName;
 }
 
+
 const fm::Config& Application::GetCurrentConfig() const
 {
 	return _currentConfig;
 }
+
 
 std::shared_ptr<fm::Scene> Application::GetScene(const std::string &inName) const
 {
 	return _sceneManager->GetScene(inName);
 }
 
+
 const std::string& Application::GetCurrentSceneName() const
 {
-	return _sceneManager->GetCurrentScene()->getName();
+	return _sceneManager->GetCurrentScene()->GetName();
 }
+
 
 std::shared_ptr<fm::Scene> Application::GetCurrentScene() const
 {
 	return _sceneManager->GetCurrentScene();
 }
+
 
 void Application::RegisterCurrentConfig()
 {
@@ -229,6 +246,7 @@ void Application::RegisterCurrentConfig()
 
 }
 
+
 void Application::GetLastConfigs(std::vector<fm::Config> &outConfig)
 {
 	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
@@ -237,14 +255,47 @@ void Application::GetLastConfigs(std::vector<fm::Config> &outConfig)
 	}
 }
 
+
 bool Application::IsRunning() const
 {
 	return _engine->GetStatus() == SYSTEM_MANAGER_MODE::RUNNING;
 }
 
+std::shared_ptr<fm::Scene>	Application::RenameScene(std::shared_ptr<fm::Scene> inCurrentScene, const fm::FilePath& inPath)
+{
+	bool isSameScene = _sceneManager->GetCurrentScene()->GetName() == inCurrentScene->GetName();
+
+	auto s = _sceneManager->RenameScene(inCurrentScene, inPath);
+	if (isSameScene)
+	{
+		SetCurrentScene(s->GetName());
+	}
+	return s;
+}
 
 
+std::shared_ptr<fm::Scene> Application::LoadScene(const fm::FilePath& inPath)
+{
+	auto s = _sceneManager->GetScene(inPath.GetName(true));
+	if (s != nullptr)
+	{
+		s->Load();
+	}
+	else
+	{
+		s = _sceneManager->AddNewScene(inPath);
+	}
 
+	return s;
+}
+
+
+void Application::SetCurrentScene(const std::string& inName)
+{
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_SCENE_LOAD));
+	_sceneManager->SetCurrentScene(inName, false);
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_SCENE_LOAD));
+}
 
 
 

@@ -47,7 +47,7 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
 	if (camera != nullptr && camera->IsActive() && currentScene != nullptr)
 	{
-		fm::Scene::MapOfGameObjects gos = currentScene->getAllGameObjects();
+		fm::Scene::MapOfGameObjects gos = currentScene->GetAllGameObjects();
 		{
 			fm::CommandBuffer commandBuffer;
 			commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);

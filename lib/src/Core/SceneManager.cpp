@@ -5,16 +5,25 @@
 #include "Core/SceneManager.h"
 #include "Core/GameObject.h"
 using namespace fm;
-SceneManager::SceneManager() {
 
+SceneManager::SceneManager()
+{
 }
 
-SceneManager::~SceneManager() {
 
+SceneManager::~SceneManager()
+{
 }
 
-void SceneManager::SetCurrentScene(const std::string &name, bool isPrivate) {
+namespace keys
+{
+	const std::string scenes("Scenes");
+	const std::string path("path");
+}
 
+
+void SceneManager::SetCurrentScene(const std::string &name, bool isPrivate)
+{
 	if (!isPrivate)
 	{
 		std::map<std::string, std::shared_ptr<Scene>>::iterator it = _scenes.find(name);
@@ -27,27 +36,28 @@ void SceneManager::SetCurrentScene(const std::string &name, bool isPrivate) {
 	{
 		for (auto &s : _privateScenes)
 		{
-			if (s->getName() == name)
+			if (s->GetName() == name)
 			{
 				_currentScene = s;
 				break;
 			}
 		}
 	}
-
-
 }
 
 
 void SceneManager::Serialize(nlohmann::json &outjson)
 {
+	nlohmann::json json;
+
     for(auto &scene : _scenes)
     {
-        nlohmann::json s;
-        scene.second->Serialize(s);
-        outjson[scene.second->getName()] =  s;
+		if(fm::File(scene.second->GetPath()).Exist())
+			json.push_back(scene.second->GetPath().GetFileSystemPath());
     }
+	outjson[keys::scenes] = json;
 }
+
 
 void SceneManager::SerializeCurrentScene(nlohmann::json &outjson)
 {
@@ -60,7 +70,7 @@ bool SceneManager::SerializePrivate(const std::string &inName, nlohmann::json &o
 	nlohmann::json json;
 	for (auto& s : _privateScenes)
 	{
-		if (s->getName() == inName)
+		if (s->GetName() == inName)
 		{
 			s->Serialize(json);
 			outjson = json;
@@ -75,7 +85,7 @@ bool SceneManager::ReadPrivate(const std::string &inName, const nlohmann::json &
 {
 	for (auto& s : _privateScenes)
 	{
-		if (s->getName() == inName)
+		if (s->GetName() == inName)
 		{
 			s->Read(injson);
 			return true;
@@ -84,35 +94,43 @@ bool SceneManager::ReadPrivate(const std::string &inName, const nlohmann::json &
 	return false;
 }
 
+
 bool SceneManager::Read(const nlohmann::json &injson)
 {
-    for (nlohmann::json::const_iterator it = injson.cbegin(); it != injson.cend(); ++it) 
-	{
-		_currentScene = std::make_shared<fm::Scene>(it.key());
-        nlohmann::json o = it.value();
-		_currentScene->Read(o);
+	nlohmann::json listOfScenes = injson.at(keys::scenes);
 
+    for (nlohmann::json::const_iterator it = listOfScenes.cbegin(); it != listOfScenes.cend(); ++it)
+	{
+		std::string pathScene = it.value().at(keys::path);
+		_currentScene = std::make_shared<fm::Scene>(pathScene);
+        //nlohmann::json o = it.value();
+		//_currentScene->Read(o);
         AddScene(_currentScene);
     }
     return true;
 }
 
+
 void SceneManager::AddScene(std::shared_ptr<fm::Scene> inScene)
 {
-	_scenes.insert(std::pair<std::string, std::shared_ptr<Scene>>(inScene->getName(), inScene));
+	_scenes.insert(std::pair<std::string, std::shared_ptr<Scene>>(inScene->GetName(), inScene));
 }
 
 
-void SceneManager::AddNewScene(const std::string &inName)
+std::shared_ptr<fm::Scene> SceneManager::AddNewScene(const fm::FilePath& inPath)
 {
-    _scenes.insert(std::pair<std::string, std::shared_ptr<Scene>>(inName, std::make_shared<Scene>(inName)));
+	std::shared_ptr<fm::Scene> scene = std::make_shared<fm::Scene>(inPath);
+    _scenes.insert(std::pair<std::string, std::shared_ptr<Scene>>(scene->GetName(), scene));
+
+	return scene;
 }
+
 
 std::shared_ptr<Scene> SceneManager::GetScene(const std::string &name)
 {
 	if (!name.empty())
 	{
-		if (_currentScene->getName() == name)
+		if (_currentScene->GetName() == name)
 		{
 			return _currentScene;
 		}
@@ -132,11 +150,12 @@ std::shared_ptr<Scene> SceneManager::GetScene(const std::string &name)
     return nullptr;
 }
 
+
 std::shared_ptr<fm::Scene> SceneManager::AddPrivateScene(const std::string &inName)
 {
 	for (auto& s : _privateScenes)
 	{
-		if (s->getName() == inName)
+		if (s->GetName() == inName)
 		{
 			return s;
 		}
@@ -145,12 +164,12 @@ std::shared_ptr<fm::Scene> SceneManager::AddPrivateScene(const std::string &inNa
 	return _privateScenes.emplace_back(std::make_shared<fm::Scene>(inName));
 }
 
+
 void SceneManager::ClearAll(bool clearPrivate)
 {
-
 	for (auto &scene : _scenes)
 	{
-		scene.second->destroy();
+		scene.second->Destroy();
 	}
 	_scenes.clear();
 
@@ -158,12 +177,11 @@ void SceneManager::ClearAll(bool clearPrivate)
 	{
 		for (auto &scene : _privateScenes)
 		{
-			scene->destroy();
+			scene->Destroy();
 		}
 		_privateScenes.clear();
 	}
 }
-
 
 
 bool SceneManager::ClearScene(const std::string &inName, bool isPrivate)
@@ -174,7 +192,7 @@ bool SceneManager::ClearScene(const std::string &inName, bool isPrivate)
 		std::map<std::string, std::shared_ptr<Scene>>::iterator it = _scenes.find(inName);
 		if (it != _scenes.end())
 		{
-			it->second->destroy();
+			it->second->Destroy();
 			isFound = true;
 		}
 	}
@@ -183,9 +201,9 @@ bool SceneManager::ClearScene(const std::string &inName, bool isPrivate)
 		std::vector<std::shared_ptr<fm::Scene>>::iterator it = _privateScenes.begin();
 		for (it; it != _privateScenes.end(); it++)
 		{
-			if ((*it)->getName() == inName)
+			if ((*it)->GetName() == inName)
 			{
-				(*it)->destroy();
+				(*it)->Destroy();
 				isFound = true;
 				break;
 			}
@@ -196,8 +214,20 @@ bool SceneManager::ClearScene(const std::string &inName, bool isPrivate)
 		}
 	}
 
-
 	return isFound;
 }
 
+
+std::shared_ptr<Scene> SceneManager::RenameScene(std::shared_ptr<Scene> inCurrentScene, const fm::FilePath& inPath)
+{
+	nlohmann::json json;
+	inCurrentScene->Serialize(json);
+
+	ClearScene(inCurrentScene->GetName(), false);
+
+	auto scene = AddNewScene(inPath);
+	scene->Read(json);
+
+	return scene;
+}
 

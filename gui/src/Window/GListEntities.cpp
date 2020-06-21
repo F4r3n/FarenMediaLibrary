@@ -108,7 +108,7 @@ void GListEntities::_PurgeTree(LinkedTreeGO::Node<ecs::id>* parent, const std::s
 void GListEntities::_UpdateTree()
 {
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_currentSceneName);
-	fm::Scene::MapOfGameObjects listEntities = currentScene->getAllGameObjects();
+	fm::Scene::MapOfGameObjects listEntities = currentScene->GetAllGameObjects();
 
 	PurgeTree();
 
@@ -279,7 +279,7 @@ void GListEntities::CustomDraw()
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_currentSceneName);
 	if (currentScene != nullptr)
 	{
-		fm::Scene::MapOfGameObjects listEntities = currentScene->getAllGameObjects();
+		fm::Scene::MapOfGameObjects listEntities = currentScene->GetAllGameObjects();
 		size_t i = 0;
 
 		_IterateTree();

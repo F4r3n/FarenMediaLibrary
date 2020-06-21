@@ -3,19 +3,43 @@
 #include <nlohmann/json.hpp>
 #include "Components/CTransform.h"
 #include "Components/CIdentity.h"
+#include <fstream>
 using namespace fm;
 
-Scene::Scene(const std::string &name) : fm::Observable("Scene")
+Scene::Scene(const fm::FilePath &inPath) : fm::Observable("Scene"), _path(inPath), _name(inPath.GetName(true))
 {
-    _name = name;
 }
+Scene::Scene(const std::string& inName) : fm::Observable("Scene"), _name(inName)
+{
 
+}
 
 Scene::~Scene()
 {
 }
 
-void Scene::destroy()
+void Scene::Load()
+{
+	std::ifstream i(_path.GetPath());
+	nlohmann::json json;
+	i >> json;
+
+	Read(json);
+	_isDirty = false;
+}
+
+void Scene::Save()
+{
+	nlohmann::json json;
+	Serialize(json);
+
+	std::ofstream o(_path.GetPath());
+	o << json << std::endl;
+
+	_isDirty = false;
+}
+
+void Scene::Destroy()
 {
     for(auto &&e : _gos)
     {
@@ -39,7 +63,7 @@ std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 	}
 	ecs::id id = o->getID();
 	_gos[o->getID()] = move(o);
-
+	_isDirty = true;
 	NotifyAll(fm::EventObserver((size_t)Event::CREATE_GAMEOBJECT, id));
 	return GetGameObjectByID(id);
 }
@@ -105,6 +129,8 @@ void Scene::DeleteGameObjectByID(ecs::id inID)
 		it->second->destroy();
 		_gos.erase(inID);
 	}
+	_isDirty = true;
+
 	NotifyAll(fm::EventObserver((size_t)Event::DELETE_GAMEOBJECT,inID));
 }
 

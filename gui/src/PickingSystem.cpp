@@ -73,7 +73,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 			_camera->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
 		}
 
-		for (auto && o : scene->getAllGameObjects())
+		for (auto && o : scene->GetAllGameObjects())
 		{
 			std::shared_ptr<fm::GameObject> go = o.second;
 			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())

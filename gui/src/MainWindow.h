@@ -59,8 +59,11 @@ protected:
 private:
 	void _DrawMenu();
 
-	void _DisplayWindow_Load();
-	void _DisplayWindow_Save();
+	void _DisplayWindow_Load_Project();
+	void _DisplayWindow_Save_Project();
+	void _DisplayWindow_Create_Project();
+
+	void _DisplayWindow_Create_Scene();
 
 	void _ConfigureStyle();
 	void _InitEditorCamera();
