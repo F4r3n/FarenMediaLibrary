@@ -78,6 +78,8 @@ public:
 	const std::string& GetTitle() const { return _name; }
 	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
 	void NeedUpdate() { _needUpdate = true; }
+
+	void EnableCustomDraw(bool enable) { _enableCustomDraw = enable; }
 protected:
 	virtual void			_Update(float, Context &inContext) {};
 	virtual void			CustomDraw();
@@ -110,6 +112,7 @@ private:
 	bool								  _hasBeenDrawn;
 	bool								  _isVisible;
 	bool								  _needUpdate = false;
+	bool								  _enableCustomDraw = true;
 };
 }
 

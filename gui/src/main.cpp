@@ -57,8 +57,8 @@ int main()
 
 		if (isMainWindowInitialized)
 		{
-			mainWindow->Update(hasFocus);
-			mainWindow->Draw();
+			mainWindow->OnUpdate(hasFocus, false);
+			mainWindow->OnDraw();
 		}
 		else
 		{

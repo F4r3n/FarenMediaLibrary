@@ -60,7 +60,7 @@ void Renderer::blit(fm::Graphics& graphics,
     dest.bind();
     shader->Use();
     graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), (int)source.GetColorBufferTexture(0).GetKind());
-
+	
     graphics.Draw(quad);
 }
 

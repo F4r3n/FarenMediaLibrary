@@ -27,12 +27,12 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         bool IsMultiSampled() const {return _multiSampling > 0;}
         unsigned int GetId() const {return _framebuffer;}
 
-		void Clone(const RenderTexture &inRenderTexture);
-		const RenderTexture& operator=(const RenderTexture &&inRenderTexture);
-		const RenderTexture& operator=(const RenderTexture &inRenderTexture);
+		const RenderTexture& operator=(RenderTexture &&inRenderTexture);
+		const RenderTexture& operator=(const RenderTexture &inRenderTexture)= delete;
 
     private:
-		void release();
+		void _Clone(const RenderTexture& inRenderTexture);
+		void _Release();
 
         bool _isReady = false;
         size_t _width = 0;

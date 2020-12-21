@@ -5,6 +5,7 @@
 #include "Core/application.h"
 #include "inspector/inspector.hpp"
 #include "Core/Observer.h"
+#include <any>
 namespace fmc 
 {
     class CTransform;
@@ -40,21 +41,21 @@ typedef std::unordered_map<gui::WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWin
 public:
     MainWindow();
     ~MainWindow();
-	void Draw();
-	void Update(bool hasFocus);
+	void OnDraw();
+	void OnUpdate(bool hasFocus, bool force = false);
 	void Init();
 
 protected:
 	virtual void Notify(fm::Observable*, const fm::EventObserver& inEvent) override;
 
-	void _OnPreStart();
-	void _OnAfterStart();
+	void _OnPreStart(const std::any& inAny);
+	void _OnAfterStart(const std::any& inAny);
 
-	void _OnPreStop();
-	void _OnAfterStop();
+	void _OnPreStop(const std::any& inAny);
+	void _OnAfterStop(const std::any& inAny);
 
-	void _OnPreLoad();
-	void _OnAfterLoad();
+	void _OnPreLoad(const std::any& inAny);
+	void _OnAfterLoad(const std::any& inAny);
 
 private:
 	void _DrawMenu();
@@ -76,7 +77,7 @@ private:
 	void _Paste();
 	void _AddDock(gui::WINDOWS inWindow, ImGuiID inID);
 	bool IsWindowAvailable(gui::WINDOWS inWindow);
-
+	void _AfterLoad();
 private:
 	gui::Context						_context;
 	std::shared_ptr<fm::Scene>			_editorScene;
@@ -86,7 +87,8 @@ private:
 	std::shared_ptr <fm::GameObject>	_editorCamera;
 	bool								_needUpdate;
 	bool								_hasFocus;
-
+	bool								_enablePreview = true;
+	std::queue<std::function<void()>>	_events;
 	//==========Systems==============
 };
 

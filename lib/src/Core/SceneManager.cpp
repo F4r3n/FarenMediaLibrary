@@ -97,16 +97,23 @@ bool SceneManager::ReadPrivate(const std::string &inName, const nlohmann::json &
 
 bool SceneManager::Read(const nlohmann::json &injson)
 {
-	nlohmann::json listOfScenes = injson.at(keys::scenes);
-
-    for (nlohmann::json::const_iterator it = listOfScenes.cbegin(); it != listOfScenes.cend(); ++it)
+	try
 	{
-		std::string pathScene = (*it);
-		_currentScene = std::make_shared<fm::Scene>(pathScene);
-        //nlohmann::json o = it.value();
-		//_currentScene->Read(o);
-        AddScene(_currentScene);
-    }
+		nlohmann::json listOfScenes = injson.at(keys::scenes);
+
+		for (nlohmann::json::const_iterator it = listOfScenes.cbegin(); it != listOfScenes.cend(); ++it)
+		{
+			std::string pathScene = (*it);
+			_currentScene = std::make_shared<fm::Scene>(pathScene);
+			//nlohmann::json o = it.value();
+			//_currentScene->Read(o);
+			AddScene(_currentScene);
+		}
+	}
+	catch(std::out_of_range& e)
+	{
+		return false;
+	}
     return true;
 }
 

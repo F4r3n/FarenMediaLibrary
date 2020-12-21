@@ -142,6 +142,7 @@ class Application : public fm::Observable
 		std::shared_ptr<fm::Scene>	RenameScene(std::shared_ptr<fm::Scene> inCurrentScene, const fm::FilePath& inPath);
 		std::shared_ptr<fm::Scene>	LoadScene(const fm::FilePath& inPath);
 		void						SetCurrentScene(const std::string& inName);
+		void						NewProject(const fm::Folder& inPath);
     private:
 		Application();
 		fm::CircularBuffer<fm::Config,10>	_lastConfigsUsed;

@@ -8,11 +8,9 @@
 #include "Core/Scene.h"
 #include "Core/Debug.h"
 using namespace gui;
-GGameView::GGameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar
-												)
+GGameView::GGameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar)
 {
 	_enabled = true;
-	_index = -1;
 	_aspectMode = ASPECT_MODE::ASPECT_16_9;
 	_kind = gui::WINDOWS::WIN_SCENE_VIEW;
 
@@ -24,17 +22,15 @@ GGameView::~GGameView()
 
 void GGameView::CustomDraw()
 {
-    if(_index >= 0 && _index < _previews.size()) 
+	if (auto renderTexture = _preview.renderTexture.lock())
 	{
-		CameraPreview preview = _previews[_index];
-		if (preview.renderTexture != nullptr && preview.renderTexture->isCreated())
+		if (renderTexture->isCreated())
 		{
-			const fm::Texture texture = preview.renderTexture->GetColorBufferTexture(0);
-
-			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(),_startImagePos,_endImagePos);
+			const fm::Texture texture = renderTexture->GetColorBufferTexture(0);
+	
+			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(), _startImagePos, _endImagePos);
 		}
-    }
-
+	}
 }
 
 void GGameView::BeforeWindowCreation()
@@ -49,25 +45,20 @@ void GGameView::AfterWindowCreation()
 
 void GGameView::_Update(float dt, Context &inContext)
 {
-
-	bool isRenderTextureReady = false;
-
-	if (_index >= 0 && _index < _previews.size())
+	if (auto renderTexture = _preview.renderTexture.lock())
 	{
-		CameraPreview preview = _previews[_index];
-		isRenderTextureReady = preview.renderTexture != nullptr && preview.renderTexture->isCreated();
-	}
+		bool isRenderTextureReady = false;
 
-	if (isRenderTextureReady && HasBeenDrawn())
-	{
-		fm::math::vec2 size;
-		fm::math::vec2 start;
-		fm::math::vec2 startCursorPos;
-		if (_index >= 0 && _index < _previews.size())
+
+		isRenderTextureReady = renderTexture->isCreated();
+
+		if (isRenderTextureReady && HasBeenDrawn())
 		{
-			CameraPreview preview = _previews[_index];
+			fm::math::vec2 size;
+			fm::math::vec2 start;
+			fm::math::vec2 startCursorPos;
 
-			const float rapport = (float)preview.renderTexture->getWidth() / (float)preview.renderTexture->getHeight();
+			const float rapport = (float)renderTexture->getWidth() / (float)renderTexture->getHeight();
 
 			start = GetPosition();
 			size = GetSize();
@@ -80,7 +71,7 @@ void GGameView::_Update(float dt, Context &inContext)
 			else if (_aspectMode == ASPECT_MODE::ASPECT_16_9)
 			{
 				end.x = start.x + size.x;
-				end.y = start.y + size.x*9.0f/16.0f;
+				end.y = start.y + size.x * 9.0f / 16.0f;
 			}
 
 			_startImagePos.x = start.x;
@@ -93,41 +84,37 @@ void GGameView::_Update(float dt, Context &inContext)
 			{
 				fm::math::vec2 offset;
 				offset.x = 0;
-				offset.y = size.y*0.5f - (end.y - start.y)*0.5f;
+				offset.y = size.y * 0.5f - (end.y - start.y) * 0.5f;
 				_startImagePos += offset;
 				_endImagePos += offset;
 			}
-		}
 
+
+		}
 	}
 }
 
 
 void GGameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	CameraPreview preview;
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
 	if (!camera->IsInit())
 		camera->Init();
 	if (camera->HasTarget() && camera->GetTarget()->isCreated())
 	{
-		preview.renderTexture = camera->GetTarget();
+		_preview.renderTexture = camera->GetTarget();
 	}
 	else
 	{
-		preview.renderTexture = camera->SetTarget();
+		_preview.renderTexture = camera->SetTarget();
 	}
 
 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
-
-	_previews.push_back(preview);
-	_index = _previews.size() - 1;
 }
 
 void GGameView::Clear()
 {
-	_index = 0;
-	_previews.clear();
+	
 }
 
 

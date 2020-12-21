@@ -57,6 +57,7 @@ MainWindow::MainWindow()
 	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::GListComponent>();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR] = std::make_unique<gui::GFileNavigator>();
 	_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR] = std::make_unique<gui::GMaterialEditor>();
+	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->EnableCustomDraw(true);
 
 
 	fm::Debug::log("Init done");
@@ -86,7 +87,7 @@ void MainWindow::_AddEmptyScene()
 		gv->AddCamera(go);
 	}
 
-	_OnAfterLoad();
+	_AfterLoad();
 }
 
 void MainWindow::Init()
@@ -116,9 +117,7 @@ void MainWindow::_DisplayWindow_Create_Project()
 	if (!resultFromDialog.empty())
 	{
 		fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
-
-		fm::Application::Get().SetUserDirectory(fm::Folder(result));
-		fm::Application::Get().Serialize();
+		fm::Application::Get().NewProject(fm::Folder(result));
 	}
 }
 
@@ -382,8 +381,18 @@ void MainWindow::_Paste()
 }
 
 
-void MainWindow::Update(bool hasFocus)
+void MainWindow::OnUpdate(bool hasFocus, bool force)
 {
+
+	if (!force)
+	{
+		if(!_events.empty())
+		{
+			_events.front()();
+			_events.pop();
+		}
+	}
+
 	if (hasFocus && !_hasFocus)
 	{
 		fm::ResourcesManager::get().Reload();
@@ -415,7 +424,7 @@ void MainWindow::_AddDock(gui::WINDOWS inWindow, ImGuiID inID)
 
 
 
-void MainWindow::Draw()
+void MainWindow::OnDraw()
 {
 
 	bool p_open = true;
@@ -479,7 +488,7 @@ void MainWindow::Draw()
 
 	if (_needUpdate)
 	{
-		Update(_hasFocus);
+		OnUpdate(_hasFocus, true);
 	}
 	for (auto& window : _windows)
 	{
@@ -540,6 +549,8 @@ void MainWindow::_ClearBeforeSceneChange()
 	_currentEntity.reset();
 	_context.currentGameObjectSelected.reset();
 	_context.currentSceneName = "";
+
+
 	_needUpdate = true;
 }
 void MainWindow::_InitGameView()
@@ -570,35 +581,35 @@ void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 		switch ((fm::Application::Event)inEvent.eventKind)
 		{
 		case fm::Application::Event::ON_AFTER_LOAD:
-			_OnAfterLoad();
+			_OnAfterLoad(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_AFTER_START:
-			_OnAfterStart();
+			_OnAfterStart(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_AFTER_STOP:
-			_OnAfterStop();
+			_OnAfterStop(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_PRE_LOAD:
-			_OnPreLoad();
+			_OnPreLoad(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_PRE_START:
-			_OnPreStart();
+			_OnPreStart(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_PRE_STOP:
-			_OnPreLoad();
+			_OnPreLoad(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_PRE_SCENE_LOAD:
-			_OnPreStop();
+			_OnPreStop(inEvent.value);
 			break;
 
 		case fm::Application::Event::ON_AFTER_SCENE_LOAD:
-			_OnAfterLoad();
+			_OnAfterLoad(inEvent.value);
 			break;
 		default:
 			break;
@@ -608,34 +619,40 @@ void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 
 
 
-void MainWindow::_OnPreStart()
+void MainWindow::_OnPreStart(const std::any& inAny)
 {
-	_ClearBeforeSceneChange();
-	
+	_events.push([this]() {_ClearBeforeSceneChange(); });
+
 }
-void MainWindow::_OnAfterStart()
+void MainWindow::_OnAfterStart(const std::any& inAny)
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
 	_needUpdate = true;
 	
 }
-void MainWindow::_OnPreStop()
+void MainWindow::_OnPreStop(const std::any& inAny)
 {
-	_ClearBeforeSceneChange();
+	_events.push([this]() {_ClearBeforeSceneChange(); });
 }
-void MainWindow::_OnAfterStop()
+void MainWindow::_OnAfterStop(const std::any& inAny)
 {
-	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
-	_InitGameView();
-	_needUpdate = true;
+
+	_events.push([this]()
+		{
+			_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
+			_InitGameView();
+			_needUpdate = true;
+	});
+
 }
 
-void MainWindow::_OnPreLoad()
+void MainWindow::_OnPreLoad(const std::any& inAny)
 {
-	_ClearBeforeSceneChange();
+	_events.push([this]() {_ClearBeforeSceneChange(); });
 }
-void MainWindow::_OnAfterLoad()
+
+void MainWindow::_AfterLoad()
 {
 	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
 	_InitGameView();
@@ -656,7 +673,17 @@ void MainWindow::_OnAfterLoad()
 	}
 
 	_needUpdate = true;
+}
 
+
+void MainWindow::_OnAfterLoad(const std::any& inAny)
+{
+	std::function<void()> f = [this, inAny]() {
+		if(inAny.has_value())
+		std::any_cast<std::function<void(void)>>(inAny)();
+		_AfterLoad();
+	};
+	_events.push(f);
 }
 
 void MainWindow::_ConfigureStyle()

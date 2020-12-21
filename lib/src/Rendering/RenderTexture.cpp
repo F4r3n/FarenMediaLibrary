@@ -1,6 +1,7 @@
 #include "Rendering/RenderTexture.h"
 #include <iostream>
 #include <cassert>
+#include "Core/Debug.h"
 using namespace fm;
 
 RenderTexture::RenderTexture(size_t width, size_t height,
@@ -28,40 +29,23 @@ RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampli
         _types.push_back(renderTexture._types[i]);
     }
 }
-const RenderTexture& RenderTexture::operator=(const RenderTexture &inRenderTexture)
+
+
+
+const RenderTexture& RenderTexture::operator=(RenderTexture &&inRenderTexture)
 {
-	_width = inRenderTexture._width;
-	_height = inRenderTexture._height;
-	_depth = inRenderTexture._depth;
-	_numberColors = inRenderTexture._numberColors;
-	_multiSampling = inRenderTexture._multiSampling;
+	_Clone(inRenderTexture);
 
-	_formats.clear();
-	_types.clear();
-	for (unsigned int i = 0; i < inRenderTexture._numberColors; ++i)
-	{
-		_formats.push_back(inRenderTexture._formats[i]);
-		_types.push_back(inRenderTexture._types[i]);
-	}
-
-	_textureColorbuffer.clear();
-	for (auto && texture : inRenderTexture._textureColorbuffer)
-	{
-		_textureColorbuffer.emplace_back(texture);
-	}
-	_isReady = false;
+	inRenderTexture._formats.clear();
+	inRenderTexture._types.clear();
+	inRenderTexture._textureColorbuffer.clear();
+	inRenderTexture._rboDepth = 0;
+	inRenderTexture._framebuffer = 0;
 	return *this;
 }
 
 
-const RenderTexture& RenderTexture::operator=(const RenderTexture &&inRenderTexture)
-{
-	Clone(inRenderTexture);
-	return *this;
-}
-
-
-void RenderTexture::Clone(const RenderTexture &inRenderTexture)
+void RenderTexture::_Clone(const RenderTexture &inRenderTexture)
 {
 	_width = inRenderTexture._width;
 	_height = inRenderTexture._height;
@@ -95,30 +79,33 @@ void RenderTexture::create() {
     _isReady = _InitFrameBuffer(_formats.data(), _types.data());
 }
 
-RenderTexture::~RenderTexture() {
-	release();
+RenderTexture::~RenderTexture()
+{
+	_Release();
 }
 
-void RenderTexture::release() {
+void RenderTexture::_Release() {
     //std::cout << "Release render texture" << std::endl;
     for(unsigned int i = 0; i < _textureColorbuffer.size(); i++)
     {
         _textureColorbuffer[i].release();
     }
 	
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //rboDepth.release();
+
 	if (_rboDepth > 0)
 	{
 		glDeleteRenderbuffers(1, &_rboDepth);
 	}
-
+	
 	if (_framebuffer > 0)
 	{
 		glDeleteFramebuffers(1, &_framebuffer);
 	}
-
+	_textureColorbuffer.clear();
     _isReady = false;
+	_rboDepth = 0;
+	_framebuffer = 0;
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 }
 

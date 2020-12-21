@@ -61,6 +61,7 @@ std::shared_ptr<fm::Scene> Application::CreateEditorScene()
 	return _sceneManager->AddPrivateScene("_editor");
 }
 
+
 bool Application::Serialize() const
 {
 	
@@ -185,6 +186,18 @@ void Application::DeInit()
 {
     delete _engine;
 	delete _window;
+}
+
+void Application::NewProject(const fm::Folder& inPath)
+{
+	SetUserDirectory(inPath);
+
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD));
+
+	
+
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD, std::make_any<std::function<void()>>([this]() {_sceneManager->ClearAll(false); })));
+
 }
 
 

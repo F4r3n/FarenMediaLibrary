@@ -103,7 +103,8 @@ void GWindow::Draw()
 			_position.x = pos.x;
 			_position.y = pos.y;
 
-			CustomDraw();
+			if(_enableCustomDraw)
+				CustomDraw();
 
 			if (!_widgets.empty())
 			{

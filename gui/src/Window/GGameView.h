@@ -16,7 +16,7 @@ namespace gui
 
 		struct CameraPreview
 		{
-			std::shared_ptr<fm::RenderTexture> renderTexture;
+			std::weak_ptr<fm::RenderTexture> renderTexture;
 		};
 
 		enum ASPECT_MODE
@@ -39,10 +39,10 @@ namespace gui
 	private:
 		void _Update(float dt, Context &inContext);
 
-		std::vector<CameraPreview>	_previews;
-		size_t						_index;
+		CameraPreview				_preview;
 		fm::math::vec2				_startImagePos;
 		fm::math::vec2				_endImagePos;
 		ASPECT_MODE					_aspectMode;
+		
 	};
 }

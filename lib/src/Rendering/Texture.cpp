@@ -420,7 +420,10 @@ void Texture::setTo(int value, const fm::Recti& rect)
 
 void Texture::release()
 {
-    glDeleteTextures(1, &_id);
+	if (_id > 0)
+	{
+		glDeleteTextures(1, &_id);
+	}
 }
 
 void Texture::clear()

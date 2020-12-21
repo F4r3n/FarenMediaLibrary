@@ -85,12 +85,12 @@ void GEditorView::CustomDraw()
 	if (_editorView.renderTexture != nullptr && _editorView.renderTexture->isCreated())
 	{
 		const fm::Texture texture = _editorView.renderTexture->GetColorBufferTexture(0);
-
+	
 		ImGui::SetCursorPos(_cursorPos);
 		ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
 		ImGuizmo::SetDrawlist();
 		_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
-
+	
 		_EditObject();
 	}
     
