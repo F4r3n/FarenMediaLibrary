@@ -27,6 +27,7 @@
 #include "Window/GListComponent.hpp"
 #include "Window/GFileNavigator.h"
 #include "Window/GMaterialEditor.h"
+#include "Window/GLauncher.h"
 
 #include "Resource/ResourcesManager.h"
 
@@ -46,7 +47,7 @@ MainWindow::MainWindow()
 	_InitEditorCamera();
 
 	std::unique_ptr<gui::GEditorView> gameView = std::make_unique<gui::GEditorView>(_editorCamera, _editorScene);
-	gameView->SetPickingSystem(new fms::PickingSystem( _editorScene));
+	gameView->SetPickingSystem(std::make_unique<fms::PickingSystem>(_editorScene));
 
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
@@ -57,8 +58,12 @@ MainWindow::MainWindow()
 	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::GListComponent>();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR] = std::make_unique<gui::GFileNavigator>();
 	_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR] = std::make_unique<gui::GMaterialEditor>();
-	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->EnableCustomDraw(true);
-
+	_windows[gui::WINDOWS::WIN_LAUNCHER] = std::make_unique<gui::GLauncher>();
+	for (auto&& [key, value] : _windows)
+	{
+		value->Stop();
+	}
+	_windows[gui::WINDOWS::WIN_LAUNCHER]->Start();
 
 	fm::Debug::log("Init done");
 	_needUpdate = false;
@@ -92,7 +97,7 @@ void MainWindow::_AddEmptyScene()
 
 void MainWindow::Init()
 {
-	_AddEmptyScene();
+	//_AddEmptyScene();
 }
 
 
@@ -490,6 +495,7 @@ void MainWindow::OnDraw()
 	{
 		OnUpdate(_hasFocus, true);
 	}
+
 	for (auto& window : _windows)
 	{
 		if (window.second != nullptr)
@@ -497,8 +503,11 @@ void MainWindow::OnDraw()
 			window.second->Draw();
 		}
 	}
-	
-	_DrawMenu();
+
+	if (!_windows[gui::WINDOWS::WIN_LAUNCHER]->IsEnabled())
+	{
+		_DrawMenu();
+	}
 
 	ImGuiIO io = ImGui::GetIO();
 	if (_context.currentWindowFocused == gui::WINDOWS::WIN_EDITOR_VIEW)

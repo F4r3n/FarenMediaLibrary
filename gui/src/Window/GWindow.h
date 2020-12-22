@@ -39,6 +39,7 @@ namespace gui
 		WIN_FILE_NAVIGATOR,
 		WIN_MATERIAL_EDITOR,
 		WIN_NO_KIND,
+		WIN_LAUNCHER,
 		WIN_LAST
 
 	};
@@ -78,7 +79,6 @@ public:
 	const std::string& GetTitle() const { return _name; }
 	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
 	void NeedUpdate() { _needUpdate = true; }
-
 	void EnableCustomDraw(bool enable) { _enableCustomDraw = enable; }
 protected:
 	virtual void			_Update(float, Context &inContext) {};
@@ -86,6 +86,8 @@ protected:
 	virtual void			BeforeWindowCreation() {}
 	virtual void			AfterWindowCreation() {}
 	virtual void			WillClose();
+	virtual void			OnInit() {}
+
 			bool			HasFocus() const;
 	const	fm::math::vec2&	GetSize() const;
 	const	fm::math::vec2&	GetPosition() const;

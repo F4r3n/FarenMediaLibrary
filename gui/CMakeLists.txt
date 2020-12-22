@@ -35,6 +35,7 @@ set(SOURCES ${SOURCES}
 	src/Window/GListEntities.cpp
 	src/Window/GToolBar.cpp
 	src/Window/GFileNavigator.cpp
+	src/Window/GLauncher.cpp
 	src/Window/GWindow.cpp
 	src/Window/GMaterialEditor.cpp
 

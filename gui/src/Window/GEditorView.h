@@ -22,8 +22,7 @@ namespace gui
 		struct CameraPreview
 		{
 			std::optional<ecs::id> id;
-			std::shared_ptr<fm::RenderTexture> renderTexture;
-			bool enabled;
+			std::weak_ptr<fm::RenderTexture> renderTexture;
 		};
 
 
@@ -36,7 +35,7 @@ namespace gui
 		void Resize();
 		void Zoom();
 
-		void SetPickingSystem(fms::PickingSystem *inPickingSystem);
+		void SetPickingSystem(std::unique_ptr<fms::PickingSystem> inPickingSystem);
 	private:
 		void _Update(float dt, Context &inContext);
 
@@ -45,9 +44,9 @@ namespace gui
 		void _EditObject();
 		void _CallBackPickingSystem(ecs::id inID);
 	private:
-		fms::PickingSystem*		_pickingSystem;
-		CameraPreview			_editorView;
-		std::shared_ptr<fm::Scene> _editorScene;
+		std::unique_ptr<fms::PickingSystem>		_pickingSystem;
+		CameraPreview							_editorView;
+		std::weak_ptr<fm::Scene>				_editorScene;
 
 		fm::math::vec2			_startImagePos;
 		fm::math::vec2			_endImagePos;

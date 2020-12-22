@@ -16,10 +16,13 @@ using namespace fms;
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 {
 	_editorScene = inEditorScene;
-	_specialCamera = _editorScene->CreateGameObject(true);
-	_camera = _specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
-	_camera->Init();
-	_specialCamera->SetName("Camera");
+	_specialCamera = inEditorScene->CreateGameObject(true);
+	if (auto&& specialCamera = _specialCamera.lock())
+	{
+		_camera = specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
+		_camera->Init();
+		specialCamera->SetName("Camera");
+	}
 
 
 	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
@@ -42,56 +45,66 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 
 void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCameraID, const fm::math::vec2 &inPos)
 {
-	std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
+	std::weak_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 
-	std::shared_ptr<fm::GameObject> cameraGo = _editorScene->GetGameObjectByID(inCameraID);
-	if (cameraGo != nullptr && scene != nullptr)
+	if(auto && s = scene.lock())
 	{
-		_specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
-
-		_camera->SetCallBackOnPostRendering([this, inPos, inSceneName]()
+		std::shared_ptr<fm::GameObject> cameraGo = nullptr;
+		if(auto && editorScene = _editorScene.lock(); cameraGo = editorScene->GetGameObjectByID(inCameraID))
 		{
-			std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
-			if (scene != nullptr)
+
+			if (cameraGo != nullptr)
 			{
-				fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
-				_camera->GetTarget()->bind(true);
-				unsigned char pixel[4];
-				texture.GetPixel(inPos, pixel);
-				size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
-				std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(id);
-				if (go != nullptr)
+				if (auto&& specialCamera = _specialCamera.lock())
 				{
-					_callback(go->getID());
+					specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
 				}
-			}
-		});
 
-		{
-			fm::CommandBuffer commandBuffer;
-			commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-			_camera->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
-		}
+				_camera->SetCallBackOnPostRendering([this, inPos, inSceneName]()
+					{
+						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
+						if (scene != nullptr)
+						{
+							fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
+							_camera->GetTarget()->bind(true);
+							unsigned char pixel[4];
+							texture.GetPixel(inPos, pixel);
+							size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
+							std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(id);
+							if (go != nullptr)
+							{
+								_callback(go->getID());
+							}
+						}
+					});
 
-		for (auto && o : scene->GetAllGameObjects())
-		{
-			std::shared_ptr<fm::GameObject> go = o.second;
-			if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
-			{
-				fmc::CMesh* mesh = go->get<fmc::CMesh>();
+				{
+					fm::CommandBuffer commandBuffer;
+					commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+					_camera->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+				}
 
-				fm::CommandBuffer commandBuffer;
-				fm::MaterialProperties materialProperties = _material->GetProperties();
-				ecs::id i = go->getID();
-				unsigned char r[sizeof(i)];
-				memcpy(r, &i, sizeof(i));
-				
+				for (auto&& o : s->GetAllGameObjects())
+				{
+					std::shared_ptr<fm::GameObject> go = o.second;
+					if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
+					{
+						fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
-				//float colorID = go->getID();
-				materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0]/255.f, r[1]/255.f, r[2] / 255.f, r[3]/255.f)));
-				commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
+						fm::CommandBuffer commandBuffer;
+						fm::MaterialProperties materialProperties = _material->GetProperties();
+						ecs::id i = go->getID();
+						unsigned char r[sizeof(i)];
+						memcpy(r, &i, sizeof(i));
 
-				_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+
+						//float colorID = go->getID();
+						materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f)));
+						commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
+
+						_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+					}
+				}
 			}
 		}
 	}

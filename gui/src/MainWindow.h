@@ -87,7 +87,6 @@ private:
 	std::shared_ptr <fm::GameObject>	_editorCamera;
 	bool								_needUpdate;
 	bool								_hasFocus;
-	bool								_enablePreview = true;
 	std::queue<std::function<void()>>	_events;
 	//==========Systems==============
 };

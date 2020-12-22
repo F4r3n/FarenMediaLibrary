@@ -85,8 +85,8 @@ RenderTexture::~RenderTexture()
 }
 
 void RenderTexture::_Release() {
-    //std::cout << "Release render texture" << std::endl;
-    for(unsigned int i = 0; i < _textureColorbuffer.size(); i++)
+
+	for(unsigned int i = 0; i < _textureColorbuffer.size(); i++)
     {
         _textureColorbuffer[i].release();
     }
@@ -101,12 +101,8 @@ void RenderTexture::_Release() {
 	{
 		glDeleteFramebuffers(1, &_framebuffer);
 	}
-	_textureColorbuffer.clear();
-    _isReady = false;
-	_rboDepth = 0;
-	_framebuffer = 0;
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
 
 bool RenderTexture::isCreated() const
