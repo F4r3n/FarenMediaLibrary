@@ -44,7 +44,7 @@ public:
 	void OnDraw();
 	void OnUpdate(bool hasFocus, bool force = false);
 	void Init();
-
+	void LoadProject(const fm::FilePath& inFilePath);
 protected:
 	virtual void Notify(fm::Observable*, const fm::EventObserver& inEvent) override;
 

@@ -77,7 +77,12 @@ void GWindow::Draw()
 
 
 		BeforeWindowCreation();
-		if (ImGui::Begin(_name.c_str(), &_enabled, _option))
+		if (_modal)
+		{
+			ImGui::OpenPopup(_name.c_str());
+		}
+
+		if ((_modal && ImGui::BeginPopup(_name.c_str())) || ImGui::Begin(_name.c_str(), &_enabled, _option))
 		{
 			_isVisible = true;
 			AfterWindowCreation();
@@ -120,6 +125,12 @@ void GWindow::Draw()
 				WillClose();
 			}
 			_hasBeenDrawn = true;
+
+			if (_modal)
+			{
+				ImGui::EndPopup();
+			}
+
 		}
 		else
 		{
@@ -128,7 +139,10 @@ void GWindow::Draw()
 		}
 
 
-		ImGui::End();
+		if(!_modal)
+		{
+			ImGui::End();
+		}
 	}
 		
 }
@@ -183,5 +197,5 @@ void GWindow::_DequeueEvent()
 
 void GWindow::WillClose()
 {
-
+	_callBackClosure(this);
 }

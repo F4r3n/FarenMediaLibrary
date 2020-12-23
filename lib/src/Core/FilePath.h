@@ -16,8 +16,8 @@ namespace fm
 
 		bool IsFolder() const;
 		bool IsFile() const;
-		void ToSubFolder(const std::string &inFolderName);
-		void ToSubFile(const std::string& inFolderName);
+		FilePath& ToSubFolder(const std::string &inFolderName);
+		FilePath& ToSubFile(const std::string& inFolderName);
 
 		FilePath GetParent() const;
 		const std::string& GetPath() const;

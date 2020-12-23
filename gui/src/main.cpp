@@ -51,6 +51,7 @@ int main()
 		ImGui_ImplSDL2_NewFrame(window->getWindow());
 		ImGui::NewFrame();
 
+		
 		fm::Application::Get().Update(true);
 
 		bool hasFocus = (SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
@@ -65,10 +66,14 @@ int main()
 			mainWindow->Init();
 			isMainWindowInitialized = true;
 		}
+		
 
 		ImGui::Render();
+		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		window->swapBuffers();
+
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -79,6 +84,7 @@ int main()
 			SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
 		}
 
+		window->swapBuffers();
 
 	}
 	fm::Application::Get().Unsubscribe(mainWindow.get());

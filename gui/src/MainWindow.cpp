@@ -10,7 +10,6 @@
 
 #include "Core/SceneManager.h"
 #include "Core/Debug.h"
-#include "Core/Debug.h"
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
 #include "Core/application.h"
@@ -41,7 +40,7 @@ MainWindow::MainWindow()
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
-	_context.currentSceneName = fm::Application::Get().CreateNewScene(fm::FilePath("newScene"))->GetName();
+	_context.currentSceneName = "";
 	_editorScene = fm::Application::Get().CreateEditorScene();
 
 	_InitEditorCamera();
@@ -64,9 +63,29 @@ MainWindow::MainWindow()
 		value->Stop();
 	}
 	_windows[gui::WINDOWS::WIN_LAUNCHER]->Start();
+	_windows[gui::WINDOWS::WIN_LAUNCHER]->SetCallBackClosure([this](gui::GWindow* inWindow)
+		{
+			gui::GLauncher* launcher = dynamic_cast<gui::GLauncher*>(inWindow);
+			LoadProject(launcher->GetResult());
+		});
 
 	fm::Debug::log("Init done");
 	_needUpdate = false;
+}
+
+
+void MainWindow::LoadProject(const fm::FilePath& inFilePath)
+{
+	fm::Application::Get().NewProject(fm::Folder(inFilePath));
+
+	_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->Start();
+	_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->Start();
+	_windows[gui::WINDOWS::WIN_LOGGER]->Start();
+	_windows[gui::WINDOWS::WIN_TOOLBAR]->Start();
+	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->Start();
+	_windows[gui::WINDOWS::WIN_INSPECTOR]->Start();
+	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR]->Start();
+	_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
 }
 
 
@@ -431,7 +450,7 @@ void MainWindow::_AddDock(gui::WINDOWS inWindow, ImGuiID inID)
 
 void MainWindow::OnDraw()
 {
-
+	
 	bool p_open = true;
 	ImGuiID dockspace_id;
 
@@ -486,15 +505,12 @@ void MainWindow::OnDraw()
 
 		ImGui::DockBuilderFinish(dock_main_id);
 	}
+
+
+	
 	ImGui::Begin("DockSpace", &p_open, window_flags);
 	ImGui::PopStyleVar(3);
 	ImGui::DockSpace(dockspace_id, viewport->Size, dockspace_flags);
-
-
-	if (_needUpdate)
-	{
-		OnUpdate(_hasFocus, true);
-	}
 
 	for (auto& window : _windows)
 	{
@@ -503,6 +519,15 @@ void MainWindow::OnDraw()
 			window.second->Draw();
 		}
 	}
+
+
+
+	if (_needUpdate)
+	{
+		OnUpdate(_hasFocus, true);
+	}
+
+
 
 	if (!_windows[gui::WINDOWS::WIN_LAUNCHER]->IsEnabled())
 	{
@@ -527,6 +552,9 @@ void MainWindow::OnDraw()
 	}
 
 	ImGui::End();
+	
+
+
 
 }
 
@@ -658,7 +686,11 @@ void MainWindow::_OnAfterStop(const std::any& inAny)
 
 void MainWindow::_OnPreLoad(const std::any& inAny)
 {
-	_events.push([this]() {_ClearBeforeSceneChange(); });
+	_events.push([this, inAny]() {
+		if (inAny.has_value())
+			std::any_cast<std::function<void(void)>>(inAny)();
+		_ClearBeforeSceneChange();
+		});
 }
 
 void MainWindow::_AfterLoad()

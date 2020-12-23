@@ -80,6 +80,9 @@ public:
 	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
 	void NeedUpdate() { _needUpdate = true; }
 	void EnableCustomDraw(bool enable) { _enableCustomDraw = enable; }
+	bool IsModal() const { return _modal; }
+	void SetModal(bool inModal) { _modal = inModal; }
+	void SetCallBackClosure(std::function<void(GWindow*)>&& inF) { _callBackClosure = inF; }
 protected:
 	virtual void			_Update(float, Context &inContext) {};
 	virtual void			CustomDraw();
@@ -115,6 +118,8 @@ private:
 	bool								  _isVisible;
 	bool								  _needUpdate = false;
 	bool								  _enableCustomDraw = true;
+	bool								  _modal = false;
+	std::function<void(GWindow*)>		  _callBackClosure;
 };
 }
 

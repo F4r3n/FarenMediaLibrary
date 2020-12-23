@@ -89,13 +89,15 @@ bool FilePath::IsFile() const
 }
 
 
-void FilePath::ToSubFolder(const std::string& inFolderName)
+FilePath& FilePath::ToSubFolder(const std::string& inFolderName)
 {
 	_path += inFolderName + GetFolderSeparator();
+	return *this;
 }
-void FilePath::ToSubFile(const std::string& inFolderName)
+FilePath& FilePath::ToSubFile(const std::string& inFolderName)
 {
 	_path += inFolderName;
+	return *this;
 }
 
 const std::string& FilePath::GetPath() const
