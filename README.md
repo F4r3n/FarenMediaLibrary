@@ -3,6 +3,8 @@
 
 # FarenEngine
 
+*Note: Due to the recent changes on MacOS (notarization, Opengl deprecation...) the FML project will not support this platform.*
+
 ### Introduction
 This library enables to create 2D or 3D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
@@ -18,6 +20,7 @@ For the moment, the FarenEngine can :
 + Forward
 + Light effects (basic)
 + Serialization system
++ Multiple scene
 
 ### Installation
 
@@ -42,7 +45,7 @@ The engine needs different libraries to work:
 + Box2D
 + Bullet
 + glew
-+ openal
++ Openal
 + sdl2
 + lua 5.3
 + ECS (Custom)

@@ -111,10 +111,10 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 		ss << path << L"\\FML\\";
 		CoTaskMemFree(static_cast<void*>(path));
 		std::filesystem::path p(ss.str());
-		
+
 		return FilePath(p.u8string());
 #elif __linux__
-		return FilePath(std::string(getenv("HOME") + ".config/FML/"));
+		return FilePath(std::string(getenv("HOME")) + std::string(".config/FML/"));
 #endif
 	}
 	case LOCATION::SETTINGS_LAST_PROJECTS:
