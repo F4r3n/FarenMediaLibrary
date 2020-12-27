@@ -10,6 +10,12 @@
 #include <streambuf>
 #include <unordered_set>
 #include "Rendering/Shader.h"
+#if _WIN32
+#include <shlobj_core.h>
+#include <sstream>
+#elif __linux__
+#include <cstdlib>
+#endif
 
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
@@ -95,7 +101,28 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 		p.ToSubFolder("Settings");
 		return p;
 	}
+	case LOCATION::SETTINGS:
+	{
+#if _WIN32
+		wchar_t* path = 0;
 
+		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path);
+		std::wstringstream ss;
+		ss << path << L"\\FML\\";
+		CoTaskMemFree(static_cast<void*>(path));
+		std::filesystem::path p(ss.str());
+		
+		return FilePath(p.u8string());
+#elif __linux__
+		return FilePath(std::string(getenv("HOME") + ".config/FML/"));
+#endif
+	}
+	case LOCATION::SETTINGS_LAST_PROJECTS:
+	{
+		FilePath p(GetFilePathResource(LOCATION::SETTINGS));
+		p.ToSubFile("lastProjects.json");
+		return p;
+	}
 	default:
 		return FilePath::GetWorkingDirectory();
 	}

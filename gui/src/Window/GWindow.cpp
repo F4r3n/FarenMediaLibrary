@@ -197,5 +197,6 @@ void GWindow::_DequeueEvent()
 
 void GWindow::WillClose()
 {
-	_callBackClosure(this);
+	if(_callBackClosure)
+		_callBackClosure(this);
 }

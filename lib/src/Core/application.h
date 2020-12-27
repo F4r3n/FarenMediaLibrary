@@ -122,13 +122,10 @@ class Application : public fm::Observable
         fm::Window*					GetWindow() const;
         fm::Engine*					GetEngine() const;
 
-		void						SetUserDirectory(const fm::Folder &inPath);
 		const fm::Folder&			GetUserDirectory() const;
 
 		void						SetProjectName(const std::string &inName);
 		const fm::Config&			GetCurrentConfig() const;
-		void						RegisterCurrentConfig();
-		void						GetLastConfigs(std::vector<fm::Config> &outConfig);
 		bool						IsRunning() const;
 
 		void						LoadProject(const fm::FilePath& inFilePath);
@@ -143,9 +140,12 @@ class Application : public fm::Observable
 		std::shared_ptr<fm::Scene>	LoadScene(const fm::FilePath& inPath);
 		void						SetCurrentScene(const std::string& inName);
 		void						NewProject(const fm::Folder& inPath);
+
+		void						GetLastProjectsOpened(std::vector<fm::FilePath>& outPath) const;
     private:
 		Application();
-		fm::CircularBuffer<fm::Config,10>	_lastConfigsUsed;
+		void						_SetUserDirectory(const fm::Folder& inPath);
+		void						_SaveLastProjectOpened(const fm::FilePath& inFilePath);
 
         fm::Engine*							_engine;
         fm::Window*							_window;

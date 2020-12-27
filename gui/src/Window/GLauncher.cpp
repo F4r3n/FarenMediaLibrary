@@ -1,6 +1,6 @@
 #include "GLauncher.h"
 #include "PortableFileDialog.h"
-
+#include "Core/application.h"
 using namespace gui;
 GLauncher::GLauncher() : GWindow("Launcher", false, ImGuiWindowFlags_HorizontalScrollbar)
 {
@@ -19,6 +19,12 @@ void GLauncher::OnInit()
 	ImGuiViewport* viewPort = ImGui::GetMainViewport();
 	SetPosition(ImVec2(viewPort->Pos.x + viewPort->Size.x/2 - width/2, viewPort->Pos.y + viewPort->Size.y/2 - height/2));
 	SetSize(ImVec2(width, height));
+
+	if (_listProjects.empty())
+	{
+		fm::Application::Get().GetLastProjectsOpened(_listProjects);
+		_projectSelected = -1;
+	}
 }
 
 
@@ -44,7 +50,18 @@ void GLauncher::CustomDraw()
 	}
 	if (ImGui::Button("Load Project"))
 	{
-
+		if (_projectSelected != -1)
+		{
+			try
+			{
+				_result = _listProjects.at(_projectSelected);
+				_enabled = false;
+			}
+			catch (const std::exception &e)
+			{
+				_projectSelected = -1;
+			}
+		}
 	}
 	ImGui::EndGroup();
 
@@ -55,8 +72,9 @@ void GLauncher::CustomDraw()
 		size_t i = 0;
 		for (auto && path : _listProjects)
 		{
-			if (ImGui::Selectable(path.GetPath().c_str(), false))
+			if (ImGui::Selectable(path.GetPath().c_str(), _projectSelected == i))
 			{
+				_projectSelected = i;
 			}
 			i++;
 		}
@@ -82,7 +100,6 @@ void GLauncher::AfterWindowCreation()
 
 void GLauncher::_Update(float dt, Context &inContext)
 {
-	
 }
 
 

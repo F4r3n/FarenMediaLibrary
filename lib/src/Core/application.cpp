@@ -10,7 +10,7 @@
 #include "Resource/ResourcesManager.h"
 #include "SystemManager.h"
 #include "Core/Debug.h"
-#include "GL/glew.h"
+#include <set>
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -85,9 +85,16 @@ bool Application::Read()
 	File f(_currentConfig.userDirectory, _currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
 
     std::ifstream i(f.GetPath().GetPath());
-    nlohmann::json j;
-    i >> j;
-	_sceneManager->Read(j);
+	try
+	{
+		nlohmann::json j;
+		i >> j;
+		_sceneManager->Read(j);
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
     return true;
 }
 
@@ -167,7 +174,7 @@ void Application::LoadProject(const fm::FilePath& inFilePath)
 	_sceneManager->ClearAll(false);
 	
 	SetProjectName(inFilePath.GetName(true));
-	SetUserDirectory(inFilePath.GetParent());
+	_SetUserDirectory(inFilePath.GetParent());
 
 	Read();
 
@@ -190,24 +197,27 @@ void Application::DeInit()
 
 void Application::NewProject(const fm::Folder& inPath)
 {
-	SetUserDirectory(inPath);
+	_SetUserDirectory(inPath);
 
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD, std::make_any<std::function<void()>>([this]() {
-		_sceneManager->ClearAll(false);
-		})));
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD));
 
-	fm::FilePath path = fm::FilePath(inPath.GetPath()).ToSubFile("NewScene");
-	std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(path);
-	_sceneManager->SetCurrentScene(scene->GetName(), false);
+	Read();
+	if (_sceneManager->GetCurrentScene() == nullptr) //Empty file, create new default scene
+	{
+		fm::FilePath path = fm::FilePath(inPath.GetPath()).ToSubFile("NewScene");
+		std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(path);
+		_sceneManager->SetCurrentScene(scene->GetName(), false);
+	}
 
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD));
 
 }
 
 
-void Application::SetUserDirectory(const fm::Folder &inPath)
+void Application::_SetUserDirectory(const fm::Folder &inPath)
 {
 	_currentConfig.userDirectory = inPath;
+	_SaveLastProjectOpened(inPath.GetPath());
 }
 
 
@@ -244,32 +254,6 @@ const std::string& Application::GetCurrentSceneName() const
 std::shared_ptr<fm::Scene> Application::GetCurrentScene() const
 {
 	return _sceneManager->GetCurrentScene();
-}
-
-
-void Application::RegisterCurrentConfig()
-{
-	bool found = false;
-	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
-	{
-		if ((_lastConfigsUsed[i].name == _currentConfig.name) && (_lastConfigsUsed[i].userDirectory.GetPath() == _currentConfig.userDirectory.GetPath()))
-		{
-			found = true;
-			break;
-		}
-	}
-
-	_lastConfigsUsed.Push(_currentConfig);
-
-}
-
-
-void Application::GetLastConfigs(std::vector<fm::Config> &outConfig)
-{
-	for (size_t i = 0; i < _lastConfigsUsed.Size(); ++i)
-	{
-		outConfig.push_back(_lastConfigsUsed[i]);
-	}
 }
 
 
@@ -312,6 +296,60 @@ void Application::SetCurrentScene(const std::string& inName)
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_SCENE_LOAD));
 	_sceneManager->SetCurrentScene(inName, false);
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_SCENE_LOAD));
+}
+
+void Application::GetLastProjectsOpened(std::vector<fm::FilePath>& outPath) const
+{
+	File file(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::SETTINGS_LAST_PROJECTS));
+	std::string&& content = file.GetContent();
+
+	if (!content.empty())
+	{
+		nlohmann::json json = nlohmann::json::parse(content);
+
+		for (auto it = json.begin(); it != json.end(); ++it)
+		{
+			outPath.emplace_back(*it);
+		}
+	}
+}
+
+void Application::_SaveLastProjectOpened(const fm::FilePath& inFilePath)
+{
+	Folder settingsFolder(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::SETTINGS));
+	if (!settingsFolder.Exist())
+	{
+		settingsFolder.CreateFolder();
+	}
+
+	const size_t limitToSave = 10;
+	File file(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::SETTINGS_LAST_PROJECTS));
+	std::string&& content = file.GetContent();
+
+	nlohmann::json jarray;
+	jarray.push_back(inFilePath.GetPath());
+
+	if (!content.empty())
+	{
+		nlohmann::json json = nlohmann::json::parse(content);
+
+		size_t i = 1;
+		for (auto it = json.begin(); it != json.end(); ++it)
+		{
+			if (inFilePath.GetPath() != *it)
+			{
+				jarray.push_back(*it);
+				i++;
+			}
+
+			if (i >= limitToSave)
+				break;
+		}
+	}
+
+	std::ofstream o(file.GetPath().GetPath(), std::ofstream::out);
+	o << std::setw(4) << jarray << std::endl;
+	o.close();	
 }
 
 

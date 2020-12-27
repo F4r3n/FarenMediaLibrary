@@ -85,7 +85,7 @@ void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->Start();
 	_windows[gui::WINDOWS::WIN_INSPECTOR]->Start();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR]->Start();
-	_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
+	//_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
 }
 
 
@@ -132,7 +132,7 @@ void MainWindow::_InitEditorCamera()
 MainWindow::~MainWindow()
 {
 }
-
+/*
 void MainWindow::_DisplayWindow_Create_Project()
 {
 	pfd::select_folder dialog = pfd::select_folder("Create to...", ".");
@@ -144,6 +144,7 @@ void MainWindow::_DisplayWindow_Create_Project()
 		fm::Application::Get().NewProject(fm::Folder(result));
 	}
 }
+
 
 
 void MainWindow::_DisplayWindow_Save_Project()
@@ -159,8 +160,26 @@ void MainWindow::_DisplayWindow_Save_Project()
 		fm::Application::Get().Serialize();
 	}
 }
+*/
 
 
+/*
+void MainWindow::_DisplayWindow_Load_Project()
+{
+	pfd::open_file dialog = pfd::open_file("Choose files to read", ".",
+		{ "Fml files", "*.fml",
+		  "All Files", "*" },
+		false);
+
+	std::vector<std::string> resultFromDialog = dialog.result();
+
+	if (!resultFromDialog.empty())
+	{
+		fm::FilePath result(resultFromDialog.front());
+		fm::Application::Get().LoadProject(result);
+	}
+}
+*/
 void MainWindow::_DisplayWindow_Create_Scene()
 {
 	auto scene = fm::Application::Get().GetCurrentScene();
@@ -185,23 +204,6 @@ bool MainWindow::IsWindowAvailable(gui::WINDOWS inWindow)
 {
 	gui::GWindow* window = _windows[inWindow].get();
 	return window != nullptr;
-}
-
-
-void MainWindow::_DisplayWindow_Load_Project()
-{
-	pfd::open_file dialog = pfd::open_file("Choose files to read", ".",
-		{ "Fml files", "*.fml",
-		  "All Files", "*" },
-		false);
-
-	std::vector<std::string> resultFromDialog = dialog.result();
-
-	if (!resultFromDialog.empty())
-	{
-		fm::FilePath result(resultFromDialog.front());
-		fm::Application::Get().LoadProject(result);
-	}
 }
 
 
@@ -235,10 +237,10 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::BeginMenu("Save"))
 			{
-				if (ImGui::MenuItem("Project to ..."))
-				{
-					_DisplayWindow_Save_Project();
-				}
+				//if (ImGui::MenuItem("Project to ..."))
+				//{
+				//	_DisplayWindow_Save_Project();
+				//}
 				if (ImGui::MenuItem("Scene"))
 				{
 					auto scene = fm::Application::Get().GetCurrentScene();
@@ -271,10 +273,10 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::BeginMenu("New"))
 			{
-				if (ImGui::MenuItem("Project"))
-				{
-					_DisplayWindow_Create_Project();
-				}
+				//if (ImGui::MenuItem("Project"))
+				//{
+				//	_DisplayWindow_Create_Project();
+				//}
 				if (ImGui::MenuItem("Scene"))
 				{
 					_DisplayWindow_Create_Scene();
@@ -283,10 +285,10 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::BeginMenu("Load"))
 			{
-				if (ImGui::MenuItem("Project ..."))
-				{
-					_DisplayWindow_Load_Project();
-				}
+				//if (ImGui::MenuItem("Project ..."))
+				//{
+				//	_DisplayWindow_Load_Project();
+				//}
 				if (ImGui::MenuItem("Scene ..."))
 				{
 					pfd::open_file dialog = pfd::open_file("Choose files to read", ".",

@@ -25,6 +25,7 @@ namespace gui
 
 		fm::FilePath _result;
 		std::vector<fm::FilePath> _listProjects;
+		int _projectSelected = -1;
 		
 	};
 }
