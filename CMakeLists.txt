@@ -14,9 +14,8 @@ project("FML")
 
 SET_COMPILER_OPTIONS()
 
-
-
 add_subdirectory("extlib")
 add_subdirectory("lib")
 add_subdirectory("gui")
+add_subdirectory("engine")
 

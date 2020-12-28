@@ -100,7 +100,7 @@ class Application : public fm::Observable
 
         ~Application();
 
-		static Application& Get()
+		inline static Application& Get()
 		{
 			static Application app;
 			return app;
@@ -127,8 +127,6 @@ class Application : public fm::Observable
 		void						SetProjectName(const std::string &inName);
 		const fm::Config&			GetCurrentConfig() const;
 		bool						IsRunning() const;
-
-		void						LoadProject(const fm::FilePath& inFilePath);
 
 		std::shared_ptr<fm::Scene>	GetScene(const std::string &inName) const;
 		const std::string&			GetCurrentSceneName() const;

@@ -660,29 +660,59 @@ void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 
 void MainWindow::_OnPreStart(const std::any& inAny)
 {
-	_events.push([this]() {_ClearBeforeSceneChange(); });
+	_events.push([this, inAny]() {
+		if (inAny.has_value())
+			std::any_cast<std::function<void(void)>>(inAny)();
+		_ClearBeforeSceneChange();
+
+		});
 
 }
 void MainWindow::_OnAfterStart(const std::any& inAny)
 {
-	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
-	_InitGameView();
-	_needUpdate = true;
+	_events.push([this, inAny]() {
+		if (inAny.has_value())
+			std::any_cast<std::function<void(void)>>(inAny)();
+		_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
+		_InitGameView();
+		_needUpdate = true;
+		std::string currentSceneName = _context.currentSceneName;
+		if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
+		{
+			_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+				dynamic_cast<gui::GListEntities*>(inWindow)->OnAfterLoad(currentSceneName);
+				});
+		}
+		});
+
 	
 }
 void MainWindow::_OnPreStop(const std::any& inAny)
 {
-	_events.push([this]() {_ClearBeforeSceneChange(); });
+	_events.push([this, inAny]() {
+		if (inAny.has_value())
+			std::any_cast<std::function<void(void)>>(inAny)();
+		_ClearBeforeSceneChange();
+		});
 }
 void MainWindow::_OnAfterStop(const std::any& inAny)
 {
 
-	_events.push([this]()
+	_events.push([this, inAny]() {
+		if (inAny.has_value())
+			std::any_cast<std::function<void(void)>>(inAny)();
+		_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
+		_InitGameView();
+		_needUpdate = true;
+		std::string currentSceneName = _context.currentSceneName;
+		if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
 		{
-			_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
-			_InitGameView();
-			_needUpdate = true;
-	});
+			_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+				dynamic_cast<gui::GListEntities*>(inWindow)->OnAfterLoad(currentSceneName);
+				});
+		}
+		}
+	);
 
 }
 
@@ -721,12 +751,11 @@ void MainWindow::_AfterLoad()
 
 void MainWindow::_OnAfterLoad(const std::any& inAny)
 {
-	std::function<void()> f = [this, inAny]() {
-		if(inAny.has_value())
-		std::any_cast<std::function<void(void)>>(inAny)();
+	_events.push([this, inAny]() {
+		if (inAny.has_value())
+			std::any_cast<std::function<void(void)>>(inAny)();
 		_AfterLoad();
-	};
-	_events.push(f);
+		});
 }
 
 void MainWindow::_ConfigureStyle()

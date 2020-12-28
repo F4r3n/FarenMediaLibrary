@@ -104,7 +104,7 @@ bool SceneManager::Read(const nlohmann::json &injson)
 		for (nlohmann::json::const_iterator it = listOfScenes.cbegin(); it != listOfScenes.cend(); ++it)
 		{
 			std::string pathScene = (*it);
-			_currentScene = std::make_shared<fm::Scene>(pathScene);
+			_currentScene = std::make_shared<fm::Scene>(fm::FilePath(pathScene));
 			//nlohmann::json o = it.value();
 			//_currentScene->Read(o);
 			AddScene(_currentScene);

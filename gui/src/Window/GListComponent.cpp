@@ -82,6 +82,10 @@ void GListComponent::_Draw()
 				{
 					go->add<fmc::CText>();
 				}
+				if (!go->has<fmc::CText>() && ImGui::MenuItem("Camera"))
+				{
+					go->add<fmc::CCamera>();
+				}
 
 				ImGui::EndPopup();
 			}

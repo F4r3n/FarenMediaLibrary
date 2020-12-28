@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-set(PROJECT_NAME "FMLEditor")
+set(PROJECT_NAME "FMLEngine")
 project(${PROJECT_NAME})
 
 
@@ -8,41 +8,6 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib/imgui)
 message(${CMAKE_CURRENT_LIST_DIR}extlib)
 set(SOURCES ${SOURCES} 
 	src/main.cpp
-	src/imgui_impl_sdl.cpp
-	src/imgui_impl_opengl3.cpp
-	extlib/imgui/imgui.cpp
-	extlib/imgui/imgui_draw.cpp
-	extlib/imgui/imgui_widgets.cpp
-	extlib/imgui/imgui_demo.cpp
-
-	src/inspector/inspector.cpp
-	src/inspector/materialInspector.cpp
-	src/inspector/meshInspector.cpp
-	src/inspector/pointLightInspector.cpp
-	src/inspector/scriptManagerInspector.cpp
-	src/inspector/transformInspector.cpp
-	src/inspector/textInspector.cpp
-	src/inspector/bodyInspector.cpp
-	src/inspector/colliderInspector.cpp
-	src/inspector/cameraInspector.cpp
-	
-	src/MainWindow.cpp
-	src/Window/GWindow.cpp
-	src/Window/GEditorView.cpp
-	src/Window/GGameView.cpp
-	src/Window/GDebugLogger.cpp
-	src/Window/GListComponent.cpp
-	src/Window/GListEntities.cpp
-	src/Window/GToolBar.cpp
-	src/Window/GFileNavigator.cpp
-	src/Window/GLauncher.cpp
-	src/Window/GWindow.cpp
-	src/Window/GMaterialEditor.cpp
-
-
-	src/PickingSystem.cpp
-	src/PortableFileDialog.cpp
-	src/ImGuizmo/ImGuizmo.cpp
 	)
 
 include_directories("src")
@@ -92,9 +57,6 @@ link_directories(${FML_EXTLIB_LIB}/ECS/lib)
 include_directories(${FML_PATH}/lib/src)
 link_directories(${FML_PATH}/build/lib)
 
-#IMGUI
-include_directories(${FML_EXTLIB}/imgui/)
-
 #LUA
 include_directories(${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
@@ -113,8 +75,6 @@ endif(MSVC)
 
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/Resources ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources
-					COMMAND ${CMAKE_COMMAND} -E copy
-                    ${CMAKE_SOURCE_DIR}/InternalResources/imgui.ini $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+                   ${CMAKE_SOURCE_DIR}/Resources ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources)
 
 

@@ -143,14 +143,16 @@ void CCamera::UpdateProjectionMatrix()
 
 void CCamera::Init()
 {
+	if (!_isInit)
+	{
+		UpdateProjectionMatrix();
 
-	UpdateProjectionMatrix();
+		_InitRenderTexture();
+		_renderTexture.create();
+		_isInit = true;
 
-	_InitRenderTexture();
-	_renderTexture.create();
-	_isInit = true;
-
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+		fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+	}
 
 }
 

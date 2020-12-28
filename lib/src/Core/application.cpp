@@ -101,43 +101,48 @@ bool Application::Read()
 
 void Application::Start(bool inSandbox)
 {
-
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_START));
 
-	if (inSandbox)
-	{
-		nlohmann::json save;
-		_sceneManager->SerializeCurrentScene(save);
 
-		std::shared_ptr<fm::Scene> current = _sceneManager->GetCurrentScene();
-		_nameLastScene = current->GetName();
-		std::string privateName = _nameLastScene + "_";
-		std::shared_ptr<fm::Scene> s = _sceneManager->AddPrivateScene(privateName);
-		s->Read(save);
-		
-		current->SetStatusToGo(false);
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_START,
+		(std::function<void(void)>)[this]() {
+			std::shared_ptr<fm::Scene> current = _sceneManager->GetCurrentScene();
+			nlohmann::json save;
+			_sceneManager->SerializeCurrentScene(save);
 
-		_sceneManager->SetCurrentScene(privateName, true);
-	}
-	
-	_engine->Start();
+			_nameLastScene = current->GetName();
+			std::string privateName = _nameLastScene + "_";
+			std::shared_ptr<fm::Scene> s = _sceneManager->AddPrivateScene(privateName);
+			s->Read(save);
 
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_START));
+			current->SetStatusToGo(false);
+
+			_sceneManager->SetCurrentScene(privateName, true);
+			_engine->Start();
+
+	})
+	);
 
 }
 
 
 void Application::Stop()
 {
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_STOP));
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_STOP,
+		(std::function<void(void)>)([this]() {
+			_sceneManager->ClearScene(_nameLastScene + "_", true);
+		}
+		))
+	);
 
-
-	_sceneManager->ClearScene(_nameLastScene + "_", true);
-	_sceneManager->SetCurrentScene(_nameLastScene, false);
-	_sceneManager->GetCurrentScene()->ResetStatusGo();
-	_engine->Stop();
-
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_STOP));
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_STOP,
+		(std::function<void(void)>)[this]() {
+			_sceneManager->SetCurrentScene(_nameLastScene, false);
+			_sceneManager->GetCurrentScene()->ResetStatusGo();
+			_engine->Stop();
+		}
+	)
+	);
 
 }
 
@@ -167,21 +172,6 @@ void Application::Init()
 }
 
 
-void Application::LoadProject(const fm::FilePath& inFilePath)
-{
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD));
-
-	_sceneManager->ClearAll(false);
-	
-	SetProjectName(inFilePath.GetName(true));
-	_SetUserDirectory(inFilePath.GetParent());
-
-	Read();
-
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD));
-}
-
-
 void Application::Update(bool withEditor)
 {
     _window->update(_currentConfig.fpsWanted);
@@ -200,16 +190,21 @@ void Application::NewProject(const fm::Folder& inPath)
 	_SetUserDirectory(inPath);
 
 	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD));
-
-	Read();
-	if (_sceneManager->GetCurrentScene() == nullptr) //Empty file, create new default scene
-	{
-		fm::FilePath path = fm::FilePath(inPath.GetPath()).ToSubFile("NewScene");
-		std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(path);
-		_sceneManager->SetCurrentScene(scene->GetName(), false);
-	}
-
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD));
+	std::function<void(void)> &&f =
+		[this, inPath]() {
+		Read();
+		if (_sceneManager->GetCurrentScene() == nullptr) //Empty file, create new default scene
+		{
+			fm::FilePath path(fm::LOCATION::USER_LOCATION, "NewScene");
+			std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(path);
+			_sceneManager->SetCurrentScene(scene->GetName(), false);
+		}
+		else
+		{
+			_sceneManager->GetCurrentScene()->Load();
+		}
+	};
+	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD, std::move(f)));
 
 }
 

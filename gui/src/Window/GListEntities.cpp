@@ -108,42 +108,46 @@ void GListEntities::_PurgeTree(LinkedTreeGO::Node<ecs::id>* parent, const std::s
 void GListEntities::_UpdateTree()
 {
 	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_currentSceneName);
-	fm::Scene::MapOfGameObjects listEntities = currentScene->GetAllGameObjects();
 
-	PurgeTree();
-
-	for (auto&& e : listEntities)
+	if (currentScene != nullptr)
 	{
-		fmc::CTransform* tr = EntityManager::get().getEntity(e.first)->get<fmc::CTransform>();
-		std::stack<ecs::id> fathers;
-		while (tr->HasFather())
-		{
-			fathers.push(tr->GetFatherID());
-			tr = tr->GetFather();
-		}
-		fathers.push(e.first);
+		fm::Scene::MapOfGameObjects listEntities = currentScene->GetAllGameObjects();
 
-		while (!fathers.empty())
+		PurgeTree();
+
+		for (auto&& e : listEntities)
 		{
-			bool found = false;
-			ecs::id fatherID = fathers.top();
-			fathers.pop();
-			auto& node = _order.Find(fatherID, found);
-			if (!found)
+			fmc::CTransform* tr = EntityManager::get().getEntity(e.first)->get<fmc::CTransform>();
+			std::stack<ecs::id> fathers;
+			while (tr->HasFather())
 			{
-				_order.AddTo(node, e.first);
+				fathers.push(tr->GetFatherID());
+				tr = tr->GetFather();
 			}
-			
+			fathers.push(e.first);
+
+			while (!fathers.empty())
+			{
+				bool found = false;
+				ecs::id fatherID = fathers.top();
+				fathers.pop();
+				auto& node = _order.Find(fatherID, found);
+				if (!found)
+				{
+					_order.AddTo(node, e.first);
+				}
+
+			}
 		}
+
+		_order.Sort([&currentScene](std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& a, std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& b)
+			{
+				std::shared_ptr<fm::GameObject> oa = currentScene->GetGameObjectByID(a->value);
+				std::shared_ptr<fm::GameObject> ob = currentScene->GetGameObjectByID(b->value);
+				return oa->GetOrder() < ob->GetOrder();
+
+			});
 	}
-
-	_order.Sort([&currentScene](std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& a, std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& b)
-	{
-			std::shared_ptr<fm::GameObject> oa = currentScene->GetGameObjectByID(a->value);
-			std::shared_ptr<fm::GameObject> ob = currentScene->GetGameObjectByID(b->value);
-			return oa->GetOrder() < ob->GetOrder();
-
-	});
 	
 }
 
@@ -163,21 +167,14 @@ void GListEntities::OnAfterLoad(const std::string& inCurrentSceneName)
 		newScene->Subscribe(this);
 
 	_currentSceneName = inCurrentSceneName;
+
+	_order.Clear();
+	_shouldUpdateListOrder = true;
 }
 
 
 void GListEntities::_Update(float dt, Context &inContext)
 {
-	if (!inContext.currentSceneName.empty() && _currentSceneName != inContext.currentSceneName)
-	{
-		std::shared_ptr<fm::Scene> oldScene = fm::Application::Get().GetScene(_currentSceneName);
-		if(oldScene != nullptr)
-			oldScene->Unsubscribe(this);
-		_currentSceneName = inContext.currentSceneName;
-		fm::Application::Get().GetScene(_currentSceneName)->Subscribe(this);
-		_order.Clear();
-		_UpdateTree();
-	}
 
 	if (_goSelectedHasChanged)
 	{
@@ -192,6 +189,7 @@ void GListEntities::_Update(float dt, Context &inContext)
 	if (_shouldUpdateListOrder)
 	{
 		_UpdateTree();
+		_shouldUpdateListOrder = false;
 	}
 }
 
