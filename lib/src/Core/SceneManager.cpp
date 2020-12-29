@@ -18,7 +18,6 @@ SceneManager::~SceneManager()
 namespace keys
 {
 	const std::string scenes("Scenes");
-	const std::string path("path");
 }
 
 

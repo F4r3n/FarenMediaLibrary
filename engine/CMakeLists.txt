@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 set(PROJECT_NAME "FMLEngine")
 project(${PROJECT_NAME})
 
-
 include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib/imgui)
 message(${CMAKE_CURRENT_LIST_DIR}extlib)

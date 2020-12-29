@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include "Core/Observer.h"
+#include "nlohmann/json_fwd.hpp"
 namespace fm
 {
 class Window;
@@ -21,6 +22,7 @@ namespace fm
 		size_t width = 800;
 		size_t height = 600;
 		size_t fpsWanted = 60;
+		bool	standAlone = false;
 		size_t windowFlag;
 		fm::Folder userDirectory;
 	};
@@ -82,24 +84,12 @@ namespace fm
 
 
 
-class Application : public fm::Observable
+class Application 
 {
     public:
-		enum class Event
-		{
-			ON_PRE_START,
-			ON_AFTER_START,
-			ON_PRE_STOP,
-			ON_AFTER_STOP,
-			ON_PRE_LOAD,
-			ON_AFTER_LOAD,
-			ON_PRE_SCENE_LOAD,
-			ON_AFTER_SCENE_LOAD
-		};
-
 
         ~Application();
-
+		Application();
 		inline static Application& Get()
 		{
 			static Application app;
@@ -111,7 +101,7 @@ class Application : public fm::Observable
 
         bool						Read();
 
-        void						Start(bool inSandbox);
+        void						Start();
 		void						Stop();
 		void						SetConfig(const Config &inConfig);
         void						Init();
@@ -124,33 +114,32 @@ class Application : public fm::Observable
 
 		const fm::Folder&			GetUserDirectory() const;
 
-		void						SetProjectName(const std::string &inName);
 		const fm::Config&			GetCurrentConfig() const;
 		bool						IsRunning() const;
 
+		void						SetProjectName(const std::string& inName);
 		std::shared_ptr<fm::Scene>	GetScene(const std::string &inName) const;
 		const std::string&			GetCurrentSceneName() const;
 		std::shared_ptr<fm::Scene>	GetCurrentScene() const;
-
-		std::shared_ptr<fm::Scene>	CreateNewScene(const fm::FilePath &inScenePath);
-		std::shared_ptr<fm::Scene>	CreateEditorScene();
-		std::shared_ptr<fm::Scene>	RenameScene(std::shared_ptr<fm::Scene> inCurrentScene, const fm::FilePath& inPath);
+		void						LoadProject(const fm::Folder& inPath);
+		void						SetUserDirectory(const fm::Folder& inPath);
 		std::shared_ptr<fm::Scene>	LoadScene(const fm::FilePath& inPath);
-		void						SetCurrentScene(const std::string& inName);
-		void						NewProject(const fm::Folder& inPath);
 
-		void						GetLastProjectsOpened(std::vector<fm::FilePath>& outPath) const;
-    private:
-		Application();
-		void						_SetUserDirectory(const fm::Folder& inPath);
-		void						_SaveLastProjectOpened(const fm::FilePath& inFilePath);
+		
+		std::shared_ptr<fm::Scene>	AddNewScene(const fm::FilePath& inPath);
+		void						SetCurrentScene(const std::string& name, bool isPrivate);
+		std::shared_ptr<fm::Scene>	AddPrivateScene(const std::string& inName);
+		bool						ClearScene(const std::string& inName, bool isPrivate, bool remove = false);
+		std::shared_ptr<Scene>		RenameScene(std::shared_ptr<Scene> inCurrentScene, const fm::FilePath& inPath);
+		void						SerializeCurrentScene(nlohmann::json& outjson);
+
+private:
 
         fm::Engine*							_engine;
         fm::Window*							_window;
         fm::Config							_currentConfig;
 		std::string							_nameLastScene;
 		std::unique_ptr<fm::SceneManager>	_sceneManager;
-
 };
 
 }

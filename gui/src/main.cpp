@@ -11,7 +11,7 @@
 #include <Input/InputManager.h>
 #include "Rendering/Renderer.h"
 #include "Window.h"
-
+#include "Editor.h"
 int main()
 {
 
@@ -38,7 +38,7 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	std::unique_ptr<MainWindow> mainWindow = std::make_unique<MainWindow>();
-	fm::Application::Get().Subscribe(mainWindow.get());
+	Editor::Get().Subscribe(mainWindow.get());
 	bool isMainWindowInitialized = false;
 
 	while (!window->isClosed())
@@ -87,7 +87,7 @@ int main()
 		window->swapBuffers();
 
 	}
-	fm::Application::Get().Unsubscribe(mainWindow.get());
+	Editor::Get().Unsubscribe(mainWindow.get());
 
 	fm::Application::Get().DeInit();
 

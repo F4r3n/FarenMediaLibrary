@@ -1,7 +1,9 @@
+#include "Core/application.h"
+
+
 #include <Engine.h>
 #include <Window.h>
 #include <TimeDef.h>
-#include "Core/application.h"
 #include <nlohmann/json.hpp>
 #include "Core/SceneManager.h"
 #include <iomanip>      // std::setw
@@ -10,7 +12,7 @@
 #include "Resource/ResourcesManager.h"
 #include "SystemManager.h"
 #include "Core/Debug.h"
-#include <set>
+#include "Core/SceneManager.h"
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -25,7 +27,6 @@ Application::~Application()
 void Application::SetConfig(const Config &inConfig)
 {
 	_currentConfig = inConfig;
-
 	if (!_currentConfig.userDirectory.GetPath().IsValid())
 	{
 		_currentConfig.userDirectory = Folder(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY));
@@ -33,7 +34,7 @@ void Application::SetConfig(const Config &inConfig)
 }
 
 
-Application::Application() : fm::Observable("Application")
+Application::Application() 
 {
 	_sceneManager = std::make_unique<fm::SceneManager>();
 }
@@ -43,22 +44,6 @@ bool Application::SerializeCurrentScene() const
 {
 	_sceneManager->GetCurrentScene()->Save();
 	return Serialize();
-}
-
-
-std::shared_ptr<fm::Scene> Application::CreateNewScene(const fm::FilePath& inScenePath)
-{
-	std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(inScenePath);
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_SCENE_LOAD));
-	_sceneManager->SetCurrentScene(scene->GetName(), false);
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_SCENE_LOAD));
-
-	return _sceneManager->GetCurrentScene();
-}
-
-std::shared_ptr<fm::Scene> Application::CreateEditorScene()
-{
-	return _sceneManager->AddPrivateScene("_editor");
 }
 
 
@@ -76,6 +61,16 @@ bool Application::Serialize() const
 	
     return true;
 
+}
+
+void Application::Start()
+{
+	_engine->Start();
+}
+
+void Application::Stop()
+{
+	_engine->Stop();
 }
 
 
@@ -96,54 +91,6 @@ bool Application::Read()
 		return false;
 	}
     return true;
-}
-
-
-void Application::Start(bool inSandbox)
-{
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_START));
-
-
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_START,
-		(std::function<void(void)>)[this]() {
-			std::shared_ptr<fm::Scene> current = _sceneManager->GetCurrentScene();
-			nlohmann::json save;
-			_sceneManager->SerializeCurrentScene(save);
-
-			_nameLastScene = current->GetName();
-			std::string privateName = _nameLastScene + "_";
-			std::shared_ptr<fm::Scene> s = _sceneManager->AddPrivateScene(privateName);
-			s->Read(save);
-
-			current->SetStatusToGo(false);
-
-			_sceneManager->SetCurrentScene(privateName, true);
-			_engine->Start();
-
-	})
-	);
-
-}
-
-
-void Application::Stop()
-{
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_STOP,
-		(std::function<void(void)>)([this]() {
-			_sceneManager->ClearScene(_nameLastScene + "_", true);
-		}
-		))
-	);
-
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_STOP,
-		(std::function<void(void)>)[this]() {
-			_sceneManager->SetCurrentScene(_nameLastScene, false);
-			_sceneManager->GetCurrentScene()->ResetStatusGo();
-			_engine->Stop();
-		}
-	)
-	);
-
 }
 
 
@@ -185,34 +132,19 @@ void Application::DeInit()
 	delete _window;
 }
 
-void Application::NewProject(const fm::Folder& inPath)
+
+
+void Application::LoadProject(const fm::Folder& inPath)
 {
-	_SetUserDirectory(inPath);
-
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_LOAD));
-	std::function<void(void)> &&f =
-		[this, inPath]() {
-		Read();
-		if (_sceneManager->GetCurrentScene() == nullptr) //Empty file, create new default scene
-		{
-			fm::FilePath path(fm::LOCATION::USER_LOCATION, "NewScene");
-			std::shared_ptr<fm::Scene> scene = _sceneManager->AddNewScene(path);
-			_sceneManager->SetCurrentScene(scene->GetName(), false);
-		}
-		else
-		{
-			_sceneManager->GetCurrentScene()->Load();
-		}
-	};
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_LOAD, std::move(f)));
-
+	_currentConfig.userDirectory = inPath;
+	Read();
+	_sceneManager->GetCurrentScene()->Load();
 }
 
 
-void Application::_SetUserDirectory(const fm::Folder &inPath)
+void Application::SetUserDirectory(const fm::Folder &inPath)
 {
 	_currentConfig.userDirectory = inPath;
-	_SaveLastProjectOpened(inPath.GetPath());
 }
 
 
@@ -257,18 +189,6 @@ bool Application::IsRunning() const
 	return _engine->GetStatus() == SYSTEM_MANAGER_MODE::RUNNING;
 }
 
-std::shared_ptr<fm::Scene>	Application::RenameScene(std::shared_ptr<fm::Scene> inCurrentScene, const fm::FilePath& inPath)
-{
-	bool isSameScene = _sceneManager->GetCurrentScene()->GetName() == inCurrentScene->GetName();
-
-	auto s = _sceneManager->RenameScene(inCurrentScene, inPath);
-	if (isSameScene)
-	{
-		SetCurrentScene(s->GetName());
-	}
-	return s;
-}
-
 
 std::shared_ptr<fm::Scene> Application::LoadScene(const fm::FilePath& inPath)
 {
@@ -286,66 +206,38 @@ std::shared_ptr<fm::Scene> Application::LoadScene(const fm::FilePath& inPath)
 }
 
 
-void Application::SetCurrentScene(const std::string& inName)
+
+std::shared_ptr<fm::Scene>	Application::AddNewScene(const fm::FilePath& inPath)
 {
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_PRE_SCENE_LOAD));
-	_sceneManager->SetCurrentScene(inName, false);
-	NotifyAll(EventObserver((size_t)fm::Application::Event::ON_AFTER_SCENE_LOAD));
-}
-
-void Application::GetLastProjectsOpened(std::vector<fm::FilePath>& outPath) const
-{
-	File file(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::SETTINGS_LAST_PROJECTS));
-	std::string&& content = file.GetContent();
-
-	if (!content.empty())
-	{
-		nlohmann::json json = nlohmann::json::parse(content);
-
-		for (auto it = json.begin(); it != json.end(); ++it)
-		{
-			outPath.emplace_back(*it);
-		}
-	}
-}
-
-void Application::_SaveLastProjectOpened(const fm::FilePath& inFilePath)
-{
-	Folder settingsFolder(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::SETTINGS));
-	if (!settingsFolder.Exist())
-	{
-		settingsFolder.CreateFolder();
-	}
-
-	const size_t limitToSave = 10;
-	File file(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::SETTINGS_LAST_PROJECTS));
-	std::string&& content = file.GetContent();
-
-	nlohmann::json jarray;
-	jarray.push_back(inFilePath.GetPath());
-
-	if (!content.empty())
-	{
-		nlohmann::json json = nlohmann::json::parse(content);
-
-		size_t i = 1;
-		for (auto it = json.begin(); it != json.end(); ++it)
-		{
-			if (inFilePath.GetPath() != *it)
-			{
-				jarray.push_back(*it);
-				i++;
-			}
-
-			if (i >= limitToSave)
-				break;
-		}
-	}
-
-	std::ofstream o(file.GetPath().GetPath(), std::ofstream::out);
-	o << std::setw(4) << jarray << std::endl;
-	o.close();	
+	return _sceneManager->AddNewScene(inPath);
 }
 
 
+void Application::SetCurrentScene(const std::string& inName, bool isPrivate)
+{
+	return _sceneManager->SetCurrentScene(inName, isPrivate);
+}
 
+
+std::shared_ptr<fm::Scene>	Application::AddPrivateScene(const std::string& inName)
+{
+	return _sceneManager->AddPrivateScene(inName);
+}
+
+
+bool Application::ClearScene(const std::string& inName, bool isPrivate, bool remove)
+{
+	return _sceneManager->ClearScene(inName, isPrivate, remove);
+}
+
+
+std::shared_ptr<Scene>	Application::RenameScene(std::shared_ptr<Scene> inCurrentScene, const fm::FilePath& inPath)
+{
+	return _sceneManager->RenameScene(inCurrentScene, inPath);
+}
+
+
+void Application::SerializeCurrentScene(nlohmann::json& outjson)
+{
+	return _sceneManager->SerializeCurrentScene(outjson);
+}

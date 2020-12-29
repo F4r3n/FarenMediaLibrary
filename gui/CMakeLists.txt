@@ -25,7 +25,7 @@ set(SOURCES ${SOURCES}
 	src/inspector/bodyInspector.cpp
 	src/inspector/colliderInspector.cpp
 	src/inspector/cameraInspector.cpp
-	
+	src/Editor.cpp
 	src/MainWindow.cpp
 	src/Window/GWindow.cpp
 	src/Window/GEditorView.cpp

@@ -57,7 +57,7 @@ void GToolBar::_DrawStartStop()
 			if (status)
 			{
 				AddEvent([](GWindow*) {
-					fm::Application::Get().Start(true);
+					fm::Application::Get().Start();
 				});
 			}
 		}

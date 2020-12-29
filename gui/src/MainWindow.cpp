@@ -32,6 +32,7 @@
 
 #include "SDL_scancode.h"
 #include <imgui/imgui_internal.h>
+#include "Editor.h"
 
 const std::string JSON_KEY = "FML";
 
@@ -41,7 +42,7 @@ MainWindow::MainWindow()
 	_ConfigureStyle();
 
 	_context.currentSceneName = "";
-	_editorScene = fm::Application::Get().CreateEditorScene();
+	_editorScene = Editor::Get().CreateEditorScene();
 
 	_InitEditorCamera();
 
@@ -76,7 +77,7 @@ MainWindow::MainWindow()
 
 void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 {
-	fm::Application::Get().NewProject(fm::Folder(inFilePath));
+	Editor::Get().NewProject(fm::Folder(inFilePath));
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->Start();
 	_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->Start();
@@ -91,7 +92,7 @@ void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 
 void MainWindow::_AddEmptyScene()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
+	std::shared_ptr<fm::Scene> currentScene = Editor::Get().GetScene(_context.currentSceneName);
 	//Add object
 	std::shared_ptr <fm::GameObject> go = currentScene->CreateGameObject(true);
 	fmc::CTransform* tr = go->get<fmc::CTransform>();
@@ -132,57 +133,10 @@ void MainWindow::_InitEditorCamera()
 MainWindow::~MainWindow()
 {
 }
-/*
-void MainWindow::_DisplayWindow_Create_Project()
-{
-	pfd::select_folder dialog = pfd::select_folder("Create to...", ".");
-	std::string&& resultFromDialog = dialog.result();
 
-	if (!resultFromDialog.empty())
-	{
-		fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
-		fm::Application::Get().NewProject(fm::Folder(result));
-	}
-}
-
-
-
-void MainWindow::_DisplayWindow_Save_Project()
-{
-	pfd::select_folder dialog = pfd::select_folder("Save to...", ".");
-	std::string&& resultFromDialog = dialog.result();
-
-	if (!resultFromDialog.empty())
-	{
-		fm::FilePath result(resultFromDialog + fm::FilePath::GetFolderSeparator());
-		
-		fm::Application::Get().SetUserDirectory(fm::Folder(result));
-		fm::Application::Get().Serialize();
-	}
-}
-*/
-
-
-/*
-void MainWindow::_DisplayWindow_Load_Project()
-{
-	pfd::open_file dialog = pfd::open_file("Choose files to read", ".",
-		{ "Fml files", "*.fml",
-		  "All Files", "*" },
-		false);
-
-	std::vector<std::string> resultFromDialog = dialog.result();
-
-	if (!resultFromDialog.empty())
-	{
-		fm::FilePath result(resultFromDialog.front());
-		fm::Application::Get().LoadProject(result);
-	}
-}
-*/
 void MainWindow::_DisplayWindow_Create_Scene()
 {
-	auto scene = fm::Application::Get().GetCurrentScene();
+	auto scene = Editor::Get().GetCurrentScene();
 	if (scene != nullptr)
 	{
 		scene->Save();
@@ -195,7 +149,7 @@ void MainWindow::_DisplayWindow_Create_Scene()
 	{
 		fm::FilePath result(resultFromDialog);
 
-		fm::Application::Get().CreateNewScene(result);
+		Editor::Get().CreateNewScene(result);
 	}
 }
 
@@ -217,7 +171,7 @@ void MainWindow::_DrawMenu()
 			{
 				if (ImGui::MenuItem("Start"))
 				{
-					fm::Application::Get().Start(true);
+					Editor::Get().Start();
 					_currentEntity.reset();
 				}
 				if (ImGui::MenuItem("Pause"))
@@ -226,24 +180,18 @@ void MainWindow::_DrawMenu()
 				}
 				if (ImGui::MenuItem("Stop"))
 				{
-					fm::Application::Get().Stop();
+					Editor::Get().Stop();
 					_currentEntity.reset();
 				}
 				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Project Settings"))
-			{
-				//_windowStates[WINDOWS::WIN_PROJECT_SETTINGS] = true;
-			}
+
 			if (ImGui::BeginMenu("Save"))
 			{
-				//if (ImGui::MenuItem("Project to ..."))
-				//{
-				//	_DisplayWindow_Save_Project();
-				//}
+
 				if (ImGui::MenuItem("Scene"))
 				{
-					auto scene = fm::Application::Get().GetCurrentScene();
+					auto scene = Editor::Get().GetCurrentScene();
 
 					if (scene != nullptr && scene->GetName() == scene->GetPath().GetPath())
 					{
@@ -261,12 +209,12 @@ void MainWindow::_DrawMenu()
 							if(!relative.empty())
 								result = fm::FilePath(fm::LOCATION::USER_LOCATION, relative);
 
-							scene = fm::Application::Get().RenameScene(scene, result);
-							fm::Application::Get().SetCurrentScene(scene->GetName());
+							scene = Editor::Get().RenameScene(scene, result);
+							Editor::Get().SetCurrentScene(scene->GetName());
 						}
 					}
 
-					fm::Application::Get().SerializeCurrentScene();
+					Editor::Get().SerializeCurrentScene();
 				}
 
 				ImGui::EndMenu();
@@ -301,11 +249,11 @@ void MainWindow::_DrawMenu()
 					if (!resultFromDialog.empty())
 					{
 						fm::FilePath result(resultFromDialog.front());
-						auto s = fm::Application::Get().LoadScene(result);
+						auto s = Editor::Get().LoadScene(result);
 
 						if (s != nullptr)
 						{
-							fm::Application::Get().SetCurrentScene(s->GetName());
+							Editor::Get().SetCurrentScene(s->GetName());
 						}
 					}
 				}
@@ -348,7 +296,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = fm::Application::Get().GetScene(_context.currentSceneName)->CreateGameObject(true)->getID();
+				_currentEntity = Editor::Get().GetScene(_context.currentSceneName)->CreateGameObject(true)->getID();
 
 			}
 			if (ImGui::MenuItem("List entity"))
@@ -378,7 +326,7 @@ void MainWindow::_Copy()
 	{
 		nlohmann::json j;
 		nlohmann::json json;
-		std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentEntity.value());
+		std::shared_ptr<fm::GameObject> go = Editor::Get().GetCurrentScene()->GetGameObjectByID(_currentEntity.value());
 		go->Serialize(json);
 		j[JSON_KEY] = json;
 
@@ -398,7 +346,7 @@ void MainWindow::_Paste()
 			nlohmann::json json = j[JSON_KEY];
 			if (json.is_object())
 			{
-				std::shared_ptr <fm::GameObject> go = fm::Application::Get().GetScene(_context.currentSceneName)->CreateGameObject(false);
+				std::shared_ptr <fm::GameObject> go = Editor::Get().GetScene(_context.currentSceneName)->CreateGameObject(false);
 				go->Read(json);
 			}
 		}
@@ -549,7 +497,7 @@ void MainWindow::OnDraw()
 		}
 		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
 		{
-			fm::Application::Get().SerializeCurrentScene();
+			Editor::Get().SerializeCurrentScene();
 		}
 	}
 
@@ -594,7 +542,7 @@ void MainWindow::_ClearBeforeSceneChange()
 }
 void MainWindow::_InitGameView()
 {
-	std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(_context.currentSceneName);
+	std::shared_ptr<fm::Scene> currentScene = Editor::Get().GetScene(_context.currentSceneName);
 
 	auto&& v = currentScene->GetAllGameObjects();
 	for (auto &&o : v)
@@ -615,39 +563,39 @@ void MainWindow::_InitGameView()
 
 void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 {
-	if (o != nullptr && o->GetName() == "Application")
+	if (o != nullptr && o->GetName() == "Editor")
 	{
-		switch ((fm::Application::Event)inEvent.eventKind)
+		switch ((Editor::Event)inEvent.eventKind)
 		{
-		case fm::Application::Event::ON_AFTER_LOAD:
+		case Editor::Event::ON_AFTER_LOAD:
 			_OnAfterLoad(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_AFTER_START:
+		case Editor::Event::ON_AFTER_START:
 			_OnAfterStart(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_AFTER_STOP:
+		case Editor::Event::ON_AFTER_STOP:
 			_OnAfterStop(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_PRE_LOAD:
+		case Editor::Event::ON_PRE_LOAD:
 			_OnPreLoad(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_PRE_START:
+		case Editor::Event::ON_PRE_START:
 			_OnPreStart(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_PRE_STOP:
+		case Editor::Event::ON_PRE_STOP:
 			_OnPreLoad(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_PRE_SCENE_LOAD:
+		case Editor::Event::ON_PRE_SCENE_LOAD:
 			_OnPreStop(inEvent.value);
 			break;
 
-		case fm::Application::Event::ON_AFTER_SCENE_LOAD:
+		case Editor::Event::ON_AFTER_SCENE_LOAD:
 			_OnAfterLoad(inEvent.value);
 			break;
 		default:
@@ -673,7 +621,7 @@ void MainWindow::_OnAfterStart(const std::any& inAny)
 	_events.push([this, inAny]() {
 		if (inAny.has_value())
 			std::any_cast<std::function<void(void)>>(inAny)();
-		_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
+		_context.currentSceneName = Editor::Get().GetCurrentSceneName();
 		_InitGameView();
 		_needUpdate = true;
 		std::string currentSceneName = _context.currentSceneName;
@@ -701,7 +649,7 @@ void MainWindow::_OnAfterStop(const std::any& inAny)
 	_events.push([this, inAny]() {
 		if (inAny.has_value())
 			std::any_cast<std::function<void(void)>>(inAny)();
-		_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
+		_context.currentSceneName = Editor::Get().GetCurrentSceneName();
 		_InitGameView();
 		_needUpdate = true;
 		std::string currentSceneName = _context.currentSceneName;
@@ -727,7 +675,7 @@ void MainWindow::_OnPreLoad(const std::any& inAny)
 
 void MainWindow::_AfterLoad()
 {
-	_context.currentSceneName = fm::Application::Get().GetCurrentSceneName();
+	_context.currentSceneName = Editor::Get().GetCurrentSceneName();
 	_InitGameView();
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))

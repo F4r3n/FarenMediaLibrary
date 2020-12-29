@@ -51,6 +51,7 @@ namespace fm
 				o->Notify(this, inEvent);
 			}
 		}
+		bool HasObserver() { return !_observers.empty(); }
 		const std::string& GetName() const { return _name; }
 	private:
 		std::string			   _name;

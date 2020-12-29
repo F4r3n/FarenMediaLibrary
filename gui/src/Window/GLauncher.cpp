@@ -1,6 +1,6 @@
 #include "GLauncher.h"
 #include "PortableFileDialog.h"
-#include "Core/application.h"
+#include "Editor.h"
 using namespace gui;
 GLauncher::GLauncher() : GWindow("Launcher", false, ImGuiWindowFlags_HorizontalScrollbar)
 {
@@ -22,7 +22,7 @@ void GLauncher::OnInit()
 
 	if (_listProjects.empty())
 	{
-		fm::Application::Get().GetLastProjectsOpened(_listProjects);
+		Editor::Get().GetLastProjectsOpened(_listProjects);
 		_projectSelected = -1;
 	}
 }
