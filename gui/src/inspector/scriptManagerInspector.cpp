@@ -75,7 +75,7 @@ void ScriptManagerInspector::Draw(bool *value)
 							script->EvaluateVariable(valueToStartWith.second, argValue);
 						}
 						float v = std::any_cast<float>(argValue);
-						hasChanged = ImGui::InputFloat(name.c_str(), &v, 0.01, 1, 2);
+						hasChanged = ImGui::InputFloat(name.c_str(), &v, 0.01, 1);
 						if (hasChanged)
 						{
 							argValue = v;

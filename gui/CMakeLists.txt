@@ -3,16 +3,18 @@ set(PROJECT_NAME "FMLEditor")
 project(${PROJECT_NAME})
 
 
+set(${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${PROJECT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib/imgui)
-message(${CMAKE_CURRENT_LIST_DIR}extlib)
+
 set(SOURCES ${SOURCES} 
 	src/main.cpp
-	src/imgui_impl_sdl.cpp
+	src/imgui_impl_sdl2.cpp
 	src/imgui_impl_opengl3.cpp
 	extlib/imgui/imgui.cpp
 	extlib/imgui/imgui_draw.cpp
 	extlib/imgui/imgui_widgets.cpp
+	extlib/imgui/imgui_tables.cpp
 	extlib/imgui/imgui_demo.cpp
 
 	src/inspector/inspector.cpp
@@ -49,6 +51,7 @@ include_directories("src")
 file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
 
 set(FML_PATH ${CMAKE_SOURCE_DIR})
+set(FML_LIB_PATH ${CMAKE_BINARY_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 
@@ -90,7 +93,7 @@ link_directories(${FML_EXTLIB_LIB}/ECS/lib)
 
 #FML
 include_directories(${FML_PATH}/lib/src)
-link_directories(${FML_PATH}/build/lib)
+link_directories(${FML_LIB_PATH}/lib)
 
 #IMGUI
 include_directories(${FML_EXTLIB}/imgui/)
@@ -116,5 +119,12 @@ add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
                    ${CMAKE_SOURCE_DIR}/Resources ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources
 					COMMAND ${CMAKE_COMMAND} -E copy
                     ${CMAKE_SOURCE_DIR}/InternalResources/imgui.ini $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${FML_LIB_PATH}/lib/
+                ${CMAKE_CURRENT_BINARY_DIR}/)
 
 

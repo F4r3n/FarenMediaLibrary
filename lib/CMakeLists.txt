@@ -4,6 +4,8 @@ project(${PROJECT_NAME} CXX)
 include(CheckCXXCompilerFlag)
 SET_COMPILER_OPTIONS()
 
+set(${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${PROJECT_BINARY_DIR})
+
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
@@ -65,7 +67,7 @@ link_directories(${FML_EXTLIB_LIB}/assimp/code/)
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
-    add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
+add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
     

@@ -28,21 +28,23 @@ void GToolBar::_UpdateInputTransformContext(Context &inContext)
 
 	if (inContext.currentWindowFocused == WINDOWS::WIN_EDITOR_VIEW)
 	{
-		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_T, false))
+		if (io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_T, false))
 		{
 			_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
 		}
-		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_R, false))
+		if (io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_R, false))
 		{
 			_state = gui::TRANSFORM_CONTEXT::ROTATE;
 		}
-		if (io.KeyAlt && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
+		if (io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
 		{
 			_state = gui::TRANSFORM_CONTEXT::SCALE;
 		}
 	}
 
 }
+
+
 
 void GToolBar::_DrawStartStop()
 {
@@ -52,14 +54,19 @@ void GToolBar::_DrawStartStop()
 	{
 		const char* labelT = "Start\0";
 		bool status = fm::Application::Get().IsRunning();
-		if (ImGui::PushButton(labelT, buttonSize, &status))
+		if (status)
 		{
-			if (status)
-			{
-				AddEvent([](GWindow*) {
-					fm::Application::Get().Start();
-				});
-			}
+			ImGui::BeginDisabled();
+		}
+		if (ImGui::Button(labelT, buttonSize))
+		{
+			AddEvent([](GWindow*) {
+				fm::Application::Get().Start();
+			});	
+		}
+		if (status)
+		{
+			ImGui::EndDisabled();
 		}
 	}
 
@@ -67,15 +74,20 @@ void GToolBar::_DrawStartStop()
 	{
 		const char* labelT = "Stop\0";
 		bool status = !fm::Application::Get().IsRunning();
-		if (ImGui::PushButton(labelT, buttonSize, &status))
+		if (status)
 		{
-			if (status)
-			{
-				AddEvent([](GWindow*) {
-					fm::Application::Get().Stop();
-				});
-				
-			}
+			ImGui::BeginDisabled();
+		}
+		if (ImGui::Button(labelT, buttonSize))
+		{
+
+			AddEvent([](GWindow*) {
+				fm::Application::Get().Stop();
+			});
+		}
+		if (status)
+		{
+			ImGui::EndDisabled();
 		}
 	}
 }
@@ -87,34 +99,49 @@ void GToolBar::_DrawTransformContext()
 	const ImVec2 buttonSize = ImVec2(30, 30);
 	const char* labelT = "T\0";
 	bool status = _state == gui::TRANSFORM_CONTEXT::TRANSLATE;
-	if (ImGui::PushButton(labelT, buttonSize, &status))
+	if (status)
 	{
-		if (status)
-		{
-			_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
-		}
+		ImGui::BeginDisabled();
+	}
+	if (ImGui::Button(labelT, buttonSize))
+	{
+		_state = gui::TRANSFORM_CONTEXT::TRANSLATE;
+	}
+	if (status)
+	{
+		ImGui::EndDisabled();
 	}
 
 	ImGui::SameLine();
 	const char* labelS = "S\0";
 	status = _state == gui::TRANSFORM_CONTEXT::SCALE;
-	if (ImGui::PushButton(labelS, buttonSize, &status))
+	if (status)
 	{
-		if (status)
-		{
-			_state = gui::TRANSFORM_CONTEXT::SCALE;
-		}
+		ImGui::BeginDisabled();
+	}
+	if (ImGui::Button(labelS, buttonSize))
+	{
+		_state = gui::TRANSFORM_CONTEXT::SCALE;
+	}
+	if (status)
+	{
+		ImGui::EndDisabled();
 	}
 
 	ImGui::SameLine();
 	const char* labelR = "R\0";
 	status = _state == gui::TRANSFORM_CONTEXT::ROTATE;
-	if (ImGui::PushButton(labelR, buttonSize, &status))
+	if (status)
 	{
-		if (status)
-		{
-			_state = gui::TRANSFORM_CONTEXT::ROTATE;
-		}
+		ImGui::BeginDisabled();
+	}
+	if (ImGui::Button(labelR, buttonSize))
+	{
+		_state = gui::TRANSFORM_CONTEXT::ROTATE;
+	}
+	if (status)
+	{
+		ImGui::EndDisabled();
 	}
 }
 

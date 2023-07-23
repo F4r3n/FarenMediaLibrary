@@ -487,15 +487,15 @@ void MainWindow::OnDraw()
 	ImGuiIO io = ImGui::GetIO();
 	if (_context.currentWindowFocused == gui::WINDOWS::WIN_EDITOR_VIEW)
 	{
-		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_C, false))
+		if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false))
 		{
 			_Copy();
 		}
-		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_V, false))
+		if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_V, false))
 		{
 			_Paste();
 		}
-		if (io.KeyCtrl && ImGui::IsKeyPressed(SDL_Scancode::SDL_SCANCODE_S, false))
+		if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
 		{
 			Editor::Get().SerializeCurrentScene();
 		}
@@ -759,5 +759,5 @@ void MainWindow::_ConfigureStyle()
 	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
 	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.32f, 0.52f, 0.65f, 1.00f);
-	style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.50f);
+	//style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.50f);
 }

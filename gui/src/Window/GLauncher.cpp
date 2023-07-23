@@ -67,7 +67,7 @@ void GLauncher::CustomDraw()
 
 	ImGui::SameLine();
 
-	if (ImGui::ListBoxHeader("##List"))
+	if (ImGui::BeginListBox("##List"))
 	{
 		size_t i = 0;
 		for (auto && path : _listProjects)
@@ -85,7 +85,7 @@ void GLauncher::CustomDraw()
 			ImGui::Selectable("", false);
 		}
 
-		ImGui::ListBoxFooter();
+		ImGui::EndListBox();
 	}
 }
 

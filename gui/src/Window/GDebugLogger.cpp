@@ -70,7 +70,7 @@ void GDebugLogger::CustomDraw()
 		ImGui::TextUnformatted((const char*)&_buffer.front());
 
 		if (_scrollToBottom)
-			ImGui::SetScrollHere(1.0f);
+			ImGui::SetScrollHereY(1.0f);
 		_scrollToBottom = false;
 
 	}
