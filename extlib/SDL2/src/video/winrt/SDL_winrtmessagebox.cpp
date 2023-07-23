@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2020 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -34,23 +34,20 @@ using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::UI::Popups;
 
-static String ^
-WINRT_UTF8ToPlatformString(const char * str)
-{
-    wchar_t * wstr = WIN_UTF8ToString(str);
+static String ^ WINRT_UTF8ToPlatformString(const char *str) {
+    wchar_t *wstr = WIN_UTF8ToString(str);
     String ^ rtstr = ref new String(wstr);
     SDL_free(wstr);
     return rtstr;
 }
 
-extern "C" int
-WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
+    extern "C" int WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 {
 #if (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP) && (NTDDI_VERSION == NTDDI_WIN8)
     /* Sadly, Windows Phone 8 doesn't include the MessageDialog class that
      * Windows 8.x/RT does, even though MSDN's reference documentation for
      * Windows Phone 8 mentions it.
-     * 
+     *
      * The .NET runtime on Windows Phone 8 does, however, include a
      * MessageBox class.  Perhaps this could be called, somehow?
      */
@@ -60,15 +57,15 @@ WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 
 #if WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
     const int maxbuttons = 2;
-    const char * platform = "Windows Phone 8.1+";
+    const char *platform = "Windows Phone 8.1+";
 #else
     const int maxbuttons = 3;
-    const char * platform = "Windows 8.x";
+    const char *platform = "Windows 8.x";
 #endif
 
     if (messageboxdata->numbuttons > maxbuttons) {
         return SDL_SetError("WinRT's MessageDialog only supports %d buttons, at most, on %s. %d were requested.",
-            maxbuttons, platform, messageboxdata->numbuttons);
+                            maxbuttons, platform, messageboxdata->numbuttons);
     }
 
     /* Build a MessageDialog object and its buttons */
@@ -82,7 +79,7 @@ WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
             sdlButton = &messageboxdata->buttons[i];
         }
         UICommand ^ button = ref new UICommand(WINRT_UTF8ToPlatformString(sdlButton->text));
-        button->Id = safe_cast<IntPtr>((int)(sdlButton - messageboxdata->buttons));
+        button->Id = IntPtr((int)((size_t)(sdlButton - messageboxdata->buttons)));
         dialog->Commands->Append(button);
         if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
             dialog->CancelCommandIndex = i;
@@ -104,7 +101,7 @@ WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         return SDL_SetError("An unknown error occurred in displaying the WinRT MessageDialog");
     }
     if (buttonid) {
-        IntPtr results = safe_cast<IntPtr>((int)(operation->GetResults()->Id));
+        IntPtr results = safe_cast<IntPtr>(operation->GetResults()->Id);
         int clicked_index = results.ToInt32();
         *buttonid = messageboxdata->buttons[clicked_index].buttonid;
     }
@@ -115,4 +112,3 @@ WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 #endif /* SDL_VIDEO_DRIVER_WINRT */
 
 /* vi: set ts=4 sw=4 expandtab: */
-
