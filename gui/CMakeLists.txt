@@ -9,7 +9,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/extlib/imgui)
 
 set(SOURCES ${SOURCES} 
 	src/main.cpp
-	src/imgui_impl_sdl2.cpp
+	src/imgui_impl_sdl3.cpp
 	src/imgui_impl_opengl3.cpp
 	extlib/imgui/imgui.cpp
 	extlib/imgui/imgui_draw.cpp
@@ -73,9 +73,9 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 link_directories(${FML_EXTLIB_LIB}/glew)
 include_directories(${FML_EXTLIB}/glew/include)
 
-#SDL2
-include_directories(${FML_EXTLIB}/SDL2/include)
-link_directories(${FML_EXTLIB_LIB}/SDL2/lib)
+#SDL3
+include_directories(${FML_EXTLIB}/SDL3/include)
+link_directories(${FML_EXTLIB_LIB}/SDL3/lib)
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -106,7 +106,7 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
+target_link_libraries(${PROJECT_NAME} debug SDL3d optimized SDL3)
 target_link_libraries(${PROJECT_NAME} glew_s)
 target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES} OpenAL)
 

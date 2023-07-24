@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "Window.h"
 
@@ -8,7 +8,7 @@
 #include "Rendering/Renderer.h"
 #include "Input/InputManager.h"
 #include "Resource/ResourcesManager.h"
-
+#include <iostream>
 #include "Core/Debug.h"
 #include <string>
 
@@ -39,30 +39,42 @@ _windowFlag(inWindowFlag)
 
 bool Window::Init()
 {
-    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMEPAD) != 0) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return false;
     }
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+		SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+	SDL_DisplayID id = SDL_GetPrimaryDisplay();
 
 	//bool isFullScreen = Window::kWidth == -1 || Window::kHeight == -1;
 	if (Window::kWidth <= 0 || Window::kHeight <= 0)
 	{
 		SDL_Rect rect;
 
-		if (_windowFlag & SDL_WINDOW_FULLSCREEN || _windowFlag & SDL_WINDOW_FULLSCREEN_DESKTOP)
+		if (_windowFlag & SDL_WINDOW_FULLSCREEN)
 		{
-			SDL_GetDisplayBounds(0, &rect);
+			SDL_GetDisplayBounds(id, &rect);
 		}
 		else if (_windowFlag & SDL_WINDOW_MAXIMIZED)
 		{
-			SDL_GetDisplayUsableBounds(0, &rect);
+			SDL_GetDisplayUsableBounds(id, &rect);
 #if _WIN32
 			rect.h -= 20;
 #endif
 		}
 		else
 		{
-			SDL_GetDisplayUsableBounds(0, &rect);
+			SDL_GetDisplayUsableBounds(id, &rect);
 #if _WIN32
 			rect.h -= 20;
 #endif
@@ -73,26 +85,20 @@ bool Window::Init()
 	}
 
     _window = SDL_CreateWindow("FML engine",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-							  Window::kWidth,
-                              Window::kHeight,
+							  (int)Window::kWidth,
+                              (int)Window::kHeight,
                               (Uint32)_windowFlag);
 
+	SDL_SetWindowPosition(_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                        SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetSwapInterval(0);
 
     if(_Init())
     {
-
-		
+		SDL_ShowWindow(_window);
+		int error = glGetError();
+		if (error != 0) {
+			std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
+		}
         _isInit = true;
         fm::Debug::get().LogError("Init");
         return true;
@@ -203,6 +209,7 @@ int Window::_Init()
         return -1;
     }
     _mainContext = SDL_GL_CreateContext(_window);
+	SDL_GL_SetSwapInterval(0);
 
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK) 

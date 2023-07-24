@@ -89,6 +89,11 @@ bool Shader::compile()
     glDeleteShader(vertex);
     glDeleteShader(fragment);
     _isReady = true;
+
+	int error = glGetError();
+	if (error != 0) {
+		std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
+	}
     return true;
 }
 

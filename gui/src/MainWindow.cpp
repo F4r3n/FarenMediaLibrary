@@ -30,7 +30,6 @@
 
 #include "Resource/ResourcesManager.h"
 
-#include "SDL_scancode.h"
 #include <imgui/imgui_internal.h>
 #include "Editor.h"
 

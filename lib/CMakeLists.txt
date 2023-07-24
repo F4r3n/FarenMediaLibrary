@@ -37,8 +37,8 @@ include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
 #SDL2
-include_directories(${FML_EXTLIB}/SDL2/include)
-link_directories(${FML_EXTLIB_LIB}/SDL2)
+include_directories(${FML_EXTLIB}/SDL3/include)
+link_directories(${FML_EXTLIB_LIB}/SDL3)
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -74,7 +74,7 @@ set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${LIB_NAME} freetype)
 target_link_libraries(${LIB_NAME} ECS)
 target_link_libraries(${LIB_NAME} lua)
-target_link_libraries(${LIB_NAME} debug SDL2d optimized SDL2)
+target_link_libraries(${LIB_NAME} debug SDL3d optimized SDL3)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
 target_link_libraries(${LIB_NAME} OpenAL)

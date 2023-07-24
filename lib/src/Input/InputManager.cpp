@@ -48,45 +48,44 @@ void InputManager::_ProcessEvents()
 
 	switch (_event.type)
 	{
-	case SDL_MOUSEWHEEL:
+	case SDL_EVENT_MOUSE_WHEEL:
 	{
 		_scrollWheel.x += _event.wheel.x;
 		_scrollWheel.y += _event.wheel.y;
 		break;
 	}
-	case SDL_MOUSEBUTTONUP:
-	case SDL_MOUSEBUTTONDOWN:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 	{
-		_mouseKeys[SDL_BUTTON_LEFT - 1] = _event.button.button == SDL_BUTTON_LEFT && (_event.type == SDL_MOUSEBUTTONDOWN);
-		_mouseKeys[SDL_BUTTON_RIGHT - 1] = _event.button.button == SDL_BUTTON_RIGHT && (_event.type == SDL_MOUSEBUTTONDOWN);
-		_mouseKeys[SDL_BUTTON_MIDDLE - 1] = _event.button.button == SDL_BUTTON_MIDDLE && (_event.type == SDL_MOUSEBUTTONDOWN);
+		_mouseKeys[SDL_BUTTON_LEFT - 1] = _event.button.button == SDL_BUTTON_LEFT && (_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN);
+		_mouseKeys[SDL_BUTTON_RIGHT - 1] = _event.button.button == SDL_BUTTON_RIGHT && (_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN);
+		_mouseKeys[SDL_BUTTON_MIDDLE - 1] = _event.button.button == SDL_BUTTON_MIDDLE && (_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN);
 
 		break;
 	}
-	case SDL_TEXTINPUT:
+	case SDL_EVENT_TEXT_INPUT:
 	{
 		//return true;
 		break;
 	}
-	case SDL_KEYDOWN:
-	case SDL_KEYUP:
+	case SDL_EVENT_KEY_DOWN:
+	case SDL_EVENT_KEY_UP:
 	{
 		int key = _event.key.keysym.scancode;
 		assert(key < 512);
-		_keys[key] = (_event.type == SDL_KEYDOWN);
-		_keyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
-		_keyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
-		_keyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
-		_keySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+		_keys[key] = (_event.type == SDL_EVENT_KEY_DOWN);
+		_keyShift = ((SDL_GetModState() & SDL_KMOD_SHIFT) != 0);
+		_keyCtrl = ((SDL_GetModState() & SDL_KMOD_CTRL) != 0);
+		_keyAlt = ((SDL_GetModState() & SDL_KMOD_ALT) != 0);
+		_keySuper = ((SDL_GetModState() & SDL_KMOD_GUI) != 0);
 		break;
 	}
 	// Multi-viewport support
-	case SDL_WINDOWEVENT:
-		Uint8 window_event = _event.window.event;
-		if (window_event == SDL_WINDOWEVENT_CLOSE || window_event == SDL_WINDOWEVENT_MOVED || window_event == SDL_WINDOWEVENT_RESIZED)
-		{
-			_closed = (_event.window.event == SDL_WINDOWEVENT_CLOSE);
-		}
+	case SDL_EVENT_WINDOW_MOVED:
+	case SDL_EVENT_WINDOW_RESIZED:
+		break;
+	case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+		_closed = true;
 		break;
 	}
 
@@ -95,10 +94,7 @@ void InputManager::_ProcessEvents()
 
 void InputManager::CaptureMousePosition()
 {
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
-	_mousePos.x = (float)mouseX;
-	_mousePos.y = (float)mouseY;
+	SDL_GetMouseState(&_mousePos.x, &_mousePos.y);
 }
 
 void InputManager::PollEvents(std::function<void(const SDL_Event&)>&& inCallBack)

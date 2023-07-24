@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Math/Vector2.h"
 #include "NonCopyable.h"
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 #include <functional>
 namespace fm
 {
