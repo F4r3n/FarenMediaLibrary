@@ -202,7 +202,7 @@ void GListComponent::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 {
 	if (o->GetName() == "Scene")
 	{
-		AddEvent([inEvent, this](gui::GWindow* inWindow)
+		AddEvent([inEvent, this](gui::GWindow* inWindow, std::optional<gui::Context> Context)
 			{
 				if (inEvent.eventKind == (size_t)fm::Scene::Event::DELETE_GAMEOBJECT)
 				{

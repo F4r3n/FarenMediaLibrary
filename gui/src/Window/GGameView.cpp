@@ -7,6 +7,8 @@
 #include <imgui/imgui_internal.h>
 #include "Core/Scene.h"
 #include "Core/Debug.h"
+#include "Core/application.h"
+#include "Components/CTransform.h"
 using namespace gui;
 GGameView::GGameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar)
 {
@@ -29,6 +31,25 @@ void GGameView::CustomDraw()
 			const fm::Texture texture = renderTexture->GetColorBufferTexture(0);
 	
 			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(), _startImagePos, _endImagePos);
+		}
+	}
+	else
+	{
+		if (ImGui::Button("No camera found"))
+		{
+			AddEvent([](GWindow* window, std::optional<Context> inContext) {
+				if (!inContext.has_value())
+					return;
+				auto scene = fm::Application::Get().GetScene(inContext->currentSceneName);
+				auto go = scene->CreateGameObject(true);
+				auto tr = go->get<fmc::CTransform>();
+				tr->SetPosition(fm::math::vec3(0, 0, -1));
+				go->addComponent<fmc::CCamera>()->Init();
+				
+				go->SetName("Main camera");
+				dynamic_cast<GGameView*>(window)->AddCamera(go);
+				
+			});
 		}
 	}
 }

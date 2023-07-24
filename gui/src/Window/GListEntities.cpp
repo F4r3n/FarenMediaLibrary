@@ -302,7 +302,7 @@ void GListEntities::CustomDraw()
 				{
 					size_t id = goSelected->getID();
 					std::string scene(_currentSceneName);
-					AddEvent([id, scene](gui::GWindow* window) {
+					AddEvent([id, scene](gui::GWindow* window, std::optional<gui::Context> Context) {
 						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
 						currentScene->DeleteGameObjectByID(id);
 

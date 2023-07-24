@@ -45,12 +45,12 @@ MainWindow::MainWindow()
 
 	_InitEditorCamera();
 
-	std::unique_ptr<gui::GEditorView> gameView = std::make_unique<gui::GEditorView>(_editorCamera, _editorScene);
-	gameView->SetPickingSystem(std::make_unique<fms::PickingSystem>(_editorScene));
+	std::unique_ptr<gui::GEditorView> editorView = std::make_unique<gui::GEditorView>(_editorCamera, _editorScene);
+	editorView->SetPickingSystem(std::make_unique<fms::PickingSystem>(_editorScene));
 
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES] = std::make_unique<gui::GListEntities>();
-	_windows[gui::WINDOWS::WIN_EDITOR_VIEW] = std::move(gameView);
+	_windows[gui::WINDOWS::WIN_EDITOR_VIEW] = std::move(editorView);
 	_windows[gui::WINDOWS::WIN_LOGGER] = std::make_unique<gui::GDebugLogger>();
 	_windows[gui::WINDOWS::WIN_TOOLBAR] = std::make_unique<gui::GToolBar>();
 	_windows[gui::WINDOWS::WIN_SCENE_VIEW] = std::make_unique<gui::GGameView>();
@@ -63,7 +63,7 @@ MainWindow::MainWindow()
 		value->Stop();
 	}
 	_windows[gui::WINDOWS::WIN_LAUNCHER]->Start();
-	_windows[gui::WINDOWS::WIN_LAUNCHER]->SetCallBackClosure([this](gui::GWindow* inWindow)
+	_windows[gui::WINDOWS::WIN_LAUNCHER]->SetCallBackClosure([this](gui::GWindow* inWindow, std::optional<gui::Context> Context)
 		{
 			gui::GLauncher* launcher = dynamic_cast<gui::GLauncher*>(inWindow);
 			LoadProject(launcher->GetResult());
@@ -513,21 +513,21 @@ void MainWindow::_ClearBeforeSceneChange()
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
-		_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow) {
+		_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 			dynamic_cast<gui::GGameView*>(inWindow)->Clear();
 		});
 	}
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))
 	{
-		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 			dynamic_cast<gui::GListComponent*>(inWindow)->OnBeforeLoad(currentSceneName);
 		});
 	}
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
 	{
-		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 			dynamic_cast<gui::GListEntities*>(inWindow)->OnBeforeLoad(currentSceneName);
 			});
 	}
@@ -551,7 +551,7 @@ void MainWindow::_InitGameView()
 		{
 			if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 			{
-				_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([go](gui::GWindow* inWindow) {
+				_windows[gui::WINDOWS::WIN_SCENE_VIEW]->AddEvent([go](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 					dynamic_cast<gui::GGameView*>(inWindow)->AddCamera(go);
 				});
 			}
@@ -626,7 +626,7 @@ void MainWindow::_OnAfterStart(const std::any& inAny)
 		std::string currentSceneName = _context.currentSceneName;
 		if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
 		{
-			_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+			_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 				dynamic_cast<gui::GListEntities*>(inWindow)->OnAfterLoad(currentSceneName);
 				});
 		}
@@ -654,7 +654,7 @@ void MainWindow::_OnAfterStop(const std::any& inAny)
 		std::string currentSceneName = _context.currentSceneName;
 		if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
 		{
-			_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+			_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 				dynamic_cast<gui::GListEntities*>(inWindow)->OnAfterLoad(currentSceneName);
 				});
 		}
@@ -680,14 +680,14 @@ void MainWindow::_AfterLoad()
 	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))
 	{
 		std::string currentSceneName = _context.currentSceneName;
-		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+		_windows[gui::WINDOWS::WIN_INSPECTOR]->AddEvent([currentSceneName](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 			dynamic_cast<gui::GListComponent*>(inWindow)->OnAfterLoad(currentSceneName);
 			});
 	}
 	if (IsWindowAvailable(gui::WINDOWS::WIN_LIST_ENTITIES))
 	{
 		std::string currentSceneName = _context.currentSceneName;
-		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow) {
+		_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->AddEvent([currentSceneName](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
 			dynamic_cast<gui::GListEntities*>(inWindow)->OnAfterLoad(currentSceneName);
 			});
 	}

@@ -19,9 +19,9 @@ int main()
 	fm::Config config;
 	config.name = "FML Engine";
 	config.fpsWanted = 60;
-	config.width = 0;
-	config.height = 0;
-	config.windowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED;
+	config.width = 1280;
+	config.height = 720;
+	config.windowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
 	fm::Application::Get().SetConfig(config);
 	fm::Application::Get().Init();

@@ -77,12 +77,12 @@ public:
 	void Stop() { _enabled = false; }
 	bool IsEnabled() const { return _enabled; }
 	const std::string& GetTitle() const { return _name; }
-	void AddEvent(std::function<void(GWindow*)> && inEvent) { _events.push(std::move(inEvent)); }
+	void AddEvent(std::function<void(GWindow*, std::optional<Context>)> && inEvent) { _events.push(std::move(inEvent)); }
 	void NeedUpdate() { _needUpdate = true; }
 	void EnableCustomDraw(bool enable) { _enableCustomDraw = enable; }
 	bool IsModal() const { return _modal; }
 	void SetModal(bool inModal) { _modal = inModal; }
-	void SetCallBackClosure(std::function<void(GWindow*)>&& inF) { _callBackClosure = inF; }
+	void SetCallBackClosure(std::function<void(GWindow*, std::optional<Context>)>&& inF) { _callBackClosure = inF; }
 protected:
 	virtual void			_Update(float, Context &inContext) {};
 	virtual void			CustomDraw();
@@ -99,11 +99,11 @@ protected:
 
 protected:
 	bool										_enabled;
-	std::queue<std::function<void(GWindow*)>>	_events;
+	std::queue<std::function<void(GWindow*, std::optional<Context>)>>	_events;
 	WINDOWS										_kind;
 
 private:
-	void _DequeueEvent();
+	void _DequeueEvent(Context& inContext);
 
 	std::vector<std::unique_ptr<IWidget>> _widgets;
 	std::string							  _name;
@@ -119,7 +119,7 @@ private:
 	bool								  _needUpdate = false;
 	bool								  _enableCustomDraw = true;
 	bool								  _modal = false;
-	std::function<void(GWindow*)>		  _callBackClosure;
+	std::function<void(GWindow*, std::optional<Context>)>	_callBackClosure;
 };
 }
 

@@ -60,7 +60,7 @@ void GToolBar::_DrawStartStop()
 		}
 		if (ImGui::Button(labelT, buttonSize))
 		{
-			AddEvent([](GWindow*) {
+			AddEvent([](GWindow*, std::optional<gui::Context> Context) {
 				fm::Application::Get().Start();
 			});	
 		}
@@ -81,7 +81,7 @@ void GToolBar::_DrawStartStop()
 		if (ImGui::Button(labelT, buttonSize))
 		{
 
-			AddEvent([](GWindow*) {
+			AddEvent([](GWindow*, std::optional<gui::Context> Context) {
 				fm::Application::Get().Stop();
 			});
 		}

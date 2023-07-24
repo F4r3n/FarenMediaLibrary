@@ -156,7 +156,7 @@ void GWindow::Update(float dt, Context &inContext)
 {
 	if (_enabled)
 	{
-		_DequeueEvent();
+		_DequeueEvent(inContext);
 
 		if (_isVisible)
 		{
@@ -180,14 +180,14 @@ void GWindow::Update(float dt, Context &inContext)
 }
 
 
-void GWindow::_DequeueEvent()
+void GWindow::_DequeueEvent(Context& inContext)
 {
 	if (!_events.empty())
 	{
 		auto && e = _events.front();
 		if (e != nullptr)
 		{
-			e(this);
+			e(this, inContext);
 		}
 		_events.pop();
 	}
@@ -198,5 +198,5 @@ void GWindow::_DequeueEvent()
 void GWindow::WillClose()
 {
 	if(_callBackClosure)
-		_callBackClosure(this);
+		_callBackClosure(this, std::nullopt);
 }
