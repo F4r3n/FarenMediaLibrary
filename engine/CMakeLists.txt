@@ -34,7 +34,7 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 link_directories(${FML_EXTLIB_LIB}/glew)
 include_directories(${FML_EXTLIB}/glew/include)
 
-#SDL2
+#SDL3
 include_directories(${FML_EXTLIB}/SDL3/include)
 link_directories(${FML_EXTLIB_LIB}/SDL3/lib)
 

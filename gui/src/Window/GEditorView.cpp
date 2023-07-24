@@ -49,6 +49,12 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 				commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
 			}
+
+			{
+				fm::CommandBuffer commandBuffer;
+				commandBuffer.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
+				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+			}
 			for (auto&& o : gos)
 			{
 				std::shared_ptr<fm::GameObject> go = o.second;

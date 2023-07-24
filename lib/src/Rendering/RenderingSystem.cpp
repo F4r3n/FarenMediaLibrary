@@ -350,23 +350,28 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				if (currentCamera->_target != nullptr)
 				{
 					currentCamera->_target->bind();
-					_graphics.SetViewPort(currentCamera->GetViewport());
-					_graphics.Clear(cmd._bufferBit);
 				}
 				else
 				{
-					//Clear buffers
 					_graphics.BindFrameBuffer(0);
-					_graphics.SetViewPort(currentCamera->GetViewport());
-					_graphics.Clear(cmd._bufferBit);
 				}
 
+				_graphics.SetViewPort(currentCamera->GetViewport());
+				_graphics.Clear(cmd._bufferBit);
 				currentCamera->_rendererConfiguration.postProcessRenderTexture.bind();
 				_graphics.Clear(cmd._bufferBit);
 
 				currentCamera->_renderTexture.bind();
 				_graphics.SetViewPort(currentCamera->GetViewport());
 				_graphics.Clear(cmd._bufferBit);
+			}
+			else if (cmd._command == fm::Command::COMMAND_KIND::ENABLE)
+			{
+				_graphics.Enable(cmd._renderingType);
+			}
+			else if (cmd._command == fm::Command::COMMAND_KIND::DISABLE)
+			{
+				_graphics.Disable(cmd._renderingType);
 			}
 			cmdBuffers.pop();
 		}

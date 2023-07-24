@@ -24,7 +24,9 @@ namespace fm
 			CLEAR,
 			CLEAR_ALL,
 			BLIT,
-			DRAW_MESH
+			DRAW_MESH,
+			ENABLE,
+			DISABLE
 		};
 
 		enum TEXTURE_KIND
@@ -49,6 +51,7 @@ namespace fm
 		Transform _transform;
 		MaterialProperties _materialProperties;
 		BUFFER_BIT _bufferBit;
+		RENDERING_TYPE _renderingType;
 
 		friend class CommandBuffer;
 		friend class fms::RenderingSystem;
@@ -62,6 +65,9 @@ namespace fm
 
 		void Clear(RenderTexture& inSource, BUFFER_BIT inOption);
 		void Clear(BUFFER_BIT inOption);
+
+		void Enable(RENDERING_TYPE inType);
+		void Disable(RENDERING_TYPE inType);
 
 		void Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
 		void Blit(Texture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);

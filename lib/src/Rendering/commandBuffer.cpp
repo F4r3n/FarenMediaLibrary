@@ -62,6 +62,23 @@ void CommandBuffer::Blit(Texture &inSource, RenderTexture &inDestination, fm::Ma
 	_commands.push(cmd);
 }
 
+void CommandBuffer::Enable(RENDERING_TYPE inType)
+{
+	Command cmd;
+	cmd._command = Command::COMMAND_KIND::ENABLE;
+	cmd._renderingType = inType;
+	_commands.push(cmd);
+
+}
+void CommandBuffer::Disable( RENDERING_TYPE inType)
+{
+	Command cmd;
+	cmd._command = Command::COMMAND_KIND::DISABLE;
+	cmd._renderingType = inType;
+	_commands.push(cmd);
+
+}
+
 void CommandBuffer::DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial, const fm::MaterialProperties &inMaterialProperties)
 {
 	Command cmd;
