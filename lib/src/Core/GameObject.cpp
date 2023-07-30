@@ -13,6 +13,7 @@
 #include "Components/CScriptManager.h"
 #include "Components/CIdentity.h"
 #include "Components/CText.h"
+#include "Components/CPointLight.h"
 
 using namespace fm;
 
@@ -85,6 +86,11 @@ bool GameObject::Read(const nlohmann::json &inJson)
 			case fmc::ComponentType::kText:
 				add<fmc::CText>()->Read(it.value());
 			break;
+			case fmc::ComponentType::kPointLight:
+				add<fmc::CPointLight>()->Read(it.value());
+				break;
+			default:
+				assert(false);
         }
 
     }
