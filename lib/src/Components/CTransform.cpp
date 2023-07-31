@@ -16,7 +16,7 @@ const std::string layer("layer");
 CTransform::CTransform()
 {
     _name = "Transform";
-	_idFather = 0;
+	_idFather = Entity::INVALID;
 	_hasFather = false;
 
 	_position = { 0, 0, 0 };
@@ -33,7 +33,7 @@ CTransform::CTransform(const fm::math::Vector3f& inPosition,
 	SetRotation(_rotation.FromEulerAngles(inRotation));
 
     _name = "Transform";
-	_idFather = 0;
+	_idFather = Entity::INVALID;
 	_hasFather = false;
 }
 
@@ -47,7 +47,7 @@ bool CTransform::Serialize(nlohmann::json &ioJson) const
     ioJson[Keys::position] = _position;
     ioJson[Keys::scale] = _scale;
     ioJson[Keys::rotation] = (fm::math::vec4)_rotation;
-    ioJson[Keys::father] = _idFather;
+    ioJson[Keys::father] = _idFather.index();
 
     return true;
 }
@@ -59,7 +59,7 @@ bool CTransform::Read(const nlohmann::json &inJSON)
 	_scale = inJSON[Keys::scale];
 	fm::math::vec4 q = inJSON[Keys::rotation];
 	_rotation = fm::math::Quaternion(q);
-	_idFather = inJSON[Keys::father];
+	_idFather = EntityManager::get().CreateID(inJSON[Keys::father]);
 	_isDirty = true;
 	return true;
 }
@@ -75,10 +75,6 @@ void CTransform::From(const fmc::CTransform *inTransform)
 }
 
 
-void CTransform::Destroy()
-{
-    EntityManager::get().removeComponent<CTransform>(BaseComponent::_IDEntity);
-}
 
 
 const std::string &CTransform::GetName() const
@@ -138,18 +134,18 @@ fm::math::mat CTransform::GetLocalMatrixModel(bool opposePosition) const
 
 void CTransform::setFather(Entity* e)
 {
-    setFather(e->ID);
+    setFather(e->id());
 }
 
 void CTransform::RemoveFather()
 {
 	_hasFather = false;
 	_isDirty = true;
-	_idFather = 0;
+	_idFather = Entity::INVALID;
 }
 
 
-void CTransform::setFather(ecs::id id)
+void CTransform::setFather(Entity::Id id)
 {
     _idFather = id;
 	_hasFather = true;
@@ -285,7 +281,7 @@ bool CTransform::HasFather() const
 	return _hasFather;
 }
 
-ecs::id	CTransform::GetFatherID() const
+Entity::Id	CTransform::GetFatherID() const
 {
 	return _idFather;
 }
@@ -295,8 +291,8 @@ CTransform* CTransform::GetFather() const
 {
 	if (_hasFather)
 	{
-		Entity* e = EntityManager::get().getEntity(_idFather);
-		return e->get<fmc::CTransform>();
+		Entity e = EntityManager::get().GetEntity(_idFather);
+		return e.get<fmc::CTransform>();
 	}
 
 	return nullptr;

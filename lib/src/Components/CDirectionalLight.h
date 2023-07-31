@@ -10,7 +10,6 @@ class CDirectionalLight : public FMComponent<CDirectionalLight>{
         ~CDirectionalLight();
         fm::Color color;
         static const std::string name;
-        void Destroy();
 
 };
 }

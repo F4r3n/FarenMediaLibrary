@@ -36,7 +36,6 @@ class CText : public FMComponent<CText>
 		bool							Read(const nlohmann::json& inJSON) override;
 		uint16_t						GetType() const override { return kText; }
 
-        void							Destroy() override;
 		void							SetText(const std::string& inText);
 		const std::string&				GetText() const;
 		void							UpdateBuffer(const fm::Transform& inTransform, fm::RFont *inFont);

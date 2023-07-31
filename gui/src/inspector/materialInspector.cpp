@@ -4,6 +4,7 @@
 #include <Rendering/Shader.h>
 #include <Core/Debug.h>
 #include <Rendering/material.hpp>
+#include "ECS.h"
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Material, fmc::CMaterial)
 
@@ -89,9 +90,9 @@ void MaterialInspector::_Init()
 
 }
 
-void MaterialInspector::Draw(bool *value)
+void MaterialInspector::Draw(bool *value, const Entity& e)
 {
-	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(e.id().index());
 
     if(ImGui::CollapsingHeader(name.c_str(), value))
     {
@@ -223,4 +224,9 @@ void MaterialInspector::Draw(bool *value)
             }
         }
     }
+}
+
+void MaterialInspector::RemoveComponent(const Entity& inEntity)
+{
+	EntityManager::get().removeComponent<fmc::CMaterial>(inEntity.id());
 }

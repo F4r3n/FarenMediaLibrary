@@ -20,9 +20,14 @@ using namespace fm;
 
 GameObject::GameObject()
 {
-	_entity = EntityManager::get().createEntity();
-
+	_id = EntityManager::get().createEntity().id();
 }
+
+Entity GameObject::_GetEntity() const
+{
+	return EntityManager::get().GetEntity(_id);
+}
+
 
 void GameObject::Serialize(nlohmann::json &outResult) const
 {
@@ -37,7 +42,7 @@ void GameObject::Serialize(nlohmann::json &outResult) const
 			compo[std::to_string(c->GetType())] = j;
         }
     }
-	outResult["enabled"] = _entity->active;
+	outResult["enabled"] = _active;
 	outResult["components"] = compo;
 	outResult["order"] = _order;
 }
@@ -45,7 +50,7 @@ void GameObject::Serialize(nlohmann::json &outResult) const
 
 bool GameObject::Read(const nlohmann::json &inJson)
 {
-	_entity->active = inJson["enabled"];
+	_active = inJson["enabled"];
 	const nlohmann::json compo = inJson["components"];
 	try
 	{
@@ -99,38 +104,38 @@ bool GameObject::Read(const nlohmann::json &inJson)
 
 std::vector<BaseComponent*> GameObject::getAllComponents() const 
 {
-	return _entity->getAllComponents();
+	return _GetEntity().getAllComponents();
 }
 
 void GameObject::SetStatus(bool inStatus)
 {
-	_oldStatus = _entity->active;
-	_entity->active = inStatus;
+	_oldStatus = _active;
+	_active = inStatus;
 }
 
 void GameObject::ResetStatus()
 {
-	_entity->active = _oldStatus;
+	_active = _oldStatus;
 }
 
 void GameObject::SetName(const std::string &inName)
 {
-	if (!_entity->has<fmc::CIdentity>())
+	if (!_GetEntity().has<fmc::CIdentity>())
 	{
-		_entity->addComponent<fmc::CIdentity>();
+		_GetEntity().addComponent<fmc::CIdentity>();
 	}
-	_entity->get<fmc::CIdentity>()->SetNameEntity(inName);
+	_GetEntity().get<fmc::CIdentity>()->SetNameEntity(inName);
 
 }
 
 const std::string& GameObject::GetName() const
 {
-	if (!_entity->has<fmc::CIdentity>())
+	if (!_GetEntity().has<fmc::CIdentity>())
 	{
-		_entity->addComponent<fmc::CIdentity>();
+		_GetEntity().addComponent<fmc::CIdentity>();
 	}
 
-	return _entity->get<fmc::CIdentity>()->GetNameEntity();
+	return _GetEntity().get<fmc::CIdentity>()->GetNameEntity();
 }
 
 

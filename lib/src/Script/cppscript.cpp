@@ -21,10 +21,10 @@ CppScript::~CppScript()
    delete behaviour;
 }
 
-bool CppScript::init(Entity* e)
+bool CppScript::init()
 {
-
-    currentEntity = e;
+	assert(false);
+    //currentEntity = EntityManager::get().GetEntity(e);
     behaviour = CPPManager::get().InstantiateClass(_scriptName);
     behaviour->entity = currentEntity;
     _isInit = true;
@@ -68,7 +68,7 @@ void CppScript::update(float dt)
     }
 }
 
-void CppScript::Stop(Entity* e)
+void CppScript::Stop(const Entity& e)
 {
 
 }

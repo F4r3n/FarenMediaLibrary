@@ -22,10 +22,6 @@ CEvent::~CEvent()
 	Clear();
 }
 
-void CEvent::Destroy()
-{
-    EntityManager::get().removeComponent<CEvent>(BaseComponent::_IDEntity);
-}
 
 void CEvent::AddEvent(fm::BaseEvent *inEvent)
 {

@@ -29,7 +29,6 @@ namespace fmc
 		bool Serialize(nlohmann::json &ioJson) const override;
 		bool Read(const nlohmann::json &inJSON) override;
 		const std::string& GetName() const override;
-		void Destroy() override;
 		uint16_t GetType() const override { return kCollider; }
 
 		void Init(const fm::math::vec3& inScale);

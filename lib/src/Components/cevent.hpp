@@ -36,7 +36,6 @@ class CEvent : public FMComponent<CEvent>
         bool Read(const nlohmann::json &inJSON) override;
         const std::string& GetName() const override;
 		uint16_t GetType() const override {return kEvent;}
-        void Destroy() override;
 
 		void AddEvent(fm::BaseEvent *inEvent);
 		Events GetEvents() const { return _events; }

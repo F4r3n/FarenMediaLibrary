@@ -1,6 +1,7 @@
 GameObject = {}
 
 function GameObject:create()
+   print("Created")
    local acnt = {}             
     setmetatable(acnt,self)
    self.__index = self

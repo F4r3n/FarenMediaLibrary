@@ -8,31 +8,26 @@
 #if DEBUG
 #include <iostream>
 #endif
-using namespace ecs;
+//using namespace ecs;
 EntityManager::EntityManager() {
-	const id poolSize = 10000;
-    for(id i = 0; i < poolSize; ++i)
+	const uint32_t poolSize = 10;
+    for(uint32_t i = poolSize; i >= 1; i--)
     {
-        _free_id.push(i);
+        _free_id.push_back(i);
     }
-    _entities_alive.reserve(poolSize);
-    _entities_killed.reserve(poolSize);
-    _entitiesComponents.resize(poolSize);
-    _currentMAX = poolSize;
+	_entity_version.resize(poolSize + 1);
+    _entitiesComponents.resize(poolSize + 1);
+	_capacity = 0;
 }
 
 
 EntityManager::~EntityManager()
 {
-    _entities_alive.clear();
-    _entities_alive.shrink_to_fit();
-
-    _entities_killed.clear();
-    _entities_killed.shrink_to_fit();
 }
 
 void EntityManager::killInativeEntities()
 {
+	/*
 	for (id i = 0; i < _entities_killed.size(); ++i)
 	{
 		id id = _entities_killed[i];
@@ -41,17 +36,16 @@ void EntityManager::killInativeEntities()
 		_free_id.push(id);
 	}
 	_entities_killed.clear();
+	*/
 }
 
 
 void EntityManager::killAll() {
-    for(auto& e : _entities_alive)
-    {
 
-         if(!checkID(e.ID) && _entitiesComponents[e.ID])
-         {
-             _entitiesComponents[e.ID].reset();
-         }
+	/*
+    for(auto& e : _entitiesComponents)
+    {
+        _entitiesComponents[e.ID].reset();
 	}
 
 
@@ -64,11 +58,13 @@ void EntityManager::killAll() {
 	_entities_alive.clear();
 	_entities_killed.clear();
 	_capacity = 0;
+	*/
 
 }
 
 void EntityManager::Free()
 {
+	/*
     std::queue<id> empty;
     std::swap( _free_id, empty );
 
@@ -78,81 +74,68 @@ void EntityManager::Free()
 
     std::vector<std::unique_ptr<ComponentManager>> emptyC;
     std::swap(_entitiesComponents, emptyC);
+	*/
 }
 
-bool EntityManager::Exists(id id) const{
-#if DEBUG
- std::cout << id <<" " <<_capacity << std::endl;
- if(id < _capacity && _entities_alive[id])
- {
-     std::cout << _entities_alive[id]->ID << std::endl;
- }
-#endif
-    return (id < _capacity  && (_entities_alive[id].ID != _MAX_ID));
-}
-
-id EntityManager::GetID(Entity *e) const
+bool EntityManager::Valid(const Entity::Id& e) const
 {
-      return e->ID;
+	 if (e.index() >= _entity_version.size())
+		 return false;
+
+	 return e.version() == _entity_version[e.index()];
+}
+
+Entity::Id EntityManager::CreateID(uint32_t inID)
+{
+	return Entity::Id(inID, _entity_version[inID]);
+}
+
+Entity EntityManager::GetEntity(Entity::Id inID)
+{
+	return Entity(this, inID);
 }
 
 
-Entity* EntityManager::createEntity() {
-	id returnID = _MAX_ID;
-    if(_capacity == _currentMAX)
-    {
-        id firstValue = _free_id.back() + 1;
-        id sizeFreeID = firstValue + ADD_SIZE;
 
-        for(id i = firstValue; i < sizeFreeID; ++i) {
-            _free_id.push(i);
+Entity EntityManager::createEntity() {
+	uint32_t returnID = 0;
+    if(_free_id.empty())
+    {
+		uint32_t firstValue = _entity_version.size();
+		uint32_t sizeFreeID = firstValue + ADD_SIZE;
+
+        for(long i = sizeFreeID; i >= firstValue; i--) {
+            _free_id.push_back(i);
         }
-        _currentMAX = sizeFreeID;
 
-        _entities_alive.reserve(sizeFreeID);
-        _entities_killed.reserve(sizeFreeID);
-        _entitiesComponents.resize(sizeFreeID);
+		_entity_version.resize(sizeFreeID + 1);
+        _entitiesComponents.resize(sizeFreeID + 1);
     }
 
-    if(_entities_killed.empty())
-    {
-		returnID = _free_id.front();
-		Entity e(returnID);
 
-		e.active = true;
-		_entities_alive.push_back(e);
-		_capacity++;
-        _free_id.pop();
+	returnID = _free_id.back();
+	_free_id.pop_back();
+	//_entities_alive.push_back(e);
+	_entity_version[returnID] = 1;
+	_capacity++;
+    
+	Entity entity(this, Entity::Id(returnID, _entity_version[returnID]));
 
-    }
-	else
-    {
-        //_capacity++;
-		returnID = _entities_killed.back();
+    
 
-		_entities_killed.pop_back();
-		_entities_alive[returnID].active = true;
-		_entities_alive[returnID].ID = returnID;
-    }
-	return &_entities_alive[returnID];
+	return entity;
 }
 
 
-std::vector<id> EntityManager::getEntitiesAlive() {
-	std::vector<id> temp;
-	for(Entity& e : _entities_alive)
-        if(Exists(e.ID))
-			temp.push_back(e.ID);
 
-	return temp;
-}
+
 
 bool EntityManager::hasComponents(const Entity& e, const std::vector<uint16_t>& compo) const{
-    if(Exists(e.ID))
+    if(!Valid(e.id()))
 		return false;
-    if(_entitiesComponents[e.ID]) {
+    if(_entitiesComponents[e.id().index()]) {
         for(uint16_t c : compo) {
-            if(!_entitiesComponents[e.ID]->has(c))
+            if(!_entitiesComponents[e.id().index()]->has(c))
                 return false;
         }
         return true;
@@ -160,47 +143,24 @@ bool EntityManager::hasComponents(const Entity& e, const std::vector<uint16_t>& 
 	return false;
 }
 
-bool EntityManager::hasComponents(const Entity& e, const Mask& bits) const{
-    if(e.ID != _MAX_ID)
-        return false;
-    if(_entitiesComponents[e.ID])
-        return _entitiesComponents[e.ID]->has(bits);
+bool EntityManager::hasComponents(const Entity::Id& id, const Mask& bits) const{
+
+    if(_entitiesComponents[id.index()])
+        return _entitiesComponents[id.index()]->has(bits);
 	return false;
 }
 
-bool EntityManager::IsActive(id id) const {
-	return _entities_alive[id].active;
-}
 
 
-bool EntityManager::hasComponents(id id,const Mask& bits) const {
-    if(_entitiesComponents[id])
-        return _entitiesComponents[id]->has(bits);
-	return false;
-}
+void EntityManager::deleteEntity(const Entity& e) {
 
-void EntityManager::deleteEntity(Entity* e) {
-    assert(e);
-    if(_entitiesComponents[e->ID]) {
-        _entitiesComponents[e->ID].reset();
+    if(_entitiesComponents[e.id().index()]) {
+        _entitiesComponents[e.id().index()].reset();
     }
 
-    _destroyEntity(e->ID, e->active);
-    e->active = false;
-}
-
-void EntityManager::_destroyEntity(id id, bool isActive) {
-
-	if(isActive && !_entities_alive.empty()) {
-        //_capacity--;
-		_entities_alive[id].ID = _MAX_ID;
-		_entities_killed.push_back(id);
-	}
+	_entity_version[e.id().index()]++;
+	_free_id.push_back(e.id().index());
 }
 
 
-bool EntityManager::_IsEntityActive(Entity *e) const
-{
-    return e && e->active;
-}
 

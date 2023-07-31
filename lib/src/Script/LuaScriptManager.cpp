@@ -24,8 +24,9 @@ LuaScriptManager::~LuaScriptManager()
 
 }
 
-void LuaScriptManager::init(Entity* e)
+void LuaScriptManager::init(const Entity& e)
 {
+	if (_go != nullptr) return;
 	sol::state *lua = (LuaManager::get().GetState());
 
 	sol::table tempGoClass = (*lua)["GameObject"];
@@ -35,7 +36,7 @@ void LuaScriptManager::init(Entity* e)
 	_table["_internal"] = _go.get();
 	for (auto &s : _scripts)
 	{
-		if (s->init(e))
+		if (s->init())
 		{
 			s->SetGoTable(_table);
 		}
@@ -65,7 +66,7 @@ void LuaScriptManager::RemoveScript(const std::string &name)
 
 
 
-void LuaScriptManager::update(Entity *e, float dt)
+void LuaScriptManager::update(const Entity& e, float dt)
 {
 	for (auto &s : _scripts)
 	{
@@ -73,7 +74,7 @@ void LuaScriptManager::update(Entity *e, float dt)
 	}
 }
 
-void LuaScriptManager::Start(Entity* e)
+void LuaScriptManager::Start(const Entity& e)
 {
 	for (auto &s : _scripts)
 	{
@@ -81,7 +82,7 @@ void LuaScriptManager::Start(Entity* e)
 	}
 }
 
-void LuaScriptManager::Stop(Entity* e)
+void LuaScriptManager::Stop(const Entity& e)
 {
 	for (auto &s : _scripts)
 	{
@@ -103,7 +104,7 @@ bool LuaScriptManager::Serialize(nlohmann::json &ioJson) const
 	ioJson[Keys::script] = jarray;
 	return true;
 }
-bool LuaScriptManager::Read(Entity* e, const nlohmann::json &inJSON)
+bool LuaScriptManager::Read(const nlohmann::json &inJSON)
 {
 	nlohmann::json jarray = inJSON[Keys::script];
 	for (const auto &it : jarray)
@@ -115,7 +116,7 @@ bool LuaScriptManager::Read(Entity* e, const nlohmann::json &inJSON)
 		{
 		case fm::Script::SCRIPT_TYPE::LUA:
 		{
-			fm::LuaScript* script = new fm::LuaScript(File(FilePath(path)), e, true);
+			fm::LuaScript* script = new fm::LuaScript(File(FilePath(path)), true);
 			try
 			{
 				nlohmann::json joption = it.at(Keys::option);
@@ -134,21 +135,21 @@ bool LuaScriptManager::Read(Entity* e, const nlohmann::json &inJSON)
 	return true;
 }
 
-void LuaScriptManager::addScriptLua(Entity* e, const fm::FilePath &inPath)
+void LuaScriptManager::addScriptLua(const fm::FilePath &inPath)
 {
-	_scripts.emplace_back(new fm::LuaScript(inPath, e, true));
+	_scripts.emplace_back(new fm::LuaScript(inPath, true));
 }
 
-void LuaScriptManager::ReloadScript(Entity* e, const std::string &inName)
+void LuaScriptManager::ReloadScript( const std::string &inName)
 {
 	for (auto &s : _scripts)
 	{
 		if (s->GetScriptName() == inName)
 		{
-			if (s->Reload(e, true))
+			if (s->Reload(true))
 			{
 				s->SetGoTable(_table);
-				s->start();	
+				//s->start();	
 			}
 
 			break;

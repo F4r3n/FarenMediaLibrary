@@ -60,13 +60,6 @@ class ComponentManager
 {
 
     public:
-        explicit ComponentManager(ecs::id ID)
-		{
-			_bits.Reset(); 
-			currentEntityID = ID;
-		}
-
-        ComponentManager() = delete;
 
         ~ComponentManager() 
 		{
@@ -86,7 +79,6 @@ class ComponentManager
         template <typename T> T* add(Component<T> *c)
         {
             _bits.Set(T::GetID());
-            c->_IDEntity = currentEntityID;
             _components[T::GetID()] = std::move(c);
 
             return static_cast<T*>(_components[T::GetID()]);
@@ -96,7 +88,7 @@ class ComponentManager
         {
             _bits.Set(T::GetID());
             Component<T>* c = new T(std::forward<Args>(args)...);
-            c->_IDEntity = currentEntityID;
+            //c->_IDEntity = currentEntityID;
 
             _components[T::GetID()] = std::move(c);
 
@@ -160,7 +152,7 @@ class ComponentManager
             return temp;
         }
 
-		ecs::id currentEntityID = std::numeric_limits<ecs::id>::max();
+
     private:
 		BitSet _bits;
         BaseComponent* _components[MAX_COMPONENTS];

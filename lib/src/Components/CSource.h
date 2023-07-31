@@ -26,7 +26,6 @@ class CSource : public FMComponent<CSource> {
         unsigned int buf;
 
         bool toUpdate = false;
-        void Destroy() override;
 
         static const std::string name;
     private:

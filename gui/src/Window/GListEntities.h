@@ -5,32 +5,33 @@
 #include "Core/Observer.h"
 #include <list>
 #include "Core/LinkedTree.h"
+#include "Entity.h"
 namespace fm
 {
 	class GameObject;
 	class Scene;
 }
 
-class LinkedTreeGO : public fm::LinkedTree<ecs::id>
+class LinkedTreeGO : public fm::LinkedTree<Entity::Id>
 {
 public:
-	LinkedTreeGO() { _head = std::make_unique<Node<ecs::id>>(-1); }
+	LinkedTreeGO() { _head = std::make_unique<Node<Entity::Id>>(Entity::INVALID); }
 
-	void AddTo(std::unique_ptr<Node<ecs::id>>& inNode, ecs::id ID)
+	void AddTo(std::unique_ptr<Node<Entity::Id>>& inNode, Entity::Id ID)
 	{
-		inNode->nodes.push_back(std::make_unique<Node<ecs::id>>(ID));
+		inNode->nodes.push_back(std::make_unique<Node<Entity::Id>>(ID));
 	}
 
-	void Sort(std::function<bool(std::unique_ptr<Node<ecs::id>>&, std::unique_ptr<Node<ecs::id>>&)>&& f);
+	void Sort(std::function<bool(std::unique_ptr<Node<Entity::Id>>&, std::unique_ptr<Node<Entity::Id>>&)>&& f);
 
 	void Clear()
 	{
 		_head->nodes.clear();
 	}
 
-	std::unique_ptr<Node<ecs::id>>& Find(ecs::id ID, bool& outFound);
+	std::unique_ptr<Node<Entity::Id>>& Find(Entity::Id ID, bool& outFound);
 
-	Node<ecs::id>* GetHead() { return _head.get(); }
+	Node<Entity::Id>* GetHead() { return _head.get(); }
 private:
 
 };
@@ -56,11 +57,11 @@ namespace gui
 
 
 		void _IterateTree();
-		void _IterateTree(LinkedTreeGO::Node<ecs::id> *node);
+		void _IterateTree(LinkedTreeGO::Node<Entity::Id> *node);
 
-		void _PurgeTree(LinkedTreeGO::Node<ecs::id>* parent, const std::shared_ptr<fm::Scene> inScene);
+		void _PurgeTree(LinkedTreeGO::Node<Entity::Id>* parent, const std::shared_ptr<fm::Scene> inScene);
 
-		std::optional<ecs::id>	_gameObjectSelected;
+		std::optional<Entity::Id>	_gameObjectSelected;
 		std::string				_currentSceneName;
 		bool					_isRenaming;
 		char					_bufferName[128];

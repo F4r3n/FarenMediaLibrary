@@ -32,14 +32,13 @@ void ScriptManagerSystem::Start()
 
 	for (auto&& e : EntityManager::get().iterate<fmc::CScriptManager>())
 	{
-		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
-		scriptManager->init(e);
+		fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
+		scriptManager->init(e.id());
 	}
-
 
 	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
 	{
-		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+		fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
 		scriptManager->Start(e);
 	}
 }
@@ -54,9 +53,9 @@ void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 {
 	for (auto &&e : em.iterate<fmc::CScriptManager, fmc::CEvent>())
 	{
-		fmc::CEvent *event = e->get<fmc::CEvent>();
+		fmc::CEvent *event = e.get<fmc::CEvent>();
 		fmc::Events &&events = event->GetEvents();
-		fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+		fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
 
 		for (const auto &a : events)
 		{
@@ -70,7 +69,7 @@ void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 
     for(auto &&e : em.iterate<fmc::CScriptManager>())
     {
-        fmc::CScriptManager* scriptManager = e->get<fmc::CScriptManager>();
+        fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
         scriptManager->update(e, dt);
     }
 }

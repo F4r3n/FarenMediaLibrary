@@ -18,12 +18,12 @@ namespace fmc
 class GameObjectLua
 {
 public:
-	GameObjectLua(Entity* inEntity);
+	GameObjectLua(const Entity& inEntity);
 	fmc::CTransform* GetTransform();
 	fmc::CBody* GetBody();
 	const char* GetName();
 private:
-	Entity* _entity;
+	Entity _entity;
 };
 
 

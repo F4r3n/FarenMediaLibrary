@@ -14,10 +14,6 @@ CPointLight::CPointLight()
     _name = "PointLight";
 }
 
-void CPointLight::Destroy()
-{
-    EntityManager::get().removeComponent<CPointLight>(BaseComponent::_IDEntity);
-}
 
 
 bool CPointLight::Serialize(nlohmann::json& ioJson) const
@@ -27,6 +23,7 @@ bool CPointLight::Serialize(nlohmann::json& ioJson) const
 
 	return true;
 }
+
 
 bool CPointLight::Read(const nlohmann::json& inJSON)
 {

@@ -3,11 +3,12 @@
 #define DECLARE_INSPECTOR_CLASS(name, typeTarget)	\
     class name##Inspector : public Inspector {		\
        public:										\
-        void Draw(bool *value);						\
+        void Draw(bool *value, const Entity& inEntity);						\
         name##Inspector();							\
         ~name##Inspector();							\
         name##Inspector(BaseComponent* component);	\
         void SetTarget();							\
+		void RemoveComponent(const Entity& inEntity); \
 private:											\
         void _Init();								\
 		void _DeInit();								\

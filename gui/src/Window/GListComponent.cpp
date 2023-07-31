@@ -14,6 +14,8 @@
 #include "Core/application.h"
 #include "Core/Scene.h"
 #include "inspector/textInspector.hpp"
+#include "EntityManager.h"
+#include "Entity.h"
 using namespace gui;
 
 GListComponent::GListComponent() : GWindow("Inspector", true)
@@ -98,11 +100,11 @@ void GListComponent::_DrawComponents(std::shared_ptr<fm::GameObject> currentEnti
 {
 
 	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
-	if (_inspectorComponents.find(currentEntity->getID()) == _inspectorComponents.end())
+	if (_inspectorComponents.find(currentEntity->getID().id()) == _inspectorComponents.end())
 	{
-		_inspectorComponents[currentEntity->getID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
+		_inspectorComponents[currentEntity->getID().id()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
 	}
-	auto &&inspectorComponent = _inspectorComponents[currentEntity->getID()];
+	auto &&inspectorComponent = _inspectorComponents[currentEntity->getID().id()];
 
 	for (auto && c : compos)
 	{
@@ -150,14 +152,14 @@ void GListComponent::_DrawComponents(std::shared_ptr<fm::GameObject> currentEnti
 		else
 		{
 			bool value = true;
-
-			compo->Draw(&value);
+			auto& manager = ::EntityManager::get();
+			compo->Draw(&value, manager.GetEntity(currentEntity->getID()));
 
 			if (!value)
 			{
 				compo.reset();
 				inspectorComponent[componentType] = nullptr;
-				c->Destroy();
+				compo->RemoveComponent(manager.GetEntity(currentEntity->getID()));
 			}
 		}
 	}
@@ -208,7 +210,7 @@ void GListComponent::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 				{
 					if (inEvent.value.has_value())
 					{
-						_inspectorComponents[std::any_cast<ecs::id>(inEvent.value)].clear();
+						_inspectorComponents[std::any_cast<Entity::Id>(inEvent.value).id()].clear();
 					}
 				}
 			});

@@ -22,7 +22,7 @@ namespace fm {
 				CREATE_GAMEOBJECT,
 				DELETE_GAMEOBJECT
 			};
-			using MapOfGameObjects = std::map<ecs::id, std::shared_ptr<fm::GameObject>>;
+			using MapOfGameObjects = std::map<Entity::Id, std::shared_ptr<fm::GameObject>>;
 
             Scene(const fm::FilePath &inPath);
 			Scene(const std::string& inName);
@@ -39,9 +39,9 @@ namespace fm {
 			void							SetStatusToGo(bool inStatus);
 			void							ResetStatusGo();
 
-			std::shared_ptr<fm::GameObject> GetGameObjectByID(ecs::id inID);
+			std::shared_ptr<fm::GameObject> GetGameObjectByID(Entity::Id inID);
 
-			void							DeleteGameObjectByID(ecs::id inID);
+			void							DeleteGameObjectByID(Entity::Id inID);
 
 			void							Load();
 			void							Save();

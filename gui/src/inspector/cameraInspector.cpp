@@ -1,7 +1,7 @@
 #include "inspector/cameraInspector.hpp"
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
-
+#include <ECS.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Camera, fmc::CCamera)
 
@@ -13,11 +13,11 @@ void CameraInspector::_DeInit()
 {
 }
 
-void CameraInspector::Draw(bool *value)
+void CameraInspector::Draw(bool *value, const Entity& e)
 {
 	std::string id = "##Camera " + std::to_string(_target->GetID());
 
-	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(e.id().index());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
@@ -73,4 +73,8 @@ void CameraInspector::Draw(bool *value)
 	}
 }
 
+void CameraInspector::RemoveComponent(const Entity& inEntity)
+{
+	EntityManager::get().removeComponent<fmc::CCamera>(inEntity.id());
+}
 

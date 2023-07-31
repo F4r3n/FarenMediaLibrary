@@ -1,7 +1,6 @@
 #include "inspector/inspector.hpp"
 #include <imgui/imgui.h>
 
-#include <Components/CDirectionalLight.h>
 
 Inspector::Inspector()
 {
@@ -10,4 +9,10 @@ Inspector::Inspector()
 Inspector::~Inspector()
 {
 }
+
+void Inspector::RemoveComponent(const Entity& e)
+{
+	
+}
+
 

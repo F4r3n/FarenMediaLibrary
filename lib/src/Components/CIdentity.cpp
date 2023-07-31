@@ -29,9 +29,3 @@ const std::string& CIdentity::GetName() const
     return _name;
 }
 
-
-
-void CIdentity::Destroy()
-{
-    EntityManager::get().removeComponent<CIdentity>(BaseComponent::_IDEntity);
-}

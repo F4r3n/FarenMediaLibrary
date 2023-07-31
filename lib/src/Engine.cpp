@@ -28,7 +28,7 @@ public:
 	{
 		for (auto && e : EntityManager::get().iterate<fmc::CEvent>())
 		{
-			fmc::CEvent* event = e->get<fmc::CEvent>();
+			fmc::CEvent* event = e.get<fmc::CEvent>();
 			event->Clear();
 		}
 	}

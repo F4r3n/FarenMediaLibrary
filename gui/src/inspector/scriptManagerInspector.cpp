@@ -5,6 +5,7 @@
 #include <imgui/imgui.h>
 #include "Core/FilePath.h"
 #include "Resource/ResourcesManager.h"
+#include <ECS.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
@@ -40,7 +41,7 @@ void ScriptManagerInspector::_DeInit()
 }
 
 
-void ScriptManagerInspector::Draw(bool *value)
+void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 {
     if(ImGui::CollapsingHeader("ScriptManagerInspector", value))
     {
@@ -51,7 +52,7 @@ void ScriptManagerInspector::Draw(bool *value)
 		fmc::LuaScripts &&scripts = _target->GetLuaScripts();
 		for (auto &&script : scripts)
 		{
-			std::string scriptName = script->GetScriptName() + "##" + std::to_string(_target->GetIDEntity());
+			std::string scriptName = script->GetScriptName() + "##" + std::to_string(e.id().index());
 			bool toKeep = true;
 			if (ImGui::CollapsingHeader(scriptName.c_str(), &toKeep))
 			{
@@ -64,7 +65,7 @@ void ScriptManagerInspector::Draw(bool *value)
 
 					ImGui::SameLine();
 
-					name = "##" + std::to_string(_target->GetIDEntity()) + "value" + valueToStartWith.first;
+					name = "##" + std::to_string(e.id().index()) + "value" + valueToStartWith.first;
 
 					bool hasChanged = false;
 					std::any argValue = valueToStartWith.second.value;
@@ -135,4 +136,9 @@ void ScriptManagerInspector::Draw(bool *value)
 
 
     }
+}
+
+void ScriptManagerInspector::RemoveComponent(const Entity& inEntity)
+{
+	EntityManager::get().removeComponent<fmc::CScriptManager>(inEntity.id());
 }

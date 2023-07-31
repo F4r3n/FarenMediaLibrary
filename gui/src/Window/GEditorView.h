@@ -21,7 +21,7 @@ namespace gui
 
 		struct CameraPreview
 		{
-			std::optional<ecs::id> id;
+			std::optional<Entity::Id> id;
 			std::weak_ptr<fm::RenderTexture> renderTexture;
 		};
 
@@ -42,7 +42,7 @@ namespace gui
 		void _DrawContentEditorCamera(Context &inContext);
 
 		void _EditObject();
-		void _CallBackPickingSystem(ecs::id inID);
+		void _CallBackPickingSystem(Entity::Id inID);
 	private:
 		std::unique_ptr<fms::PickingSystem>		_pickingSystem;
 		CameraPreview							_editorView;
@@ -54,7 +54,7 @@ namespace gui
 		fm::math::vec2			_scrollPos;
 
 		bool					_resultPicking;
-		std::optional<ecs::id>	_gameObjectSelectedByPicking;
+		std::optional<Entity::Id>	_gameObjectSelectedByPicking;
 		gui::TRANSFORM_CONTEXT	_currentTransformContext;
 	};
 }

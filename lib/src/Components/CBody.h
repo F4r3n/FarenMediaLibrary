@@ -4,6 +4,7 @@
 #include "Core/Math/Quaternion.h"
 #include "Components/cevent.hpp"
 #include "nlohmann/json_fwd.hpp"
+#include "Entity.h"
 class btCollisionShape;
 class btRigidBody;
 class btDiscreteDynamicsWorld;
@@ -16,8 +17,8 @@ namespace fm
 	class CollisionEvent : public BaseEvent
 	{
 	public:
-		CollisionEvent() { _other = 0; }
-		CollisionEvent(ecs::id inId, const fm::math::vec3 &inTouchPoint, const fm::math::vec3 &inNormalPoint)
+		CollisionEvent() {}
+		CollisionEvent(Entity::Id inId, const fm::math::vec3 &inTouchPoint, const fm::math::vec3 &inNormalPoint)
 		{
 			_other = inId;
 			_touchPoint = inTouchPoint;
@@ -25,12 +26,12 @@ namespace fm
 		}
 		~CollisionEvent() {}
 		size_t GetType() const {return EventKind::COLLISION;}
-		ecs::id GetID() const { return _other; }
+		Entity::Id GetID() const { return _other; }
 		const fm::math::vec3& GetTouchPoint()const { return _touchPoint; }
 		const fm::math::vec3& GetNormalPoint()const { return _normalPoint; }
 
 	private:
-		ecs::id _other = 0;
+		Entity::Id _other = Entity::INVALID;
 		fm::math::vec3 _touchPoint;
 		fm::math::vec3 _normalPoint;
 	};
@@ -50,13 +51,12 @@ namespace fmc
 		bool Serialize(nlohmann::json &ioJson) const override;
 		bool Read(const nlohmann::json &inJSON) override;
 		const std::string& GetName() const override;
-		void Destroy() override;
 		uint16_t GetType() const override { return kBody; }
 
 		CBody();
 		~CBody();
 
-		void Init(CCollider *inCollider);
+		void Init(CCollider *inCollider, Entity::Id inID);
 		void SetPosition(const fm::math::vec3 &inPosition);
 		void SetRotation(const fm::math::Quaternion &inRotation);
 
@@ -69,7 +69,7 @@ namespace fmc
 		bool SetGhost(bool value);
 		bool IsGhost() const;
 
-		void SetMass(float inMass);
+		void SetMass(float inMass, Entity::Id inID);
 		float GetMass() const;
 
 		void SetGravity(const fm::math::vec3& inAcceleration);
@@ -89,6 +89,8 @@ namespace fmc
 
 		void SetAngularFactor(const fm::math::vec3& inFactor);
 		const fm::math::vec3& GetAngularFactor() const;
+
+		Entity::Id GetEntityID() const { return _entityID; }
 	private:
 		btRigidBody*	_GetBody() const;
 		btGhostObject*	_GetGhost() const;
@@ -97,6 +99,7 @@ namespace fmc
 
 	private:
 		btCollisionObject*		_body;
+		Entity::Id				_entityID;
 
 		mutable fm::math::vec3	_gravity;
 		mutable float			_mass;

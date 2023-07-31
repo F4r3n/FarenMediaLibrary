@@ -3,7 +3,7 @@
 #include <vector>
 #include "component.h"
 #include <nlohmann/json_fwd.hpp>
-
+#include "Entity.h"
  
 namespace fm
 {
@@ -14,7 +14,7 @@ class LuaScriptManager;
 class LuaScript;
 }
 class Entity;
-
+struct GameObjectLua;
 
 namespace fmc {
 	typedef std::vector<std::shared_ptr<fm::LuaScript> > LuaScripts;
@@ -24,10 +24,10 @@ class CScriptManager : public FMComponent<CScriptManager> {
     public:
         CScriptManager();
         ~CScriptManager();
-        void init(Entity* e);
-        void update(Entity *e, float dt);
-		void Start(Entity* e);
-		void Stop(Entity* e);
+        void init(const Entity::Id& e);
+        void update(const Entity& e, float dt);
+		void Start(const Entity& e);
+		void Stop(const Entity& e);
 		void CallEvent(fm::BaseEvent* inEvent);
 		void addScriptLua(const fm::FilePath &inpath);
 		void ReloadScript(const std::string &inName);
@@ -39,9 +39,10 @@ class CScriptManager : public FMComponent<CScriptManager> {
 		bool Read(const nlohmann::json &inJSON) override;
 
 
-        void Destroy();
 		LuaScripts GetLuaScripts() const;
 		fm::LuaScriptManager* GetLuaScriptManager() { return _luaScriptManager.get(); }
+		GameObjectLua* GetGameObjectLua() const;
+
 private:
 	std::unique_ptr<fm::LuaScriptManager> _luaScriptManager;
 };

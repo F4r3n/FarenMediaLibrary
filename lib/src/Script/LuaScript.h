@@ -6,6 +6,7 @@
 #include <string>
 #include <any>
 #include <nlohmann/json_fwd.hpp>
+#include "Entity.h"
 class Entity;
 
 namespace fm
@@ -47,12 +48,12 @@ namespace fm
 
 
 
-	    LuaScript(const fm::File &inFile, Entity* inEntity, bool inParseInitValue);
+	    LuaScript(const fm::File &inFile, bool inParseInitValue);
 	    ~LuaScript();
 	    virtual void update(float dt) override;
 	    virtual void start() override;
-	    virtual bool init(Entity* e) override;
-		virtual void Stop(Entity* e) override;
+	    virtual bool init() override;
+		virtual void Stop(const Entity& e) override;
 		virtual bool Serialize(nlohmann::json &ioJson) const override;
 		virtual bool Read(const nlohmann::json &inJSON) override;
 		void CallEvent(fm::BaseEvent* inEvent, sol::table &inTable);
@@ -61,7 +62,7 @@ namespace fm
 	    {
 	        return fm::Script::SCRIPT_TYPE::LUA;
 	    }
-		virtual bool Reload(Entity*, bool inCreateInstance) override;
+		virtual bool Reload(bool inCreateInstance) override;
 		void SetGoTable(sol::table &inTable);
 
 		const std::map<std::string, LuaScript::ScriptArgument>& GetListValues() const;

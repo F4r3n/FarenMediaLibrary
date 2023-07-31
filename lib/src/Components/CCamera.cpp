@@ -84,10 +84,6 @@ bool CCamera::Read(const nlohmann::json &inJSON)
     return true;
 }
 
-void CCamera::Destroy()
-{
-    EntityManager::get().removeComponent<CCamera>(BaseComponent::_IDEntity);
-}
 
 void CCamera::_InitRenderTexture()
 {

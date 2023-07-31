@@ -9,6 +9,8 @@
 #include <Config.h>
 #include <queue>
 #include <optional>
+#include "Entity.h"
+
 namespace fm
 {
 	class GameObject;
@@ -46,7 +48,7 @@ namespace gui
 
 	struct Context
 	{
-		std::optional<ecs::id>			currentGameObjectSelected;
+		std::optional<Entity::Id>		currentGameObjectSelected;
 		std::string						currentSceneName;
 		TRANSFORM_CONTEXT				currentTransformContext;
 		WINDOWS							currentWindowFocused;

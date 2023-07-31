@@ -2,6 +2,7 @@
 #include <Entity.h>
 #include "Core/Math/Vector2.h"
 #include <functional>
+#include "Entity.h"
 namespace fm 
 {
 	class GameObject;
@@ -9,7 +10,6 @@ namespace fm
 	class Scene;
 }
 
-class EntityManager;
 namespace fmc
 {
 	class CCamera;
@@ -22,9 +22,9 @@ namespace fms
 	public:
 		PickingSystem(std::shared_ptr<fm::Scene> inEditorScene);
 		void PickGameObject(const std::string& inSceneName, size_t inCameraID, const fm::math::vec2 &inPos);
-		void SetCallback(std::function<void(ecs::id inID)> &&inCallback) { _callback = inCallback; }
+		void SetCallback(std::function<void(Entity::Id)> &&inCallback) { _callback = inCallback; }
 	private:
-		std::function<void(ecs::id inID)> _callback;
+		std::function<void(Entity::Id)> _callback;
 		std::weak_ptr<fm::GameObject> _specialCamera;
 		fmc::CCamera* _camera;
 		std::unique_ptr<fm::Material> _material;

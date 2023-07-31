@@ -82,7 +82,7 @@ private:
 	gui::Context						_context;
 	std::shared_ptr<fm::Scene>			_editorScene;
 	MapOfWindows						_windows;
-    std::optional<ecs::id>				_currentEntity;       
+    std::optional<Entity::Id>			_currentEntity;       
     fm::ProjectSettings					_projectSettings;
 	std::shared_ptr <fm::GameObject>	_editorCamera;
 	bool								_needUpdate;

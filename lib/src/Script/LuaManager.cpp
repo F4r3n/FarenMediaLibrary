@@ -18,33 +18,41 @@
 #include "Core/Debug.h"
 #include "Components/CIdentity.h"
 #include "Components/CBody.h"
-
-GameObjectLua::GameObjectLua(Entity* inEntity)
+#include "Core/application.h"
+#include "Core/Scene.h"
+#include "Core/GameObject.h"
+#include "Components/CScriptManager.h"
+GameObjectLua::GameObjectLua(const Entity& inEntity)
 {
 	_entity = inEntity;
 }
 
 fmc::CTransform* GameObjectLua::GetTransform()
 {
-	return _entity->get<fmc::CTransform>();
+	return _entity.get<fmc::CTransform>();
 }
 
 const char* GameObjectLua::GetName()
 {
-	return _entity->get<fmc::CIdentity>()->GetNameEntity().c_str();
+	return _entity.get<fmc::CIdentity>()->GetNameEntity().c_str();
 }
 
 fmc::CBody* GameObjectLua::GetBody()
 {
-	return _entity->get<fmc::CBody>();
+	return _entity.get<fmc::CBody>();
 }
 
-
-
-Entity* createEntity()
+GameObjectLua* CreateGameObject()
 {
-  return EntityManager::get().createEntity();
+	std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->CreateGameObject(true);
+	go->activate(false);
+	go->addComponent<fmc::CMaterial>();
+	go->addComponent<fmc::CMesh>();
+	auto scriptManager = go->addComponent<fmc::CScriptManager>();
+	scriptManager->init(EntityManager::get().GetEntity(go->getID()).id());
+	return scriptManager->GetGameObjectLua();
 }
+
 
 void Log(const std::string &inMessage)
 {
@@ -104,6 +112,8 @@ void LuaManager::openLibraries()
 void LuaManager::registerComponents() 
 {
 	lua->set_function("Log", &Log);
+	lua->set_function("CreateGameObject", &CreateGameObject);
+
 	lua->new_usertype<GameObjectLua>("GameObjectInternal",
 		"GetTransform", &GameObjectLua::GetTransform,
 		"GetBody3D", &GameObjectLua::GetBody,

@@ -95,10 +95,6 @@ const std::string& CText::GetText() const
 	return _text;
 }
 
-void CText::Destroy()
-{
-    EntityManager::get().removeComponent<CText>(BaseComponent::_IDEntity);
-}
 
 CText::~CText()
 {

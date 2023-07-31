@@ -44,10 +44,6 @@ void CMesh::SetType(const std::string &type) {
     _type = type;
 }
 
-void CMesh::Destroy()
-{
-    EntityManager::get().removeComponent<CMesh>(BaseComponent::_IDEntity);
-}
 
 CMesh::CMesh(std::string type) {
     _type = type;

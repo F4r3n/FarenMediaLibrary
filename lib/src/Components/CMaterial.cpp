@@ -20,11 +20,6 @@ CMaterial::~CMaterial()
 {
 }
 
-void CMaterial::Destroy()
-{
-    EntityManager::get().removeComponent<CMaterial>(BaseComponent::_IDEntity);
-}
-
 
 
 bool CMaterial::Serialize(nlohmann::json &ioJson) const

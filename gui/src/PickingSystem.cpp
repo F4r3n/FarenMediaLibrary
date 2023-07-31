@@ -50,7 +50,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 	if(auto && s = scene.lock())
 	{
 		std::shared_ptr<fm::GameObject> cameraGo = nullptr;
-		if(auto && editorScene = _editorScene.lock(); cameraGo = editorScene->GetGameObjectByID(inCameraID))
+		if(auto && editorScene = _editorScene.lock(); cameraGo = editorScene->GetGameObjectByID(EntityManager::get().CreateID(inCameraID)))
 		{
 
 			if (cameraGo != nullptr)
@@ -70,7 +70,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 							unsigned char pixel[4];
 							texture.GetPixel(inPos, pixel);
 							size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
-							std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(id);
+							std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(EntityManager::get().CreateID(id));
 							if (go != nullptr)
 							{
 								_callback(go->getID());
@@ -93,7 +93,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 						fm::CommandBuffer commandBuffer;
 						fm::MaterialProperties materialProperties = _material->GetProperties();
-						ecs::id i = go->getID();
+						Entity::Id i = go->getID();
 						unsigned char r[sizeof(i)];
 						memcpy(r, &i, sizeof(i));
 

@@ -6,7 +6,7 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Quaternion.h"
 #include <nlohmann/json_fwd.hpp>
-class Entity;
+#include "Entity.h"
 class EntityManager;
 
 
@@ -23,7 +23,6 @@ class CTransform : public FMComponent<CTransform>
                    const fm::math::Vector3f& rotation);
         CTransform();
 		~CTransform();
-        void				Destroy();
 
         bool						Serialize(nlohmann::json &ioJson) const override;
         bool						Read(const nlohmann::json &inJSON) override;
@@ -33,7 +32,7 @@ class CTransform : public FMComponent<CTransform>
 		fm::math::mat				GetLocalMatrixModel(bool opposePosition = false) const;
 		void						From(const fmc::CTransform *inTransform);
 
-        void						setFather(ecs::id id);
+        void						setFather(Entity::Id id);
         void						setFather(Entity* e);
 		void						RemoveFather();
 
@@ -59,14 +58,14 @@ class CTransform : public FMComponent<CTransform>
 		
 		CTransform*					GetFather() const;
 		bool						HasFather() const;
-		ecs::id						GetFatherID() const;
+		Entity::Id					GetFatherID() const;
 
 		static fm::math::mat CreateMatrixModel(const fm::math::vec3& pos, const fm::math::vec3& scale, const fm::math::Quaternion &q, bool ortho = true);
 
 private:
 	void _UpdateWorldMatrix() const;
 private:
-	ecs::id							_idFather;
+	Entity::Id							_idFather;
 
 	fm::math::vec3					_position;
 	fm::math::vec3					_scale;

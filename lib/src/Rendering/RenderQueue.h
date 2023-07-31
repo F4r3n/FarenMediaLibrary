@@ -6,7 +6,7 @@
 #include <bitset>
 #include "Rendering/RenderQueueEvents.hpp"
 #include "Core/Transform.h"
-
+#include "Entity.h"
 namespace fm
 {
 	class Model;
@@ -37,7 +37,7 @@ struct RenderNode {
     
     RENDER_QUEUE state;
     int queue = 0;
-    size_t idEntity;
+    Entity::Id idEntity;
 };
     inline bool operator<(const RenderNode& a, const RenderNode &b){
         return a.queue > b.queue; //Inverse heap

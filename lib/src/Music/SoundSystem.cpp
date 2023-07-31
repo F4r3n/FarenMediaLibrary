@@ -29,8 +29,8 @@ void SoundSystem::update(float , EntityManager& em, EventManager& ) {
             //std::cerr << "Error openal" << std::endl;
             return;
         }
-        fmc::CSource* sound = e->get<fmc::CSource>();
-        fmc::CTransform* transform = e->get<fmc::CTransform>();
+        fmc::CSource* sound = e.get<fmc::CSource>();
+        fmc::CTransform* transform = e.get<fmc::CTransform>();
         if(sound->toUpdate) 
 		{
             _SetSettings(transform->GetTransform(), sound);
@@ -52,8 +52,8 @@ void SoundSystem::init(EntityManager& em, EventManager& event)
 	_listener = std::unique_ptr<fm::Listener>(new fm::Listener());
 
     for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>()) {
-        fmc::CSource* sound = e->get<fmc::CSource>();
-        fmc::CTransform* transform = e->get<fmc::CTransform>();
+        fmc::CSource* sound = e.get<fmc::CSource>();
+        fmc::CTransform* transform = e.get<fmc::CTransform>();
        
 
         _SetSettings(transform->GetTransform(), sound);

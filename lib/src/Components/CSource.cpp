@@ -77,7 +77,3 @@ void CSource::play() {
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 }
 
-void CSource::Destroy()
-{
-    EntityManager::get().removeComponent<CSource>(BaseComponent::_IDEntity);
-}

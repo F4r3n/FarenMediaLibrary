@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <optional>
 #include "Core/Observer.h"
-
+#include "Entity.h"
 namespace fm
 {
 	class GameObject;
@@ -14,7 +14,7 @@ class Inspector;
 
 namespace gui
 {
-	typedef std::unordered_map<size_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
+	typedef std::unordered_map<uint64_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
 
 	class GListComponent : public GWindow, public fm::Observer
 	{
@@ -36,7 +36,7 @@ namespace gui
 		virtual void _Update(float, Context &inContext) override;
 
 	private:
-		std::optional<ecs::id>		_currentGameObjectSelected;
+		std::optional<Entity::Id>		_currentGameObjectSelected;
 		MapOfInspectors				_inspectorComponents;
 
 	};

@@ -91,12 +91,6 @@ const std::string& CCollider::GetName() const
 }
 
 
-void CCollider::Destroy()
-{
-	EntityManager::get().removeComponent<fmc::CCollider>(BaseComponent::_IDEntity);
-}
-
-
 const fm::math::vec3  CCollider::GetScale() const
 {
 	return _scale;

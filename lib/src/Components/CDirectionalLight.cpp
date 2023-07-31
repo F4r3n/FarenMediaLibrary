@@ -14,7 +14,3 @@ CDirectionalLight::~CDirectionalLight() {
     
 }
 
-void CDirectionalLight::Destroy()
-{
-    EntityManager::get().removeComponent<CDirectionalLight>(BaseComponent::_IDEntity);
-}

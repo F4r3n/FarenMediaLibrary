@@ -166,7 +166,7 @@ void GEditorView::_EditObject()
 }
 
 
-void GEditorView::_CallBackPickingSystem(ecs::id inID)
+void GEditorView::_CallBackPickingSystem(Entity::Id inID)
 {
 	_resultPicking = true;
 	_gameObjectSelectedByPicking = inID;
@@ -176,7 +176,7 @@ void GEditorView::_CallBackPickingSystem(ecs::id inID)
 void GEditorView::SetPickingSystem(std::unique_ptr<fms::PickingSystem> inPickingSystem)
 {
 	_pickingSystem = std::move(inPickingSystem);
-	std::function<void(ecs::id inID)> f = std::bind(&gui::GEditorView::_CallBackPickingSystem, this, std::placeholders::_1);
+	std::function<void(Entity::Id)> f = std::bind(&gui::GEditorView::_CallBackPickingSystem, this, std::placeholders::_1);
 	_pickingSystem->SetCallback(std::move(f));
 }
 
@@ -226,7 +226,7 @@ void GEditorView::_Update(float dt, Context &inContext)
 					mPos.x -= startCursorPos.x - _scrollPos.x;
 					mPos.y -= startCursorPos.y - _scrollPos.y;
 
-					_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id.value(), mPos);
+					_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id.value().index(), mPos);
 				}
 			}
 

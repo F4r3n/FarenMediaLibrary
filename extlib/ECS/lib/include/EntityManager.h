@@ -18,53 +18,48 @@ public:
     }
     ~EntityManager();
 
-    Entity* createEntity();
-    std::vector<BaseComponent*> getAllComponents(Entity *e) {
-        return _entitiesComponents[e->ID]->getAllComponents();
+    Entity createEntity();
+    std::vector<BaseComponent*> getAllComponents(const Entity& e) {
+        return _entitiesComponents[e.id().index()]->getAllComponents();
     }
     void killAll();
-    bool Exists(ecs::id id) const;
-    inline bool checkID(ecs::id ID) const {
-        return ID == _MAX_ID;
-    }
+    bool Valid(const Entity::Id& e) const;
+
     
-    template <typename T> bool removeComponent(ecs::id ID) {
-         if(checkID(ID))
-            return false;
-        if(_entitiesComponents[ID] != nullptr) {
-            return _entitiesComponents[ID]->remove<T>();
+    template <typename T> bool removeComponent(Entity::Id id) {
+
+        if(_entitiesComponents[id.index()] != nullptr) {
+            return _entitiesComponents[id.index()]->remove<T>();
         }
         return false;
     }
 
-    template <typename T> T* add(ecs::id ID, Component<T>* c) {
-        if(checkID(ID))
-            return nullptr;
-        if(_entitiesComponents[ID] != nullptr) {
-            return _entitiesComponents[ID]->add<T>(c);
+    template <typename T> T* add(Entity::Id id, Component<T>* c) {
+
+        if(_entitiesComponents[id.index()] != nullptr) {
+            return _entitiesComponents[id.index()]->add<T>(c);
         } else {
-            _entitiesComponents[ID] = std::make_unique<ComponentManager>(ID);
-            return _entitiesComponents[ID]->add<T>(c);
+            _entitiesComponents[id.index()] = std::make_unique<ComponentManager>(id.index());
+            return _entitiesComponents[id.index()]->add<T>(c);
         }
     }
 
-    template <typename T, typename... Args> T* addComponent(ecs::id ID, Args &&... args) {
-        if(checkID(ID))
-            return nullptr;
-        if(_entitiesComponents[ID] != nullptr) {
-            return _entitiesComponents[ID]->addComponent<T>(args...);
+    template <typename T, typename... Args> T* addComponent(Entity::Id id, Args &&... args) {
+
+        if(_entitiesComponents[id.index()] != nullptr) {
+            return _entitiesComponents[id.index()]->addComponent<T>(args...);
         } else {
-            _entitiesComponents[ID] = std::make_unique<ComponentManager>(ID);
-            return _entitiesComponents[ID]->addComponent<T>(args...);
+            _entitiesComponents[id.index()] = std::make_unique<ComponentManager>();
+            return _entitiesComponents[id.index()]->addComponent<T>(args...);
         }
     }
 
-    template <typename T> T* add(Entity* e, Component<T>* c) {
-        return add<T>(e->ID, c);
+    template <typename T> T* add(const Entity& e, Component<T>* c) {
+        return add<T>(e.id(), c);
     }
 
-    template <typename T, typename ...Args> T* addComponent(Entity* e, Args&& ...args) {
-        return addComponent<T>(e->ID, args...);
+    template <typename T, typename ...Args> T* addComponent(const Entity& e, Args&& ...args) {
+        return addComponent<T>(e.id(), args...);
     }
     
 
@@ -72,93 +67,82 @@ public:
         return _entitiesComponents;
     }
 
-    template <typename T> T* get(Entity* e) {
-        if(!_entitiesComponents[e->ID])
+    template <typename T> T* get(const Entity& e) {
+        if(!_entitiesComponents[e.id().index()])
             return nullptr;
-        return _entitiesComponents[e->ID]->getComponent<T>();
+        return _entitiesComponents[e.id().index()]->getComponent<T>();
     }
 
-    void deleteEntity(Entity* e);
-    std::vector<ecs::id> getEntitiesAlive();
+    void deleteEntity(const Entity& e);
     bool hasComponents(const Entity& e, const std::vector<uint16_t>& compo) const;
-    bool hasComponents(const Entity& e, const Mask& bits) const;
-    bool hasComponents(ecs::id id, const Mask& bits) const;
-    
-    template <typename T>
-    bool hasComponent(ecs::id id) {
-        if(checkID(id)) return false;
-        return _entitiesComponents[id]->has<T>();
-    }
-    inline Entity* getEntity(const ecs::id id) {
-        if(checkID(id)) return nullptr;
-        return &_entities_alive[id];
-    }
-    inline Entity* getEntityNotSafe(const ecs::id id) {
-        return &_entities_alive[id];
-    }
+	bool hasComponents(const Entity::Id& id, const Mask& bits) const;
+	template <typename T>
+	bool hasComponent(const Entity& e)
+	{
+		if (_entitiesComponents[e.id().index()])
+			return _entitiesComponents[e.id().index()]->has<T>();
+		return false;
+	}
 
-	ecs::id GetID(Entity *e) const;
+	Entity::Id CreateID(uint32_t inID);
+	Entity	   GetEntity(Entity::Id inID);
 
-
-    bool _IsEntityActive(Entity *e) const;
-	bool IsActive(ecs::id id) const;
 
 class EntityIteratorMask {
     public:
-        EntityIteratorMask(const Mask& mask, const std::vector<Entity>::iterator iterator,
-                           const std::vector<Entity>::iterator begin,
-                           const std::vector<Entity>::iterator end) {
+        EntityIteratorMask(const Mask& mask, uint32_t inCursor) {
             _mask = mask;
-            _end = end;
-            _begin = begin;
-            _it = iterator;
-
-               next();
+            _cursor = inCursor;
+			_manager = &EntityManager::get();
+            next();
         }
        
-       Entity* operator*() {
-           return &(*_it);
+       Entity operator*() {
+		   return Entity(_manager, _manager->CreateID(_cursor));
        }
       
         EntityIteratorMask operator++() {
-            _it++;
+			_cursor++;
             next();
-            return EntityIteratorMask(_mask, _it, _begin, _end);
+            return EntityIteratorMask(_mask, _cursor);
         }
         
          EntityIteratorMask begin(){
-             return EntityIteratorMask(_mask, _begin, _begin, _end);
+             return EntityIteratorMask(_mask, 0);
         }
         
          EntityIteratorMask end() {
-             return EntityIteratorMask(_mask, _end, _begin, _end);
+             return EntityIteratorMask(_mask, _manager->_capacity);
         }
         
         bool operator!=(EntityIteratorMask &i) {
-            return _it != i._it;
+            return _cursor < i._cursor;
         }
         
         void next() {
 
-            while(_it != _end)
+            while(_cursor < _manager->_capacity && !predicate())
             {
-                 if( valid(_it->ID))
-                     break;
-                 ++_it;
-                
+				++_cursor;
             }
         }
 
-        inline bool valid(ecs::id index) const
-        {
-            return EntityManager::get().Exists(index) && EntityManager::get().IsActive(index) && EntityManager::get().hasComponents(index, _mask);
-        }
+		bool predicate()
+		{
+			Entity::Id id = _manager->CreateID(_cursor);
+			if (_manager->Valid(id))
+			{
+				if (_manager->hasComponents(id, _mask))
+					return true;
+			}
+			return false;
+		}
         
     private:
+		EntityManager* _manager;
         Mask _mask;
-        std::vector<Entity>::iterator _it;
-        std::vector<Entity>::iterator _end;
-        std::vector<Entity>::iterator _begin;
+        uint32_t _cursor;
+        
     };
     
 
@@ -176,67 +160,57 @@ class EntityIteratorMask {
     
     template <typename ...Args>
     EntityIteratorMask iterate() {
-        EntityIteratorMask iterator(createMask<Args...>(), _entities_alive.begin(), _entities_alive.begin(), _entities_alive.end());
+        EntityIteratorMask iterator(createMask<Args...>(), 0);
         return iterator;
     }
     
     EntityIteratorMask iterate(const Mask &mask) {
-        EntityIteratorMask iterator(mask, _entities_alive.begin(), _entities_alive.begin(), _entities_alive.end());
+        EntityIteratorMask iterator(mask, 0);
         return iterator;
     }
-
 
     void Free();
 	void killInativeEntities();
 
 private:
-    void _destroyEntity(ecs::id id, bool isActive);
 
-    const ecs::id _MAX_ID = std::numeric_limits<ecs::id>::max();
 
-    std::queue<ecs::id> _free_id;
-
-    std::vector<Entity> _entities_alive;
-    std::vector<ecs::id> _entities_killed;
-
+    std::vector<uint32_t> _free_id;
+	std::vector<uint32_t> _entity_version;
     std::vector<std::unique_ptr<ComponentManager>> _entitiesComponents;
 
     size_t _capacity = 0;
-    size_t _currentMAX = 0;
     
 };
 
 template <typename T, typename ...Args> T* Entity::addComponent(Args&&... args)
 {
-	return EntityManager::get().addComponent<T>(this, args...);
+	return _manager->addComponent<T>(this->id(), args...);
 }
-template <typename T> T* Entity::add()
-{
-	return EntityManager::get().add<T>(this, new T());
-}
+
 
 template <typename T> T* Entity::addEmpty()
 {
-	return EntityManager::get().add<T>(this, new T());
+	return _manager->add<T>(this, new T());
 }
 template <typename T> T* Entity::add(Component<T> *c)
 {
-	return EntityManager::get().add<T>(this, c);
+	return _manager->add<T>(this, c);
 }
 
 template <typename T> T* Entity::get()
 {
-	return EntityManager::get().get<T>(this);
+	return _manager->get<T>(*this);
 }
 
 template <typename T> bool Entity::has()
 {
-	return EntityManager::get().hasComponent<T>(ID);
+	return _manager->hasComponent<T>(*this);
 }
 
 template <typename T> bool Entity::remove()
 {
-	return EntityManager::get().removeComponent<T>(ID);
+	return _manager->removeComponent<T>(_id);
 }
 
 

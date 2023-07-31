@@ -98,14 +98,14 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     for(auto &&e : em.iterate<fmc::CMesh>()) 
 	{
-        fmc::CMesh* mesh = e->get<fmc::CMesh>();
+        fmc::CMesh* mesh = e.get<fmc::CMesh>();
 
         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
     }
 
     for(auto &&e : em.iterate<fmc::CMaterial>())
     {
-        fmc::CMaterial* material = e->get<fmc::CMaterial>();
+        fmc::CMaterial* material = e.get<fmc::CMaterial>();
         std::vector<fm::Material*> materials = material->GetAllMaterials();
         for(auto &m : materials)
         {
@@ -128,8 +128,8 @@ void RenderingSystem::pre_update(EntityManager& em)
 {
 	for (auto &&e : em.iterate<fmc::CCamera, fmc::CTransform>())
 	{
-		fmc::CCamera* cam = e->get<fmc::CCamera>();
-		fmc::CTransform* ct = e->get<fmc::CTransform>();
+		fmc::CCamera* cam = e.get<fmc::CCamera>();
+		fmc::CTransform* ct = e.get<fmc::CTransform>();
 		const fm::Transform tr = ct->GetTransform();
 		fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
@@ -157,12 +157,12 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 {
 	for (auto &&e : em.iterate<fmc::CCamera>())
 	{
-		fmc::CCamera* cam = e->get<fmc::CCamera>();
+		fmc::CCamera* cam = e.get<fmc::CCamera>();
 		if (!cam->Enabled || (!cam->_isAuto && cam->_commandBuffers.empty()))
 			continue;
 
 
-		fmc::CTransform* transform = e->get<fmc::CTransform>();
+		fmc::CTransform* transform = e.get<fmc::CTransform>();
 
 		if (!cam->GetRenderTexture().isCreated())
 		{
@@ -481,19 +481,19 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
     _lightNumber = 0;
     for(auto &&e : em.iterate<fmc::CTransform>())
     {
-        fm::RenderNode node = {e->get<fmc::CTransform>()->GetTransform(),
+        fm::RenderNode node = {e.get<fmc::CTransform>()->GetTransform(),
                                nullptr,
                                nullptr,
-                               e->get<fmc::CDirectionalLight>(),
-                               e->get<fmc::CPointLight>(),
-                               e->get<fmc::CText>(),
+                               e.get<fmc::CDirectionalLight>(),
+                               e.get<fmc::CPointLight>(),
+                               e.get<fmc::CText>(),
                                fm::RENDER_QUEUE::OPAQUE,
                                0,
-                               e->ID};
+                               e.id()};
         
 
-		fmc::CMesh* mesh = e->get<fmc::CMesh>();
-		fmc::CMaterial* material = e->get<fmc::CMaterial>();
+		fmc::CMesh* mesh = e.get<fmc::CMesh>();
+		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		bool add = false;
 		if (mesh != nullptr && material != nullptr)
 		{

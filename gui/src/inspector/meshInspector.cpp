@@ -2,6 +2,7 @@
 #include <imgui/imgui.h>
 #include "Resource/ResourcesManager.h"
 #include "Rendering/Model.hpp"
+#include <ECS.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)
 
@@ -14,10 +15,10 @@ void MeshInspector::_DeInit()
 }
 
 
-void MeshInspector::Draw(bool *value)
+void MeshInspector::Draw(bool *value, const Entity& inEntity)
 {
     static const char *shapeNames[] = {"Quad", "Circle", "Cube"};
-	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(inEntity.id().index());
 
     if(ImGui::CollapsingHeader(name.c_str(), value))
     {
@@ -36,4 +37,9 @@ void MeshInspector::Draw(bool *value)
 		_target->SetModelType(shapeNames[current]);
 		_target->model = fm::ResourcesManager::get().getResource<fm::Model>(shapeNames[current]);
     }
+}
+
+void MeshInspector::RemoveComponent(const Entity& inEntity)
+{
+	EntityManager::get().removeComponent<fmc::CMesh>(inEntity.id());
 }

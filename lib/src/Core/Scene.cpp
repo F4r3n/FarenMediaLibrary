@@ -61,7 +61,7 @@ std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 		o->addComponent<fmc::CIdentity>();
 		o->get<fmc::CIdentity>()->SetNameEntity("GameObject");
 	}
-	ecs::id id = o->getID();
+	Entity::Id id = o->getID();
 	_gos[o->getID()] = move(o);
 	_isDirty = true;
 	NotifyAll(fm::EventObserver((size_t)Event::CREATE_GAMEOBJECT, id));
@@ -110,7 +110,7 @@ void Scene::ResetStatusGo()
 	}
 }
 
-std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(ecs::id inID)
+std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(Entity::Id inID)
 {
 	auto it = _gos.find(inID);
 	if (it != _gos.end())
@@ -121,7 +121,7 @@ std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(ecs::id inID)
 }
 
 
-void Scene::DeleteGameObjectByID(ecs::id inID)
+void Scene::DeleteGameObjectByID(Entity::Id inID)
 {
 	auto it = _gos.find(inID);
 	if (it != _gos.end())

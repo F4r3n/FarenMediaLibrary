@@ -19,51 +19,51 @@ namespace fm {
 
             bool IsActive() const
             {
-                return _entity != nullptr && _entity->active;
+                return _active;
             }
 
             void destroy()
 			{
-                _entity->destroy();
+				_GetEntity().destroy();
             }
 
 			void activate(bool value)
 			{
-				_entity->active = value;
+				_active = value;
 			}
 
             template <typename T> T* add(Component<T> *c)
             {
-                return _entity->addComponent<T>(c);
+                return _GetEntity().addComponent<T>(c);
             }
 
             template <typename T, typename ...Args> T* addComponent(Args&&...args)
             {
-                return _entity->addComponent<T>(args...);
+                return _GetEntity().addComponent<T>(args...);
             }
             template <typename T> T* add()
             {
-                return _entity->addComponent<T>();
+                return _GetEntity().addComponent<T>();
             }
 
             template <typename T> T* get() const
             {
-                return _entity->get<T>();
+                return _GetEntity().get<T>();
             }
 
             template <typename T> bool has() const
             {
-                return _entity->has<T>();
+                return _GetEntity().has<T>();
             }
 
             template <typename T> bool remove()
             {
-                return _entity->remove<T>();
+                return _GetEntity().remove<T>();
             }
 
 			std::vector<BaseComponent*> getAllComponents() const;
 
-            inline ecs::id getID() {return _entity->ID;}
+            inline Entity::Id getID() {return _GetEntity().id();}
 
             void Serialize(nlohmann::json &outResult) const;
 
@@ -77,9 +77,12 @@ namespace fm {
 			void SetOrder(size_t inOrder) { _order = inOrder; }
 			size_t GetOrder() const { return _order; }
         private:
-            Entity* _entity = nullptr;
+			Entity _GetEntity() const;
+            //Entity* _entity = nullptr;
+			Entity::Id _id = Entity::INVALID;
 			bool	_oldStatus;
 			size_t  _order = 0;
+			bool _active = true;
     };
 
 }

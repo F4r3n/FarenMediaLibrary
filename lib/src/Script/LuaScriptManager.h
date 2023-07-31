@@ -25,21 +25,22 @@ namespace fm
 		LuaScriptManager();
 		~LuaScriptManager();
 
-		void init(Entity* e);
-		void update(Entity *e, float dt);
-		void Start(Entity* e);
-		void Stop(Entity* e);
+		void init(const Entity& e);
+		void update(const Entity& e, float dt);
+		void Start(const Entity& e);
+		void Stop(const Entity& e);
 		void CallEvent(fm::BaseEvent* inEvent);
-		void addScriptLua(Entity* e, const fm::FilePath &inpath);
-		void ReloadScript(Entity* e, const std::string &inName);
+		void addScriptLua(const fm::FilePath &inpath);
+		void ReloadScript(const std::string &inName);
 		void RemoveScript(const std::string &name);
 
 
 		bool Serialize(nlohmann::json &ioJson) const;
-		bool Read(Entity* e, const nlohmann::json &inJSON);
+		bool Read(const nlohmann::json &inJSON);
 
 		fmc::LuaScripts GetLuaScripts() const { return _scripts; }
 		sol::table& GetTable();
+		GameObjectLua* GetGameObjectLua() { return _go.get(); }
 	private:
 		sol::table _table;
 		fmc::LuaScripts _scripts;

@@ -1,6 +1,7 @@
 #include "inspector/transformInspector.hpp"
 #include "Components/CTransform.h"
 #include <imgui/imgui.h>
+#include "ECS.h"
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Transform, fmc::CTransform)
 
@@ -12,9 +13,14 @@ void TransformInspector::_DeInit()
 {
 }
 
-void TransformInspector::Draw(bool *)
+void TransformInspector::RemoveComponent(const Entity& inEntity)
 {
-	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
+	EntityManager::get().removeComponent<fmc::CTransform>(inEntity.id());
+}
+
+void TransformInspector::Draw(bool *, const Entity& inEntity)
+{
+	std::string name = _target->GetName() + "##" + std::to_string(inEntity.id().index());
 	if(ImGui::CollapsingHeader(name.c_str()))
     {
         ImGui::PushItemWidth(120);

@@ -2,6 +2,7 @@
 #include "Components/CBody.h"
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
+#include <ECS.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Body, fmc::CBody)
 
@@ -13,11 +14,11 @@ void BodyInspector::_DeInit()
 {
 }
 
-void BodyInspector::Draw(bool *value)
+void BodyInspector::Draw(bool *value, const Entity& inEntity)
 {
 	std::string id = "##BODY " + std::to_string(_target->GetID());
 	static const char *shapeNames[] = { "CUBE", "SPHERE" };
-	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(inEntity.id().index());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
@@ -37,7 +38,7 @@ void BodyInspector::Draw(bool *value)
 		}
 		if (ImGui::DragFloat("Mass", &currentMass, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetMass(currentMass);
+			_target->SetMass(currentMass, inEntity.id());
 		}
 		if (ImGui::DragFloat("Restitution", &currentRestitution, 0.001f, 0, FLT_MAX))
 		{
@@ -73,3 +74,7 @@ void BodyInspector::Draw(bool *value)
 }
 
 
+void BodyInspector::RemoveComponent(const Entity& inEntity)
+{
+	EntityManager::get().removeComponent<fmc::CBody>(inEntity.id());
+}

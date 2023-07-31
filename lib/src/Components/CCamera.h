@@ -71,7 +71,6 @@ class CCamera : public FMComponent<CCamera>
         bool Serialize(nlohmann::json &ioJson) const override;
         bool Read(const nlohmann::json &inJSON) override;
 		uint16_t GetType() const override {return kCamera;}
-        void Destroy() override;
 
         void SetNewProjection(int width, int height);
         void UpdateRenderTexture();

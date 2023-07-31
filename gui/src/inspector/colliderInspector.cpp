@@ -1,6 +1,7 @@
 #include "inspector/colliderInspector.hpp"
 #include "Components/CCollider.h"
 #include <imgui/imgui.h>
+#include <ECS.h>
 using namespace gui;
 DEFINE_INSPECTOR_FUNCTIONS(Collider, fmc::CCollider)
 
@@ -12,11 +13,11 @@ void ColliderInspector::_DeInit()
 {
 }
 
-void ColliderInspector::Draw(bool *value)
+void ColliderInspector::Draw(bool *value, const Entity& e)
 {
 	std::string id = "##Collider " + std::to_string(_target->GetID());
 	static const char *shapeNames[] = { "BOX", "BOX2D", "SPHERE" };
-	std::string name = _target->GetName() + "##" + std::to_string(_target->GetIDEntity());
+	std::string name = _target->GetName() + "##" + std::to_string(e.id().index());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
@@ -44,4 +45,7 @@ void ColliderInspector::Draw(bool *value)
 	}
 }
 
-
+void ColliderInspector::RemoveComponent(const Entity& inEntity)
+{
+	EntityManager::get().removeComponent<fmc::CCollider>(inEntity.id());
+}

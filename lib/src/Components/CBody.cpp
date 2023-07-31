@@ -36,14 +36,14 @@ bool CBody::IsGhost() const
 	return _isGhost;
 }
 
-void CBody::SetMass(float inMass)
+void CBody::SetMass(float inMass, Entity::Id inID)
 {
 	_mass = inMass;
 	if (btRigidBody* body = _GetBody())
 	{
 		btVector3 localInertia(0, 0, 0);
 
-		fmc::CCollider* collider = EntityManager::get().getEntity(_IDEntity)->get<fmc::CCollider>();
+		fmc::CCollider* collider = EntityManager::get().GetEntity(inID).get<fmc::CCollider>();
 		if (collider != nullptr)
 		{
 			btCollisionShape* shape = collider->GetCollisionShape();
@@ -211,9 +211,10 @@ btGhostObject* CBody::_GetGhost() const
 }
 
 
-void CBody::Init(CCollider *inCollider)
+void CBody::Init(CCollider *inCollider, Entity::Id inID)
 {
-	const fm::Transform &&transform = EntityManager::get().getEntity(_IDEntity)->get<fmc::CTransform>()->GetTransform();
+	_entityID = inID;
+	const fm::Transform &&transform = EntityManager::get().GetEntity(inID).get<fmc::CTransform>()->GetTransform();
 
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (_mass != 0.f);
@@ -350,10 +351,7 @@ const std::string& CBody::GetName() const
 {
 	return _name;
 }
-void CBody::Destroy()
-{
-	EntityManager::get().removeComponent<fmc::CBody>(BaseComponent::_IDEntity);
-}
+
 
 bool CBody::Serialize(nlohmann::json &ioJson) const
 {

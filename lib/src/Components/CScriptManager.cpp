@@ -20,15 +20,9 @@ CScriptManager::~CScriptManager()
 }
 
 
-void CScriptManager::Destroy()
+void CScriptManager::init(const Entity::Id& e)
 {
-    EntityManager::get().removeComponent<CScriptManager>(BaseComponent::_IDEntity);
-}
-
-
-void CScriptManager::init(Entity* e)
-{
-	_luaScriptManager->init(e);
+	_luaScriptManager->init(EntityManager::get().GetEntity(e));
 }
 
 void CScriptManager::RemoveScript(const std::string &name)
@@ -38,17 +32,17 @@ void CScriptManager::RemoveScript(const std::string &name)
 
 
 
-void CScriptManager::update(Entity *e, float dt)
+void CScriptManager::update(const Entity& e, float dt)
 {
 	_luaScriptManager->update(e, dt);
 }
 
-void CScriptManager::Start(Entity* e)
+void CScriptManager::Start(const Entity& e)
 {
 	_luaScriptManager->Start(e);
 }
 
-void CScriptManager::Stop(Entity* e)
+void CScriptManager::Stop(const Entity& e)
 {
 	_luaScriptManager->Stop(e);
 }
@@ -59,20 +53,17 @@ bool CScriptManager::Serialize(nlohmann::json &ioJson) const
 }
 bool CScriptManager::Read(const nlohmann::json &inJSON)
 {
-	Entity* e = EntityManager::get().getEntity(BaseComponent::_IDEntity);
-	return _luaScriptManager->Read(e, inJSON);
+	return _luaScriptManager->Read(inJSON);
 }
 
 void CScriptManager::addScriptLua(const fm::FilePath &inPath)
 {
-	Entity* e = EntityManager::get().getEntity(BaseComponent::_IDEntity);
-	_luaScriptManager->addScriptLua(e, inPath);
+	_luaScriptManager->addScriptLua(inPath);
 }
 
 void CScriptManager::ReloadScript(const std::string &inName)
 {
-	Entity* e = EntityManager::get().getEntity(BaseComponent::_IDEntity);
-	_luaScriptManager->ReloadScript(e, inName);
+	_luaScriptManager->ReloadScript(inName);
 }
 
 void CScriptManager::CallEvent(fm::BaseEvent* inEvent)
@@ -83,6 +74,12 @@ void CScriptManager::CallEvent(fm::BaseEvent* inEvent)
 LuaScripts CScriptManager::GetLuaScripts() const
 {
 	return _luaScriptManager->GetLuaScripts();
+}
+
+
+GameObjectLua* CScriptManager::GetGameObjectLua() const
+{
+	return _luaScriptManager->GetGameObjectLua();
 }
 
 

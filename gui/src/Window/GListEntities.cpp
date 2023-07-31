@@ -10,9 +10,9 @@
 using namespace gui;
 
 
-void LinkedTreeGO::Sort(std::function<bool(std::unique_ptr<Node<ecs::id>>&, std::unique_ptr<Node<ecs::id>>&b)> && f)
+void LinkedTreeGO::Sort(std::function<bool(std::unique_ptr<Node<Entity::Id>>&, std::unique_ptr<Node<Entity::Id>>&b)> && f)
 {
-	std::stack<Node<ecs::id>*> stack;
+	std::stack<Node<Entity::Id>*> stack;
 	stack.push(_head.get());
 
 	while (!stack.empty())
@@ -32,16 +32,16 @@ void LinkedTreeGO::Sort(std::function<bool(std::unique_ptr<Node<ecs::id>>&, std:
 }
 
 
-std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& LinkedTreeGO::Find(ecs::id ID, bool& outFound)
+std::unique_ptr<LinkedTreeGO::Node<Entity::Id>>& LinkedTreeGO::Find(Entity::Id ID, bool& outFound)
 {
-	if (ID == -1)
+	if (ID == Entity::INVALID)
 	{
 		outFound = true;
 		return _head;
 	}
 	else
 	{
-		std::stack<Node<ecs::id>*> stack;
+		std::stack<Node<Entity::Id>*> stack;
 		stack.push(_head.get());
 
 		while (!stack.empty())
@@ -84,7 +84,7 @@ void GListEntities::PurgeTree()
 }
 
 
-void GListEntities::_PurgeTree(LinkedTreeGO::Node<ecs::id>* parent, const std::shared_ptr<fm::Scene> inScene)
+void GListEntities::_PurgeTree(LinkedTreeGO::Node<Entity::Id>* parent, const std::shared_ptr<fm::Scene> inScene)
 {
 	auto it = parent->nodes.begin();
 	while(it != parent->nodes.end())
@@ -117,8 +117,8 @@ void GListEntities::_UpdateTree()
 
 		for (auto&& e : listEntities)
 		{
-			fmc::CTransform* tr = EntityManager::get().getEntity(e.first)->get<fmc::CTransform>();
-			std::stack<ecs::id> fathers;
+			fmc::CTransform* tr = EntityManager::get().GetEntity(e.first).get<fmc::CTransform>();
+			std::stack<Entity::Id> fathers;
 			while (tr->HasFather())
 			{
 				fathers.push(tr->GetFatherID());
@@ -129,7 +129,7 @@ void GListEntities::_UpdateTree()
 			while (!fathers.empty())
 			{
 				bool found = false;
-				ecs::id fatherID = fathers.top();
+				Entity::Id fatherID = fathers.top();
 				fathers.pop();
 				auto& node = _order.Find(fatherID, found);
 				if (!found)
@@ -140,7 +140,7 @@ void GListEntities::_UpdateTree()
 			}
 		}
 
-		_order.Sort([&currentScene](std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& a, std::unique_ptr<LinkedTreeGO::Node<ecs::id>>& b)
+		_order.Sort([&currentScene](std::unique_ptr<LinkedTreeGO::Node<Entity::Id>>& a, std::unique_ptr<LinkedTreeGO::Node<Entity::Id>>& b)
 			{
 				std::shared_ptr<fm::GameObject> oa = currentScene->GetGameObjectByID(a->value);
 				std::shared_ptr<fm::GameObject> ob = currentScene->GetGameObjectByID(b->value);
@@ -193,7 +193,7 @@ void GListEntities::_Update(float dt, Context &inContext)
 	}
 }
 
-void GListEntities::_IterateTree(LinkedTreeGO::Node<ecs::id>* node)
+void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 {
 	size_t i = 0;
 	for (auto&& n : node->nodes)
@@ -300,7 +300,7 @@ void GListEntities::CustomDraw()
 				}
 				else if (ImGui::MenuItem("Delete"))
 				{
-					size_t id = goSelected->getID();
+					Entity::Id id = goSelected->getID();
 					std::string scene(_currentSceneName);
 					AddEvent([id, scene](gui::GWindow* window, std::optional<gui::Context> Context) {
 						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);

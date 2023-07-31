@@ -54,7 +54,7 @@ void fm::from_json(const nlohmann::json& j, LuaScript::ScriptArgument& p)
 
 
 
-LuaScript::LuaScript(const fm::File &inFile, Entity* inEntity, bool inParseInitValue)
+LuaScript::LuaScript(const fm::File &inFile, bool inParseInitValue)
 {
 	_file = inFile;
 	_scriptName = _file.GetPath().GetName(true);
@@ -151,6 +151,10 @@ void LuaScript::start()
 		{
 			pf(_table);
 		}
+		else
+		{
+			fm::Debug::get().LogError("Cannot call start");
+		}
 		_hasStarted = true;
 
 	}
@@ -163,7 +167,7 @@ void LuaScript::start()
 	}
 }
 
-void LuaScript::Stop(Entity* e)
+void LuaScript::Stop(const Entity& e)
 {
 	_hasStarted = false;
 	_isInit = false;
@@ -192,13 +196,13 @@ void LuaScript::update(float dt)
 	}
 }
 
-bool LuaScript::Reload(Entity* inEntity, bool inCreateInstance)
+bool LuaScript::Reload(bool inCreateInstance)
 {
 	bool resultScript = Load(true);
 
 	if (resultScript && inCreateInstance)
 	{
-		bool ok = init(nullptr);
+		bool ok = init();
 		return ok && !_hasAnErrorOccured;
 	}
 
@@ -242,7 +246,7 @@ void LuaScript::SetGoTable(sol::table &inTable)
 }
 
 
-bool LuaScript::init(Entity*)
+bool LuaScript::init()
 {
 	sol::state *lua = (LuaManager::get().GetState());
 	sol::table cclass = (*lua)[_scriptName];
@@ -263,10 +267,10 @@ void LuaScript::CallEvent(fm::BaseEvent* inEvent, sol::table &inTable)
 	if (inEvent->GetType() == EventKind::COLLISION)
 	{
 		fm::CollisionEvent* collisionEvent = dynamic_cast<fm::CollisionEvent*>(inEvent);
-		Entity* other = EntityManager::get().getEntity(collisionEvent->GetID());
-		if (other != nullptr)
+		Entity other = EntityManager::get().GetEntity(collisionEvent->GetID());
+		if (other.Valid())
 		{
-			fmc::CScriptManager* mgr = other->get<fmc::CScriptManager>();
+			fmc::CScriptManager* mgr = other.get<fmc::CScriptManager>();
 			sol::table t = inTable;
 			if (mgr != nullptr)
 			{
