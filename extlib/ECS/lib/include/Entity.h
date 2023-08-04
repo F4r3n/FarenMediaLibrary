@@ -3,7 +3,7 @@
 #include <vector>
 #include "Component.h"
 
-
+class EntityManager;
 class Entity
 {
 
@@ -24,8 +24,6 @@ public:
 		uint32_t version() const { return _id >> 32; }
 
 	private:
-		friend class EntityManager;
-
 		uint64_t _id;
 	};
 
