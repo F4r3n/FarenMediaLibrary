@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies (Linux)
-        run: sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev libdbus-1-dev
+        run: sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
         if: matrix.os == 'ubuntu-latest'
       - name: configure
         run: cmake . -B build -DCMAKE_BUILD_TYPE=Release
