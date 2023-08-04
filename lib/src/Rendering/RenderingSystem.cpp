@@ -99,13 +99,6 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     _InitStandardShapes();
 
-    for(auto &&e : em.iterate<fmc::CMesh>(fm::IsEntityActive))
-	{
-        fmc::CMesh* mesh = e.get<fmc::CMesh>();
-
-        mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
-    }
-
     for(auto &&e : em.iterate<fmc::CMaterial>(fm::IsEntityActive))
     {
         fmc::CMaterial* material = e.get<fmc::CMaterial>();
@@ -493,6 +486,10 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
         
 
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
+		if (mesh != nullptr && mesh->model == nullptr)
+		{
+			mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
+		}
 		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		bool add = false;
 		if (mesh != nullptr && material != nullptr)

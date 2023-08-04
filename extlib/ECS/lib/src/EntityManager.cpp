@@ -3,11 +3,7 @@
 #include <cassert>
 #include <functional>
 
-#define DEBUG 0
 
-#if DEBUG
-#include <iostream>
-#endif
 //using namespace ecs;
 EntityManager::EntityManager() {
 	const uint32_t poolSize = 10;

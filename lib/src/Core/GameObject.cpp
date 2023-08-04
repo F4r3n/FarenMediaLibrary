@@ -133,12 +133,12 @@ bool GameObject::IsActive() const
 void GameObject::SetStatus(bool inStatus)
 {
 	_oldStatus = _active;
-	_active = inStatus;
+	activate(inStatus);
 }
 
 void GameObject::ResetStatus()
 {
-	_active = _oldStatus;
+	activate(_oldStatus);
 }
 
 void GameObject::SetName(const std::string &inName)
