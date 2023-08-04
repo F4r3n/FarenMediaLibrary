@@ -2,48 +2,22 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
-  job:
-    name: ${{ matrix.os }}-${{ matrix.cxx }}-build-and-test
-    runs-on: ${{ matrix.os }}
+  example_matrix:
     strategy:
-      fail-fast: false
       matrix:
-        name: [windows-msvc, ubuntu-g++]
-        include:
-          - name: windows-msvc
-            os: windows-latest
-            cxx: cl.exe
-            cc: cl.exe
-          - name: ubuntu-g++
-            os: ubuntu-latest
-            cxx: g++-8
-            cc: gcc-8
-
+        os: [ubuntu-latest, windows-latest] # Defining Ubuntu and Windows OS
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    
-    - uses: lukka/get-cmake@latest
-    
-    - uses: ilammy/msvc-dev-cmd@v1
-    
-    - uses: lukka/set-shell-env@v1
-      with:
-        CXX: ${{ matrix.cxx }}
-        CC: ${{ matrix.cc }}
-    - name: Install Dependencies (Linux)
-      run: sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
-      if: matrix.os == 'ubuntu-latest'
-    - name: configure and build
-      uses: lukka/run-cmake@v2
-      with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeAppendedArgs: '-GNinja'
-        cmakeBuildType: Release
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        buildDirectory: '${{ github.workspace }}/build/'
-        
+      - uses: actions/checkout@v3
+      - name: Install Dependencies (Linux)
+        run: sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
+        if: matrix.os == 'ubuntu-latest'
+      - name: configure
+        run: cmake . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: build
+        run: cmake --build build
