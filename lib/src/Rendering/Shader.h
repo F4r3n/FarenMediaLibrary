@@ -9,7 +9,8 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 #include <Resource/Resource.h>
-#include <ctime>
+#include <filesystem>
+
 namespace fm {
 
 	class MaterialValue;
@@ -56,8 +57,8 @@ public:
 	void Reload(bool force = false);
 
 private:
-	std::time_t _lastTimeFrag;
-	std::time_t _lastTimeVert;
+	std::filesystem::file_time_type _lastTimeFrag;
+	std::filesystem::file_time_type _lastTimeVert;
 
 	GLuint _program;
 

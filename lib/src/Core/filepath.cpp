@@ -255,23 +255,9 @@ bool File::CreateFile() const
 	return Exist();
 }
 
-std::time_t File::GetTimeStamp() const
+std::filesystem::file_time_type File::GetTimeStamp() const
 {
-#if defined ( _WIN32 )
-	{
-		struct _stat64 fileInfo;
-		if (_wstati64(fs::path(_path.GetPath()).wstring().c_str(), &fileInfo) != 0)
-		{
-			throw std::runtime_error("Failed to get last write time.");
-		}
-		return fileInfo.st_mtime;
-	}
-#else
-	{
-		auto fsTime = std::filesystem::last_write_time(_path.GetPath());
-		return decltype (fsTime)::clock::to_time_t(fsTime);
-	}
-#endif
+	return std::filesystem::last_write_time(_path.GetPath());
 }
 
 

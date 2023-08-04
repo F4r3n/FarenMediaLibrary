@@ -2,7 +2,7 @@
 #include <string>
 #include <functional>
 #include "Resource/FileSystem.h"
-#include <ctime>
+#include <filesystem>
 namespace fm
 {
 	class FilePath
@@ -56,7 +56,7 @@ namespace fm
 		bool Exist() const;
 		std::string GetContent() const;
 		File CreateUniqueFile();
-		std::time_t GetTimeStamp() const;
+		std::filesystem::file_time_type GetTimeStamp() const;
 	private:
 		fm::FilePath _path;
 	};

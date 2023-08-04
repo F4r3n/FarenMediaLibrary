@@ -85,7 +85,7 @@ void Editor::NewProject(const fm::Folder& inPath)
 
 	NotifyAll(EventObserver((size_t)Editor::Event::ON_PRE_LOAD));
 	std::function<void(void)>&& f =
-		[this, inPath]() {
+		[inPath]() {
 		fm::Application::Get().Read();
 		if (fm::Application::Get().GetCurrentScene() == nullptr) //Empty file, create new default scene
 		{
@@ -185,7 +185,7 @@ std::shared_ptr<fm::Scene>	Editor::RenameScene(std::shared_ptr<fm::Scene> inCurr
 
 std::shared_ptr<fm::Scene>	Editor::LoadScene(const fm::FilePath& inPath)
 {
-	auto &&s = fm::Application::Get().GetScene(inPath.GetName(true));
+	auto s = fm::Application::Get().GetScene(inPath.GetName(true));
 	if (s != nullptr)
 	{
 		s->Load();

@@ -20,16 +20,12 @@ int main()
 	fm::Window *window = fm::Application::Get().GetWindow();
 
 
-	bool isMainWindowInitialized = false;
-
 	while (!window->isClosed())
 	{
 		fm::InputManager::Get().PollEvents();
 		fm::Application::Get().Update(true);
 
-		bool hasFocus = (SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
 		window->swapBuffers();
-
 	}
 
 	fm::Application::Get().DeInit();
