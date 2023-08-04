@@ -11,7 +11,7 @@ file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
 include_directories(${CMAKE_SOURCE_DIR}/extlib/json/include)
 file(GLOB SOURCES "src/*.cpp")
 
-add_library(ECS STATIC ${SOURCES} ${HEADERS})
 
+add_library(ECS STATIC ${SOURCES} ${HEADERS})
 
 

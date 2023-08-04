@@ -3,9 +3,9 @@
 #include "Entity.h"
 #include "ComponentManager.h"
 #include <functional>
+#include "EntityIteratorMask.h"
 #define ADD_SIZE 200
 
-typedef BitSet Mask;
 class EntityManager 
 {
 public:
@@ -86,74 +86,6 @@ public:
 	Entity::Id CreateID(uint32_t inID);
 	Entity	   GetEntity(Entity::Id inID);
 
-
-class EntityIteratorMask {
-    public:
-        EntityIteratorMask(const Mask& mask, size_t inCursor, size_t inMax, std::function<bool(EntityManager& , const Entity::Id&)> inPredicate) {
-            _mask = mask;
-            _cursor = inCursor;
-			_manager = &EntityManager::get();
-			_max = inMax;
-			_customPredicate = inPredicate;
-            next();
-        }
-       
-       Entity operator*() {
-		   return Entity(_manager, _manager->CreateID(_cursor));
-       }
-      
-        EntityIteratorMask operator++() {
-			_cursor++;
-            next();
-            return EntityIteratorMask(_mask, _cursor, _max, _customPredicate);
-        }
-        
-         EntityIteratorMask begin(){
-             return EntityIteratorMask(_mask, 0, _max, _customPredicate);
-        }
-        
-         EntityIteratorMask end() {
-             return EntityIteratorMask(_mask, _max, _max, _customPredicate);
-        }
-        
-        bool operator!=(EntityIteratorMask &i) {
-            return _cursor != i._cursor;
-        }
-        
-        void next() {
-
-            while(_cursor < _max && !predicate())
-            {
-				++_cursor;
-            }
-        }
-
-		bool predicate()
-		{
-			Entity::Id id = _manager->CreateID(_cursor);
-			if (_manager->Valid(id))
-			{
-				if (_manager->hasComponents(id, _mask))
-				{
-					bool ok = true;
-					if (_customPredicate)
-					{
-						ok = _customPredicate(*_manager, id);
-					}
-					return ok;
-				}
-			}
-			return false;
-		}
-        
-    private:
-		std::function<bool(EntityManager&, const Entity::Id&)> _customPredicate = {};
-		EntityManager* _manager;
-        Mask _mask;
-        uint32_t _cursor;
-		size_t _max;
-        
-    };
     
 
      template <typename T>
