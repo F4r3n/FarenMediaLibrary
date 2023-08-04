@@ -8,6 +8,9 @@ namespace fm
 class Scene;
 }
 
+namespace fmc {
+	class CIdentity;
+}
 
 
 namespace fm {
@@ -17,20 +20,18 @@ namespace fm {
             GameObject();
             ~GameObject();
 
-            bool IsActive() const
-            {
-                return _active;
-            }
+
 
             void destroy()
 			{
 				_GetEntity().destroy();
             }
 
-			void activate(bool value)
-			{
-				_active = value;
-			}
+			void activate(bool value);
+			
+
+			bool IsActive() const;
+			
 
             template <typename T> T* add(Component<T> *c)
             {
@@ -77,12 +78,13 @@ namespace fm {
 			void SetOrder(size_t inOrder) { _order = inOrder; }
 			size_t GetOrder() const { return _order; }
         private:
+			bool _active = true;
 			Entity _GetEntity() const;
+			fmc::CIdentity* _GetIdentity() const;
             //Entity* _entity = nullptr;
 			Entity::Id _id = Entity::INVALID;
 			bool	_oldStatus;
 			size_t  _order = 0;
-			bool _active = true;
     };
 
 }

@@ -7,7 +7,7 @@
 #include "Components/CSource.h"
 #include <AL/al.h>
 #include <AL/alc.h>
-
+#include "Engine.h"
 //TODO WTF REMAKE ALL
 using namespace fms;
 SoundSystem::SoundSystem()
@@ -22,7 +22,7 @@ void SoundSystem::pre_update(EntityManager& em) {
 
 void SoundSystem::update(float , EntityManager& em, EventManager& ) {
     int error = 0;
-    for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>()) 
+    for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>(fm::IsEntityActive))
 	{
         if((error = alGetError()) != 0) 
 		{
@@ -51,7 +51,7 @@ void SoundSystem::init(EntityManager& em, EventManager& event)
 	_speaker = std::unique_ptr<fm::Speaker>(new fm::Speaker());
 	_listener = std::unique_ptr<fm::Listener>(new fm::Listener());
 
-    for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>()) {
+    for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>(fm::IsEntityActive)) {
         fmc::CSource* sound = e.get<fmc::CSource>();
         fmc::CTransform* transform = e.get<fmc::CTransform>();
        

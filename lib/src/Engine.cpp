@@ -19,6 +19,7 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+#include "Components/CIdentity.h"
 using namespace fm;
 
 class GarbageCollector
@@ -102,3 +103,14 @@ void Engine::Update(float dt)
     //}
 }
 
+bool fm::IsEntityActive(EntityManager& em, const Entity::Id& id)
+{
+	Entity e = em.GetEntity(id);
+	fmc::CIdentity* identity = e.get<fmc::CIdentity>();
+	if (identity != nullptr && identity->IsActive())
+		return true;
+	if (identity == nullptr)
+		return true;
+
+	return false;
+}

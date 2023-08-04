@@ -17,7 +17,7 @@ EntityManager::EntityManager() {
     }
 	_entity_version.resize(poolSize + 1);
     _entitiesComponents.resize(poolSize + 1);
-	_capacity = 0;
+	_capacity = 1;
 }
 
 

@@ -11,7 +11,6 @@ enum class SYSTEM_MANAGER_MODE
 };
 
 
-
 class SystemManager
 {
 public:

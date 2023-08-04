@@ -30,6 +30,7 @@
 #include "Components/CCamera.h"
 #include "Rendering/VertexBuffer.hpp"
 #include "Rendering/Model.hpp"
+#include "Engine.h"
 
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
@@ -96,14 +97,14 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     _InitStandardShapes();
 
-    for(auto &&e : em.iterate<fmc::CMesh>()) 
+    for(auto &&e : em.iterate<fmc::CMesh>(fm::IsEntityActive))
 	{
         fmc::CMesh* mesh = e.get<fmc::CMesh>();
 
         mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
     }
 
-    for(auto &&e : em.iterate<fmc::CMaterial>())
+    for(auto &&e : em.iterate<fmc::CMaterial>(fm::IsEntityActive))
     {
         fmc::CMaterial* material = e.get<fmc::CMaterial>();
         std::vector<fm::Material*> materials = material->GetAllMaterials();
@@ -113,12 +114,6 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
         }
     }
 
-    //fm::Debug::log("INIT MainCamera");
-    //for(auto &&e : em.iterate<fmc::CCamera>())
-    //{
-    //    InitCamera(e);
-    //    break;
-    //}
 }
 
 
@@ -126,7 +121,7 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
 void RenderingSystem::pre_update(EntityManager& em)
 {
-	for (auto &&e : em.iterate<fmc::CCamera, fmc::CTransform>())
+	for (auto &&e : em.iterate<fmc::CCamera, fmc::CTransform>(fm::IsEntityActive))
 	{
 		fmc::CCamera* cam = e.get<fmc::CCamera>();
 		fmc::CTransform* ct = e.get<fmc::CTransform>();
@@ -155,7 +150,7 @@ void RenderingSystem::pre_update(EntityManager& em)
 
 void RenderingSystem::update(float, EntityManager& em, EventManager&)
 {
-	for (auto &&e : em.iterate<fmc::CCamera>())
+	for (auto &&e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
 	{
 		fmc::CCamera* cam = e.get<fmc::CCamera>();
 		if (!cam->Enabled || (!cam->_isAuto && cam->_commandBuffers.empty()))
@@ -479,7 +474,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 	cam->_rendererConfiguration.queue.init();
     PointLight pointLights[NUMBER_POINTLIGHT_MAX];
     _lightNumber = 0;
-    for(auto &&e : em.iterate<fmc::CTransform>())
+    for(auto &&e : em.iterate<fmc::CTransform>(fm::IsEntityActive))
     {
         fm::RenderNode node = {e.get<fmc::CTransform>()->GetTransform(),
                                nullptr,

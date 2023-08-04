@@ -107,6 +107,29 @@ std::vector<BaseComponent*> GameObject::getAllComponents() const
 	return _GetEntity().getAllComponents();
 }
 
+fmc::CIdentity* GameObject::_GetIdentity() const
+{
+	auto entity = _GetEntity();
+	if (!entity.has<fmc::CIdentity>())
+	{
+		entity.addComponent<fmc::CIdentity>();
+	}
+
+	return entity.get<fmc::CIdentity>();
+}
+
+
+void GameObject::activate(bool value)
+{
+	_active = value;
+	_GetIdentity()->SetActive(_active);
+}
+
+bool GameObject::IsActive() const
+{
+	return _active;
+}
+
 void GameObject::SetStatus(bool inStatus)
 {
 	_oldStatus = _active;

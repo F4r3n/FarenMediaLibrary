@@ -157,9 +157,10 @@ void GListComponent::_DrawComponents(std::shared_ptr<fm::GameObject> currentEnti
 
 			if (!value)
 			{
+				compo->RemoveComponent(manager.GetEntity(currentEntity->getID()));
+
 				compo.reset();
 				inspectorComponent[componentType] = nullptr;
-				compo->RemoveComponent(manager.GetEntity(currentEntity->getID()));
 			}
 		}
 	}

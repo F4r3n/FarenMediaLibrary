@@ -1,6 +1,7 @@
 #include "GToolBar.hpp"
 #include "Input/InputManager.h"
 #include "Core/application.h"
+#include "Editor.h"
 using namespace gui;
 
 GToolBar::GToolBar() : GWindow("GToolBar", true)
@@ -60,8 +61,8 @@ void GToolBar::_DrawStartStop()
 		}
 		if (ImGui::Button(labelT, buttonSize))
 		{
-			AddEvent([](GWindow*, std::optional<gui::Context> Context) {
-				fm::Application::Get().Start();
+			AddEvent([](GWindow*, std::optional<gui::Context> context) {
+				Editor::Get().Start();
 			});	
 		}
 		if (status)
@@ -82,7 +83,7 @@ void GToolBar::_DrawStartStop()
 		{
 
 			AddEvent([](GWindow*, std::optional<gui::Context> Context) {
-				fm::Application::Get().Stop();
+				Editor::Get().Stop();
 			});
 		}
 		if (status)

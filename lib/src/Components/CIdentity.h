@@ -19,7 +19,11 @@ class CIdentity : public FMComponent<CIdentity> {
 
 		const std::string& GetNameEntity() const { return _nameEntity; }
 		void SetNameEntity(const std::string &inName) { _nameEntity = inName; }
+
+		bool IsActive() const { return _active; }
+		void SetActive(bool value) { _active = value; }
     private:
         std::string _nameEntity;
+		bool		_active = true;
 };
 }

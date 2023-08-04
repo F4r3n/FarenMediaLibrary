@@ -16,11 +16,15 @@ CIdentity::CIdentity()
 bool CIdentity::Serialize(nlohmann::json &ioJson) const
 {
 	ioJson["name"] = _nameEntity;
+	ioJson["active"] = _active;
+
     return true;
 }
 bool CIdentity::Read(const nlohmann::json &inJSON)
 {
 	_nameEntity = inJSON["name"];
+	if(inJSON.contains("active"))
+		_active = inJSON["active"];
     return true;
 }
 

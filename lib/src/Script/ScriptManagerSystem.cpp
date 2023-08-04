@@ -5,6 +5,7 @@
 #include "Script/cppmanager.hpp"
 #include "Core/Debug.h"
 #include "Components/cevent.hpp"
+#include "Engine.h"
 using namespace fms;
 ScriptManagerSystem::ScriptManagerSystem()
 {
@@ -51,7 +52,7 @@ void ScriptManagerSystem::Stop()
 
 void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 {
-	for (auto &&e : em.iterate<fmc::CScriptManager, fmc::CEvent>())
+	for (auto &&e : em.iterate<fmc::CScriptManager, fmc::CEvent>(fm::IsEntityActive))
 	{
 		fmc::CEvent *event = e.get<fmc::CEvent>();
 		fmc::Events &&events = event->GetEvents();
@@ -67,7 +68,7 @@ void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
 	}
 
 
-    for(auto &&e : em.iterate<fmc::CScriptManager>())
+    for(auto &&e : em.iterate<fmc::CScriptManager>(fm::IsEntityActive))
     {
         fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
         scriptManager->update(e, dt);

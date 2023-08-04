@@ -2,7 +2,7 @@
 #define ENTITY_MANAGER_H
 #include "Entity.h"
 #include "ComponentManager.h"
-#include <queue>
+#include <functional>
 #define ADD_SIZE 200
 
 typedef BitSet Mask;
@@ -90,10 +90,12 @@ public:
 
 class EntityIteratorMask {
     public:
-        EntityIteratorMask(const Mask& mask, uint32_t inCursor) {
+        EntityIteratorMask(const Mask& mask, size_t inCursor, size_t inMax, std::function<bool(EntityManager& , const Entity::Id&)> inPredicate) {
             _mask = mask;
             _cursor = inCursor;
 			_manager = &EntityManager::get();
+			_max = inMax;
+			_customPredicate = inPredicate;
             next();
         }
        
@@ -104,24 +106,24 @@ class EntityIteratorMask {
         EntityIteratorMask operator++() {
 			_cursor++;
             next();
-            return EntityIteratorMask(_mask, _cursor);
+            return EntityIteratorMask(_mask, _cursor, _max, _customPredicate);
         }
         
          EntityIteratorMask begin(){
-             return EntityIteratorMask(_mask, 0);
+             return EntityIteratorMask(_mask, 0, _max, _customPredicate);
         }
         
          EntityIteratorMask end() {
-             return EntityIteratorMask(_mask, _manager->_capacity);
+             return EntityIteratorMask(_mask, _max, _max, _customPredicate);
         }
         
         bool operator!=(EntityIteratorMask &i) {
-            return _cursor < i._cursor;
+            return _cursor != i._cursor;
         }
         
         void next() {
 
-            while(_cursor < _manager->_capacity && !predicate())
+            while(_cursor < _max && !predicate())
             {
 				++_cursor;
             }
@@ -133,15 +135,24 @@ class EntityIteratorMask {
 			if (_manager->Valid(id))
 			{
 				if (_manager->hasComponents(id, _mask))
-					return true;
+				{
+					bool ok = true;
+					if (_customPredicate)
+					{
+						ok = _customPredicate(*_manager, id);
+					}
+					return ok;
+				}
 			}
 			return false;
 		}
         
     private:
+		std::function<bool(EntityManager&, const Entity::Id&)> _customPredicate = {};
 		EntityManager* _manager;
         Mask _mask;
         uint32_t _cursor;
+		size_t _max;
         
     };
     
@@ -159,13 +170,13 @@ class EntityIteratorMask {
     }
     
     template <typename ...Args>
-    EntityIteratorMask iterate() {
-        EntityIteratorMask iterator(createMask<Args...>(), 0);
+    EntityIteratorMask iterate(std::function<bool(EntityManager& , const Entity::Id&)> inPredicate = {}) {
+        EntityIteratorMask iterator(createMask<Args...>(), 0, EntityManager::get()._capacity, inPredicate);
         return iterator;
     }
     
-    EntityIteratorMask iterate(const Mask &mask) {
-        EntityIteratorMask iterator(mask, 0);
+    EntityIteratorMask iterate(const Mask &mask, std::function<bool(EntityManager& , const Entity::Id&)> inPredicate = {}) {
+        EntityIteratorMask iterator(mask, 0, EntityManager::get()._capacity, inPredicate);
         return iterator;
     }
 

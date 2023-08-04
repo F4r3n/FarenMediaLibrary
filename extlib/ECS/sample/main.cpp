@@ -47,12 +47,12 @@ public:
 	}
 	void update(float dt, EntityManager& em, EventManager& event) {
 		for (auto e : em.iterate<Position>()) {
+			auto temp = em.createEntity();
+			temp.addComponent<Position>();
+
 			auto position = e.get<Position>();
-			if (position->x > 10)
-			{
-				break;
-			}
-			//std::cout << e.id().index() << std::endl;
+			
+			std::cout << e.id().index() << std::endl;
 		}
 		// std::cout << "Called m" << std::endl;
 		// std::cout << e->get<Position>()->x << std::endl;
@@ -76,13 +76,16 @@ public:
 int main() {
 
 	EntityManager &manager = EntityManager::get();
-	for (int i = 0; i < 1000; ++i)
+
 	{
 		Entity e = manager.createEntity();
 		e.addComponent<Position>();
 	}
-
-	manager.createEntity();
+	
+	{
+		Entity e = manager.createEntity();
+		e.addComponent<Position>();
+	}
 
 	SystemManager systemManager;
 	systemManager.init(manager, EventManager::Get());

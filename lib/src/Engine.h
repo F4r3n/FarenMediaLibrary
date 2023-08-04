@@ -3,15 +3,15 @@
 
 #include <memory>
 #include "SystemManager.h"
+#include "Entity.h"
 namespace fm {
     class GameObject;
 	class Window;
 }
 class SystemManager;
-
 namespace fm
 {
-  
+	bool IsEntityActive(EntityManager& em, const Entity::Id& id);
 class Engine
 {
 public:

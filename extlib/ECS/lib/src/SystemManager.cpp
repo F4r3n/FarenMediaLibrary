@@ -75,3 +75,4 @@ void SystemManager::Start()
 
 	_mode = SYSTEM_MANAGER_MODE::RUNNING;
 }
+
