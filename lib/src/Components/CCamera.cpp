@@ -46,6 +46,7 @@ _target(nullptr)
 
 CCamera::~CCamera()
 {
+	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 	if (_rendererConfiguration.isInit)
 	{
 		_rendererConfiguration.uboLight->Free();

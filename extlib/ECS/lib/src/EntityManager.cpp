@@ -11,12 +11,16 @@
 //using namespace ecs;
 EntityManager::EntityManager() {
 	const uint32_t poolSize = 10;
-    for(uint32_t i = poolSize; i >= 1; i--)
-    {
-        _free_id.push_back(i);
-    }
-	_entity_version.resize(poolSize + 1);
-    _entitiesComponents.resize(poolSize + 1);
+	_Init(poolSize);
+}
+void EntityManager::_Init(size_t inSize)
+{
+	for (uint32_t i = inSize; i >= 1; i--)
+	{
+		_free_id.push_back(i);
+	}
+	_entity_version.resize(inSize + 1);
+	_entitiesComponents.resize(inSize + 1);
 	_capacity = 1;
 }
 
@@ -25,56 +29,16 @@ EntityManager::~EntityManager()
 {
 }
 
-void EntityManager::killInativeEntities()
-{
-	/*
-	for (id i = 0; i < _entities_killed.size(); ++i)
-	{
-		id id = _entities_killed[i];
-
-		_entities_alive[id].ID = _MAX_ID;
-		_free_id.push(id);
-	}
-	_entities_killed.clear();
-	*/
-}
-
-
-void EntityManager::killAll() {
-
-	/*
-    for(auto& e : _entitiesComponents)
-    {
-        _entitiesComponents[e.ID].reset();
-	}
 
 
 
-    const size_t sizeFreeID = _free_id.size();
-    for(id i = 0; i < sizeFreeID; ++i)
-    {
-        _free_id.push(i);
-    }
-	_entities_alive.clear();
-	_entities_killed.clear();
-	_capacity = 0;
-	*/
-
-}
 
 void EntityManager::Free()
 {
-	/*
-    std::queue<id> empty;
-    std::swap( _free_id, empty );
-
-
-    _entities_alive.clear();
-    _entities_killed.clear();
-
-    std::vector<std::unique_ptr<ComponentManager>> emptyC;
-    std::swap(_entitiesComponents, emptyC);
-	*/
+	_capacity = 0;
+	_entity_version.clear();
+	_entitiesComponents.clear();
+	_free_id.clear();
 }
 
 bool EntityManager::Valid(const Entity::Id& e) const

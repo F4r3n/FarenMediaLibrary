@@ -22,7 +22,6 @@ public:
     std::vector<BaseComponent*> getAllComponents(const Entity& e) {
         return _entitiesComponents[e.id().index()]->getAllComponents();
     }
-    void killAll();
     bool Valid(const Entity::Id& e) const;
 
     
@@ -181,10 +180,9 @@ class EntityIteratorMask {
     }
 
     void Free();
-	void killInativeEntities();
 
 private:
-
+	void _Init(size_t inSize);
 
     std::vector<uint32_t> _free_id;
 	std::vector<uint32_t> _entity_version;

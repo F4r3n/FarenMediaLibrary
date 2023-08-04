@@ -31,6 +31,8 @@
 #include "Rendering/VertexBuffer.hpp"
 #include "Rendering/Model.hpp"
 #include "Engine.h"
+#define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+
 
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
@@ -152,6 +154,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 {
 	for (auto &&e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
 	{
+		LOG_DEBUG
 		fmc::CCamera* cam = e.get<fmc::CCamera>();
 		if (!cam->Enabled || (!cam->_isAuto && cam->_commandBuffers.empty()))
 			continue;
@@ -177,7 +180,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 				cam->_target->create();
 			}
 		}
-
+		LOG_DEBUG
 
 		if (cam->_isAuto)
 		{
@@ -212,7 +215,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam);
 		}
 
-
+		LOG_DEBUG
 		//Prepare camera data
 		cam->UpdateShaderData();
 
@@ -284,6 +287,7 @@ bool RenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCa
 
 void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera* currentCamera)
 {
+	LOG_DEBUG
 	fmc::CameraCommandBuffer::iterator it = currentCamera->_commandBuffers.find(queue);
 
 	if (it != currentCamera->_commandBuffers.end())
@@ -372,6 +376,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 		}
 		currentCamera->_commandBuffers.erase(it);
 	}
+	LOG_DEBUG
 }
 
 void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties)

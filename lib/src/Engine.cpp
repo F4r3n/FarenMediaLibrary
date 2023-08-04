@@ -43,9 +43,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	EntityManager::get().killAll();
 	EntityManager::get().Free();
-
 }
 
 
