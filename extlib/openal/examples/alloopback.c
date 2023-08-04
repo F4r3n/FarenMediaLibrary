@@ -26,11 +26,15 @@
  * output handling.
  */
 
-#include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
 
-#include <SDL.h>
+#define SDL_MAIN_HANDLED
+#include "SDL.h"
+#include "SDL_audio.h"
+#include "SDL_error.h"
+#include "SDL_stdinc.h"
 
 #include "AL/al.h"
 #include "AL/alc.h"
@@ -114,7 +118,7 @@ static ALuint CreateSineWave(void)
     alGenBuffers(1, &buffer);
     alBufferData(buffer, AL_FORMAT_MONO16, data, sizeof(data), 44100);
 
-    /* Check if an error occured, and clean up if so. */
+    /* Check if an error occurred, and clean up if so. */
     err = alGetError();
     if(err != AL_NO_ERROR)
     {
@@ -138,6 +142,8 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
+    SDL_SetMainReady();
+
     /* Print out error if extension is missing. */
     if(!alcIsExtensionPresent(NULL, "ALC_SOFT_loopback"))
     {
@@ -146,10 +152,10 @@ int main(int argc, char *argv[])
     }
 
     /* Define a macro to help load the function pointers. */
-#define LOAD_PROC(x)  ((x) = alcGetProcAddress(NULL, #x))
-    LOAD_PROC(alcLoopbackOpenDeviceSOFT);
-    LOAD_PROC(alcIsRenderFormatSupportedSOFT);
-    LOAD_PROC(alcRenderSamplesSOFT);
+#define LOAD_PROC(T, x)  ((x) = FUNCTION_CAST(T, alcGetProcAddress(NULL, #x)))
+    LOAD_PROC(LPALCLOOPBACKOPENDEVICESOFT, alcLoopbackOpenDeviceSOFT);
+    LOAD_PROC(LPALCISRENDERFORMATSUPPORTEDSOFT, alcIsRenderFormatSupportedSOFT);
+    LOAD_PROC(LPALCRENDERSAMPLESSOFT, alcRenderSamplesSOFT);
 #undef LOAD_PROC
 
     if(SDL_Init(SDL_INIT_AUDIO) == -1)
@@ -194,6 +200,10 @@ int main(int argc, char *argv[])
         attrs[3] = ALC_UNSIGNED_SHORT_SOFT;
     else if(obtained.format == AUDIO_S16SYS)
         attrs[3] = ALC_SHORT_SOFT;
+    else if(obtained.format == AUDIO_S32SYS)
+        attrs[3] = ALC_INT_SOFT;
+    else if(obtained.format == AUDIO_F32SYS)
+        attrs[3] = ALC_FLOAT_SOFT;
     else
     {
         fprintf(stderr, "Unhandled SDL format: 0x%04x\n", obtained.format);
@@ -246,7 +256,7 @@ int main(int argc, char *argv[])
     /* Create the source to play the sound with. */
     source = 0;
     alGenSources(1, &source);
-    alSourcei(source, AL_BUFFER, buffer);
+    alSourcei(source, AL_BUFFER, (ALint)buffer);
     assert(alGetError()==AL_NO_ERROR && "Failed to setup sound source");
 
     /* Play the sound until it finishes. */

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>564</width>
-    <height>460</height>
+    <height>469</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -21,8 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset theme="preferences-desktop-sound">
-    <normaloff/>
-   </iconset>
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="applyButton">
@@ -31,7 +30,7 @@
       <x>470</x>
       <y>405</y>
       <width>81</width>
-      <height>21</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -39,8 +38,7 @@
     </property>
     <property name="icon">
      <iconset theme="dialog-ok-apply">
-      <normaloff/>
-     </iconset>
+      <normaloff>.</normaloff>.</iconset>
     </property>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
@@ -53,7 +51,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
@@ -64,8 +62,8 @@
        <rect>
         <x>110</x>
         <y>50</y>
-        <width>78</width>
-        <height>21</height>
+        <width>80</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="toolTip">
@@ -82,7 +80,7 @@ float and converted to the output sample type as needed.</string>
         <x>0</x>
         <y>50</y>
         <width>101</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -98,7 +96,7 @@ float and converted to the output sample type as needed.</string>
         <x>0</x>
         <y>20</y>
         <width>101</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -113,14 +111,14 @@ float and converted to the output sample type as needed.</string>
        <rect>
         <x>110</x>
         <y>20</y>
-        <width>78</width>
-        <height>21</height>
+        <width>80</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="toolTip">
-       <string>The output channel configuration. Note that not all backends
-can properly detect the channel configuration and may default
-to stereo output.</string>
+       <string>The default output channel configuration. Note that not all
+backends can properly detect the channel configuration and
+may default to stereo output.</string>
       </property>
       <property name="sizeAdjustPolicy">
        <enum>QComboBox::AdjustToContents</enum>
@@ -131,8 +129,8 @@ to stereo output.</string>
        <rect>
         <x>380</x>
         <y>20</y>
-        <width>80</width>
-        <height>20</height>
+        <width>100</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="toolTip">
@@ -194,7 +192,7 @@ to stereo output.</string>
         <x>290</x>
         <y>20</y>
         <width>81</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -210,7 +208,7 @@ to stereo output.</string>
         <x>290</x>
         <y>50</y>
         <width>81</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -225,8 +223,8 @@ to stereo output.</string>
        <rect>
         <x>380</x>
         <y>50</y>
-        <width>78</width>
-        <height>21</height>
+        <width>101</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="toolTip">
@@ -256,7 +254,7 @@ otherwise be suitable for speakers.</string>
          <x>20</x>
          <y>30</y>
          <width>511</width>
-         <height>91</height>
+         <height>81</height>
         </rect>
        </property>
        <property name="title">
@@ -283,9 +281,9 @@ mixed and being heard.</string>
         <widget class="QLabel" name="label_11">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>60</x>
            <y>0</y>
-           <width>201</width>
+           <width>161</width>
            <height>21</height>
           </rect>
          </property>
@@ -299,9 +297,9 @@ mixed and being heard.</string>
         <widget class="QSlider" name="periodCountSlider">
          <property name="geometry">
           <rect>
-           <x>80</x>
+           <x>99</x>
            <y>20</y>
-           <width>160</width>
+           <width>141</width>
            <height>21</height>
           </rect>
          </property>
@@ -336,7 +334,7 @@ mixed and being heard.</string>
         <widget class="QLineEdit" name="periodCountEdit">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>40</x>
            <y>20</y>
            <width>51</width>
            <height>21</height>
@@ -365,24 +363,24 @@ frames needed for each mixing update.</string>
           <rect>
            <x>60</x>
            <y>20</y>
-           <width>160</width>
+           <width>191</width>
            <height>21</height>
           </rect>
          </property>
          <property name="minimum">
-          <number>0</number>
+          <number>63</number>
          </property>
          <property name="maximum">
           <number>8192</number>
          </property>
          <property name="singleStep">
-          <number>64</number>
+          <number>1</number>
          </property>
          <property name="pageStep">
           <number>1024</number>
          </property>
          <property name="value">
-          <number>0</number>
+          <number>63</number>
          </property>
          <property name="tracking">
           <bool>true</bool>
@@ -423,7 +421,7 @@ frames needed for each mixing update.</string>
           </rect>
          </property>
          <property name="placeholderText">
-          <string>1024</string>
+          <string>20ms</string>
          </property>
         </widget>
        </widget>
@@ -432,28 +430,31 @@ frames needed for each mixing update.</string>
        <property name="geometry">
         <rect>
          <x>130</x>
-         <y>130</y>
-         <width>131</width>
-         <height>21</height>
+         <y>120</y>
+         <width>111</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="toolTip">
-        <string>Pan Pot uses standard amplitude panning (aka
-pair-wise, stereo pair, etc) between -30 and +30
-degrees, while UHJ creates a stereo-compatible
-two-channel UHJ mix, which encodes some
-surround sound information into stereo output
-that can be decoded with a surround sound
-receiver.</string>
+        <string>Basic uses standard amplitude panning (aka
+pair-wise, stereo pair, etc).
+
+UHJ creates a stereo-compatible two-channel
+UHJ mix, which encodes some surround sound
+information into stereo output that can be
+decoded with a surround sound receiver.
+
+Binaural applies HRTF filters to create an
+illusion of 3D placement with headphones.</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_19">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>130</y>
+         <y>120</y>
          <width>101</width>
-         <height>21</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -466,23 +467,26 @@ receiver.</string>
       <widget class="QLabel" name="label_30">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>130</y>
-         <width>111</width>
-         <height>21</height>
+         <x>260</x>
+         <y>120</y>
+         <width>121</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
         <string>Ambisonic Format:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QComboBox" name="ambiFormatComboBox">
        <property name="geometry">
         <rect>
          <x>390</x>
-         <y>130</y>
+         <y>120</y>
          <width>131</width>
-         <height>21</height>
+         <height>31</height>
         </rect>
        </property>
       </widget>
@@ -533,7 +537,7 @@ quantization with low-level whitenoise.</string>
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>80</y>
+        <y>90</y>
         <width>421</width>
         <height>81</height>
        </rect>
@@ -611,7 +615,7 @@ quantization with low-level whitenoise.</string>
      <widget class="QCheckBox" name="decoderHQModeCheckBox">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>30</x>
         <y>20</y>
         <width>181</width>
         <height>21</height>
@@ -621,9 +625,7 @@ quantization with low-level whitenoise.</string>
        <string>Enables high-quality ambisonic rendering. This mode is
 capable of frequency-dependent processing, creating a
 better reproduction of 3D sound rendering over
-surround sound speakers. Enabling this also requires
-specifying decoder configuration files for the
-appropriate speaker configuration you intend to use.</string>
+surround sound speakers.</string>
       </property>
       <property name="layoutDirection">
        <enum>Qt::RightToLeft</enum>
@@ -631,11 +633,14 @@ appropriate speaker configuration you intend to use.</string>
       <property name="text">
        <string>High Quality Mode:</string>
       </property>
+      <property name="tristate">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QCheckBox" name="decoderDistCompCheckBox">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>30</x>
         <y>50</y>
         <width>181</width>
         <height>21</height>
@@ -655,7 +660,7 @@ configuration file.</string>
       <property name="text">
        <string>Distance Compensation:</string>
       </property>
-      <property name="checked">
+      <property name="tristate">
        <bool>true</bool>
       </property>
      </widget>
@@ -663,9 +668,9 @@ configuration file.</string>
       <property name="geometry">
        <rect>
         <x>-10</x>
-        <y>160</y>
+        <y>140</y>
         <width>551</width>
-        <height>161</height>
+        <height>231</height>
        </rect>
       </property>
       <property name="title">
@@ -677,10 +682,10 @@ configuration file.</string>
       <widget class="QLineEdit" name="decoderQuadLineEdit">
        <property name="geometry">
         <rect>
-         <x>120</x>
+         <x>130</x>
          <y>30</y>
-         <width>311</width>
-         <height>21</height>
+         <width>301</width>
+         <height>25</height>
         </rect>
        </property>
       </widget>
@@ -689,8 +694,8 @@ configuration file.</string>
         <rect>
          <x>20</x>
          <y>30</y>
-         <width>91</width>
-         <height>21</height>
+         <width>101</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -706,7 +711,7 @@ configuration file.</string>
          <x>440</x>
          <y>30</y>
          <width>91</width>
-         <height>21</height>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -716,10 +721,10 @@ configuration file.</string>
       <widget class="QLineEdit" name="decoder51LineEdit">
        <property name="geometry">
         <rect>
-         <x>120</x>
-         <y>60</y>
-         <width>311</width>
-         <height>21</height>
+         <x>130</x>
+         <y>70</y>
+         <width>301</width>
+         <height>25</height>
         </rect>
        </property>
       </widget>
@@ -727,9 +732,9 @@ configuration file.</string>
        <property name="geometry">
         <rect>
          <x>440</x>
-         <y>60</y>
+         <y>70</y>
          <width>91</width>
-         <height>21</height>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -740,9 +745,9 @@ configuration file.</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>60</y>
-         <width>91</width>
-         <height>21</height>
+         <y>70</y>
+         <width>101</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -756,9 +761,9 @@ configuration file.</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>90</y>
-         <width>91</width>
-         <height>21</height>
+         <y>110</y>
+         <width>101</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -771,10 +776,10 @@ configuration file.</string>
       <widget class="QLineEdit" name="decoder61LineEdit">
        <property name="geometry">
         <rect>
-         <x>120</x>
-         <y>90</y>
-         <width>311</width>
-         <height>21</height>
+         <x>130</x>
+         <y>110</y>
+         <width>301</width>
+         <height>25</height>
         </rect>
        </property>
       </widget>
@@ -782,9 +787,9 @@ configuration file.</string>
        <property name="geometry">
         <rect>
          <x>440</x>
-         <y>90</y>
+         <y>110</y>
          <width>91</width>
-         <height>21</height>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -795,9 +800,9 @@ configuration file.</string>
        <property name="geometry">
         <rect>
          <x>440</x>
-         <y>120</y>
+         <y>150</y>
          <width>91</width>
-         <height>21</height>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -807,10 +812,10 @@ configuration file.</string>
       <widget class="QLineEdit" name="decoder71LineEdit">
        <property name="geometry">
         <rect>
-         <x>120</x>
-         <y>120</y>
-         <width>311</width>
-         <height>21</height>
+         <x>130</x>
+         <y>150</y>
+         <width>301</width>
+         <height>25</height>
         </rect>
        </property>
       </widget>
@@ -818,9 +823,9 @@ configuration file.</string>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>120</y>
-         <width>91</width>
-         <height>21</height>
+         <y>150</y>
+         <width>101</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -830,11 +835,50 @@ configuration file.</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
+      <widget class="QLabel" name="label_33">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>190</y>
+         <width>101</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>3D7.1 Surround:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="decoder3D71LineEdit">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>190</y>
+         <width>301</width>
+         <height>25</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="decoder3D71Button">
+       <property name="geometry">
+        <rect>
+         <x>440</x>
+         <y>190</y>
+         <width>91</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Browse...</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QCheckBox" name="decoderNFEffectsCheckBox">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>30</x>
         <y>80</y>
         <width>181</width>
         <height>21</height>
@@ -847,8 +891,7 @@ creates a more realistic perception of sound distance.
 Note that the effect may be stronger or weaker than
 intended if the application doesn't use or specify an
 appropriate unit scale, or if incorrect speaker distances
-are set in the decoder configuration file. Requires High
-Quality Mode to be enabled.</string>
+are set in the decoder configuration file.</string>
       </property>
       <property name="layoutDirection">
        <enum>Qt::RightToLeft</enum>
@@ -856,66 +899,69 @@ Quality Mode to be enabled.</string>
       <property name="text">
        <string>Near-Field Effects:</string>
       </property>
-      <property name="checked">
+      <property name="tristate">
        <bool>true</bool>
       </property>
      </widget>
      <widget class="QWidget" name="widget_3" native="true">
       <property name="geometry">
        <rect>
-        <x>-10</x>
+        <x>30</x>
         <y>110</y>
-        <width>281</width>
+        <width>471</width>
         <height>21</height>
        </rect>
       </property>
       <property name="toolTip">
-       <string>The reference delay value for ambisonic output. When
-Channels is set to one of the Ambisonic formats, this
-option enables NFC-HOA output with the specified
-Reference Delay parameter. The specified value can then
-be shared with an appropriate NFC-HOA decoder to
-reproduce correct near-field effects. Keep in mind that
-despite being designed for higher-order ambisonics, this
-applies to first-order output all the same. When left unset,
-normal output is created with no near-field simulation.</string>
+       <string>Specifies the speaker distance in meters, used by the near-field control
+filters with surround sound output. For ambisonic output modes, this value
+is the basis for the NFC-HOA Reference Delay parameter (calculated as
+delay_seconds = speaker_dist/343.3). This value is not used when a decoder
+configuration is set for the output mode (since they specify the per-speaker
+distances, overriding this setting), or when the NFC filters are off.</string>
       </property>
       <widget class="QLabel" name="label_27">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>45</x>
          <y>0</y>
-         <width>151</width>
+         <width>111</width>
          <height>21</height>
         </rect>
        </property>
        <property name="text">
-        <string>Near-Field Reference Delay:</string>
+        <string>Speaker Distance:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QDoubleSpinBox" name="decoderNFRefDelaySpinBox">
+      <widget class="QDoubleSpinBox" name="decoderSpeakerDistSpinBox">
        <property name="geometry">
         <rect>
-         <x>180</x>
+         <x>165</x>
          <y>0</y>
-         <width>91</width>
+         <width>101</width>
          <height>21</height>
         </rect>
        </property>
        <property name="suffix">
-        <string>sec</string>
+        <string> meters</string>
        </property>
        <property name="decimals">
-        <number>4</number>
+        <number>2</number>
+       </property>
+       <property name="minimum">
+        <double>0.100000000000000</double>
        </property>
        <property name="maximum">
-        <double>1000.000000000000000</double>
+        <double>10.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </widget>
@@ -999,8 +1045,7 @@ normal output is created with no near-field simulation.</string>
         </property>
         <property name="icon">
          <iconset theme="list-add">
-          <normaloff/>
-         </iconset>
+          <normaloff>.</normaloff>.</iconset>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -1040,67 +1085,18 @@ listed above.</string>
         </property>
         <property name="icon">
          <iconset theme="list-remove">
-          <normaloff/>
-         </iconset>
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_16">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>50</y>
-        <width>71</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>HRTF Mode:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="hrtfStateComboBox">
-      <property name="geometry">
-       <rect>
-        <x>130</x>
-        <y>50</y>
-        <width>161</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Forces HRTF processing on or off, or leaves it to the
-application or system to determine if it should be used.</string>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-      </property>
-      <item>
-       <property name="text">
-        <string>Application preference</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Force on</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Force off</string>
-       </property>
-      </item>
-     </widget>
      <widget class="QLabel" name="label_12">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>30</x>
         <y>20</y>
         <width>91</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -1116,12 +1112,83 @@ application or system to determine if it should be used.</string>
         <x>130</x>
         <y>20</y>
         <width>161</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="toolTip">
        <string>The default HRTF to use if the application doesn't request one.</string>
       </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_9">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>100</y>
+        <width>441</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>HRTF Render Method</string>
+      </property>
+      <widget class="QLabel" name="label_31">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>51</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Speed</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_32">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>30</y>
+         <width>51</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Quality</string>
+       </property>
+      </widget>
+      <widget class="QSlider" name="hrtfmodeSlider">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>30</y>
+         <width>251</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QLabel" name="hrtfmodeLabel">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>50</y>
+         <width>321</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Default</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="tab">
@@ -1143,6 +1210,16 @@ application or system to determine if it should be used.</string>
       <item>
        <property name="text">
         <string>General</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>PipeWire</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>WASAPI</string>
        </property>
       </item>
       <item>
@@ -1184,6 +1261,9 @@ application or system to determine if it should be used.</string>
         <width>421</width>
         <height>361</height>
        </rect>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QCheckBox" name="backendCheckBox">
@@ -1262,7 +1342,79 @@ duplicated names are ignored.</string>
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="page_1">
+       <widget class="QCheckBox" name="pwireAssumeAudioCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>10</y>
+          <width>161</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Assumes PipeWire has support for audio, allowing
+the backend to initialize even when no audio devices
+are reported.</string>
+        </property>
+        <property name="text">
+         <string>Assume audio support</string>
+        </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="pwireRtMixCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>161</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Renders samples directly in the real-time
+processing callback. This allows for lower
+latency and less overall CPU utilization, but
+can increase the risk of underruns when
+increasing the amount of processing the
+mixer needs to do.</string>
+        </property>
+        <property name="text">
+         <string>Real-time Mixing</string>
+        </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </widget>
       <widget class="QWidget" name="page_2">
+       <widget class="QCheckBox" name="wasapiResamplerCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>10</y>
+          <width>191</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Specifies whether to allow an extra resampler pass on the output. Enabling
+this will allow the playback device to be set to a different sample rate
+than the actual output can accept, causing the backend to apply its own
+resampling pass after OpenAL Soft mixes the sources and processes effects
+for output.</string>
+        </property>
+        <property name="text">
+         <string>Allow Resampler</string>
+        </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_8">
        <widget class="QCheckBox" name="pulseAutospawnCheckBox">
         <property name="geometry">
          <rect>
@@ -1279,7 +1431,7 @@ is not already running.</string>
         <property name="text">
          <string>AutoSpawn Server</string>
         </property>
-        <property name="checked">
+        <property name="tristate">
          <bool>true</bool>
         </property>
        </widget>
@@ -1301,6 +1453,9 @@ to match the new device.</string>
         <property name="text">
          <string>Allow Moving Streams</string>
         </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QCheckBox" name="pulseFixRateCheckBox">
         <property name="geometry">
@@ -1318,6 +1473,32 @@ rate to match the PulseAudio device.</string>
         <property name="text">
          <string>Fix Sample Rate</string>
         </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="pulseAdjLatencyCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>100</y>
+          <width>111</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Attempts to adjust the overall latency of device
+playback. Note that this may have adverse effects
+on the resulting internal buffer sizes and mixing
+updates, leading to performance problems and
+drop-outs.</string>
+        </property>
+        <property name="text">
+         <string>Adjust Latency</string>
+        </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="page_7">
@@ -1333,12 +1514,15 @@ rate to match the PulseAudio device.</string>
         <property name="text">
          <string>AutoSpawn Server</string>
         </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QGroupBox" name="groupBox_7">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>40</y>
+          <y>110</y>
           <width>401</width>
           <height>80</height>
          </rect>
@@ -1346,7 +1530,8 @@ rate to match the PulseAudio device.</string>
         <property name="toolTip">
          <string>The update buffer size, in samples, that the backend
 will keep buffered to handle the server's real-time
-processing requests. Must be a power of 2.</string>
+processing requests. Must be a power of 2. Ignored
+when Real-time Mixing is used.</string>
         </property>
         <property name="title">
          <string>Buffer Size</string>
@@ -1395,6 +1580,46 @@ processing requests. Must be a power of 2.</string>
           <number>1</number>
          </property>
         </widget>
+       </widget>
+       <widget class="QCheckBox" name="jackConnectPortsCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>141</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>AutoConnect Ports</string>
+        </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="jackRtMixCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>70</y>
+          <width>141</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Renders samples directly in the real-time
+processing callback. This allows for lower
+latency and less overall CPU utilization, but
+can increase the risk of underruns when
+increasing the amount of processing the
+mixer needs to do.</string>
+        </property>
+        <property name="text">
+         <string>Real-time Mixing</string>
+        </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="page_3">
@@ -1474,6 +1699,9 @@ resample pass on top of OpenAL's resampler.</string>
         <property name="text">
          <string>Allow Resampler</string>
         </property>
+        <property name="tristate">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QCheckBox" name="alsaMmapCheckBox">
         <property name="geometry">
@@ -1492,7 +1720,7 @@ during updates.</string>
         <property name="text">
          <string>MMap Buffer</string>
         </property>
-        <property name="checked">
+        <property name="tristate">
          <bool>true</bool>
         </property>
        </widget>
@@ -1931,7 +2159,7 @@ be useful for preventing those extensions from being used.</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>100</y>
+        <y>60</y>
         <width>511</width>
         <height>241</height>
        </rect>
@@ -2156,6 +2384,22 @@ added by the ALC_EXT_DEDICATED extension.</string>
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QCheckBox" name="enableVocalMorpherCheck">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>210</y>
+         <width>131</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Vocal morpher</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
      <widget class="QLabel" name="label_13">
       <property name="geometry">
@@ -2163,7 +2407,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
         <x>10</x>
         <y>20</y>
         <width>141</width>
-        <height>21</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -2178,8 +2422,8 @@ added by the ALC_EXT_DEDICATED extension.</string>
        <rect>
         <x>160</x>
         <y>20</y>
-        <width>108</width>
-        <height>20</height>
+        <width>135</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="sizeAdjustPolicy">
@@ -2321,6 +2565,22 @@ added by the ALC_EXT_DEDICATED extension.</string>
        </property>
       </item>
      </widget>
+     <widget class="QCheckBox" name="enableEaxCheck">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>320</y>
+        <width>231</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Enables legacy EAX API support.</string>
+      </property>
+      <property name="text">
+       <string>Enable EAX API support</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="closeCancelButton">
@@ -2329,7 +2589,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
       <x>370</x>
       <y>405</y>
       <width>91</width>
-      <height>21</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -2337,8 +2597,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
     </property>
     <property name="icon">
      <iconset theme="window-close">
-      <normaloff/>
-     </iconset>
+      <normaloff>.</normaloff>.</iconset>
     </property>
    </widget>
   </widget>
@@ -2348,7 +2607,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
      <x>0</x>
      <y>0</y>
      <width>564</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2372,8 +2631,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
   <action name="actionQuit">
    <property name="icon">
     <iconset theme="application-exit">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -2382,8 +2640,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
   <action name="actionSave_As">
    <property name="icon">
     <iconset theme="document-save-as">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save &amp;As...</string>
@@ -2395,8 +2652,7 @@ added by the ALC_EXT_DEDICATED extension.</string>
   <action name="actionLoad">
    <property name="icon">
     <iconset theme="document-open">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Load...</string>
@@ -2414,22 +2670,6 @@ added by the ALC_EXT_DEDICATED extension.</string>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections>
-  <connection>
-   <sender>actionQuit</sender>
-   <signal>activated()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>267</x>
-     <y>181</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>backendListWidget</sender>
    <signal>currentRowChanged(int)</signal>
