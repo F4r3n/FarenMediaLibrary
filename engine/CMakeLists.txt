@@ -35,8 +35,9 @@ link_directories(${FML_EXTLIB_LIB}/glew)
 include_directories(${FML_EXTLIB}/glew/include)
 
 #SDL3
-include_directories(${FML_EXTLIB}/SDL3/include)
-link_directories(${FML_EXTLIB_LIB}/SDL3/lib)
+FETCHCONTENT_GETPROPERTIES(SDL)
+include_directories(${sdl_SOURCE_DIR}/include)
+link_directories(${sdl_BINARY_DIR})
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -48,8 +49,9 @@ include_directories(${FML_EXTLIB}/stb)
 include_directories(${FML_EXTLIB}/json/include)
 
 #ECS
-include_directories(${FML_EXTLIB}/ECS/lib/include)
-link_directories(${FML_EXTLIB_LIB}/ECS/lib)
+FETCHCONTENT_GETPROPERTIES(ECS)
+include_directories(${ecs_SOURCE_DIR}/lib/include) 
+link_directories(${ecs_BINARY_DIR}/lib)
 
 
 #FML

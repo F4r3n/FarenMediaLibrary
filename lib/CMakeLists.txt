@@ -36,9 +36,10 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
-#SDL2
-include_directories(${FML_EXTLIB}/SDL3/include)
-link_directories(${FML_EXTLIB_LIB}/SDL3)
+#SDL3
+FETCHCONTENT_GETPROPERTIES(SDL)
+include_directories(${sdl_SOURCE_DIR}/include)
+link_directories(${sdl_BINARY_DIR})
 
 #sol2
 include_directories(${FML_EXTLIB}/sol2)
@@ -50,8 +51,9 @@ include_directories(${FML_EXTLIB}/stb)
 include_directories(${FML_EXTLIB}/json/include)
 
 #ECS
-include_directories(${FML_EXTLIB}/ECS/lib/include)
-link_directories(${FML_EXTLIB_LIB}/ECS)
+FETCHCONTENT_GETPROPERTIES(ECS)
+include_directories(${ecs_SOURCE_DIR}/lib/include) 
+link_directories(${ecs_BINARY_DIR}/lib)
 
 #FREETYPE
 include_directories(${FML_EXTLIB}/freetype2/include)
