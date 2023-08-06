@@ -64,8 +64,10 @@ include_directories(${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
 
 #Assimp
-include_directories(${FML_EXTLIB}/assimp/include)
-link_directories(${FML_EXTLIB_LIB}/assimp/code/)
+FETCHCONTENT_GETPROPERTIES(ASSIMP)
+include_directories(${assimp_SOURCE_DIR}/include) 
+link_directories(${assimp_BINARY_DIR}/code)
+
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 

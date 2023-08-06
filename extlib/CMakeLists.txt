@@ -21,6 +21,16 @@ set(ASSIMP_NO_EXPORT ON)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
+set(BUILD_SHARED_LIBS OFF)
+FetchContent_Declare(
+  ASSIMP
+  GIT_REPOSITORY https://github.com/assimp/assimp.git
+  GIT_TAG        9519a62dd20799c5493c638d1ef5a6f484e5faf1
+)
+FETCHCONTENT_MAKEAVAILABLE(ASSIMP)
+
+
+
 set(EXTLIB_CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/extlib)
 
 #SDL
@@ -45,6 +55,13 @@ set(ALSOFT_HRTF_DEFS OFF)
 set(ALSOFT_AMBDEC_PRESETS OFF)
 set(ALSOFT_EMBED_HRTF_DATA OFF)
 
+FetchContent_Declare(
+  OPENAL
+  GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+  GIT_TAG        4a9e8f6ef5f58e66e7b1142db6ed909eab090b02
+)
+FETCHCONTENT_MAKEAVAILABLE(OPENAL)
+
 #Bullet
 set(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
 
@@ -52,18 +69,12 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
 set(SKIP_INSTALL_ALL ON)
 set(FREETYPE_NO_DIST ON)
 
-foreach(TARGET freetype2 lua assimp openal glew bullet3)
+foreach(TARGET freetype2 lua glew bullet3)
 
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${EXTLIB_CMAKE_BINARY_DIR}/${TARGET}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${EXTLIB_CMAKE_BINARY_DIR}/${TARGET}/lib)
 
 message(${TARGET})
-#Assimp is too big with a Static lib
-	if(${TARGET} STREQUAL "assimp")
-	set(BUILD_SHARED_LIBS ON)
-	endif()
 	add_subdirectory(${TARGET})
-    set(BUILD_SHARED_LIBS OFF)
-
 endforeach()
 
