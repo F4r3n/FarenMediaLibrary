@@ -27,8 +27,9 @@ link_directories(${FML_EXTLIB_LIB}/bullet3)
 find_package(OpenGL)
 
 #OpenAL
-include_directories(${FML_EXTLIB}/openal/include)
-link_directories(${FML_EXTLIB_LIB}/openal/lib)
+FETCHCONTENT_GETPROPERTIES(OPENAL)
+include_directories(${openal_SOURCE_DIR}/lib/include)
+link_directories(${openal_BINARY_DIR}/lib)
 
 
 #GLEW
