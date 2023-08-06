@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies (Linux)
-        run: sudo apt-get install ninja-build mesa-utils
+        run: sudo apt-get update && sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
         if: matrix.os == 'ubuntu-latest'
       - name: configure
         run: cmake . -B build -DCMAKE_BUILD_TYPE=Release
