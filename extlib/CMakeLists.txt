@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
   ECS
   GIT_REPOSITORY https://github.com/F4r3n/ECS.git
-  GIT_TAG        fba03d3fb1fb583953fd30f6c61c523de6f345b8
+  GIT_TAG        ebe5fc753d3e4edc4a8c13580edf86c408f2eab0
 )
 FETCHCONTENT_MAKEAVAILABLE(ECS)
 

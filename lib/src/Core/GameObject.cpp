@@ -36,11 +36,51 @@ void GameObject::Serialize(nlohmann::json &outResult) const
 	nlohmann::json compo;
     for(auto &&c : compos)
     {
+		
 		nlohmann::json j;
-        if(c->Serialize(j))
-        {
+		bool ok = true;
+		switch (c->GetType())
+		{
+		case fmc::ComponentType::kTransform:
+			dynamic_cast<fmc::FMComponent<fmc::CTransform>*>(c)->Serialize(j);
+			break;
+		case fmc::ComponentType::kMaterial:
+			dynamic_cast<fmc::FMComponent<fmc::CMaterial>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::KMesh:
+			dynamic_cast<fmc::FMComponent<fmc::CMesh>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kBody:
+			dynamic_cast<fmc::FMComponent<fmc::CBody>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kCollider:
+			dynamic_cast<fmc::FMComponent<fmc::CCollider>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kCamera:
+			dynamic_cast<fmc::FMComponent<fmc::CCamera>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kScriptManager:
+			dynamic_cast<fmc::FMComponent<fmc::CScriptManager>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kIdentity:
+			dynamic_cast<fmc::FMComponent<fmc::CIdentity>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kText:
+			dynamic_cast<fmc::FMComponent<fmc::CText>*>(c)->Serialize(j);
+				break;
+		case fmc::ComponentType::kPointLight:
+			dynamic_cast<fmc::FMComponent<fmc::CPointLight>*>(c)->Serialize(j);
+				break;
+		default:
+			ok = false;
+			assert(false);
+		}
+
+		if (ok)
+		{
 			compo[std::to_string(c->GetType())] = j;
-        }
+		}
+        
     }
 	outResult["enabled"] = _active;
 	outResult["components"] = compo;
