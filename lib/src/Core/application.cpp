@@ -137,8 +137,10 @@ void Application::DeInit()
 void Application::LoadProject(const fm::Folder& inPath)
 {
 	_currentConfig.userDirectory = inPath;
-	Read();
-	_sceneManager->GetCurrentScene()->Load();
+	if (Read())
+	{
+		_sceneManager->GetCurrentScene()->Load();
+	}
 }
 
 

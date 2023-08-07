@@ -15,6 +15,7 @@ file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
 set(FML_PATH ${CMAKE_SOURCE_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
+set(FML_LIB_PATH ${CMAKE_BINARY_DIR})
 
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
@@ -80,4 +81,8 @@ add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/Resources ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resources)
 
-
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${FML_LIB_PATH}/lib/
+                ${CMAKE_CURRENT_BINARY_DIR}/)

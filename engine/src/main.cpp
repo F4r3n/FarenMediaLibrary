@@ -12,18 +12,18 @@ int main()
 	config.height = 0;
 	config.standAlone = true;
 	config.windowFlag = SDL_WINDOW_OPENGL;
-
-	fm::Application::Get().SetConfig(config);
-	fm::Application::Get().Init();
-	fm::Application::Get().LoadProject(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY));
-	fm::Application::Get().Start();
-	fm::Window *window = fm::Application::Get().GetWindow();
+	fm::Application& app = fm::Application::Get();
+	app.SetConfig(config);
+	app.Init();
+	app.LoadProject(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY));
+	app.Start();
+	fm::Window *window = app.GetWindow();
 
 
 	while (!window->isClosed())
 	{
 		fm::InputManager::Get().PollEvents();
-		fm::Application::Get().Update(true);
+		app.Update(true);
 
 		window->swapBuffers();
 	}
