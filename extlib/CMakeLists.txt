@@ -2,6 +2,8 @@
 set(BUILD_SHARED_LIBS OFF)
 
 include(FetchContent)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 #ECS
 FetchContent_Declare(
   ECS
@@ -37,7 +39,7 @@ set(EXTLIB_CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/extlib)
 set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 set(SDL_SHARED ON)
 set(SDL_STATIC OFF)
-
+set(SDL_TEST_LIBRARY OFF)
 FetchContent_Declare(
   SDL
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
@@ -73,7 +75,6 @@ set(BUILD_OPENGL3_DEMOS OFF)
 set(BUILD_ENET OFF)
 set(BUILD_CLSOCKET OFF)
 set(BUILD_OPENGL3_DEMOS OFF)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 FetchContent_Declare(
   BULLET
   GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
