@@ -3,7 +3,14 @@
 
 #include "NonCopyable.h"
 #include <string>
+#include "Rendering/Vulkan/Vulkan.h"
 struct SDL_Window;
+
+enum GRAPHIC_API
+{
+	OPENGL,
+	VULKAN
+};
 
 
 namespace fm {
@@ -11,7 +18,7 @@ class Window   {
     friend class InputManager;
 
 public:
-    Window(size_t width, size_t height, size_t inWindowFlag);
+    Window(size_t width, size_t height, GRAPHIC_API inAPIFlag, size_t inWindowFlag);
     ~Window();
 	Window() = delete;
     void swapBuffers() const;
@@ -36,6 +43,8 @@ private:
     int  _Init();
     void _ErrorDisplay();
 
+	void _OpenGL_SetProfile();
+
 private:
 	bool		_isInit;
 
@@ -47,6 +56,9 @@ private:
 	double		_currFrameTime;
     double		_frameStart;
 	size_t		_windowFlag;
+	GRAPHIC_API	_api = GRAPHIC_API::OPENGL;
 	int			_msaa;
+
+	Vulkan		_vulkan;
 };
 }

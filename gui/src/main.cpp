@@ -21,7 +21,7 @@ int main()
 	config.fpsWanted = 60;
 	config.width = 1280;
 	config.height = 720;
-	config.windowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+	config.windowFlag = SDL_WINDOW_RESIZABLE;
 
 	fm::Application::Get().SetConfig(config);
 	fm::Application::Get().Init();

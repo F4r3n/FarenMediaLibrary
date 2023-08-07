@@ -38,6 +38,10 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
+#Vulkan
+find_package(Vulkan REQUIRED FATAL_ERROR)
+include_directories(${VULKAN_INCLUDE_DIR}) 
+
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
 include_directories(${sdl_SOURCE_DIR}/include)
@@ -86,6 +90,7 @@ target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
 target_link_libraries(${LIB_NAME} OpenAL)
 target_link_libraries(${LIB_NAME} assimp)
 target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
+target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 
 if(CMAKE_COMPILER_IS_GNUCXX)

@@ -6,6 +6,7 @@
 #include <memory>
 #include "Core/Observer.h"
 #include "nlohmann/json_fwd.hpp"
+#include "Window.h"
 namespace fm
 {
 class Window;
@@ -19,12 +20,14 @@ namespace fm
 	struct Config
 	{
 		std::string name = "Empty";
-		size_t width = 800;
-		size_t height = 600;
-		size_t fpsWanted = 60;
-		bool	standAlone = false;
-		size_t windowFlag;
-		fm::Folder userDirectory;
+		size_t		width = 800;
+		size_t		height = 600;
+		size_t		fpsWanted = 60;
+		bool		standAlone = false;
+		GRAPHIC_API graphicAPI = GRAPHIC_API::VULKAN;
+		size_t		windowFlag = 0;
+
+		fm::Folder	userDirectory;
 	};
 
 	struct ProjectSettings

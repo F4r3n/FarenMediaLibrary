@@ -11,6 +11,9 @@
 #include <iostream>
 #include "Core/Debug.h"
 #include <string>
+#include <vulkan/vulkan.h>
+#include <SDL3/SDL_vulkan.h>
+#include <optional>
 
 using namespace fm;
 size_t Window::kWidth = 0;
@@ -20,7 +23,7 @@ int Window::kX = 0;
 int Window::kY = 0;
 
 
-Window::Window(size_t width, size_t height, size_t inWindowFlag)
+Window::Window(size_t width, size_t height, GRAPHIC_API inAPI, size_t inWindowFlag)
 :_isInit(false),
 _window(nullptr),
 _mainContext(nullptr),
@@ -29,11 +32,33 @@ _waitTime(1.0f/_fpsMax),
 _currFrameTime(0),
 _frameStart(0),
 _msaa(0),
+_api(inAPI),
 _windowFlag(inWindowFlag)
 {
     Window::kWidth = width;
     Window::kHeight = height;
+	if (inAPI == GRAPHIC_API::OPENGL)
+	{
+		_windowFlag |= SDL_WINDOW_OPENGL;
+	}
+	else if (inAPI == GRAPHIC_API::VULKAN)
+	{
+		_windowFlag |= SDL_WINDOW_VULKAN;
+	}
+}
 
+
+
+void Window::_OpenGL_SetProfile()
+{
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 }
 
 
@@ -44,15 +69,7 @@ bool Window::Init()
         return false;
     }
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-		SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	SDL_DisplayID id = SDL_GetPrimaryDisplay();
 
@@ -88,6 +105,15 @@ bool Window::Init()
 							  (int)Window::kWidth,
                               (int)Window::kHeight,
                               (Uint32)_windowFlag);
+
+	if (_api == GRAPHIC_API::OPENGL)
+	{
+		_OpenGL_SetProfile();
+	}
+	else
+	{
+		_vulkan.Init(_window);
+	}
 
 	SDL_SetWindowPosition(_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
@@ -191,7 +217,14 @@ bool Window::isClosed()
 Window::~Window() 
 {
     if(_isInit) {
-        SDL_GL_DeleteContext(_mainContext);
+		if (_api == GRAPHIC_API::OPENGL)
+		{
+			SDL_GL_DeleteContext(_mainContext);
+		}
+		else if (_api == GRAPHIC_API::VULKAN)
+		{
+			_vulkan.DeInit();
+		}
 
         // Destroy our window
         SDL_DestroyWindow(_window);

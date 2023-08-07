@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
+
 int main()
 {
 
@@ -11,7 +12,7 @@ int main()
 	config.width = 0;
 	config.height = 0;
 	config.standAlone = true;
-	config.windowFlag = SDL_WINDOW_OPENGL;
+	config.graphicAPI = GRAPHIC_API::VULKAN;
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);
 	app.Init();

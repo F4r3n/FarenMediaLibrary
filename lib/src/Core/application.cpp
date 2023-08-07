@@ -106,7 +106,7 @@ fm::Engine* Application::GetEngine() const
 void Application::Init()
 {
     _engine = new fm::Engine();
-    _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.windowFlag);
+    _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.graphicAPI, _currentConfig.windowFlag);
     _window->Init();
 
 	_window->setName(_currentConfig.name);

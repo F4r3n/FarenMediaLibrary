@@ -37,6 +37,10 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 link_directories(${FML_EXTLIB_LIB}/glew)
 include_directories(${FML_EXTLIB}/glew/include)
 
+#Vulkan
+find_package(Vulkan REQUIRED FATAL_ERROR)
+include_directories(${VULKAN_INCLUDE_DIR})
+
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
 include_directories(${sdl_SOURCE_DIR}/include)
@@ -71,7 +75,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} SDL3-shared)
 target_link_libraries(${PROJECT_NAME} glew_s)
-target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES} OpenAL)
+target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES} OpenAL Vulkan::Vulkan)
 
 if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")
