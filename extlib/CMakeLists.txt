@@ -73,6 +73,7 @@ set(BUILD_OPENGL3_DEMOS OFF)
 set(BUILD_ENET OFF)
 set(BUILD_CLSOCKET OFF)
 set(BUILD_OPENGL3_DEMOS OFF)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 FetchContent_Declare(
   BULLET
   GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
