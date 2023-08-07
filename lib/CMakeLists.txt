@@ -20,8 +20,9 @@ file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
 
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
-include_directories(${FML_EXTLIB}/bullet3/src)
-link_directories(${FML_EXTLIB_LIB}/bullet3)
+FETCHCONTENT_GETPROPERTIES(BULLET)
+include_directories(${bullet_SOURCE_DIR}/src)
+link_directories(${bullet_BINARY_DIR})
 
 #Opengl
 find_package(OpenGL)

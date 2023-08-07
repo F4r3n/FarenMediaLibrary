@@ -57,8 +57,9 @@ set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
-link_directories(${FML_EXTLIB_LIB}/bullet3)
-include_directories(${FML_EXTLIB}/bullet3/src)
+FETCHCONTENT_GETPROPERTIES(BULLET)
+include_directories(${bullet_SOURCE_DIR}/src)
+link_directories(${bullet_BINARY_DIR})
 
 #Opengl
 find_package(OpenGL)
