@@ -31,6 +31,7 @@
 #include "Rendering/VertexBuffer.hpp"
 #include "Rendering/Model.hpp"
 #include "Engine.h"
+#include "Rendering/OpenGL/OGLShader.h"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -390,7 +391,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		shader->setValue("FM_M", modelPosition);
 
 		cam->_rendererConfiguration.uboLight->Bind();
-		shader->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
+		dynamic_cast<fm::OGLShader*>(shader)->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
 
 		for (auto const& value : inMaterial->getValues())
 		{

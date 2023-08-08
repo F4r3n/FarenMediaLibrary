@@ -6,6 +6,7 @@
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/Shader.h"
 #include <Core/Debug.h>
+#include "Rendering/OpenGL/OGLShader.h"
 using namespace fmc;
 using namespace fm;
 
@@ -290,7 +291,8 @@ void CCamera::InitUniformBuffer()
 						_rendererConfiguration.bindingPointIndex,
 						_rendererConfiguration.generatedBlockBinding);
 
-		s->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
+		OGLShader* glshader = dynamic_cast<OGLShader*>(s);
+		glshader->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
 	}
 }
 

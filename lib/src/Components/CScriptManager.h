@@ -14,7 +14,7 @@ class LuaScriptManager;
 class LuaScript;
 }
 class Entity;
-struct GameObjectLua;
+class GameObjectLua;
 
 namespace fmc {
 	typedef std::vector<std::shared_ptr<fm::LuaScript> > LuaScripts;

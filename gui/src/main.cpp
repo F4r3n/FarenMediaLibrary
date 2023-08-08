@@ -22,7 +22,7 @@ int main()
 	config.width = 1280;
 	config.height = 720;
 	config.windowFlag = SDL_WINDOW_RESIZABLE;
-
+	config.graphicAPI = GRAPHIC_API::OPENGL;
 	fm::Application::Get().SetConfig(config);
 	fm::Application::Get().Init();
 

@@ -3,6 +3,7 @@
 #include <functional>
 #include "Resource/FileSystem.h"
 #include <filesystem>
+#include <optional>
 namespace fm
 {
 	class FilePath
@@ -57,6 +58,7 @@ namespace fm
 		std::string GetContent() const;
 		File CreateUniqueFile();
 		std::filesystem::file_time_type GetTimeStamp() const;
+		std::optional<std::vector<char>> GetBinaryContent() const;
 	private:
 		fm::FilePath _path;
 	};

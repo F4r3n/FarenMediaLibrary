@@ -39,8 +39,8 @@ include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
 #Vulkan
-find_package(Vulkan REQUIRED FATAL_ERROR)
-include_directories(${VULKAN_INCLUDE_DIR}) 
+find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
+include_directories(${Vulkan_INCLUDE_DIRS})
 
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
@@ -92,6 +92,7 @@ target_link_libraries(${LIB_NAME} assimp)
 target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
 target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
+target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 	target_link_libraries(${LIB_NAME} gcc_s stdc++)

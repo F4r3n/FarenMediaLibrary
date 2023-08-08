@@ -1,5 +1,6 @@
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/Shader.h"
+#include "Rendering/OpenGL/OGLShader.h"
 #include <Core/Debug.h>
 using namespace fm;
 
@@ -34,7 +35,7 @@ void UniformBuffer::SetData(void *data, size_t size) const
 
 void UniformBuffer::LinkWithShader(Shader *shader, int index, const std::string &name) const
 {
-    shader->SetUniformBuffer(name, _bindingPoint);
+    dynamic_cast<OGLShader*>(shader)->SetUniformBuffer(name, _bindingPoint);
 }
 
 void UniformBuffer::Free()

@@ -16,6 +16,7 @@
 #elif __linux__
 #include <cstdlib>
 #endif
+#include "Rendering/OpenGL/OGLShader.h"
 
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
@@ -153,7 +154,7 @@ void ResourcesManager::_LoadInternalShaders()
 			if (inFolder->GetPath().GetExtension() == ".shader")
 			{
 				const std::string name = inFolder->GetPath().GetName(true);
-				Shader* shader = new Shader(inFolder->GetPath(), name);
+				Shader* shader = new OGLShader(inFolder->GetPath(), name);
 				shader->compile();
 				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}

@@ -231,7 +231,7 @@ bool LuaScript::Read(const nlohmann::json &inJSON)
 			_valuesToInit[it.key()] = it.value();
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 
 	}
