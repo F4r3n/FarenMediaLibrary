@@ -54,6 +54,10 @@ namespace fms
 RenderingSystem::RenderingSystem(int width, int height)
     : _width(width), _height(height)
 {
+	fm::ResourcesManager::get().LoadShaders(GRAPHIC_API::OPENGL);
+	fm::ResourcesManager::get().LoadFonts();
+	fm::ResourcesManager::get().LoadMaterials();
+
     _finalShader = fm::ResourcesManager::get().getResource<fm::Shader>("simple");
     _lightShader = fm::ResourcesManager::get().getResource<fm::Shader>("light");
 

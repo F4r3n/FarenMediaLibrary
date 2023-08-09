@@ -63,7 +63,7 @@ public:
 	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 	bool _HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 
-	~RenderingSystem();
+	virtual ~RenderingSystem();
 
 private:
 	fm::Shader *_finalShader;

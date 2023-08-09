@@ -58,7 +58,7 @@ int main()
 		
 		fm::Application::Get().Update(true);
 
-		const bool hasFocus = (SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
+		const bool hasFocus = ((SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS);
 
 		if (isMainWindowInitialized)
 		{

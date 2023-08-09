@@ -3,14 +3,8 @@
 
 #include "NonCopyable.h"
 #include <string>
-#include "Rendering/Vulkan/Vulkan.h"
+#include "Rendering/GraphicsAPI.h"
 struct SDL_Window;
-
-enum GRAPHIC_API
-{
-	OPENGL,
-	VULKAN
-};
 
 
 namespace fm {
@@ -59,6 +53,6 @@ private:
 	GRAPHIC_API	_api = GRAPHIC_API::OPENGL;
 	int			_msaa;
 
-	Vulkan		_vulkan;
+	
 };
 }

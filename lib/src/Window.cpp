@@ -11,8 +11,6 @@
 #include <iostream>
 #include "Core/Debug.h"
 #include <string>
-#include <vulkan/vulkan.h>
-#include <SDL3/SDL_vulkan.h>
 #include <optional>
 
 using namespace fm;
@@ -112,7 +110,7 @@ bool Window::Init()
 	}
 	else
 	{
-		_vulkan.Init(_window);
+		//_vulkan.Init(_window);
 	}
 
 	SDL_SetWindowPosition(_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -221,10 +219,7 @@ Window::~Window()
 		{
 			SDL_GL_DeleteContext(_mainContext);
 		}
-		else if (_api == GRAPHIC_API::VULKAN)
-		{
-			_vulkan.DeInit();
-		}
+
 
         // Destroy our window
         SDL_DestroyWindow(_window);

@@ -4,6 +4,7 @@
 #include <memory>
 #include "SystemManager.h"
 #include "Entity.h"
+#include "Rendering/GraphicsAPI.h"
 namespace fm {
     class GameObject;
 	class Window;
@@ -19,7 +20,7 @@ public:
     ~Engine();
    
     void Update(float dt);
-    void Init();
+    void Init(GRAPHIC_API inAPI, fm::Window& window);
     void Start();
     void Run(fm::Window &window);
     

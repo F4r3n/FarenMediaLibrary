@@ -98,24 +98,17 @@ fm::Window* Application::GetWindow() const
 {
     return _window;
 }
-fm::Engine* Application::GetEngine() const
-{
-    return _engine;
-}
+
 
 void Application::Init()
 {
-    _engine = new fm::Engine();
+    _engine = std::make_unique<fm::Engine>();
     _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.graphicAPI, _currentConfig.windowFlag);
     _window->Init();
 
 	_window->setName(_currentConfig.name);
 
-	fm::ResourcesManager::get().LoadShaders();
-	fm::ResourcesManager::get().LoadFonts();
-	fm::ResourcesManager::get().LoadMaterials();
-
-    _engine->Init();
+    _engine->Init(_currentConfig.graphicAPI, *_window);
 }
 
 
@@ -128,7 +121,7 @@ void Application::Update(bool withEditor)
 
 void Application::DeInit()
 {
-    delete _engine;
+	_engine.reset();
 	delete _window;
 }
 

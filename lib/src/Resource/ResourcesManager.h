@@ -6,6 +6,7 @@
 #include "NonCopyable.h"
 #include "Core/FilePath.h"
 #include "Resource/FileSystem.h"
+#include "Rendering/GraphicsAPI.h"
 namespace fm {
   
 class ResourcesManager : protected fm_system::NonCopyable 
@@ -48,7 +49,7 @@ public:
 	static FilePath GetFilePathResource(LOCATION inLocation);
 
 
-	bool LoadShaders();
+	bool LoadShaders(GRAPHIC_API inAPI);
 	bool LoadMaterials();
 	bool LoadFonts();
 
@@ -58,7 +59,7 @@ public:
     }
 
 private:
-	void _LoadInternalShaders();
+	void _LoadInternalShaders(GRAPHIC_API inAPI);
 	void _LoadInternalMaterials();
 
 	ArrayOfResources resources;

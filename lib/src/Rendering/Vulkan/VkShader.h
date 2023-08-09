@@ -12,13 +12,15 @@ public:
 
 	VkShader(const fm::FilePath& inFilePath, const std::string& name);
 
-	virtual bool compile() { return false; }
-	virtual ~VkShader();
+	virtual bool compile();
+	~VkShader();
+
+	bool Make(VkDevice inDevice);
+
 protected:
-	virtual bool _Load();
 
 
 private:
-	VkShaderModule _CreateShaderModule(const std::vector<char>& code) const;
+	VkShaderModule _CreateShaderModule(const std::vector<char>& code, VkDevice inDevice) const;
 };
 }

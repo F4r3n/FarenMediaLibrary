@@ -12,13 +12,18 @@ VkShader::VkShader(const fm::FilePath& inFilePath, const std::string& name) : Sh
 
 }
 
-
-bool VkShader::compile()
+VkShader::~VkShader()
 {
 
 }
 
-VkShaderModule VkShader::_CreateShaderModule(const std::vector<char>& code) const
+
+bool VkShader::compile()
+{
+	return false;
+}
+
+VkShaderModule VkShader::_CreateShaderModule(const std::vector<char>& code, VkDevice inDevice) const
 {
 	VkShaderModuleCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -26,14 +31,14 @@ VkShaderModule VkShader::_CreateShaderModule(const std::vector<char>& code) cons
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+	if (vkCreateShaderModule(inDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create shader module!");
 	}
 }
 
 
 
-bool VkShader::_Load()
+bool VkShader::Make(VkDevice inDevice)
 {
 	File frag(Folder(_path.ToSubFolder("SPIR-V")), "frag.spv");
 	File vert(Folder(_path.ToSubFolder("SPIR-V")), "vert.spv");

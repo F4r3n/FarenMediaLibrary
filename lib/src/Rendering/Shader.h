@@ -24,7 +24,7 @@ public:
     Shader(const fm::FilePath& inFilePath, const std::string &name);
     
 	virtual bool compile() { return false; }
-    ~Shader();
+    virtual ~Shader();
     bool IsReady() const{return _isReady;}
     static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
     const std::string& GetName() const{return _name;}

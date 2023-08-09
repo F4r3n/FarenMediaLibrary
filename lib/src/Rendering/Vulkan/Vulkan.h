@@ -15,6 +15,7 @@ class Vulkan
 public:
 	bool Init(SDL_Window* inWindow);
 	bool DeInit();
+	VkDevice	GetDevice() const { return _device; }
 
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
@@ -35,7 +36,6 @@ private:
 
 	//Setup imageview
 	bool _SetupImageViews(VkDevice inDevice);
-
 
 private:
 	VkDebugUtilsMessengerEXT _debugMessenger;

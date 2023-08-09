@@ -1,18 +1,20 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
-#include "Core/FilePath.h"
 #include <vector>
 #include <string>
 #include <memory>
 #include "Core/Observer.h"
 #include "nlohmann/json_fwd.hpp"
-#include "Window.h"
+#include "Rendering/GraphicsAPI.h"
+#include <memory>
+#include "Core/FilePath.h"
 namespace fm
 {
 class Window;
 class Engine;
 class Scene;
 class SceneManager;
+class FilePath;
 }
 
 namespace fm
@@ -113,7 +115,6 @@ class Application
         void						Update(bool withEditor);
 
         fm::Window*					GetWindow() const;
-        fm::Engine*					GetEngine() const;
 
 		const fm::Folder&			GetUserDirectory() const;
 
@@ -138,7 +139,7 @@ class Application
 
 private:
 
-        fm::Engine*							_engine;
+        std::unique_ptr<fm::Engine>			_engine;
         fm::Window*							_window;
         fm::Config							_currentConfig;
 		std::string							_nameLastScene;

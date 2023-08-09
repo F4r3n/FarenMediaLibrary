@@ -20,6 +20,7 @@
 #include <emscripten.h>
 #endif
 #include "Components/CIdentity.h"
+#include "Rendering/Vulkan/VkRenderingSystem.h"
 using namespace fm;
 
 class GarbageCollector
@@ -58,13 +59,21 @@ SYSTEM_MANAGER_MODE Engine::GetStatus() const
 	return _systems->GetStatus(); 
 }
 
-void Engine::Init()
+
+void Engine::Init(GRAPHIC_API inAPI, fm::Window& window)
 {
     _systems->addSystem(new fms::SoundSystem());
 	_systems->addSystem(new fms::PhysicSystem());
 
     _systems->addSystem(new fms::ScriptManagerSystem());
-    _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
+	if (inAPI == GRAPHIC_API::OPENGL)
+	{
+		_systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
+	}
+	else if (inAPI == GRAPHIC_API::VULKAN)
+	{
+		_systems->addSystem(new fms::VkRenderingSystem(window));
+	}
 
     _systems->init(EntityManager::get(), EventManager::Get());
 }

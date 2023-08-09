@@ -55,12 +55,6 @@ include_directories(${FML_EXTLIB}/stb)
 #JSON
 include_directories(${FML_EXTLIB}/json/include)
 
-#ECS
-FETCHCONTENT_GETPROPERTIES(ECS)
-include_directories(${ecs_SOURCE_DIR}/lib/include) 
-link_directories(${ecs_BINARY_DIR}/lib)
-
-
 #FML
 include_directories(${FML_PATH}/lib/src)
 link_directories(${FML_PATH}/build/lib)
@@ -75,7 +69,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} SDL3-shared)
 target_link_libraries(${PROJECT_NAME} glew_s)
-target_link_libraries(${PROJECT_NAME} ECS lua ${BULLET_LIBRARIES} OpenAL Vulkan::Vulkan Vulkan::shaderc_combined)
+target_link_libraries(${PROJECT_NAME} lua ${BULLET_LIBRARIES} OpenAL Vulkan::Vulkan Vulkan::shaderc_combined)
 
 if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")

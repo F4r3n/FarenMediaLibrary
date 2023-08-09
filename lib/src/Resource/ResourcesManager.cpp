@@ -17,6 +17,7 @@
 #include <cstdlib>
 #endif
 #include "Rendering/OpenGL/OGLShader.h"
+#include "Rendering/Vulkan/VkShader.h"
 
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
@@ -142,20 +143,26 @@ void ResourcesManager::Reload(bool force)
 }
 
 
-void ResourcesManager::_LoadInternalShaders()
+void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
 {
 
 	Folder shaders(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_SHADERS_LOCATION)));
 
-	shaders.Iterate(false, [](const fm::Folder* inFolder, const fm::File* inFile)
+	shaders.Iterate(false, [inAPI](const fm::Folder* inFolder, const fm::File* inFile)
 	{
 		if (inFolder != nullptr)
 		{
-			if (inFolder->GetPath().GetExtension() == ".shader")
+			if (inAPI == GRAPHIC_API::OPENGL && inFolder->GetPath().GetExtension() == ".shader")
 			{
 				const std::string name = inFolder->GetPath().GetName(true);
 				Shader* shader = new OGLShader(inFolder->GetPath(), name);
 				shader->compile();
+				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
+			}
+			else if (inAPI == GRAPHIC_API::VULKAN && inFolder->GetPath().GetExtension() == ".vkshader")
+			{
+				const std::string name = inFolder->GetPath().GetName(true);
+				Shader* shader = new VkShader(inFolder->GetPath(), name);
 				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}
 		}
@@ -165,9 +172,9 @@ void ResourcesManager::_LoadInternalShaders()
 
 
 
-bool ResourcesManager::LoadShaders()
+bool ResourcesManager::LoadShaders(GRAPHIC_API inAPI)
 {
-	_LoadInternalShaders();
+	_LoadInternalShaders(inAPI);
 	return true;
 }
 
