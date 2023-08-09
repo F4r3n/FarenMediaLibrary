@@ -16,6 +16,8 @@ public:
 	bool Init(SDL_Window* inWindow);
 	bool DeInit();
 	VkDevice	GetDevice() const { return _device; }
+	VkExtent2D	GetSwapChainExtent() const { return _swapChainExtent; }
+	VkFormat	GetSwapChainFormat() const { return _swapChainImageFormat; }
 
 private:
 	void				_CreateSurface(SDL_Window* inWindow);

@@ -192,7 +192,7 @@ void Window::_FrameLimit()
 
 void Window::swapBuffers() const
 {
-    if(_window)
+    if(_window && _api == GRAPHIC_API::OPENGL)
         SDL_GL_SwapWindow(_window);
 }
 

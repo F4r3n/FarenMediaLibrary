@@ -1,6 +1,7 @@
 #pragma once
 #include <System.h>
 #include <memory>
+#include "vulkan/vulkan.h"
 class Vulkan;
 namespace fm
 {
@@ -21,6 +22,16 @@ namespace fms
 		virtual void Stop();
 		~VkRenderingSystem();
 	private:
+		VkPipelineLayout	_CreatePipelineLayout();
+		VkPipeline			_CreatePipeline(VkPipelineLayout inLayout, VkRenderPass inRenderPass);
+
+		VkRenderPass		_CreateRenderPass();
+
+	private:
 		std::unique_ptr<Vulkan>	_vulkan;
+		VkPipelineLayout		_mainPipelineLayout;
+		VkPipeline				_mainPipeline;
+
+		VkRenderPass			_renderPass;
 	};
 }

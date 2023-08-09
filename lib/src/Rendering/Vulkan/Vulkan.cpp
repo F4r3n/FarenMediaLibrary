@@ -1,4 +1,6 @@
 #include "Vulkan.h"
+#undef max
+#include <limits>
 #include <SDL3/SDL_vulkan.h>
 #include <SDL3/SDL.h>
 #include <optional>
@@ -6,6 +8,7 @@
 #include <cstring>
 #include <set>
 #include <algorithm>
+
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -66,19 +69,26 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	if (!_SetupSwapChain(inWindow, physicalDevice))
 		return false;
 
+	if (!_SetupImageViews(_device))
+		return false;
+
 	return true;
 }
 bool Vulkan::DeInit()
 {
-	for (auto imageView : _swapChainImageViews) {
+	for (auto imageView : _swapChainImageViews)
+	{
 		vkDestroyImageView(_device, imageView, nullptr);
 	}
 	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
 	vkDestroyDevice(_device, nullptr);
-	vkDestroyInstance(_instance, nullptr);
 	if (_enableValidationLayers) {
 		DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
 	}
+	vkDestroySurfaceKHR(_instance, _surface, nullptr);
+
+	vkDestroyInstance(_instance, nullptr);
+
 	return true;
 }
 
@@ -489,7 +499,8 @@ bool Vulkan::_SetupImageViews(VkDevice inDevice)
 		createInfo.subresourceRange.layerCount = 1;
 
 		if (vkCreateImageView(inDevice, &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create image views!");
+			return false;
 		}
 	}
+	return true;
 }
