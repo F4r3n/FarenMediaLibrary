@@ -72,10 +72,39 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	if (!_SetupImageViews(_device))
 		return false;
 
+	if (!_SetUpCommandPool(physicalDevice, _device))
+		return false;
+
 	return true;
 }
+
+void Vulkan::AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex)
+{
+	vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, inSemaphore, VK_NULL_HANDLE, &imageIndex);
+}
+
+void Vulkan::SubmitPresentQueue(VkSemaphore* inSemaphore, uint32_t inImageIndex)
+{
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = inSemaphore;
+
+	VkSwapchainKHR swapChains[] = { _swapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &inImageIndex;
+	presentInfo.pResults = nullptr; // Optional
+
+	vkQueuePresentKHR(_presentQueue, &presentInfo);
+}
+
+
+
 bool Vulkan::DeInit()
 {
+	vkDestroyCommandPool(_device, _commandPool, nullptr);
 	for (auto imageView : _swapChainImageViews)
 	{
 		vkDestroyImageView(_device, imageView, nullptr);
@@ -91,6 +120,8 @@ bool Vulkan::DeInit()
 
 	return true;
 }
+
+
 
 void Vulkan::_CreateSurface(SDL_Window* inWindow)
 {
@@ -205,6 +236,22 @@ QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR inSur
 
 	return indices;
 }
+
+bool Vulkan::_SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice)
+{
+	QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice, _surface);
+
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+	if (vkCreateCommandPool(inDevice, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
+		return false;
+	}
+	return true;
+}
+
 
 bool Vulkan::_CheckDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions) const
 {

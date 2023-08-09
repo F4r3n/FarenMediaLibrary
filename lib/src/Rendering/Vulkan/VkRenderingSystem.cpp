@@ -19,8 +19,29 @@ VkRenderingSystem::VkRenderingSystem(fm::Window& inWindow)
 	_renderPass = _CreateRenderPass();
 	_mainPipelineLayout = _CreatePipelineLayout();
 	_mainPipeline = _CreatePipeline(_mainPipelineLayout, _renderPass);
+	_swapChainFramebuffers = _CreateFramebuffer(_renderPass);
+	_commandBuffer = _CreateCommandBuffer(_vulkan->GetCommandPool());
+	_CreateSyncObjects();
 	
 }
+
+bool VkRenderingSystem::_CreateSyncObjects()
+{
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	if (vkCreateSemaphore(_vulkan->GetDevice(), &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS ||
+		vkCreateSemaphore(_vulkan->GetDevice(), &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS ||
+		vkCreateFence(_vulkan->GetDevice(), &fenceInfo, nullptr, &_inFlightFence) != VK_SUCCESS) {
+		return false;
+	}
+	return true;
+}
+
 
 VkPipelineLayout VkRenderingSystem::_CreatePipelineLayout()
 {
@@ -185,18 +206,123 @@ VkRenderPass VkRenderingSystem::_CreateRenderPass()
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
 
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderPassInfo.attachmentCount = 1;
 	renderPassInfo.pAttachments = &colorAttachment;
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
+
+
 
 	VkRenderPass renderPass;
 	if (vkCreateRenderPass(_vulkan->GetDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 		return nullptr;
 	}
 	return renderPass;
+}
+
+std::vector<VkFramebuffer> VkRenderingSystem::_CreateFramebuffer(VkRenderPass inRenderPass)
+{
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+	auto swapChainImageViews = _vulkan->GetSwapChainImageViews();
+	swapChainFramebuffers.resize(swapChainImageViews.size());
+
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+		VkImageView attachments[] = {
+			swapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = _renderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = _vulkan->GetSwapChainExtent().width;
+		framebufferInfo.height = _vulkan->GetSwapChainExtent().height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(_vulkan->GetDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+	}
+	return swapChainFramebuffers;
+}
+
+VkCommandBuffer VkRenderingSystem::_CreateCommandBuffer(VkCommandPool inPool)
+{
+	VkCommandBuffer commandBuffer;
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = inPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = 1;
+
+	if (vkAllocateCommandBuffers(_vulkan->GetDevice(), &allocInfo, &commandBuffer) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+	return commandBuffer;
+}
+
+bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkRenderPass inRenderPass, VkPipeline inPipeline)
+{
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = 0; // Optional
+	beginInfo.pInheritanceInfo = nullptr; // Optional
+
+	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		return false;
+	}
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = inRenderPass;
+	renderPassInfo.framebuffer = _swapChainFramebuffers[imageIndex];
+
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = _vulkan->GetSwapChainExtent();
+
+	VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
+
+	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, inPipeline);
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast<float>(_vulkan->GetSwapChainExtent().width);
+	viewport.height = static_cast<float>(_vulkan->GetSwapChainExtent().height);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = _vulkan->GetSwapChainExtent();
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+	vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+	vkCmdEndRenderPass(commandBuffer);
+
+	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+		return false;
+	}
+
+	return true;
 }
 
 
@@ -210,6 +336,37 @@ void VkRenderingSystem::pre_update(EntityManager& manager)
 }
 void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& event)
 {
+	auto device = _vulkan->GetDevice();
+	vkWaitForFences(device, 1, &_inFlightFence, VK_TRUE, UINT64_MAX);
+
+	uint32_t imageIndex;
+	_vulkan->AcquireImage(_imageAvailableSemaphore, imageIndex);
+	vkResetFences(device, 1, &_inFlightFence);
+
+
+	vkResetCommandBuffer(_commandBuffer, 0);
+	_RecordCommandBuffer(_commandBuffer, imageIndex, _renderPass, _mainPipeline);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphore };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &_commandBuffer;
+
+	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphore };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(_vulkan->GetGraphicsQueue(), 1, &submitInfo, _inFlightFence) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	_vulkan->SubmitPresentQueue(signalSemaphores, imageIndex);
 
 }
 void VkRenderingSystem::over()
@@ -226,8 +383,19 @@ void VkRenderingSystem::Stop()
 }
 VkRenderingSystem::~VkRenderingSystem()
 {
+	vkDeviceWaitIdle(_vulkan->GetDevice());
+	vkDestroySemaphore(_vulkan->GetDevice(), _imageAvailableSemaphore, nullptr);
+	vkDestroySemaphore(_vulkan->GetDevice(), _renderFinishedSemaphore, nullptr);
+	vkDestroyFence(_vulkan->GetDevice(), _inFlightFence, nullptr);
+
 	fm::VkShader* shader = dynamic_cast<fm::VkShader*>(fm::ResourcesManager::get().getResource<fm::Shader>("default"));
 	shader->Delete(_vulkan->GetDevice());
+
+	for (auto framebuffer : _swapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(_vulkan->GetDevice(), framebuffer, nullptr);
+	}
+
 	vkDestroyPipeline(_vulkan->GetDevice(), _mainPipeline, nullptr);
 	vkDestroyPipelineLayout(_vulkan->GetDevice(), _mainPipelineLayout, nullptr);
 	vkDestroyRenderPass(_vulkan->GetDevice(), _renderPass, nullptr);

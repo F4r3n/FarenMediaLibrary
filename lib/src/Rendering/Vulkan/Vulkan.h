@@ -15,10 +15,14 @@ class Vulkan
 public:
 	bool Init(SDL_Window* inWindow);
 	bool DeInit();
-	VkDevice	GetDevice() const { return _device; }
-	VkExtent2D	GetSwapChainExtent() const { return _swapChainExtent; }
-	VkFormat	GetSwapChainFormat() const { return _swapChainImageFormat; }
-
+	VkQueue						GetGraphicsQueue() const { return _graphicsQueue; }
+	VkDevice					GetDevice() const { return _device; }
+	VkExtent2D					GetSwapChainExtent() const { return _swapChainExtent; }
+	VkFormat					GetSwapChainFormat() const { return _swapChainImageFormat; }
+	std::vector<VkImageView>	GetSwapChainImageViews() const { return _swapChainImageViews; }
+	VkCommandPool				GetCommandPool() const { return _commandPool; }
+	void						AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex);
+	void						SubmitPresentQueue(VkSemaphore* inSemaphores, uint32_t inImageIndex);
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();
@@ -38,23 +42,24 @@ private:
 
 	//Setup imageview
 	bool _SetupImageViews(VkDevice inDevice);
+	bool _SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice);
 
 private:
 	VkDebugUtilsMessengerEXT _debugMessenger;
 
-	bool		_enableValidationLayers = true;
-	VkInstance  _instance = nullptr;
-	VkDevice	_device = nullptr;
+	bool			_enableValidationLayers = true;
+	VkInstance		_instance = nullptr;
+	VkDevice		_device = nullptr;
+	VkSurfaceKHR	_surface = nullptr;
 
-	VkSurfaceKHR _surface = nullptr;
+	VkQueue			_graphicsQueue;
+	VkQueue			_presentQueue;
 
-	VkQueue _graphicsQueue;
-	VkQueue _presentQueue;
-	VkSwapchainKHR _swapChain;
-
-	std::vector<VkImage> _swapChainImages;
-	VkFormat _swapChainImageFormat;
-	VkExtent2D _swapChainExtent;
-
+	VkSwapchainKHR			_swapChain;
+	std::vector<VkImage>	_swapChainImages;
+	VkFormat				_swapChainImageFormat;
+	VkExtent2D				_swapChainExtent;
 	std::vector<VkImageView> _swapChainImageViews;
+
+	VkCommandPool	_commandPool;
 };
