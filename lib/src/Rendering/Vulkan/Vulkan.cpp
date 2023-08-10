@@ -62,6 +62,7 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	VkPhysicalDevice physicalDevice = _PickPhysicalDevice(deviceExtensions);
 	if (physicalDevice == nullptr)
 		return false;
+	_physicalDevice = physicalDevice;
 
 	if (!_SetupLogicalDevice(physicalDevice, validationLayers, deviceExtensions))
 		return false;
@@ -78,12 +79,22 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	return true;
 }
 
-void Vulkan::AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex)
+bool Vulkan::AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass)
 {
-	vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, inSemaphore, VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, inSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		_RecreateSwapChain(inWindow, inRenderPass);
+		return false;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		return false;
+	}
+
+	return true;
 }
 
-void Vulkan::SubmitPresentQueue(VkSemaphore* inSemaphore, uint32_t inImageIndex)
+void Vulkan::SubmitPresentQueue(VkSemaphore* inSemaphore, uint32_t inImageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass)
 {
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -97,7 +108,13 @@ void Vulkan::SubmitPresentQueue(VkSemaphore* inSemaphore, uint32_t inImageIndex)
 	presentInfo.pImageIndices = &inImageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	vkQueuePresentKHR(_presentQueue, &presentInfo);
+	VkResult result = vkQueuePresentKHR(_presentQueue, &presentInfo);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+		_RecreateSwapChain(inWindow, inRenderPass);
+	}
+	else if (result != VK_SUCCESS) {
+		throw std::runtime_error("failed to present swap chain image!");
+	}
 }
 
 
@@ -105,11 +122,7 @@ void Vulkan::SubmitPresentQueue(VkSemaphore* inSemaphore, uint32_t inImageIndex)
 bool Vulkan::DeInit()
 {
 	vkDestroyCommandPool(_device, _commandPool, nullptr);
-	for (auto imageView : _swapChainImageViews)
-	{
-		vkDestroyImageView(_device, imageView, nullptr);
-	}
-	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+	_CleanUpSwapChain();
 	vkDestroyDevice(_device, nullptr);
 	if (_enableValidationLayers) {
 		DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
@@ -549,5 +562,63 @@ bool Vulkan::_SetupImageViews(VkDevice inDevice)
 			return false;
 		}
 	}
+	return true;
+}
+
+bool Vulkan::SetupSwapChainFramebuffer(VkRenderPass inRenderPass)
+{
+	auto swapChainImageViews = _swapChainImageViews;
+	_swapChainFramebuffers.resize(swapChainImageViews.size());
+
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+		VkImageView attachments[] = {
+			swapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = inRenderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = _swapChainExtent.width;
+		framebufferInfo.height = _swapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS) {
+			return false;
+		}
+	}
+	return true;
+	
+}
+
+
+void Vulkan::_CleanUpSwapChain()
+{
+	for (auto imageView : _swapChainImageViews)
+	{
+		vkDestroyImageView(_device, imageView, nullptr);
+	}
+
+	for (auto framebuffer : _swapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(_device, framebuffer, nullptr);
+	}
+
+	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+}
+
+
+bool Vulkan::_RecreateSwapChain(SDL_Window* inWindow, VkRenderPass inRenderPass)
+{
+	vkDeviceWaitIdle(_device);
+
+	_CleanUpSwapChain();
+
+	_SetupSwapChain(inWindow, _physicalDevice);
+	_SetupImageViews(_device);
+	SetupSwapChainFramebuffer(inRenderPass);
+
+
 	return true;
 }

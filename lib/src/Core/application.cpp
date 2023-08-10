@@ -96,19 +96,19 @@ bool Application::Read()
 
 fm::Window* Application::GetWindow() const
 {
-    return _window;
+    return _window.get();
 }
 
 
 void Application::Init()
 {
     _engine = std::make_unique<fm::Engine>();
-    _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.graphicAPI, _currentConfig.windowFlag);
+    _window = std::make_shared<fm::Window>(_currentConfig.width, _currentConfig.height, _currentConfig.graphicAPI, _currentConfig.windowFlag);
     _window->Init();
 
 	_window->setName(_currentConfig.name);
 
-    _engine->Init(_currentConfig.graphicAPI, *_window);
+    _engine->Init(_currentConfig.graphicAPI, _window);
 }
 
 
@@ -122,7 +122,6 @@ void Application::Update(bool withEditor)
 void Application::DeInit()
 {
 	_engine.reset();
-	delete _window;
 }
 
 

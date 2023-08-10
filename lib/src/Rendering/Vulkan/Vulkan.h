@@ -15,14 +15,21 @@ class Vulkan
 public:
 	bool Init(SDL_Window* inWindow);
 	bool DeInit();
+
 	VkQueue						GetGraphicsQueue() const { return _graphicsQueue; }
 	VkDevice					GetDevice() const { return _device; }
+	VkCommandPool				GetCommandPool() const { return _commandPool; }
+
+	//Swap chain related
+	VkFramebuffer				GetSwapChainFrameBuffer(uint32_t index) const { return _swapChainFramebuffers[index]; }
 	VkExtent2D					GetSwapChainExtent() const { return _swapChainExtent; }
 	VkFormat					GetSwapChainFormat() const { return _swapChainImageFormat; }
 	std::vector<VkImageView>	GetSwapChainImageViews() const { return _swapChainImageViews; }
-	VkCommandPool				GetCommandPool() const { return _commandPool; }
-	void						AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex);
-	void						SubmitPresentQueue(VkSemaphore* inSemaphores, uint32_t inImageIndex);
+	bool						AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass);
+	void						SubmitPresentQueue(VkSemaphore* inSemaphores, uint32_t inImageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass);
+	bool						SetupSwapChainFramebuffer(VkRenderPass inRenderPass);
+
+
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();
@@ -39,11 +46,12 @@ private:
 	VkPresentModeKHR	_ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
 	VkSurfaceFormatKHR	_ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
 	VkExtent2D			_ChooseSwapExtent(SDL_Window* inWindow, const VkSurfaceCapabilitiesKHR& capabilities) const;
+	bool				_RecreateSwapChain(SDL_Window* inWindow, VkRenderPass inRenderPass);
 
 	//Setup imageview
 	bool _SetupImageViews(VkDevice inDevice);
 	bool _SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice);
-
+	void _CleanUpSwapChain();
 private:
 	VkDebugUtilsMessengerEXT _debugMessenger;
 
@@ -51,6 +59,7 @@ private:
 	VkInstance		_instance = nullptr;
 	VkDevice		_device = nullptr;
 	VkSurfaceKHR	_surface = nullptr;
+	VkPhysicalDevice _physicalDevice = nullptr;
 
 	VkQueue			_graphicsQueue;
 	VkQueue			_presentQueue;
@@ -60,6 +69,8 @@ private:
 	VkFormat				_swapChainImageFormat;
 	VkExtent2D				_swapChainExtent;
 	std::vector<VkImageView> _swapChainImageViews;
+	std::vector<VkFramebuffer>	_swapChainFramebuffers;
+
 
 	VkCommandPool	_commandPool;
 };

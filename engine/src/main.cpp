@@ -13,6 +13,7 @@ int main()
 	config.height = 0;
 	config.standAlone = true;
 	config.graphicAPI = GRAPHIC_API::VULKAN;
+	config.windowFlag = SDL_WINDOW_RESIZABLE;
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);
 	app.Init();

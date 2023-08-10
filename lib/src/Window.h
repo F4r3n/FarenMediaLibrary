@@ -4,11 +4,12 @@
 #include "NonCopyable.h"
 #include <string>
 #include "Rendering/GraphicsAPI.h"
+#include "Core/Math/Vector2.h"
 struct SDL_Window;
 
 
 namespace fm {
-class Window   {
+class Window : public fm_system::NonCopyable {
     friend class InputManager;
 
 public:
@@ -31,6 +32,8 @@ public:
 	void* GetContext();
 	size_t GetMSAA() const { return _msaa; }
 	double GetTicks() const;
+	fm::math::Vector2i GetSize() const;
+	bool IsMinimized() const;
 private:
 	void _FrameLimit();
 

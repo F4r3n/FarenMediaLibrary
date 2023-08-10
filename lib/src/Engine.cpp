@@ -60,7 +60,7 @@ SYSTEM_MANAGER_MODE Engine::GetStatus() const
 }
 
 
-void Engine::Init(GRAPHIC_API inAPI, fm::Window& window)
+void Engine::Init(GRAPHIC_API inAPI, std::shared_ptr<fm::Window> window)
 {
     _systems->addSystem(new fms::SoundSystem());
 	_systems->addSystem(new fms::PhysicSystem());

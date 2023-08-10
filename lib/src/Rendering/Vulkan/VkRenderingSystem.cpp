@@ -4,13 +4,15 @@
 #include "Resource/ResourcesManager.h"
 #include "Rendering/Vulkan/VkShader.h"
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 using namespace fms;
 
-VkRenderingSystem::VkRenderingSystem(fm::Window& inWindow)
+VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 {
 	_vulkan = std::make_unique<Vulkan>();
-	_vulkan->Init(inWindow.getWindow());
-
+	_vulkan->Init(inWindow->getWindow());
+	_window = inWindow;
 	fm::ResourcesManager::get().LoadShaders(GRAPHIC_API::VULKAN);
 	//fm::ResourcesManager::get().LoadFonts();
 	fm::ResourcesManager::get().LoadMaterials();
@@ -19,14 +21,18 @@ VkRenderingSystem::VkRenderingSystem(fm::Window& inWindow)
 	_renderPass = _CreateRenderPass();
 	_mainPipelineLayout = _CreatePipelineLayout();
 	_mainPipeline = _CreatePipeline(_mainPipelineLayout, _renderPass);
-	_swapChainFramebuffers = _CreateFramebuffer(_renderPass);
-	_commandBuffer = _CreateCommandBuffer(_vulkan->GetCommandPool());
-	_CreateSyncObjects();
+	_vulkan->SetupSwapChainFramebuffer(_renderPass);
+	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
+	_SetupSyncObjects();
 	
 }
 
-bool VkRenderingSystem::_CreateSyncObjects()
+bool VkRenderingSystem::_SetupSyncObjects()
 {
+	_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -34,10 +40,13 @@ bool VkRenderingSystem::_CreateSyncObjects()
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	if (vkCreateSemaphore(_vulkan->GetDevice(), &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS ||
-		vkCreateSemaphore(_vulkan->GetDevice(), &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS ||
-		vkCreateFence(_vulkan->GetDevice(), &fenceInfo, nullptr, &_inFlightFence) != VK_SUCCESS) {
-		return false;
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		if (vkCreateSemaphore(_vulkan->GetDevice(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(_vulkan->GetDevice(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(_vulkan->GetDevice(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
+
+			return false;
+		}
 	}
 	return true;
 }
@@ -232,46 +241,20 @@ VkRenderPass VkRenderingSystem::_CreateRenderPass()
 	return renderPass;
 }
 
-std::vector<VkFramebuffer> VkRenderingSystem::_CreateFramebuffer(VkRenderPass inRenderPass)
+
+std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandPool inPool)
 {
-	std::vector<VkFramebuffer> swapChainFramebuffers;
-	auto swapChainImageViews = _vulkan->GetSwapChainImageViews();
-	swapChainFramebuffers.resize(swapChainImageViews.size());
-
-	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-		VkImageView attachments[] = {
-			swapChainImageViews[i]
-		};
-
-		VkFramebufferCreateInfo framebufferInfo{};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = _renderPass;
-		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = _vulkan->GetSwapChainExtent().width;
-		framebufferInfo.height = _vulkan->GetSwapChainExtent().height;
-		framebufferInfo.layers = 1;
-
-		if (vkCreateFramebuffer(_vulkan->GetDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create framebuffer!");
-		}
-	}
-	return swapChainFramebuffers;
-}
-
-VkCommandBuffer VkRenderingSystem::_CreateCommandBuffer(VkCommandPool inPool)
-{
-	VkCommandBuffer commandBuffer;
+	std::vector<VkCommandBuffer> commandBuffers(MAX_FRAMES_IN_FLIGHT);
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = inPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-	if (vkAllocateCommandBuffers(_vulkan->GetDevice(), &allocInfo, &commandBuffer) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(_vulkan->GetDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
-	return commandBuffer;
+	return commandBuffers;
 }
 
 bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkRenderPass inRenderPass, VkPipeline inPipeline)
@@ -288,7 +271,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = inRenderPass;
-	renderPassInfo.framebuffer = _swapChainFramebuffers[imageIndex];
+	renderPassInfo.framebuffer = _vulkan->GetSwapChainFrameBuffer(imageIndex);
 
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = _vulkan->GetSwapChainExtent();
@@ -336,37 +319,44 @@ void VkRenderingSystem::pre_update(EntityManager& manager)
 }
 void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& event)
 {
+	if (_window->IsMinimized())
+		return;
+
 	auto device = _vulkan->GetDevice();
-	vkWaitForFences(device, 1, &_inFlightFence, VK_TRUE, UINT64_MAX);
+	vkWaitForFences(device, 1, &_inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	_vulkan->AcquireImage(_imageAvailableSemaphore, imageIndex);
-	vkResetFences(device, 1, &_inFlightFence);
+	if (!_vulkan->AcquireImage(_imageAvailableSemaphores[currentFrame], imageIndex, _window->getWindow(), _renderPass))
+	{
+		return;
+	}
+	vkResetFences(device, 1, &_inFlightFences[currentFrame]);
 
-
-	vkResetCommandBuffer(_commandBuffer, 0);
-	_RecordCommandBuffer(_commandBuffer, imageIndex, _renderPass, _mainPipeline);
+	vkResetCommandBuffer(_commandBuffers[currentFrame], 0);
+	_RecordCommandBuffer(_commandBuffers[currentFrame], imageIndex, _renderPass, _mainPipeline);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphore };
+	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffer;
+	submitInfo.pCommandBuffers = &_commandBuffers[currentFrame];
 
-	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphore };
+	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(_vulkan->GetGraphicsQueue(), 1, &submitInfo, _inFlightFence) != VK_SUCCESS) {
+	if (vkQueueSubmit(_vulkan->GetGraphicsQueue(), 1, &submitInfo, _inFlightFences[currentFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
-	_vulkan->SubmitPresentQueue(signalSemaphores, imageIndex);
+	_vulkan->SubmitPresentQueue(signalSemaphores, imageIndex, _window->getWindow(), _renderPass);
+
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 }
 void VkRenderingSystem::over()
@@ -384,17 +374,14 @@ void VkRenderingSystem::Stop()
 VkRenderingSystem::~VkRenderingSystem()
 {
 	vkDeviceWaitIdle(_vulkan->GetDevice());
-	vkDestroySemaphore(_vulkan->GetDevice(), _imageAvailableSemaphore, nullptr);
-	vkDestroySemaphore(_vulkan->GetDevice(), _renderFinishedSemaphore, nullptr);
-	vkDestroyFence(_vulkan->GetDevice(), _inFlightFence, nullptr);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(_vulkan->GetDevice(), _renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(_vulkan->GetDevice(), _imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(_vulkan->GetDevice(), _inFlightFences[i], nullptr);
+	}
 
 	fm::VkShader* shader = dynamic_cast<fm::VkShader*>(fm::ResourcesManager::get().getResource<fm::Shader>("default"));
 	shader->Delete(_vulkan->GetDevice());
-
-	for (auto framebuffer : _swapChainFramebuffers)
-	{
-		vkDestroyFramebuffer(_vulkan->GetDevice(), framebuffer, nullptr);
-	}
 
 	vkDestroyPipeline(_vulkan->GetDevice(), _mainPipeline, nullptr);
 	vkDestroyPipelineLayout(_vulkan->GetDevice(), _mainPipelineLayout, nullptr);

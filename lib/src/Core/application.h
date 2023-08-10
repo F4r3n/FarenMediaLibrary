@@ -140,7 +140,7 @@ class Application
 private:
 
         std::unique_ptr<fm::Engine>			_engine;
-        fm::Window*							_window;
+        std::shared_ptr<fm::Window>			_window;
         fm::Config							_currentConfig;
 		std::string							_nameLastScene;
 		std::unique_ptr<fm::SceneManager>	_sceneManager;

@@ -51,7 +51,7 @@ struct PointLight
 
 namespace fms 
 {
-RenderingSystem::RenderingSystem(int width, int height)
+RenderingSystem::RenderingSystem(size_t width, size_t height)
     : _width(width), _height(height)
 {
 	fm::ResourcesManager::get().LoadShaders(GRAPHIC_API::OPENGL);

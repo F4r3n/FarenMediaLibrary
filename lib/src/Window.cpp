@@ -257,3 +257,16 @@ SDL_GLContext Window::GetContext()
 { 
 	return (SDL_GLContext)_mainContext; 
 }
+
+fm::math::Vector2i Window::GetSize() const
+{
+	fm::math::Vector2i size;
+	SDL_GetWindowSizeInPixels(_window, &size.x, &size.y);
+	return size;
+}
+
+
+bool Window::IsMinimized() const
+{
+	return (SDL_GetWindowFlags(_window) & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED;
+}

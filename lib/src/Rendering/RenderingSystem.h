@@ -42,7 +42,7 @@ namespace fms
 class RenderingSystem : public System<RenderingSystem> 
 {
 public:
-    RenderingSystem(int width, int height);
+    RenderingSystem(size_t width, size_t height);
     void InitCamera(Entity* camera);
 
     virtual void update(float dt, EntityManager& em, EventManager& event);
@@ -68,8 +68,8 @@ public:
 private:
 	fm::Shader *_finalShader;
 	fm::Shader *_lightShader;
-	int _width;
-	int _height;
+	size_t _width;
+	size_t _height;
 	int _lightNumber = 0;
 
 	fm::Graphics _graphics;

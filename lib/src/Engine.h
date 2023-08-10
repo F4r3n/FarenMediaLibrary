@@ -20,9 +20,9 @@ public:
     ~Engine();
    
     void Update(float dt);
-    void Init(GRAPHIC_API inAPI, fm::Window& window);
+    void Init(GRAPHIC_API inAPI, std::shared_ptr<fm::Window> window);
     void Start();
-    void Run(fm::Window &window);
+    void Run(std::shared_ptr<fm::Window> window);
     
     void Stop();
     void Resume();
