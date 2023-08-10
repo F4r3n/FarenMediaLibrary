@@ -13,7 +13,7 @@ class Window : public fm_system::NonCopyable {
     friend class InputManager;
 
 public:
-    Window(size_t width, size_t height, GRAPHIC_API inAPIFlag, size_t inWindowFlag);
+    Window(GRAPHIC_API inAPIFlag, size_t inWindowFlag);
     ~Window();
 	Window() = delete;
     void swapBuffers() const;
@@ -24,11 +24,7 @@ public:
     SDL_Window* getWindow() { return _window;}
     void setName(const std::string &name);
 
-    static size_t kWidth;
-    static size_t kHeight;
-    static int kX;
-    static int kY;
-    bool Init();
+    bool Init(size_t width, size_t height);
 	void* GetContext();
 	size_t GetMSAA() const { return _msaa; }
 	double GetTicks() const;

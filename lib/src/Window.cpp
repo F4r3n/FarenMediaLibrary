@@ -14,14 +14,9 @@
 #include <optional>
 
 using namespace fm;
-size_t Window::kWidth = 0;
-size_t Window::kHeight = 0;
-
-int Window::kX = 0;
-int Window::kY = 0;
 
 
-Window::Window(size_t width, size_t height, GRAPHIC_API inAPI, size_t inWindowFlag)
+Window::Window(GRAPHIC_API inAPI, size_t inWindowFlag)
 :_isInit(false),
 _window(nullptr),
 _mainContext(nullptr),
@@ -33,8 +28,7 @@ _msaa(0),
 _api(inAPI),
 _windowFlag(inWindowFlag)
 {
-    Window::kWidth = width;
-    Window::kHeight = height;
+
 	if (inAPI == GRAPHIC_API::OPENGL)
 	{
 		_windowFlag |= SDL_WINDOW_OPENGL;
@@ -60,19 +54,16 @@ void Window::_OpenGL_SetProfile()
 }
 
 
-bool Window::Init()
+bool Window::Init(size_t width, size_t height)
 {
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMEPAD) != 0) {
         printf("Unable to initialize SDL: %s\n", SDL_GetError());
         return false;
     }
 
-
-
 	SDL_DisplayID id = SDL_GetPrimaryDisplay();
 
-	//bool isFullScreen = Window::kWidth == -1 || Window::kHeight == -1;
-	if (Window::kWidth <= 0 || Window::kHeight <= 0)
+	if (width <= 0 || height <= 0)
 	{
 		SDL_Rect rect;
 
@@ -94,14 +85,14 @@ bool Window::Init()
 			rect.h -= 20;
 #endif
 		}
-		Window::kWidth = rect.w;
-		Window::kHeight = rect.h;
+		width = rect.w;
+		height = rect.h;
 
 	}
 
     _window = SDL_CreateWindow("FML engine",
-							  (int)Window::kWidth,
-                              (int)Window::kHeight,
+							  (int)width,
+                              (int)height,
                               (Uint32)_windowFlag);
 
 	if (_api == GRAPHIC_API::OPENGL)
@@ -246,8 +237,8 @@ int Window::_Init()
     }
 
     _ErrorDisplay();
-
-    glViewport(kX, kY, kWidth, kHeight);
+	auto size = GetSize();
+    glViewport(0, 0, size.x, size.y);
 
     return 1;
 }
@@ -268,5 +259,5 @@ fm::math::Vector2i Window::GetSize() const
 
 bool Window::IsMinimized() const
 {
-	return (SDL_GetWindowFlags(_window) & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED;
+	return ((SDL_GetWindowFlags(_window) & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED);
 }

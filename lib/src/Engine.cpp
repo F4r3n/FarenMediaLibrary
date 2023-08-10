@@ -68,7 +68,8 @@ void Engine::Init(GRAPHIC_API inAPI, std::shared_ptr<fm::Window> window)
     _systems->addSystem(new fms::ScriptManagerSystem());
 	if (inAPI == GRAPHIC_API::OPENGL)
 	{
-		_systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
+		auto size = window->GetSize();
+		_systems->addSystem(new fms::RenderingSystem(size.x, size.y));
 	}
 	else if (inAPI == GRAPHIC_API::VULKAN)
 	{

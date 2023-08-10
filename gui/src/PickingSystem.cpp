@@ -19,7 +19,9 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 	_specialCamera = inEditorScene->CreateGameObject(true);
 	if (auto&& specialCamera = _specialCamera.lock())
 	{
-		_camera = specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
+		auto size = fm::Application::Get().GetWindow()->GetSize();
+
+		_camera = specialCamera->addComponent<fmc::CCamera>(size.x, size.y, fmc::RENDER_MODE::FORWARD, false, false, 0);
 		_camera->Init();
 		specialCamera->SetName("Camera");
 	}

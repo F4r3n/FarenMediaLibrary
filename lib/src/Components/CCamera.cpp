@@ -15,8 +15,8 @@ using namespace fm;
 CCamera::CCamera()
 {
     _name = "Camera";
-	_width = fm::Window::kWidth;
-	_height = fm::Window::kHeight;
+	_width = 0;
+	_height = 0;
 	_fovy = 60.0f;
 	_nearPlane = 0.1f;
 	_farPlane = 1000.0f;
