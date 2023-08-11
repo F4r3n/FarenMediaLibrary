@@ -8,8 +8,9 @@ namespace fm {
 namespace rendering {
     struct Vertex {
         fm::math::Vector3f position;
+		fm::math::Vector3f color;
         fm::math::Vector2f uv;
-        fm::math::Vector3f normals;
+        fm::math::Vector3f normal;
     };
 
     struct MeshContainer {

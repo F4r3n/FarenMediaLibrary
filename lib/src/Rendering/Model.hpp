@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Core/Bounds.h"
+#include "GraphicsAPI.h"
 namespace fm {
 
 namespace rendering {

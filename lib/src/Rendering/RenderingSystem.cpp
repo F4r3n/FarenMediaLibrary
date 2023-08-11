@@ -587,7 +587,7 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 
 	_graphics.ActivateTexture2D(0);
     font->texture->bind();
-    _graphics.BindVertexBuffer(inText->GetVertexBuffer());
+    _graphics.BindVertexBuffer(dynamic_cast<fm::rendering::OGLVertextBuffer*>(inText->GetVertexBuffer()));
     _graphics.Draw(0, 0, inText->GetVertexBuffer()->GetNumberVertices());
 
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);

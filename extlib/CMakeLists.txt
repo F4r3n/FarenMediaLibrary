@@ -86,7 +86,13 @@ FETCHCONTENT_MAKEAVAILABLE(BULLET)
 set(SKIP_INSTALL_ALL ON)
 set(FREETYPE_NO_DIST ON)
 
-
+#VMA
+FetchContent_Declare(
+  VMA
+  GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+  GIT_TAG        6eb62e1515072827db992c2befd80b71b2d04329
+)
+FETCHCONTENT_MAKEAVAILABLE(VMA)
 
 foreach(TARGET freetype2 lua glew)
 

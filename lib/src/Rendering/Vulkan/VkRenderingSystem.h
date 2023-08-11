@@ -4,7 +4,8 @@
 #include <vector>
 #include "vulkan/vulkan.h"
 #include "Window.h"
-
+#include "Rendering/Vulkan/VkPipelineBuilder.h"
+#include "Rendering/Vulkan/VkVertexBuffer.hpp"
 class Vulkan;
 
 namespace fm
@@ -26,8 +27,6 @@ namespace fms
 		virtual void Stop();
 		~VkRenderingSystem();
 	private:
-		VkPipelineLayout			_CreatePipelineLayout();
-		VkPipeline					_CreatePipeline(VkPipelineLayout inLayout, VkRenderPass inRenderPass);
 		VkRenderPass				_CreateRenderPass();
 		std::vector<VkCommandBuffer>_CreateCommandBuffers(VkCommandPool inPool);
 		bool						_RecordCommandBuffer(VkCommandBuffer inBuffer, uint32_t imageIndex,
@@ -35,8 +34,7 @@ namespace fms
 		bool						_SetupSyncObjects();
 	private:
 		std::unique_ptr<Vulkan>		_vulkan;
-		VkPipelineLayout			_mainPipelineLayout;
-		VkPipeline					_mainPipeline;
+		fm::VkPipelineBuilder		_pipeline;
 		VkRenderPass				_renderPass;
 
 
@@ -46,6 +44,8 @@ namespace fms
 		std::vector<VkFence>			_inFlightFences;
 
 		std::shared_ptr<fm::Window>		_window;
+
+		fm::VkVertexBuffer				_triangle;
 
 		uint32_t currentFrame = 0;
 	};

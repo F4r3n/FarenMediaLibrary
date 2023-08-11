@@ -9,7 +9,7 @@ void StandardShapes::AddVertex(MeshContainer* mesh,
                                const fm::math::Vector2f& uv,
                                const fm::math::Vector3f& normals
                                ) {
-    mesh->vertices.push_back({position, uv, normals});
+	mesh->vertices.push_back({ position, {1.0f, 1.0f, 1.0f}, uv, normals });
 }
 
 MeshContainer* StandardShapes::CreateQuad()
@@ -24,6 +24,21 @@ MeshContainer* StandardShapes::CreateQuad()
 
     return meshContainer;
 }
+
+MeshContainer* StandardShapes::CreateTriangle(GRAPHIC_API inAPI)
+{
+	MeshContainer* meshContainer = new MeshContainer();
+	if (inAPI == GRAPHIC_API::VULKAN)
+	{
+		AddVertex(meshContainer, { 1.0, 1.0, 0 }, { 0.0, 1.0 }, { 0.0,0.0,-1.0 });
+		AddVertex(meshContainer, { -1.0, 1.0, 0 }, { 0.0, 0.0 }, { 0.0,0.0,-1.0 });
+		AddVertex(meshContainer, { 0.0f, -1.0f, 0 }, { 1.0, 0.0 }, { 0.0,0.0,-1.0 });
+	}
+
+
+	return meshContainer;
+}
+
 
 MeshContainer* StandardShapes::CreateCube()
 {

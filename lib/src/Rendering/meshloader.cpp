@@ -44,9 +44,9 @@ void MeshLoader::ProcessMesh(Model *inModel, aiMesh *mesh, const aiScene *scene)
 
         if(mesh->HasNormals())
         {
-            vertex.normals.x = mesh->mNormals[i].x;
-            vertex.normals.y = mesh->mNormals[i].y;
-            vertex.normals.z = mesh->mNormals[i].z;
+            vertex.normal.x = mesh->mNormals[i].x;
+            vertex.normal.y = mesh->mNormals[i].y;
+            vertex.normal.z = mesh->mNormals[i].z;
         }
 
         if(mesh->HasTextureCoords(0))

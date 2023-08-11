@@ -8,7 +8,8 @@
 #include <cstring>
 #include <set>
 #include <algorithm>
-
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -76,8 +77,22 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	if (!_SetUpCommandPool(physicalDevice, _device))
 		return false;
 
+	if (!_SetupAllocator(physicalDevice, _device, _instance))
+		return false;
+
 	return true;
 }
+
+bool Vulkan::_SetupAllocator(VkPhysicalDevice physicalDevice, VkDevice inDevice, VkInstance instance)
+{
+	VmaAllocatorCreateInfo allocatorInfo = {};
+	allocatorInfo.physicalDevice = physicalDevice;
+	allocatorInfo.device = inDevice;
+	allocatorInfo.instance = instance;
+	VkResult result = vmaCreateAllocator(&allocatorInfo, &_allocator);
+	return result == VK_SUCCESS;
+}
+
 
 bool Vulkan::AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass)
 {
@@ -123,6 +138,9 @@ bool Vulkan::DeInit()
 {
 	vkDestroyCommandPool(_device, _commandPool, nullptr);
 	_CleanUpSwapChain();
+
+	vmaDestroyAllocator(_allocator);
+
 	vkDestroyDevice(_device, nullptr);
 	if (_enableValidationLayers) {
 		DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
@@ -163,9 +181,9 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Hello Triangle";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
 	appInfo.pEngineName = "No Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
 	appInfo.apiVersion = VK_API_VERSION_1_3;
 
 	unsigned int extensionCount = 0;
@@ -173,7 +191,7 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	std::vector<const char*> extensionNames(extensionCount);
 	SDL_Vulkan_GetInstanceExtensions(&extensionCount, extensionNames.data());
 
-	extensionNames.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+	//extensionNames.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 	extensionNames.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	extensionNames.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
@@ -182,7 +200,7 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledExtensionCount = extensionNames.size();
 	createInfo.ppEnabledExtensionNames = extensionNames.data();
-	createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+	//createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
 	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 	if (_enableValidationLayers) {

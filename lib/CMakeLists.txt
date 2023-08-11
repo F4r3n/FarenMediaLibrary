@@ -74,6 +74,10 @@ FETCHCONTENT_GETPROPERTIES(ASSIMP)
 include_directories(${assimp_SOURCE_DIR}/include) 
 link_directories(${assimp_BINARY_DIR}/code)
 
+#VMA
+FETCHCONTENT_GETPROPERTIES(VMA)
+include_directories(${vma_SOURCE_DIR}/include) 
+
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
@@ -98,7 +102,4 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	target_link_libraries(${LIB_NAME} gcc_s stdc++)
 	target_link_libraries(${LIB_NAME} stdc++fs)
 endif(CMAKE_COMPILER_IS_GNUCXX)
-
-
-
 

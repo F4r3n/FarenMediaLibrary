@@ -1,6 +1,6 @@
 #include <vulkan/vulkan.h>
 #include <vector>
-
+#include "vk_mem_alloc.h"
 struct SDL_Window;
 
 
@@ -19,6 +19,7 @@ public:
 	VkQueue						GetGraphicsQueue() const { return _graphicsQueue; }
 	VkDevice					GetDevice() const { return _device; }
 	VkCommandPool				GetCommandPool() const { return _commandPool; }
+	VmaAllocator				GetAllocator() const { return _allocator; }
 
 	//Swap chain related
 	VkFramebuffer				GetSwapChainFrameBuffer(uint32_t index) const { return _swapChainFramebuffers[index]; }
@@ -52,6 +53,9 @@ private:
 	bool _SetupImageViews(VkDevice inDevice);
 	bool _SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice);
 	void _CleanUpSwapChain();
+
+	//Setup allocator
+	bool _SetupAllocator(VkPhysicalDevice physicalDevice, VkDevice inDevice, VkInstance instance);
 private:
 	VkDebugUtilsMessengerEXT _debugMessenger;
 
@@ -73,4 +77,6 @@ private:
 
 
 	VkCommandPool	_commandPool;
+
+	VmaAllocator _allocator; //vma lib allocator
 };

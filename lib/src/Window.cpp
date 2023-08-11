@@ -110,10 +110,6 @@ bool Window::Init(size_t width, size_t height)
     if(_Init())
     {
 		SDL_ShowWindow(_window);
-		int error = glGetError();
-		if (error != 0) {
-			std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
-		}
         _isInit = true;
         fm::Debug::get().LogError("Init");
         return true;

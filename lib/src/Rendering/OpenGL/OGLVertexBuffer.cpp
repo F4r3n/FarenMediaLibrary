@@ -1,18 +1,19 @@
 #include <Rendering/VertexBuffer.hpp>
+#include "Rendering/OpenGL/OGLVertexBuffer.hpp"
 #include <Core/Config.h>
 using namespace fm;
 using namespace rendering;
-VertexBuffer::VertexBuffer() 
+OGLVertextBuffer::OGLVertextBuffer()
 {
 	_numberVertices = 0;
 	_vaoIsSet = false;
 }
 
-VertexBuffer::~VertexBuffer() 
+OGLVertextBuffer::~OGLVertextBuffer()
 {
 }
 
-size_t VertexBuffer::DataTypeToOpengl(DATA_TYPE inType) const
+size_t OGLVertextBuffer::DataTypeToOpengl(DATA_TYPE inType) const
 {
 	switch (inType)
 	{
@@ -24,7 +25,7 @@ size_t VertexBuffer::DataTypeToOpengl(DATA_TYPE inType) const
 }
 
 
-void VertexBuffer::destroy() 
+void OGLVertextBuffer::destroy()
 {
 	
     if(_indexVAO != 0)
@@ -39,12 +40,12 @@ void VertexBuffer::destroy()
     }
 }
 
-void VertexBuffer::Bind() const
+void OGLVertextBuffer::Bind() const
 {
 	glBindVertexArray(_indexVAO);
 }
 
-void VertexBuffer::prepareData()
+void OGLVertextBuffer::prepareData()
 {
     if(_vaoIsSet) return;
 
@@ -53,7 +54,7 @@ void VertexBuffer::prepareData()
 }
 
 
-void VertexBuffer::GenerateEmpty(size_t maxVertices)
+void OGLVertextBuffer::GenerateEmpty(size_t maxVertices)
 {
 
 	if(_indexVAO == 0)
@@ -69,13 +70,13 @@ void VertexBuffer::GenerateEmpty(size_t maxVertices)
 		glBufferData(GL_ARRAY_BUFFER, maxVertices * sizeof(Vertex), nullptr, GL_STATIC_DRAW);
 	}
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
 
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, uv));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(5 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
@@ -83,7 +84,7 @@ void VertexBuffer::GenerateEmpty(size_t maxVertices)
 }
 
 
-bool VertexBuffer::AddVertices(Vertex *inVertices, size_t number, size_t offset)
+bool OGLVertextBuffer::AddVertices(Vertex *inVertices, size_t number, size_t offset)
 {
     if(_indexVAO == 0) return false;
 
@@ -95,7 +96,7 @@ bool VertexBuffer::AddVertices(Vertex *inVertices, size_t number, size_t offset)
 }
 
 
-void VertexBuffer::generate(const std::vector<Vertex>& vertices)
+void OGLVertextBuffer::generate(const std::vector<Vertex>& vertices)
 {
     glGenVertexArrays(1, &_indexVAO);
     glBindVertexArray(_indexVAO);
@@ -111,7 +112,7 @@ void VertexBuffer::generate(const std::vector<Vertex>& vertices)
 }
 
 
-void VertexBuffer::generate() 
+void OGLVertextBuffer::generate()
 {
 
     glGenVertexArrays(1, &_indexVAO);
@@ -124,7 +125,7 @@ void VertexBuffer::generate()
 	_vaoIsSet = true;
 }
 
-void VertexBuffer::setBufferData(void* data, unsigned int offset, unsigned int size, unsigned int dataSize, bool staticData)
+void OGLVertextBuffer::setBufferData(void* data, unsigned int offset, unsigned int size, unsigned int dataSize, bool staticData)
 {
     glBindVertexArray(_indexVAO);
 
@@ -151,7 +152,7 @@ void VertexBuffer::setBufferData(void* data, unsigned int offset, unsigned int s
 	_numberVertices = size;
 }
 
-void VertexBuffer::SetVertexAttribArray(size_t index, size_t size, DATA_TYPE type, size_t stride)
+void OGLVertextBuffer::SetVertexAttribArray(size_t index, size_t size, DATA_TYPE type, size_t stride)
 {
 	if (isGenerated())
 	{
@@ -167,7 +168,7 @@ void VertexBuffer::SetVertexAttribArray(size_t index, size_t size, DATA_TYPE typ
 }
 
 
-bool VertexBuffer::isGenerated()
+bool OGLVertextBuffer::isGenerated()
 {
     return _indexVBO != 0;
 }

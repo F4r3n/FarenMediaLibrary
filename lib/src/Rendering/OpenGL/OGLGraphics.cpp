@@ -98,7 +98,7 @@ void Graphics::Draw(Model* model) const
 }
 
 // TODO VAO needed with opengl CORE and not ES
-void Graphics::BindVertexBuffer(VertexBuffer* vertexBuffer) const
+void Graphics::BindVertexBuffer(rendering::OGLVertextBuffer* vertexBuffer) const
 {
     vertexBuffer->prepareData();
 	vertexBuffer->Bind();

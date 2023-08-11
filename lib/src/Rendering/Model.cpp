@@ -1,6 +1,7 @@
 #include <Rendering/VertexBuffer.hpp>
 #include <Rendering/StandardShapes.h>
 #include <Rendering/Model.hpp>
+#include "Rendering/OpenGL/OGLVertexBuffer.hpp"
 #include <Core/Debug.h>
 
 
@@ -30,7 +31,8 @@ Model::~Model()
 
 void Model::BindIndex(size_t index) const
 {
-	_meshes[index].vertexBuffer->Bind();
+	if (auto v = dynamic_cast<fm::rendering::OGLVertextBuffer*>(_meshes[index].vertexBuffer.get()))
+		v->Bind();
 }
 
 void Model::PrepareBuffer()
@@ -41,8 +43,8 @@ void Model::PrepareBuffer()
         {
             fm::Debug::get().LogError("Vertex buffer is empty and should be prepared ???");
         }
-
-        mesh.vertexBuffer->prepareData();
+		if(auto v = dynamic_cast<fm::rendering::OGLVertextBuffer*>(mesh.vertexBuffer.get()))
+			v->prepareData();
     }
 }
 
@@ -53,9 +55,9 @@ void Model::generate()
     {
         if(mesh.vertexBuffer == nullptr)
         {
-            mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new VertexBuffer());
+            mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new OGLVertextBuffer());
         }
 
-        mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
+		mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
     }
 }
