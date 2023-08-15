@@ -3,6 +3,7 @@
 #include <Rendering/OpenGL/OGLGraphicsDef.hpp>
 #include "Rendering/Model.hpp"
 #include "Rendering/VertexBuffer.hpp"
+#include "Rendering/OpenGL/OGLModel.h"
 using namespace fm;
 using namespace rendering;
 Graphics::Graphics()
@@ -84,17 +85,9 @@ void Graphics::Draw(int primitiveType,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Graphics::Draw(Model* model) const
+void Graphics::Draw(OGLModel* model) const
 {
-	model->PrepareBuffer();
-
-    for(size_t i = 0; i < model->GetNumberMeshes(); ++i)
-    {
-        fm::rendering::MeshContainer* mesh = model->GetMeshContainer(i);
-		model->BindIndex(i);
-        Draw((size_t)0, mesh->listIndices.size(), (size_t*)mesh->listIndices.data());
-    }
-
+	model->Draw();
 }
 
 // TODO VAO needed with opengl CORE and not ES

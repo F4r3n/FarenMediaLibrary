@@ -32,43 +32,11 @@ Model::~Model()
     }
 }
 
-void Model::BindIndex(size_t index) const
+
+void Model::Destroy()
 {
-	if (auto v = dynamic_cast<fm::rendering::OGLVertextBuffer*>(_meshes[index].vertexBuffer.get()))
-		v->Bind();
+	if (_destroyCallback != nullptr)
+		_destroyCallback();
 }
 
-void Model::PrepareBuffer()
-{
-    for(auto &mesh : _meshes)
-    {
-        if(mesh.vertexBuffer == nullptr)
-        {
-            fm::Debug::get().LogError("Vertex buffer is empty and should be prepared ???");
-        }
-		if (auto v = dynamic_cast<fm::rendering::OGLVertextBuffer*>(mesh.vertexBuffer.get()))
-		{
-			v->prepareData();
-		}
-    }
-}
 
-void Model::generate(GRAPHIC_API inAPI)
-{
-    for(auto &mesh : _meshes)
-    {
-        if(mesh.vertexBuffer == nullptr)
-        {
-			if (inAPI == GRAPHIC_API::OPENGL)
-			{
-				mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new OGLVertextBuffer());
-			}
-			else if (inAPI == GRAPHIC_API::VULKAN)
-			{
-				mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new fm::VkVertexBuffer());
-			}
-        }
-
-		mesh.vertexBuffer->UploadData(*mesh.meshContainer);
-    }
-}

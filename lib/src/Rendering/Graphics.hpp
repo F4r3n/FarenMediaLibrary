@@ -6,6 +6,8 @@
 #include "Rendering/OpenGL/OGLVertexBuffer.hpp"
 namespace fm {
 
+	class Model;
+	class OGLModel;
 	namespace rendering
 	{
 		class VertexBuffer;
@@ -44,7 +46,7 @@ namespace fm {
         void Disable(RENDERING_TYPE renderingTYPE) const;
         void Draw(int primitiveType, size_t vertexCount, size_t* indices) const;
         void Draw(int primitiveType, size_t vertexStart, size_t vertexCount) const;
-        void Draw(Model* model) const;
+        void Draw(OGLModel* model) const;
         void BindVertexBuffer(rendering::OGLVertextBuffer *vertexBuffer) const;
         void BindFrameBuffer(unsigned int id) const;
         void BindTexture2D(size_t number, int idTexture, int type) const;

@@ -46,8 +46,8 @@ namespace fm
 		fm::MaterialValue _materialValue;
 		TextureKind _source;
 		TextureKind _destination;
-		Material *_material;
-		Model *_model;
+		std::weak_ptr<Material> _material;
+		std::weak_ptr<Model> _model;
 		Transform _transform;
 		MaterialProperties _materialProperties;
 		BUFFER_BIT _bufferBit;
@@ -69,9 +69,9 @@ namespace fm
 		void Enable(RENDERING_TYPE inType);
 		void Disable(RENDERING_TYPE inType);
 
-		void Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
-		void Blit(Texture &inSource, RenderTexture &inDestination, fm::Material *inMaterial = nullptr);
-		void DrawMesh(Model *inModel, const Transform &inTranform, fm::Material *inMaterial, const fm::MaterialProperties &inMaterialProperties);
+		void Blit(RenderTexture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
+		void Blit(Texture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
+		void DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialProperties &inMaterialProperties);
 		Command Pop();
 		bool IsEmpty() const;
 		void Push(Command && inCommand);

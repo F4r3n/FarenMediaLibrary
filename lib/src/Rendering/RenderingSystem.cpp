@@ -32,6 +32,7 @@
 #include "Rendering/Model.hpp"
 #include "Engine.h"
 #include "Rendering/OpenGL/OGLShader.h"
+#include "Rendering/OpenGL/OGLModel.h"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -75,26 +76,30 @@ RenderingSystem::~RenderingSystem()
 
 void RenderingSystem::_InitStandardShapes()
 {
-    fm::Model* quad = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Quad"));
-    fm::Model* quadFS = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "QuadFS"));
-    fm::Model* circle = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Circle"));
-    fm::Model* cube = new fm::Model(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Cube"));
+    std::shared_ptr<fm::Model> quad =	std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Quad"));
+    std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "QuadFS"));
+    std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Circle"));
+    std::shared_ptr<fm::Model> cube =	std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Cube"));
     quad->AddMesh(fm::StandardShapes::CreateQuad());
     circle->AddMesh(fm::StandardShapes::CreateCircle());
     quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
     cube->AddMesh(fm::StandardShapes::CreateCube());
 
-
-    quad->generate(_api);
-    circle->generate(_api);
-    quadFS->generate(_api);
-    cube->generate(_api);
     fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
     fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
     fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
     fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
+	_models.emplace(quad->GetID(), std::make_unique<fm::OGLModel>(quad));
+	_models.emplace(cube->GetID(), std::make_unique<fm::OGLModel>(cube));
+	_models.emplace(quadFS->GetID(), std::make_unique<fm::OGLModel>(quadFS));
+	_models.emplace(cube->GetID(), std::make_unique<fm::OGLModel>(cube));
 
-    fm::Renderer::getInstance().createQuadScreen();
+	for (const auto& m : _models)
+	{
+		m.second->UploadData();
+	}
+
+    fm::Renderer::getInstance().SetQuadScreen(_models.find(quadFS->GetID())->second.get());
 }
 
 
@@ -107,7 +112,7 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
     for(auto &&e : em.iterate<fmc::CMaterial>(fm::IsEntityActive))
     {
         fmc::CMaterial* material = e.get<fmc::CMaterial>();
-        std::vector<fm::Material*> materials = material->GetAllMaterials();
+        std::vector<std::shared_ptr<fm::Material>> materials = material->GetAllMaterials();
         for(auto &m : materials)
         {
 			m->Compile();
@@ -298,12 +303,12 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			fm::Command && cmd = cmdBuffer.Pop();
 			if (cmd._command == fm::Command::COMMAND_KIND::BLIT)
 			{
-				fm::Shader *shader = _finalShader;
-				if (cmd._material != nullptr)
+				std::shared_ptr<fm::Shader> shader = _finalShader;
+				if (auto m  = cmd._material.lock())
 				{
-					shader = cmd._material->GetShader();
+					shader = m->GetShader();
 					shader->Use();
-					for (auto const& value : cmd._material->getValues())
+					for (auto const& value : m->getValues())
 					{
 						shader->setValue(value.name, value.materialValue);
 					}
@@ -328,13 +333,13 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				{
 					if (cmd._destination.renderTexture != nullptr)
 					{
-						fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader);
+						fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader.get());
 					}
 				}
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
-				_DrawMesh(currentCamera, cmd._transform, cmd._model, cmd._material, &cmd._materialProperties);
+				_DrawMesh(currentCamera, cmd._transform, cmd._model.lock().get(), cmd._material.lock().get(), &cmd._materialProperties);
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR)
 			{
@@ -381,7 +386,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 {
 	if (!inMaterial->IsReady()) return;
 
-	fm::Shader* shader = inMaterial->GetShader();
+	std::shared_ptr<fm::Shader> shader = inMaterial->GetShader();
 
 	if (shader != nullptr)
 	{
@@ -395,7 +400,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		shader->setValue("FM_M", modelPosition);
 
 		cam->_rendererConfiguration.uboLight->Bind();
-		dynamic_cast<fm::OGLShader*>(shader)->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
+		std::dynamic_pointer_cast<fm::OGLShader>(shader)->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
 
 		for (auto const& value : inMaterial->getValues())
 		{
@@ -410,7 +415,13 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 			}
 		}
 		if (inModel != nullptr)
-			_graphics.Draw(inModel);
+		{
+			auto it = _models.find(inModel->GetID());
+			if (it != _models.end())
+			{
+				_graphics.Draw(it->second.get());
+			}
+		}
 	}
 }
 
@@ -427,7 +438,7 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
         const fm::Transform transform = node.transform;
 		const fm::RENDER_QUEUE state = node.state;
 		const fm::Materials* materials = node.mat;
-        fm::Model* model = node.model;
+        std::optional<std::weak_ptr<fm::Model>> model = node.model;
 		fmc::CText* text = node.text;
         if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
         {
@@ -437,17 +448,20 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 				{
 					for (const auto& m : *materials)
 					{
-						_DrawText(cam, transform, text, m);
+						_DrawText(cam, transform, text, m.get());
 					}
 				}
 
-                if(model != nullptr)
-                {
-                    for(const auto &m : *materials)
-                    {
-						_DrawMesh(cam, transform, model, m);
-                    }
-                }
+
+				if (std::shared_ptr<fm::Model> wModel = model->lock())
+				{
+					for (const auto& m : *materials)
+					{
+						_DrawMesh(cam, transform, wModel.get(), m.get());
+					}
+				}
+
+                
             }
 
 			cam->_rendererConfiguration.queuePreviousValue = state;
@@ -481,7 +495,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
     {
         fm::RenderNode node = {e.get<fmc::CTransform>()->GetTransform(),
                                nullptr,
-                               nullptr,
+                               std::nullopt,
                                e.get<fmc::CDirectionalLight>(),
                                e.get<fmc::CPointLight>(),
                                e.get<fmc::CText>(),
@@ -554,43 +568,49 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 	if (inText->GetText().empty())
 		return;
 
-	fm::RFont* font = fm::ResourcesManager::get().getResource<fm::RFont>(inText->GetFontName());
-	fm::Shader* shader = inMaterial->GetShader();
+	std::weak_ptr<fm::RFont> font = fm::ResourcesManager::get().getResource<fm::RFont>(inText->GetFontName());
+	std::weak_ptr<fm::Shader> shader = inMaterial->GetShader();
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
-	shader->Use();
-	shader->setValue("FM_PV", cam->shader_data.FM_PV);
-	shader->setValue("viewPos", inTransform.position);
-	fm::math::mat modelPosition = inTransform.worldTransform;
-
-	shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
-	shader->setValue("FM_M", modelPosition);
-	shader->setValue("text", 0);
-	fm::math::mat projection;
-	if (inText->GetTextType() == fmc::CText::TEXT_RENDERING::OVERLAY)
-		projection = cam->GetOrthographicProjectionForText();
-	fm::math::mat m = fmc::CTransform::CreateMatrixModel(fm::math::vec3(inTransform.position.x, inTransform.position.y, 0),
-		fm::math::vec3(inTransform.scale.x, inTransform.scale.y, 1),
-		inTransform.rotation, true);
-
-	fm::math::mat pm = m*projection;
-	shader->setValue("PM",pm);
-	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
-	for (auto const& value : inMaterial->getValues())
+	if (std::shared_ptr<fm::Shader> wshader = shader.lock())
 	{
-		shader->setValue(value.name, value.materialValue);
+		wshader->Use();
+		wshader->setValue("FM_PV", cam->shader_data.FM_PV);
+		wshader->setValue("viewPos", inTransform.position);
+		fm::math::mat modelPosition = inTransform.worldTransform;
+
+		wshader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
+		wshader->setValue("FM_M", modelPosition);
+		wshader->setValue("text", 0);
+		fm::math::mat projection;
+		if (inText->GetTextType() == fmc::CText::TEXT_RENDERING::OVERLAY)
+			projection = cam->GetOrthographicProjectionForText();
+		fm::math::mat m = fmc::CTransform::CreateMatrixModel(fm::math::vec3(inTransform.position.x, inTransform.position.y, 0),
+			fm::math::vec3(inTransform.scale.x, inTransform.scale.y, 1),
+			inTransform.rotation, true);
+
+		fm::math::mat pm = m * projection;
+		wshader->setValue("PM", pm);
+		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+		for (auto const& value : inMaterial->getValues())
+		{
+			wshader->setValue(value.name, value.materialValue);
+		}
+
+		if (std::shared_ptr<fm::RFont> wFont = font.lock())
+		{
+			inText->UpdateBuffer(inTransform, wFont.get());
+			_graphics.ActivateTexture2D(0);
+			wFont->texture->bind();
+		}
+
+
+		_graphics.BindVertexBuffer(dynamic_cast<fm::rendering::OGLVertextBuffer*>(inText->GetVertexBuffer()));
+		_graphics.Draw(0, 0, inText->GetVertexBuffer()->GetNumberVertices());
+
+		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 	}
 
-	inText->UpdateBuffer(inTransform, font);
-	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
-	_graphics.ActivateTexture2D(0);
-    font->texture->bind();
-    _graphics.BindVertexBuffer(dynamic_cast<fm::rendering::OGLVertextBuffer*>(inText->GetVertexBuffer()));
-    _graphics.Draw(0, 0, inText->GetVertexBuffer()->GetNumberVertices());
-
-	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
 }
 

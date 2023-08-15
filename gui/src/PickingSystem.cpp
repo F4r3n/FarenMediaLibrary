@@ -39,7 +39,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		0));
 
 
-	_material = std::make_unique<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default_material"));
+	_material = std::make_shared<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default_material"));
 	_material->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>("picking"));
 	_material->Compile();
 }
@@ -102,7 +102,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 						//float colorID = go->getID();
 						materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f)));
-						commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
+						commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material, materialProperties);
 
 						_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 					}

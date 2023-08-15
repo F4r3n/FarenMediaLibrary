@@ -25,7 +25,7 @@ CMaterial::~CMaterial()
 bool CMaterial::Serialize(nlohmann::json &ioJson) const
 {
     nlohmann::json j;
-    for(fm::Material *s : _materials)
+    for(auto s : _materials)
     {
         nlohmann::json m = s->GetName();
        j.push_back(m);

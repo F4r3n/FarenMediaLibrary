@@ -558,6 +558,31 @@ bool Vulkan::_SetupSwapChain(SDL_Window* inWindow, VkPhysicalDevice device)
 	return true;
 }
 
+fm::AllocatedBuffer Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
+{
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.pNext = nullptr;
+
+	bufferInfo.size = allocSize;
+	bufferInfo.usage = usage;
+
+
+	VmaAllocationCreateInfo vmaallocInfo = {};
+	vmaallocInfo.usage = memoryUsage;
+
+	fm::AllocatedBuffer newBuffer;
+
+	//allocate the buffer
+	vmaCreateBuffer(_allocator, &bufferInfo, &vmaallocInfo,
+		&newBuffer._buffer,
+		&newBuffer._allocation,
+		nullptr);
+
+	return newBuffer;
+}
+
+
 bool Vulkan::SetupDepthImage(VkExtent2D inExtent)
 {
 	//depth image size will match the window

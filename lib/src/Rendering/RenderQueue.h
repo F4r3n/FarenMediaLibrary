@@ -7,10 +7,12 @@
 #include "Rendering/RenderQueueEvents.hpp"
 #include "Core/Transform.h"
 #include "Entity.h"
+#include <optional>
 namespace fm
 {
 	class Model;
 	class Material;
+	
 }
 
 namespace fmc
@@ -22,7 +24,7 @@ namespace fmc
 
 namespace fm
 {
-	using Materials = std::vector<fm::Material*>;
+	using Materials = std::vector<std::shared_ptr<fm::Material>>;
 }
 
 namespace fm {
@@ -30,7 +32,7 @@ namespace fm {
 struct RenderNode {
     const fm::Transform transform;
     const fm::Materials *mat;
-		  fm::Model *model;
+		  std::optional<std::weak_ptr<fm::Model>> model;
     const fmc::CDirectionalLight *dlight;
     const fmc::CPointLight *plight;
 		  fmc::CText *text;
