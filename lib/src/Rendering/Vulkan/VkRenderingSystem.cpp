@@ -30,7 +30,7 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
 
-	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSubFile("monkey_flat.obj")));
+	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSubFile("monkey_smooth.obj")));
 
 	 _modelToDrawTest = fm::MeshLoader::Load(models.GetPath(), "monkey").value();
 	 auto a = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);

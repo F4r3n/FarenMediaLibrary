@@ -15,7 +15,7 @@ namespace rendering {
 
     struct MeshContainer {
         std::vector<Vertex> vertices;
-        std::vector<unsigned int> listIndices;
+        std::vector<uint16_t> listIndices;
     };
 
 }

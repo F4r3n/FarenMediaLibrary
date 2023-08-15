@@ -33,7 +33,9 @@ namespace fm
 			static VkVertexInputBindingDescription GetBindingDescription();
 			static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions();
 		private:
-			bool		_SetupVertexBuffer(const std::vector<rendering::Vertex>& vertices);
+			template <typename T>
+			bool		_SetupBuffer(AllocatedBuffer& buffer, const std::vector<T>& data, int TYPE);
+
 			VmaAllocator _allocator = nullptr;
 		public:
 			AllocatedBuffer	_allocatedBuffer;

@@ -1,6 +1,8 @@
 #include <Rendering/Vulkan/VkVertexBuffer.hpp>
 #include <Core/Config.h>
 #include "Rendering/Mesh.hpp"
+#include <cstring>
+
 using namespace fm;
 using namespace rendering;
 VkVertexBuffer::VkVertexBuffer(VmaAllocator inAllocator) : _allocator(inAllocator)
@@ -18,6 +20,11 @@ void VkVertexBuffer::destroy()
 		vmaDestroyBuffer(_allocator, _allocatedBuffer._buffer, _allocatedBuffer._allocation);
 
 	_allocatedBuffer._buffer = nullptr;
+
+	if (_allocatedIndexBuffer._buffer != nullptr)
+		vmaDestroyBuffer(_allocator, _allocatedIndexBuffer._buffer, _allocatedIndexBuffer._allocation);
+
+	_allocatedIndexBuffer._buffer = nullptr;
 }
 
 VkVertexInputBindingDescription VkVertexBuffer::GetBindingDescription()
@@ -51,16 +58,14 @@ std::array<VkVertexInputAttributeDescription, 3> VkVertexBuffer::GetAttributeDes
 	return attributeDescriptions;
 }
 
-bool VkVertexBuffer::_SetupVertexBuffer(const std::vector<rendering::Vertex>& vertices)
+template <typename T>
+bool VkVertexBuffer::_SetupBuffer(AllocatedBuffer& buffer, const std::vector<T>& inData, int TYPE_USAGE)
 {
-	_numberVertices = vertices.size();
 	//allocate vertex buffer
 	VkBufferCreateInfo bufferInfo = {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	//this is the total size, in bytes, of the buffer we are allocating
-	bufferInfo.size = vertices.size() * sizeof(Vertex);
-	//this buffer is going to be used as a Vertex Buffer
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.size = inData.size() * sizeof(inData[0]);
+	bufferInfo.usage = TYPE_USAGE;
 
 
 	//let the VMA library know that this data should be writeable by CPU, but also readable by GPU
@@ -69,19 +74,22 @@ bool VkVertexBuffer::_SetupVertexBuffer(const std::vector<rendering::Vertex>& ve
 
 	//allocate the buffer
 	vmaCreateBuffer(_allocator, &bufferInfo, &vmaallocInfo,
-		&_allocatedBuffer._buffer,
-		&_allocatedBuffer._allocation,
+		&buffer._buffer,
+		&buffer._allocation,
 		nullptr);
 
 	void* data;
-	vmaMapMemory(_allocator, _allocatedBuffer._allocation, &data);
-	memcpy(data, vertices.data(), vertices.size() * sizeof(Vertex));
-	vmaUnmapMemory(_allocator, _allocatedBuffer._allocation);
+	vmaMapMemory(_allocator, buffer._allocation, &data);
+	memcpy(data, inData.data(), bufferInfo.size);
+	vmaUnmapMemory(_allocator, buffer._allocation);
 	return true;
 }
 
 
+
 void VkVertexBuffer::UploadData(const fm::rendering::MeshContainer& inMeshContainer)
 {
-	_SetupVertexBuffer(inMeshContainer.vertices);
+	_numberVertices = inMeshContainer.vertices.size();
+	_SetupBuffer(_allocatedBuffer, inMeshContainer.vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+	_SetupBuffer(_allocatedIndexBuffer, inMeshContainer.listIndices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 }
