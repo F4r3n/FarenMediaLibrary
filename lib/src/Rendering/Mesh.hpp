@@ -5,18 +5,20 @@
 
 namespace fm {
 
-namespace rendering {
-    struct Vertex {
+namespace rendering
+{
+    struct Vertex
+	{
         fm::math::Vector3f position;
 		fm::math::Vector3f color;
         fm::math::Vector2f uv;
         fm::math::Vector3f normal;
     };
 
-    struct MeshContainer {
+    struct MeshContainer
+	{
         std::vector<Vertex> vertices;
-        std::vector<uint32_t> listIndices;
+        std::vector<uint32_t> listIndices; //Do not forget to change it: VK_INDEX_TYPE_UINT32
     };
-
 }
 }
