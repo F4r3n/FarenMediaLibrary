@@ -85,10 +85,10 @@ void RenderingSystem::_InitStandardShapes()
     cube->AddMesh(fm::StandardShapes::CreateCube());
 
 
-    quad->generate();
-    circle->generate();
-    quadFS->generate();
-    cube->generate();
+    quad->generate(_api);
+    circle->generate(_api);
+    quadFS->generate(_api);
+    cube->generate(_api);
     fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
     fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
     fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);

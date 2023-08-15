@@ -12,7 +12,9 @@ namespace fm
 		~VkPipelineBuilder();
 		VkPipelineBuilder() = default;
 
-		VkPipeline	GetPipeline() const { return _pipeline; }
+		VkPipeline			GetPipeline() const { return _pipeline; }
+		VkPipelineLayout	GetPipelineLayout() const { return _pipelineLayout; }
+
 		void DeInit();
 	private:
 		VkPipelineLayout	_CreatePipelineLayout();

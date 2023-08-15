@@ -8,10 +8,13 @@
 
 namespace fm
 {
-
+	namespace rendering
+	{
+		struct MeshContainer;
+	}
 	struct AllocatedBuffer {
-		VkBuffer _buffer;
-		VmaAllocation _allocation;
+		VkBuffer		_buffer		= nullptr;
+		VmaAllocation	_allocation = nullptr;
 	};
 
 
@@ -24,15 +27,18 @@ namespace fm
 			~VkVertexBuffer();
 
 			//TODO refactor
-			virtual void generate(const std::vector<rendering::Vertex>& vertices);
+			virtual void UploadData(const fm::rendering::MeshContainer& inMeshContainer);
 			virtual void destroy();
-
+			virtual bool isGenerated() const { return _allocatedBuffer._buffer != nullptr; }
 			static VkVertexInputBindingDescription GetBindingDescription();
 			static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions();
 		private:
-			VmaAllocator _allocator;
+			bool		_SetupVertexBuffer(const std::vector<rendering::Vertex>& vertices);
+			VmaAllocator _allocator = nullptr;
 		public:
 			AllocatedBuffer	_allocatedBuffer;
+			AllocatedBuffer	_allocatedIndexBuffer;
+
 		};
 	
 }

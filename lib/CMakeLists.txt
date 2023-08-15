@@ -56,6 +56,7 @@ include_directories(${FML_EXTLIB}/stb)
 #RAPID_JSON
 include_directories(${FML_EXTLIB}/json/include)
 
+
 #ECS
 FETCHCONTENT_GETPROPERTIES(ECS)
 include_directories(${ecs_SOURCE_DIR}/lib/include) 
@@ -77,7 +78,6 @@ link_directories(${assimp_BINARY_DIR}/code)
 #VMA
 FETCHCONTENT_GETPROPERTIES(VMA)
 include_directories(${vma_SOURCE_DIR}/include) 
-
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
@@ -102,4 +102,3 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	target_link_libraries(${LIB_NAME} gcc_s stdc++)
 	target_link_libraries(${LIB_NAME} stdc++fs)
 endif(CMAKE_COMPILER_IS_GNUCXX)
-

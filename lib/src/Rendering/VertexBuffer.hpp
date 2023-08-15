@@ -16,7 +16,7 @@ namespace fm
 			virtual void destroy() { ; }
 			virtual bool isGenerated() { return false; }
 			size_t GetNumberVertices() const { return _numberVertices; }
-			virtual void generate(const std::vector<Vertex>& vertices) { ; }
+			virtual void UploadData(const MeshContainer& inMeshContainer) { ; }
 
 		protected:
 			size_t _numberVertices;

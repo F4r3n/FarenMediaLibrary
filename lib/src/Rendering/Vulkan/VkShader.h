@@ -2,6 +2,7 @@
 
 #include "Rendering/Shader.h"
 #include "vulkan/vulkan.h"
+#include "Core/Math/Matrix.h"
 
 namespace fm
 {
@@ -12,6 +13,10 @@ public:
 	{
 		VERT,
 		FRAG
+	};
+	struct MeshPushConstants {
+		fm::math::vec4	data;
+		fm::math::mat	render_matrix;
 	};
 	VkShader();
 

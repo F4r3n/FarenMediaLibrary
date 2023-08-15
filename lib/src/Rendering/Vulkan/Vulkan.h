@@ -6,11 +6,19 @@ struct SDL_Window;
 
 class Vulkan
 {
-	struct SwapChainSupportDetails {
+	struct SwapChainSupportDetails
+	{
 		VkSurfaceCapabilitiesKHR capabilities;
 		std::vector<VkSurfaceFormatKHR> formats;
 		std::vector<VkPresentModeKHR> presentModes;
 	};
+
+	struct AllocatedImage
+	{
+		VkImage _image;
+		VmaAllocation _allocation;
+	};
+
 
 public:
 	bool Init(SDL_Window* inWindow);
@@ -20,6 +28,7 @@ public:
 	VkDevice					GetDevice() const { return _device; }
 	VkCommandPool				GetCommandPool() const { return _commandPool; }
 	VmaAllocator				GetAllocator() const { return _allocator; }
+	VkFormat					GetDepthFormat() const { return _depthFormat; }
 
 	//Swap chain related
 	VkFramebuffer				GetSwapChainFrameBuffer(uint32_t index) const { return _swapChainFramebuffers[index]; }
@@ -29,8 +38,9 @@ public:
 	bool						AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass);
 	void						SubmitPresentQueue(VkSemaphore* inSemaphores, uint32_t inImageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass);
 	bool						SetupSwapChainFramebuffer(VkRenderPass inRenderPass);
-
-
+	VkImageCreateInfo 			CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) const;
+	VkImageViewCreateInfo		CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) const;
+	bool						SetupDepthImage(VkExtent2D inExtent);
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();
@@ -48,9 +58,9 @@ private:
 	VkSurfaceFormatKHR	_ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
 	VkExtent2D			_ChooseSwapExtent(SDL_Window* inWindow, const VkSurfaceCapabilitiesKHR& capabilities) const;
 	bool				_RecreateSwapChain(SDL_Window* inWindow, VkRenderPass inRenderPass);
+	bool				_SetupSwapChainImageViews(VkDevice inDevice);
 
-	//Setup imageview
-	bool _SetupImageViews(VkDevice inDevice);
+
 	bool _SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice);
 	void _CleanUpSwapChain();
 
@@ -68,12 +78,18 @@ private:
 	VkQueue			_graphicsQueue;
 	VkQueue			_presentQueue;
 
+	//Swap chain
 	VkSwapchainKHR			_swapChain;
 	std::vector<VkImage>	_swapChainImages;
 	VkFormat				_swapChainImageFormat;
 	VkExtent2D				_swapChainExtent;
 	std::vector<VkImageView> _swapChainImageViews;
 	std::vector<VkFramebuffer>	_swapChainFramebuffers;
+
+	//Depth
+	VkImageView		_depthImageView;
+	AllocatedImage	_depthImage;
+	VkFormat		_depthFormat;
 
 
 	VkCommandPool	_commandPool;

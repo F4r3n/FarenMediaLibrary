@@ -7,6 +7,8 @@
 #include "Rendering/StandardShapes.h"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
+#include "Rendering/meshloader.hpp"
+#include "VkModel.h"
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 using namespace fms;
@@ -16,7 +18,7 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_vulkan = std::make_unique<Vulkan>();
 	_vulkan->Init(inWindow->getWindow());
 	_window = inWindow;
-	fm::ResourcesManager::get().LoadShaders(GRAPHIC_API::VULKAN);
+	fm::ResourcesManager::get().LoadShaders(_api);
 	//fm::ResourcesManager::get().LoadFonts();
 	fm::ResourcesManager::get().LoadMaterials();
 
@@ -28,10 +30,13 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
 
-	fm::rendering::MeshContainer* triangle = fm::StandardShapes::CreateTriangle(GRAPHIC_API::VULKAN);
-	 _triangle = fm::VkVertexBuffer(_vulkan->GetAllocator());
-	 _triangle.generate(triangle->vertices);
-	
+	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSubFile("monkey_flat.obj")));
+
+	 _modelToDrawTest = fm::MeshLoader::Load(models.GetPath(), "monkey").value();
+	 auto a = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
+	 a->UploadData();
+	 _modelsUploaded.emplace(_modelToDrawTest->GetID(), std::move(a));
+
 }
 
 bool VkRenderingSystem::_SetupSyncObjects()
@@ -75,23 +80,41 @@ VkRenderPass VkRenderingSystem::_CreateRenderPass()
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+	VkAttachmentDescription depthAttachment = {};
+	// Depth attachment
+	depthAttachment.flags = 0;
+	depthAttachment.format = _vulkan->GetDepthFormat();
+	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depth_attachment_ref = {};
+	depth_attachment_ref.attachment = 1;
+	depth_attachment_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 	VkSubpassDescription subpass{};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.pDepthStencilAttachment = &depth_attachment_ref;
 
 	VkSubpassDependency dependency{};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
+	VkAttachmentDescription attachments[2] = { colorAttachment, depthAttachment };
 	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = 2;
+	renderPassInfo.pAttachments = &attachments[0];
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
@@ -141,9 +164,12 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = _vulkan->GetSwapChainExtent();
 
-	VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-	renderPassInfo.clearValueCount = 1;
-	renderPassInfo.pClearValues = &clearColor;
+
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = {{0.0f, 0.0f, 1.0f, 1.0f}};
+	clearValues[1].depthStencil = {1.0f, 0};
+	renderPassInfo.clearValueCount = clearValues.size();
+	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -163,11 +189,38 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 	//bind the mesh vertex buffer with offset 0
-	VkDeviceSize offset = 0;
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &_triangle._allocatedBuffer._buffer, &offset);
+
+	fm::VkShader::MeshPushConstants constants;
+
+	fm::math::vec3 camPos = { 0.f,0.f,-2.0f };
+
+	fm::math::mat view = fm::math::translate(fm::math::mat(1.f), camPos);
+	fm::math::mat projection = fm::math::perspective(fm::math::radians(70.f), ((float)_vulkan->GetSwapChainExtent().width / (float)_vulkan->GetSwapChainExtent().height), 0.1f, 200.0f);
+	projection[1][1] *= -1;
+	fm::math::mat model = fm::math::rotate(fm::math::mat{ 1.0f }, fm::math::radians(3.14f), fm::math::vec3(0, 1, 0));
+	fm::math::mat mesh_matrix = projection * view * model;
+
+	constants.data = fm::math::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	constants.render_matrix = mesh_matrix;
+	
+	//constants.render_matrix.identity();
+	//upload the matrix to the GPU via push constants
+	vkCmdPushConstants(commandBuffer, _pipeline.GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(fm::VkShader::MeshPushConstants), &constants);
 
 	//we can now draw the mesh
-	vkCmdDraw(commandBuffer, _triangle.GetNumberVertices(), 1, 0, 0);
+	auto it = _modelsUploaded.find(_modelToDrawTest->GetID());
+	if (it != _modelsUploaded.end())
+	{
+		it->second->Draw(commandBuffer);
+	}
+	else
+	{
+		auto model = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
+		model->UploadData();
+		model->Draw(commandBuffer);
+
+		_modelsUploaded.emplace(_modelToDrawTest->GetID(), std::move(model));
+	}
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -193,40 +246,40 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 		return;
 
 	auto device = _vulkan->GetDevice();
-	vkWaitForFences(device, 1, &_inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+	vkWaitForFences(device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	if (!_vulkan->AcquireImage(_imageAvailableSemaphores[currentFrame], imageIndex, _window->getWindow(), _renderPass))
+	if (!_vulkan->AcquireImage(_imageAvailableSemaphores[_currentFrame], imageIndex, _window->getWindow(), _renderPass))
 	{
 		return;
 	}
-	vkResetFences(device, 1, &_inFlightFences[currentFrame]);
+	vkResetFences(device, 1, &_inFlightFences[_currentFrame]);
 
-	vkResetCommandBuffer(_commandBuffers[currentFrame], 0);
-	_RecordCommandBuffer(_commandBuffers[currentFrame], imageIndex, _renderPass, _pipeline.GetPipeline());
+	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
+	_RecordCommandBuffer(_commandBuffers[_currentFrame], imageIndex, _renderPass, _pipeline.GetPipeline());
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[currentFrame] };
+	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[_currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffers[currentFrame];
+	submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
 
-	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[currentFrame] };
+	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[_currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(_vulkan->GetGraphicsQueue(), 1, &submitInfo, _inFlightFences[currentFrame]) != VK_SUCCESS) {
+	if (vkQueueSubmit(_vulkan->GetGraphicsQueue(), 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
 	_vulkan->SubmitPresentQueue(signalSemaphores, imageIndex, _window->getWindow(), _renderPass);
 
-	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 }
 void VkRenderingSystem::over()
@@ -244,7 +297,10 @@ void VkRenderingSystem::Stop()
 VkRenderingSystem::~VkRenderingSystem()
 {
 	vkDeviceWaitIdle(_vulkan->GetDevice());
-	_triangle.destroy();
+	for (const auto& [_, model] : _modelsUploaded)
+	{
+		model->Destroy();
+	}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(_vulkan->GetDevice(), _renderFinishedSemaphores[i], nullptr);

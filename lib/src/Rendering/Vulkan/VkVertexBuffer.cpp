@@ -1,5 +1,6 @@
 #include <Rendering/Vulkan/VkVertexBuffer.hpp>
 #include <Core/Config.h>
+#include "Rendering/Mesh.hpp"
 using namespace fm;
 using namespace rendering;
 VkVertexBuffer::VkVertexBuffer(VmaAllocator inAllocator) : _allocator(inAllocator)
@@ -13,7 +14,10 @@ VkVertexBuffer::~VkVertexBuffer()
 
 void VkVertexBuffer::destroy()
 {
-	vmaDestroyBuffer(_allocator, _allocatedBuffer._buffer, _allocatedBuffer._allocation);
+	if(_allocatedBuffer._buffer != nullptr)
+		vmaDestroyBuffer(_allocator, _allocatedBuffer._buffer, _allocatedBuffer._allocation);
+
+	_allocatedBuffer._buffer = nullptr;
 }
 
 VkVertexInputBindingDescription VkVertexBuffer::GetBindingDescription()
@@ -44,12 +48,10 @@ std::array<VkVertexInputAttributeDescription, 3> VkVertexBuffer::GetAttributeDes
 	attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
 	attributeDescriptions[2].offset = offsetof(Vertex, color);
 
-
-
 	return attributeDescriptions;
 }
 
-void VkVertexBuffer::generate(const std::vector<Vertex>& vertices)
+bool VkVertexBuffer::_SetupVertexBuffer(const std::vector<rendering::Vertex>& vertices)
 {
 	_numberVertices = vertices.size();
 	//allocate vertex buffer
@@ -75,4 +77,11 @@ void VkVertexBuffer::generate(const std::vector<Vertex>& vertices)
 	vmaMapMemory(_allocator, _allocatedBuffer._allocation, &data);
 	memcpy(data, vertices.data(), vertices.size() * sizeof(Vertex));
 	vmaUnmapMemory(_allocator, _allocatedBuffer._allocation);
+	return true;
+}
+
+
+void VkVertexBuffer::UploadData(const fm::rendering::MeshContainer& inMeshContainer)
+{
+	_SetupVertexBuffer(inMeshContainer.vertices);
 }

@@ -96,7 +96,7 @@ bool OGLVertextBuffer::AddVertices(Vertex *inVertices, size_t number, size_t off
 }
 
 
-void OGLVertextBuffer::generate(const std::vector<Vertex>& vertices)
+void OGLVertextBuffer::UploadData(const fm::rendering::MeshContainer& inMesh)
 {
     glGenVertexArrays(1, &_indexVAO);
     glBindVertexArray(_indexVAO);
@@ -104,11 +104,11 @@ void OGLVertextBuffer::generate(const std::vector<Vertex>& vertices)
     glGenBuffers(1, &_indexVBO);
     glBindBuffer(GL_ARRAY_BUFFER, _indexVBO);
     glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(Vertex) * vertices.size(),
-                 vertices.data(),
+                 sizeof(Vertex) * inMesh.vertices.size(),
+                 inMesh.vertices.data(),
                  GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    _numberVertices = vertices.size();
+    _numberVertices = inMesh.vertices.size();
 }
 
 

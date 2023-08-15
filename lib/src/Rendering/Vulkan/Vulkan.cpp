@@ -71,13 +71,16 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	if (!_SetupSwapChain(inWindow, physicalDevice))
 		return false;
 
-	if (!_SetupImageViews(_device))
+	if (!_SetupSwapChainImageViews(_device))
 		return false;
 
 	if (!_SetUpCommandPool(physicalDevice, _device))
 		return false;
 
 	if (!_SetupAllocator(physicalDevice, _device, _instance))
+		return false;
+
+	if (!SetupDepthImage(_swapChainExtent))
 		return false;
 
 	return true;
@@ -555,12 +558,51 @@ bool Vulkan::_SetupSwapChain(SDL_Window* inWindow, VkPhysicalDevice device)
 	return true;
 }
 
+bool Vulkan::SetupDepthImage(VkExtent2D inExtent)
+{
+	//depth image size will match the window
+	VkExtent3D depthImageExtent = {
+		inExtent.width,
+		inExtent.height,
+		1
+	};
+	//hardcoding the depth format to 32 bit float
+	_depthFormat = VK_FORMAT_D32_SFLOAT;
 
-bool Vulkan::_SetupImageViews(VkDevice inDevice)
+	//the depth image will be an image with the format we selected and Depth Attachment usage flag
+	VkImageCreateInfo dimg_info = CreateImageInfo(_depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depthImageExtent);
+
+	//for the depth image, we want to allocate it from GPU local memory
+	VmaAllocationCreateInfo dimg_allocinfo = {};
+	dimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+	dimg_allocinfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+	//allocate and create the image
+	vmaCreateImage(_allocator, &dimg_info, &dimg_allocinfo, &_depthImage._image, &_depthImage._allocation, nullptr);
+
+	//build an image-view for the depth image to use for rendering
+	VkImageViewCreateInfo dview_info = CreateImageViewInfo(_depthFormat, _depthImage._image, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+	vkCreateImageView(_device, &dview_info, nullptr, &_depthImageView);
+
+	return true;
+}
+
+
+bool Vulkan::_SetupSwapChainImageViews(VkDevice inDevice)
 {
 	_swapChainImageViews.resize(_swapChainImages.size());
 
-	for (size_t i = 0; i < _swapChainImages.size(); i++) {
+	for (size_t i = 0; i < _swapChainImages.size(); i++)
+	{
+
+		//depth image size will match the window
+		VkExtent3D depthImageExtent = {
+			_swapChainExtent.width,
+			_swapChainExtent.height,
+			1
+		};
+
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfo.image = _swapChainImages[i];
@@ -583,6 +625,47 @@ bool Vulkan::_SetupImageViews(VkDevice inDevice)
 	return true;
 }
 
+VkImageCreateInfo Vulkan::CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) const
+{
+	VkImageCreateInfo info = { };
+	info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	info.pNext = nullptr;
+
+	info.imageType = VK_IMAGE_TYPE_2D;
+
+	info.format = format;
+	info.extent = extent;
+
+	info.mipLevels = 1;
+	info.arrayLayers = 1;
+	info.samples = VK_SAMPLE_COUNT_1_BIT;
+	info.tiling = VK_IMAGE_TILING_OPTIMAL;
+	info.usage = usageFlags;
+
+	return info;
+}
+
+VkImageViewCreateInfo Vulkan::CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) const
+{
+	//build a image-view for the depth image to use for rendering
+	VkImageViewCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	info.pNext = nullptr;
+
+	info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	info.image = image;
+	info.format = format;
+	info.subresourceRange.baseMipLevel = 0;
+	info.subresourceRange.levelCount = 1;
+	info.subresourceRange.baseArrayLayer = 0;
+	info.subresourceRange.layerCount = 1;
+	info.subresourceRange.aspectMask = aspectFlags;
+
+	return info;
+}
+
+
+
 bool Vulkan::SetupSwapChainFramebuffer(VkRenderPass inRenderPass)
 {
 	auto swapChainImageViews = _swapChainImageViews;
@@ -590,14 +673,15 @@ bool Vulkan::SetupSwapChainFramebuffer(VkRenderPass inRenderPass)
 
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 		VkImageView attachments[] = {
-			swapChainImageViews[i]
+			swapChainImageViews[i],
+			_depthImageView
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = inRenderPass;
-		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.attachmentCount = 2;
+		framebufferInfo.pAttachments = &attachments[0];
 		framebufferInfo.width = _swapChainExtent.width;
 		framebufferInfo.height = _swapChainExtent.height;
 		framebufferInfo.layers = 1;
@@ -618,6 +702,11 @@ void Vulkan::_CleanUpSwapChain()
 		vkDestroyImageView(_device, imageView, nullptr);
 	}
 
+
+	vkDestroyImageView(_device, _depthImageView, nullptr);
+	vmaDestroyImage(_allocator, _depthImage._image, _depthImage._allocation);
+	
+
 	for (auto framebuffer : _swapChainFramebuffers)
 	{
 		vkDestroyFramebuffer(_device, framebuffer, nullptr);
@@ -634,7 +723,8 @@ bool Vulkan::_RecreateSwapChain(SDL_Window* inWindow, VkRenderPass inRenderPass)
 	_CleanUpSwapChain();
 
 	_SetupSwapChain(inWindow, _physicalDevice);
-	_SetupImageViews(_device);
+	_SetupSwapChainImageViews(_device);
+	SetupDepthImage(_swapChainExtent);
 	SetupSwapChainFramebuffer(inRenderPass);
 
 

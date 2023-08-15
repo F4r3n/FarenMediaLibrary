@@ -6,11 +6,15 @@
 #include "Window.h"
 #include "Rendering/Vulkan/VkPipelineBuilder.h"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
+#include "Rendering/GraphicsAPI.h"
+#include <unordered_map>
 class Vulkan;
 
 namespace fm
 {
 	class Window;
+	class Model;
+	class VkModel;
 }
 
 namespace fms
@@ -45,8 +49,11 @@ namespace fms
 
 		std::shared_ptr<fm::Window>		_window;
 
-		fm::VkVertexBuffer				_triangle;
+		uint32_t						_currentFrame = 0;
+		GRAPHIC_API						_api = GRAPHIC_API::VULKAN;
 
-		uint32_t currentFrame = 0;
+		std::map<uint32_t, std::unique_ptr<fm::VkModel>> _modelsUploaded;
+
+		std::shared_ptr<fm::Model> _modelToDrawTest;
 	};
 }

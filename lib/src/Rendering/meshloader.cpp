@@ -9,28 +9,29 @@
 using namespace fm;
 using namespace rendering;
 
-bool MeshLoader::Load(const std::string &inFileName, Model *outModel, const std::string &inObjectName)
+std::optional<std::shared_ptr<fm::Model>> MeshLoader::Load(const fm::FilePath& inFilePath, const std::string &inObjectName)
 {
-    outModel = new Model(inObjectName);
 
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(inFileName, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = import.ReadFile(inFilePath.GetPath(), aiProcess_Triangulate | aiProcess_FlipUVs);
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         DEBUG_ERROR("Error import object");
-        return false;
+        return std::nullopt;
     }
 
-    ProcessNode(outModel, scene->mRootNode, scene);
+	std::shared_ptr<fm::Model> model = std::make_shared<Model>(inObjectName);
+
+    ProcessNode(model.get(), scene->mRootNode, scene);
 
 
-    return true;
+    return model;
 }
 
 void MeshLoader::ProcessMesh(Model *inModel, aiMesh *mesh, const aiScene *scene)
 {
     fm::rendering::MeshContainer* meshContainer = new fm::rendering::MeshContainer();
-
+	meshContainer->vertices.reserve(mesh->mNumVertices);
     for(size_t i = 0; i < mesh->mNumVertices; ++i)
     {
         Vertex vertex;
@@ -58,6 +59,7 @@ void MeshLoader::ProcessMesh(Model *inModel, aiMesh *mesh, const aiScene *scene)
         {
             vertex.uv = fm::math::vec2(0,0);
         }
+		meshContainer->vertices.push_back(vertex);
     }
 
     for(size_t i = 0; i < mesh->mNumFaces; ++i)
@@ -65,7 +67,7 @@ void MeshLoader::ProcessMesh(Model *inModel, aiMesh *mesh, const aiScene *scene)
         aiFace face = mesh->mFaces[i];
         for(size_t j = 0; j < face.mNumIndices; ++j)
         {
-            meshContainer->listIndices.push_back(face.mIndices[i]);
+            meshContainer->listIndices.push_back(face.mIndices[j]);
         }
     }
     inModel->AddMesh(meshContainer);

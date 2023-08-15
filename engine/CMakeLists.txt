@@ -31,12 +31,6 @@ FETCHCONTENT_GETPROPERTIES(OPENAL)
 include_directories(${openal_SOURCE_DIR}/lib/include)
 link_directories(${openal_BINARY_DIR}/lib)
 
-
-#GLEW
-add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
-link_directories(${FML_EXTLIB_LIB}/glew)
-include_directories(${FML_EXTLIB}/glew/include)
-
 #Vulkan
 find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
 include_directories(${Vulkan_INCLUDE_DIRS})
@@ -45,12 +39,6 @@ include_directories(${Vulkan_INCLUDE_DIRS})
 FETCHCONTENT_GETPROPERTIES(SDL)
 include_directories(${sdl_SOURCE_DIR}/include)
 link_directories(${sdl_BINARY_DIR})
-
-#sol2
-include_directories(${FML_EXTLIB}/sol2)
-
-#STB
-include_directories(${FML_EXTLIB}/stb)
 
 #JSON
 include_directories(${FML_EXTLIB}/json/include)
@@ -68,7 +56,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} SDL3-shared)
-target_link_libraries(${PROJECT_NAME} glew_s)
 target_link_libraries(${PROJECT_NAME} lua ${BULLET_LIBRARIES} OpenAL Vulkan::Vulkan Vulkan::shaderc_combined)
 
 if(MSVC)

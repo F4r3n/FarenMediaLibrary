@@ -7,7 +7,7 @@
 #include "Core/Bounds.h"
 #include "Rendering/Graphics.hpp"
 #include "Core/Math/Matrix.h"
-
+#include "GraphicsAPI.h"
 namespace fmc 
 {
 	class CText;
@@ -74,6 +74,7 @@ private:
 
 	fm::Graphics _graphics;
 
-	TextDef _textdef;    
+	TextDef _textdef;
+	GRAPHIC_API _api = GRAPHIC_API::OPENGL;
 };
 }

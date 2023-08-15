@@ -69,9 +69,9 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bu
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, source.getWidth(), source.getHeight(), 0, 0,
-		source.getWidth(),
-		source.getHeight(),
+	glBlitFramebuffer(0, 0, (GLint)source.getWidth(), (GLint)source.getHeight(), 0, 0,
+		(GLint)source.getWidth(),
+		(GLint)source.getHeight(),
 		bufferBit, GL_NEAREST);
 }
 
@@ -80,9 +80,9 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.GetId());
-	glBlitFramebuffer(0, 0, source.getWidth(), source.getHeight(), 0, 0,
-		dest.getWidth(),
-		dest.getHeight(),
+	glBlitFramebuffer(0, 0, (GLint)source.getWidth(), (GLint)source.getHeight(), 0, 0,
+		(GLint)dest.getWidth(),
+		(GLint)dest.getHeight(),
 		bufferBit, GL_NEAREST);
 }
 

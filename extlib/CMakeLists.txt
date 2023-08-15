@@ -24,6 +24,8 @@ set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
 set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_INSTALL OFF)
+set (ASSIMP_INJECT_DEBUG_POSTFIX OFF)
 FetchContent_Declare(
   ASSIMP
   GIT_REPOSITORY https://github.com/assimp/assimp.git
@@ -93,6 +95,7 @@ FetchContent_Declare(
   GIT_TAG        6eb62e1515072827db992c2befd80b71b2d04329
 )
 FETCHCONTENT_MAKEAVAILABLE(VMA)
+
 
 foreach(TARGET freetype2 lua glew)
 

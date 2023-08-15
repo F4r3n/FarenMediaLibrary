@@ -2,6 +2,7 @@
 #include <Rendering/StandardShapes.h>
 #include <Rendering/Model.hpp>
 #include "Rendering/OpenGL/OGLVertexBuffer.hpp"
+#include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include <Core/Debug.h>
 
 
@@ -11,6 +12,8 @@ using namespace rendering;
 Model::Model(const fm::FilePath& inFilePath): Resource(inFilePath)
 {
     _name = inFilePath.GetName(true);
+	_ID++;
+	_currentID = _ID;
 }
 
 
@@ -43,21 +46,29 @@ void Model::PrepareBuffer()
         {
             fm::Debug::get().LogError("Vertex buffer is empty and should be prepared ???");
         }
-		if(auto v = dynamic_cast<fm::rendering::OGLVertextBuffer*>(mesh.vertexBuffer.get()))
+		if (auto v = dynamic_cast<fm::rendering::OGLVertextBuffer*>(mesh.vertexBuffer.get()))
+		{
 			v->prepareData();
+		}
     }
 }
 
-void Model::generate()
+void Model::generate(GRAPHIC_API inAPI)
 {
-
     for(auto &mesh : _meshes)
     {
         if(mesh.vertexBuffer == nullptr)
         {
-            mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new OGLVertextBuffer());
+			if (inAPI == GRAPHIC_API::OPENGL)
+			{
+				mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new OGLVertextBuffer());
+			}
+			else if (inAPI == GRAPHIC_API::VULKAN)
+			{
+				mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new fm::VkVertexBuffer());
+			}
         }
 
-		mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
+		mesh.vertexBuffer->UploadData(*mesh.meshContainer);
     }
 }

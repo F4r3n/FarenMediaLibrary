@@ -58,6 +58,13 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 		p.ToSubFolder("shaders");
 		return p;
 	}
+	case LOCATION::INTERNAL_MODELS_LOCATION:
+	{
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_MODELS_LOCATION);
+		p.ToSubFolder("models");
+		return p;
+	}
 	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
 		FilePath p(FilePath::GetWorkingDirectory());
