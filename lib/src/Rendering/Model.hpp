@@ -26,7 +26,6 @@ public:
     Model(const fm::FilePath &inFilePath);
 	Model() = delete;
     ~Model();
-    void generate(GRAPHIC_API inAPI);
     static const fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
 
     void AddMesh(rendering::MeshContainer* inMeshContainer);
@@ -39,7 +38,9 @@ public:
 	void Reload(bool force = false) {}
 
 	uint32_t GetID() const { return _currentID; }
+	void Destroy();
 public:
+	std::function<void()> _destroyCallback = {};
     std::vector<Mesh> _meshes;//One model may have more than one mesh
     std::string _name = "";
 	fm::Bounds _bounds;
