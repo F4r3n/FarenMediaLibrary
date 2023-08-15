@@ -92,7 +92,7 @@ void RenderingSystem::_InitStandardShapes()
 	_models.emplace(quad->GetID(), std::make_unique<fm::OGLModel>(quad));
 	_models.emplace(cube->GetID(), std::make_unique<fm::OGLModel>(cube));
 	_models.emplace(quadFS->GetID(), std::make_unique<fm::OGLModel>(quadFS));
-	_models.emplace(cube->GetID(), std::make_unique<fm::OGLModel>(cube));
+	_models.emplace(circle->GetID(), std::make_unique<fm::OGLModel>(circle));
 
 	for (const auto& m : _models)
 	{
