@@ -32,7 +32,7 @@ void CommandBuffer::Clear(BUFFER_BIT inOption)
 }
 
 
-void CommandBuffer::Blit(RenderTexture &inSource, RenderTexture &inDestination, fm::Material *inMaterial)
+void CommandBuffer::Blit(RenderTexture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial)
 {
 	Command cmd;
 	cmd._command = Command::COMMAND_KIND::BLIT;
@@ -48,7 +48,7 @@ void CommandBuffer::Blit(RenderTexture &inSource, RenderTexture &inDestination, 
 }
 
 
-void CommandBuffer::Blit(Texture &inSource, RenderTexture &inDestination, fm::Material *inMaterial)
+void CommandBuffer::Blit(Texture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial)
 {
 	Command cmd;
 	cmd._command = Command::COMMAND_KIND::BLIT;
@@ -79,7 +79,7 @@ void CommandBuffer::Disable( RENDERING_TYPE inType)
 
 }
 
-void CommandBuffer::DrawMesh(Model *inModel, const Transform &inTranform, Material *inMaterial, const fm::MaterialProperties &inMaterialProperties)
+void CommandBuffer::DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialProperties &inMaterialProperties)
 {
 	Command cmd;
 	cmd._command = Command::COMMAND_KIND::DRAW_MESH;

@@ -162,14 +162,14 @@ void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
 			if (inAPI == GRAPHIC_API::OPENGL && inFolder->GetPath().GetExtension() == ".shader")
 			{
 				const std::string name = inFolder->GetPath().GetName(true);
-				Shader* shader = new OGLShader(inFolder->GetPath(), name);
+				std::shared_ptr<Shader> shader = std::make_shared<OGLShader>(inFolder->GetPath(), name);
 				shader->compile();
 				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}
 			else if (inAPI == GRAPHIC_API::VULKAN && inFolder->GetPath().GetExtension() == ".vkshader")
 			{
 				const std::string name = inFolder->GetPath().GetName(true);
-				Shader* shader = new VkShader(inFolder->GetPath(), name);
+				std::shared_ptr<Shader> shader = std::make_shared<fm::VkShader>(inFolder->GetPath(), name);
 				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}
 		}
@@ -202,7 +202,7 @@ void ResourcesManager::_LoadInternalMaterials()
 			{
 				if (inFile->GetPath().GetExtension() == ".material")
 				{
-					fm::Material* mat = new fm::Material(inFile->GetPath());
+					std::shared_ptr<fm::Material> mat = std::make_shared<fm::Material>(inFile->GetPath());
 					mat->Load();
 					fm::ResourcesManager::get().load<Material>(mat->GetName(), mat);
 				}
@@ -214,7 +214,7 @@ bool ResourcesManager::LoadFonts()
 {
 	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
 	p.ToSubFile("Roboto-Medium.ttf");
-	ResourcesManager::get().load<RFont>("dejavu", new RFont(p.GetPath()));
+	ResourcesManager::get().load<RFont>("dejavu", std::make_shared<RFont>(p.GetPath()));
 	return true;
 }
 

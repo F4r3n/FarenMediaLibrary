@@ -8,6 +8,7 @@ namespace fm
 	class RenderTexture;
 	class Shader;
 	class Texture;
+	class OGLModel;
 }
 
 namespace fm {
@@ -20,7 +21,7 @@ public:
         return _instance;
     }
     
-    void createQuadScreen();
+    void SetQuadScreen(fm::OGLModel* inModel);
     // void blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers);
     void lightComputation(fm::Graphics &graphics, const Texture& incolorBuffer, bool compute = false);
     void postProcess(fm::Graphics &graphics, const Texture& inTexture1);
@@ -38,6 +39,6 @@ public:
 private:
     static Renderer _instance;
 
-    fm::Model* quad;
+    fm::OGLModel* _quad;
 };
 }

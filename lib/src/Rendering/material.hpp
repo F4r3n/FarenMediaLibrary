@@ -129,8 +129,8 @@ class Material : public Resource
 
 
         const std::string& GetName() const {return _name;}
-		fm::Shader* GetShader() const { return _shader; }
-		void SetShader(fm::Shader* inShader) { _shader = inShader; Compile(); }
+		std::shared_ptr<fm::Shader> GetShader() const { return _shader; }
+		void SetShader(std::shared_ptr<fm::Shader> inShader) { _shader = inShader; Compile(); }
 		void Compile();
 		bool IsReady() const;
 
@@ -139,7 +139,7 @@ class Material : public Resource
 		virtual void Load() override;
 
     private:
-		fm::Shader* _shader;
+		std::shared_ptr<fm::Shader> _shader;
 
         std::string _name;
 		MaterialProperties _properties;

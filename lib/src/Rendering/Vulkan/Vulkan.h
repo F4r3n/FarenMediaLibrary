@@ -1,7 +1,19 @@
+#pragma once
+
 #include <vulkan/vulkan.h>
 #include <vector>
 #include "vk_mem_alloc.h"
 struct SDL_Window;
+
+namespace fm
+{
+	struct AllocatedBuffer
+	{
+		VkBuffer		_buffer = nullptr;
+		VmaAllocation	_allocation = nullptr;
+	};
+}
+
 
 
 class Vulkan
@@ -41,6 +53,7 @@ public:
 	VkImageCreateInfo 			CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) const;
 	VkImageViewCreateInfo		CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) const;
 	bool						SetupDepthImage(VkExtent2D inExtent);
+	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();
@@ -79,11 +92,11 @@ private:
 	VkQueue			_presentQueue;
 
 	//Swap chain
-	VkSwapchainKHR			_swapChain;
-	std::vector<VkImage>	_swapChainImages;
-	VkFormat				_swapChainImageFormat;
-	VkExtent2D				_swapChainExtent;
-	std::vector<VkImageView> _swapChainImageViews;
+	VkSwapchainKHR				_swapChain;
+	std::vector<VkImage>		_swapChainImages;
+	VkFormat					_swapChainImageFormat;
+	VkExtent2D					_swapChainExtent;
+	std::vector<VkImageView>	_swapChainImageViews;
 	std::vector<VkFramebuffer>	_swapChainFramebuffers;
 
 	//Depth
@@ -94,5 +107,5 @@ private:
 
 	VkCommandPool	_commandPool;
 
-	VmaAllocator _allocator; //vma lib allocator
+	VmaAllocator	_allocator; //vma lib allocator
 };

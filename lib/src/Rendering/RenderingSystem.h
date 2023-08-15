@@ -8,6 +8,7 @@
 #include "Rendering/Graphics.hpp"
 #include "Core/Math/Matrix.h"
 #include "GraphicsAPI.h"
+#include <memory>
 namespace fmc 
 {
 	class CText;
@@ -27,6 +28,7 @@ namespace fm
 	class RenderTexture;
 	struct Transform;
 	class Material;
+	class OGLModel;
 }
 
 struct TextDef 
@@ -66,8 +68,8 @@ public:
 	virtual ~RenderingSystem();
 
 private:
-	fm::Shader *_finalShader;
-	fm::Shader *_lightShader;
+	std::shared_ptr<fm::Shader> _finalShader;
+	std::shared_ptr<fm::Shader> _lightShader;
 	size_t _width;
 	size_t _height;
 	int _lightNumber = 0;
@@ -76,5 +78,6 @@ private:
 
 	TextDef _textdef;
 	GRAPHIC_API _api = GRAPHIC_API::OPENGL;
+	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLModel>> _models;
 };
 }

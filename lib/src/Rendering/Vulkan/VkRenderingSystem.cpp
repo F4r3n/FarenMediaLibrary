@@ -25,7 +25,7 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 
 	_renderPass = _CreateRenderPass();
 	_pipeline = fm::VkPipelineBuilder(_vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(),
-		fm::ResourcesManager::get().getResource<fm::Shader>("default"));
+		fm::ResourcesManager::get().getResource<fm::Shader>("default").get());
 	_vulkan->SetupSwapChainFramebuffer(_renderPass);
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
@@ -308,7 +308,7 @@ VkRenderingSystem::~VkRenderingSystem()
 		vkDestroyFence(_vulkan->GetDevice(), _inFlightFences[i], nullptr);
 	}
 
-	fm::VkShader* shader = dynamic_cast<fm::VkShader*>(fm::ResourcesManager::get().getResource<fm::Shader>("default"));
+	std::shared_ptr<fm::VkShader> shader = std::dynamic_pointer_cast<fm::VkShader>(fm::ResourcesManager::get().getResource<fm::Shader>("default"));
 	shader->Delete(_vulkan->GetDevice());
 
 	_pipeline.DeInit();

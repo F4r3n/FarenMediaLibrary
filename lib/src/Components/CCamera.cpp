@@ -284,14 +284,14 @@ void CCamera::InitUniformBuffer()
 
 	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
 	{
-		fm::Shader* s = dynamic_cast<fm::Shader*>(shader.second);
+		std::shared_ptr<fm::Shader> s = std::dynamic_pointer_cast<fm::Shader>(shader.second);
 		s->Use();
 
 		glBindBufferBase(GL_UNIFORM_BUFFER,
 						_rendererConfiguration.bindingPointIndex,
 						_rendererConfiguration.generatedBlockBinding);
 
-		OGLShader* glshader = dynamic_cast<OGLShader*>(s);
+		std::shared_ptr<OGLShader> glshader = std::dynamic_pointer_cast<OGLShader>(s);
 		glshader->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
 	}
 }

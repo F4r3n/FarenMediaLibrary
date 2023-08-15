@@ -13,18 +13,15 @@ Renderer Renderer::_instance;
 Renderer::Renderer() {
 }
 
-void Renderer::createQuadScreen() {
-    if(quad == nullptr) {
-        quad = ResourcesManager::get().getResource<fm::Model>("QuadFS");
-    }
+void Renderer::SetQuadScreen(fm::OGLModel* inModel) {
+	_quad = inModel;
 }
 
 void Renderer::lightComputation(fm::Graphics& graphics,
                                 const Texture &colorBuffer,
                                 bool compute) 
 {
-    fm::Shader* light;
-    light = ResourcesManager::get().getResource<fm::Shader>("no_light");
+    std::shared_ptr<fm::Shader> light = ResourcesManager::get().getResource<fm::Shader>("no_light");
 
     light->Use();
     int error = glGetError();
@@ -33,7 +30,7 @@ void Renderer::lightComputation(fm::Graphics& graphics,
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
     }
     graphics.BindTexture2D(0, colorBuffer.getID(), (int)colorBuffer.GetKind());
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
 void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1) 
@@ -42,7 +39,7 @@ void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1)
     graphics.BindTexture2D(0, inTexture1.getID(), (int)inTexture1.GetKind());
     //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
 void Renderer::blit(fm::Graphics& graphics,
@@ -51,7 +48,7 @@ void Renderer::blit(fm::Graphics& graphics,
     shader->Use();
     graphics.BindTexture2D(0, texture.getID(), (int)texture.GetKind());
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& source,
@@ -61,7 +58,7 @@ void Renderer::blit(fm::Graphics& graphics,
     shader->Use();
     graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), (int)source.GetColorBufferTexture(0).GetKind());
 	
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
 
@@ -104,7 +101,7 @@ void Renderer::blit(fm::Graphics& graphics,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ID);
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
 void Renderer::blit(fm::Graphics& graphics,
@@ -113,13 +110,13 @@ void Renderer::blit(fm::Graphics& graphics,
 
     shader->Use();
     dest.bind();
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 void Renderer::blit(fm::Graphics& graphics, Shader* shader) {
     shader->Use();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
 void Renderer::clear(fm::Graphics& graphics) {

@@ -73,10 +73,10 @@ std::string MaterialInspector::_ValueTypeToName(fm::ValuesType inValueType)
 void MaterialInspector::_Init()
 {
     fm::Debug::get().LogError("InitMaterial");
-    std::map<std::string, fm::Resource*> resources = fm::ResourcesManager::get().getAll<fm::Shader>();
+    std::map<std::string, std::shared_ptr<fm::Resource>> resources = fm::ResourcesManager::get().getAll<fm::Shader>();
     for(auto &r : resources)
     {
-        fm::Shader *s = static_cast<fm::Shader*>(r.second);
+        fm::Shader *s = static_cast<fm::Shader*>(r.second.get());
         _valuesShader.push_back(s->GetName().c_str());
     }
 

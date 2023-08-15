@@ -27,7 +27,7 @@ namespace fms
 		std::function<void(Entity::Id)> _callback;
 		std::weak_ptr<fm::GameObject> _specialCamera;
 		fmc::CCamera* _camera;
-		std::unique_ptr<fm::Material> _material;
+		std::shared_ptr<fm::Material> _material;
 		std::weak_ptr<fm::Scene> _editorScene;
 
 	};

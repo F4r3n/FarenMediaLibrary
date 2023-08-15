@@ -7,6 +7,7 @@
 #include "Rendering/Vulkan/VkPipelineBuilder.h"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include "Rendering/GraphicsAPI.h"
+#include "Core/Math/Matrix.h"
 #include <unordered_map>
 class Vulkan;
 
@@ -22,6 +23,7 @@ namespace fms
 	class VkRenderingSystem : public System<VkRenderingSystem>
 	{
 	public:
+
 		VkRenderingSystem(std::shared_ptr<fm::Window> inWindow);
 		virtual void pre_update(EntityManager& manager);
 		virtual void update(float dt, EntityManager& manager, EventManager& event);

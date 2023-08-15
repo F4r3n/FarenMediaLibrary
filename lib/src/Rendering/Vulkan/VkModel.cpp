@@ -6,9 +6,9 @@ using namespace fm;
 
 VkModel::VkModel(VmaAllocator inAllocator, std::shared_ptr<fm::Model> inModel)
 {
-	_ID++;
 	_model = inModel;
 	_allocator = inAllocator;
+	inModel->_destroyCallback = std::bind(&VkModel::Destroy, this);
 }
 
 
