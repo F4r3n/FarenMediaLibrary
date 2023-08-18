@@ -4,6 +4,7 @@
 #include "Resource/FileSystem.h"
 #include <filesystem>
 #include <optional>
+#include <vector>
 namespace fm
 {
 	class FilePath
