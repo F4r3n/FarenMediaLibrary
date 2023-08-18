@@ -2,7 +2,7 @@
 #include "PortableFileDialog.h"
 #include "Editor.h"
 using namespace gui;
-GLauncher::GLauncher() : GWindow("Launcher", false, ImGuiWindowFlags_HorizontalScrollbar)
+GLauncher::GLauncher() : GWindow("Launcher", false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoDocking)
 {
 	_kind = gui::WINDOWS::WIN_LAUNCHER;
 	//SetModal(true);
@@ -44,25 +44,11 @@ void GLauncher::_DisplayWindow_Create_Project()
 void GLauncher::CustomDraw()
 {
 	ImGui::BeginGroup();
-	if (ImGui::Button("Create Project"))
+	if (ImGui::Button("Create/Load Project"))
 	{
 		_DisplayWindow_Create_Project();
 	}
-	if (ImGui::Button("Load Project"))
-	{
-		if (_projectSelected != -1)
-		{
-			try
-			{
-				_result = _listProjects.at(_projectSelected);
-				_enabled = false;
-			}
-			catch (const std::exception &e)
-			{
-				_projectSelected = -1;
-			}
-		}
-	}
+
 	ImGui::EndGroup();
 
 	ImGui::SameLine();
@@ -72,19 +58,17 @@ void GLauncher::CustomDraw()
 		size_t i = 0;
 		for (auto && path : _listProjects)
 		{
-			if (ImGui::Selectable(path.GetPath().c_str(), _projectSelected == i))
+			if (ImGui::Selectable(path.GetPath().c_str(), _projectSelected == i, ImGuiSelectableFlags_AllowDoubleClick))
 			{
 				_projectSelected = i;
+
+				_result = _listProjects.at(_projectSelected);
+				_enabled = false;
+				break;
+				
 			}
 			i++;
 		}
-
-		//To make it longer
-		for (;i < 10; ++i)
-		{
-			ImGui::Selectable("", false);
-		}
-
 		ImGui::EndListBox();
 	}
 }
