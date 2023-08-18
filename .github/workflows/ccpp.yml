@@ -19,7 +19,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
         if: matrix.os == 'ubuntu-latest'
       - name: Prepare Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2.0
+        uses: humbletim/install-vulkan-sdk@v1.1.1
         with:
             version: latest
             cache: true
