@@ -33,6 +33,7 @@ cmake --build build
 ```
 It will create the library static FarenMediaLibary, the FarenEngine and the FarenEditor
 
+
 ### List of dependencies
 
 The engine needs different libraries to work:
@@ -48,4 +49,11 @@ The engine needs different libraries to work:
 + Vulkan
 
 The dependencies are all in the folder extlib.
+
+### Platforms
+
+|  | Windows | Linux | Mac | Android | iOS |
+|---|---|---|---|---|---|
+| FarenEditor | &check;  | &check;  | &check;  | &cross; | &cross; |
+| FarenEngine | &check;  | &check;  | &check;  | &dash; | &dash; |
 
