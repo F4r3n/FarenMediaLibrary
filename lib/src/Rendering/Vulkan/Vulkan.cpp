@@ -194,7 +194,9 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	std::vector<const char*> extensionNames(extensionCount);
 	SDL_Vulkan_GetInstanceExtensions(&extensionCount, extensionNames.data());
 
-	//extensionNames.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#if __APPLE__
+	extensionNames.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
 	extensionNames.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	extensionNames.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
@@ -203,7 +205,9 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	createInfo.pApplicationInfo = &appInfo;
 	createInfo.enabledExtensionCount = extensionNames.size();
 	createInfo.ppEnabledExtensionNames = extensionNames.data();
-	//createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#if __APPLE__
+	createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
 	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 	if (_enableValidationLayers) {
