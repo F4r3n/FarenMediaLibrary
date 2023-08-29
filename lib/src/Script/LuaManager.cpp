@@ -81,7 +81,7 @@ void LuaManager::_OpenInternalLibs()
 		{
 			if (inFile != nullptr)
 			{
-				lua->script_file(inFile->GetPath().GetPath(), sol::load_mode::text);
+				lua->script_file(inFile->GetPathString(), sol::load_mode::text);
 			}
 		}
 	);

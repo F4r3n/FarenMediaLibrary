@@ -3,7 +3,7 @@
 #include <Entity.h>
 #include "Script/cppmanager.hpp"
 #include "Core/Debug.h"
-#include <Components/CTransform.h>
+
 using namespace fm;
 
 CppScript::CppScript(const std::string &nameClass)

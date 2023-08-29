@@ -44,19 +44,19 @@ bool VkShader::Make(VkDevice inDevice)
 	if (_vertShaderModule != nullptr && _fragShaderModule != nullptr)
 		return true;
 
-	_path.ToSubFolder("SPIR-V");
+	_path.ToSub("SPIR-V");
 	File frag(Folder(_path), "frag.spv");
 	File vert(Folder(_path), "vert.spv");
 
 	if (!frag.Exist())
 	{
-		fm::Debug::get().LogError(frag.GetPath().GetPath() + " Frag is not compiled");
+		fm::Debug::get().LogError(frag.GetPath().GetPath().string() + " Frag is not compiled");
 		return false;
 	}
 
 	if (!vert.Exist())
 	{
-		fm::Debug::get().LogError(vert.GetPath().GetPath() + " Vert is not compiled");
+		fm::Debug::get().LogError(vert.GetPath().GetPath().string() + " Vert is not compiled");
 		return false;
 	}
 

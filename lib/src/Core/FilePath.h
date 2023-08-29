@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <optional>
 #include <vector>
+namespace fs = std::filesystem;
 namespace fm
 {
 	class FilePath
@@ -12,17 +13,17 @@ namespace fm
 	public:
 		FilePath() {}
 		~FilePath() {}
-		FilePath(const std::string &inPath);
+		FilePath(const fs::path& inPath);
+		FilePath(const std::string& inPath);
+
 		FilePath(const FilePath &inPath);
 		FilePath(fm::LOCATION inLocation, const std::string& inFollowingPath);
 
-		bool IsFolder() const;
-		bool IsFile() const;
-		FilePath& ToSubFolder(const std::string &inFolderName);
-		FilePath& ToSubFile(const std::string& inFolderName);
+		FilePath& ToSub(const std::string &inFolderName);
 
 		FilePath GetParent() const;
-		const std::string& GetPath() const;
+		const fs::path& GetPath() const;
+		std::string	GetPathString() const;
 		std::string GetName(bool withoutExtension) const;
 		std::string GetExtension() const;
 
@@ -40,7 +41,7 @@ namespace fm
 		std::string		_GetName() const;
 
 	private:
-		std::string		_path = "";
+		fs::path		_path;
 		fm::LOCATION	_fileSystemID = fm::LOCATION::NONE;
 	};
 
@@ -53,6 +54,7 @@ namespace fm
 		File() {}
 		
 		const fm::FilePath& GetPath() const;
+		std::string			GetPathString() const;
 		bool CreateFile() const;
 		File Rename(const std::string& inNewName) const;
 		bool Exist() const;
@@ -70,6 +72,8 @@ namespace fm
 		Folder(const fm::FilePath& inFilePath);
 		Folder() {}
 		const fm::FilePath& GetPath() const;
+		std::string			GetPathString() const;
+
 		bool CreateFolder() const;
 		Folder Rename(const std::string& inNewName) const;
 		bool Exist() const;

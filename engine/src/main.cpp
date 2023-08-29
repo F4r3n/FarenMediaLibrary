@@ -2,9 +2,14 @@
 #include <Input/InputManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
-
-int main()
+#include <span>
+int main(int argc, char** argv)
 {
+	fm::FilePath path;
+	for (const auto& arg : std::span(argv, argc))
+	{
+
+	}
 
 	fm::Config config;
 	config.name = "FML Engine";

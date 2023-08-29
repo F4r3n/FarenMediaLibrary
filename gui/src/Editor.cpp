@@ -128,7 +128,7 @@ void Editor::GetLastProjectsOpened(std::vector<fm::FilePath>& outPath) const
 
 		for (auto it = json.begin(); it != json.end(); ++it)
 		{
-			outPath.emplace_back(*it);
+			outPath.emplace_back(std::string(*it));
 		}
 	}
 }
@@ -146,7 +146,7 @@ void Editor::_SaveLastProjectOpened(const fm::FilePath& inFilePath)
 	std::string&& content = file.GetContent();
 
 	nlohmann::json jarray;
-	jarray.push_back(inFilePath.GetPath());
+	jarray.push_back(inFilePath.GetPathString());
 
 	if (!content.empty())
 	{
@@ -155,7 +155,7 @@ void Editor::_SaveLastProjectOpened(const fm::FilePath& inFilePath)
 		size_t i = 1;
 		for (auto it = json.begin(); it != json.end(); ++it)
 		{
-			if (inFilePath.GetPath() != *it)
+			if (inFilePath.GetPathString() != *it)
 			{
 				jarray.push_back(*it);
 				i++;

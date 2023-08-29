@@ -54,7 +54,7 @@ namespace fms
 		uint32_t						_currentFrame = 0;
 		GRAPHIC_API						_api = GRAPHIC_API::VULKAN;
 
-		std::map<uint32_t, std::unique_ptr<fm::VkModel>> _modelsUploaded;
+		std::map<uint32_t, std::unique_ptr<fm::VkModel>> _staticModels;
 
 		std::shared_ptr<fm::Model> _modelToDrawTest;
 	};

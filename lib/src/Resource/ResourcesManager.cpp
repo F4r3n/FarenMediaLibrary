@@ -41,42 +41,42 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_LUA_LOCATION);
-		p.ToSubFolder("lua");
+		p.ToSub("lua");
 		return p;
 	}
 	case LOCATION::INTERNAL_FONT_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_FONT_LOCATION);
-		p.ToSubFolder("fonts");
+		p.ToSub("fonts");
 		return p;
 	}
 	case LOCATION::INTERNAL_SHADERS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_SHADERS_LOCATION);
-		p.ToSubFolder("shaders");
+		p.ToSub("shaders");
 		return p;
 	}
 	case LOCATION::INTERNAL_MODELS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_MODELS_LOCATION);
-		p.ToSubFolder("models");
+		p.ToSub("models");
 		return p;
 	}
 	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
 		FilePath p(FilePath::GetWorkingDirectory());
 		p.SetSystemID(LOCATION::INTERNAL_RESOURCES_LOCATION);
-		p.ToSubFolder("Resources");
+		p.ToSub("Resources");
 		return p;
 	}
 	case LOCATION::INTERNAL_MATERIALS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_MATERIALS_LOCATION);
-		p.ToSubFolder("materials");
+		p.ToSub("materials");
 		return p;
 	}
 	case LOCATION::USER_LOCATION:
@@ -88,14 +88,14 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
 		p.SetSystemID(LOCATION::USER_RESOURCES_LOCATION);
-		p.ToSubFolder("Resources");
+		p.ToSub("Resources");
 		return p;
 	}
 	case LOCATION::USER_LUA_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::USER_LUA_LOCATION);
-		p.ToSubFolder("lua");
+		p.ToSub("lua");
 		return p;
 	}
 
@@ -107,7 +107,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
 		p.SetSystemID(LOCATION::USER_SETTINGS);
-		p.ToSubFolder("Settings");
+		p.ToSub("Settings");
 		return p;
 	}
 	case LOCATION::SETTINGS:
@@ -129,7 +129,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	case LOCATION::SETTINGS_LAST_PROJECTS:
 	{
 		FilePath p(GetFilePathResource(LOCATION::SETTINGS));
-		p.ToSubFile("lastProjects.json");
+		p.ToSub("lastProjects.json");
 		return p;
 	}
 	default:
@@ -213,7 +213,7 @@ void ResourcesManager::_LoadInternalMaterials()
 bool ResourcesManager::LoadFonts()
 {
 	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
-	p.ToSubFile("Roboto-Medium.ttf");
+	p.ToSub("Roboto-Medium.ttf");
 	ResourcesManager::get().load<RFont>("dejavu", std::make_shared<RFont>(p.GetPath()));
 	return true;
 }

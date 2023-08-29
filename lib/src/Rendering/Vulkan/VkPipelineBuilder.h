@@ -17,6 +17,12 @@ namespace fm
 
 		void DeInit();
 	private:
+		VkPipelineRasterizationStateCreateInfo _CreateRasterizerInfo() const;
+		VkPipelineColorBlendStateCreateInfo		_CreateColorBlendingInfo(VkPipelineColorBlendAttachmentState* inAttachmentState) const;
+		VkPipelineColorBlendAttachmentState		_CreateColorBlendingAttachmentInfo() const;
+		VkPipelineDepthStencilStateCreateInfo	_CreateDepthStencilInfo() const;
+		VkPipelineMultisampleStateCreateInfo	_CreateMultisampleInfo() const;
+
 		VkPipelineLayout	_CreatePipelineLayout();
 		VkPipeline			_CreatePipeline(VkPipelineLayout inLayout, VkRenderPass inRenderPass, VkExtent2D inExtent, VkShader* inShader);
 

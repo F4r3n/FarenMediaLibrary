@@ -13,7 +13,7 @@ std::optional<std::shared_ptr<fm::Model>> MeshLoader::Load(const fm::FilePath& i
 {
 
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(inFilePath.GetPath(), aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = import.ReadFile(inFilePath.GetPath().string(), aiProcess_Triangulate | aiProcess_FlipUVs);
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         DEBUG_ERROR("Error import object");

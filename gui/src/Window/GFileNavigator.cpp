@@ -62,13 +62,12 @@ Node* PathStorage::GetNode(const fm::FilePath &inPath)
 void PathStorage::_GetRelative(const fm::FilePath &inPath, std::string &outRelativePath) const
 {
 	fm::FilePath::GetRelativeFromRoot(_rootpath, inPath, outRelativePath);
-	if (inPath.IsFolder())
+
+	if (!outRelativePath.empty() && outRelativePath.back() != fm::FilePath::GetFolderSeparator())
 	{
-		if (!outRelativePath.empty() && outRelativePath.back() != fm::FilePath::GetFolderSeparator())
-		{
-			outRelativePath.push_back(fm::FilePath::GetFolderSeparator());
-		}
+		outRelativePath.push_back(fm::FilePath::GetFolderSeparator());
 	}
+	
 }
 
 
@@ -241,7 +240,7 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 	for (auto& n : currentNode->nodes)
 	{
 		fm::FilePath p(inRoot);
-		p.ToSubFolder(n.name);
+		p.ToSub(n.name);
 
 
 		bool opened = ImGui::TreeNodeEx(n.name.c_str());

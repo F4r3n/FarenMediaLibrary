@@ -35,7 +35,7 @@ void GLauncher::_DisplayWindow_Create_Project()
 
 	if (!resultFromDialog.empty())
 	{
-		_result = fm::FilePath(resultFromDialog + fm::FilePath::GetFolderSeparator());
+		_result = fm::FilePath(resultFromDialog);
 		_enabled = false;
 	}
 }
@@ -58,7 +58,7 @@ void GLauncher::CustomDraw()
 		size_t i = 0;
 		for (auto && path : _listProjects)
 		{
-			if (ImGui::Selectable(path.GetPath().c_str(), _projectSelected == i, ImGuiSelectableFlags_AllowDoubleClick))
+			if (ImGui::Selectable(path.GetPathString().c_str(), _projectSelected == i, ImGuiSelectableFlags_AllowDoubleClick))
 			{
 				_projectSelected = i;
 

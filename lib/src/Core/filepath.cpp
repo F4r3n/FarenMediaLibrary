@@ -20,17 +20,27 @@ size_t FindFromEnd(const std::string& inString, char toFind, size_t offset)
 	return i == 0 && inString[i] != toFind ? std::string::npos : i;
 }
 
-
-FilePath::FilePath(const std::string &inPath)
+FilePath::FilePath(const std::string& inPath)
 {
-	fm::FileSystem::ConvertFileSystemToPath(inPath, _path, _fileSystemID);
+	std::string path;
+	fm::FileSystem::ConvertFileSystemToPath(inPath, path, _fileSystemID);
+	_path = std::filesystem::path(path);
 }
+
+
+FilePath::FilePath(const fs::path& inPath)
+{
+	std::string path;
+	fm::FileSystem::ConvertFileSystemToPath(inPath.string(), path, _fileSystemID);
+	_path = std::filesystem::path(path);
+}
+
 
 FilePath::FilePath(fm::LOCATION inLocation, const std::string& inFollowingPath)
 {
 	_path = fm::FileSystem::ConvertFileSystemToPath(inLocation, inFollowingPath);
 	_fileSystemID = inLocation;
-	std::replace(_path.begin(), _path.end(), '/', GetFolderSeparator());
+	_path = _path.native();
 }
 
 
@@ -49,7 +59,7 @@ std::string FilePath::GetFileSystemPath() const
 		return fm::FileSystem::ConvertPathToFileSystem(*this);
 	}
 
-	return _path;
+	return _path.string();
 }
 
 
@@ -61,8 +71,8 @@ char FilePath::GetFolderSeparator()
 bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePath &other, std::string &outRelativePath)
 {
 	bool isRoot = false;
-	const std::string rootPath = inRoot.GetPath();
-	const std::string otherPath = other.GetPath();
+	const std::string rootPath = inRoot.GetPath().string();
+	const std::string otherPath = other.GetPath().string();
 	if (rootPath.size() < otherPath.size())
 	{
 		isRoot = (memcmp(rootPath.c_str(), otherPath.c_str(), rootPath.size()) == 0);
@@ -78,31 +88,21 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 }
 
 
-bool FilePath::IsFolder() const
+FilePath& FilePath::ToSub(const std::string& inFolderName)
 {
-	return IsValid() && _path.back() == GetFolderSeparator();
-}
-
-bool FilePath::IsFile() const
-{
-	return IsValid() && _path.back() != GetFolderSeparator();
-}
-
-
-FilePath& FilePath::ToSubFolder(const std::string& inFolderName)
-{
-	_path += inFolderName + GetFolderSeparator();
-	return *this;
-}
-FilePath& FilePath::ToSubFile(const std::string& inFolderName)
-{
-	_path += inFolderName;
+	_path += GetFolderSeparator() + inFolderName;
 	return *this;
 }
 
-const std::string& FilePath::GetPath() const
+
+const fs::path& FilePath::GetPath() const
 {
 	return _path;
+}
+
+std::string	FilePath::GetPathString() const
+{
+	return _path.string();
 }
 
 
@@ -122,41 +122,24 @@ std::string FilePath::GetName(bool withoutExtension) const
 
 std::string FilePath::_GetName() const
 {
-	const size_t offset = IsFolder() ? 1 : 0;
-	const size_t index = FindFromEnd(_path, GetFolderSeparator(), offset);
-	std::string name(_path);
-	if(index != std::string::npos)
-		name = _path.substr(index + 1, _path.size() - index - offset - 1);
-
-	return name;
+	return _path.filename().string();
 }
 
 
 std::string FilePath::GetExtension() const
 {
-	std::string name = _GetName();
-
-	size_t index = name.rfind('.', name.size());
-	name = name.substr(index, name.size() - index);
-
-	return name;
+	return _path.extension().string();
 }
 
 
 FilePath FilePath::GetParent() const
 {
-	assert(!_path.empty());
-
-	size_t index = _path.rfind(GetFolderSeparator(), _path.size() - 1);
-
-	std::string s = _path.substr(0, index);
-	s += GetFolderSeparator();
-	return fm::FilePath(s);
+	return fm::FilePath(_path.parent_path());
 }
 
 FilePath FilePath::GetWorkingDirectory()
 {
-	return FilePath(fs::current_path().u8string() + GetFolderSeparator());
+	return FilePath(fs::current_path());
 }
 
 bool FilePath::IsValid() const
@@ -173,13 +156,18 @@ bool FilePath::operator==(const fm::FilePath& Other) const
 Folder::Folder(const fm::FilePath& inFilePath)
 {
 	_path = inFilePath;
-	assert(_path.IsFolder());
 }
 
 const fm::FilePath& Folder::GetPath() const
 {
 	return _path;
 }
+
+std::string	Folder::GetPathString() const
+{
+	return _path.GetPathString();
+}
+
 bool Folder::CreateFolder() const
 {
 	return fs::create_directory(_path.GetPath());
@@ -188,7 +176,7 @@ bool Folder::CreateFolder() const
 
 Folder Folder::Rename(const std::string& inNewName) const
 {
-	FilePath p(_path.GetParent().GetPath() + fm::FilePath::GetFolderSeparator() + inNewName);
+	FilePath p(_path.GetPath() / inNewName);
 	fs::rename(_path.GetPath(), p.GetPath());
 
 	return Folder(p);
@@ -205,15 +193,15 @@ void Folder::Iterate(bool recursive, std::function<void(const fm::Folder * inFol
 {
 	for (const auto& file : fs::directory_iterator(_path.GetPath(), fs::directory_options::none))
 	{
-		const fm::FilePath currentPath(file.path().u8string());
+		const fm::FilePath currentPath(file.path());
 		if (file.is_directory())
 		{
-			Folder f(file.path().u8string() + fm::FilePath::GetFolderSeparator());
+			Folder f(currentPath);
 			inCallback(&f, nullptr);
 		}
 		else if (file.is_regular_file())
 		{
-			File f(file.path().u8string());
+			File f(currentPath);
 			inCallback(nullptr, &f);
 		}
 		
@@ -230,13 +218,12 @@ void Folder::Iterate(bool recursive, std::function<void(const fm::Folder * inFol
 File::File(const fm::FilePath& inFilePath)
 {
 	_path = inFilePath;
-	assert(_path.IsFile());
 }
 
 File::File(const fm::Folder& inRoot, const std::string& inRelativePath)
 {
 	_path = inRoot.GetPath();
-	_path.ToSubFile(inRelativePath);
+	_path.ToSub(inRelativePath);
 }
 
 
@@ -244,6 +231,11 @@ File::File(const fm::Folder& inRoot, const std::string& inRelativePath)
 const fm::FilePath& File::GetPath() const
 {
 	return _path;
+}
+
+std::string	File::GetPathString() const
+{
+	return _path.GetPathString();
 }
 
 
@@ -264,7 +256,7 @@ std::filesystem::file_time_type File::GetTimeStamp() const
 
 File File::Rename(const std::string& inNewName) const
 {
-	FilePath p(_path.GetParent().GetPath() + fm::FilePath::GetFolderSeparator() + inNewName);
+	FilePath p(_path.GetParent().GetPath() / inNewName);
 	fs::rename(_path.GetPath(), p.GetPath());
 
 	return File(p);
@@ -285,11 +277,11 @@ File File::CreateUniqueFile()
 		path = fm::FilePath(parent);
 		if (i == 0)
 		{
-			path.ToSubFile(name + extension);
+			path.ToSub(name + extension);
 		}
 		else
 		{
-			path.ToSubFile(name + "_" + std::to_string(i) + extension);
+			path.ToSub(name + "_" + std::to_string(i) + extension);
 		}
 		i++;
 	} while (File(path).Exist());
@@ -345,7 +337,8 @@ void FileSystem::ConvertFileSystemToPath(const std::string& inPath, std::string&
 		const std::string number = inPath.substr(1, index - 1);
 		outID = (LOCATION)std::stoi(number);
 
-		outPath = ResourcesManager::get().GetFilePathResource(outID).GetPath();
+		outPath = ResourcesManager::get().GetFilePathResource(outID).GetPath().string();
+		outPath += fm::FilePath::GetFolderSeparator();
 		outPath += inPath.substr(index + 1, inPath.size() - index - 1);
 		
 		std::replace(outPath.begin(), outPath.end(), '/', fm::FilePath::GetFolderSeparator());
@@ -361,16 +354,11 @@ std::string FileSystem::ConvertFileSystemToPath(fm::LOCATION inLocation, const s
 {
 	fm::FilePath newPath(ResourcesManager::get().GetFilePathResource(inLocation).GetPath());
 	newPath.SetSystemID(inLocation);
-	if (fm::FilePath(inRelativePath).IsFolder())
-	{
-		newPath.ToSubFolder(inRelativePath);
-	}
-	else
-	{
-		newPath.ToSubFile(inRelativePath);
-	}
 
-	return newPath.GetPath();
+	newPath.ToSub(inRelativePath);
+	
+
+	return newPath.GetPath().string();
 }
 
 

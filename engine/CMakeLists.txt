@@ -52,7 +52,7 @@ include_directories(${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} SDL3-shared)

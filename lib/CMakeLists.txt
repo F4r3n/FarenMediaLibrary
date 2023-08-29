@@ -82,7 +82,7 @@ include_directories(${vma_SOURCE_DIR}/include)
 set(LIB_NAME ${PROJECT_NAME}_s)
 
 add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
-set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
     
 target_link_libraries(${LIB_NAME} freetype)

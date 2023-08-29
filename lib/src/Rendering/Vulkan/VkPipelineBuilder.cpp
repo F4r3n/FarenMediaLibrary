@@ -44,9 +44,6 @@ VkPipeline  VkPipelineBuilder::_CreatePipeline(VkPipelineLayout inLayout, VkRend
 {
 	inShader->Make(_device);
 
-	VkPipelineShaderStageCreateInfo shaderStages[] = { inShader->GetStageCreateInfo(fm::VkShader::KIND::VERT),
-													   inShader->GetStageCreateInfo(fm::VkShader::KIND::FRAG) };
-
 	//TODO: Change for Vertex
 	VkVertexInputBindingDescription bindingDesc = fm::VkVertexBuffer::GetBindingDescription();
 	 auto attributeDesc = fm::VkVertexBuffer::GetAttributeDescriptions();
@@ -94,63 +91,20 @@ VkPipeline  VkPipelineBuilder::_CreatePipeline(VkPipelineLayout inLayout, VkRend
 	viewportState.pScissors = &scissor;
 
 	//Rasterizer
-	VkPipelineRasterizationStateCreateInfo rasterizer{};
-	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	rasterizer.depthClampEnable = VK_FALSE;
-	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_NONE;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-	rasterizer.depthBiasEnable = VK_FALSE;
-	rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-	rasterizer.depthBiasClamp = 0.0f; // Optional
-	rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+	VkPipelineRasterizationStateCreateInfo rasterizer = _CreateRasterizerInfo();
 
 	//Multisampling
-	VkPipelineMultisampleStateCreateInfo multisampling{};
-	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisampling.sampleShadingEnable = VK_FALSE;
-	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-	multisampling.minSampleShading = 1.0f; // Optional
-	multisampling.pSampleMask = nullptr; // Optional
-	multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-	multisampling.alphaToOneEnable = VK_FALSE; // Optional
+	VkPipelineMultisampleStateCreateInfo multisampling = _CreateMultisampleInfo();
 
 	//Depth
-	VkPipelineDepthStencilStateCreateInfo depthStencil{};
-	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	depthStencil.depthTestEnable = VK_TRUE;
-	depthStencil.depthWriteEnable = VK_TRUE;
-	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-	depthStencil.depthBoundsTestEnable = VK_FALSE;
-	depthStencil.minDepthBounds = 0.0f; // Optional
-	depthStencil.maxDepthBounds = 1.0f; // Optional
-	depthStencil.stencilTestEnable = VK_FALSE;
-	depthStencil.front = {}; // Optional
-	depthStencil.back = {}; // Optional
+	VkPipelineDepthStencilStateCreateInfo depthStencil = _CreateDepthStencilInfo();
 
 	//Color blending (no blending)
-	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
-	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
-	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+	VkPipelineColorBlendAttachmentState colorBlendAttachment =	_CreateColorBlendingAttachmentInfo();
+	VkPipelineColorBlendStateCreateInfo colorBlending =			_CreateColorBlendingInfo(&colorBlendAttachment);
 
-	VkPipelineColorBlendStateCreateInfo colorBlending{};
-	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	colorBlending.logicOpEnable = VK_FALSE;
-	colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-	colorBlending.attachmentCount = 1;
-	colorBlending.pAttachments = &colorBlendAttachment;
-	colorBlending.blendConstants[0] = 0.0f; // Optional
-	colorBlending.blendConstants[1] = 0.0f; // Optional
-	colorBlending.blendConstants[2] = 0.0f; // Optional
-	colorBlending.blendConstants[3] = 0.0f; // Optional
+	VkPipelineShaderStageCreateInfo shaderStages[] = { inShader->GetStageCreateInfo(fm::VkShader::KIND::VERT),
+												   inShader->GetStageCreateInfo(fm::VkShader::KIND::FRAG) };
 
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -176,6 +130,93 @@ VkPipeline  VkPipelineBuilder::_CreatePipeline(VkPipelineLayout inLayout, VkRend
 	}
 	return pipeline;
 }
+
+VkPipelineMultisampleStateCreateInfo VkPipelineBuilder::_CreateMultisampleInfo() const
+{
+	VkPipelineMultisampleStateCreateInfo multisampling{};
+	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	multisampling.minSampleShading = 1.0f; // Optional
+	multisampling.pSampleMask = nullptr; // Optional
+	multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
+	multisampling.alphaToOneEnable = VK_FALSE; // Optional
+
+	return multisampling;
+}
+
+
+VkPipelineDepthStencilStateCreateInfo VkPipelineBuilder::_CreateDepthStencilInfo() const
+{
+	VkPipelineDepthStencilStateCreateInfo depthStencil{};
+	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	depthStencil.depthTestEnable = VK_TRUE;
+	depthStencil.depthWriteEnable = VK_TRUE;
+	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+	depthStencil.depthBoundsTestEnable = VK_FALSE;
+	depthStencil.minDepthBounds = 0.0f; // Optional
+	depthStencil.maxDepthBounds = 1.0f; // Optional
+	depthStencil.stencilTestEnable = VK_FALSE;
+	depthStencil.front = {}; // Optional
+	depthStencil.back = {}; // Optional
+
+	return depthStencil;
+}
+
+
+VkPipelineColorBlendAttachmentState	VkPipelineBuilder::_CreateColorBlendingAttachmentInfo() const
+{
+	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+	return colorBlendAttachment;
+}
+
+VkPipelineRasterizationStateCreateInfo VkPipelineBuilder::_CreateRasterizerInfo() const
+{
+	VkPipelineRasterizationStateCreateInfo rasterizer{};
+	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizer.depthClampEnable = VK_FALSE;
+	rasterizer.rasterizerDiscardEnable = VK_FALSE;
+	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterizer.lineWidth = 1.0f;
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
+	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.depthBiasEnable = VK_FALSE;
+	rasterizer.depthBiasConstantFactor = 0.0f; // Optional
+	rasterizer.depthBiasClamp = 0.0f; // Optional
+	rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+
+	return rasterizer;
+}
+
+
+
+VkPipelineColorBlendStateCreateInfo VkPipelineBuilder::_CreateColorBlendingInfo(VkPipelineColorBlendAttachmentState* inAttachmentState ) const
+{
+
+
+	VkPipelineColorBlendStateCreateInfo colorBlending{};
+	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colorBlending.logicOpEnable = VK_FALSE;
+	colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
+	colorBlending.attachmentCount = 1;
+	colorBlending.pAttachments = inAttachmentState;
+	colorBlending.blendConstants[0] = 0.0f; // Optional
+	colorBlending.blendConstants[1] = 0.0f; // Optional
+	colorBlending.blendConstants[2] = 0.0f; // Optional
+	colorBlending.blendConstants[3] = 0.0f; // Optional
+
+	return colorBlending;
+}
+
 
 void VkPipelineBuilder::DeInit()
 {

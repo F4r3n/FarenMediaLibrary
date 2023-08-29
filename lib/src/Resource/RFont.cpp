@@ -9,7 +9,7 @@
 
 #define MAXWIDTH 512
 using namespace fm;
-RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
+RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
     unsigned int size = 32;
     FT_Face face;
     FT_Library ft;
@@ -19,7 +19,7 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
 
     // Load font as face
 
-    if(FT_New_Face(ft, path.c_str(), 0, &face))
+    if(FT_New_Face(ft, inPath.GetPathString().c_str(), 0, &face))
         std::cerr << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
     FT_Set_Pixel_Sizes(face, 0, size);
@@ -104,7 +104,7 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
     std::cout << "Font loaded " << !glGetError() << std::endl;
     // exit(-1);
 }
-RFont::RFont() : Resource(fm::FilePath("")) {
+RFont::RFont() : Resource(fm::FilePath(std::string(""))) {
 }
 RFont::~RFont() {
 }

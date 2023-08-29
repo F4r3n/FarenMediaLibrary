@@ -98,7 +98,8 @@ class Material : public Resource
 
 		Material Clone() const
 		{
-			Material mat(_name);
+			fm::FilePath p(_name);
+			Material mat(p);
 			mat._shader = _shader;
 			mat._properties = _properties;
 		}

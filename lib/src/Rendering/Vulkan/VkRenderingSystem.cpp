@@ -30,12 +30,12 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
 
-	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSubFile("monkey_smooth.obj")));
+	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSub("monkey_smooth.obj")));
 
 	 _modelToDrawTest = fm::MeshLoader::Load(models.GetPath(), "monkey").value();
 	 auto a = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
 	 a->UploadData();
-	 _modelsUploaded.emplace(_modelToDrawTest->GetID(), std::move(a));
+	 _staticModels.emplace(_modelToDrawTest->GetID(), std::move(a));
 
 }
 
@@ -208,8 +208,8 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	vkCmdPushConstants(commandBuffer, _pipeline.GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(fm::VkShader::MeshPushConstants), &constants);
 
 	//we can now draw the mesh
-	auto it = _modelsUploaded.find(_modelToDrawTest->GetID());
-	if (it != _modelsUploaded.end())
+	auto it = _staticModels.find(_modelToDrawTest->GetID());
+	if (it != _staticModels.end())
 	{
 		it->second->Draw(commandBuffer);
 	}
@@ -219,7 +219,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 		model->UploadData();
 		model->Draw(commandBuffer);
 
-		_modelsUploaded.emplace(_modelToDrawTest->GetID(), std::move(model));
+		_staticModels.emplace(_modelToDrawTest->GetID(), std::move(model));
 	}
 
 	vkCmdEndRenderPass(commandBuffer);
@@ -297,7 +297,7 @@ void VkRenderingSystem::Stop()
 VkRenderingSystem::~VkRenderingSystem()
 {
 	vkDeviceWaitIdle(_vulkan->GetDevice());
-	for (const auto& [_, model] : _modelsUploaded)
+	for (const auto& [_, model] : _staticModels)
 	{
 		model->Destroy();
 	}
