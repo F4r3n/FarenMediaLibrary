@@ -1,14 +1,9 @@
 macro(SET_COMPILER_OPTIONS)
 include(CheckCXXCompilerFlag)
-if(MSVC)
-	add_compile_options("/W3")
-else(MSVC)
-	add_compile_options("-Wall")
-endif(MSVC)
 endmacro(SET_COMPILER_OPTIONS)
 
 
-cmake_minimum_required (VERSION 3.11)
+cmake_minimum_required(VERSION 3.15)
 
 project("FML")
 

@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable: 4100)
 #include <Core/Math/Vector2.h>
 #include "Rendering/OpenGL/OGLGraphicsDef.hpp"
 #include <Rendering/Mesh.hpp>

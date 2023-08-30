@@ -10,8 +10,9 @@ namespace fm
 		template <typename T>
 		EventObserver(size_t inKind, const T &v): eventKind(inKind), value(v) {}
 		EventObserver(size_t inKind) : eventKind(inKind) {}
+		EventObserver() = delete;
 
-		size_t eventKind = -1;
+		size_t eventKind = 0;
 		std::any value;
 	};
 

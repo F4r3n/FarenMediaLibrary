@@ -1,4 +1,4 @@
-
+cmake_minimum_required(VERSION 3.15)
 set(BUILD_SHARED_LIBS OFF)
 
 include(FetchContent)

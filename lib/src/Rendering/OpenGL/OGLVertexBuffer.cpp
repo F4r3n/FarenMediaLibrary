@@ -13,7 +13,7 @@ OGLVertextBuffer::~OGLVertextBuffer()
 {
 }
 
-size_t OGLVertextBuffer::DataTypeToOpengl(DATA_TYPE inType) const
+GLenum OGLVertextBuffer::DataTypeToOpengl(DATA_TYPE inType) const
 {
 	switch (inType)
 	{
@@ -22,6 +22,7 @@ size_t OGLVertextBuffer::DataTypeToOpengl(DATA_TYPE inType) const
 	default:
 		break;
 	}
+	return GL_FLOAT;
 }
 
 
@@ -158,8 +159,8 @@ void OGLVertextBuffer::SetVertexAttribArray(size_t index, size_t size, DATA_TYPE
 	{
 		glBindVertexArray(_indexVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, _indexVBO);
-		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, size, DataTypeToOpengl(type), GL_FALSE, stride, 0);
+		glEnableVertexAttribArray((GLuint)index);
+		glVertexAttribPointer((GLuint)index, (GLint)size, DataTypeToOpengl(type), GL_FALSE, (GLsizei)stride, 0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);

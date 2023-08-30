@@ -94,10 +94,6 @@ Quaternion::Quaternion(const vec4& inVec4)
 
 Quaternion::Quaternion()
 {
-	x = 0;
-	y = 0;
-	z = 0;
-	w = 1;
 }
 
 Quaternion::Quaternion(const Quaternion &q) : w(q.w), x(q.x), y(q.y), z(q.z)

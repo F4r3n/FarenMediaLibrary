@@ -98,7 +98,7 @@ void Scene::SetStatusToGo(bool inStatus)
 {
 	for (auto& go : _gos)
 	{
-		go.second->SetStatus(false);
+		go.second->SetStatus(inStatus);
 	}
 }
 

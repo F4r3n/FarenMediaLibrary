@@ -31,7 +31,7 @@ namespace fm
 			float _Pitch() const;
 			float _Yaw() const;
 
-			float w, x, y, z;
+			float w = 1, x = 0, y = 0, z = 0;
 		};
 	}
 }

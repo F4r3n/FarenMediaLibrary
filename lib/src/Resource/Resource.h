@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "Core/FilePath.h"
-
+#pragma warning(disable: 4100)
 namespace fm
 {
 	class FilePath;

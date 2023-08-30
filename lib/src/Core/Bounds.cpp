@@ -87,14 +87,14 @@ bool Bounds::intersects2D(const Bounds &bounds) {
 }
 
 
-void Bounds::setCenter(const fm::math::vec3& center) {
-    this->center = center;
+void Bounds::setCenter(const fm::math::vec3& inCenter) {
+    this->center = inCenter;
     
 }
-void Bounds::setSize(const fm::math::vec3& size) {
-    this->size = size;
+void Bounds::setSize(const fm::math::vec3& inSize) {
+    this->size = inSize;
 }
 
-void Bounds::setScale(const fm::math::vec3& scale) {
-    this->scale = scale;
+void Bounds::setScale(const fm::math::vec3& inScale) {
+    this->scale = inScale;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable: 4100)
 #include <string>
 
 #include <Core/Config.h>

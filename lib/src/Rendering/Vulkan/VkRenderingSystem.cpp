@@ -168,7 +168,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = {{0.0f, 0.0f, 1.0f, 1.0f}};
 	clearValues[1].depthStencil = {1.0f, 0};
-	renderPassInfo.clearValueCount = clearValues.size();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -215,11 +215,11 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	}
 	else
 	{
-		auto model = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
-		model->UploadData();
-		model->Draw(commandBuffer);
+		auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
+		modelMesh->UploadData();
+		modelMesh->Draw(commandBuffer);
 
-		_staticModels.emplace(_modelToDrawTest->GetID(), std::move(model));
+		_staticModels.emplace(_modelToDrawTest->GetID(), std::move(modelMesh));
 	}
 
 	vkCmdEndRenderPass(commandBuffer);

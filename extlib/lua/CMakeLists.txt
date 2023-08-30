@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.15)
 project (lua)  # project here actually means solution in premake
 
 if(WIN32)

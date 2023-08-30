@@ -36,10 +36,10 @@ bool CMaterial::Serialize(nlohmann::json &ioJson) const
 
 bool CMaterial::Read(const nlohmann::json &inJSON)
 {
-	for (const auto& m : inJSON["Materials"])
+	/*for (const auto& m : inJSON["Materials"])
 	{
 		//Material material
-	}
+	}*/
     return true;
 }
 

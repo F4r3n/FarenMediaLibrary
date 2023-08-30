@@ -14,7 +14,7 @@ PhysicSystem::PhysicSystem()
 
 
 
-void PhysicSystem::init(EntityManager& em, EventManager& event)
+void PhysicSystem::init(EntityManager&, EventManager&)
 {
 }
 

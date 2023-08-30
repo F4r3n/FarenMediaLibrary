@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required(VERSION 3.15)
 set(PROJECT_NAME "FarenMediaLibrary")
 project(${PROJECT_NAME} CXX)
 include(CheckCXXCompilerFlag)
@@ -97,6 +97,12 @@ target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
 target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
+
+if(MSVC)
+  target_compile_options(${LIB_NAME} PRIVATE /W4)
+else()
+  target_compile_options(${LIB_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 	target_link_libraries(${LIB_NAME} gcc_s stdc++) 

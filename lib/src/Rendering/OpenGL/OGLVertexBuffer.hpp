@@ -14,7 +14,7 @@ namespace fm
 			{
 				FLOAT
 			};
-			size_t DataTypeToOpengl(DATA_TYPE inType) const;
+			GLenum DataTypeToOpengl(DATA_TYPE inType) const;
 
 			OGLVertextBuffer();
 			~OGLVertextBuffer();
