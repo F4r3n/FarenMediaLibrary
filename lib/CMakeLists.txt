@@ -99,6 +99,6 @@ target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	target_link_libraries(${LIB_NAME} gcc_s stdc++)
+	target_link_libraries(${LIB_NAME} gcc_s stdc++) 
 	target_link_libraries(${LIB_NAME} stdc++fs)
 endif(CMAKE_COMPILER_IS_GNUCXX)

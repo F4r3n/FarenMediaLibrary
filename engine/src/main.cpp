@@ -3,13 +3,24 @@
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
 #include <span>
+#include <Utilities/CommandLineParser.h>
 int main(int argc, char** argv)
 {
-	fm::FilePath path;
-	for (const auto& arg : std::span(argv, argc))
-	{
+	fm::FilePath path = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY);
+	fm::CommandLineParser::ArgInfo info;
+	info.longName = "target";
+	info.shortName = "t";
 
+	fm::CommandLineParser lineParser({info});
+	if (lineParser.Process(argv, argc))
+	{
+		std::string targetArg = lineParser.GetArg("target");
+		if (!targetArg.empty())
+		{
+			path = fm::FilePath(targetArg);
+		}
 	}
+
 
 	fm::Config config;
 	config.name = "FML Engine";
@@ -22,7 +33,7 @@ int main(int argc, char** argv)
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);
 	app.Init();
-	app.LoadProject(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY));
+	app.LoadProject(path);
 	app.Start();
 	fm::Window *window = app.GetWindow();
 
