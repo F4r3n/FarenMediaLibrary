@@ -440,37 +440,32 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 		const fm::Materials* materials = node.mat;
         std::optional<std::weak_ptr<fm::Model>> model = node.model;
 		fmc::CText* text = node.text;
-        if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
-        {
-            if(state == fm::RENDER_QUEUE::OPAQUE)
-            {
-				if (text != nullptr)
+
+		if(state == fm::RENDER_QUEUE::OPAQUE)
+		{
+			if (text != nullptr)
+			{
+				for (const auto& m : *materials)
 				{
-					for (const auto& m : *materials)
-					{
-						_DrawText(cam, transform, text, m.get());
-					}
+					_DrawText(cam, transform, text, m.get());
 				}
+			}
 
 
-				if (std::shared_ptr<fm::Model> wModel = model->lock())
+			if (std::shared_ptr<fm::Model> wModel = model->lock())
+			{
+				for (const auto& m : *materials)
 				{
-					for (const auto& m : *materials)
-					{
-						_DrawMesh(cam, transform, wModel.get(), m.get());
-					}
+					_DrawMesh(cam, transform, wModel.get(), m.get());
 				}
+			}
 
                 
-            }
+		}
 
-			cam->_rendererConfiguration.queuePreviousValue = state;
-			cam->_rendererConfiguration.queue.next();
-        }
-		else if(cam->shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
-        {
-
-        }
+		cam->_rendererConfiguration.queuePreviousValue = state;
+		cam->_rendererConfiguration.queue.next();
+        
     }
 
 }
@@ -479,11 +474,7 @@ void RenderingSystem::_ComputeLighting( std::shared_ptr<fm::RenderTexture> light
 										 fmc::CCamera* cam,
 										 bool hasLight) 
 {
-	if(cam->shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
-    {
-		fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.GetColorBufferTexture(0), false);
-    }
-
+	fm::Renderer::getInstance().lightComputation(_graphics, cam->_rendererConfiguration.postProcessRenderTexture.GetColorBufferTexture(0), false);
 }
 
 void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)

@@ -4,10 +4,12 @@
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 using namespace fm;
 
-VkPipelineBuilder::VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent, Shader* inShader)
+VkPipelineBuilder::VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent,
+	VkDescriptorSetLayout inDescriptorLayout,
+	Shader* inShader)
 {
 	_device = inDevice;
-	_pipelineLayout = _CreatePipelineLayout();
+	_pipelineLayout = _CreatePipelineLayout(inDescriptorLayout);
 	_pipeline = _CreatePipeline(_pipelineLayout, inRenderPass, inExtent, dynamic_cast<VkShader*>(inShader));
 }
 
@@ -15,7 +17,7 @@ VkPipelineBuilder::~VkPipelineBuilder()
 {
 }
 
-VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout()
+VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout(VkDescriptorSetLayout inDescriptorLayout)
 {
 
 	VkPipelineLayout pipelineLayout;
@@ -28,6 +30,11 @@ VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout()
 	VkPushConstantRange push_constant;
 	push_constant.offset = 0;
 	push_constant.size = sizeof(VkShader::MeshPushConstants);
+
+	//hook the global set layout
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &inDescriptorLayout;
+
 	//this push constant range is accessible only in the vertex shader
 	push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pipelineLayoutInfo.pPushConstantRanges = &push_constant;
@@ -40,7 +47,10 @@ VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout()
 }
 
 
-VkPipeline  VkPipelineBuilder::_CreatePipeline(VkPipelineLayout inLayout, VkRenderPass inRenderPass, VkExtent2D inExtent, VkShader* inShader)
+VkPipeline  VkPipelineBuilder::_CreatePipeline(VkPipelineLayout inLayout,
+	VkRenderPass inRenderPass,
+	VkExtent2D inExtent,
+	VkShader* inShader)
 {
 	inShader->Make(_device);
 

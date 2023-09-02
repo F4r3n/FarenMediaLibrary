@@ -9,6 +9,7 @@
 #include "Rendering/GraphicsAPI.h"
 #include "Core/Math/Matrix.h"
 #include <unordered_map>
+#include <array>
 class Vulkan;
 
 namespace fm
@@ -16,6 +17,7 @@ namespace fm
 	class Window;
 	class Model;
 	class VkModel;
+	class VkMaterial;
 }
 
 namespace fms
@@ -36,11 +38,16 @@ namespace fms
 		VkRenderPass				_CreateRenderPass();
 		std::vector<VkCommandBuffer>_CreateCommandBuffers(VkCommandPool inPool);
 		bool						_RecordCommandBuffer(VkCommandBuffer inBuffer, uint32_t imageIndex,
-														VkRenderPass inRenderPass, VkPipeline inPipeline);
+														VkRenderPass inRenderPass, EntityManager& inManager);
 		bool						_SetupSyncObjects();
+		bool						_SetupGlobalUniforms();
+		bool						_SetupDescriptors();
+		void						_InitStandardShapes();
+
 	private:
+		inline const static int MAX_FRAMES_IN_FLIGHT = 2;
+
 		std::unique_ptr<Vulkan>		_vulkan;
-		fm::VkPipelineBuilder		_pipeline;
 		VkRenderPass				_renderPass;
 
 
@@ -49,13 +56,21 @@ namespace fms
 		std::vector<VkSemaphore>		_renderFinishedSemaphores;
 		std::vector<VkFence>			_inFlightFences;
 
+		
+		std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT>	_globalDescriptorSets;
+		std::array<fm::AllocatedBuffer, MAX_FRAMES_IN_FLIGHT> _globalBuffers;
+		VkDescriptorSetLayout				_globalSetLayout;
+		VkDescriptorPool					_descriptorPool;
+
 		std::shared_ptr<fm::Window>		_window;
 
 		uint32_t						_currentFrame = 0;
 		GRAPHIC_API						_api = GRAPHIC_API::VULKAN;
 
 		std::map<uint32_t, std::unique_ptr<fm::VkModel>> _staticModels;
+		std::map < uint32_t, std::unique_ptr<fm::VkMaterial>>	_materials;
 
-		std::shared_ptr<fm::Model> _modelToDrawTest;
+		std::shared_ptr<fm::Model>	_modelToDrawTest;
+		fm::VkMaterial*				_currentMaterial;
 	};
 }

@@ -139,11 +139,15 @@ class Material : public Resource
 		virtual void Save() const override;
 		virtual void Load() override;
 
+		uint32_t GetID() const { return _currentID; }
     private:
 		std::shared_ptr<fm::Shader> _shader;
 
         std::string _name;
 		MaterialProperties _properties;
+
+		inline static uint32_t _ID = 0;
+		uint32_t	_currentID = 0;
 };
 
 

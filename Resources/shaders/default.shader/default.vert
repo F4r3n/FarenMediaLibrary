@@ -12,7 +12,6 @@ layout(std140) uniform shader_data
 	mat4 FM_V;
 	mat4 FM_P;
 	mat4 FM_PV;
-	int render_mode;
 };
 
 out vec3 ourPosition;

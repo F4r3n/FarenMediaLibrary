@@ -29,6 +29,7 @@ namespace fm
 		virtual void Reload(bool force = false) {}
 		virtual void Save() const {}
 		virtual void Load() {}
+
     protected:
 		fm::FilePath	_path;
 

@@ -3,7 +3,7 @@
 #include "Script.h"
 #if __linux__
 #include <dlfcn.h>
-#else
+#elif WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -27,7 +27,7 @@ class CPPManager
         static CPPManager instance;
 #if __linux__
         void *hndl;
-#else
+#elif WIN32
 		HINSTANCE hndl;
 #endif 
 };

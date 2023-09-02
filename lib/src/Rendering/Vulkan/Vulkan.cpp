@@ -586,6 +586,22 @@ fm::AllocatedBuffer Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags us
 	return newBuffer;
 }
 
+void Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize)
+{
+	void* data;
+	vmaMapMemory(_allocator, inBuffer._allocation, &data);
+	memcpy(data, &inData, inDataSize);
+	vmaUnmapMemory(_allocator, inBuffer._allocation);
+}
+
+
+bool Vulkan::DestroyBuffer(fm::AllocatedBuffer& inBuffer) const
+{
+	vmaDestroyBuffer(_allocator, inBuffer._buffer, inBuffer._allocation);
+	return true;
+}
+
+
 
 bool Vulkan::SetupDepthImage(VkExtent2D inExtent)
 {

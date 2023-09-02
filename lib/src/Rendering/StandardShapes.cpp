@@ -34,6 +34,11 @@ MeshContainer* StandardShapes::CreateTriangle(GRAPHIC_API inAPI)
 		AddVertex(meshContainer, { -1.0, 1.0, 0 }, { 0.0, 0.0 }, { 0.0,0.0,-1.0 });
 		AddVertex(meshContainer, { 0.0f, -1.0f, 0 }, { 1.0, 0.0 }, { 0.0,0.0,-1.0 });
 	}
+	else if (inAPI == GRAPHIC_API::OPENGL)
+	{
+
+	}
+	meshContainer->listIndices = { 0, 1, 2 };
 
 
 	return meshContainer;

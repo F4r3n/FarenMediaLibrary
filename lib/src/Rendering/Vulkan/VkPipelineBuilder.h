@@ -8,7 +8,8 @@ namespace fm
 	class VkPipelineBuilder
 	{
 	public:
-		VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent, Shader* inShader);
+		VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent, VkDescriptorSetLayout inDescriptorLayout,
+						Shader* inShader);
 		~VkPipelineBuilder();
 		VkPipelineBuilder() = default;
 
@@ -23,8 +24,11 @@ namespace fm
 		VkPipelineDepthStencilStateCreateInfo	_CreateDepthStencilInfo() const;
 		VkPipelineMultisampleStateCreateInfo	_CreateMultisampleInfo() const;
 
-		VkPipelineLayout	_CreatePipelineLayout();
-		VkPipeline			_CreatePipeline(VkPipelineLayout inLayout, VkRenderPass inRenderPass, VkExtent2D inExtent, VkShader* inShader);
+		VkPipelineLayout	_CreatePipelineLayout(VkDescriptorSetLayout inDescriptorLayout);
+		VkPipeline			_CreatePipeline(VkPipelineLayout inLayout,
+			VkRenderPass inRenderPass,
+			VkExtent2D inExtent,
+			VkShader* inShader);
 
 	private:
 		VkDevice _device = nullptr;

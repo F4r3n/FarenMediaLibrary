@@ -53,7 +53,10 @@ public:
 	VkImageCreateInfo 			CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) const;
 	VkImageViewCreateInfo		CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) const;
 	bool						SetupDepthImage(VkExtent2D inExtent);
+
 	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+	bool						DestroyBuffer(fm::AllocatedBuffer& inBuffer) const;
+	void						MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize);
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();

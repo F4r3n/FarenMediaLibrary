@@ -12,6 +12,8 @@ Material::Material(const fm::FilePath& inFilePath)
 	Resource(inFilePath)
 {
     setValue("mainColor", fm::Color(1,1,1,1));
+	_ID++;
+	_currentID = _ID;
 }
 
 void Material::Save() const

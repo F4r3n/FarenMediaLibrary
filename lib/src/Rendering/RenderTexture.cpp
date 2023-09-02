@@ -17,7 +17,7 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
     _multiSampling = multiSampling;
 }
 
-RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampling) {
+RenderTexture::RenderTexture(const RenderTexture &renderTexture, [[maybe_unused]] int multiSampling) {
     _width = renderTexture._width;
     _height = renderTexture._height;
     _depth = renderTexture._depth;
@@ -101,8 +101,6 @@ void RenderTexture::_Release() {
 	{
 		glDeleteFramebuffers(1, &_framebuffer);
 	}
-
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
 
 bool RenderTexture::isCreated() const
@@ -117,11 +115,7 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
 
     glGenFramebuffers(1, &_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    int error = glGetError();
-    if(error != 0) 
-	{
-        std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-    }
+
     // Create a color attachment texture [FragColor and BrightColor]
     if(formats != nullptr && types != nullptr)
     {
@@ -133,10 +127,6 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
 
             t.generate(_width, _height, formats[i], types[i], _multiSampling);
 
-            int error = glGetError();
-            if(error != 0) {
-                std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-            }
             if(_multiSampling > 0)
             {
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, t.getID(), 0);
@@ -146,11 +136,6 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, t.getID(), 0);
             }
 
-            error = glGetError();
-            if(error != 0) 
-			{
-                std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-            }
             _textureColorbuffer.push_back(t);
         }
     }

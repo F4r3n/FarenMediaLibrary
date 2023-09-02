@@ -8,9 +8,13 @@
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include "Rendering/meshloader.hpp"
+#include "Components/CCamera.h"
 #include "VkModel.h"
-const int MAX_FRAMES_IN_FLIGHT = 2;
-
+#include "VkMaterial.h"
+#include <ECS.h>
+#include "Components/CMesh.h"
+#include "Components/CMaterial.h"
+#include "Components/CTransform.h"
 using namespace fms;
 
 VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
@@ -24,12 +28,15 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 
 
 	_renderPass = _CreateRenderPass();
-	_pipeline = fm::VkPipelineBuilder(_vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(),
-		fm::ResourcesManager::get().getResource<fm::Shader>("default").get());
+	_SetupDescriptors();
+	_SetupGlobalUniforms();
+	_InitStandardShapes();
+	//_pipeline = fm::VkPipelineBuilder(_vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(), _globalSetLayout,
+	//	fm::ResourcesManager::get().getResource<fm::Shader>("default").get());
+	//_materials.emplace()
 	_vulkan->SetupSwapChainFramebuffer(_renderPass);
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
-
 	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSub("monkey_smooth.obj")));
 
 	 _modelToDrawTest = fm::MeshLoader::Load(models.GetPath(), "monkey").value();
@@ -38,6 +45,39 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	 _staticModels.emplace(_modelToDrawTest->GetID(), std::move(a));
 
 }
+
+void VkRenderingSystem::_InitStandardShapes()
+{
+	std::shared_ptr<fm::Model> quad = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Quad"));
+	std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "QuadFS"));
+	std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Circle"));
+	//std::shared_ptr<fm::Model> cube = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Cube"));
+	quad->AddMesh(fm::StandardShapes::CreateQuad());
+	circle->AddMesh(fm::StandardShapes::CreateCircle());
+	quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
+	//cube->AddMesh(fm::StandardShapes::CreateTriangle(_api));
+	fm::FilePath models(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION));
+
+	fm::FilePath cubeModel = models.ToSub("cube.obj");
+	std::shared_ptr<fm::Model> cube = fm::MeshLoader::Load(cubeModel, "Cube").value();
+	//cube->AddMesh(fm::StandardShapes::CreateCube());
+
+
+	//fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
+	//fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
+	//fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
+	fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
+	//_staticModels.emplace(quad->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quad));
+	_staticModels.emplace(cube->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), cube));
+	//_staticModels.emplace(quadFS->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quadFS));
+	//_staticModels.emplace(circle->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), circle));
+
+	for (const auto& m : _staticModels)
+	{
+		m.second->UploadData();
+	}
+}
+
 
 bool VkRenderingSystem::_SetupSyncObjects()
 {
@@ -129,6 +169,51 @@ VkRenderPass VkRenderingSystem::_CreateRenderPass()
 	return renderPass;
 }
 
+bool VkRenderingSystem::_SetupDescriptors()
+{
+	std::vector<VkDescriptorPoolSize> sizes =
+	{
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 }
+	};
+
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = 0;
+	pool_info.maxSets = 10;
+	pool_info.poolSizeCount = (uint32_t)sizes.size();
+	pool_info.pPoolSizes = sizes.data();
+
+	vkCreateDescriptorPool(_vulkan->GetDevice(), &pool_info, nullptr, &_descriptorPool);
+
+
+	//information about the binding.
+	VkDescriptorSetLayoutBinding camBufferBinding = {};
+	camBufferBinding.binding = 0;
+	camBufferBinding.descriptorCount = 1;
+	// it's a uniform buffer binding
+	camBufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+	// we use it from the vertex shader
+	camBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+
+	VkDescriptorSetLayoutCreateInfo setinfo = {};
+	setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	setinfo.pNext = nullptr;
+
+	//we are going to have 1 binding
+	setinfo.bindingCount = 1;
+	//no flags
+	setinfo.flags = 0;
+	//point to the camera buffer binding
+	setinfo.pBindings = &camBufferBinding;
+
+	const VkResult result = vkCreateDescriptorSetLayout(_vulkan->GetDevice(), &setinfo, nullptr, &_globalSetLayout);
+
+	return result == VK_SUCCESS;
+}
+
+
 
 std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandPool inPool)
 {
@@ -145,7 +230,7 @@ std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandP
 	return commandBuffers;
 }
 
-bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkRenderPass inRenderPass, VkPipeline inPipeline)
+bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkRenderPass inRenderPass, EntityManager& em)
 {
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -173,7 +258,6 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, inPipeline);
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -188,8 +272,9 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	scissor.extent = _vulkan->GetSwapChainExtent();
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	//bind the mesh vertex buffer with offset 0
 
+
+	
 	fm::VkShader::MeshPushConstants constants;
 
 	fm::math::vec3 camPos = { 0.f,0.f,-2.0f };
@@ -199,29 +284,78 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	projection[1][1] *= -1;
 	fm::math::mat model = fm::math::rotate(fm::math::mat{ 1.0f }, fm::math::radians(3.14f), fm::math::vec3(0, 1, 0));
 	fm::math::mat mesh_matrix = projection * view * model;
+	model.identity();
 
 	constants.data = fm::math::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	constants.render_matrix = mesh_matrix;
-	
-	//constants.render_matrix.identity();
-	//upload the matrix to the GPU via push constants
-	vkCmdPushConstants(commandBuffer, _pipeline.GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(fm::VkShader::MeshPushConstants), &constants);
+	constants.render_matrix = model;
+
+	fmc::Shader_data camData;
+	camData.FM_P = projection;
+	camData.FM_V = view;
+	camData.FM_PV = projection * view;
+	//_vulkan->MapBuffer(_globalBuffers[_currentFrame], &camData, sizeof(fmc::Shader_data));
+	void* data;
+	vmaMapMemory(_vulkan->GetAllocator(), _globalBuffers[_currentFrame]._allocation, &data);
+	memcpy(data, &camData, sizeof(fmc::Shader_data));
+	vmaUnmapMemory(_vulkan->GetAllocator(), _globalBuffers[_currentFrame]._allocation);
+
 
 	//we can now draw the mesh
-	auto it = _staticModels.find(_modelToDrawTest->GetID());
-	if (it != _staticModels.end())
+	for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform>())
 	{
-		it->second->Draw(commandBuffer);
-	}
-	else
-	{
-		auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
-		modelMesh->UploadData();
-		modelMesh->Draw(commandBuffer);
+		fmc::CMaterial* material = e.get<fmc::CMaterial>();
+		auto mainMaterial = material->GetMainMaterial();
 
-		_staticModels.emplace(_modelToDrawTest->GetID(), std::move(modelMesh));
+		auto itMaterial = _materials.find(mainMaterial->GetID());
+		if (itMaterial != _materials.end())
+		{
+			if (_currentMaterial != itMaterial->second.get())
+			{
+				itMaterial->second->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
+				_currentMaterial = itMaterial->second.get();
+
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_globalDescriptorSets[_currentFrame], 0, nullptr);
+			}
+		}
+		else
+		{
+			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(mainMaterial, _vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(), _globalSetLayout);
+			_currentMaterial = _materials.emplace(material->GetID(), std::move(mat)).first->second.get();
+			_currentMaterial->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_globalDescriptorSets[_currentFrame], 0, nullptr);
+		}
+
+		fmc::CTransform* tranform = e.get<fmc::CTransform>();
+		model = tranform->GetWorldPosMatrix();
+		constants.render_matrix = model;
+		vkCmdPushConstants(commandBuffer, _currentMaterial->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(fm::VkShader::MeshPushConstants), &constants);
+
+		fmc::CMesh* mesh = e.get<fmc::CMesh>();
+		if (mesh->model == nullptr)
+		{
+			mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
+		}
+		if (mesh->model == nullptr)
+			continue;
+		auto it = _staticModels.find(mesh->model->GetID());
+		//auto it = _staticModels.find(_modelToDrawTest->GetID());
+
+		if (it != _staticModels.end())
+		{
+			it->second->Draw(commandBuffer);
+			//_modelToDrawTest->dr
+		}
+		else
+		{
+			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
+			modelMesh->UploadData();
+			modelMesh->Draw(commandBuffer);
+
+			_staticModels.emplace(_modelToDrawTest->GetID(), std::move(modelMesh));
+		}
 	}
 
+	_currentMaterial = nullptr;
 	vkCmdEndRenderPass(commandBuffer);
 
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
@@ -230,6 +364,51 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 
 	return true;
 }
+
+bool VkRenderingSystem::_SetupGlobalUniforms()
+{
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+	{
+		_globalBuffers[i] = _vulkan->CreateBuffer(sizeof(fmc::Shader_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.pNext = nullptr;
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = _descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &_globalSetLayout;
+
+		vkAllocateDescriptorSets(_vulkan->GetDevice(), &allocInfo, &_globalDescriptorSets[i]);
+
+		VkDescriptorBufferInfo binfo;
+		//it will be the camera buffer
+		binfo.buffer = _globalBuffers[i]._buffer;
+		//at 0 offset
+		binfo.offset = 0;
+		//of the size of a camera data struct
+		binfo.range = sizeof(fmc::Shader_data);
+
+		VkWriteDescriptorSet setWrite = {};
+		setWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		setWrite.pNext = nullptr;
+
+		//we are going to write into binding number 0
+		setWrite.dstBinding = 0;
+		//of the global descriptor
+		setWrite.dstSet = _globalDescriptorSets[i];
+
+		setWrite.descriptorCount = 1;
+		//and the type is uniform buffer
+		setWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		setWrite.pBufferInfo = &binfo;
+
+
+		vkUpdateDescriptorSets(_vulkan->GetDevice(), 1, &setWrite, 0, nullptr);
+	}
+
+	return true;
+}
+
 
 
 void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
@@ -256,7 +435,7 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 	vkResetFences(device, 1, &_inFlightFences[_currentFrame]);
 
 	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-	_RecordCommandBuffer(_commandBuffers[_currentFrame], imageIndex, _renderPass, _pipeline.GetPipeline());
+	_RecordCommandBuffer(_commandBuffers[_currentFrame], imageIndex, _renderPass, manager);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -297,9 +476,16 @@ void VkRenderingSystem::Stop()
 VkRenderingSystem::~VkRenderingSystem()
 {
 	vkDeviceWaitIdle(_vulkan->GetDevice());
+	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _globalSetLayout, nullptr);
+	vkDestroyDescriptorPool(_vulkan->GetDevice(), _descriptorPool, nullptr);
 	for (const auto& [_, model] : _staticModels)
 	{
 		model->Destroy();
+	}
+
+	for (auto& buffer : _globalBuffers)
+	{
+		_vulkan->DestroyBuffer(buffer);
 	}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -311,7 +497,11 @@ VkRenderingSystem::~VkRenderingSystem()
 	std::shared_ptr<fm::VkShader> shader = std::dynamic_pointer_cast<fm::VkShader>(fm::ResourcesManager::get().getResource<fm::Shader>("default"));
 	shader->Delete(_vulkan->GetDevice());
 
-	_pipeline.DeInit();
+	for (const auto& [_, material] : _materials)
+	{
+		material->Destroy();
+	}
+
 	vkDestroyRenderPass(_vulkan->GetDevice(), _renderPass, nullptr);
 
 	_vulkan->DeInit();

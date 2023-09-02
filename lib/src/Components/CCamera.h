@@ -35,7 +35,6 @@ struct Shader_data
         fm::math::mat FM_V;
         fm::math::mat FM_P;
         fm::math::mat FM_PV;
-		RENDER_MODE render_mode = fmc::RENDER_MODE::FORWARD;
 };
 
 struct RendererConfiguration
