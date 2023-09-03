@@ -70,7 +70,6 @@ namespace fms
 		std::map<uint32_t, std::unique_ptr<fm::VkModel>> _staticModels;
 		std::map < uint32_t, std::unique_ptr<fm::VkMaterial>>	_materials;
 
-		std::shared_ptr<fm::Model>	_modelToDrawTest;
 		fm::VkMaterial*				_currentMaterial;
 	};
 }

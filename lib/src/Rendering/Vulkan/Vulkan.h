@@ -62,7 +62,7 @@ private:
 	bool				_SetupDebugMessenger();
 	bool				_InitInstance(const std::vector<const char*>& inValidationLayerSupport);
 	bool				_CheckValidationLayerSupport(const std::vector<const char*> inValidationLayerSupport);
-	VkPhysicalDevice	_PickPhysicalDevice(const std::vector<const char*>& deviceExtensions) const;
+	bool				_SetupPhysicalDevice(const std::vector<const char*>& deviceExtensions);
 	bool				_IsDeviceSuitable(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions) const;
 	bool				_CheckDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions) const;
 	bool				_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<const char*>& inValidationLayerSupport, const std::vector<const char*>& deviceExtensions);
@@ -111,4 +111,5 @@ private:
 	VkCommandPool	_commandPool;
 
 	VmaAllocator	_allocator; //vma lib allocator
+	VkPhysicalDeviceProperties	_gpuProperties;
 };

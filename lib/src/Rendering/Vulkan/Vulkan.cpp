@@ -60,24 +60,22 @@ bool Vulkan::Init(SDL_Window* inWindow)
 
 	_CreateSurface(inWindow);
 
-	VkPhysicalDevice physicalDevice = _PickPhysicalDevice(deviceExtensions);
-	if (physicalDevice == nullptr)
-		return false;
-	_physicalDevice = physicalDevice;
-
-	if (!_SetupLogicalDevice(physicalDevice, validationLayers, deviceExtensions))
+	if (!_SetupPhysicalDevice(deviceExtensions))
 		return false;
 
-	if (!_SetupSwapChain(inWindow, physicalDevice))
+	if (!_SetupLogicalDevice(_physicalDevice, validationLayers, deviceExtensions))
+		return false;
+
+	if (!_SetupSwapChain(inWindow, _physicalDevice))
 		return false;
 
 	if (!_SetupSwapChainImageViews(_device))
 		return false;
 
-	if (!_SetUpCommandPool(physicalDevice, _device))
+	if (!_SetUpCommandPool(_physicalDevice, _device))
 		return false;
 
-	if (!_SetupAllocator(physicalDevice, _device, _instance))
+	if (!_SetupAllocator(_physicalDevice, _device, _instance))
 		return false;
 
 	if (!SetupDepthImage(_swapChainExtent))
@@ -355,14 +353,14 @@ bool Vulkan::_IsDeviceSuitable(VkPhysicalDevice device, const std::vector<const 
 }
 
 
-VkPhysicalDevice Vulkan::_PickPhysicalDevice(const std::vector<const char*>& deviceExtensions) const
+bool Vulkan::_SetupPhysicalDevice(const std::vector<const char*>& deviceExtensions)
 {
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 
 	if (deviceCount == 0) {
-		return VK_NULL_HANDLE;
+		return false;
 	}
 
 	std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -376,10 +374,12 @@ VkPhysicalDevice Vulkan::_PickPhysicalDevice(const std::vector<const char*>& dev
 	}
 
 	if (physicalDevice == VK_NULL_HANDLE) {
-		return VK_NULL_HANDLE;
+		return false;
 	}
+	_physicalDevice = physicalDevice;
+	vkGetPhysicalDeviceProperties(_physicalDevice, &_gpuProperties);
 
-	return physicalDevice;
+	return true;
 }
 
 bool Vulkan::_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<const char*>& inValidationLayerSupport,

@@ -31,18 +31,10 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_SetupDescriptors();
 	_SetupGlobalUniforms();
 	_InitStandardShapes();
-	//_pipeline = fm::VkPipelineBuilder(_vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(), _globalSetLayout,
-	//	fm::ResourcesManager::get().getResource<fm::Shader>("default").get());
-	//_materials.emplace()
+
 	_vulkan->SetupSwapChainFramebuffer(_renderPass);
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
-	 fm::File models(fm::File(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION).ToSub("monkey_smooth.obj")));
-
-	 _modelToDrawTest = fm::MeshLoader::Load(models.GetPath(), "monkey").value();
-	 auto a = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
-	 a->UploadData();
-	 _staticModels.emplace(_modelToDrawTest->GetID(), std::move(a));
 
 }
 
@@ -273,21 +265,11 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 
-
-	
-	fm::VkShader::MeshPushConstants constants;
-
 	fm::math::vec3 camPos = { 0.f,0.f,-2.0f };
 
 	fm::math::mat view = fm::math::translate(fm::math::mat(1.f), camPos);
 	fm::math::mat projection = fm::math::perspective(fm::math::radians(70.f), ((float)_vulkan->GetSwapChainExtent().width / (float)_vulkan->GetSwapChainExtent().height), 0.1f, 200.0f);
 	projection[1][1] *= -1;
-	fm::math::mat model = fm::math::rotate(fm::math::mat{ 1.0f }, fm::math::radians(3.14f), fm::math::vec3(0, 1, 0));
-	fm::math::mat mesh_matrix = projection * view * model;
-	model.identity();
-
-	constants.data = fm::math::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	constants.render_matrix = model;
 
 	fmc::Shader_data camData;
 	camData.FM_P = projection;
@@ -326,7 +308,8 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 		}
 
 		fmc::CTransform* tranform = e.get<fmc::CTransform>();
-		model = tranform->GetWorldPosMatrix();
+		fm::math::mat model = tranform->GetWorldPosMatrix();
+		fm::VkShader::MeshPushConstants constants;
 		constants.render_matrix = model;
 		vkCmdPushConstants(commandBuffer, _currentMaterial->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(fm::VkShader::MeshPushConstants), &constants);
 
@@ -338,20 +321,18 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 		if (mesh->model == nullptr)
 			continue;
 		auto it = _staticModels.find(mesh->model->GetID());
-		//auto it = _staticModels.find(_modelToDrawTest->GetID());
 
 		if (it != _staticModels.end())
 		{
 			it->second->Draw(commandBuffer);
-			//_modelToDrawTest->dr
 		}
 		else
 		{
-			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), _modelToDrawTest);
+			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), mesh->model);
 			modelMesh->UploadData();
 			modelMesh->Draw(commandBuffer);
 
-			_staticModels.emplace(_modelToDrawTest->GetID(), std::move(modelMesh));
+			_staticModels.emplace(mesh->model->GetID(), std::move(modelMesh));
 		}
 	}
 
