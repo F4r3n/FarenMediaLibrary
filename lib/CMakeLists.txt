@@ -37,7 +37,6 @@ link_directories(${openal_BINARY_DIR})
 
 
 #GLEW
-add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
@@ -106,6 +105,9 @@ if(WANT_VULKAN)
   target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
   target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
 endif(WANT_VULKAN)
+
+target_compile_definitions (${LIB_NAME} PRIVATE GLEW_STATIC=1 )
+target_compile_definitions (${LIB_NAME} PRIVATE GLEW_NO_GLU=1 )
 
 if(MSVC)
   target_compile_options(${LIB_NAME} PRIVATE /W4)
