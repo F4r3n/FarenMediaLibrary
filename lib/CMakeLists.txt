@@ -43,7 +43,7 @@ link_directories(${FML_EXTLIB_LIB}/glew)
 
 if(WANT_VULKAN)
   #Vulkan
-  find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
+  find_package(Vulkan REQUIRED OPTIONAL_COMPONENTS shaderc_combined)
   include_directories(${Vulkan_INCLUDE_DIRS})
 
   #VMA
@@ -104,7 +104,7 @@ target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 if(WANT_VULKAN)
   target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
   target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
-  target_compile_definitions(${LIB_NAME} WITH_VULKAN=1)
+  target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
 endif(WANT_VULKAN)
 
 if(MSVC)
