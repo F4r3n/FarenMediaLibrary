@@ -1,4 +1,3 @@
-#pragma once
 #include "Core/Observer.h"
 #include <algorithm>
 using namespace fm;

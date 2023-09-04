@@ -1,8 +1,6 @@
 #include <Rendering/VertexBuffer.hpp>
 #include <Rendering/StandardShapes.h>
 #include <Rendering/Model.hpp>
-#include "Rendering/OpenGL/OGLVertexBuffer.hpp"
-#include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include <Core/Debug.h>
 
 

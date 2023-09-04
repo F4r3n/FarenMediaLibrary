@@ -16,8 +16,11 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 
 include_directories("src")
 file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
-
-
+if(NOT WITH_VULKAN)
+  LIST(FILTER SOURCES EXCLUDE REGEX "Vulkan/")
+  LIST(FILTER HEADERS EXCLUDE REGEX "Vulkan/")
+endif(WITH_VULKAN)
+message(${SOURCES})
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
 FETCHCONTENT_GETPROPERTIES(BULLET)
@@ -30,7 +33,7 @@ find_package(OpenGL)
 #OpenAL
 FETCHCONTENT_GETPROPERTIES(OPENAL)
 include_directories(${openal_SOURCE_DIR}/lib/include)
-link_directories(${openal_BINARY_DIR}/lib)
+link_directories(${openal_BINARY_DIR})
 
 
 #GLEW
@@ -38,9 +41,15 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
-#Vulkan
-find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
-include_directories(${Vulkan_INCLUDE_DIRS})
+if(WANT_VULKAN)
+  #Vulkan
+  find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
+  include_directories(${Vulkan_INCLUDE_DIRS})
+
+  #VMA
+  FETCHCONTENT_GETPROPERTIES(VMA)
+  include_directories(${vma_SOURCE_DIR}/include)
+endif(WANT_VULKAN)
 
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
@@ -75,9 +84,6 @@ FETCHCONTENT_GETPROPERTIES(ASSIMP)
 include_directories(${assimp_SOURCE_DIR}/include) 
 link_directories(${assimp_BINARY_DIR}/code)
 
-#VMA
-FETCHCONTENT_GETPROPERTIES(VMA)
-include_directories(${vma_SOURCE_DIR}/include) 
 
 set(LIB_NAME ${PROJECT_NAME}_s)
 
@@ -94,9 +100,12 @@ target_link_libraries(${LIB_NAME} ${OPENGL_LIBRARIES} )
 target_link_libraries(${LIB_NAME} OpenAL)
 target_link_libraries(${LIB_NAME} assimp)
 target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
-target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
-target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
+if(WANT_VULKAN)
+  target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
+  target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
+  target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
+endif(WANT_VULKAN)
 
 if(MSVC)
   target_compile_options(${LIB_NAME} PRIVATE /W4)

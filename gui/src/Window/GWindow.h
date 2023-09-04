@@ -59,6 +59,7 @@ namespace gui
 	public:
 		virtual void Draw() = 0;
 		virtual void Update(float, Context &inContext) = 0;
+		virtual ~IWidget() {};
 	};
 
 

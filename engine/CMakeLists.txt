@@ -32,8 +32,10 @@ include_directories(${openal_SOURCE_DIR}/lib/include)
 link_directories(${openal_BINARY_DIR}/lib)
 
 #Vulkan
-find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
-include_directories(${Vulkan_INCLUDE_DIRS})
+if(WANT_VULKAN)
+        find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
+        include_directories(${Vulkan_INCLUDE_DIRS})
+endif(WANT_VULKAN)
 
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
@@ -56,7 +58,12 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} SDL3-shared)
-target_link_libraries(${PROJECT_NAME} lua ${BULLET_LIBRARIES} OpenAL Vulkan::Vulkan Vulkan::shaderc_combined)
+target_link_libraries(${PROJECT_NAME} lua ${BULLET_LIBRARIES} OpenAL)
+if(WANT_VULKAN)
+        target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
+        target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
+        target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
+endif(WANT_VULKAN)
 
 if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")

@@ -6,6 +6,7 @@
 #include "inspector/inspector.hpp"
 #include "Core/Observer.h"
 #include <any>
+#include <unordered_map>
 namespace fmc 
 {
     class CTransform;

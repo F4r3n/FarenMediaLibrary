@@ -17,7 +17,9 @@
 #include <cstdlib>
 #endif
 #include "Rendering/OpenGL/OGLShader.h"
+#if WITH_VULKAN
 #include "Rendering/Vulkan/VkShader.h"
+#endif
 
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
@@ -166,12 +168,14 @@ void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
 				shader->compile();
 				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}
+#if WITH_VULKAN
 			else if (inAPI == GRAPHIC_API::VULKAN && inFolder->GetPath().GetExtension() == ".vkshader")
 			{
 				const std::string name = inFolder->GetPath().GetName(true);
 				std::shared_ptr<Shader> shader = std::make_shared<fm::VkShader>(inFolder->GetPath(), name);
 				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
 			}
+#endif
 		}
 	});
 

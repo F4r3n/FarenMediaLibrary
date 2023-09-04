@@ -20,7 +20,9 @@
 #include <emscripten.h>
 #endif
 #include "Components/CIdentity.h"
+#if WITH_VULKAN
 #include "Rendering/Vulkan/VkRenderingSystem.h"
+#endif
 using namespace fm;
 
 class GarbageCollector
@@ -71,10 +73,12 @@ void Engine::Init(GRAPHIC_API inAPI, std::shared_ptr<fm::Window> window)
 		auto size = window->GetSize();
 		_systems->addSystem(new fms::RenderingSystem(size.x, size.y));
 	}
+#if WITH_VULKAN
 	else if (inAPI == GRAPHIC_API::VULKAN)
 	{
 		_systems->addSystem(new fms::VkRenderingSystem(window));
 	}
+#endif
 
     _systems->init(EntityManager::get(), EventManager::Get());
 }

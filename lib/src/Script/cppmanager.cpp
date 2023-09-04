@@ -15,7 +15,9 @@ void CPPManager::LoadPlugin()
 	{
 		fprintf(stderr, "Couldn't open lib: %s\n", dlerror());
 	}
-#else
+#elif __APPLE__
+	
+#elif WIN32
 	hndl = LoadLibrary("../scriptCpp/Debug/ScriptCpp.dll");
 	if (!hndl) {
 		std::cout << "could not load the dynamic library" << std::endl;
@@ -37,7 +39,9 @@ Behaviour* CPPManager::InstantiateClass(const std::string &name)
 		fprintf(stderr, "Couldn't find import: %s\n", error);
 		exit(1);
 }
-#else
+#elif __APPLE__
+
+#elif WIN32
 	maker_ptr(*func)(char*) = (maker_ptr(*)(char*))GetProcAddress(hndl, "Import");
 	if (!(*func)(cstr))
 	{
@@ -46,9 +50,12 @@ Behaviour* CPPManager::InstantiateClass(const std::string &name)
 	}
 #endif
    
-
+#if __linux__ || WIN32
     Behaviour* b = (*func)(cstr)();
     delete cstr;
     return b;
+#else
+	return nullptr;
+#endif
 }
 
