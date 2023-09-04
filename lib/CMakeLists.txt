@@ -16,11 +16,11 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 
 include_directories("src")
 file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
-if(NOT WITH_VULKAN)
+if(NOT WANT_VULKAN)
   LIST(FILTER SOURCES EXCLUDE REGEX "Vulkan/")
   LIST(FILTER HEADERS EXCLUDE REGEX "Vulkan/")
-endif(WITH_VULKAN)
-message(${SOURCES})
+endif(WANT_VULKAN)
+
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
 FETCHCONTENT_GETPROPERTIES(BULLET)
@@ -104,7 +104,7 @@ target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
 if(WANT_VULKAN)
   target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
   target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
-  target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
+  target_compile_definitions(${LIB_NAME} WITH_VULKAN=1)
 endif(WANT_VULKAN)
 
 if(MSVC)
