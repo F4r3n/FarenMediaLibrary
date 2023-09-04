@@ -33,7 +33,7 @@ link_directories(${openal_BINARY_DIR}/lib)
 
 #Vulkan
 if(WANT_VULKAN)
-        find_package(Vulkan REQUIRED FATAL_ERROR OPTIONAL_COMPONENTS shaderc_combined)
+        find_package(Vulkan REQUIRED OPTIONAL_COMPONENTS shaderc_combined)
         include_directories(${Vulkan_INCLUDE_DIRS})
 endif(WANT_VULKAN)
 
@@ -60,9 +60,9 @@ target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} SDL3-shared)
 target_link_libraries(${PROJECT_NAME} lua ${BULLET_LIBRARIES} OpenAL)
 if(WANT_VULKAN)
-        target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
-        target_link_libraries(${LIB_NAME} Vulkan::shaderc_combined)
-        target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
+        target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+        target_link_libraries(${PROJECT_NAME} Vulkan::shaderc_combined)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_VULKAN=1)
 endif(WANT_VULKAN)
 
 if(MSVC)
