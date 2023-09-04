@@ -6,7 +6,6 @@
 #include <imgui/imgui.h>
 #include <utility>
 #include <functional>
-#include <Config.h>
 #include <queue>
 #include <optional>
 #include "Entity.h"
