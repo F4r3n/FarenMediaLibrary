@@ -17,14 +17,14 @@ template <typename T> struct vec<T, 1> {
 
 template <typename T> struct vec<T, 2> {
     T x = 0, y = 0;
-    vec<T, 2>(T x, T y) {
+    vec(T x, T y) {
         this->x = x;
         this->y = y;
     }
 
-    vec<T, 2>() = default;
+    vec() = default;
 
-    vec<T,2>(const vec<T,2> &b) {
+    vec(const vec<T,2> &b) {
         x = b.x;
         y = b.y;
     }
@@ -161,13 +161,13 @@ template <typename T>
 	 T x, y, z;
 #endif
 
-    vec<T, 3>(T x, T y, T z) {
+    vec(T x, T y, T z) {
         this->x = x;
         this->y = y;
         this->z = z;
     }
 
-    vec<T, 3>(T x) {
+    vec(T x) {
         this->x = x;
         this->y = x;
         this->z = x;
@@ -175,7 +175,7 @@ template <typename T>
 #if SIMD
     inline vec<T, 3>(__m128 m) : mmvalue(m) {}
 #endif
-    vec<T, 3>() {
+    vec() {
         x = 0;
         y = 0;
         z = 0;
@@ -285,14 +285,14 @@ template <typename T> vec<T, 3>& vec<T, 3>::operator*=(const vec<T, 3>& b) {
 
 template <typename T> struct vec<T, 4> {
     T x, y, z, w;
-    vec<T, 4>(T x, T y, T z, T w) {
+    vec(T x, T y, T z, T w) {
         this->x = x;
         this->y = y;
         this->z = z;
         this->w = w;
     }
 
-    vec<T, 4>() {
+    vec() {
         x = 0;
         y = 0;
         z = 0;
@@ -327,14 +327,14 @@ template <typename T> struct vec<T, 4> {
 
     T const& operator[](unsigned int index) const;
     T& operator[](unsigned int index);
-    vec<T, 4>(const vec<T, 4>& v) {
+    vec(const vec<T, 4>& v) {
         x = v.x;
         y = v.y;
         z = v.z;
         w = v.w;
     }
 
-    explicit vec<T, 4>(const vec<T, 3>& v) {
+    explicit vec(const vec<T, 3>& v) {
         x = v.x;
         y = v.y;
         z = v.z;
