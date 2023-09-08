@@ -22,6 +22,20 @@ namespace fm
 
 namespace fms
 {
+	struct GPUSceneData {
+		fm::math::vec4 fogColor; // w is for exponent
+		fm::math::vec4 fogDistances; //x for min, y for max, zw unused.
+		fm::math::vec4 ambientColor;
+		fm::math::vec4 sunlightDirection; //w for sun power
+		fm::math::vec4 sunlightColor;
+	};
+
+	struct FrameData
+	{
+		VkDescriptorSet		globalDescriptorSet;
+		fm::AllocatedBuffer globalBuffer;
+	};
+
 	class VkRenderingSystem : public System<VkRenderingSystem>
 	{
 	public:
@@ -56,20 +70,21 @@ namespace fms
 		std::vector<VkSemaphore>		_renderFinishedSemaphores;
 		std::vector<VkFence>			_inFlightFences;
 
-		
-		std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT>	_globalDescriptorSets;
-		std::array<fm::AllocatedBuffer, MAX_FRAMES_IN_FLIGHT> _globalBuffers;
-		VkDescriptorSetLayout				_globalSetLayout;
-		VkDescriptorPool					_descriptorPool;
+		std::array<FrameData, MAX_FRAMES_IN_FLIGHT>				_framesData;
+		VkDescriptorSetLayout									_globalSetLayout;
+		VkDescriptorPool										_descriptorPool;
+		GPUSceneData		_sceneParameters;
+		fm::AllocatedBuffer _sceneParameterBuffer;
 
 		std::shared_ptr<fm::Window>		_window;
 
 		uint32_t						_currentFrame = 0;
 		GRAPHIC_API						_api = GRAPHIC_API::VULKAN;
 
-		std::map<uint32_t, std::unique_ptr<fm::VkModel>> _staticModels;
-		std::map < uint32_t, std::unique_ptr<fm::VkMaterial>>	_materials;
+		std::map<uint32_t, std::unique_ptr<fm::VkModel>>		_staticModels;
+		std::map<uint32_t, std::unique_ptr<fm::VkMaterial>>		_materials;
 
 		fm::VkMaterial*				_currentMaterial;
+		uint64_t					_frame = 0;
 	};
 }

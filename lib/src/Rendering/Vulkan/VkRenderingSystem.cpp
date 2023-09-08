@@ -165,7 +165,8 @@ bool VkRenderingSystem::_SetupDescriptors()
 {
 	std::vector<VkDescriptorPoolSize> sizes =
 	{
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 }
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 10 },
 	};
 
 	VkDescriptorPoolCreateInfo pool_info = {};
@@ -179,26 +180,17 @@ bool VkRenderingSystem::_SetupDescriptors()
 
 
 	//information about the binding.
-	VkDescriptorSetLayoutBinding camBufferBinding = {};
-	camBufferBinding.binding = 0;
-	camBufferBinding.descriptorCount = 1;
-	// it's a uniform buffer binding
-	camBufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	VkDescriptorSetLayoutBinding camBufferBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0);
+	VkDescriptorSetLayoutBinding sceneBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1);
 
-	// we use it from the vertex shader
-	camBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-
+	VkDescriptorSetLayoutBinding bindings[] = { camBufferBinding,sceneBinding };
 	VkDescriptorSetLayoutCreateInfo setinfo = {};
 	setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	setinfo.pNext = nullptr;
-
-	//we are going to have 1 binding
-	setinfo.bindingCount = 1;
-	//no flags
+	setinfo.bindingCount = 2;
 	setinfo.flags = 0;
-	//point to the camera buffer binding
-	setinfo.pBindings = &camBufferBinding;
+	setinfo.pBindings = bindings;
 
 	const VkResult result = vkCreateDescriptorSetLayout(_vulkan->GetDevice(), &setinfo, nullptr, &_globalSetLayout);
 
@@ -276,18 +268,22 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	camData.FM_V = view;
 	camData.FM_PV = projection * view;
 	//_vulkan->MapBuffer(_globalBuffers[_currentFrame], &camData, sizeof(fmc::Shader_data));
-	void* data;
-	vmaMapMemory(_vulkan->GetAllocator(), _globalBuffers[_currentFrame]._allocation, &data);
-	memcpy(data, &camData, sizeof(fmc::Shader_data));
-	vmaUnmapMemory(_vulkan->GetAllocator(), _globalBuffers[_currentFrame]._allocation);
+	_vulkan->MapBuffer(_framesData[_currentFrame].globalBuffer, &camData, sizeof(fmc::Shader_data), 0);
+	
+	float framed = (_frame / 120.f);
+	_sceneParameters.ambientColor = { sin(framed),0,cos(framed),1 };
 
+	const size_t offset = _vulkan->pad_uniform_buffer_size(sizeof(GPUSceneData)) * _currentFrame;
+	_vulkan->MapBuffer(_sceneParameterBuffer, &_sceneParameters, sizeof(GPUSceneData), offset);
+
+	uint32_t uniform_offset = offset;
 
 	//we can now draw the mesh
 	for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform>())
 	{
 		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		auto mainMaterial = material->GetMainMaterial();
-
+		//
 		auto itMaterial = _materials.find(mainMaterial->GetID());
 		if (itMaterial != _materials.end())
 		{
@@ -296,7 +292,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 				itMaterial->second->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
 				_currentMaterial = itMaterial->second.get();
 
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_globalDescriptorSets[_currentFrame], 0, nullptr);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
 			}
 		}
 		else
@@ -304,7 +300,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(mainMaterial, _vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(), _globalSetLayout);
 			_currentMaterial = _materials.emplace(material->GetID(), std::move(mat)).first->second.get();
 			_currentMaterial->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_globalDescriptorSets[_currentFrame], 0, nullptr);
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
 		}
 
 		fmc::CTransform* tranform = e.get<fmc::CTransform>();
@@ -348,9 +344,11 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 
 bool VkRenderingSystem::_SetupGlobalUniforms()
 {
+	const size_t sceneParamBufferSize = MAX_FRAMES_IN_FLIGHT * _vulkan->pad_uniform_buffer_size(sizeof(GPUSceneData));
+	_sceneParameterBuffer = _vulkan->CreateBuffer(sceneParamBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 	{
-		_globalBuffers[i] = _vulkan->CreateBuffer(sizeof(fmc::Shader_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		_framesData[i].globalBuffer = _vulkan->CreateBuffer(sizeof(fmc::Shader_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.pNext = nullptr;
@@ -359,33 +357,29 @@ bool VkRenderingSystem::_SetupGlobalUniforms()
 		allocInfo.descriptorSetCount = 1;
 		allocInfo.pSetLayouts = &_globalSetLayout;
 
-		vkAllocateDescriptorSets(_vulkan->GetDevice(), &allocInfo, &_globalDescriptorSets[i]);
+		VkResult result = vkAllocateDescriptorSets(_vulkan->GetDevice(), &allocInfo, &_framesData[i].globalDescriptorSet);
+		if (result != VkResult::VK_SUCCESS)
+			return false;
 
 		VkDescriptorBufferInfo binfo;
-		//it will be the camera buffer
-		binfo.buffer = _globalBuffers[i]._buffer;
-		//at 0 offset
+		binfo.buffer = _framesData[i].globalBuffer._buffer;
 		binfo.offset = 0;
-		//of the size of a camera data struct
 		binfo.range = sizeof(fmc::Shader_data);
 
-		VkWriteDescriptorSet setWrite = {};
-		setWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		setWrite.pNext = nullptr;
+		VkDescriptorBufferInfo sceneInfo;
+		sceneInfo.buffer = _sceneParameterBuffer._buffer;
+		sceneInfo.offset = 0;
+		sceneInfo.range = sizeof(GPUSceneData);
 
-		//we are going to write into binding number 0
-		setWrite.dstBinding = 0;
-		//of the global descriptor
-		setWrite.dstSet = _globalDescriptorSets[i];
+		VkWriteDescriptorSet cameraWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _framesData[i].globalDescriptorSet, &binfo, 0);
+		VkWriteDescriptorSet sceneWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, _framesData[i].globalDescriptorSet, &sceneInfo, 1);
 
-		setWrite.descriptorCount = 1;
-		//and the type is uniform buffer
-		setWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		setWrite.pBufferInfo = &binfo;
+		VkWriteDescriptorSet setWrites[] = { cameraWrite,sceneWrite };
 
-
-		vkUpdateDescriptorSets(_vulkan->GetDevice(), 1, &setWrite, 0, nullptr);
+		vkUpdateDescriptorSets(_vulkan->GetDevice(), 2, setWrites, 0, nullptr);
 	}
+
+
 
 	return true;
 }
@@ -404,7 +398,7 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 {
 	if (_window->IsMinimized())
 		return;
-
+	_frame++;
 	auto device = _vulkan->GetDevice();
 	vkWaitForFences(device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -464,10 +458,11 @@ VkRenderingSystem::~VkRenderingSystem()
 		model->Destroy();
 	}
 
-	for (auto& buffer : _globalBuffers)
+	for (auto& frame : _framesData)
 	{
-		_vulkan->DestroyBuffer(buffer);
+		_vulkan->DestroyBuffer(frame.globalBuffer);
 	}
+	_vulkan->DestroyBuffer(_sceneParameterBuffer);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(_vulkan->GetDevice(), _renderFinishedSemaphores[i], nullptr);

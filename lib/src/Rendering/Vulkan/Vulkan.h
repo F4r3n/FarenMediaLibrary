@@ -55,8 +55,13 @@ public:
 	bool						SetupDepthImage(VkExtent2D inExtent);
 
 	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
 	bool						DestroyBuffer(fm::AllocatedBuffer& inBuffer) const;
-	void						MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize);
+	void*						MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize, size_t inOffset) const;
+	size_t						pad_uniform_buffer_size(size_t originalSize) const;
+	VkDescriptorSetLayoutBinding	CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const;
+	VkWriteDescriptorSet		CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const;
+
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();

@@ -586,13 +586,55 @@ fm::AllocatedBuffer Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags us
 	return newBuffer;
 }
 
-void Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize)
+void* Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize, size_t inOffset) const
 {
-	void* data;
-	vmaMapMemory(_allocator, inBuffer._allocation, &data);
-	memcpy(data, &inData, inDataSize);
+	char* data;
+	vmaMapMemory(_allocator, inBuffer._allocation, (void**)&data);
+	data += inOffset;
+	memcpy((char*)data, inData, inDataSize);
 	vmaUnmapMemory(_allocator, inBuffer._allocation);
+
+	return data;
 }
+
+VkDescriptorSetLayoutBinding Vulkan::CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const
+{
+	VkDescriptorSetLayoutBinding layoutBinding = {};
+	layoutBinding.binding = binding;
+	layoutBinding.descriptorCount = 1;
+	layoutBinding.descriptorType = type;
+	layoutBinding.stageFlags = stageFlags;
+
+	return layoutBinding;
+}
+
+VkWriteDescriptorSet Vulkan::CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const
+{
+	VkWriteDescriptorSet write = {};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.pNext = nullptr;
+
+	write.dstBinding = binding;
+	write.dstSet = dstSet;
+	write.descriptorCount = 1;
+	write.descriptorType = type;
+	write.pBufferInfo = bufferInfo;
+
+	return write;
+}
+
+
+size_t Vulkan::pad_uniform_buffer_size(size_t originalSize) const
+{
+	// Calculate required alignment based on minimum device offset alignment
+	size_t minUboAlignment = _gpuProperties.limits.minUniformBufferOffsetAlignment;
+	size_t alignedSize = originalSize;
+	if (minUboAlignment > 0) {
+		alignedSize = (alignedSize + minUboAlignment - 1) & ~(minUboAlignment - 1);
+	}
+	return alignedSize;
+}
+
 
 
 bool Vulkan::DestroyBuffer(fm::AllocatedBuffer& inBuffer) const
