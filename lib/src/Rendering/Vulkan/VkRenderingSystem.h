@@ -33,7 +33,14 @@ namespace fms
 	struct FrameData
 	{
 		VkDescriptorSet		globalDescriptorSet;
+		VkDescriptorSet		objectDescriptor;
 		fm::AllocatedBuffer globalBuffer;
+		fm::AllocatedBuffer objectBuffer;
+	};
+
+	struct GPUObjectData
+	{
+		fm::math::mat modelMatrix;
 	};
 
 	class VkRenderingSystem : public System<VkRenderingSystem>
@@ -72,6 +79,8 @@ namespace fms
 
 		std::array<FrameData, MAX_FRAMES_IN_FLIGHT>				_framesData;
 		VkDescriptorSetLayout									_globalSetLayout;
+		VkDescriptorSetLayout									_objectSetLayout;
+
 		VkDescriptorPool										_descriptorPool;
 		GPUSceneData		_sceneParameters;
 		fm::AllocatedBuffer _sceneParameterBuffer;

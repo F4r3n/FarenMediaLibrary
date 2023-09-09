@@ -1,6 +1,6 @@
 #pragma once
 #include "vulkan/vulkan.h"
-
+#include <vector>
 namespace fm
 {
 	class Shader;
@@ -8,7 +8,7 @@ namespace fm
 	class VkPipelineBuilder
 	{
 	public:
-		VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent, VkDescriptorSetLayout inDescriptorLayout,
+		VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent, const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts,
 						Shader* inShader);
 		~VkPipelineBuilder();
 		VkPipelineBuilder() = default;
@@ -24,7 +24,7 @@ namespace fm
 		VkPipelineDepthStencilStateCreateInfo	_CreateDepthStencilInfo() const;
 		VkPipelineMultisampleStateCreateInfo	_CreateMultisampleInfo() const;
 
-		VkPipelineLayout	_CreatePipelineLayout(VkDescriptorSetLayout inDescriptorLayout);
+		VkPipelineLayout	_CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts);
 		VkPipeline			_CreatePipeline(VkPipelineLayout inLayout,
 			VkRenderPass inRenderPass,
 			VkExtent2D inExtent,

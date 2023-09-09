@@ -11,7 +11,7 @@ namespace fm
 		VkModel(VmaAllocator inAllocator, std::shared_ptr<fm::Model> inModel);
 		bool	UploadData();
 		bool	Destroy();
-		void	Draw(VkCommandBuffer inCmd);
+		void	Draw(VkCommandBuffer inCmd, uint32_t inInstanceIndex);
 	private:
 		std::shared_ptr<Model> _model = nullptr;
 		VmaAllocator _allocator = nullptr;

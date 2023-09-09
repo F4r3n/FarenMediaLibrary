@@ -50,7 +50,8 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	};
 
 	const std::vector<const char*> deviceExtensions = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME
 	};
 	_InitInstance(validationLayers);
 	if (_instance == nullptr)
@@ -338,6 +339,8 @@ bool Vulkan::_IsDeviceSuitable(VkPhysicalDevice device, const std::vector<const 
 	VkPhysicalDeviceFeatures deviceFeatures;
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+
 	//TODO: set score
 
 	QueueFamilyIndices indices = FindQueueFamilies(device, _surface);
@@ -402,6 +405,7 @@ bool Vulkan::_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<cons
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
 
+
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
@@ -409,6 +413,12 @@ bool Vulkan::_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<cons
 	createInfo.pEnabledFeatures = &deviceFeatures;
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+	VkPhysicalDeviceShaderDrawParametersFeatures shader_draw_parameters_features = {};
+	shader_draw_parameters_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
+	shader_draw_parameters_features.pNext = nullptr;
+	shader_draw_parameters_features.shaderDrawParameters = VK_TRUE;
+	createInfo.pNext = &shader_draw_parameters_features;
 
 	if (_enableValidationLayers) {
 		createInfo.enabledLayerCount = static_cast<uint32_t>(inValidationLayerSupport.size());
@@ -597,6 +607,15 @@ void* Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDa
 	return data;
 }
 
+void Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, std::function<void(void**)>&& inFunction) const
+{
+	void* objectData;
+	vmaMapMemory(_allocator, inBuffer._allocation, &objectData);
+	inFunction(&objectData);
+	vmaUnmapMemory(_allocator, inBuffer._allocation);
+}
+
+
 VkDescriptorSetLayoutBinding Vulkan::CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const
 {
 	VkDescriptorSetLayoutBinding layoutBinding = {};
@@ -780,6 +799,22 @@ bool Vulkan::SetupSwapChainFramebuffer(VkRenderPass inRenderPass)
 	return true;
 	
 }
+
+VkDescriptorSetLayout Vulkan::CreateDescriporSetLayout(const std::vector< VkDescriptorSetLayoutBinding>& inBindings) const
+{
+	VkDescriptorSetLayoutCreateInfo setinfo = {};
+	setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	setinfo.pNext = nullptr;
+	setinfo.bindingCount = inBindings.size();
+	setinfo.flags = 0;
+	setinfo.pBindings = inBindings.data();
+
+	VkDescriptorSetLayout layout;
+	const VkResult result = vkCreateDescriptorSetLayout(_device, &setinfo, nullptr, &layout);
+
+	return layout;
+}
+
 
 
 void Vulkan::_CleanUpSwapChain()

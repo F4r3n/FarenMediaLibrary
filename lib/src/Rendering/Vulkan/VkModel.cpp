@@ -37,7 +37,7 @@ bool VkModel::Destroy()
 	return true;
 }
 
-void VkModel::Draw(VkCommandBuffer inCmd)
+void VkModel::Draw(VkCommandBuffer inCmd, uint32_t inInstanceIndex)
 {
 	for (auto& mesh : _model->_meshes)
 	{
@@ -47,7 +47,7 @@ void VkModel::Draw(VkCommandBuffer inCmd)
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(inCmd, 0, 1, &vertex->_allocatedBuffer._buffer, &offset);
 		vkCmdBindIndexBuffer(inCmd, vertex->_allocatedIndexBuffer._buffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDraw(inCmd, vertex->GetNumberVertices(), 1, 0, 0);
+		vkCmdDraw(inCmd, vertex->GetNumberVertices(), 1, 0, inInstanceIndex);
 	}
 
 }

@@ -7,10 +7,10 @@ VkMaterial::VkMaterial(std::shared_ptr<fm::Material> inMaterial,
 	VkDevice inDevice,
 	VkRenderPass inRenderPass,
 	VkExtent2D inExtent,
-	VkDescriptorSetLayout inDescriptorLayout)
+	const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts)
 {
 	_material = inMaterial;
-	_pipeline = std::make_unique<fm::VkPipelineBuilder>(inDevice, inRenderPass, inExtent, inDescriptorLayout,
+	_pipeline = std::make_unique<fm::VkPipelineBuilder>(inDevice, inRenderPass, inExtent, inDescriptorLayouts,
 		_material->GetShader().get());
 }
 

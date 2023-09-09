@@ -5,11 +5,11 @@
 using namespace fm;
 
 VkPipelineBuilder::VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent,
-	VkDescriptorSetLayout inDescriptorLayout,
+	const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts,
 	Shader* inShader)
 {
 	_device = inDevice;
-	_pipelineLayout = _CreatePipelineLayout(inDescriptorLayout);
+	_pipelineLayout = _CreatePipelineLayout(inDescriptorLayouts);
 	_pipeline = _CreatePipeline(_pipelineLayout, inRenderPass, inExtent, dynamic_cast<VkShader*>(inShader));
 }
 
@@ -17,7 +17,7 @@ VkPipelineBuilder::~VkPipelineBuilder()
 {
 }
 
-VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout(VkDescriptorSetLayout inDescriptorLayout)
+VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts)
 {
 
 	VkPipelineLayout pipelineLayout;
@@ -32,8 +32,8 @@ VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout(VkDescriptorSetLayout 
 	push_constant.size = sizeof(VkShader::MeshPushConstants);
 
 	//hook the global set layout
-	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = &inDescriptorLayout;
+	pipelineLayoutInfo.setLayoutCount = inDescriptorLayouts.size();
+	pipelineLayoutInfo.pSetLayouts = inDescriptorLayouts.data();
 
 	//this push constant range is accessible only in the vertex shader
 	push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;

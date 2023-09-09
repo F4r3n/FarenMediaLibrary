@@ -12,7 +12,7 @@ namespace fm
 			VkDevice inDevice,
 			VkRenderPass inRenderPass,
 			VkExtent2D inExtent,
-			VkDescriptorSetLayout inDescriptorLayout);
+			const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts);
 
 		void Destroy();
 		void BindPipeline(VkCommandBuffer cmd, VkPipelineBindPoint inType);

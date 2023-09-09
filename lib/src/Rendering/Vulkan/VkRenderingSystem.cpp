@@ -15,6 +15,7 @@
 #include "Components/CMesh.h"
 #include "Components/CMaterial.h"
 #include "Components/CTransform.h"
+#include "Components/CIdentity.h"
 using namespace fms;
 
 VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
@@ -166,7 +167,8 @@ bool VkRenderingSystem::_SetupDescriptors()
 	std::vector<VkDescriptorPoolSize> sizes =
 	{
 		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 10 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 10 }
+		,{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 10 }
 	};
 
 	VkDescriptorPoolCreateInfo pool_info = {};
@@ -180,24 +182,88 @@ bool VkRenderingSystem::_SetupDescriptors()
 
 
 	//information about the binding.
-	VkDescriptorSetLayoutBinding camBufferBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0);
+	VkDescriptorSetLayoutBinding camBufferBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+																							VK_SHADER_STAGE_VERTEX_BIT, 0);
 	VkDescriptorSetLayoutBinding sceneBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1);
+																							VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1);
 
-	VkDescriptorSetLayoutBinding bindings[] = { camBufferBinding,sceneBinding };
-	VkDescriptorSetLayoutCreateInfo setinfo = {};
-	setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	setinfo.pNext = nullptr;
-	setinfo.bindingCount = 2;
-	setinfo.flags = 0;
-	setinfo.pBindings = bindings;
+	_globalSetLayout = _vulkan->CreateDescriporSetLayout({ camBufferBinding,sceneBinding });
+	if (_globalSetLayout == nullptr)
+		return false;
 
-	const VkResult result = vkCreateDescriptorSetLayout(_vulkan->GetDevice(), &setinfo, nullptr, &_globalSetLayout);
+	VkDescriptorSetLayoutBinding objectBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+																							VK_SHADER_STAGE_VERTEX_BIT, 0);
+	_objectSetLayout = _vulkan->CreateDescriporSetLayout({ objectBinding });
+	if (_objectSetLayout == nullptr)
+		return false;
 
-	return result == VK_SUCCESS;
+	return true;
 }
 
+bool VkRenderingSystem::_SetupGlobalUniforms()
+{
+	const size_t sceneParamBufferSize = MAX_FRAMES_IN_FLIGHT * _vulkan->pad_uniform_buffer_size(sizeof(GPUSceneData));
+	_sceneParameterBuffer = _vulkan->CreateBuffer(sceneParamBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+	{
+		const int MAX_OBJECTS = 10000;
+		_framesData[i].globalBuffer = _vulkan->CreateBuffer(sizeof(fmc::Shader_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		_framesData[i].objectBuffer = _vulkan->CreateBuffer(sizeof(GPUObjectData) * MAX_OBJECTS, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
+		{
+			VkDescriptorSetAllocateInfo allocInfo = {};
+			allocInfo.pNext = nullptr;
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = _descriptorPool;
+			allocInfo.descriptorSetCount = 1;
+			allocInfo.pSetLayouts = &_globalSetLayout;
+
+			VkResult result = vkAllocateDescriptorSets(_vulkan->GetDevice(), &allocInfo, &_framesData[i].globalDescriptorSet);
+			if (result != VkResult::VK_SUCCESS)
+				return false;
+		}
+
+		{
+			VkDescriptorSetAllocateInfo allocInfo = {};
+			allocInfo.pNext = nullptr;
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = _descriptorPool;
+			allocInfo.descriptorSetCount = 1;
+			allocInfo.pSetLayouts = &_objectSetLayout;
+		
+			VkResult result = vkAllocateDescriptorSets(_vulkan->GetDevice(), &allocInfo, &_framesData[i].objectDescriptor);
+			if (result != VkResult::VK_SUCCESS)
+				return false;
+		}
+
+		VkDescriptorBufferInfo binfo;
+		binfo.buffer = _framesData[i].globalBuffer._buffer;
+		binfo.offset = 0;
+		binfo.range = sizeof(fmc::Shader_data);
+
+		VkDescriptorBufferInfo sceneInfo;
+		sceneInfo.buffer = _sceneParameterBuffer._buffer;
+		sceneInfo.offset = 0;
+		sceneInfo.range = sizeof(GPUSceneData);
+
+		VkDescriptorBufferInfo objectInfo;
+		objectInfo.buffer = _framesData[i].objectBuffer._buffer;
+		objectInfo.offset = 0;
+		objectInfo.range = sizeof(GPUObjectData)*MAX_OBJECTS;
+
+		VkWriteDescriptorSet cameraWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _framesData[i].globalDescriptorSet, &binfo, 0);
+		VkWriteDescriptorSet sceneWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, _framesData[i].globalDescriptorSet, &sceneInfo, 1);
+		VkWriteDescriptorSet objectWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, _framesData[i].objectDescriptor, &objectInfo, 0);
+
+		VkWriteDescriptorSet setWrites[] = { cameraWrite,sceneWrite,objectWrite };
+
+		vkUpdateDescriptorSets(_vulkan->GetDevice(), 3, setWrites, 0, nullptr);
+	}
+
+
+
+	return true;
+}
 
 std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandPool inPool)
 {
@@ -278,9 +344,31 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 
 	uint32_t uniform_offset = offset;
 
+	_vulkan->MapBuffer(_framesData[_currentFrame].objectBuffer, [&em](void** inData) {
+		GPUObjectData* objectSSBO = (GPUObjectData*)(*inData);
+		size_t i = 0;
+		for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform, fmc::CIdentity>())
+		{
+			fmc::CIdentity* identity = e.get<fmc::CIdentity>();
+			if (!(identity == nullptr || identity->IsActive()))
+				continue;
+
+			fmc::CTransform* tranform = e.get<fmc::CTransform>();
+			fm::math::mat model = tranform->GetWorldPosMatrix();
+			objectSSBO[i].modelMatrix = model;
+			i++;
+		}
+	});
+
+	uint32_t instanceIndex = 0;
+
 	//we can now draw the mesh
-	for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform>())
+	for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform, fmc::CIdentity>())
 	{
+		fmc::CIdentity* identity = e.get<fmc::CIdentity>();
+		if (!(identity == nullptr || identity->IsActive()))
+			continue;
+
 		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		auto mainMaterial = material->GetMainMaterial();
 		//
@@ -293,21 +381,22 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 				_currentMaterial = itMaterial->second.get();
 
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 1, 1, &_framesData[_currentFrame].objectDescriptor, 0, nullptr);
+
 			}
 		}
 		else
 		{
-			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(mainMaterial, _vulkan->GetDevice(), _renderPass, _vulkan->GetSwapChainExtent(), _globalSetLayout);
+			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(mainMaterial,
+															_vulkan->GetDevice(),
+															_renderPass,
+															_vulkan->GetSwapChainExtent(),
+															std::vector<VkDescriptorSetLayout>{ _globalSetLayout,_objectSetLayout });
 			_currentMaterial = _materials.emplace(material->GetID(), std::move(mat)).first->second.get();
 			_currentMaterial->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
 			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 1, 1, &_framesData[_currentFrame].objectDescriptor, 0, nullptr);
 		}
-
-		fmc::CTransform* tranform = e.get<fmc::CTransform>();
-		fm::math::mat model = tranform->GetWorldPosMatrix();
-		fm::VkShader::MeshPushConstants constants;
-		constants.render_matrix = model;
-		vkCmdPushConstants(commandBuffer, _currentMaterial->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(fm::VkShader::MeshPushConstants), &constants);
 
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
 		if (mesh->model == nullptr)
@@ -320,16 +409,17 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 
 		if (it != _staticModels.end())
 		{
-			it->second->Draw(commandBuffer);
+			it->second->Draw(commandBuffer, instanceIndex);
 		}
 		else
 		{
 			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), mesh->model);
 			modelMesh->UploadData();
-			modelMesh->Draw(commandBuffer);
+			modelMesh->Draw(commandBuffer, instanceIndex);
 
 			_staticModels.emplace(mesh->model->GetID(), std::move(modelMesh));
 		}
+		instanceIndex++;
 	}
 
 	_currentMaterial = nullptr;
@@ -341,49 +431,6 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 
 	return true;
 }
-
-bool VkRenderingSystem::_SetupGlobalUniforms()
-{
-	const size_t sceneParamBufferSize = MAX_FRAMES_IN_FLIGHT * _vulkan->pad_uniform_buffer_size(sizeof(GPUSceneData));
-	_sceneParameterBuffer = _vulkan->CreateBuffer(sceneParamBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-	{
-		_framesData[i].globalBuffer = _vulkan->CreateBuffer(sizeof(fmc::Shader_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		allocInfo.pNext = nullptr;
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = _descriptorPool;
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &_globalSetLayout;
-
-		VkResult result = vkAllocateDescriptorSets(_vulkan->GetDevice(), &allocInfo, &_framesData[i].globalDescriptorSet);
-		if (result != VkResult::VK_SUCCESS)
-			return false;
-
-		VkDescriptorBufferInfo binfo;
-		binfo.buffer = _framesData[i].globalBuffer._buffer;
-		binfo.offset = 0;
-		binfo.range = sizeof(fmc::Shader_data);
-
-		VkDescriptorBufferInfo sceneInfo;
-		sceneInfo.buffer = _sceneParameterBuffer._buffer;
-		sceneInfo.offset = 0;
-		sceneInfo.range = sizeof(GPUSceneData);
-
-		VkWriteDescriptorSet cameraWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _framesData[i].globalDescriptorSet, &binfo, 0);
-		VkWriteDescriptorSet sceneWrite = _vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, _framesData[i].globalDescriptorSet, &sceneInfo, 1);
-
-		VkWriteDescriptorSet setWrites[] = { cameraWrite,sceneWrite };
-
-		vkUpdateDescriptorSets(_vulkan->GetDevice(), 2, setWrites, 0, nullptr);
-	}
-
-
-
-	return true;
-}
-
 
 
 void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
@@ -452,6 +499,8 @@ VkRenderingSystem::~VkRenderingSystem()
 {
 	vkDeviceWaitIdle(_vulkan->GetDevice());
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _globalSetLayout, nullptr);
+	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _objectSetLayout, nullptr);
+
 	vkDestroyDescriptorPool(_vulkan->GetDevice(), _descriptorPool, nullptr);
 	for (const auto& [_, model] : _staticModels)
 	{
@@ -461,7 +510,9 @@ VkRenderingSystem::~VkRenderingSystem()
 	for (auto& frame : _framesData)
 	{
 		_vulkan->DestroyBuffer(frame.globalBuffer);
+		_vulkan->DestroyBuffer(frame.objectBuffer);
 	}
+
 	_vulkan->DestroyBuffer(_sceneParameterBuffer);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
