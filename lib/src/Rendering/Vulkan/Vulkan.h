@@ -61,10 +61,11 @@ public:
 	void*						MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize, size_t inOffset) const;
 	void						MapBuffer(fm::AllocatedBuffer& inBuffer, std::function<void(void**)> && inFunction) const;
 
-	size_t						pad_uniform_buffer_size(size_t originalSize) const;
+	size_t						PadUniformBufferSize(size_t originalSize) const;
 	VkDescriptorSetLayoutBinding	CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const;
 	VkWriteDescriptorSet			CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const;
 	VkDescriptorSetLayout			CreateDescriporSetLayout(const std::vector< VkDescriptorSetLayoutBinding>& inBindings) const;
+	bool							AllocateDescriptorSet(VkDescriptorPool inPool, VkDescriptorSet* inSet, VkDescriptorSetLayout* inLayout) const;
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();

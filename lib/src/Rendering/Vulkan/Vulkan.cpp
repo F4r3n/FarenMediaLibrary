@@ -643,7 +643,24 @@ VkWriteDescriptorSet Vulkan::CreateWriteDescriptorSet(VkDescriptorType type, VkD
 }
 
 
-size_t Vulkan::pad_uniform_buffer_size(size_t originalSize) const
+bool Vulkan::AllocateDescriptorSet(VkDescriptorPool inPool, VkDescriptorSet* inSet, VkDescriptorSetLayout* inLayout) const
+{
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.pNext = nullptr;
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = inPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = inLayout;
+
+	VkResult result = vkAllocateDescriptorSets(_device, &allocInfo, inSet);
+	if (result != VkResult::VK_SUCCESS)
+		return false;
+
+	return true;
+}
+
+
+size_t Vulkan::PadUniformBufferSize(size_t originalSize) const
 {
 	// Calculate required alignment based on minimum device offset alignment
 	size_t minUboAlignment = _gpuProperties.limits.minUniformBufferOffsetAlignment;
