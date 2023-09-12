@@ -67,7 +67,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 						if (scene != nullptr)
 						{
-							fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
+							fm::OGLTexture texture = _camera->GetTarget()->GetColorBufferTexture(0);
 							_camera->GetTarget()->bind(true);
 							unsigned char pixel[4];
 							texture.GetPixel(inPos, pixel);

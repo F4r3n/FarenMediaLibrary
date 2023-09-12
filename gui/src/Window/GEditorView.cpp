@@ -88,7 +88,7 @@ void GEditorView::CustomDraw()
 	{
 		if (renderTexture->isCreated())
 		{
-			const fm::Texture texture = renderTexture->GetColorBufferTexture(0);
+			const fm::OGLTexture texture = renderTexture->GetColorBufferTexture(0);
 
 			ImGui::SetCursorPos(_cursorPos);
 			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));

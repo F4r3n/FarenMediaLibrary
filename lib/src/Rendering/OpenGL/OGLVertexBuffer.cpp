@@ -97,7 +97,7 @@ bool OGLVertextBuffer::AddVertices(Vertex *inVertices, size_t number, size_t off
 }
 
 
-void OGLVertextBuffer::UploadData(const fm::rendering::MeshContainer& inMesh)
+void OGLVertextBuffer::UploadData(const fm::rendering::MeshContainer& inMesh, bool inDynamic)
 {
     glGenVertexArrays(1, &_indexVAO);
     glBindVertexArray(_indexVAO);

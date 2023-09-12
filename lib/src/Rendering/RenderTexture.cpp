@@ -122,7 +122,7 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
         
         for(int i = 0; i < _numberColors; i++)
         {
-            Texture t;
+			OGLTexture t;
             t.filter = Filter::NEAREST;
 
             t.generate(_width, _height, formats[i], types[i], _multiSampling);
@@ -179,7 +179,7 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
     return true;
 }
 
-const fm::Texture& RenderTexture::GetColorBufferTexture(size_t id) const
+const fm::OGLTexture& RenderTexture::GetColorBufferTexture(size_t id) const
 {
 	assert(id < _numberColors && id >= 0);
 	return _textureColorbuffer[id];

@@ -13,7 +13,7 @@ namespace fms
 namespace fm
 {
 	class CommandBuffer;
-	class Texture;
+	class OGLTexture;
 	class RenderTexture;
 	class Model;
 
@@ -38,7 +38,7 @@ namespace fm
 		struct TextureKind
 		{
 			TEXTURE_KIND kind;
-			Texture *texture = nullptr;
+			OGLTexture*texture = nullptr;
 			RenderTexture *renderTexture = nullptr;
 		};
 	private:
@@ -70,7 +70,7 @@ namespace fm
 		void Disable(RENDERING_TYPE inType);
 
 		void Blit(RenderTexture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
-		void Blit(Texture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
+		void Blit(OGLTexture&inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
 		void DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialProperties &inMaterialProperties);
 		Command Pop();
 		bool IsEmpty() const;

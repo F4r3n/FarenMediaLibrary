@@ -4,7 +4,7 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector3.h"
 #include <Core/Math/Vector.h>
-#include <Rendering/Texture.h>
+#include <Rendering/OpenGL/OGLTexture.h>
 namespace fm {
 
 struct TextureMat
@@ -15,7 +15,7 @@ struct TextureMat
             position = textureMat.position;
         }
 
-        fm::Texture texture;
+        fm::OGLTexture texture;
         int position;
 };
 
@@ -24,8 +24,8 @@ void to_json(nlohmann::json& j, const TextureMat& p);
 void from_json(const nlohmann::json& j, TextureMat& p);
 
 
-void to_json(nlohmann::json& j, const Texture& p);
-void from_json(const nlohmann::json& j, Texture& p);
+void to_json(nlohmann::json& j, const OGLTexture& p);
+void from_json(const nlohmann::json& j, OGLTexture& p);
 
 enum class ValuesType
 {
@@ -130,7 +130,7 @@ class MaterialValue
 			new (&_value.mat_) math::mat();
 			break;
 		case ValuesType::VALUE_TEXTURE:
-			new (&_value.texture_) fm::Texture();
+			new (&_value.texture_) fm::OGLTexture();
 			break;
 		case ValuesType::VALUE_COLOR:
 			new (&_value.color_) fm::Color();

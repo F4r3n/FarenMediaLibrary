@@ -1,6 +1,6 @@
 #include "Rendering/commandBuffer.hpp"
 #include "Rendering/RenderTexture.h"
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.h"
 
 using namespace fm;
 CommandBuffer::CommandBuffer()
@@ -48,7 +48,7 @@ void CommandBuffer::Blit(RenderTexture &inSource, RenderTexture &inDestination, 
 }
 
 
-void CommandBuffer::Blit(Texture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial)
+void CommandBuffer::Blit(OGLTexture&inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial)
 {
 	Command cmd;
 	cmd._command = Command::COMMAND_KIND::BLIT;

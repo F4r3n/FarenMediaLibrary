@@ -48,21 +48,21 @@ enum class Wrapping
     CLAMP_EDGE = GL_CLAMP_TO_EDGE
 };
 
-class Texture 
+class OGLTexture 
 {
    public:
-    Texture(const Image& image, Recti rect = {0, 0, -1, -1});
-    Texture(const std::string& path,
+    OGLTexture(const Image& image, Recti rect = {0, 0, -1, -1});
+    OGLTexture(const std::string& path,
             Recti rect = {0, 0, -1, -1},
             bool alpha = true);
-    Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha = true);
-    Texture(size_t width, size_t height);
-	Texture() {};
-	~Texture();
+    OGLTexture(std::vector<unsigned char>& data, Recti& rect, bool alpha = true);
+    OGLTexture(size_t width, size_t height);
+	OGLTexture() {};
+	~OGLTexture();
 
-	Texture(const Texture &texture);
-	Texture& operator=(const Texture &texture);
-	Texture& operator=(Texture &&texture);
+	OGLTexture(const OGLTexture &OGLTexture);
+	OGLTexture& operator=(const OGLTexture &OGLTexture);
+	OGLTexture& operator=(OGLTexture &&OGLTexture);
 
     void				setData(unsigned char* image, bool alpha);
 
@@ -90,7 +90,7 @@ class Texture
 	void				_init(std::vector<unsigned char>& data, Recti& rect);
 
 
-    Kind _textureKind= Kind::TEXTURE2D;
+    Kind _textureKind = Kind::TEXTURE2D;
     size_t _width;
     size_t _height;
     size_t _numberChannels = 4;

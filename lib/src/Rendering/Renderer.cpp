@@ -1,7 +1,7 @@
 #include "Rendering/Renderer.h"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.h"
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Model.hpp"
@@ -18,7 +18,7 @@ void Renderer::SetQuadScreen(fm::OGLModel* inModel) {
 }
 
 void Renderer::lightComputation(fm::Graphics& graphics,
-                                const Texture &colorBuffer,
+                                const OGLTexture&colorBuffer,
                                 bool compute) 
 {
     std::shared_ptr<fm::Shader> light = ResourcesManager::get().getResource<fm::Shader>("no_light");
@@ -33,7 +33,7 @@ void Renderer::lightComputation(fm::Graphics& graphics,
     graphics.Draw(_quad);
 }
 
-void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1) 
+void Renderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
 {
 	graphics.Disable(DEPTH_TEST);
     graphics.BindTexture2D(0, inTexture1.getID(), (int)inTexture1.GetKind());
@@ -43,7 +43,7 @@ void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1)
 }
 
 void Renderer::blit(fm::Graphics& graphics,
-                    Texture& texture,
+	OGLTexture& texture,
                     Shader* shader) const {
     shader->Use();
     graphics.BindTexture2D(0, texture.getID(), (int)texture.GetKind());
@@ -84,7 +84,7 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture
 }
 
 
-void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture> &textures, size_t numberIDs) 
+void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTexture> &textures, size_t numberIDs)
 {
     for(size_t i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{

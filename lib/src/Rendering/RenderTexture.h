@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Config.h>
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.h"
 
 namespace fm 
 {
@@ -20,8 +20,8 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         inline size_t getWidth() const {return _width;}
         inline size_t getHeight() const {return _height;}
         
-		const fm::Texture& GetColorBufferTexture(size_t id) const;
-		const std::vector<Texture>& GetColorBuffer() const { return _textureColorbuffer; }
+		const fm::OGLTexture& GetColorBufferTexture(size_t id) const;
+		const std::vector<OGLTexture>& GetColorBuffer() const { return _textureColorbuffer; }
 
         void create();
         bool IsMultiSampled() const {return _multiSampling > 0;}
@@ -44,7 +44,7 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         std::vector<Type> _types;
         bool _InitFrameBuffer(Format *formats, Type *types);
         //main Framebuffer + position fragcolor bright color
-        std::vector<Texture> _textureColorbuffer;
+        std::vector<OGLTexture> _textureColorbuffer;
 
         //Texture rboDepth;
 		GLuint _framebuffer = 0;

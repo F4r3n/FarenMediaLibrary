@@ -15,7 +15,7 @@ struct Character {
 
 namespace fm
 {
-	class Texture;
+	class OGLTexture;
 }
 namespace fm
 {
@@ -28,7 +28,7 @@ namespace fm
 		static constexpr fm::RESOURCE_TYPE getType() { return fm::RESOURCE_TYPE::FONT; }
 		std::unordered_map<GLchar, Character> Characters;
 
-		fm::Texture* texture;
+		fm::OGLTexture* texture;
 		//GLuint tex;
 		int atlas_width;
 		int atlas_height;

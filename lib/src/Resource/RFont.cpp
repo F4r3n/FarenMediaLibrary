@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.h"
 
 #define MAXWIDTH 512
 using namespace fm;
@@ -51,7 +51,7 @@ RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
     atlas_width = w;
     atlas_height = h;
 
-    texture = new fm::Texture();
+    texture = new fm::OGLTexture();
     texture->wrapping = fm::Wrapping::CLAMP_EDGE;
     texture->filter = fm::Filter::LINEAR;
     texture->generate(w, h, fm::Format::RED, fm::Type::UNSIGNED_BYTE);

@@ -2,11 +2,11 @@
 
 namespace fm {
 
-void to_json(nlohmann::json& j, const Texture& p) {
+void to_json(nlohmann::json& j, const OGLTexture& p) {
        // j["path"] = p.GetPath();
     }
 
-    void from_json(const nlohmann::json& j, Texture& p) {
+    void from_json(const nlohmann::json& j, OGLTexture& p) {
         //std::string path = j["path"];
         //p.SetPath(path);
     }

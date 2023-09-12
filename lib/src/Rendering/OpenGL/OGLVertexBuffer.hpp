@@ -18,7 +18,7 @@ namespace fm
 
 			OGLVertextBuffer();
 			~OGLVertextBuffer();
-			void UploadData(const fm::rendering::MeshContainer& inMesh);
+			void UploadData(const fm::rendering::MeshContainer& inMesh, bool inDynamic = false);
 			void generate();
 			void SetVertexAttribArray(size_t index, size_t size, DATA_TYPE type, size_t stride);
 			void setBufferData(void* data, unsigned int offset, unsigned int size, unsigned int dataSize, bool staticData = true);

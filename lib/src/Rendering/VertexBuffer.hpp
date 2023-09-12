@@ -17,7 +17,7 @@ namespace fm
 			virtual void destroy() { ; }
 			virtual bool isGenerated() { return false; }
 			size_t GetNumberVertices() const { return _numberVertices; }
-			virtual void UploadData(const MeshContainer& inMeshContainer, bool inDynamic = false) { ; }
+			virtual void UploadData(const MeshContainer& inMeshContainer, bool inDynamic = false) = 0;
 
 		protected:
 			size_t _numberVertices;

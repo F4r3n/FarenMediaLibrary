@@ -323,7 +323,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 					}
 					else
 					{
-						std::vector<fm::Texture> textures = currentCamera->_renderTexture.GetColorBuffer();
+						std::vector<fm::OGLTexture> textures = currentCamera->_renderTexture.GetColorBuffer();
 						fm::Renderer::getInstance().SetSources(_graphics, currentCamera->_renderTexture.GetColorBuffer(), textures.size());
 					}
 				}

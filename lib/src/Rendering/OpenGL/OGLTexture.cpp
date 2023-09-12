@@ -1,5 +1,5 @@
 #include <nlohmann/json.hpp>
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.h"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -9,7 +9,7 @@
 using namespace fm;
 
 
-Texture::Texture(const std::string& path, Recti rect, bool alpha) 
+OGLTexture::OGLTexture(const std::string& path, Recti rect, bool alpha)
 {
     if(alpha) 
 	{
@@ -24,8 +24,8 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
         std::cerr << "Error loading image " << path << std::endl;
     }
 
-    // std::cout << "Texture " << texture.path << " Loaded " << texture.width <<
-    // " " << texture.height << std::endl;
+    // std::cout << "OGLTexture " << OGLTexture.path << " Loaded " << OGLTexture.width <<
+    // " " << OGLTexture.height << std::endl;
 
     glGenTextures(1, &_id);
     glBindTexture((GLenum)_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
@@ -69,7 +69,7 @@ Texture::Texture(const std::string& path, Recti rect, bool alpha)
         std::cout << "Error Loading texture from path " << path << std::endl;
 }
 
-Texture::Texture(const Texture &texture)
+OGLTexture::OGLTexture(const OGLTexture&texture)
 {
     _width = texture._width;
     _height = texture._height;
@@ -83,7 +83,7 @@ Texture::Texture(const Texture &texture)
     wrapping = texture.wrapping;
 }
 
-Texture& Texture::operator=(const Texture &texture)
+OGLTexture& OGLTexture::operator=(const OGLTexture& texture)
 {
     _width = texture._width;
     _height = texture._height;
@@ -98,7 +98,7 @@ Texture& Texture::operator=(const Texture &texture)
     return *this;
 }
 
-Texture& Texture::operator=(Texture &&texture)
+OGLTexture& OGLTexture::operator=(OGLTexture&& texture)
 {
     _width = texture._width;
     _height = texture._height;
@@ -113,7 +113,7 @@ Texture& Texture::operator=(Texture &&texture)
     return *this;
 }
 
-Texture::Texture(const Image& image, Recti rect) {
+OGLTexture::OGLTexture(const Image& image, Recti rect) {
     // std::cout << "Texture " << texture.path << " Loaded " << texture.width <<
     // " " << texture.height << std::endl;
 
@@ -157,7 +157,7 @@ Texture::Texture(const Image& image, Recti rect) {
     _content.clear();
 }
 
-void Texture::generate(size_t width, size_t height, Format format, Type type, int multiSampled) {
+void OGLTexture::generate(size_t width, size_t height, Format format, Type type, int multiSampled) {
     _width = width;
     _height = height;
     _type = type;
@@ -270,7 +270,7 @@ void Texture::generate(size_t width, size_t height, Format format, Type type, in
     }
 }
 
-Texture::Texture(size_t width, size_t height) {
+OGLTexture::OGLTexture(size_t width, size_t height) {
     _width = width;
     _height = height;
     glGenTextures(1, &_id);
@@ -282,7 +282,7 @@ Texture::Texture(size_t width, size_t height) {
     glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-void Texture::setData(unsigned char* image, bool alpha) {
+void OGLTexture::setData(unsigned char* image, bool alpha) {
     glBindTexture((GLenum)_textureKind, _id);
     if(!alpha)
         glTexImage2D((GLenum)_textureKind,
@@ -306,11 +306,11 @@ void Texture::setData(unsigned char* image, bool alpha) {
                      NULL);
 }
 
-Texture::Texture(std::vector<unsigned char>& data, Recti& rect, bool alpha) {
+OGLTexture::OGLTexture(std::vector<unsigned char>& data, Recti& rect, bool alpha) {
     _init(data, rect);
 }
 
-void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
+void OGLTexture::_init(std::vector<unsigned char>& data, Recti& rect) {
     _width = rect.w;
     _height = rect.h;
 
@@ -341,7 +341,7 @@ void Texture::_init(std::vector<unsigned char>& data, Recti& rect) {
                                       // accidentily mess up our texture.
 }
 
-void Texture::GetPixel(const fm::math::vec2& inPosition, void *outValue) const
+void OGLTexture::GetPixel(const fm::math::vec2& inPosition, void *outValue) const
 {
 	glFlush();
 	glFinish();
@@ -351,9 +351,9 @@ void Texture::GetPixel(const fm::math::vec2& inPosition, void *outValue) const
 	glReadPixels((int)inPosition.x, (int)inPosition.y, 1, 1, (GLenum)_format, (GLenum)_type, outValue);
 }
 
-void Texture::writeToPNG(const std::string& name) const
+void OGLTexture::writeToPNG(const std::string& name) const
 {
-#if !OPENGL_ES
+
     if(_type == Type::UNSIGNED_BYTE)
     {
         unsigned char* data =  new unsigned char[_width * _height * _numberChannels];
@@ -371,20 +371,20 @@ void Texture::writeToPNG(const std::string& name) const
         stbi_write_png( name.c_str(), (GLsizei)_width, (GLsizei)_height, 4, data, (int)(_width * _numberChannels*sizeof(float)));
         delete [] data;
     }
-#endif
+
 }
 
-void Texture::setData(void* data, const fm::Recti& rect)
+void OGLTexture::setData(void* data, const fm::Recti& rect)
 {
     glTexSubImage2D((GLenum)_textureKind, 0, rect.x, rect.y, rect.w, rect.h, (GLenum)_format, (GLenum)_type, data);
 }
 
-void Texture::setData(void* data)
+void OGLTexture::setData(void* data)
 {
     glTexImage2D((GLenum)_textureKind, 0, (GLenum)_format, (GLsizei)_width, (GLsizei)_height, 0, (GLenum)_format, (GLenum)_type, data);
 }
 
-void Texture::setTo(int value, const fm::Recti& rect)
+void OGLTexture::setTo(int value, const fm::Recti& rect)
 {
     if(_type == Type::UNSIGNED_BYTE)
 	{
@@ -418,7 +418,7 @@ void Texture::setTo(int value, const fm::Recti& rect)
 }
 
 
-void Texture::release()
+void OGLTexture::release()
 {
 	if (_id > 0)
 	{
@@ -426,13 +426,13 @@ void Texture::release()
 	}
 }
 
-void Texture::clear()
+void OGLTexture::clear()
 {
 }
 
-void Texture::bind() const {
+void OGLTexture::bind() const {
     glBindTexture((GLenum)_textureKind, _id);
 }
 
-Texture::~Texture() {
+OGLTexture::~OGLTexture() {
 }
