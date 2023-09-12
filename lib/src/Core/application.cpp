@@ -112,7 +112,7 @@ void Application::Init()
 }
 
 
-void Application::Update(bool withEditor)
+void Application::Update()
 {
     _window->update(_currentConfig.fpsWanted);
     _engine->Update(fm::Time::dt);

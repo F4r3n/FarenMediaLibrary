@@ -56,7 +56,7 @@ int main()
 		ImGui::NewFrame();
 
 		
-		fm::Application::Get().Update(true);
+		fm::Application::Get().Update();
 
 		const bool hasFocus = ((SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS);
 

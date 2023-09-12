@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include "vk_mem_alloc.h"
+#include <optional>
 struct SDL_Window;
 
 namespace fm
@@ -15,10 +16,36 @@ namespace fm
 	};
 }
 
+namespace vk_init
+{
+	struct QueueFamilyIndices {
+		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
+
+		bool isComplete() {
+			return graphicsFamily.has_value() && presentFamily.has_value();
+		}
+	};
+
+	VkCommandBufferBeginInfo		CreateCommandBufferBeginInfo(VkCommandBufferUsageFlags flags);
+	VkSubmitInfo					CreateSubmitInfo(const std::vector<VkSemaphore>& inWaitSemaphore,
+		const std::vector<VkPipelineStageFlags>& inWaitPipelineStages,
+		const std::vector<VkSemaphore>& inSignalSemaphores,
+		VkCommandBuffer* cmd);
+	VkSubmitInfo					CreateSubmitInfo(VkCommandBuffer* cmd);
+	VkCommandPoolCreateInfo			CreateCommandPoolCreateInfo(QueueFamilyIndices inQueueFamily);
+
+	VkImageCreateInfo 				CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent);
+	VkImageViewCreateInfo			CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags);
+	VkCommandBufferAllocateInfo		CreateCommandBufferAllocateInfo(VkCommandPool pool);
+
+}
 
 
 class Vulkan
 {
+
+
 	struct SwapChainSupportDetails
 	{
 		VkSurfaceCapabilitiesKHR capabilities;
@@ -34,6 +61,9 @@ class Vulkan
 
 
 public:
+
+
+
 	bool Init(SDL_Window* inWindow);
 	bool DeInit();
 
@@ -42,6 +72,7 @@ public:
 	VkCommandPool				GetCommandPool() const { return _commandPool; }
 	VmaAllocator				GetAllocator() const { return _allocator; }
 	VkFormat					GetDepthFormat() const { return _depthFormat; }
+	vk_init::QueueFamilyIndices	GetQueueFamilyIndices() const { return _queueFamilyIndices; }
 
 	//Swap chain related
 	VkFramebuffer				GetSwapChainFrameBuffer(uint32_t index) const { return _swapChainFramebuffers[index]; }
@@ -51,8 +82,6 @@ public:
 	bool						AcquireImage(VkSemaphore inSemaphore, uint32_t &imageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass);
 	void						SubmitPresentQueue(VkSemaphore* inSemaphores, uint32_t inImageIndex, SDL_Window* inWindow, VkRenderPass inRenderPass);
 	bool						SetupSwapChainFramebuffer(VkRenderPass inRenderPass);
-	VkImageCreateInfo 			CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) const;
-	VkImageViewCreateInfo		CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) const;
 	bool						SetupDepthImage(VkExtent2D inExtent);
 
 	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
@@ -66,6 +95,7 @@ public:
 	VkWriteDescriptorSet			CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const;
 	VkDescriptorSetLayout			CreateDescriporSetLayout(const std::vector< VkDescriptorSetLayoutBinding>& inBindings) const;
 	bool							AllocateDescriptorSet(VkDescriptorPool inPool, VkDescriptorSet* inSet, VkDescriptorSetLayout* inLayout) const;
+
 private:
 	void				_CreateSurface(SDL_Window* inWindow);
 	bool				_SetupDebugMessenger();
@@ -121,4 +151,5 @@ private:
 
 	VmaAllocator	_allocator; //vma lib allocator
 	VkPhysicalDeviceProperties	_gpuProperties;
+	vk_init::QueueFamilyIndices			_queueFamilyIndices;
 };

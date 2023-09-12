@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 
 	fm::Config config;
 	config.name = "FML Engine";
-	config.fpsWanted = 60;
+	config.fpsWanted = 75;
 	config.width = 0;
 	config.height = 0;
 	config.standAlone = true;
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	while (!window->isClosed())
 	{
 		fm::InputManager::Get().PollEvents();
-		app.Update(true);
+		app.Update();
 
 		window->swapBuffers();
 	}

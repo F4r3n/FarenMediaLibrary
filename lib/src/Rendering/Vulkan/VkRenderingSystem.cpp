@@ -31,13 +31,37 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_renderPass = _CreateRenderPass();
 	_SetupDescriptors();
 	_SetupGlobalUniforms();
-	_InitStandardShapes();
-
+	_SetupUploadContext();
 	_vulkan->SetupSwapChainFramebuffer(_renderPass);
 	_commandBuffers = _CreateCommandBuffers(_vulkan->GetCommandPool());
 	_SetupSyncObjects();
 
+	_InitStandardShapes();
+
+
+
 }
+
+bool VkRenderingSystem::_SetupUploadContext()
+{
+	VkFenceCreateInfo uploadFenceCreateInfo{};
+	uploadFenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	uploadFenceCreateInfo.flags = 0;
+	if (vkCreateFence(_vulkan->GetDevice(), &uploadFenceCreateInfo, nullptr, &_uploadContext._uploadFence) != VK_SUCCESS)
+		return false;
+
+	VkCommandPoolCreateInfo uploadCommandPoolInfo = vk_init::CreateCommandPoolCreateInfo(_vulkan->GetQueueFamilyIndices());
+	if (vkCreateCommandPool(_vulkan->GetDevice(), &uploadCommandPoolInfo, nullptr, &_uploadContext._commandPool) != VK_SUCCESS)
+		return false;
+
+	VkCommandBufferAllocateInfo allocInfo = vk_init::CreateCommandBufferAllocateInfo(_uploadContext._commandPool);
+	if (vkAllocateCommandBuffers(_vulkan->GetDevice(), &allocInfo, &_uploadContext._commandBuffer) != VK_SUCCESS) {
+		return false;
+	}
+
+	return true;
+}
+
 
 void VkRenderingSystem::_InitStandardShapes()
 {
@@ -67,7 +91,7 @@ void VkRenderingSystem::_InitStandardShapes()
 
 	for (const auto& m : _staticModels)
 	{
-		m.second->UploadData();
+		_UploadMesh(m.second.get());
 	}
 }
 
@@ -93,6 +117,9 @@ bool VkRenderingSystem::_SetupSyncObjects()
 			return false;
 		}
 	}
+
+
+
 	return true;
 }
 
@@ -263,10 +290,7 @@ std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandP
 
 bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkRenderPass inRenderPass, EntityManager& em)
 {
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = 0; // Optional
-	beginInfo.pInheritanceInfo = nullptr; // Optional
+	VkCommandBufferBeginInfo beginInfo = vk_init::CreateCommandBufferBeginInfo(0);
 
 	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
 		return false;
@@ -393,7 +417,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 		else
 		{
 			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), mesh->model);
-			modelMesh->UploadData();
+			_UploadMesh(modelMesh.get());
 			modelMesh->Draw(commandBuffer, instanceIndex);
 
 			_staticModels.emplace(mesh->model->GetID(), std::move(modelMesh));
@@ -462,6 +486,42 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 	_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 }
+
+void VkRenderingSystem::_UploadMesh(fm::VkModel* inModel)
+{
+	inModel->UploadData([this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); });
+}
+
+
+void VkRenderingSystem::_ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function)
+{
+	VkCommandBuffer cmd = _uploadContext._commandBuffer;
+
+	//begin the command buffer recording. We will use this command buffer exactly once before resetting, so we tell vulkan that
+	VkCommandBufferBeginInfo cmdBeginInfo = vk_init::CreateCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	vkBeginCommandBuffer(cmd, &cmdBeginInfo);
+
+	//execute the function
+	function(cmd);
+
+	vkEndCommandBuffer(cmd);
+
+	VkSubmitInfo submit = vk_init::CreateSubmitInfo(&cmd);
+
+
+	//submit command buffer to the queue and execute it.
+	// _uploadFence will now block until the graphic commands finish execution
+	vkQueueSubmit(_vulkan->GetGraphicsQueue(), 1, &submit, _uploadContext._uploadFence);
+
+	vkWaitForFences(_vulkan->GetDevice(), 1, &_uploadContext._uploadFence, true, 9999999999);
+	vkResetFences(_vulkan->GetDevice(), 1, &_uploadContext._uploadFence);
+
+	// reset the command buffers inside the command pool
+	vkResetCommandPool(_vulkan->GetDevice(), _uploadContext._commandPool, 0);
+}
+
+
 void VkRenderingSystem::over()
 {
 
@@ -477,6 +537,8 @@ void VkRenderingSystem::Stop()
 VkRenderingSystem::~VkRenderingSystem()
 {
 	vkDeviceWaitIdle(_vulkan->GetDevice());
+	vkDestroyFence(_vulkan->GetDevice(), _uploadContext._uploadFence, nullptr);
+	vkDestroyCommandPool(_vulkan->GetDevice(), _uploadContext._commandPool, nullptr);
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _globalSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _objectSetLayout, nullptr);
 

@@ -18,24 +18,28 @@ namespace fm
 	{
 	public:
 
-		VkVertexBuffer(VmaAllocator inAllocator);
+		VkVertexBuffer(VmaAllocator inAllocator, std::function<void(std::function<void(VkCommandBuffer cmd)>)> && inSubmit);
 		VkVertexBuffer() = default;
 		~VkVertexBuffer();
 
 		//TODO refactor
-		virtual void UploadData(const fm::rendering::MeshContainer& inMeshContainer);
+		virtual void UploadData(const fm::rendering::MeshContainer& inMeshContainer, bool inDynamic = false);
 		virtual void destroy();
 		virtual bool isGenerated() const { return _allocatedBuffer._buffer != nullptr; }
 		static VkVertexInputBindingDescription GetBindingDescription();
 		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions();
 	private:
 		template <typename T>
-		bool		_SetupBuffer(AllocatedBuffer& buffer, const std::vector<T>& data, int TYPE);
+		bool		_SetupBufferCPU_GPU(AllocatedBuffer& buffer, const std::vector<T>& data, int TYPE);
+
+		template <typename T>
+		bool		_SetupBufferGPU(AllocatedBuffer& buffer, const std::vector<T>& data, int TYPE);
 
 		VmaAllocator _allocator = nullptr;
 	public:
 		AllocatedBuffer	_allocatedBuffer;
 		AllocatedBuffer	_allocatedIndexBuffer;
+		std::function<void(std::function<void(VkCommandBuffer cmd)>)> _submitBuffer;
 
 	};
 	

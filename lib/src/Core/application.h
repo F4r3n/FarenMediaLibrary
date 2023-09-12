@@ -112,7 +112,7 @@ class Application
         void						Init();
         void						DeInit();
 
-        void						Update(bool withEditor);
+        void						Update();
 
         fm::Window*					GetWindow() const;
 

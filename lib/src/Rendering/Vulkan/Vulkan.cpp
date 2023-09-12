@@ -229,17 +229,9 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 }
 
 
-struct QueueFamilyIndices {
-	std::optional<uint32_t> graphicsFamily;
-	std::optional<uint32_t> presentFamily;
 
-	bool isComplete() {
-		return graphicsFamily.has_value() && presentFamily.has_value();
-	}
-};
-
-QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR inSurface) {
-	QueueFamilyIndices indices;
+vk_init::QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR inSurface) {
+	vk_init::QueueFamilyIndices indices;
 
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -276,7 +268,7 @@ QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR inSur
 
 bool Vulkan::_SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice)
 {
-	QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice, _surface);
+	vk_init::QueueFamilyIndices queueFamilyIndices = _queueFamilyIndices;
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -343,7 +335,7 @@ bool Vulkan::_IsDeviceSuitable(VkPhysicalDevice device, const std::vector<const 
 
 	//TODO: set score
 
-	QueueFamilyIndices indices = FindQueueFamilies(device, _surface);
+	vk_init::QueueFamilyIndices indices = FindQueueFamilies(device, _surface);
 	bool extensionsSupported = _CheckDeviceExtensionSupport(device, deviceExtensions);
 
 	bool swapChainAdequate = false;
@@ -388,10 +380,10 @@ bool Vulkan::_SetupPhysicalDevice(const std::vector<const char*>& deviceExtensio
 bool Vulkan::_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<const char*>& inValidationLayerSupport,
 	const std::vector<const char*>& deviceExtensions)
 {
-	QueueFamilyIndices indices = FindQueueFamilies(device, _surface);
+	_queueFamilyIndices = FindQueueFamilies(device, _surface);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+	std::set<uint32_t> uniqueQueueFamilies = { _queueFamilyIndices.graphicsFamily.value(), _queueFamilyIndices.presentFamily.value() };
 
 	float queuePriority = 1.0f;
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -433,8 +425,8 @@ bool Vulkan::_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<cons
 	}
 
 
-	vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
-	vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
+	vkGetDeviceQueue(_device, _queueFamilyIndices.graphicsFamily.value(), 0, &_graphicsQueue);
+	vkGetDeviceQueue(_device, _queueFamilyIndices.presentFamily.value(), 0, &_presentQueue);
 
 	return _device != nullptr;
 }
@@ -541,7 +533,7 @@ bool Vulkan::_SetupSwapChain(SDL_Window* inWindow, VkPhysicalDevice device)
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //VK_IMAGE_USAGE_TRANSFER_DST_BIT  for post processing
 
-	QueueFamilyIndices indices = FindQueueFamilies(device, _surface);
+	vk_init::QueueFamilyIndices indices = _queueFamilyIndices;
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -693,7 +685,7 @@ bool Vulkan::SetupDepthImage(VkExtent2D inExtent)
 	_depthFormat = VK_FORMAT_D32_SFLOAT;
 
 	//the depth image will be an image with the format we selected and Depth Attachment usage flag
-	VkImageCreateInfo dimg_info = CreateImageInfo(_depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depthImageExtent);
+	VkImageCreateInfo dimg_info = vk_init::CreateImageInfo(_depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depthImageExtent);
 
 	//for the depth image, we want to allocate it from GPU local memory
 	VmaAllocationCreateInfo dimg_allocinfo = {};
@@ -704,7 +696,7 @@ bool Vulkan::SetupDepthImage(VkExtent2D inExtent)
 	vmaCreateImage(_allocator, &dimg_info, &dimg_allocinfo, &_depthImage._image, &_depthImage._allocation, nullptr);
 
 	//build an image-view for the depth image to use for rendering
-	VkImageViewCreateInfo dview_info = CreateImageViewInfo(_depthFormat, _depthImage._image, VK_IMAGE_ASPECT_DEPTH_BIT);
+	VkImageViewCreateInfo dview_info = vk_init::CreateImageViewInfo(_depthFormat, _depthImage._image, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 	vkCreateImageView(_device, &dview_info, nullptr, &_depthImageView);
 
@@ -747,46 +739,6 @@ bool Vulkan::_SetupSwapChainImageViews(VkDevice inDevice)
 	}
 	return true;
 }
-
-VkImageCreateInfo Vulkan::CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) const
-{
-	VkImageCreateInfo info = { };
-	info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	info.pNext = nullptr;
-
-	info.imageType = VK_IMAGE_TYPE_2D;
-
-	info.format = format;
-	info.extent = extent;
-
-	info.mipLevels = 1;
-	info.arrayLayers = 1;
-	info.samples = VK_SAMPLE_COUNT_1_BIT;
-	info.tiling = VK_IMAGE_TILING_OPTIMAL;
-	info.usage = usageFlags;
-
-	return info;
-}
-
-VkImageViewCreateInfo Vulkan::CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) const
-{
-	//build a image-view for the depth image to use for rendering
-	VkImageViewCreateInfo info = {};
-	info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	info.pNext = nullptr;
-
-	info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	info.image = image;
-	info.format = format;
-	info.subresourceRange.baseMipLevel = 0;
-	info.subresourceRange.levelCount = 1;
-	info.subresourceRange.baseArrayLayer = 0;
-	info.subresourceRange.layerCount = 1;
-	info.subresourceRange.aspectMask = aspectFlags;
-
-	return info;
-}
-
 
 
 bool Vulkan::SetupSwapChainFramebuffer(VkRenderPass inRenderPass)
@@ -868,4 +820,118 @@ bool Vulkan::_RecreateSwapChain(SDL_Window* inWindow, VkRenderPass inRenderPass)
 
 
 	return true;
+}
+
+namespace vk_init
+{
+	VkCommandPoolCreateInfo CreateCommandPoolCreateInfo(vk_init::QueueFamilyIndices inQueueFamily)
+	{
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = inQueueFamily.graphicsFamily.value();
+
+		return poolInfo;
+	}
+
+	VkCommandBufferBeginInfo CreateCommandBufferBeginInfo(VkCommandBufferUsageFlags flags)
+	{
+		VkCommandBufferBeginInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		info.pNext = nullptr;
+
+		info.pInheritanceInfo = nullptr;
+		info.flags = flags;
+		return info;
+	}
+
+	VkSubmitInfo CreateSubmitInfo(VkCommandBuffer* cmd)
+	{
+		VkSubmitInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		info.pNext = nullptr;
+
+		info.waitSemaphoreCount = 0;
+		info.pWaitSemaphores = nullptr;
+		info.pWaitDstStageMask = nullptr;
+		info.commandBufferCount = 1;
+		info.pCommandBuffers = cmd;
+		info.signalSemaphoreCount = 0;
+		info.pSignalSemaphores = nullptr;
+
+		return info;
+	}
+
+
+	VkSubmitInfo CreateSubmitInfo(const std::vector<VkSemaphore>& inWaitSemaphore,
+		const std::vector<VkPipelineStageFlags>& inWaitPipelineStages,
+		const std::vector<VkSemaphore>& inSignalSemaphores,
+		VkCommandBuffer* cmd)
+	{
+		VkSubmitInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		info.pNext = nullptr;
+
+		info.waitSemaphoreCount = inWaitSemaphore.size();
+		info.pWaitSemaphores = inWaitSemaphore.data();
+		info.pWaitDstStageMask = inWaitPipelineStages.data();
+		info.commandBufferCount = 1;
+		info.pCommandBuffers = cmd;
+		info.signalSemaphoreCount = inSignalSemaphores.size();
+		info.pSignalSemaphores = inSignalSemaphores.data();
+
+		return info;
+	}
+
+	VkImageCreateInfo CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent)
+	{
+		VkImageCreateInfo info = { };
+		info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		info.pNext = nullptr;
+
+		info.imageType = VK_IMAGE_TYPE_2D;
+
+		info.format = format;
+		info.extent = extent;
+
+		info.mipLevels = 1;
+		info.arrayLayers = 1;
+		info.samples = VK_SAMPLE_COUNT_1_BIT;
+		info.tiling = VK_IMAGE_TILING_OPTIMAL;
+		info.usage = usageFlags;
+
+		return info;
+	}
+
+	VkImageViewCreateInfo CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags)
+	{
+		//build a image-view for the depth image to use for rendering
+		VkImageViewCreateInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		info.pNext = nullptr;
+
+		info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		info.image = image;
+		info.format = format;
+		info.subresourceRange.baseMipLevel = 0;
+		info.subresourceRange.levelCount = 1;
+		info.subresourceRange.baseArrayLayer = 0;
+		info.subresourceRange.layerCount = 1;
+		info.subresourceRange.aspectMask = aspectFlags;
+
+		return info;
+	}
+
+	VkCommandBufferAllocateInfo	CreateCommandBufferAllocateInfo(VkCommandPool pool)
+	{
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = pool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
+
+		return allocInfo;
+	}
+
+
 }

@@ -12,13 +12,13 @@ VkModel::VkModel(VmaAllocator inAllocator, std::shared_ptr<fm::Model> inModel)
 }
 
 
-bool VkModel::UploadData()
+bool VkModel::UploadData(std::function<void(std::function<void(VkCommandBuffer cmd)>)>&& inSubmit)
 {
 	for (auto& mesh : _model->_meshes)
 	{
 		if (mesh.vertexBuffer == nullptr)
 		{
-			mesh.vertexBuffer = std::unique_ptr<rendering::VertexBuffer>(new fm::VkVertexBuffer(_allocator));
+			mesh.vertexBuffer = std::unique_ptr<rendering::VertexBuffer>(new fm::VkVertexBuffer(_allocator, std::move(inSubmit)));
 		}
 		mesh.vertexBuffer->UploadData(*mesh.meshContainer);
 	}

@@ -30,6 +30,13 @@ namespace fms
 		fm::math::vec4 sunlightColor;
 	};
 
+	struct UploadContext {
+		VkFence			_uploadFence;
+		VkCommandPool	_commandPool;
+		VkCommandBuffer _commandBuffer;
+	};
+
+
 	struct FrameData
 	{
 		VkDescriptorSet		globalDescriptorSet;
@@ -55,6 +62,8 @@ namespace fms
 		virtual void Start();
 		virtual void Stop();
 		~VkRenderingSystem();
+
+
 	private:
 		VkRenderPass				_CreateRenderPass();
 		std::vector<VkCommandBuffer>_CreateCommandBuffers(VkCommandPool inPool);
@@ -64,6 +73,9 @@ namespace fms
 		bool						_SetupGlobalUniforms();
 		bool						_SetupDescriptors();
 		void						_InitStandardShapes();
+		bool						_SetupUploadContext();
+		void						_ImmediateSubmit(std::function<void(VkCommandBuffer)>&& function);
+		void						_UploadMesh(fm::VkModel* inModel);
 
 	private:
 		inline const static int MAX_FRAMES_IN_FLIGHT = 2;
@@ -95,5 +107,6 @@ namespace fms
 
 		fm::VkMaterial*				_currentMaterial;
 		uint64_t					_frame = 0;
+		UploadContext				_uploadContext;
 	};
 }
