@@ -2,7 +2,6 @@
 #include <Core/Math/Vector2.h>
 #include "Rendering/Vulkan/Vulkan.h"
 #include <array>
-#include <vk_mem_alloc.h>
 #include "Rendering/Mesh.hpp"
 #include "Rendering/VertexBuffer.hpp"
 
@@ -18,7 +17,7 @@ namespace fm
 	{
 	public:
 
-		VkVertexBuffer(VmaAllocator inAllocator, std::function<void(std::function<void(VkCommandBuffer cmd)>)> && inSubmit);
+		VkVertexBuffer(Vulkan* inVulkan, std::function<void(std::function<void(VkCommandBuffer cmd)>)> & inSubmit);
 		VkVertexBuffer() = default;
 		~VkVertexBuffer();
 
@@ -35,11 +34,12 @@ namespace fm
 		template <typename T>
 		bool		_SetupBufferGPU(AllocatedBuffer& buffer, const std::vector<T>& data, int TYPE);
 
-		VmaAllocator _allocator = nullptr;
+		Vulkan* _vulkan = nullptr;
+		std::function<void(std::function<void(VkCommandBuffer cmd)>)> _submitBuffer;
+
 	public:
 		AllocatedBuffer	_allocatedBuffer;
 		AllocatedBuffer	_allocatedIndexBuffer;
-		std::function<void(std::function<void(VkCommandBuffer cmd)>)> _submitBuffer;
 
 	};
 	

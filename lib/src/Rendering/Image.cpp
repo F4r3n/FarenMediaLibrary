@@ -2,50 +2,62 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <cstring>
-#define IMAGE_RGBA 4
-#define IMAGE_RGB 3
 
 using namespace fm;
-Image::Image() {
+Image::Image()
+{
 }
 
-Image::~Image() {
+Image::~Image()
+{
 }
 
-void Image::create(float width, float height) {
-        pixels.resize(width * height * IMAGE_RGBA, 255);
+void Image::create(float width, float height)
+{
 }
 
-void Image::clear() {
-        _size.reset();
-        if(_pixel)
-                stbi_image_free(_pixel);
+void Image::clear()
+{
+	_size.reset();
+	if (_pixel)
+	{
+		stbi_image_free(_pixel);
+	}
+	_pixel = nullptr;
 }
 
-const math::Vector2i& Image::getSize() const {
+const math::Vector2i& Image::getSize() const
+{
         return _size;
 }
 
-void Image::getPart(std::vector<unsigned char>& imagePart, Recti rect) const {
-        imagePart.resize((rect.w) * (rect.h) * IMAGE_RGBA, 255);
-        unsigned int sizeByte = (rect.w) * IMAGE_RGBA;
+void Image::getPart(std::vector<unsigned char>& imagePart, Recti rect) const
+{
+	imagePart.resize((rect.w) * (rect.h) * _canalNumber, 255);
+	const unsigned int sizeByte = (rect.w) * _canalNumber;
 
-        unsigned char* ptr = imagePart.data();
-        for(int i = 0; i < rect.h; i++) {
-
-                std::memcpy(ptr + i * sizeByte, _pixel + rect.x * IMAGE_RGBA + i * _size.x * IMAGE_RGBA, sizeByte);
-        }
+	unsigned char* ptr = imagePart.data();
+	for(int i = 0; i < rect.h; i++)
+	{
+		std::memcpy(ptr + i * sizeByte, _pixel + rect.x * _canalNumber + i * _size.x * _canalNumber, sizeByte);
+	}
 }
 
-unsigned char* Image::getImagePtr() {
-        return _pixel;
+unsigned char* Image::getImagePtr()
+{
+	return _pixel;
 }
 
-bool Image::loadImage(const std::string& path, const math::Vector2i& offset) {
-        pixels.clear();
-        _offset = offset;
+size_t Image::GetDataSize() const
+{
+	return _size.x * _size.y * _canalNumber;
+}
 
-        _pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
-        if(_pixel == nullptr) return false;
-        return true;
+
+bool Image::loadImage(const std::string& path)
+{
+	_pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
+	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
+	if(_pixel == nullptr) return false;
+	return true;
 }

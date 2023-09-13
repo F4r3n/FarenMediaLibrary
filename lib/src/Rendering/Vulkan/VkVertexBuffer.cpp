@@ -5,10 +5,11 @@
 
 using namespace fm;
 using namespace rendering;
-VkVertexBuffer::VkVertexBuffer(VmaAllocator inAllocator, std::function<void(std::function<void(VkCommandBuffer cmd)>)>&& inSubmit) : _allocator(inAllocator)
+VkVertexBuffer::VkVertexBuffer(Vulkan* inVulkan, std::function<void(std::function<void(VkCommandBuffer cmd)>)>& inSubmit)
+	: _vulkan(inVulkan),
+	_submitBuffer(inSubmit)
 {
 	_numberVertices = 0;
-	_submitBuffer = inSubmit;
 }
 
 VkVertexBuffer::~VkVertexBuffer()
@@ -17,13 +18,13 @@ VkVertexBuffer::~VkVertexBuffer()
 
 void VkVertexBuffer::destroy()
 {
-	if(_allocatedBuffer._buffer != nullptr)
-		vmaDestroyBuffer(_allocator, _allocatedBuffer._buffer, _allocatedBuffer._allocation);
+	if (_allocatedBuffer._buffer != nullptr)
+		_vulkan->DestroyBuffer(_allocatedBuffer);
 
 	_allocatedBuffer._buffer = nullptr;
 
 	if (_allocatedIndexBuffer._buffer != nullptr)
-		vmaDestroyBuffer(_allocator, _allocatedIndexBuffer._buffer, _allocatedIndexBuffer._allocation);
+		_vulkan->DestroyBuffer(_allocatedIndexBuffer);
 
 	_allocatedIndexBuffer._buffer = nullptr;
 }
@@ -62,27 +63,12 @@ std::array<VkVertexInputAttributeDescription, 3> VkVertexBuffer::GetAttributeDes
 template <typename T>
 bool VkVertexBuffer::_SetupBufferCPU_GPU(AllocatedBuffer& buffer, const std::vector<T>& inData, int TYPE_USAGE)
 {
-	//allocate vertex buffer
-	VkBufferCreateInfo bufferInfo = {};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = inData.size() * sizeof(inData[0]);
-	bufferInfo.usage = TYPE_USAGE;
+	const size_t bufferSize = inData.size() * sizeof(inData[0]);
+
+	buffer = _vulkan->CreateBuffer(bufferSize, TYPE_USAGE, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_vulkan->MapBuffer(buffer, (void*)inData.data(), bufferSize, 0);
 
 
-	//let the VMA library know that this data should be writeable by CPU, but also readable by GPU
-	VmaAllocationCreateInfo vmaallocInfo = {};
-	vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-
-	//allocate the buffer
-	vmaCreateBuffer(_allocator, &bufferInfo, &vmaallocInfo,
-		&buffer._buffer,
-		&buffer._allocation,
-		nullptr);
-
-	void* data;
-	vmaMapMemory(_allocator, buffer._allocation, &data);
-	memcpy(data, inData.data(), bufferInfo.size);
-	vmaUnmapMemory(_allocator, buffer._allocation);
 	return true;
 }
 
@@ -90,46 +76,14 @@ template <typename T>
 bool VkVertexBuffer::_SetupBufferGPU(AllocatedBuffer& buffer, const std::vector<T>& inData, int TYPE)
 {
 	const size_t bufferSize = inData.size() * sizeof(inData[0]);
-	//allocate staging buffer
-	VkBufferCreateInfo stagingBufferInfo = {};
-	stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	stagingBufferInfo.pNext = nullptr;
+	
 
-	stagingBufferInfo.size = bufferSize;
-	stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+	_vulkan->MapBuffer(stagingBuffer, (void*)inData.data(), bufferSize, 0);
 
-	//let the VMA library know that this data should be on CPU RAM
-	VmaAllocationCreateInfo vmaallocInfo = {};
-	vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 
-	AllocatedBuffer stagingBuffer;
+	buffer = _vulkan->CreateBuffer(bufferSize, TYPE | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
 
-	//allocate the buffer
-	vmaCreateBuffer(_allocator, &stagingBufferInfo, &vmaallocInfo,
-		&stagingBuffer._buffer,
-		&stagingBuffer._allocation,
-		nullptr);
-
-	void* data;
-	vmaMapMemory(_allocator, stagingBuffer._allocation, &data);
-	memcpy(data, inData.data(), bufferSize);
-	vmaUnmapMemory(_allocator, stagingBuffer._allocation);
-
-	//allocate vertex buffer
-	VkBufferCreateInfo vertexBufferInfo = {};
-	vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	vertexBufferInfo.pNext = nullptr;
-	vertexBufferInfo.size = bufferSize;
-	vertexBufferInfo.usage = TYPE | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-
-	//let the VMA library know that this data should be GPU native
-	vmaallocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-
-	//allocate the buffer
-	vmaCreateBuffer(_allocator, &vertexBufferInfo, &vmaallocInfo,
-		&buffer._buffer,
-		&buffer._allocation,
-		nullptr);
 
 	_submitBuffer([=](VkCommandBuffer cmd) {
 		VkBufferCopy copy;
@@ -139,7 +93,7 @@ bool VkVertexBuffer::_SetupBufferGPU(AllocatedBuffer& buffer, const std::vector<
 		vkCmdCopyBuffer(cmd, stagingBuffer._buffer, buffer._buffer, 1, &copy);
 		});
 
-	vmaDestroyBuffer(_allocator, stagingBuffer._buffer, stagingBuffer._allocation);
+	_vulkan->DestroyBuffer(stagingBuffer);
 
 	return true;
 }

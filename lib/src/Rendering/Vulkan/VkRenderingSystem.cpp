@@ -16,6 +16,8 @@
 #include "Components/CMaterial.h"
 #include "Components/CTransform.h"
 #include "Components/CIdentity.h"
+#include "VkTexture.h"
+
 using namespace fms;
 
 VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
@@ -38,7 +40,10 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 
 	_InitStandardShapes();
 
-
+	//TODO: TEST
+	fm::VkTexture texture(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); });
+	texture.UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
+	texture.Destroy();
 
 }
 
@@ -85,7 +90,7 @@ void VkRenderingSystem::_InitStandardShapes()
 	//fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
 	fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
 	//_staticModels.emplace(quad->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quad));
-	_staticModels.emplace(cube->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), cube));
+	_staticModels.emplace(cube->GetID(), std::make_unique<fm::VkModel>(_vulkan.get(), cube));
 	//_staticModels.emplace(quadFS->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quadFS));
 	//_staticModels.emplace(circle->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), circle));
 
@@ -416,7 +421,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 		}
 		else
 		{
-			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), mesh->model);
+			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan.get(), mesh->model);
 			_UploadMesh(modelMesh.get());
 			modelMesh->Draw(commandBuffer, instanceIndex);
 

@@ -4,10 +4,10 @@
 #include "Rendering/VertexBuffer.hpp"
 using namespace fm;
 
-VkModel::VkModel(VmaAllocator inAllocator, std::shared_ptr<fm::Model> inModel)
+VkModel::VkModel(Vulkan* inVulkan, std::shared_ptr<fm::Model> inModel)
 {
 	_model = inModel;
-	_allocator = inAllocator;
+	_vulkan = inVulkan;
 	inModel->_destroyCallback = std::bind(&VkModel::Destroy, this);
 }
 
@@ -18,7 +18,7 @@ bool VkModel::UploadData(std::function<void(std::function<void(VkCommandBuffer c
 	{
 		if (mesh.vertexBuffer == nullptr)
 		{
-			mesh.vertexBuffer = std::unique_ptr<rendering::VertexBuffer>(new fm::VkVertexBuffer(_allocator, std::move(inSubmit)));
+			mesh.vertexBuffer = std::unique_ptr<rendering::VertexBuffer>(new fm::VkVertexBuffer(_vulkan, inSubmit));
 		}
 		mesh.vertexBuffer->UploadData(*mesh.meshContainer);
 	}

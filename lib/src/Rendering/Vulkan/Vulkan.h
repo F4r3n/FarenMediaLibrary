@@ -14,6 +14,11 @@ namespace fm
 		VkBuffer		_buffer = nullptr;
 		VmaAllocation	_allocation = nullptr;
 	};
+
+	struct AllocatedImage {
+		VkImage _image = nullptr;
+		VmaAllocation _allocation = nullptr;
+	};
 }
 
 namespace vk_init
@@ -38,7 +43,6 @@ namespace vk_init
 	VkImageCreateInfo 				CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent);
 	VkImageViewCreateInfo			CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags);
 	VkCommandBufferAllocateInfo		CreateCommandBufferAllocateInfo(VkCommandPool pool);
-
 }
 
 
@@ -87,10 +91,12 @@ public:
 	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
 	bool						DestroyBuffer(fm::AllocatedBuffer& inBuffer) const;
+	bool						DestroyImage(fm::AllocatedImage& inBuffer) const;
+
 	void*						MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize, size_t inOffset) const;
 	void						MapBuffer(fm::AllocatedBuffer& inBuffer, std::function<void(void**)> && inFunction) const;
 
-	size_t						PadUniformBufferSize(size_t originalSize) const;
+	size_t							PadUniformBufferSize(size_t originalSize) const;
 	VkDescriptorSetLayoutBinding	CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const;
 	VkWriteDescriptorSet			CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const;
 	VkDescriptorSetLayout			CreateDescriporSetLayout(const std::vector< VkDescriptorSetLayoutBinding>& inBindings) const;
@@ -150,6 +156,6 @@ private:
 	VkCommandPool	_commandPool;
 
 	VmaAllocator	_allocator; //vma lib allocator
-	VkPhysicalDeviceProperties	_gpuProperties;
+	VkPhysicalDeviceProperties			_gpuProperties;
 	vk_init::QueueFamilyIndices			_queueFamilyIndices;
 };

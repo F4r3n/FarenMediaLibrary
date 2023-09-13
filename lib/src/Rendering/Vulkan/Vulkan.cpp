@@ -671,7 +671,11 @@ bool Vulkan::DestroyBuffer(fm::AllocatedBuffer& inBuffer) const
 	return true;
 }
 
-
+bool Vulkan::DestroyImage(fm::AllocatedImage& inBuffer) const
+{
+	vmaDestroyImage(_allocator, inBuffer._image, inBuffer._allocation);
+	return true;
+}
 
 bool Vulkan::SetupDepthImage(VkExtent2D inExtent)
 {
@@ -932,6 +936,7 @@ namespace vk_init
 
 		return allocInfo;
 	}
+
 
 
 }
