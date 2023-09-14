@@ -2,7 +2,6 @@
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
 #include "Rendering/Image.h"
-#include <format>
 
 using namespace fm;
 
@@ -17,7 +16,7 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 	Image image;
 	
 	if (!image.loadImage(inPath.GetPathString())) {
-		fm::Debug::get().LogError(std::format("Failed to load texture file {}", inPath.GetPathString()));
+		fm::Debug::get().LogError("Failed to load texture file " + inPath.GetPathString());
 		return false;
 	}
 
