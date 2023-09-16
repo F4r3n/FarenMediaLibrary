@@ -21,7 +21,7 @@ namespace fm
 struct MaterialProperty
 {
     fm::MaterialValue materialValue;
-    char name[256] = {'\0'};
+	std::string name;
 
     MaterialProperty()
     {
@@ -30,7 +30,7 @@ struct MaterialProperty
 
     fm::MaterialProperty& operator=(fm::MaterialProperty &&m)
     {
-        memcpy(name, m.name, sizeof(name));
+		name = m.name;
 		materialValue = m.materialValue;
 
         return *this;
@@ -39,7 +39,7 @@ struct MaterialProperty
 
 	fm::MaterialProperty& operator=(const fm::MaterialProperty &m)
 	{
-		memcpy(name, m.name, sizeof(name));
+		name = m.name;
 		materialValue = m.materialValue;
 
 		return *this;
@@ -47,19 +47,15 @@ struct MaterialProperty
 
     MaterialProperty(const fm::MaterialProperty &m)
     {
-        materialValue.setType(m.materialValue.getType());
         materialValue.setValue(m.materialValue.getType(), m.materialValue);
-		memcpy(name, m.name, sizeof(name));
-    }
+		name = m.name;
+	}
 
 	MaterialProperty(const std::string& inName, const fm::MaterialValue &inMaterialValue)
 	{
 		materialValue = inMaterialValue;
-		memcpy(name, inName.c_str(), sizeof(inName));
+		name = inName;
 	}
-
-
-
 };
 
 

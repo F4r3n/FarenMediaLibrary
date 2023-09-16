@@ -1,6 +1,7 @@
 #version 450
 
 layout(location = 0) in vec3 fragColor;
+//layout (location = 1) in vec2 texCoord;
 
 layout(location = 0) out vec4 outColor;
 
@@ -12,8 +13,13 @@ layout(set = 0, binding = 1) uniform  SceneData{
 	vec4 sunlightColor;
 } sceneData;
 
+layout(set = 2, binding = 0) uniform sampler2D tex1;
+
 void main() {
     vec3 ambient = sceneData.ambientColor.xyz;
     outColor = vec4(fragColor + ambient.xyz, 1.0);
+
+    //vec3 color = texture(tex1, texCoord).xyz;
+	//outColor = vec4(color,1.0f);
     //outColor.xyz = ambient.xyz;
 }

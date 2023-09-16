@@ -564,6 +564,32 @@ bool Vulkan::_SetupSwapChain(SDL_Window* inWindow, VkPhysicalDevice device)
 	return true;
 }
 
+fm::AllocatedBuffer	 Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, VmaAllocationCreateFlagBits inFlags)
+{
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.pNext = nullptr;
+
+	bufferInfo.size = allocSize;
+	bufferInfo.usage = usage;
+
+
+	VmaAllocationCreateInfo vmaallocInfo = {};
+	vmaallocInfo.usage = memoryUsage;
+	vmaallocInfo.flags = inFlags;
+
+	fm::AllocatedBuffer newBuffer;
+
+	//allocate the buffer
+	vmaCreateBuffer(_allocator, &bufferInfo, &vmaallocInfo,
+		&newBuffer._buffer,
+		&newBuffer._allocation,
+		nullptr);
+
+	return newBuffer;
+}
+
+
 fm::AllocatedBuffer Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
 {
 	VkBufferCreateInfo bufferInfo = {};
@@ -576,6 +602,7 @@ fm::AllocatedBuffer Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags us
 
 	VmaAllocationCreateInfo vmaallocInfo = {};
 	vmaallocInfo.usage = memoryUsage;
+	//vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
 
 	fm::AllocatedBuffer newBuffer;
 
@@ -605,33 +632,6 @@ void Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, std::function<void(void**)
 	vmaMapMemory(_allocator, inBuffer._allocation, &objectData);
 	inFunction(&objectData);
 	vmaUnmapMemory(_allocator, inBuffer._allocation);
-}
-
-
-VkDescriptorSetLayoutBinding Vulkan::CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const
-{
-	VkDescriptorSetLayoutBinding layoutBinding = {};
-	layoutBinding.binding = binding;
-	layoutBinding.descriptorCount = 1;
-	layoutBinding.descriptorType = type;
-	layoutBinding.stageFlags = stageFlags;
-
-	return layoutBinding;
-}
-
-VkWriteDescriptorSet Vulkan::CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const
-{
-	VkWriteDescriptorSet write = {};
-	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	write.pNext = nullptr;
-
-	write.dstBinding = binding;
-	write.dstSet = dstSet;
-	write.descriptorCount = 1;
-	write.descriptorType = type;
-	write.pBufferInfo = bufferInfo;
-
-	return write;
 }
 
 
@@ -937,6 +937,70 @@ namespace vk_init
 		return allocInfo;
 	}
 
+	VkVertexInputAttributeDescription	CreateVertexInputAttributeDescription(uint32_t inBinding, uint32_t inLocation, VkFormat inFormat, uint32_t inOffset)
+	{
+		VkVertexInputAttributeDescription attributeDescription;
+		attributeDescription.binding = inBinding;
+		attributeDescription.location = inLocation;
+		attributeDescription.format = inFormat;
+		attributeDescription.offset = inOffset;
 
+		return attributeDescription;
+	}
 
+	VkDescriptorSetLayoutBinding CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding)
+	{
+		VkDescriptorSetLayoutBinding layoutBinding = {};
+		layoutBinding.binding = binding;
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.descriptorType = type;
+		layoutBinding.stageFlags = stageFlags;
+
+		return layoutBinding;
+	}
+
+	VkWriteDescriptorSet CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding)
+	{
+		VkWriteDescriptorSet write = {};
+		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		write.pNext = nullptr;
+
+		write.dstBinding = binding;
+		write.dstSet = dstSet;
+		write.descriptorCount = 1;
+		write.descriptorType = type;
+		write.pBufferInfo = bufferInfo;
+
+		return write;
+	}
+
+	VkSamplerCreateInfo CreateSamplerInfo(VkFilter filters, VkSamplerAddressMode samplerAddressMode)
+	{
+		VkSamplerCreateInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		info.pNext = nullptr;
+
+		info.magFilter = filters;
+		info.minFilter = filters;
+		info.addressModeU = samplerAddressMode;
+		info.addressModeV = samplerAddressMode;
+		info.addressModeW = samplerAddressMode;
+
+		return info;
+	}
+
+	VkWriteDescriptorSet CreateImageDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo* imageInfo, uint32_t binding)
+	{
+		VkWriteDescriptorSet write = {};
+		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		write.pNext = nullptr;
+
+		write.dstBinding = binding;
+		write.dstSet = dstSet;
+		write.descriptorCount = 1;
+		write.descriptorType = type;
+		write.pImageInfo = imageInfo;
+
+		return write;
+	}
 }

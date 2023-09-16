@@ -32,17 +32,23 @@ namespace vk_init
 		}
 	};
 
-	VkCommandBufferBeginInfo		CreateCommandBufferBeginInfo(VkCommandBufferUsageFlags flags);
-	VkSubmitInfo					CreateSubmitInfo(const std::vector<VkSemaphore>& inWaitSemaphore,
-		const std::vector<VkPipelineStageFlags>& inWaitPipelineStages,
-		const std::vector<VkSemaphore>& inSignalSemaphores,
-		VkCommandBuffer* cmd);
-	VkSubmitInfo					CreateSubmitInfo(VkCommandBuffer* cmd);
-	VkCommandPoolCreateInfo			CreateCommandPoolCreateInfo(QueueFamilyIndices inQueueFamily);
+	VkCommandBufferBeginInfo			CreateCommandBufferBeginInfo(VkCommandBufferUsageFlags flags);
+	VkSubmitInfo						CreateSubmitInfo(const std::vector<VkSemaphore>& inWaitSemaphore,
+											const std::vector<VkPipelineStageFlags>& inWaitPipelineStages,
+											const std::vector<VkSemaphore>& inSignalSemaphores,
+											VkCommandBuffer* cmd);
+	VkSubmitInfo						CreateSubmitInfo(VkCommandBuffer* cmd);
+	VkCommandPoolCreateInfo				CreateCommandPoolCreateInfo(QueueFamilyIndices inQueueFamily);
 
-	VkImageCreateInfo 				CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent);
-	VkImageViewCreateInfo			CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags);
-	VkCommandBufferAllocateInfo		CreateCommandBufferAllocateInfo(VkCommandPool pool);
+	VkImageCreateInfo 					CreateImageInfo(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent);
+	VkImageViewCreateInfo				CreateImageViewInfo(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags);
+	VkCommandBufferAllocateInfo			CreateCommandBufferAllocateInfo(VkCommandPool pool);
+	VkVertexInputAttributeDescription	CreateVertexInputAttributeDescription(uint32_t inBinding, uint32_t inLocation, VkFormat inFormat, uint32_t inOffset);
+	VkDescriptorSetLayoutBinding		CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding);
+	VkWriteDescriptorSet				CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding);
+	VkSamplerCreateInfo					CreateSamplerInfo(VkFilter filters, VkSamplerAddressMode samplerAddressMode);
+	VkWriteDescriptorSet				CreateImageDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo* imageInfo, uint32_t binding);
+
 }
 
 
@@ -89,6 +95,7 @@ public:
 	bool						SetupDepthImage(VkExtent2D inExtent);
 
 	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+	fm::AllocatedBuffer			CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, VmaAllocationCreateFlagBits inFlags);
 
 	bool						DestroyBuffer(fm::AllocatedBuffer& inBuffer) const;
 	bool						DestroyImage(fm::AllocatedImage& inBuffer) const;
@@ -97,8 +104,6 @@ public:
 	void						MapBuffer(fm::AllocatedBuffer& inBuffer, std::function<void(void**)> && inFunction) const;
 
 	size_t							PadUniformBufferSize(size_t originalSize) const;
-	VkDescriptorSetLayoutBinding	CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding) const;
-	VkWriteDescriptorSet			CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding) const;
 	VkDescriptorSetLayout			CreateDescriporSetLayout(const std::vector< VkDescriptorSetLayoutBinding>& inBindings) const;
 	bool							AllocateDescriptorSet(VkDescriptorPool inPool, VkDescriptorSet* inSet, VkDescriptorSetLayout* inLayout) const;
 

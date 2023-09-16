@@ -116,8 +116,7 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
 					std::string currentTypeName = _ValueTypeToName(type);
 
                     static char nameType[256];
-
-                    memcpy(nameType, currentProperty.name, sizeof(currentProperty.name));
+                    memcpy(nameType, currentProperty.name.c_str(), currentProperty.name.length());
                     {
 						size_t t = (size_t)type;
                         DrawCombo("Type##"+ shaderName + currentProperty.name + std::to_string(j), _typesMaterial, currentTypeName, &t);
@@ -125,7 +124,7 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
                         std::string nameTextInput = std::string(nameType) + "##Text"+ shaderName + currentProperty.name + std::to_string(j);
                         if(ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
                         {
-                            strncpy(currentProperty.name, nameType, strlen(nameType) );
+							currentProperty.name.assign(nameType);
                         }
                     }
 
@@ -191,12 +190,6 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
                         ImGui::PopID();
 
 						currentProperty.materialValue = c;
-                    }
-
-
-                    if(ctype != type)
-                    {
-						currentProperty.materialValue.setType((fm::ValuesType)type);
                     }
 
 					m->UpdateProperty(j, currentProperty);

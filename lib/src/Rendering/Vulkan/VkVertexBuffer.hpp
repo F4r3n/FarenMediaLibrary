@@ -26,7 +26,7 @@ namespace fm
 		virtual void destroy();
 		virtual bool isGenerated() const { return _allocatedBuffer._buffer != nullptr; }
 		static VkVertexInputBindingDescription GetBindingDescription();
-		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
 	private:
 		template <typename T>
 		bool		_SetupBufferCPU_GPU(AllocatedBuffer& buffer, const std::vector<T>& data, int TYPE);

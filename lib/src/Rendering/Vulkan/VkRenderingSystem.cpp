@@ -201,6 +201,7 @@ bool VkRenderingSystem::_SetupDescriptors()
 		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 }
 		,{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 10 }
 		,{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 10 }
+		,{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 10 }
 	};
 
 	VkDescriptorPoolCreateInfo pool_info = {};
@@ -214,19 +215,25 @@ bool VkRenderingSystem::_SetupDescriptors()
 
 
 	//information about the binding.
-	VkDescriptorSetLayoutBinding camBufferBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	VkDescriptorSetLayoutBinding camBufferBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 																							VK_SHADER_STAGE_VERTEX_BIT, 0);
-	VkDescriptorSetLayoutBinding sceneBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+	VkDescriptorSetLayoutBinding sceneBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
 																							VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1);
 
 	_globalSetLayout = _vulkan->CreateDescriporSetLayout({ camBufferBinding,sceneBinding });
 	if (_globalSetLayout == nullptr)
 		return false;
 
-	VkDescriptorSetLayoutBinding objectBinding = _vulkan->CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+	VkDescriptorSetLayoutBinding objectBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 																							VK_SHADER_STAGE_VERTEX_BIT, 0);
 	_objectSetLayout = _vulkan->CreateDescriporSetLayout({ objectBinding });
 	if (_objectSetLayout == nullptr)
+		return false;
+
+	VkDescriptorSetLayoutBinding textureBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+	_textureSetLayout = _vulkan->CreateDescriporSetLayout({ textureBinding });
+	if (_textureSetLayout == nullptr)
 		return false;
 
 	return true;
@@ -265,15 +272,13 @@ bool VkRenderingSystem::_SetupGlobalUniforms()
 		objectInfo.range = sizeof(GPUObjectData)*MAX_OBJECTS;
 
 		std::vector<VkWriteDescriptorSet> setWrites = {
-			_vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _framesData[i].globalDescriptorSet, &binfo, 0),
-			_vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, _framesData[i].globalDescriptorSet, &sceneInfo, 1),
-			_vulkan->CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, _framesData[i].objectDescriptor, &objectInfo, 0)
+			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _framesData[i].globalDescriptorSet, &binfo, 0),
+			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, _framesData[i].globalDescriptorSet, &sceneInfo, 1),
+			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, _framesData[i].objectDescriptor, &objectInfo, 0)
 		};
 
 		vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
 	}
-
-
 
 	return true;
 }
@@ -546,6 +551,7 @@ VkRenderingSystem::~VkRenderingSystem()
 	vkDestroyCommandPool(_vulkan->GetDevice(), _uploadContext._commandPool, nullptr);
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _globalSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _objectSetLayout, nullptr);
+	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _textureSetLayout, nullptr);
 
 	vkDestroyDescriptorPool(_vulkan->GetDevice(), _descriptorPool, nullptr);
 	for (const auto& [_, model] : _staticModels)

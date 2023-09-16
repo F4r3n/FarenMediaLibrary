@@ -92,6 +92,7 @@ namespace fms
 		std::array<FrameData, MAX_FRAMES_IN_FLIGHT>				_framesData;
 		VkDescriptorSetLayout									_globalSetLayout;
 		VkDescriptorSetLayout									_objectSetLayout;
+		VkDescriptorSetLayout									_textureSetLayout;
 
 		VkDescriptorPool										_descriptorPool;
 		GPUSceneData		_sceneParameters;

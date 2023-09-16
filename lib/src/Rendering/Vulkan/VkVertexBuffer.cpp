@@ -39,23 +39,13 @@ VkVertexInputBindingDescription VkVertexBuffer::GetBindingDescription()
 }
 
 
-std::array<VkVertexInputAttributeDescription, 3> VkVertexBuffer::GetAttributeDescriptions()
+std::vector<VkVertexInputAttributeDescription> VkVertexBuffer::GetAttributeDescriptions()
 {
-	std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-	attributeDescriptions[0].binding = 0;
-	attributeDescriptions[0].location = 0;
-	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[0].offset = offsetof(Vertex, position);
-
-	attributeDescriptions[1].binding = 0;
-	attributeDescriptions[1].location = 1;
-	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[1].offset = offsetof(Vertex, normal);
-
-	attributeDescriptions[2].binding = 0;
-	attributeDescriptions[2].location = 2;
-	attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[2].offset = offsetof(Vertex, color);
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions(4);
+	attributeDescriptions[0] = vk_init::CreateVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position));
+	attributeDescriptions[1] = vk_init::CreateVertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal));
+	attributeDescriptions[2] = vk_init::CreateVertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color));
+	attributeDescriptions[3] = vk_init::CreateVertexInputAttributeDescription(0, 3, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv));
 
 	return attributeDescriptions;
 }
@@ -78,11 +68,13 @@ bool VkVertexBuffer::_SetupBufferGPU(AllocatedBuffer& buffer, const std::vector<
 	const size_t bufferSize = inData.size() * sizeof(inData[0]);
 	
 
-	AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+	AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_AUTO,
+		(VmaAllocationCreateFlagBits)(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+		VMA_ALLOCATION_CREATE_MAPPED_BIT));
 	_vulkan->MapBuffer(stagingBuffer, (void*)inData.data(), bufferSize, 0);
 
 
-	buffer = _vulkan->CreateBuffer(bufferSize, TYPE | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+	buffer = _vulkan->CreateBuffer(bufferSize, TYPE | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT);
 
 
 	_submitBuffer([=](VkCommandBuffer cmd) {
