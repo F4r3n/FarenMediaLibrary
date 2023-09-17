@@ -46,6 +46,8 @@ namespace vk_init
 	VkVertexInputAttributeDescription	CreateVertexInputAttributeDescription(uint32_t inBinding, uint32_t inLocation, VkFormat inFormat, uint32_t inOffset);
 	VkDescriptorSetLayoutBinding		CreateDescriptorSetLayoutBinding(VkDescriptorType type, VkShaderStageFlags stageFlags, uint32_t binding);
 	VkWriteDescriptorSet				CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorBufferInfo* bufferInfo, uint32_t binding);
+	VkWriteDescriptorSet				CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo* imageInfo, uint32_t binding);
+
 	VkSamplerCreateInfo					CreateSamplerInfo(VkFilter filters, VkSamplerAddressMode samplerAddressMode);
 	VkWriteDescriptorSet				CreateImageDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo* imageInfo, uint32_t binding);
 

@@ -69,12 +69,11 @@ bool VkVertexBuffer::_SetupBufferGPU(AllocatedBuffer& buffer, const std::vector<
 	
 
 	AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_AUTO,
-		(VmaAllocationCreateFlagBits)(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-		VMA_ALLOCATION_CREATE_MAPPED_BIT));
+		(VmaAllocationCreateFlagBits)(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT));
 	_vulkan->MapBuffer(stagingBuffer, (void*)inData.data(), bufferSize, 0);
 
 
-	buffer = _vulkan->CreateBuffer(bufferSize, TYPE | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT);
+	buffer = _vulkan->CreateBuffer(bufferSize, TYPE | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_AUTO, (VmaAllocationCreateFlagBits)0);
 
 
 	_submitBuffer([=](VkCommandBuffer cmd) {

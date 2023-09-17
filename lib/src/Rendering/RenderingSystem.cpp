@@ -50,7 +50,7 @@ struct PointLight
    fm::math::vec4 custom;
 };
 
-namespace fms 
+namespace fms
 {
 RenderingSystem::RenderingSystem(size_t width, size_t height)
     : _width(width), _height(height)

@@ -974,6 +974,21 @@ namespace vk_init
 		return write;
 	}
 
+	VkWriteDescriptorSet CreateWriteDescriptorSet(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo* bufferInfo, uint32_t binding)
+	{
+		VkWriteDescriptorSet write = {};
+		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		write.pNext = nullptr;
+
+		write.dstBinding = binding;
+		write.dstSet = dstSet;
+		write.descriptorCount = 1;
+		write.descriptorType = type;
+		write.pImageInfo = bufferInfo;
+
+		return write;
+	}
+
 	VkSamplerCreateInfo CreateSamplerInfo(VkFilter filters, VkSamplerAddressMode samplerAddressMode)
 	{
 		VkSamplerCreateInfo info = {};

@@ -41,9 +41,11 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_InitStandardShapes();
 
 	//TODO: TEST
-	fm::VkTexture texture(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); });
-	texture.UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
-	texture.Destroy();
+	//fm::VkTexture texture();
+	//texture.UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
+	auto it = _textures.emplace(0, std::make_unique<fm::VkTexture>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); }));
+	it.first->second->UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
+	//texture.Destroy();
 
 }
 
@@ -396,20 +398,30 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 				itMaterial->second->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 1, 1, &_framesData[_currentFrame].objectDescriptor, 0, nullptr);
+				itMaterial->second->BindSet(commandBuffer);
 			}
 		}
 		else
 		{
-			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(mainMaterial,
-															_vulkan->GetDevice(),
-															_renderPass,
-															_vulkan->GetSwapChainExtent(),
-															std::vector<VkDescriptorSetLayout>{ _globalSetLayout,_objectSetLayout });
+			fm::VkMaterial::VkMaterialCreateInfo materialInfo{};
+			materialInfo.vulkan = _vulkan.get();
+			materialInfo.renderPass = _renderPass;
+			materialInfo.extent = _vulkan->GetSwapChainExtent();
+			materialInfo.descriptorLayout = std::vector<VkDescriptorSetLayout>{ _globalSetLayout,_objectSetLayout };
+			materialInfo.material = mainMaterial;
+			materialInfo.textureLayout = _textureSetLayout;
+			materialInfo.textures.push_back(_textures.find(0)->second.get());
+			//materialInfo.descriptorLayout.push_back(_textureSetLayout);
+
+			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(materialInfo);
+			_materialsToUpdate.emplace_back(mat.get());
+
 			_currentMaterial = _materials.emplace(material->GetID(), std::move(mat)).first->second.get();
-			_currentMaterial->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 1, 1, &_framesData[_currentFrame].objectDescriptor, 0, nullptr);
+
 		}
+
+		if (!_currentMaterial->isReady)
+			continue;
 
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
 		if (mesh->model == nullptr)
@@ -460,6 +472,14 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 		return;
 	_frame++;
 	auto device = _vulkan->GetDevice();
+
+	for (auto& material : _materialsToUpdate)
+	{
+		material->Update(_descriptorPool);
+	}
+	_materialsToUpdate.clear();
+
+
 	vkWaitForFences(device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
@@ -557,6 +577,11 @@ VkRenderingSystem::~VkRenderingSystem()
 	for (const auto& [_, model] : _staticModels)
 	{
 		model->Destroy();
+	}
+
+	for (const auto& [_, texture] : _textures)
+	{
+		texture->Destroy();
 	}
 
 	for (auto& frame : _framesData)

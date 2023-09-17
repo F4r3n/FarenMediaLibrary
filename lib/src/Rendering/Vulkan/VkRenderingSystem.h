@@ -18,6 +18,7 @@ namespace fm
 	class Model;
 	class VkModel;
 	class VkMaterial;
+	class VkTexture;
 }
 
 namespace fms
@@ -105,6 +106,8 @@ namespace fms
 
 		std::map<uint32_t, std::unique_ptr<fm::VkModel>>		_staticModels;
 		std::map<uint32_t, std::unique_ptr<fm::VkMaterial>>		_materials;
+		std::vector< fm::VkMaterial*>							_materialsToUpdate;
+		std::unordered_map<uint32_t, std::unique_ptr<fm::VkTexture>> _textures;
 
 		fm::VkMaterial*				_currentMaterial;
 		uint64_t					_frame = 0;

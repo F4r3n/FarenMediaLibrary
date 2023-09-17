@@ -11,6 +11,7 @@ namespace fm
 		VkTexture(Vulkan* inVulkan, std::function<void(std::function<void(VkCommandBuffer cmd)>)>&& inSubmit);
 		bool UploadImage(const fm::FilePath& inPath);
 		void Destroy();
+		const VkDescriptorImageInfo&	GetDescriptor() const { return _descriptor; }
 	private:
 		Vulkan* _vulkan = nullptr;
 		std::function<void(std::function<void(VkCommandBuffer cmd)>)> _submitBuffer;

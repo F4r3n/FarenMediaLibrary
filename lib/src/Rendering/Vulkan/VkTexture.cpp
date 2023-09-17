@@ -24,8 +24,7 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 	}
 
 	fm::AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(image.GetDataSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_AUTO,
-		(VmaAllocationCreateFlagBits)(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-			VMA_ALLOCATION_CREATE_MAPPED_BIT));
+		(VmaAllocationCreateFlagBits)(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT));
 	_vulkan->MapBuffer(stagingBuffer, (void*)image.getImagePtr(), image.GetDataSize(), 0);
 
 
@@ -45,7 +44,7 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 
 	VmaAllocationCreateInfo dimg_allocinfo = {};
 	dimg_allocinfo.usage = VMA_MEMORY_USAGE_AUTO;
-	dimg_allocinfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+	dimg_allocinfo.flags = 0;
 	
 	vmaCreateImage(_vulkan->GetAllocator(), &dimg_info, &dimg_allocinfo, &newImage._image, &newImage._allocation, nullptr);
 
@@ -136,6 +135,9 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 
 	_vulkan->DestroyBuffer(stagingBuffer);
 	_allocatedImage = newImage;
+	_descriptor.imageLayout = _imageLayout;
+	_descriptor.imageView = _view;
+	_descriptor.sampler = _sampler;
 
 	return true;
 }

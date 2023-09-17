@@ -23,17 +23,14 @@ VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout(const std::vector<VkDe
 	VkPipelineLayout pipelineLayout;
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0; // Optional
-	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+	pipelineLayoutInfo.setLayoutCount = inDescriptorLayouts.size();
+	pipelineLayoutInfo.pSetLayouts = inDescriptorLayouts.data();
 
 	//setup push constants
 	VkPushConstantRange push_constant;
 	push_constant.offset = 0;
 	push_constant.size = sizeof(VkShader::MeshPushConstants);
 
-	//hook the global set layout
-	pipelineLayoutInfo.setLayoutCount = inDescriptorLayouts.size();
-	pipelineLayoutInfo.pSetLayouts = inDescriptorLayouts.data();
 
 	//this push constant range is accessible only in the vertex shader
 	push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;

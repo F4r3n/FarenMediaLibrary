@@ -1,16 +1,24 @@
 #include "VkMaterial.h"
 #include "VkPipelineBuilder.h"
 #include "Rendering/material.hpp"
+#include "Rendering/Vulkan/VkTexture.h"
 using namespace fm;
 
-VkMaterial::VkMaterial(std::shared_ptr<fm::Material> inMaterial,
-	VkDevice inDevice,
-	VkRenderPass inRenderPass,
-	VkExtent2D inExtent,
-	const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts)
+VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
 {
-	_material = inMaterial;
-	_pipeline = std::make_unique<fm::VkPipelineBuilder>(inDevice, inRenderPass, inExtent, inDescriptorLayouts,
+	_textures = inInfo.textures;
+	_material = inInfo.material;
+	_textureLayout = inInfo.textureLayout;
+	_vulkan = inInfo.vulkan;
+	auto layouts = inInfo.descriptorLayout;
+
+	if (!_textures.empty()) //The texture cannot be set during rendering, should wait for next frame
+	{
+		layouts.emplace_back(_textureLayout);
+		isReady = false;
+	}
+
+	_pipeline = std::make_unique<fm::VkPipelineBuilder>(_vulkan->GetDevice(), inInfo.renderPass, inInfo.extent, layouts,
 		_material->GetShader().get());
 }
 
@@ -23,6 +31,28 @@ void VkMaterial::Destroy()
 void VkMaterial::BindPipeline(VkCommandBuffer cmd, VkPipelineBindPoint inType)
 {
 	vkCmdBindPipeline(cmd, inType, _pipeline->GetPipeline());
+}
+
+bool VkMaterial::BindSet(VkCommandBuffer inBuffer)
+{
+	vkCmdBindDescriptorSets(inBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1, &_textureDescriptorSet, 0, nullptr);
+	return true;
+}
+
+
+void VkMaterial::Update(VkDescriptorPool inPool)
+{
+	if (_vulkan->AllocateDescriptorSet(inPool, &_textureDescriptorSet, &_textureLayout))
+	{
+		fm::VkTexture* texture = _textures.front();
+		VkDescriptorImageInfo imageInfo(texture->GetDescriptor());
+		std::vector<VkWriteDescriptorSet> setWrites = {
+			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, _textureDescriptorSet, &imageInfo, 0)
+		};
+		vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
+
+		isReady = true;
+	}
 }
 
 VkPipelineLayout VkMaterial::GetPipelineLayout() const
