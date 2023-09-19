@@ -300,7 +300,7 @@ std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandP
 	return commandBuffers;
 }
 
-bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkRenderPass inRenderPass, EntityManager& em)
+bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFramebuffer inFrameBuffer, VkRenderPass inRenderPass, EntityManager& em)
 {
 	VkCommandBufferBeginInfo beginInfo = vk_init::CreateCommandBufferBeginInfo(0);
 
@@ -311,7 +311,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = inRenderPass;
-	renderPassInfo.framebuffer = _vulkan->GetSwapChainFrameBuffer(imageIndex);
+	renderPassInfo.framebuffer = inFrameBuffer;
 
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = _vulkan->GetSwapChainExtent();
@@ -352,8 +352,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 	camData.FM_PV = projection * view;
 	_vulkan->MapBuffer(_framesData[_currentFrame].globalBuffer, &camData, sizeof(fmc::Shader_data), 0);
 	
-	float framed = (_frame / 120.f);
-	_sceneParameters.ambientColor = { sin(framed),0,cos(framed),1 };
+	_sceneParameters.ambientColor = fm::math::vec4(1,1,1, 1);
 
 	const size_t offset = _vulkan->PadUniformBufferSize(sizeof(GPUSceneData)) * _currentFrame;
 	_vulkan->MapBuffer(_sceneParameterBuffer, &_sceneParameters, sizeof(GPUSceneData), offset);
@@ -398,7 +397,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 				itMaterial->second->BindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 0, 1, &_framesData[_currentFrame].globalDescriptorSet, 1, &uniform_offset);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _currentMaterial->GetPipelineLayout(), 1, 1, &_framesData[_currentFrame].objectDescriptor, 0, nullptr);
-				itMaterial->second->BindSet(commandBuffer);
+				itMaterial->second->BindSet(commandBuffer, _currentFrame);
 			}
 		}
 		else
@@ -411,6 +410,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, uint
 			materialInfo.material = mainMaterial;
 			materialInfo.textureLayout = _textureSetLayout;
 			materialInfo.textures.push_back(_textures.find(0)->second.get());
+			materialInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 			//materialInfo.descriptorLayout.push_back(_textureSetLayout);
 
 			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(materialInfo);
@@ -490,7 +490,7 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 	vkResetFences(device, 1, &_inFlightFences[_currentFrame]);
 
 	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-	_RecordCommandBuffer(_commandBuffers[_currentFrame], imageIndex, _renderPass, manager);
+	_RecordCommandBuffer(_commandBuffers[_currentFrame], _vulkan->GetSwapChainFrameBuffer(imageIndex), _renderPass, manager);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

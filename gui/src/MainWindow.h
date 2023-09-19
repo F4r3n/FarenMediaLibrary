@@ -79,6 +79,8 @@ private:
 	void _AddDock(gui::WINDOWS inWindow, ImGuiID inID);
 	bool IsWindowAvailable(gui::WINDOWS inWindow);
 	void _AfterLoad();
+
+	void _RefreshResources(const fm::FilePath& inPath);
 private:
 	gui::Context						_context;
 	std::shared_ptr<fm::Scene>			_editorScene;

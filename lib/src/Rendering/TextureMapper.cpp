@@ -90,7 +90,7 @@ TextureDef TextureMapper::fillTextureAtlas(Image& image, Recti rect, std::vector
 }
 
 TextureDef TextureMapper::registerTexture(const std::string& path, Recti rect) {
-    Image image;
+    Image image(path);
     if(!image.loadImage(path)) {
         std::cerr << "Error loading image " << path << std::endl;
     }

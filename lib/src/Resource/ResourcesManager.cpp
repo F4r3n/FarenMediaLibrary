@@ -26,6 +26,7 @@ ResourcesManager ResourcesManager::_instance;
 
 ResourcesManager::ResourcesManager() 
 {
+	_loader.Init();
 }
 
 
@@ -207,16 +208,11 @@ void ResourcesManager::_LoadInternalMaterials()
 {
 	Folder materials(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_MATERIALS_LOCATION)));
 
-	materials.Iterate(true, [](const fm::Folder* inFolder, const fm::File* inFile)
+	materials.Iterate(true, [this](const fm::Folder* inFolder, const fm::File* inFile)
 		{
 			if (inFile != nullptr)
 			{
-				if (inFile->GetPath().GetExtension() == ".material")
-				{
-					std::shared_ptr<fm::Material> mat = std::make_shared<fm::Material>(inFile->GetPath());
-					mat->Load();
-					fm::ResourcesManager::get().load<Material>(mat->GetName(), mat);
-				}
+				_loader.Load(inFile->GetPath(), true);
 			}
 		});
 }

@@ -29,7 +29,7 @@
 #include "Window/GLauncher.h"
 
 #include "Resource/ResourcesManager.h"
-
+#include "Resource/ResourceLoader.h"
 #include <imgui/imgui_internal.h>
 #include "Editor.h"
 
@@ -76,7 +76,7 @@ MainWindow::MainWindow()
 
 void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 {
-	Editor::Get().NewProject(fm::Folder(inFilePath));
+	Editor::Get().NewProject(inFilePath);
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->Start();
 	_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->Start();
@@ -86,6 +86,22 @@ void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 	_windows[gui::WINDOWS::WIN_INSPECTOR]->Start();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR]->Start();
 	//_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
+
+	fm::FilePath path(fm::LOCATION::USER_LOCATION, "");
+	_RefreshResources(path);
+}
+
+void MainWindow::_RefreshResources(const fm::FilePath& inPath)
+{
+	fm::Folder folder(inPath);
+	fm::ResourceLoader loader;
+	loader.Init();
+	folder.Iterate(true, [&loader](const fm::Folder* inFolder, const fm::File* inFile) {
+		if (inFile != nullptr)
+		{
+			loader.SaveImport(inFile->GetPath(), false);
+		}
+	});
 }
 
 
@@ -369,7 +385,7 @@ void MainWindow::OnUpdate(bool hasFocus, bool force)
 
 	if (hasFocus && !_hasFocus)
 	{
-		fm::ResourcesManager::get().Reload();
+		//fm::ResourcesManager::get().Reload();
 	}
 	_hasFocus = hasFocus;
 	_needUpdate = false;

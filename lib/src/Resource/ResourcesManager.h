@@ -7,6 +7,7 @@
 #include "Core/FilePath.h"
 #include "Resource/FileSystem.h"
 #include "Rendering/GraphicsAPI.h"
+#include "ResourceLoader.h"
 namespace fm {
   
 class ResourcesManager : protected fm_system::NonCopyable 
@@ -39,6 +40,12 @@ public:
         if(T::getType() > RESOURCE_TYPE::LAST_RESOURCE) return;
         resources[T::getType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(name, resource));
     }
+
+	void load(const std::string& name, std::shared_ptr<Resource> resource)
+	{
+		if (resource->GetType() > RESOURCE_TYPE::LAST_RESOURCE) return;
+		resources[resource->GetType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(name, resource));
+	}
     
     template <typename T>
     std::map<std::string, std::shared_ptr<Resource> >& getAll()
@@ -54,7 +61,7 @@ public:
 	bool LoadFonts();
 
 	void Reload(bool force = false);
- static ResourcesManager& get() {
+	static ResourcesManager& get() {
         return _instance;
     }
 
@@ -64,5 +71,7 @@ private:
 
 	ArrayOfResources resources;
     static ResourcesManager _instance;
+
+	ResourceLoader	_loader;
 };
 }

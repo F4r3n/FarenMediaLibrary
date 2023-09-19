@@ -28,6 +28,8 @@ public:
     virtual ~Shader();
     bool IsReady() const{return _isReady;}
     static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::SHADER;}
+	virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
+
     const std::string& GetName() const{return _name;}
 
 	void Reload(bool force = false) { ; }

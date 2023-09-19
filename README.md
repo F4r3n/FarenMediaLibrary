@@ -57,3 +57,10 @@ The dependencies are all in the folder extlib.
 | FarenEditor | &check;  | &check;  | &check;  | &cross; | &cross; |
 | FarenEngine | &check;  | &check;  | &check;  | &dash; | &dash; |
 
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```

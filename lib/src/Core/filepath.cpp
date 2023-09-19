@@ -105,6 +105,12 @@ std::string	FilePath::GetPathString() const
 	return _path.string();
 }
 
+void FilePath::AddExtension(const std::string& inExtention)
+{
+	auto extension = _path.replace_extension();
+	extension += inExtention;
+}
+
 
 std::string FilePath::GetName(bool withoutExtension) const
 {
@@ -189,11 +195,12 @@ bool Folder::Exist() const
 }
 
 
-void Folder::Iterate(bool recursive, std::function<void(const fm::Folder * inFolder, const fm::File * inFile)>&& inCallback) const
+void Folder::Iterate(bool recursive, const std::function<void(const fm::Folder * inFolder, const fm::File * inFile)>& inCallback) const
 {
 	for (const auto& file : fs::directory_iterator(_path.GetPath(), fs::directory_options::none))
 	{
-		const fm::FilePath currentPath(file.path());
+		fm::FilePath currentPath(file.path());
+		currentPath.SetSystemID(_path.GetFileSystemID());
 		if (file.is_directory())
 		{
 			Folder f(currentPath);
@@ -208,7 +215,7 @@ void Folder::Iterate(bool recursive, std::function<void(const fm::Folder * inFol
 
 		if (recursive && file.is_directory())
 		{
-			Folder(currentPath).Iterate(recursive, std::move(inCallback));
+			Folder(currentPath).Iterate(recursive, inCallback);
 		}
 	}
 }
@@ -309,6 +316,15 @@ std::string File::GetContent() const
 
 	return "";
 }
+
+void File::SetContent(const std::string& inContent) const
+{
+	std::ofstream myfile;
+	myfile.open(_path.GetPathString());
+	myfile << inContent;
+	myfile.close();
+}
+
 
 std::optional<std::vector<char>> File::GetBinaryContent() const
 {

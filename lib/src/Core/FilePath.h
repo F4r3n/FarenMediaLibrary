@@ -37,6 +37,7 @@ namespace fm
 		std::string GetFileSystemPath() const;
 		fm::LOCATION GetFileSystemID() const{ return _fileSystemID; }
 		void SetSystemID(fm::LOCATION inSystemID) { _fileSystemID = inSystemID; }
+		void AddExtension(const std::string& inExtention);
 	private:
 		std::string		_GetName() const;
 
@@ -59,6 +60,7 @@ namespace fm
 		File Rename(const std::string& inNewName) const;
 		bool Exist() const;
 		std::string GetContent() const;
+		void		SetContent(const std::string& inContent) const;
 		File CreateUniqueFile();
 		std::filesystem::file_time_type GetTimeStamp() const;
 		std::optional<std::vector<char>> GetBinaryContent() const;
@@ -77,7 +79,7 @@ namespace fm
 		bool CreateFolder() const;
 		Folder Rename(const std::string& inNewName) const;
 		bool Exist() const;
-		void Iterate(bool recursive, std::function<void(const fm::Folder *inFolder, const fm::File *inFile)>&& inCallback) const;
+		void Iterate(bool recursive, const std::function<void(const fm::Folder *inFolder, const fm::File *inFile)>& inCallback) const;
 
 	private:
 		fm::FilePath _path;

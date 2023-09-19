@@ -18,7 +18,7 @@ OGLTexture::OGLTexture(const std::string& path, Recti rect, bool alpha)
 	else
         _format = Format::RGB;
 
-    Image image;
+    Image image(path);
     if(!image.loadImage(path)) 
 	{
         std::cerr << "Error loading image " << path << std::endl;

@@ -27,6 +27,7 @@ public:
 	Model() = delete;
     ~Model();
     static const fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
+	virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
     void AddMesh(rendering::MeshContainer* inMeshContainer);
 

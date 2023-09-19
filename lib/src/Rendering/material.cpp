@@ -16,11 +16,13 @@ Material::Material(const fm::FilePath& inFilePath)
 	_currentID = _ID;
 }
 
-void Material::Save() const
+void Material::Save(nlohmann::json& outJSON) const
 {
-	nlohmann::json json;
-	json["name"] = _name;
-	json["shaderName"] = _shader != nullptr ? _shader->GetName() : "";
+	fm::Resource::Save(outJSON);
+
+	nlohmann::json params;
+	params["name"] = _name;
+	params["shaderName"] = _shader != nullptr ? _shader->GetName() : "";
 
 	nlohmann::json valuesJSON;
 	for (auto&& value : _properties.GetValues())
@@ -38,34 +40,30 @@ void Material::Save() const
 			valueJSON["value"] = value.materialValue.getFloat();
 		else if (type == fm::ValuesType::VALUE_MATRIX_FLOAT)
 			valueJSON["value"] = value.materialValue.getMatrix();
-		//else if(type == fm::ValuesType::VALUE_TEXTURE)
-		//    valueJSON["value"] = value.materialValue.getTexture();
 		else if (type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
 			valueJSON["value"] = value.materialValue.getVector2();
 		else if (type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
 			valueJSON["value"] = value.materialValue.getVector3();
 		else if (type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
 			valueJSON["value"] = value.materialValue.getVector4();
+				//else if(type == fm::ValuesType::VALUE_TEXTURE)
+		//    valueJSON["value"] = value.materialValue.getTexture();
 		valuesJSON.push_back(valueJSON);
 	}
-	json["materialValues"] = valuesJSON;
-
-	std::ofstream o(_path.GetPath());
-	o  << json << std::endl;
+	params["materialValues"] = valuesJSON;
+	outJSON["params"] = params;
 
 }
 
-void Material::Load()
+void Material::Load(const nlohmann::json& inJSON)
 {
-	std::ifstream i(_path.GetPath());
-	nlohmann::json json;
-	i >> json;
+	fm::Resource::Load(inJSON);
+	nlohmann::json params = inJSON["params"];
 
-
-	_name = json["name"];
-	std::string shaderName = json["shaderName"];
+	_name = params["name"];
+	std::string shaderName = params["shaderName"];
 	_shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
-	nlohmann::json values = json["materialValues"];
+	nlohmann::json values = params["materialValues"];
 	for (nlohmann::json::iterator it = values.begin(); it != values.end(); ++it)
 	{
 		nlohmann::json v = *it;
@@ -84,11 +82,6 @@ void Material::Load()
 			fm::math::mat mat = v["value"];
 			setValue(v["name"], mat);
 		}
-		//else if(type == fm::ValuesType::VALUE_TEXTURE)
-		//{
-		//    fm::TextureMat t = v["value"];
-		//    setValue(v["name"], t);
-		//}
 		else if (type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
 		{
 			fm::math::vec2 c = v["value"];
@@ -104,6 +97,11 @@ void Material::Load()
 			fm::math::vec4 c = v["value"];
 			setValue(v["name"], c);
 		}
+		//else if(type == fm::ValuesType::VALUE_TEXTURE)
+//{
+//    fm::TextureMat t = v["value"];
+//    setValue(v["name"], t);
+//}
 	}
 }
 

@@ -68,7 +68,7 @@ namespace fms
 	private:
 		VkRenderPass				_CreateRenderPass();
 		std::vector<VkCommandBuffer>_CreateCommandBuffers(VkCommandPool inPool);
-		bool						_RecordCommandBuffer(VkCommandBuffer inBuffer, uint32_t imageIndex,
+		bool						_RecordCommandBuffer(VkCommandBuffer inBuffer, VkFramebuffer inFrameBuffer,
 														VkRenderPass inRenderPass, EntityManager& inManager);
 		bool						_SetupSyncObjects();
 		bool						_SetupGlobalUniforms();

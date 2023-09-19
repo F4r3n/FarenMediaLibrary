@@ -16,7 +16,7 @@ VkTexture::VkTexture(Vulkan* inVulkan, std::function<void(std::function<void(VkC
 
 bool VkTexture::UploadImage(const fm::FilePath& inPath)
 {
-	Image image;
+	Image image(inPath);
 	
 	if (!image.loadImage(inPath.GetPathString())) {
 		fm::Debug::get().LogError("Failed to load texture file " + inPath.GetPathString());

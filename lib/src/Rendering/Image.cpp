@@ -2,10 +2,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <cstring>
-
+#include <nlohmann/json.hpp>
 using namespace fm;
-Image::Image()
+Image::Image(const fm::FilePath& inPath) : Resource(inPath)
 {
+	_path = inPath;
 }
 
 Image::~Image()
@@ -60,4 +61,20 @@ bool Image::loadImage(const std::string& path)
 	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
 	if(_pixel == nullptr) return false;
 	return true;
+}
+
+
+void Image::Load(const nlohmann::json& inJSON)
+{
+	Resource::Load(inJSON);
+	_mipmapLevel = inJSON["params"]["mipmapLevel"];
+	_canalNumber = inJSON["params"]["canalNumber"];
+}
+
+void Image::Save(nlohmann::json& outJSON) const
+{
+	Resource::Save(outJSON);
+
+	outJSON["params"]["mipmapLevel"] = _mipmapLevel;
+	outJSON["params"]["canalNumber"] = _canalNumber;
 }

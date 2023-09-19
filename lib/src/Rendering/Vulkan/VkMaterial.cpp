@@ -10,6 +10,7 @@ VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
 	_material = inInfo.material;
 	_textureLayout = inInfo.textureLayout;
 	_vulkan = inInfo.vulkan;
+	_textureDescriptorSets.resize(inInfo.maxFramesInFlight);
 	auto layouts = inInfo.descriptorLayout;
 
 	if (!_textures.empty()) //The texture cannot be set during rendering, should wait for next frame
@@ -33,26 +34,30 @@ void VkMaterial::BindPipeline(VkCommandBuffer cmd, VkPipelineBindPoint inType)
 	vkCmdBindPipeline(cmd, inType, _pipeline->GetPipeline());
 }
 
-bool VkMaterial::BindSet(VkCommandBuffer inBuffer)
+bool VkMaterial::BindSet(VkCommandBuffer inBuffer, uint32_t inFrameNumber)
 {
-	vkCmdBindDescriptorSets(inBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1, &_textureDescriptorSet, 0, nullptr);
+	vkCmdBindDescriptorSets(inBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1, &_textureDescriptorSets[inFrameNumber], 0, nullptr);
 	return true;
 }
 
 
 void VkMaterial::Update(VkDescriptorPool inPool)
 {
-	if (_vulkan->AllocateDescriptorSet(inPool, &_textureDescriptorSet, &_textureLayout))
+	for (auto& descriptorSet : _textureDescriptorSets)
 	{
-		fm::VkTexture* texture = _textures.front();
-		VkDescriptorImageInfo imageInfo(texture->GetDescriptor());
-		std::vector<VkWriteDescriptorSet> setWrites = {
-			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, _textureDescriptorSet, &imageInfo, 0)
-		};
-		vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
+		if (_vulkan->AllocateDescriptorSet(inPool, &descriptorSet, &_textureLayout))
+		{
+			fm::VkTexture* texture = _textures.front();
+			VkDescriptorImageInfo imageInfo(texture->GetDescriptor());
+			std::vector<VkWriteDescriptorSet> setWrites = {
+				vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorSet, &imageInfo, 0)
+			};
+			vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
 
-		isReady = true;
+			isReady = true;
+		}
 	}
+
 }
 
 VkPipelineLayout VkMaterial::GetPipelineLayout() const

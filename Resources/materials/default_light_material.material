@@ -1,1 +1,22 @@
-{"materialValues":[{"name":"mainColor","type":7,"value":{"a":1.0,"b":1.0,"g":1.0,"r":1.0}}],"name":"default_light_material","shaderName":""}
+{
+    "deps": {
+        "path": ""
+    },
+    "params": {
+        "materialValues": [
+            {
+                "name": "mainColor",
+                "type": 7,
+                "value": {
+                    "a": 1.0,
+                    "b": 1.0,
+                    "g": 1.0,
+                    "r": 1.0
+                }
+            }
+        ],
+        "name": "default_light_material",
+        "shaderName": ""
+    }
+
+}

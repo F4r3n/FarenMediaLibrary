@@ -119,6 +119,7 @@ class Material : public Resource
 			_properties.AddValue(name, inMaterialValue);
         }
         static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MATERIAL;}
+		virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
         const std::vector<MaterialProperty>& getValues() const;
 		const MaterialProperties& GetProperties() const { return _properties; }
@@ -132,8 +133,9 @@ class Material : public Resource
 		bool IsReady() const;
 
 
-		virtual void Save() const override;
-		virtual void Load() override;
+		void Save(nlohmann::json& outJSON) const override;
+		void Load(const nlohmann::json& inJSON) override;
+
 
 		uint32_t GetID() const { return _currentID; }
     private:
