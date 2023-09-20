@@ -2,6 +2,7 @@
 #include "Core/application.h"
 #include "Rendering/material.hpp"
 #include "Resource/ResourcesManager.h"
+#include "Rendering/Shader.h"
 #include "nlohmann/json.hpp"
 #include <fstream>
 #include "imgui/imgui.h"
@@ -199,7 +200,7 @@ GFileNavigator::GFileNavigator() : GWindow("File Navigator", true)
 
 void GFileNavigator::_Update(float dt, Context &inContext)
 {
-	_root = fm::Application::Get().GetCurrentConfig().userDirectory;
+	_root = fm::Folder(fm::FilePath(fm::LOCATION::USER_LOCATION, ""));
 	if ((_root.GetPath().GetPath() != _currentFolderSelected.GetPath().GetPath()) && !_currentFolderSelected.Exist())
 	{
 		_currentFolderSelected = _root;
@@ -296,33 +297,33 @@ void GFileNavigator::CustomDraw()
 			ImGui::PopStyleColor();
 		}
 
-		if (ImGui::IsWindowFocused())
+
+		if (ImGui::IsWindowFocused() && ImGui::IsMouseClicked(1))
 		{
-
-			if (ImGui::IsMouseClicked(1))
-			{
-				ImGui::OpenPopup("popup from button");
-
-			}
-			if (ImGui::BeginPopup("popup from button"))
-			{
-				if (ImGui::MenuItem("Create Material"))
-				{
-					fm::FilePath path = fm::FilePath(_currentFolderSelected.GetPath()).ToSub("newMaterial.material");
-					fm::FilePath newFilePath = fm::File(path).CreateUniqueFile().GetPath();
-					std::shared_ptr<fm::Material> material = std::make_shared<fm::Material>(newFilePath.GetName(true), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
-				
-					nlohmann::json j;
-					material->Save(j);
-					std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
-					o << j << std::endl;
-					o.close();
-				
-					fm::ResourcesManager::get().load<fm::Material>(newFilePath, material);
-				}
-				ImGui::EndPopup();
-			}
+			ImGui::OpenPopup("popup from button");
 		}
+
+		if (ImGui::BeginPopup("popup from button"))
+		{
+			if (ImGui::MenuItem("Create Material"))
+			{
+				_listToRefresh.push(_currentFolderSelected.GetPath());
+				
+				fm::FilePath path = fm::FilePath(_currentFolderSelected.GetPath()).ToSub("newMaterial.material");
+				fm::FilePath newFilePath = fm::File(path).CreateUniqueFile().GetPath();
+				std::shared_ptr<fm::Material> material = std::make_shared<fm::Material>(newFilePath);
+			
+				nlohmann::json j;
+				material->Save(j);
+				std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
+				o << j << std::endl;
+				o.close();
+			
+				fm::ResourcesManager::get().load<fm::Material>(newFilePath, material);
+			}
+			ImGui::EndPopup();
+		}
+		
 
 		ImGui::EndChild();
 	}       
