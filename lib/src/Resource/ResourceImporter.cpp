@@ -5,10 +5,10 @@
 #include "Rendering/Image.h"
 #include "Rendering/material.hpp"
 
-using namespace fm;
+template class fm::ResourceObjectImporter<fm::Image>;
+template class fm::ResourceObjectImporter<fm::Material>;
 
-template class ResourceObjectImporter<fm::Image>;
-template class ResourceObjectImporter<fm::Material>;
+using namespace fm;
 
 template <typename T>
 ResourceObjectImporter<T>::ResourceObjectImporter(const std::vector<std::string>& inListExtensions, bool isImportNeeded)
@@ -37,27 +37,27 @@ std::shared_ptr<Resource> ResourceObjectImporter<T>::SaveImport(const fm::FilePa
 	if (!_isImportNeeded)
 		return nullptr;
 
-	std::shared_ptr<T> imagePtr = fm::ResourcesManager::get().getResource<T>(inPath.GetName(false));
-	if (imagePtr == nullptr)
+	std::shared_ptr<T> dataPtr = fm::ResourcesManager::get().getResource<T>(inPath);
+	if (dataPtr == nullptr)
 	{
-		imagePtr = std::make_shared<T>(inPath);
+		dataPtr = std::make_shared<T>(inPath);
 	}
 	fm::FilePath path(inPath.GetPathString() + ".import");
 	fm::File newImportFile(path);
 
 	if (!inForce && newImportFile.Exist())
 	{
-		return imagePtr;
+		return dataPtr;
 	}
 
 	nlohmann::json object;
-	if (imagePtr != nullptr)
+	if (dataPtr != nullptr)
 	{
-		imagePtr->Save(object);
+		dataPtr->Save(object);
 	}
 	newImportFile.SetContent(object.dump());
 
-	return imagePtr;
+	return dataPtr;
 }
 
 
@@ -73,7 +73,7 @@ std::shared_ptr<Resource> ResourceObjectImporter<T>::Load(const fm::FilePath& in
 	if (_isImportNeeded && !fm::File(path).Exist())
 		return nullptr;
 
-	std::shared_ptr<T> data = fm::ResourcesManager::get().getResource<T>(inPath.GetName(!_isImportNeeded));
+	std::shared_ptr<T> data = fm::ResourcesManager::get().getResource<T>(inPath);
 	if (inRegister)
 	{
 		if (data == nullptr)
@@ -84,7 +84,7 @@ std::shared_ptr<Resource> ResourceObjectImporter<T>::Load(const fm::FilePath& in
 			data = std::make_shared<T>(inPath);
 			data->Load(object);
 		}
-		fm::ResourcesManager::get().load<T>(inPath.GetName(!_isImportNeeded), data);
+		fm::ResourcesManager::get().load<T>(inPath, data);
 	}
 
 	return data;

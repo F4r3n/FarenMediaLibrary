@@ -29,6 +29,15 @@ public:
         return std::dynamic_pointer_cast<T>(it->second);
     }
 
+	template <typename T> std::shared_ptr<T> getResource(const fm::FilePath& inPath)
+	{
+		MapOfResources::const_iterator it = resources[T::getType()].find(fm::FileSystem::ConvertPathToFileSystem(inPath));
+		if (it == resources[T::getType()].cend())
+			return nullptr;
+
+		return std::dynamic_pointer_cast<T>(it->second);
+	}
+
     template <typename T> bool Exists(const std::string& name)
 	{
         return resources[T::getType()].find(name) != resources[T::getType()].end();
@@ -45,6 +54,19 @@ public:
 	{
 		if (resource->GetType() > RESOURCE_TYPE::LAST_RESOURCE) return;
 		resources[resource->GetType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(name, resource));
+	}
+
+	template <typename T>
+	void load(const fm::FilePath& inPath, std::shared_ptr<Resource> resource)
+	{
+		if (T::getType() > RESOURCE_TYPE::LAST_RESOURCE) return;
+		resources[T::getType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(fm::FileSystem::ConvertPathToFileSystem(inPath), resource));
+	}
+
+	void load(const fm::FilePath& inPath, std::shared_ptr<Resource> resource)
+	{
+		if (resource->GetType() > RESOURCE_TYPE::LAST_RESOURCE) return;
+		resources[resource->GetType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(fm::FileSystem::ConvertPathToFileSystem(inPath), resource));
 	}
     
     template <typename T>

@@ -385,7 +385,8 @@ void MainWindow::OnUpdate(bool hasFocus, bool force)
 
 	if (hasFocus && !_hasFocus)
 	{
-		//fm::ResourcesManager::get().Reload();
+		fm::FilePath path(fm::LOCATION::USER_LOCATION, "");
+		_RefreshResources(path);
 	}
 	_hasFocus = hasFocus;
 	_needUpdate = false;

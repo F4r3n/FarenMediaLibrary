@@ -4,6 +4,7 @@
 #include "Resource/ResourcesManager.h"
 #include "nlohmann/json.hpp"
 #include <fstream>
+#include "imgui/imgui.h"
 using namespace gui;
 
 
@@ -62,12 +63,6 @@ Node* PathStorage::GetNode(const fm::FilePath &inPath)
 void PathStorage::_GetRelative(const fm::FilePath &inPath, std::string &outRelativePath) const
 {
 	fm::FilePath::GetRelativeFromRoot(_rootpath, inPath, outRelativePath);
-
-	if (!outRelativePath.empty() && outRelativePath.back() != fm::FilePath::GetFolderSeparator())
-	{
-		outRelativePath.push_back(fm::FilePath::GetFolderSeparator());
-	}
-	
 }
 
 
@@ -75,38 +70,40 @@ void PathStorage::_GetRelative(const fm::FilePath &inPath, std::string &outRelat
 
 Node* PathStorage::_GetNode(const std::string &inRelativePath, Node* inCurrentNode)
 {
-	size_t pos = inRelativePath.find_first_of(fm::FilePath::GetFolderSeparator(), 0);
+
+	size_t pos = inRelativePath.find_first_of(fm::FilePath::GetFolderSeparator());
+	std::string name;
 	if (pos != std::string::npos)
 	{
-
-		std::string name = inRelativePath.substr(0, pos);
-		if (!name.empty())
+		name = inRelativePath.substr(0, pos);
+	}
+	if (!name.empty())
+	{
+		for (auto && n : inCurrentNode->nodes)
 		{
-			for (auto && n : inCurrentNode->nodes)
+			if (n.name == name)
 			{
-				if (n.name == name)
-				{
-					std::string p = inRelativePath.substr(pos + 1, inRelativePath.size() - pos - 1);
-					if (!p.empty())
-						return _GetNode(p, &n);
-					else
-						return &n;
-				}
-			}
-		}
-		else
-		{
-			std::string name = inRelativePath.substr(pos);
-
-			for (auto && n : inCurrentNode->nodes)
-			{
-				if (n.name == name)
-				{
+				std::string p = inRelativePath.substr(pos + 1, inRelativePath.size() - pos - 1);
+				if (!p.empty())
+					return _GetNode(p, &n);
+				else
 					return &n;
-				}
 			}
 		}
 	}
+	else
+	{
+		name = inRelativePath;
+
+		for (auto && n : inCurrentNode->nodes)
+		{
+			if (n.name == name)
+			{
+				return &n;
+			}
+		}
+	}
+	
 	return nullptr;
 }
 
@@ -220,7 +217,8 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 		{
 			if (inFile)
 			{
-				_listFiles.emplace_back(inFile->GetPath());
+				if(inFile->GetPath().GetExtension() != ".import")
+					_listFiles.emplace_back(inFile->GetPath());
 			}
 		});
 	}
@@ -248,6 +246,7 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 		if (ImGui::IsItemClicked())
 		{
 			_listToRefresh.push(p);
+			SetPathSelected(p);
 		}
 		if (opened)
 		{
@@ -265,9 +264,14 @@ void GFileNavigator::SetPathSelected(const fm::FilePath& inFilePath)
 }
 
 
+
 void GFileNavigator::CustomDraw()
 {
-	if (ImGui::BeginChild("##folderNavigator", ImVec2(GetSize().x*0.5f, 0), false, ImGuiWindowFlags_NoTitleBar))
+	float h = 200;
+	static float sz1 = GetSize().x * 0.5f;
+	static float sz2 = GetSize().x * 0.5f;
+	Splitter(true, 8.0f, &sz1, &sz2, 8, 8, h);
+	if (ImGui::BeginChild("##folderNavigator", ImVec2(sz1, 0), false, ImGuiWindowFlags_NoTitleBar))
 	{
 		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode());
 	}
@@ -277,12 +281,19 @@ void GFileNavigator::CustomDraw()
 	
 	if (_currentFolderSelected.GetPath().IsValid())
 	{
-		if(ImGui::BeginChild("##files", ImVec2(0, 0), false, ImGuiWindowFlags_NoTitleBar))
+
+		if(ImGui::BeginChild("##files", ImVec2(sz2, 0), false, ImGuiWindowFlags_NoTitleBar))
 		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			for (auto && f : _listFiles)
 			{
-				ImGui::Text(f.GetName(false).c_str());
+				if (ImGui::Button(f.GetName(false).c_str()))
+				{
+
+				}
+				//ImGui::Text(f.GetName(false).c_str());
 			}
+			ImGui::PopStyleColor();
 		}
 
 		if (ImGui::IsWindowFocused())
@@ -295,20 +306,21 @@ void GFileNavigator::CustomDraw()
 			}
 			if (ImGui::BeginPopup("popup from button"))
 			{
-				//if (ImGui::MenuItem("Create Material"))
-				//{
-				//	fm::FilePath newFilePath = fm::FilePath::CreateUniqueFile(_currentFolderSelected, "newMaterial", ".mat");
-				//	fm::Material* material = new fm::Material(newFilePath.GetName(true), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
-				//
-				//	nlohmann::json j;
-				//	material->Serialize(j);
-				//	std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
-				//	o << j << std::endl;
-				//	o.close();
-				//
-				//	fm::ResourcesManager::get().load<fm::Material>(material->GetName(), material);
-				//}
-				//ImGui::EndPopup();
+				if (ImGui::MenuItem("Create Material"))
+				{
+					fm::FilePath path = fm::FilePath(_currentFolderSelected.GetPath()).ToSub("newMaterial.material");
+					fm::FilePath newFilePath = fm::File(path).CreateUniqueFile().GetPath();
+					std::shared_ptr<fm::Material> material = std::make_shared<fm::Material>(newFilePath.GetName(true), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
+				
+					nlohmann::json j;
+					material->Save(j);
+					std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
+					o << j << std::endl;
+					o.close();
+				
+					fm::ResourcesManager::get().load<fm::Material>(newFilePath, material);
+				}
+				ImGui::EndPopup();
 			}
 		}
 

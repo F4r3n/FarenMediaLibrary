@@ -10,9 +10,7 @@ namespace fm
 		Texture() = default;
 		Texture(const fm::FilePath& inPath, const std::string& inName);
 		const fm::FilePath& GetPath() const { return _path; }
-		const std::string& GetName() const { return _name; }
 
-		std::string _name;
 		fm::FilePath _path;
 	};
 }

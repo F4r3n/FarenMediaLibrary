@@ -2,6 +2,7 @@
 #include <string>
 namespace fm
 {
+	//Order cannot be changed
 	enum class LOCATION
 	{
 		INTERNAL_LUA_LOCATION,

@@ -20,7 +20,6 @@ namespace gui
 	private:
 		void _Update(float dt, Context &inContext);
 
-		std::unique_ptr<fm::GameObject> _go;
 		fm::Material*					_material = nullptr;
 	};
 }

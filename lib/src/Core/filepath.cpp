@@ -71,7 +71,7 @@ char FilePath::GetFolderSeparator()
 bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePath &other, std::string &outRelativePath)
 {
 	bool isRoot = false;
-	const std::string rootPath = inRoot.GetPath().string();
+	std::string rootPath = inRoot.GetPathString();
 	const std::string otherPath = other.GetPath().string();
 	if (rootPath.size() < otherPath.size())
 	{
@@ -79,8 +79,9 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 
 		if (isRoot)
 		{
+			rootPath += fm::FilePath::GetFolderSeparator();
 			outRelativePath.clear();
-			outRelativePath.append(otherPath.c_str(), rootPath.size(), otherPath.size() - rootPath.size());
+			outRelativePath.append(otherPath.c_str(), rootPath.size(), (otherPath.size() - rootPath.size()));
 		}
 	}
 
@@ -381,8 +382,7 @@ std::string FileSystem::ConvertFileSystemToPath(fm::LOCATION inLocation, const s
 
 std::string FileSystem::ConvertPathToFileSystem(const fm::FilePath& inPath)
 {
-	std::string path;
-	path += "!" + std::to_string((size_t)inPath.GetFileSystemID()) + "/";
+	std::string path("!" + std::to_string((size_t)inPath.GetFileSystemID()) + "/");
 	fm::FilePath pathFromID = ResourcesManager::get().GetFilePathResource(inPath.GetFileSystemID());
 
 	std::string relative;
