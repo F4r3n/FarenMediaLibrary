@@ -20,13 +20,14 @@
 #if WITH_VULKAN
 #include "Rendering/Vulkan/VkShader.h"
 #endif
-
+#include "ResourceLoader.h"
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
 
 ResourcesManager::ResourcesManager() 
 {
-	_loader.Init();
+	_loader = std::make_unique<fm::ResourceLoader>();
+	_loader->Init();
 }
 
 
@@ -212,7 +213,7 @@ void ResourcesManager::_LoadInternalMaterials()
 		{
 			if (inFile != nullptr)
 			{
-				_loader.Load(inFile->GetPath(), true);
+				_loader->Load(inFile->GetPath(), true);
 			}
 		});
 }

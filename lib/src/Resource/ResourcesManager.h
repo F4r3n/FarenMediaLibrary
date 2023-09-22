@@ -4,12 +4,11 @@
 #include <array>
 #include <memory>
 #include "NonCopyable.h"
-#include "Core/FilePath.h"
 #include "Resource/FileSystem.h"
 #include "Rendering/GraphicsAPI.h"
-#include "ResourceLoader.h"
+
 namespace fm {
-  
+  class ResourceLoader;
 class ResourcesManager : protected fm_system::NonCopyable 
 {
 	typedef std::map<std::string, std::shared_ptr<Resource>> MapOfResources;
@@ -94,6 +93,6 @@ private:
 	ArrayOfResources resources;
     static ResourcesManager _instance;
 
-	ResourceLoader	_loader;
+	std::unique_ptr<ResourceLoader>	_loader;
 };
 }

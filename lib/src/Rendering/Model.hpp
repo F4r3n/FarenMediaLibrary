@@ -1,7 +1,7 @@
 #pragma once
-#include <Resource/Resource.h>
 #include <vector>
 #include <memory>
+#include "Resource/Resource.h"
 #include "Core/Bounds.h"
 #include "GraphicsAPI.h"
 

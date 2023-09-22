@@ -76,9 +76,6 @@ namespace fm
 		bool IsEmpty() const;
 		void Push(Command && inCommand);
 	private:
-
-
 		std::queue<Command> _commands;
-
 	};
 }
