@@ -61,7 +61,19 @@ struct MaterialProperty
 
 class MaterialProperties
 {
+
+	using properties_t = std::vector< MaterialProperty>;
 public:
+	using iterator = properties_t::iterator;
+	using const_iterator = properties_t::const_iterator;
+
+	iterator begin() { return _materialProperties.begin(); }
+	iterator end() { return _materialProperties.end(); }
+	const_iterator begin() const { return _materialProperties.begin(); }
+	const_iterator end() const { return _materialProperties.end(); }
+	const_iterator cbegin() const { return _materialProperties.cbegin(); }
+	const_iterator cend() const { return _materialProperties.cend(); }
+
 	void AddValue(const std::string& name, const fm::MaterialValue &inMaterialValue)
 	{
 		MaterialProperty p(name, inMaterialValue);
@@ -80,8 +92,6 @@ public:
 	{
 		_renderingSettings[inRenderingType] = value;
 	}
-
-	const std::vector< MaterialProperty>& GetValues() const{ return _materialProperties; }
 private:
 	std::unordered_map<fm::RENDERING_TYPE, bool> _renderingSettings;
 	std::vector< MaterialProperty> _materialProperties;
@@ -121,8 +131,7 @@ class Material : public Resource
         static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MATERIAL;}
 		virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
-        const std::vector<MaterialProperty>& getValues() const;
-		const MaterialProperties& GetProperties() const { return _properties; }
+		MaterialProperties& GetProperties() { return _properties; }
 
 
 

@@ -103,102 +103,96 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
             if (ImGui::TreeNode(materialName.c_str()))
             {
                 size_t j = 0;
-                std::vector<fm::MaterialProperty>::const_iterator materialValue = m->getValues().begin();
 				std::string shaderName = m->GetShader()->GetName();
 
-                for (; materialValue != m->getValues().end(); )
+                for (auto& materialProperty : m->GetProperties())
                 {
-#if 1
-					fm::MaterialProperty currentProperty = *materialValue;
-
-                    fm::ValuesType type = currentProperty.materialValue.getType();
+                    fm::ValuesType type = materialProperty.materialValue.getType();
                     const fm::ValuesType ctype = type;
 					std::string currentTypeName = _ValueTypeToName(type);
 
                     static char nameType[256];
-                    memcpy(nameType, currentProperty.name.c_str(), currentProperty.name.length());
+                    memcpy(nameType, materialProperty.name.c_str(), materialProperty.name.length());
                     {
 						size_t t = (size_t)type;
-                        DrawCombo("Type##"+ shaderName + currentProperty.name + std::to_string(j), _typesMaterial, currentTypeName, &t);
+                        DrawCombo("Type##"+ shaderName + materialProperty.name + std::to_string(j), _typesMaterial, currentTypeName, &t);
 						type = (fm::ValuesType)t;
-                        std::string nameTextInput = std::string(nameType) + "##Text"+ shaderName + currentProperty.name + std::to_string(j);
+                        std::string nameTextInput = std::string(nameType) + "##Text"+ shaderName + materialProperty.name + std::to_string(j);
                         if(ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
                         {
-							currentProperty.name.assign(nameType);
+							materialProperty.name = std::string(nameType);
                         }
                     }
 
-                    std::string name = std::string(materialValue->name) + " "+ _ValueTypeToName(type) + "##" + shaderName + materialValue->name;
+                    std::string name = std::string(materialProperty.name) + " "+ _ValueTypeToName(type) + "##" + shaderName + materialProperty.name;
                     name += std::to_string(j);
 
                     if(type == fm::ValuesType::VALUE_COLOR)
                     {
-                        fm::Color c = currentProperty.materialValue.getColor();
+                        fm::Color c = materialProperty.materialValue.getColor();
                         ImGui::PushID(name.c_str());
                         ImGui::ColorEdit3("##", &c.r);
                         ImGui::PopID();
 
-						currentProperty.materialValue = c;
+						materialProperty.materialValue = c;
                     }
                     else if(type == fm::ValuesType::VALUE_INT)
                     {
 
-                        int c = currentProperty.materialValue.getInt();
+                        int c = materialProperty.materialValue.getInt();
                         ImGui::PushID(name.c_str());
                         ImGui::InputInt("##", &c);
                         ImGui::PopID();
 
-						currentProperty.materialValue = c;
+						materialProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_FLOAT)
                     {
 
-                        float c = currentProperty.materialValue.getInt();
+                        float c = materialProperty.materialValue.getInt();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat("##", &c);
                         ImGui::PopID();
-						currentProperty.materialValue = c;
+						materialProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
                     {
 
-                        fm::math::vec2 c = currentProperty.materialValue.getVector2();
+                        fm::math::vec2 c = materialProperty.materialValue.getVector2();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat2("##", &c.x);
                         ImGui::PopID();
 
-						currentProperty.materialValue = c;
+						materialProperty.materialValue = c;
 
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
                     {
 
-                        fm::math::vec3 c = currentProperty.materialValue.getVector3();
+                        fm::math::vec3 c = materialProperty.materialValue.getVector3();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat3("##", &c.x);
                         ImGui::PopID();
 
-						currentProperty.materialValue = c;
+						materialProperty.materialValue = c;
                     }
                     else if(type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
                     {
-                        fm::math::vec4 c = currentProperty.materialValue.getVector4();
+                        fm::math::vec4 c = materialProperty.materialValue.getVector4();
                         ImGui::PushID(name.c_str());
                         ImGui::InputFloat4("##", &c.x);
                         ImGui::PopID();
 
-						currentProperty.materialValue = c;
+						materialProperty.materialValue = c;
                     }
 
-					m->UpdateProperty(j, currentProperty);
+					m->UpdateProperty(j, materialProperty);
 					
 					j++;
-                    materialValue++;
 
                     ImGui::Separator();
-#endif
                 }
 
                 if(ImGui::Button("Add"))

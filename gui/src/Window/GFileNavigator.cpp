@@ -231,6 +231,15 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 
 		_cache.RefreshPath(path);
 	}
+
+	if (_pathSelected.has_value())
+	{
+		if (_pathSelected.value().GetExtension() == ".material")
+		{
+			inContext.currentWindowToDisplay = gui::WINDOWS::WIN_MATERIAL_EDITOR;
+		}
+		_pathSelected = std::nullopt;
+	}
 }
 
 void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode)
@@ -290,7 +299,7 @@ void GFileNavigator::CustomDraw()
 			{
 				if (ImGui::Button(f.GetName(false).c_str()))
 				{
-
+					_pathSelected = f;
 				}
 				//ImGui::Text(f.GetName(false).c_str());
 			}
@@ -320,6 +329,8 @@ void GFileNavigator::CustomDraw()
 				o.close();
 			
 				fm::ResourcesManager::get().load<fm::Material>(newFilePath, material);
+
+				_pathSelected = newFilePath;
 			}
 			ImGui::EndPopup();
 		}

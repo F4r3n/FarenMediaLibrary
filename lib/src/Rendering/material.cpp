@@ -25,7 +25,7 @@ void Material::Save(nlohmann::json& outJSON) const
 	params["shaderName"] = _shader != nullptr ? _shader->GetName() : "";
 
 	nlohmann::json valuesJSON;
-	for (auto&& value : _properties.GetValues())
+	for (auto& value : _properties)
 	{
 		nlohmann::json valueJSON;
 		fm::ValuesType type = value.materialValue.getType();
@@ -106,10 +106,6 @@ void Material::Load(const nlohmann::json& inJSON)
 }
 
 
-const std::vector<MaterialProperty> &Material::getValues() const
-{
-    return _properties.GetValues();
-}
 
 bool Material::IsReady() const
 {

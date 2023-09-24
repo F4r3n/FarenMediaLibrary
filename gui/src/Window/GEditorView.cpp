@@ -234,6 +234,7 @@ void GEditorView::_Update(float dt, Context &inContext)
 			if (_resultPicking)
 			{
 				inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
+				inContext.currentWindowToDisplay = gui::WINDOWS::WIN_LIST_ENTITIES;
 				_resultPicking = false;
 			}
 			_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;

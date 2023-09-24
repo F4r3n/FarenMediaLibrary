@@ -308,7 +308,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				{
 					shader = m->GetShader();
 					shader->Use();
-					for (auto const& value : m->getValues())
+					for (auto const& value : m->GetProperties())
 					{
 						shader->setValue(value.name, value.materialValue);
 					}
@@ -402,14 +402,14 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		cam->_rendererConfiguration.uboLight->Bind();
 		std::dynamic_pointer_cast<fm::OGLShader>(shader)->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
 
-		for (auto const& value : inMaterial->getValues())
+		for (auto const& value : inMaterial->GetProperties())
 		{
 			shader->setValue(value.name, value.materialValue);
 		}
 
 		if (inMaterialProperties != nullptr)
 		{
-			for (auto const& value : inMaterialProperties->GetValues())
+			for (auto const& value : *inMaterialProperties)
 			{
 				shader->setValue(value.name, value.materialValue);
 			}
@@ -583,7 +583,7 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 		wshader->setValue("PM", pm);
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		for (auto const& value : inMaterial->getValues())
+		for (auto const& value : inMaterial->GetProperties())
 		{
 			wshader->setValue(value.name, value.materialValue);
 		}

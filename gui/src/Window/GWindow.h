@@ -51,6 +51,8 @@ namespace gui
 		std::string						currentSceneName;
 		TRANSFORM_CONTEXT				currentTransformContext;
 		WINDOWS							currentWindowFocused;
+
+		std::optional<WINDOWS>			currentWindowToDisplay;
 	};
 
 	class IWidget
@@ -122,6 +124,7 @@ private:
 	bool								  _enableCustomDraw = true;
 	bool								  _modal = false;
 	std::function<void(GWindow*, std::optional<Context>)>	_callBackClosure;
+
 };
 }
 

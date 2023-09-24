@@ -39,6 +39,7 @@ private:
 
 namespace gui
 {
+	class MainWindow;
 	class GListEntities : public GWindow, public fm::Observer
 	{
 	public:

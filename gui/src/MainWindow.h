@@ -40,12 +40,27 @@ class MainWindow : public fm::Observer
 typedef std::unordered_map<gui::WINDOWS, std::unique_ptr<gui::GWindow>> MapOfWindows;
 
 public:
+	enum DOCK_ID
+	{
+		dock_main_id,
+		dock_up_id,
+		dock_right_id,
+		dock_left_id,
+		dock_down_id,
+		dock_left_right_id,
+		dock_down_right_id,
+		LAST
+	};
+
+
     MainWindow();
     ~MainWindow();
 	void OnDraw();
 	void OnUpdate(bool hasFocus, bool force = false);
 	void Init();
 	void LoadProject(const fm::FilePath& inFilePath);
+
+
 protected:
 	virtual void Notify(fm::Observable*, const fm::EventObserver& inEvent) override;
 
@@ -81,7 +96,10 @@ private:
 	void _AfterLoad();
 
 	void _RefreshResources(const fm::FilePath& inPath);
+	void _SetWindowPosition(gui::GWindow* window, DOCK_ID inID);
+
 private:
+	std::unordered_map<DOCK_ID, ImGuiID>_docks;
 	gui::Context						_context;
 	std::shared_ptr<fm::Scene>			_editorScene;
 	MapOfWindows						_windows;
