@@ -2,10 +2,12 @@
 
 #include "Window/GWindow.h"
 #include <memory>
-#include "Rendering/material.hpp"
+#include <vector>
+#include <string>
 namespace fm
 {
 	class GameObject;
+	class Material;
 }
 
 namespace gui
@@ -17,10 +19,12 @@ namespace gui
 		~GMaterialEditor();
 		void CustomDraw();
 
+		static void DrawMaterialInspector(fm::Material* inMaterial);
+		static std::vector<std::string> GetValueTypeNames();
 	private:
 		void _Update(float dt, Context &inContext);
 
-		fm::Material*					_material = nullptr;
+		std::weak_ptr<fm::Material>	_material;
 	};
 }
 

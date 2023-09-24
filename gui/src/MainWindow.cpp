@@ -100,6 +100,7 @@ void MainWindow::_RefreshResources(const fm::FilePath& inPath)
 		if (inFile != nullptr)
 		{
 			loader.SaveImport(inFile->GetPath(), false);
+			loader.Load(inFile->GetPath(), true);
 		}
 	});
 }

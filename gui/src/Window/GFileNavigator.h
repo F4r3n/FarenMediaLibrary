@@ -81,6 +81,10 @@ namespace gui
 
 		std::optional<fm::FilePath> _pathSelected;
 
+		float	_splitter_1 = -1;
+		float	_splitter_2 = -1;
+
+
 		//fm::FilePath
 	};
 }

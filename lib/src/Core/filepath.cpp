@@ -91,6 +91,9 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 
 FilePath& FilePath::ToSub(const std::string& inFolderName)
 {
+	if (inFolderName.empty())
+		return *this;
+
 	_path += GetFolderSeparator() + inFolderName;
 	return *this;
 }

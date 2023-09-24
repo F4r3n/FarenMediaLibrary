@@ -237,6 +237,7 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 		if (_pathSelected.value().GetExtension() == ".material")
 		{
 			inContext.currentWindowToDisplay = gui::WINDOWS::WIN_MATERIAL_EDITOR;
+			inContext.currentPathSelected = _pathSelected;
 		}
 		_pathSelected = std::nullopt;
 	}
@@ -277,11 +278,15 @@ void GFileNavigator::SetPathSelected(const fm::FilePath& inFilePath)
 
 void GFileNavigator::CustomDraw()
 {
-	float h = 200;
-	static float sz1 = GetSize().x * 0.5f;
-	static float sz2 = GetSize().x * 0.5f;
-	Splitter(true, 8.0f, &sz1, &sz2, 8, 8, h);
-	if (ImGui::BeginChild("##folderNavigator", ImVec2(sz1, 0), false, ImGuiWindowFlags_NoTitleBar))
+	if (_splitter_1 == -1)
+		_splitter_1 = GetSize().x * 0.5f;
+
+	if (_splitter_2 == -1)
+		_splitter_2 = GetSize().x * 0.5f;
+	float h = GetSize().y;
+
+	Splitter(true, 8.0f, &_splitter_1, &_splitter_2, 8, 8, h);
+	if (ImGui::BeginChild("##folderNavigator", ImVec2(_splitter_1, 0), false, ImGuiWindowFlags_NoTitleBar))
 	{
 		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode());
 	}
@@ -292,7 +297,7 @@ void GFileNavigator::CustomDraw()
 	if (_currentFolderSelected.GetPath().IsValid())
 	{
 
-		if(ImGui::BeginChild("##files", ImVec2(sz2, 0), false, ImGuiWindowFlags_NoTitleBar))
+		if(ImGui::BeginChild("##files", ImVec2(_splitter_2, 0), false, ImGuiWindowFlags_NoTitleBar))
 		{
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			for (auto && f : _listFiles)

@@ -9,6 +9,7 @@
 #include <queue>
 #include <optional>
 #include "Entity.h"
+#include "Core/FilePath.h"
 
 namespace fm
 {
@@ -53,6 +54,7 @@ namespace gui
 		WINDOWS							currentWindowFocused;
 
 		std::optional<WINDOWS>			currentWindowToDisplay;
+		std::optional<fm::FilePath>		currentPathSelected;
 	};
 
 	class IWidget
