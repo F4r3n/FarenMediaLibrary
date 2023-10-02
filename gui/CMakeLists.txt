@@ -17,6 +17,7 @@ set(SOURCES ${SOURCES}
 	extlib/imgui/imgui_tables.cpp
 	extlib/imgui/imgui_demo.cpp
 	extlib/imgui/imgui_user.cpp
+	extlib/imgui/misc/cpp/imgui_stdlib.cpp
 
 	src/inspector/inspector.cpp
 	src/inspector/materialInspector.cpp

@@ -145,6 +145,7 @@ class Material : public Resource
 		void Save(nlohmann::json& outJSON) const override;
 		void Load(const nlohmann::json& inJSON) override;
 
+		void Save() const override;
 
 		uint32_t GetID() const { return _currentID; }
     private:

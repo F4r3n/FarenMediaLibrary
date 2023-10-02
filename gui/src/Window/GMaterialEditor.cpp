@@ -7,6 +7,7 @@
 #include "Core/application.h"
 #include "Window.h"
 #include <Resource/ResourcesManager.h>
+#include "imgui/misc/cpp/imgui_stdlib.h"
 using namespace gui;
 
 GMaterialEditor::GMaterialEditor() : GWindow("Material Editor", true)
@@ -94,7 +95,6 @@ void GMaterialEditor::DrawMaterialInspector(fm::Material* inMaterial)
 		}
 		else if (type == fm::ValuesType::VALUE_INT)
 		{
-
 			int c = materialProperty.materialValue.getInt();
 			ImGui::PushID(name.c_str());
 			ImGui::InputInt("##", &c);
@@ -105,7 +105,6 @@ void GMaterialEditor::DrawMaterialInspector(fm::Material* inMaterial)
 		}
 		else if (type == fm::ValuesType::VALUE_FLOAT)
 		{
-
 			float c = materialProperty.materialValue.getInt();
 			ImGui::PushID(name.c_str());
 			ImGui::InputFloat("##", &c);
@@ -115,7 +114,6 @@ void GMaterialEditor::DrawMaterialInspector(fm::Material* inMaterial)
 		}
 		else if (type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
 		{
-
 			fm::math::vec2 c = materialProperty.materialValue.getVector2();
 			ImGui::PushID(name.c_str());
 			ImGui::InputFloat2("##", &c.x);
@@ -126,7 +124,6 @@ void GMaterialEditor::DrawMaterialInspector(fm::Material* inMaterial)
 		}
 		else if (type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
 		{
-
 			fm::math::vec3 c = materialProperty.materialValue.getVector3();
 			ImGui::PushID(name.c_str());
 			ImGui::InputFloat3("##", &c.x);
@@ -143,12 +140,23 @@ void GMaterialEditor::DrawMaterialInspector(fm::Material* inMaterial)
 
 			materialProperty.materialValue = c;
 		}
+		else if (type == fm::ValuesType::VALUE_TEXTURE)
+		{
+			fm::TextureMat c = materialProperty.materialValue.getTexture();
+			ImGui::PushID(name.c_str());
+			std::string text = fm::FileSystem::GetRelativePathOfFileSystemPath(c.texture.GetPath());
+			if (ImGui::InputText("##", &text))
+			{
+				c.texture._path = fm::FilePath(fm::LOCATION::USER_LOCATION, text);
+			}
+			ImGui::PopID();
+
+			materialProperty.materialValue = c;
+		}
 
 		inMaterial->UpdateProperty(j, materialProperty);
 
 		j++;
-
-		ImGui::Separator();
 	}
 }
 
@@ -167,6 +175,12 @@ void GMaterialEditor::CustomDraw()
 	if (auto material = _material.lock())
 	{
 		DrawMaterialInspector(material.get());
+
+		if (ImGui::Button("##Save")) {
+			AddEvent([material](gui::GWindow* window, std::optional<gui::Context> context) {
+				material.get()->Save();
+			});
+		}
 	}
 }
 

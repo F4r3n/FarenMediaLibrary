@@ -46,6 +46,8 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
 
 				GMaterialEditor::DrawMaterialInspector(m.get());
 
+				ImGui::Separator();
+
                 if(ImGui::Button("Add"))
                 {
                     m->setValue("NEW", (int)0);

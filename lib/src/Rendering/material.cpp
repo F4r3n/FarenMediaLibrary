@@ -120,5 +120,13 @@ void Material::Compile()
 	}
 }
 
+void Material::Save() const
+{
+	nlohmann::json json;
+	Save(json);
+
+	fm::File file(_path);
+	file.SetContent(json.dump());
+}
 
 

@@ -386,14 +386,18 @@ std::string FileSystem::ConvertFileSystemToPath(fm::LOCATION inLocation, const s
 std::string FileSystem::ConvertPathToFileSystem(const fm::FilePath& inPath)
 {
 	std::string path("!" + std::to_string((size_t)inPath.GetFileSystemID()) + "/");
+	path += GetRelativePathOfFileSystemPath(inPath);
+
+	return path;
+}
+
+std::string FileSystem::GetRelativePathOfFileSystemPath(const fm::FilePath& inPath)
+{
 	fm::FilePath pathFromID = ResourcesManager::get().GetFilePathResource(inPath.GetFileSystemID());
 
 	std::string relative;
 	fm::FilePath::GetRelativeFromRoot(pathFromID, inPath, relative);
 	std::replace(relative.begin(), relative.end(), fm::FilePath::GetFolderSeparator(), '/');
 
-	path += relative;
-
-	return path;
+	return relative;
 }
-
