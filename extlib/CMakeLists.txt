@@ -51,9 +51,10 @@ set(EXTLIB_CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/extlib)
 
 #SDL
 set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
-set(SDL_SHARED ON)
-set(SDL_STATIC OFF)
+set(SDL_SHARED OFF)
+set(SDL_STATIC ON)
 set(SDL_TEST_LIBRARY OFF)
+set(SDL_AUDIO OFF)
 FetchContent_Declare(
   SDL
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
