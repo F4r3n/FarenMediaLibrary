@@ -11,12 +11,7 @@ class CSource : public FMComponent<CSource> {
         CSource(const std::string& path);
         CSource();
         ~CSource();
-        void loadAudio(const std::string& path);
         void play();
-        void setPitch(float pitchValue);
-        void setVolume(float volume);
-        void setLoop(bool loop);
-        AUDIO_STATUS getStatus();
 
         float pitch = 1.0f;
         float volume = 1.0f;
@@ -27,7 +22,6 @@ class CSource : public FMComponent<CSource> {
 
         bool toUpdate = false;
 
-        static const std::string name;
     private:
 };
 }

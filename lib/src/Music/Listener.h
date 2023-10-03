@@ -1,7 +1,6 @@
 #pragma once
-
-
 #include "Core/Math/Vector2.h"
+
 namespace fm {
 	class Listener {
 	public:

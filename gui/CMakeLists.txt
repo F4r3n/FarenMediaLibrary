@@ -64,12 +64,6 @@ include_directories(${bullet_SOURCE_DIR}/src)
 link_directories(${bullet_BINARY_DIR})
 
 
-#OpenAL
-FETCHCONTENT_GETPROPERTIES(OPENAL)
-include_directories(${openal_SOURCE_DIR}/lib/include)
-link_directories(${openal_BINARY_DIR}/lib)
-
-
 #GLEW
 add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
@@ -110,8 +104,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
 target_link_libraries(${PROJECT_NAME} lua)
 target_link_libraries(${PROJECT_NAME} ${BULLET_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} OpenAL)
-
 
 if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")

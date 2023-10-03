@@ -26,11 +26,6 @@ link_directories(${bullet_BINARY_DIR})
 #Opengl
 find_package(OpenGL)
 
-#OpenAL
-FETCHCONTENT_GETPROPERTIES(OPENAL)
-include_directories(${openal_SOURCE_DIR}/lib/include)
-link_directories(${openal_BINARY_DIR}/lib)
-
 #Vulkan
 if(WANT_VULKAN)
         find_package(Vulkan REQUIRED)
@@ -56,8 +51,10 @@ link_directories(${FML_EXTLIB_LIB}/lua)
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} lua ${BULLET_LIBRARIES} OpenAL)
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${BULLET_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} lua )
 if(WANT_VULKAN)
         target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
         target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_VULKAN=1)

@@ -153,7 +153,7 @@ void LuaManager::registerComponents()
 	  "viewPort", &CCamera::GetViewport,
 	  "isOrthographic", &CCamera::IsOrthographic
 	  );
-	lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
+	//lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
 
 	//lua->new_usertype<Body2D>("Body2D",
 	//  "applyForceCenter", &Body2D::ApplyForceCenter2,

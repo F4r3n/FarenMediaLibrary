@@ -30,11 +30,6 @@ link_directories(${bullet_BINARY_DIR})
 #Opengl
 find_package(OpenGL)
 
-#OpenAL
-FETCHCONTENT_GETPROPERTIES(OPENAL)
-include_directories(${openal_SOURCE_DIR}/lib/include)
-link_directories(${openal_BINARY_DIR})
-
 
 #GLEW
 include_directories(${FML_EXTLIB}/glew/include)
@@ -102,7 +97,6 @@ target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} SDL3-static)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} OpenGL::GL )
-target_link_libraries(${LIB_NAME} OpenAL)
 if(WANT_ASSIMP)
 	target_link_libraries(${LIB_NAME} assimp)
 	target_compile_definitions(${LIB_NAME} PRIVATE WITH_ASSIMP=1)
