@@ -10,7 +10,7 @@
 #include <Rendering/Graphics.hpp>
 namespace fm
 {
-class Shader;
+	class Shader;
 }
 
 
@@ -18,89 +18,89 @@ class Shader;
 namespace fm
 {
 
-struct MaterialProperty
-{
-    fm::MaterialValue materialValue;
-	std::string name;
-
-    MaterialProperty()
-    {
-       // materialValue = fm::MaterialValue();
-    }
-
-    fm::MaterialProperty& operator=(fm::MaterialProperty &&m)
-    {
-		name = m.name;
-		materialValue = m.materialValue;
-
-        return *this;
-    }
-
-
-	fm::MaterialProperty& operator=(const fm::MaterialProperty &m)
+	struct MaterialProperty
 	{
-		name = m.name;
-		materialValue = m.materialValue;
+		fm::MaterialValue materialValue;
+		std::string name;
 
-		return *this;
-	}
-
-    MaterialProperty(const fm::MaterialProperty &m)
-    {
-        materialValue.setValue(m.materialValue.getType(), m.materialValue);
-		name = m.name;
-	}
-
-	MaterialProperty(const std::string& inName, const fm::MaterialValue &inMaterialValue)
-	{
-		materialValue = inMaterialValue;
-		name = inName;
-	}
-};
-
-
-class MaterialProperties
-{
-
-	using properties_t = std::vector< MaterialProperty>;
-public:
-	using iterator = properties_t::iterator;
-	using const_iterator = properties_t::const_iterator;
-
-	iterator begin() { return _materialProperties.begin(); }
-	iterator end() { return _materialProperties.end(); }
-	const_iterator begin() const { return _materialProperties.begin(); }
-	const_iterator end() const { return _materialProperties.end(); }
-	const_iterator cbegin() const { return _materialProperties.cbegin(); }
-	const_iterator cend() const { return _materialProperties.cend(); }
-
-	void AddValue(const std::string& name, const fm::MaterialValue &inMaterialValue)
-	{
-		MaterialProperty p(name, inMaterialValue);
-		_materialProperties.push_back(p);
-	}
-
-	void UpdateProperty(size_t index, const fm::MaterialProperty &inProperty)
-	{
-		if (index >= 0 && index < _materialProperties.size())
+		MaterialProperty()
 		{
-			_materialProperties[index] = inProperty;
+			// materialValue = fm::MaterialValue();
 		}
-	}
 
-	void AddSettings(fm::RENDERING_TYPE inRenderingType, bool value)
+		fm::MaterialProperty& operator=(fm::MaterialProperty&& m)
+		{
+			name = m.name;
+			materialValue = m.materialValue;
+
+			return *this;
+		}
+
+
+		fm::MaterialProperty& operator=(const fm::MaterialProperty& m)
+		{
+			name = m.name;
+			materialValue = m.materialValue;
+
+			return *this;
+		}
+
+		MaterialProperty(const fm::MaterialProperty& m)
+		{
+			materialValue.setValue(m.materialValue.getType(), m.materialValue);
+			name = m.name;
+		}
+
+		MaterialProperty(const std::string& inName, const fm::MaterialValue& inMaterialValue)
+		{
+			materialValue = inMaterialValue;
+			name = inName;
+		}
+	};
+
+
+	class MaterialProperties
 	{
-		_renderingSettings[inRenderingType] = value;
-	}
-private:
-	std::unordered_map<fm::RENDERING_TYPE, bool> _renderingSettings;
-	std::vector< MaterialProperty> _materialProperties;
-};
 
-class Material : public Resource
-{
+		using properties_t = std::vector< MaterialProperty>;
+	public:
+		using iterator = properties_t::iterator;
+		using const_iterator = properties_t::const_iterator;
 
-    public:
+		iterator begin() { return _materialProperties.begin(); }
+		iterator end() { return _materialProperties.end(); }
+		const_iterator begin() const { return _materialProperties.begin(); }
+		const_iterator end() const { return _materialProperties.end(); }
+		const_iterator cbegin() const { return _materialProperties.cbegin(); }
+		const_iterator cend() const { return _materialProperties.cend(); }
+
+		void AddValue(const std::string& name, const fm::MaterialValue& inMaterialValue)
+		{
+			MaterialProperty p(name, inMaterialValue);
+			_materialProperties.push_back(p);
+		}
+
+		void UpdateProperty(size_t index, const fm::MaterialProperty& inProperty)
+		{
+			if (index >= 0 && index < _materialProperties.size())
+			{
+				_materialProperties[index] = inProperty;
+			}
+		}
+
+		void AddSettings(fm::RENDERING_TYPE inRenderingType, bool value)
+		{
+			_renderingSettings[inRenderingType] = value;
+		}
+	private:
+		std::unordered_map<fm::RENDERING_TYPE, bool> _renderingSettings;
+		std::vector< MaterialProperty> _materialProperties;
+	};
+
+	class Material : public Resource
+	{
+
+	public:
 
 		Material Clone() const
 		{
@@ -109,33 +109,33 @@ class Material : public Resource
 			mat._shader = _shader;
 			mat._properties = _properties;
 		}
-        Material(const fm::FilePath &inFilePath);
+		Material(const fm::FilePath& inFilePath);
 
-        template <typename T>
-        void setValue(const std::string& name, T value) {
-            fm::MaterialValue materialValue;
-            materialValue = value;
+		template <typename T>
+		void setValue(const std::string& name, T value) {
+			fm::MaterialValue materialValue;
+			materialValue = value;
 
 			_properties.AddValue(name, materialValue);
 
-        }
+		}
 
-		void UpdateProperty(size_t inIndex, const fm::MaterialProperty &inProperty)
+		void UpdateProperty(size_t inIndex, const fm::MaterialProperty& inProperty)
 		{
 			_properties.UpdateProperty(inIndex, inProperty);
 		}
 
-        void setValue(const std::string& name, fm::MaterialValue &inMaterialValue) {
+		void setValue(const std::string& name, fm::MaterialValue& inMaterialValue) {
 			_properties.AddValue(name, inMaterialValue);
-        }
-        static constexpr fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MATERIAL;}
+		}
+		static constexpr fm::RESOURCE_TYPE getType() { return fm::RESOURCE_TYPE::MATERIAL; }
 		virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
 		MaterialProperties& GetProperties() { return _properties; }
 
 
 
-        const std::string& GetName() const {return _name;}
+		const std::string& GetName() const { return _name; }
 		std::shared_ptr<fm::Shader> GetShader() const { return _shader; }
 		void SetShader(std::shared_ptr<fm::Shader> inShader) { _shader = inShader; Compile(); }
 		void Compile();
@@ -147,16 +147,21 @@ class Material : public Resource
 
 		void Save() const override;
 
-		uint32_t GetID() const { return _currentID; }
-    private:
+	private:
 		std::shared_ptr<fm::Shader> _shader;
 
-        std::string _name;
+		std::string _name;
 		MaterialProperties _properties;
 
+	public:
+		uint32_t GetID() const { return _currentID; }
+
+	private:
 		inline static uint32_t _ID = 0;
 		uint32_t	_currentID = 0;
-};
+
+
+	};
 
 
 }

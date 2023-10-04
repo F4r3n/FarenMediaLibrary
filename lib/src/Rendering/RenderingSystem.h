@@ -8,6 +8,7 @@
 #include "Rendering/Graphics.hpp"
 #include "Core/Math/Matrix.h"
 #include "GraphicsAPI.h"
+#include "Rendering/OpenGL/OGLMaterial.hpp"
 #include <memory>
 namespace fmc 
 {
@@ -15,7 +16,6 @@ namespace fmc
 	class CTransform;
 	class CMesh;
 	class CCamera;
-
 }
 
 namespace fm
@@ -29,6 +29,8 @@ namespace fm
 	struct Transform;
 	class Material;
 	class OGLModel;
+	class OGLMaterial;
+	class OGLCamera;
 }
 
 struct TextDef 
@@ -60,7 +62,7 @@ public:
     void _FillQueue(fmc::CCamera* cam, EntityManager& em);
     void _Draw(fmc::CCamera *cam);
 	void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
-	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties = nullptr);
+	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties = nullptr);
 
 	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 	bool _HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
@@ -78,6 +80,10 @@ private:
 
 	TextDef _textdef;
 	GRAPHIC_API _api = GRAPHIC_API::OPENGL;
-	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLModel>> _models;
+	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLModel>>		_models;
+	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLMaterial>>	_materials;
+	fm::OGLMaterial*												_currentMaterial = nullptr;
+	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLCamera>>	_cameras;
+	fm::OGLCamera*													_currentCamera = nullptr;
 };
 }

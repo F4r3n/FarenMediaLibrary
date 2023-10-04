@@ -22,7 +22,7 @@
 #include "Window.h"
 #include "Core/Debug.h"
 #include <cassert>
-#include "Rendering/uniformbuffer.hpp"
+#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 #include "Rendering/material.hpp"
 #include <EntityManager.h>
 
@@ -33,6 +33,8 @@
 #include "Engine.h"
 #include "Rendering/OpenGL/OGLShader.hpp"
 #include "Rendering/OpenGL/OGLModel.hpp"
+#include "Rendering/OpenGL/OGLMaterial.hpp"
+#include "Rendering/OpenGL/OGLCamera.hpp"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -292,7 +294,8 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 {
 	LOG_DEBUG
 	fmc::CameraCommandBuffer::iterator it = currentCamera->_commandBuffers.find(queue);
-
+	_currentCamera = nullptr;
+	_currentMaterial = nullptr;
 	if (it != currentCamera->_commandBuffers.end())
 	{
 		std::queue<fm::CommandBuffer> &cmdBuffers = it->second;
@@ -339,7 +342,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
-				_DrawMesh(currentCamera, cmd._transform, cmd._model.lock().get(), cmd._material.lock().get(), &cmd._materialProperties);
+				_DrawMesh(currentCamera, cmd._transform, cmd._model.lock().get(), cmd._material.lock(), &cmd._materialProperties);
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR)
 			{
@@ -382,22 +385,80 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 	LOG_DEBUG
 }
 
-void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, fm::Material* inMaterial, fm::MaterialProperties *inMaterialProperties)
+void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties)
 {
 	if (!inMaterial->IsReady()) return;
 
+#if 1
+	if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetID())
+	{
+		if (auto it = _materials.find(inMaterial->GetID()); it == _materials.end())
+		{
+			fm::OGLMaterialCreateInfo info;
+			info.material = inMaterial;
+			std::unique_ptr<fm::OGLMaterial> mat = std::make_unique< fm::OGLMaterial>(info);
+			_currentMaterial = _materials.emplace(inMaterial->GetID(), std::move(mat)).first->second.get();
+		}
+		else
+		{
+			_currentMaterial = it->second.get();
+		}
+	}
+
+	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetInstance())
+	{
+		if (auto it = _cameras.find(cam->GetInstance()); it == _cameras.end())
+		{
+			std::unique_ptr<fm::OGLCamera> mat = std::make_unique< fm::OGLCamera>(cam->GetInstance());
+			_currentCamera = _cameras.emplace(cam->GetInstance(), std::move(mat)).first->second.get();
+			_currentCamera->PrepareBuffer(sizeof(fmc::CCamera::shader_data));
+		}
+		else
+		{
+			_currentCamera = it->second.get();
+		}
+		fmc::Shader_data camData;
+		camData.FM_P = cam->GetProjectionMatrix();
+		camData.FM_V = cam->GetViewMatrix();
+		camData.FM_PV = camData.FM_P * camData.FM_V;
+
+		_currentCamera->BindBuffer();
+		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
+	}
+	fm::math::mat modelPosition = inTransform.worldTransform;
+
+	fm::MaterialProperties properties;
+	if (inMaterialProperties != nullptr)
+	{
+		for (const auto& property : *inMaterialProperties)
+		{
+			properties.AddValue(property.name, property.materialValue);
+		}
+	}
+
+	properties.AddValue("FM_M", modelPosition); 
+	_currentMaterial->Bind(properties);
+
+	if (inModel != nullptr)
+	{
+		auto it = _models.find(inModel->GetID());
+		if (it != _models.end())
+		{
+			_graphics.Draw(it->second.get());
+		}
+	}
+#else
 	std::shared_ptr<fm::Shader> shader = inMaterial->GetShader();
 
 	if (shader != nullptr)
 	{
 		shader->Use();
 		shader->setValue("FM_PV", cam->shader_data.FM_PV);
-		shader->setValue("lightNumber", _lightNumber);
-		shader->setValue("viewPos", inTransform.position);
 		fm::math::mat modelPosition = inTransform.worldTransform;
-
 		shader->setValue("FM_PVM", cam->shader_data.FM_PV * modelPosition);
 		shader->setValue("FM_M", modelPosition);
+		shader->setValue("lightNumber", _lightNumber);
+		shader->setValue("viewPos", inTransform.position);
 
 		cam->_rendererConfiguration.uboLight->Bind();
 		std::dynamic_pointer_cast<fm::OGLShader>(shader)->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
@@ -423,6 +484,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 			}
 		}
 	}
+#endif
 }
 
 
@@ -431,7 +493,8 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 {
 
     fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
+	_currentMaterial = nullptr;
+	_currentCamera = nullptr;
     while(!cam->_rendererConfiguration.queue.Empty())
     {
         const fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
@@ -456,7 +519,7 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 			{
 				for (const auto& m : *materials)
 				{
-					_DrawMesh(cam, transform, wModel.get(), m.get());
+					_DrawMesh(cam, transform, wModel.get(), m);
 				}
 			}
 

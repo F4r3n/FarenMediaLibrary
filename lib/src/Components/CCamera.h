@@ -1,6 +1,6 @@
 #pragma once
 #include "component.h"
-#include "Rendering/commandBuffer.hpp"
+#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 
 #include "Core/Math/Matrix.h"
 #include "Core/Rect.h"
@@ -9,95 +9,92 @@
 #include "Core/Bounds.h"
 #include <mutex>
 
-namespace fm 
+namespace fm
 {
 	class RenderTexture;
 	struct Transform;
 	class UniformBuffer;
+	class CommandBuffer;
 }
 
-namespace fms 
+namespace fms
 {
-class RenderingSystem;
+	class RenderingSystem;
 }
-namespace fmc 
+namespace fmc
 {
 
-enum class RENDER_MODE 
-{
-    FORWARD,
-    DEFERRED
+	enum class RENDER_MODE
+	{
+		FORWARD,
+		DEFERRED
+	};
 
-};
+	struct Shader_data
+	{
+		fm::math::mat FM_V;
+		fm::math::mat FM_P;
+		fm::math::mat FM_PV;
+	};
 
-struct Shader_data 
-{
-        fm::math::mat FM_V;
-        fm::math::mat FM_P;
-        fm::math::mat FM_PV;
-};
+	struct RendererConfiguration
+	{
+		bool isInit = false;
+		const GLuint bindingPointIndex = 2;
+		GLuint generatedBlockBinding;
+		fm::RenderQueue queue;
 
-struct RendererConfiguration
-{
-	bool isInit = false;
-	const GLuint bindingPointIndex = 2;
-	GLuint generatedBlockBinding;
-	fm::RenderQueue queue;
+		bool blendingMode = false;
+		int queuePreviousValue = 0;
 
-	bool blendingMode = false;
-	int queuePreviousValue = 0;
+		fm::RenderTexture lightRenderTexture;
+		fm::RenderTexture postProcessRenderTexture;
 
-	fm::RenderTexture lightRenderTexture;
-	fm::RenderTexture postProcessRenderTexture;
+		fm::Bounds bounds;
+		std::unique_ptr<fm::OGLUniformbuffer> uboLight;
+	};
 
-	fm::Bounds bounds;
-	std::unique_ptr<fm::UniformBuffer> uboLight;
-};
+	typedef std::unordered_map<fm::RENDER_QUEUE, std::queue<fm::CommandBuffer>> CameraCommandBuffer;
 
-typedef std::unordered_map<fm::RENDER_QUEUE, std::queue<fm::CommandBuffer>> CameraCommandBuffer;
-
-class CCamera : public FMComponent<CCamera> 
-{
-    public:
-        friend class fms::RenderingSystem;
+	class CCamera : public FMComponent<CCamera>
+	{
+	public:
+		friend class fms::RenderingSystem;
 
 		CCamera();
-        CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
-        ~CCamera();
+		CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
+		~CCamera();
+
+		bool Serialize(nlohmann::json& ioJson) const override;
+		bool Read(const nlohmann::json& inJSON) override;
+		uint16_t GetType() const override { return kCamera; }
+
+		void SetNewProjection(int width, int height);
+		void UpdateRenderTexture();
+		void SetNewViewPort(int x, int y, int width, int height);
+		void Init();
 
 
-
-        bool Serialize(nlohmann::json &ioJson) const override;
-        bool Read(const nlohmann::json &inJSON) override;
-		uint16_t GetType() const override {return kCamera;}
-
-        void SetNewProjection(int width, int height);
-        void UpdateRenderTexture();
-        void SetNewViewPort(int x, int y, int width, int height);
-        void Init();
-
-
-
-        Shader_data shader_data;
-        const fm::RenderTexture &getInternalRenderTexture() const {return _renderTexture;}
+		Shader_data shader_data;
+		const fm::RenderTexture& getInternalRenderTexture() const { return _renderTexture; }
 		bool IsInit() { return _renderTexture.isCreated() && _isInit; }
-		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer &inCommandBuffer);
+		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer& inCommandBuffer);
 
-		void SetCallBackOnStartRendering(std::function<void()> && inCallback) { _onStartRendering = inCallback; }
-		void SetCallBackOnPostRendering(std::function<void()> && inCallback) { _onPostRendering = inCallback; }
+		void SetCallBackOnStartRendering(std::function<void()>&& inCallback) { _onStartRendering = inCallback; }
+		void SetCallBackOnPostRendering(std::function<void()>&& inCallback) { _onPostRendering = inCallback; }
 
 		void UpdateProjectionMatrix();
-		void UpdateViewMatrix(const fm::Transform &inTransform);
+		void UpdateViewMatrix(const fm::Transform& inTransform);
 		void UpdateShaderData();
 
 		const fm::Rect<int>& GetViewport()const { return _viewPort; }
 		const fm::math::mat& GetProjectionMatrix()const { return _projection; }
 		const fm::math::mat& GetViewMatrix() const { return _viewMatrix; }
 		const RendererConfiguration& GetRendererConfig() const { return _rendererConfiguration; }
-		void InitRenderConfig(const fm::Transform &inTransform, size_t sizeBytesLight);
+		void InitRenderConfig(const fm::Transform& inTransform, size_t sizeBytesLight);
 		void InitUniformBuffer();
 		void UpdateUniformBufferCamera();
-		void UpdateRenderConfigBounds(const fm::Transform &inTransform);
+		void UpdateRenderConfigBounds(const fm::Transform& inTransform);
 
 		const fm::RenderTexture& GetRenderTexture() const { return _renderTexture; }
 		float GetFOV() const { return _fovy; }
@@ -111,13 +108,13 @@ class CCamera : public FMComponent<CCamera>
 		void SetNearPlane(float inValue) { _nearPlane = inValue; }
 		void SetOrthoGraphic(bool value) { _isOrto = value; }
 
-		std::shared_ptr<fm::RenderTexture> SetTarget(fm::RenderTexture *inRenderTexture = nullptr);
+		std::shared_ptr<fm::RenderTexture> SetTarget(fm::RenderTexture* inRenderTexture = nullptr);
 		std::shared_ptr<fm::RenderTexture> SetTarget(const fm::RenderTexture& inRenderTexture);
 
 		std::shared_ptr<fm::RenderTexture> GetTarget() const { return _target; }
 		bool HasTarget() const { return _target != nullptr; }
 		fm::math::mat GetOrthographicProjectionForText() const;
-    private:
+	private:
 		std::shared_ptr<fm::RenderTexture> _target = nullptr;
 
 		std::function<void()> _onStartRendering = nullptr;
@@ -127,14 +124,14 @@ class CCamera : public FMComponent<CCamera>
 		void _InitRenderTexture();
 		RendererConfiguration	_rendererConfiguration;
 
-        fm::RenderTexture		_renderTexture;
-        bool					_isOrto;
-        float					_farPlane;
-        float					_nearPlane;
-        int						_multiSampled;
-        size_t					_width;
-        size_t					_height;
-        float					_fovy;
+		fm::RenderTexture		_renderTexture;
+		bool					_isOrto;
+		float					_farPlane;
+		float					_nearPlane;
+		int						_multiSampled;
+		size_t					_width;
+		size_t					_height;
+		float					_fovy;
 		bool					_isAuto;
 
 		CameraCommandBuffer		_commandBuffers;
@@ -143,5 +140,12 @@ class CCamera : public FMComponent<CCamera>
 		fm::Rect<int>			_viewPort;
 		fm::math::mat			_projection;
 		fm::math::mat			_viewMatrix;
-};
+
+	public:
+		uint32_t GetInstance() const { return _currentID; }
+
+	private:
+		inline static uint32_t _ID = 0;
+		uint32_t	_currentID = 0;
+	};
 }

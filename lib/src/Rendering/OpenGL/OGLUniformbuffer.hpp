@@ -1,5 +1,4 @@
-#ifndef UNIFORMBUFFER_HPP
-#define UNIFORMBUFFER_HPP
+#pragma once
 #include <cstddef>
 #include <string>
 namespace fm {
@@ -7,11 +6,11 @@ class Shader;
 }
 namespace fm
 {
-class UniformBuffer
+class OGLUniformbuffer
 {
     public:
-        UniformBuffer();
-        ~UniformBuffer();
+		OGLUniformbuffer();
+        ~OGLUniformbuffer();
         void Generate(size_t size, int indexBuffer);
         void SetData(void *data, size_t size) const;
         void LinkWithShader(Shader *shader, int index, const std::string &name) const;
@@ -24,5 +23,4 @@ class UniformBuffer
 };
 }
 
-#endif // UNIFORMBUFFER_HPP
 

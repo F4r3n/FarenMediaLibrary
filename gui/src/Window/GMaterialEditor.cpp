@@ -8,6 +8,8 @@
 #include "Window.h"
 #include <Resource/ResourcesManager.h>
 #include "imgui/misc/cpp/imgui_stdlib.h"
+#include "Rendering/MaterialValue.h"
+#include "Rendering/material.hpp"
 using namespace gui;
 
 GMaterialEditor::GMaterialEditor() : GWindow("Material Editor", true)

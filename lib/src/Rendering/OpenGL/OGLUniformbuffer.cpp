@@ -1,4 +1,4 @@
-#include "Rendering/uniformbuffer.hpp"
+#include "OGLUniformbuffer.hpp"
 #include "Rendering/Shader.h"
 #include "Rendering/OpenGL/OGLShader.hpp"
 #include <Core/Debug.h>
@@ -6,12 +6,12 @@
 
 using namespace fm;
 
-UniformBuffer::UniformBuffer() {}
+OGLUniformbuffer::OGLUniformbuffer() {}
 
-UniformBuffer::~UniformBuffer() {}
+OGLUniformbuffer::~OGLUniformbuffer() {}
 
 
-void UniformBuffer::Generate(size_t size, int indexBuffer)
+void OGLUniformbuffer::Generate(size_t size, int indexBuffer)
 {
     _bindingPoint = indexBuffer;
     glGenBuffers(1, &_ubo);
@@ -23,24 +23,24 @@ void UniformBuffer::Generate(size_t size, int indexBuffer)
     fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
 
-void UniformBuffer::Bind() const
+void OGLUniformbuffer::Bind() const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, _ubo);
 }
 
-void UniformBuffer::SetData(void *data, size_t size) const
+void OGLUniformbuffer::SetData(void *data, size_t size) const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, _ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::LinkWithShader(Shader *shader, int index, const std::string &name) const
+void OGLUniformbuffer::LinkWithShader(Shader *shader, int index, const std::string &name) const
 {
     dynamic_cast<OGLShader*>(shader)->SetUniformBuffer(name, _bindingPoint);
 }
 
-void UniformBuffer::Free()
+void OGLUniformbuffer::Free()
 {
     glDeleteBuffers(1, &_ubo);
 }

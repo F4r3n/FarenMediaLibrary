@@ -11,6 +11,7 @@
 #include "Components/CMesh.h"
 #include "Components/CMaterial.h"
 #include "Rendering/Graphics.hpp"
+#include "Rendering/commandBuffer.hpp"
 
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :

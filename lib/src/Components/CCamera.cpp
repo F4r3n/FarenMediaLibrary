@@ -3,10 +3,11 @@
 #include <EntityManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
-#include "Rendering/uniformbuffer.hpp"
+#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 #include "Rendering/Shader.h"
 #include <Core/Debug.h>
 #include "Rendering/OpenGL/OGLShader.hpp"
+#include "Rendering/commandBuffer.hpp"
 using namespace fmc;
 using namespace fm;
 
@@ -25,6 +26,8 @@ CCamera::CCamera()
 	_multiSampled = 0;
 
 	_isInit = false;
+	_ID++;
+	_currentID = _ID;
 }
 
 CCamera::CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
@@ -41,6 +44,8 @@ _isAuto(isAuto),
 _target(nullptr)
 {
 	_name = "Camera";
+	_ID++;
+	_currentID = _ID;
 }
 
 CCamera::~CCamera()
@@ -217,7 +222,7 @@ void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeByte
 
 	if ( !_rendererConfiguration.isInit)
 	{
-		_rendererConfiguration.uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
+		_rendererConfiguration.uboLight = std::make_unique<fm::OGLUniformbuffer>(fm::OGLUniformbuffer());
 		//_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
 		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2);
 		UpdateViewMatrix(inTransform);

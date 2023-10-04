@@ -17,6 +17,7 @@
 #include "Components/CTransform.h"
 #include "Components/CIdentity.h"
 #include "VkTexture.hpp"
+#include "Rendering/material.hpp"
 
 using namespace fms;
 

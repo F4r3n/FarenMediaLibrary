@@ -10,7 +10,8 @@
 #include "Components/CMaterial.h"
 #include "Components/CMesh.h"
 #include "Rendering/Shader.h"
-
+#include "Rendering/material.hpp"
+#include "Rendering/commandBuffer.hpp"
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
