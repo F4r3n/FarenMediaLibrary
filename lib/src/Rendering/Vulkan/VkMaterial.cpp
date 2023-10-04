@@ -1,7 +1,7 @@
-#include "VkMaterial.h"
-#include "VkPipelineBuilder.h"
+#include "VkMaterial.hpp"
+#include "VkPipelineBuilder.hpp"
 #include "Rendering/material.hpp"
-#include "Rendering/Vulkan/VkTexture.h"
+#include "Rendering/Vulkan/VkTexture.hpp"
 using namespace fm;
 
 VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)

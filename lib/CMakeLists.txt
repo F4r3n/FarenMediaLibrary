@@ -97,6 +97,7 @@ target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} SDL3-static)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} OpenGL::GL )
+
 if(WANT_ASSIMP)
 	target_link_libraries(${LIB_NAME} assimp)
 	target_compile_definitions(${LIB_NAME} PRIVATE WITH_ASSIMP=1)

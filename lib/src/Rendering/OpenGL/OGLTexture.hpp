@@ -3,6 +3,8 @@
 #include <Core/Config.h>
 #include "Core/Rect.h"
 #include <nlohmann/json_fwd.hpp>
+#include "GL/glew.h"
+
 namespace fm {
 
 	class Image;

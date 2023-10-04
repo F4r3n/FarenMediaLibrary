@@ -17,11 +17,6 @@ set(FML_EXTLIB ${FML_PATH}/extlib)
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 set(FML_LIB_PATH ${CMAKE_BINARY_DIR})
 
-#Bullet
-set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
-FETCHCONTENT_GETPROPERTIES(BULLET)
-include_directories(${bullet_SOURCE_DIR}/src)
-link_directories(${bullet_BINARY_DIR})
 
 #Opengl
 find_package(OpenGL)
@@ -36,6 +31,11 @@ endif(WANT_VULKAN)
 FETCHCONTENT_GETPROPERTIES(SDL)
 include_directories(${sdl_SOURCE_DIR}/include)
 link_directories(${sdl_BINARY_DIR})
+
+#GLSLANG
+FETCHCONTENT_GETPROPERTIES(GLSLANG)
+include_directories(${glslang_SOURCE_DIR}/include)
+link_directories(${glslang_BINARY_DIR})
 
 #JSON
 include_directories(${FML_EXTLIB}/json/include)
@@ -52,11 +52,8 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${BULLET_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} lua )
+
 if(WANT_VULKAN)
-        target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
         target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_VULKAN=1)
 endif(WANT_VULKAN)
 

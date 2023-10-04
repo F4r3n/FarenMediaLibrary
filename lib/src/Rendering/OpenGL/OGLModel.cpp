@@ -1,4 +1,4 @@
-#include "OGLModel.h"
+#include "OGLModel.hpp"
 #include "Rendering/Model.hpp"
 #include "OGLVertexBuffer.hpp"
 using namespace fm;

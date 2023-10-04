@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "Rendering/OpenGL/OGLTexture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 
 #define MAXWIDTH 512
 using namespace fm;

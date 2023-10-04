@@ -92,6 +92,15 @@ FetchContent_Declare(
 )
 FETCHCONTENT_MAKEAVAILABLE(VMA)
 
+#GLSLANG
+set(ENABLE_CTEST OFF)
+FetchContent_Declare(
+  GLSLANG
+  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+  GIT_TAG        f1cb8608b390a7f51b4ae0d62cd415ba47a59b86
+)
+FETCHCONTENT_MAKEAVAILABLE(GLSLANG)
+
 
 foreach(TARGET freetype2 lua glew)
 

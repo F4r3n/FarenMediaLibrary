@@ -1,7 +1,9 @@
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/Shader.h"
-#include "Rendering/OpenGL/OGLShader.h"
+#include "Rendering/OpenGL/OGLShader.hpp"
 #include <Core/Debug.h>
+#include "GL/glew.h"
+
 using namespace fm;
 
 UniformBuffer::UniformBuffer() {}

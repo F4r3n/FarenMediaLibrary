@@ -1,6 +1,7 @@
 #include <Rendering/VertexBuffer.hpp>
 #include "Rendering/OpenGL/OGLVertexBuffer.hpp"
 #include <Core/Config.h>
+#include <GL/glew.h>
 using namespace fm;
 using namespace rendering;
 OGLVertextBuffer::OGLVertextBuffer()

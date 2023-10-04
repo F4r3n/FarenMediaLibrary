@@ -3,7 +3,7 @@
 #include <Rendering/OpenGL/OGLGraphicsDef.hpp>
 #include "Rendering/Model.hpp"
 #include "Rendering/VertexBuffer.hpp"
-#include "Rendering/OpenGL/OGLModel.h"
+#include "Rendering/OpenGL/OGLModel.hpp"
 using namespace fm;
 using namespace rendering;
 Graphics::Graphics()

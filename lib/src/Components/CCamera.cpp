@@ -6,7 +6,7 @@
 #include "Rendering/uniformbuffer.hpp"
 #include "Rendering/Shader.h"
 #include <Core/Debug.h>
-#include "Rendering/OpenGL/OGLShader.h"
+#include "Rendering/OpenGL/OGLShader.hpp"
 using namespace fmc;
 using namespace fm;
 

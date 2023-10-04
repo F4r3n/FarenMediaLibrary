@@ -16,9 +16,9 @@
 #elif __linux__
 #include <cstdlib>
 #endif
-#include "Rendering/OpenGL/OGLShader.h"
+#include "Rendering/OpenGL/OGLShader.hpp"
 #if WITH_VULKAN
-#include "Rendering/Vulkan/VkShader.h"
+#include "Rendering/Vulkan/VkShader.hpp"
 #endif
 #include "ResourceLoader.h"
 using namespace fm;

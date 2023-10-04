@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/Math/Vector2.h>
-#include "Rendering/Vulkan/Vulkan.h"
+#include "Rendering/Vulkan/Vulkan.hpp"
 #include <array>
 #include "Rendering/Mesh.hpp"
 #include "Rendering/VertexBuffer.hpp"

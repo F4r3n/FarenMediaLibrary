@@ -1,4 +1,4 @@
-#include "Rendering/Vulkan/VkTexture.h"
+#include "Rendering/Vulkan/VkTexture.hpp"
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
 #include "Rendering/Image.h"

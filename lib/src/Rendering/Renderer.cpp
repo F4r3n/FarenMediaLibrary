@@ -1,7 +1,7 @@
 #include "Rendering/Renderer.h"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
-#include "Rendering/OpenGL/OGLTexture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Model.hpp"

@@ -28,7 +28,7 @@ namespace fm
 		static constexpr fm::RESOURCE_TYPE getType() { return fm::RESOURCE_TYPE::FONT; }
 		virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
-		std::unordered_map<GLchar, Character> Characters;
+		std::unordered_map<char, Character> Characters;
 
 		fm::OGLTexture* texture;
 		//GLuint tex;

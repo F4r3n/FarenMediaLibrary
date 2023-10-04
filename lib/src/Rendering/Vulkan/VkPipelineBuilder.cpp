@@ -1,6 +1,6 @@
-#include "VkPipelineBuilder.h"
+#include "VkPipelineBuilder.hpp"
 #include "Rendering/Shader.h"
-#include "Rendering/Vulkan/VkShader.h"
+#include "Rendering/Vulkan/VkShader.hpp"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 using namespace fm;
 

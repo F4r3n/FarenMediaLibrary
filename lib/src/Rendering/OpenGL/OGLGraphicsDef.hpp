@@ -1,5 +1,6 @@
 #pragma once
-#include <Core/Config.h>
+#include "GL/glew.h"
+
 namespace fm {
    const static unsigned int renderingType[] = {
        GL_BLEND,

@@ -1,6 +1,6 @@
 #include "Rendering/commandBuffer.hpp"
 #include "Rendering/RenderTexture.h"
-#include "Rendering/OpenGL/OGLTexture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 
 using namespace fm;
 CommandBuffer::CommandBuffer()

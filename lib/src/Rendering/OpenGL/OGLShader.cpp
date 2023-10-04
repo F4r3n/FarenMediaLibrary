@@ -2,7 +2,9 @@
 #include <iostream>
 #include "Rendering/MaterialValue.h"
 #include "Core/Color.h"
-#include "OGLShader.h"
+#include "OGLShader.hpp"
+#include "GL/glew.h"
+
 using namespace fm;
 
 OGLShader::OGLShader() :Shader() {

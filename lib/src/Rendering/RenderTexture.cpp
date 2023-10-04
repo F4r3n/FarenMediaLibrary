@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cassert>
 #include "Core/Debug.h"
+#include "GL/glew.h"
+
 using namespace fm;
 
 RenderTexture::RenderTexture(size_t width, size_t height,

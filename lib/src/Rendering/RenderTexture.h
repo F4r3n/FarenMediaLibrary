@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Config.h>
-#include "Rendering/OpenGL/OGLTexture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 
 namespace fm 
 {

@@ -4,7 +4,7 @@
 #include <vector>
 #include "vulkan/vulkan.h"
 #include "Window.h"
-#include "Rendering/Vulkan/VkPipelineBuilder.h"
+#include "Rendering/Vulkan/VkPipelineBuilder.hpp"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include "Rendering/GraphicsAPI.h"
 #include "Core/Math/Matrix.h"

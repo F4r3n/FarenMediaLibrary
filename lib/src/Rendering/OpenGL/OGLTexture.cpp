@@ -1,11 +1,11 @@
 #include <nlohmann/json.hpp>
-#include "Rendering/OpenGL/OGLTexture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 #include "Rendering/Image.h"
-
+#include <GL/glew.h>
 using namespace fm;
 
 

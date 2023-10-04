@@ -16,12 +16,9 @@
 #include "Core/GameObject.h"
 #include "Physic/PhysicSystem.h"
 #include "Components/cevent.hpp"
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
 #include "Components/CIdentity.h"
 #if WITH_VULKAN
-#include "Rendering/Vulkan/VkRenderingSystem.h"
+#include "Rendering/Vulkan/VkRenderingSystem.hpp"
 #endif
 using namespace fm;
 

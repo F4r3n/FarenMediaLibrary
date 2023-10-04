@@ -1,22 +1,22 @@
-#include "Rendering/Vulkan/VkRenderingSystem.h"
-#include "Rendering/Vulkan/Vulkan.h"
+#include "Rendering/Vulkan/VkRenderingSystem.hpp"
+#include "Rendering/Vulkan/Vulkan.hpp"
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
-#include "Rendering/Vulkan/VkShader.h"
+#include "Rendering/Vulkan/VkShader.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/StandardShapes.h"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include "Rendering/meshloader.hpp"
 #include "Components/CCamera.h"
-#include "VkModel.h"
-#include "VkMaterial.h"
+#include "VkModel.hpp"
+#include "VkMaterial.hpp"
 #include <ECS.h>
 #include "Components/CMesh.h"
 #include "Components/CMaterial.h"
 #include "Components/CTransform.h"
 #include "Components/CIdentity.h"
-#include "VkTexture.h"
+#include "VkTexture.hpp"
 
 using namespace fms;
 

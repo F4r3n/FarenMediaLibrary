@@ -45,7 +45,7 @@ public:
 	virtual void Reload(bool force = false);
 
 private:
-	GLuint _program;
+	unsigned int _program;
 };
 
 }

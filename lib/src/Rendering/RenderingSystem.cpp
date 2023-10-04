@@ -31,8 +31,8 @@
 #include "Rendering/VertexBuffer.hpp"
 #include "Rendering/Model.hpp"
 #include "Engine.h"
-#include "Rendering/OpenGL/OGLShader.h"
-#include "Rendering/OpenGL/OGLModel.h"
+#include "Rendering/OpenGL/OGLShader.hpp"
+#include "Rendering/OpenGL/OGLModel.hpp"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 

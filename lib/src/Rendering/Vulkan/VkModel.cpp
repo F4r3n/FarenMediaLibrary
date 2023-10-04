@@ -1,4 +1,4 @@
-#include "VkModel.h"
+#include "VkModel.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Vulkan/VkVertexBuffer.hpp"
 #include "Rendering/VertexBuffer.hpp"
