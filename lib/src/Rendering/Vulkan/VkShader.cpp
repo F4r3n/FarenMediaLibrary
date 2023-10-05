@@ -7,7 +7,7 @@ VkShader::VkShader()
 
 }
 
-VkShader::VkShader(const fm::FilePath& inFilePath, const std::string& name) : Shader(inFilePath, name)
+VkShader::VkShader(const fm::FilePath& inFilePath, const std::string& name) : Shader(inFilePath)
 {
 
 }

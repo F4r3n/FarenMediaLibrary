@@ -32,6 +32,7 @@
 #include "Resource/ResourceLoader.h"
 #include <imgui/imgui_internal.h>
 #include "Editor.h"
+#include "Export.hpp"
 
 const std::string JSON_KEY = "FML";
 
@@ -223,7 +224,7 @@ void MainWindow::_DrawMenu()
 							std::string relative;
 							fm::FilePath::GetRelativeFromRoot(p, result, relative);
 
-							if(!relative.empty())
+							if (!relative.empty())
 								result = fm::FilePath(fm::LOCATION::USER_LOCATION, relative);
 
 							scene = Editor::Get().RenameScene(scene, result);
@@ -275,6 +276,22 @@ void MainWindow::_DrawMenu()
 					}
 				}
 				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Export"))
+			{
+
+				pfd::select_folder dialog = pfd::select_folder("Choose where to export", ".");
+
+				std::string resultFromDialog = dialog.result();
+
+				if (!resultFromDialog.empty())
+				{
+					fm::FilePath result(resultFromDialog);
+					gui::ExportManager::ExportSettings settings;
+					settings.destination = result;
+					gui::ExportManager exportm(settings);
+					exportm.Run();
+				}
 			}
 			ImGui::EndMenu();
 

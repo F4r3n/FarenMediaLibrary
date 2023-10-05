@@ -11,9 +11,9 @@ using namespace fm;
 Shader::Shader():Resource(fm::FilePath(std::string(""))) {
 }
 
-Shader::Shader(const fm::FilePath& inFilePath, const std::string& name) : Resource(inFilePath)
+Shader::Shader(const fm::FilePath& inFilePath) : Resource(inFilePath)
 {
-    _name = name;
+    _name = inFilePath.GetName(true);
 }
 
 

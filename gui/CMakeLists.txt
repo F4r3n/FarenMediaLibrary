@@ -42,7 +42,7 @@ set(SOURCES ${SOURCES}
 	src/Window/GLauncher.cpp
 	src/Window/GWindow.cpp
 	src/Window/GMaterialEditor.cpp
-
+	src/Export.cpp
 	src/ShaderCompiler.cpp
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp
@@ -89,7 +89,7 @@ link_directories(${glslang_BINARY_DIR})
 
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
 target_link_libraries(${PROJECT_NAME} glslang SPIRV)

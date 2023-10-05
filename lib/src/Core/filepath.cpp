@@ -193,6 +193,14 @@ Folder Folder::Rename(const std::string& inNewName) const
 }
 
 
+Folder Folder::CopyTo(const fm::FilePath& inDestination) const
+{
+	fs::copy(_path.GetPath(), inDestination.GetPath(), fs::copy_options::overwrite_existing | fs::copy_options::recursive);
+	return fm::Folder(fm::FilePath(inDestination).ToSub(_path.GetName(false)));
+}
+
+
+
 bool Folder::Exist() const
 {
 	return _path.IsValid() && fs::is_directory(_path.GetPath()) && fs::exists(_path.GetPath());
@@ -272,6 +280,13 @@ File File::Rename(const std::string& inNewName) const
 
 	return File(p);
 }
+
+File File::CopyTo(const fm::FilePath& inDestination) const
+{
+	fs::copy_file(_path.GetPath(), inDestination.GetPath(), fs::copy_options::overwrite_existing);
+	return fm::File(inDestination);
+}
+
 
 File File::CreateUniqueFile()
 {

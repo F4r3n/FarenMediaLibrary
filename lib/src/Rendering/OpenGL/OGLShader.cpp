@@ -10,7 +10,7 @@ using namespace fm;
 OGLShader::OGLShader() :Shader() {
 }
 
-OGLShader::OGLShader(const fm::FilePath& inFilePath, const std::string& name) : Shader(inFilePath, name)
+OGLShader::OGLShader(const fm::FilePath& inFilePath, const std::string& name) : Shader(inFilePath)
 {
 }
 

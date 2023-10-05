@@ -22,7 +22,7 @@ class Shader : public Resource
 public:
     Shader();
     
-    Shader(const fm::FilePath& inFilePath, const std::string &name);
+    Shader(const fm::FilePath& inFilePath);
     
 	virtual bool compile() { return false; }
     virtual ~Shader();

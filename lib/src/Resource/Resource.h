@@ -38,6 +38,7 @@ namespace fm
 		virtual void Save(nlohmann::json& outJSON) const;
 		virtual RESOURCE_TYPE GetType() const = 0;
 
+		const fm::FilePath& GetPath() const { return _path; }
     protected:
 		fm::FilePath	_path;
 

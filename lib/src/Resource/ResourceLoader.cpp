@@ -2,6 +2,7 @@
 
 #include "Rendering/Image.h"
 #include "Rendering/material.hpp"
+#include "Rendering/Shader.h"
 #include "ResourceImporter.h"
 
 #include "Core/FilePath.h"
@@ -14,6 +15,7 @@ void ResourceLoader::Init()
 {
 	_loaders.emplace_back(std::make_shared<fm::ResourceObjectImporter<fm::Image> >(std::vector<std::string>({".png"}), true));
 	_loaders.emplace_back(std::make_shared<fm::ResourceObjectImporter<fm::Material> >(std::vector<std::string>({ ".material" }), false));
+	_loaders.emplace_back(std::make_shared<fm::ResourceObjectImporter<fm::Shader> >(std::vector<std::string>({ ".shader", ".vkshader"}), false));
 }
 
 std::shared_ptr<Resource> ResourceLoader::Load(const fm::FilePath& inPath, bool inRegister)

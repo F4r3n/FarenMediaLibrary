@@ -58,6 +58,7 @@ namespace fm
 		std::string			GetPathString() const;
 		bool CreateFile() const;
 		File Rename(const std::string& inNewName) const;
+		File CopyTo(const fm::FilePath& inDestination) const;
 		bool Exist() const;
 		std::string GetContent() const;
 		void		SetContent(const std::string& inContent) const;
@@ -78,6 +79,8 @@ namespace fm
 
 		bool CreateFolder() const;
 		Folder Rename(const std::string& inNewName) const;
+		Folder CopyTo(const fm::FilePath& inDestination) const;
+
 		bool Exist() const;
 		void Iterate(bool recursive, const std::function<void(const fm::Folder *inFolder, const fm::File *inFile)>& inCallback) const;
 
