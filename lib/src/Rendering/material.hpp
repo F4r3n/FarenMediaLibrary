@@ -1,6 +1,4 @@
-#ifndef MATERIAL_HPP
-#define MATERIAL_HPP
-
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -106,7 +104,7 @@ namespace fm
 		{
 			fm::FilePath p(_name);
 			Material mat(p);
-			mat._shader = _shader;
+			mat._shaderPath = _shaderPath;
 			mat._properties = _properties;
 		}
 		Material(const fm::FilePath& inFilePath);
@@ -136,10 +134,10 @@ namespace fm
 
 
 		const std::string& GetName() const { return _name; }
-		std::shared_ptr<fm::Shader> GetShader() const { return _shader; }
-		void SetShader(std::shared_ptr<fm::Shader> inShader) { _shader = inShader; Compile(); }
-		void Compile();
-		bool IsReady() const;
+		const fm::FilePath& GetShaderPath() const { return _shaderPath; }
+		void SetShaderPath(const fm::FilePath& inPath) { _shaderPath = inPath; }
+		//void Compile();
+		//bool IsReady() const;
 
 
 		void Save(nlohmann::json& outJSON) const override;
@@ -148,7 +146,7 @@ namespace fm
 		void Save() const override;
 
 	private:
-		std::shared_ptr<fm::Shader> _shader;
+		fm::FilePath _shaderPath;
 
 		std::string _name;
 		MaterialProperties _properties;
@@ -165,7 +163,4 @@ namespace fm
 
 
 }
-
-
-#endif // MATERIAL_HPP
 

@@ -144,7 +144,9 @@ std::string FilePath::GetExtension() const
 
 FilePath FilePath::GetParent() const
 {
-	return fm::FilePath(_path.parent_path());
+	auto p = fm::FilePath(_path.parent_path());
+	p.SetSystemID(_fileSystemID);
+	return p;
 }
 
 FilePath FilePath::GetWorkingDirectory()

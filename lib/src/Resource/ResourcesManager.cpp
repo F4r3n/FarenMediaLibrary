@@ -175,14 +175,16 @@ void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
 				const std::string name = inFolder->GetPath().GetName(true);
 				std::shared_ptr<Shader> shader = std::make_shared<OGLShader>(inFolder->GetPath(), name);
 				shader->compile();
-				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
+				fm::ResourcesManager::get().load<fm::Shader>(inFolder->GetPath(), shader);
 			}
 #if WITH_VULKAN
 			else if (inAPI == GRAPHIC_API::VULKAN && inFolder->GetPath().GetExtension() == ".vkshader")
 			{
 				const std::string name = inFolder->GetPath().GetName(true);
 				std::shared_ptr<Shader> shader = std::make_shared<fm::VkShader>(inFolder->GetPath(), name);
-				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
+				fm::FilePath changeName = inFolder->GetPath().GetParent();
+				changeName.ToSub(name + ".shader");
+				fm::ResourcesManager::get().load<fm::Shader>(changeName, shader);
 			}
 #endif
 		}

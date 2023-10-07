@@ -41,8 +41,8 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 
 
 	_material = std::make_shared<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default_material"));
-	_material->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>("picking"));
-	_material->Compile();
+	_material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "picking.shader"));
+	//_material->Compile();
 }
 
 

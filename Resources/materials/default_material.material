@@ -1,22 +1,30 @@
 {
-    "deps":{
-        "path":""
-    },
-    "params":{
-        "materialValues": [
-            {
-                "name": "mainColor",
-                "type": 7,
-                "value": {
-                    "a": 1.0,
-                    "b": 1.0,
-                    "g": 1.0,
-                    "r": 1.0
-                }
-            }
-        ],
-        "name": "default_material",
-        "shaderName": "default"
-    }
-
+  "deps": { "path": "!14/" },
+  "params": {
+    "materialValues": [
+      {
+        "name": "mainColor",
+        "type": 7,
+        "value": {
+          "a": 1.0,
+          "b": 1.0,
+          "g": 1.0,
+          "r": 1.0
+        }
+      },
+      {
+        "name": "mainColor",
+        "type": 7,
+        "value": {
+          "a": 1.0,
+          "b": 1.0,
+          "g": 1.0,
+          "r": 1.0
+        }
+      }
+    ],
+    "name": "default_material",
+    "shader": "!3/default.shader",
+    "shaderName": "default"
+  }
 }

@@ -42,7 +42,7 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
             if (ImGui::TreeNode(materialName.c_str()))
             {
                 size_t j = 0;
-				std::string shaderName = m->GetShader()->GetName();
+				std::string shaderName = m->GetShaderPath().GetName(true);
 
 				GMaterialEditor::DrawMaterialInspector(m.get());
 

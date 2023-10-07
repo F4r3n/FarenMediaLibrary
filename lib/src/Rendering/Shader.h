@@ -45,6 +45,9 @@ public:
 	virtual const Shader* setValue(const std::string& name, const Color& vector) const { return this; }
 	virtual void  setValue(const std::string& name, const fm::MaterialValue& value) const { ; }
 
+	void Save(nlohmann::json& outJSON) const override;
+	void Load(const nlohmann::json& inJSON) override;
+
 protected:
 	virtual bool _Load() { return false; }
 

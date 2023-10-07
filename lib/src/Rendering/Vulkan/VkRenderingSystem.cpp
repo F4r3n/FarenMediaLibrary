@@ -599,8 +599,13 @@ VkRenderingSystem::~VkRenderingSystem()
 		vkDestroyFence(_vulkan->GetDevice(), _inFlightFences[i], nullptr);
 	}
 
-	std::shared_ptr<fm::VkShader> shader = std::dynamic_pointer_cast<fm::VkShader>(fm::ResourcesManager::get().getResource<fm::Shader>("default"));
-	shader->Delete(_vulkan->GetDevice());
+	for (const auto& [_, shader] : fm::ResourcesManager::get().getAll<fm::Shader>())
+	{
+		if (auto s = std::dynamic_pointer_cast<fm::VkShader>(shader))
+		{
+			s->Delete(_vulkan->GetDevice());
+		}
+	}
 
 	for (const auto& [_, material] : _materials)
 	{

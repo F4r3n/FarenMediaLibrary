@@ -22,7 +22,8 @@ void Material::Save(nlohmann::json& outJSON) const
 
 	nlohmann::json params;
 	params["name"] = _name;
-	params["shaderName"] = _shader != nullptr ? _shader->GetName() : "";
+	std::string shaderPath = fm::FileSystem::ConvertPathToFileSystem(_shaderPath);
+	params["shader"] = shaderPath;
 
 	nlohmann::json valuesJSON;
 	for (auto& value : _properties)
@@ -61,8 +62,12 @@ void Material::Load(const nlohmann::json& inJSON)
 	nlohmann::json params = inJSON["params"];
 
 	_name = params["name"];
-	std::string shaderName = params["shaderName"];
-	_shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderName);
+
+	fm::FilePath path = fm::FilePath((std::string)params["shader"]);
+	_shaderPath = path;
+	
+
+	//_shader->Load();
 	nlohmann::json values = params["materialValues"];
 	for (nlohmann::json::iterator it = values.begin(); it != values.end(); ++it)
 	{
@@ -107,18 +112,18 @@ void Material::Load(const nlohmann::json& inJSON)
 
 
 
-bool Material::IsReady() const
-{
-	return _shader != nullptr && _shader->IsReady();
-}
-
-void Material::Compile()
-{
-	if (IsReady())
-	{
-		_shader->compile();
-	}
-}
+//bool Material::IsReady() const
+//{
+//	//return _shader != nullptr && _shader->IsReady();
+//}
+//
+//void Material::Compile()
+//{
+//	//if (IsReady())
+//	//{
+//	//	_shader->compile();
+//	//}
+//}
 
 void Material::Save() const
 {

@@ -2,6 +2,8 @@
 #include "VkPipelineBuilder.hpp"
 #include "Rendering/material.hpp"
 #include "Rendering/Vulkan/VkTexture.hpp"
+#include "Resource/ResourcesManager.h"
+#include "Rendering/Shader.h"
 using namespace fm;
 
 VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
@@ -18,9 +20,9 @@ VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
 		layouts.emplace_back(_textureLayout);
 		isReady = false;
 	}
-
+	auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(_material->GetShaderPath());
 	_pipeline = std::make_unique<fm::VkPipelineBuilder>(_vulkan->GetDevice(), inInfo.renderPass, inInfo.extent, layouts,
-		_material->GetShader().get());
+		shader.get());
 }
 
 

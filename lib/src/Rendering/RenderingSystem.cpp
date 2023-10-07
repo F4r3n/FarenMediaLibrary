@@ -61,8 +61,8 @@ RenderingSystem::RenderingSystem(size_t width, size_t height)
 	fm::ResourcesManager::get().LoadFonts();
 	fm::ResourcesManager::get().LoadMaterials();
 
-    _finalShader = fm::ResourcesManager::get().getResource<fm::Shader>("simple");
-    _lightShader = fm::ResourcesManager::get().getResource<fm::Shader>("light");
+    _finalShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "simple.shader"));
+    _lightShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "light.shader"));
 
     _textdef.projection = fm::math::ortho(
                 0.0f, (float)_width, 0.0f, (float)_height);
@@ -111,15 +111,17 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
     _InitStandardShapes();
 
-    for(auto &&e : em.iterate<fmc::CMaterial>(fm::IsEntityActive))
-    {
-        fmc::CMaterial* material = e.get<fmc::CMaterial>();
-        std::vector<std::shared_ptr<fm::Material>> materials = material->GetAllMaterials();
-        for(auto &m : materials)
-        {
-			m->Compile();
-        }
-    }
+	//for(const auto& [_, shader] : fm::ResourcesManager::get().)
+
+    //for(auto &&e : em.iterate<fmc::CMaterial>(fm::IsEntityActive))
+    //{
+    //    fmc::CMaterial* material = e.get<fmc::CMaterial>();
+    //    std::vector<std::shared_ptr<fm::Material>> materials = material->GetAllMaterials();
+    //    for(auto &m : materials)
+    //    {
+	//		m->Compile();
+    //    }
+    //}
 
 }
 
@@ -309,7 +311,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				std::shared_ptr<fm::Shader> shader = _finalShader;
 				if (auto m  = cmd._material.lock())
 				{
-					shader = m->GetShader();
+					shader = fm::ResourcesManager::get().getResource<fm::Shader>(m->GetShaderPath());
 					shader->Use();
 					for (auto const& value : m->GetProperties())
 					{
@@ -387,7 +389,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 
 void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties)
 {
-	if (!inMaterial->IsReady()) return;
+	//if (!inMaterial->IsReady()) return;
 
 #if 1
 	if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetID())
@@ -623,7 +625,7 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 		return;
 
 	std::weak_ptr<fm::RFont> font = fm::ResourcesManager::get().getResource<fm::RFont>(inText->GetFontName());
-	std::weak_ptr<fm::Shader> shader = inMaterial->GetShader();
+	std::weak_ptr<fm::Shader> shader = fm::ResourcesManager::get().getResource<fm::Shader>(inMaterial->GetShaderPath());
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 	if (std::shared_ptr<fm::Shader> wshader = shader.lock())
 	{

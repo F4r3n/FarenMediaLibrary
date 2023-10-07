@@ -2,12 +2,14 @@
 #include "Rendering/material.hpp"
 #include "Rendering/Shader.h"
 #include "Rendering/OpenGL/OGLShader.hpp"
+#include "Resource/ResourcesManager.h"
 using namespace fm;
 
 OGLMaterial::OGLMaterial(const OGLMaterialCreateInfo& inInfo)
 {
 	_material = inInfo.material;
-	_shader = std::dynamic_pointer_cast<fm::OGLShader>(_material->GetShader());
+	_shader = std::dynamic_pointer_cast<fm::OGLShader>(fm::ResourcesManager::get().getResource<fm::Shader>(_material->GetShaderPath()));
+	//_shader->compile();
 }
 
 
