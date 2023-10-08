@@ -11,7 +11,7 @@ def getExe() : str
     # OS X
     elif platform == "win32":
 """
-#python3 compileShader.py  "../out/build/x64-Debug/_deps/glslang-build/StandAlone/glslang.exe" "../_Resources_/shaders/"
+#$ python3 compileShader.py  "../out/build/x64-Debug/_deps/glslang-build/StandAlone/" "../_Resources_/shaders/"
 if __name__ == '__main__':
     exePath = argv[1]
     if platform.system() == "Windows":
@@ -27,6 +27,7 @@ if __name__ == '__main__':
             output = path.joinpath("SPIR-V")
             if output.exists() == False:
                 os.mkdir(output)
+
             subprocess.run([exePath, shaderVert, "--target-env", target, "-e", "main", "-o", output.joinpath("vert.spv")])
 
             shaderFrag = path.joinpath(path.stem + ".frag")

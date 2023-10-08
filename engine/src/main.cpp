@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	app.LoadProject(path);
 	app.Start();
 	fm::Window *window = app.GetWindow();
-
+	
 
 	while (!window->isClosed())
 	{
