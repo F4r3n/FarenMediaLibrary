@@ -165,6 +165,7 @@ bool FilePath::operator==(const fm::FilePath& Other) const
 	return _path == Other._path;
 }
 
+
 Folder::Folder(const fm::FilePath& inFilePath)
 {
 	_path = inFilePath;
@@ -197,7 +198,7 @@ Folder Folder::Rename(const std::string& inNewName) const
 
 Folder Folder::CopyTo(const fm::FilePath& inDestination) const
 {
-	fs::copy(_path.GetPath(), inDestination.GetPath(), fs::copy_options::overwrite_existing | fs::copy_options::recursive);
+	fs::copy(_path.GetPath(), fm::FilePath(inDestination).ToSub(_path.GetName(false)).GetPath(), fs::copy_options::overwrite_existing | fs::copy_options::recursive);
 	return fm::Folder(fm::FilePath(inDestination).ToSub(_path.GetName(false)));
 }
 

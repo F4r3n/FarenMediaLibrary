@@ -71,9 +71,10 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	}
 	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
-		FilePath p(FilePath::GetWorkingDirectory());
+		fm::FilePath _internal = fm::Application::Get().GetInternalResources().GetPath();
+		FilePath p = !_internal.IsValid() ? FilePath::GetWorkingDirectory() : _internal;
 		p.SetSystemID(LOCATION::INTERNAL_RESOURCES_LOCATION);
-		p.ToSub("Resources");
+		p.ToSub("_Resources_");
 		return p;
 	}
 	case LOCATION::INTERNAL_IMAGES_LOCATION:

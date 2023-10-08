@@ -30,6 +30,7 @@ namespace fm
 		size_t		windowFlag = 0;
 
 		fm::Folder	userDirectory;
+		fm::Folder	internalResourcesDirectory;
 	};
 
 	struct ProjectSettings
@@ -117,6 +118,7 @@ class Application
         fm::Window*					GetWindow() const;
 
 		const fm::Folder&			GetUserDirectory() const;
+		const fm::Folder&			GetInternalResources() const;
 
 		const fm::Config&			GetCurrentConfig() const;
 		bool						IsRunning() const;

@@ -6,6 +6,7 @@
 #include "NonCopyable.h"
 #include "Resource/FileSystem.h"
 #include "Rendering/GraphicsAPI.h"
+#include "Core/FilePath.h"
 
 namespace fm {
   class ResourceLoader;

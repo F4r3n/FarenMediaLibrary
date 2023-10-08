@@ -23,6 +23,6 @@ namespace fm
 		LAST
 	};
 
-
+	bool IsInternal(LOCATION inLocation);
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Core/FilePath.h"
+#include "FileSystem.h"
 #include <nlohmann/json_fwd.hpp>
 #pragma warning(disable: 4100)
 namespace fm
@@ -39,6 +40,10 @@ namespace fm
 		virtual RESOURCE_TYPE GetType() const = 0;
 
 		const fm::FilePath& GetPath() const { return _path; }
+		bool  IsInternal() {
+			const auto id = _path.GetFileSystemID();
+			return fm::IsInternal(id);
+		}
     protected:
 		fm::FilePath	_path;
 

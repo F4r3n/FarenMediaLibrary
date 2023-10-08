@@ -55,14 +55,13 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 		std::shared_ptr<fm::GameObject> cameraGo = nullptr;
 		if(auto && editorScene = _editorScene.lock(); cameraGo = editorScene->GetGameObjectByID(EntityManager::get().CreateID(inCameraID)))
 		{
-
 			if (cameraGo != nullptr)
 			{
 				if (auto&& specialCamera = _specialCamera.lock())
 				{
 					specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
 				}
-
+				
 				_camera->SetCallBackOnPostRendering([this, inPos, inSceneName]()
 					{
 						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);

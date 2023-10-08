@@ -7,11 +7,15 @@
 int main(int argc, char** argv)
 {
 	fm::FilePath path = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY);
-	fm::CommandLineParser::ArgInfo info;
-	info.longName = "target";
-	info.shortName = "t";
+	fm::CommandLineParser::ArgInfo target;
+	target.longName = "target";
+	target.shortName = "t";
 
-	fm::CommandLineParser lineParser({info});
+	fm::CommandLineParser::ArgInfo internalArg;
+	internalArg.longName = "internal";
+	internalArg.shortName = "i";
+
+	fm::CommandLineParser lineParser({ target, internalArg });
 	if (lineParser.Process(argv, argc))
 	{
 		std::string targetArg = lineParser.GetArg("target");
@@ -30,6 +34,8 @@ int main(int argc, char** argv)
 	config.standAlone = true;
 	config.graphicAPI = GRAPHIC_API::VULKAN;
 	config.windowFlag = SDL_WINDOW_RESIZABLE;
+	config.internalResourcesDirectory = fm::Folder(lineParser.GetArg("internal"));
+
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);
 	app.Init();

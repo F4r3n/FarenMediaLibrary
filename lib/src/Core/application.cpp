@@ -147,6 +147,10 @@ const fm::Folder& Application::GetUserDirectory() const
 	return _currentConfig.userDirectory;
 }
 
+const fm::Folder& Application::GetInternalResources() const
+{
+	return _currentConfig.internalResourcesDirectory;
+}
 
 void Application::SetProjectName(const std::string &inName)
 {
