@@ -34,8 +34,12 @@ void OGLShader::Reload(bool force)
 
 bool OGLShader::compile()
 {
-	File frag(Folder(_path), _path.GetName(true) + ".frag");
-	File vert(Folder(_path), _path.GetName(true) + ".vert");
+	fm::FilePath preprocessedShader(_path);
+	preprocessedShader.ToSub("Preprocessed");
+	File frag(Folder(preprocessedShader), "frag.frag");
+	File vert(Folder(preprocessedShader), "vert.vert");
+	if (!(frag.Exist() && vert.Exist()))
+		return false;
 
 	_lastTimeFrag = frag.GetTimeStamp();
 	_lastTimeVert = vert.GetTimeStamp();

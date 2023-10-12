@@ -4,106 +4,109 @@
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
+#include <fstream>
 using namespace fm;
 using namespace gui;
-
-/*
-class GlslShaderIncluder : public glslang::TShader::Includer
-{
+class DirStackFileIncluder : public glslang::TShader::Includer {
 public:
-	//    explicit GlslShaderIncluder(fileio::Directory* shaderdir)
-	//        : mShaderdir(shaderdir) {}
+	DirStackFileIncluder() : externalLocalDirectoryCount(0) { }
 
-		// Note "local" vs. "system" is not an "either/or": "local" is an
-		// extra thing to do over "system". Both might get called, as per
-		// the C++ specification.
-		//
-		// For the "system" or <>-style includes; search the "system" paths.
-	virtual IncludeResult* includeSystem(
-		const char* headerName, const char* includerName, size_t inclusionDepth) override
+	virtual IncludeResult* includeLocal(const char* headerName,
+		const char* includerName,
+		size_t inclusionDepth) override
+	{
+		return readLocalPath(headerName, includerName, (int)inclusionDepth);
+	}
+
+	virtual IncludeResult* includeSystem(const char* headerName,
+		const char* /*includerName*/,
+		size_t /*inclusionDepth*/) override
+	{
+		return readSystemPath(headerName);
+	}
+
+	// Externally set directories. E.g., from a command-line -I<dir>.
+	//  - Most-recently pushed are checked first.
+	//  - All these are checked after the parse-time stack of local directories
+	//    is checked.
+	//  - This only applies to the "local" form of #include.
+	//  - Makes its own copy of the path.
+	virtual void pushExternalLocalDirectory(const std::string& dir)
+	{
+		directoryStack.push_back(dir);
+		externalLocalDirectoryCount = (int)directoryStack.size();
+	}
+
+	virtual void releaseInclude(IncludeResult* result) override
+	{
+		if (result != nullptr) {
+			delete[] static_cast<tUserDataElement*>(result->userData);
+			delete result;
+		}
+	}
+
+	virtual std::set<std::string> getIncludedFiles()
+	{
+		return includedFiles;
+	}
+
+	virtual ~DirStackFileIncluder() override { }
+
+protected:
+	typedef char tUserDataElement;
+	std::vector<std::string> directoryStack;
+	int externalLocalDirectoryCount;
+	std::set<std::string> includedFiles;
+
+	// Search for a valid "local" path based on combining the stack of include
+	// directories and the nominal name of the header.
+	virtual IncludeResult* readLocalPath(const char* headerName, const char* includerName, int depth)
+	{
+		// Discard popped include directories, and
+		// initialize when at parse-time first level.
+		directoryStack.resize(depth + externalLocalDirectoryCount);
+		if (depth == 1)
+			directoryStack.back() = getDirectory(includerName);
+
+		// Find a directory that works, using a reverse search of the include stack.
+		for (auto it = directoryStack.rbegin(); it != directoryStack.rend(); ++it) {
+			std::string path = *it + '/' + headerName;
+			std::replace(path.begin(), path.end(), '\\', '/');
+			std::ifstream file(path, std::ios_base::binary | std::ios_base::ate);
+			if (file) {
+				directoryStack.push_back(getDirectory(path));
+				includedFiles.insert(path);
+				return newIncludeResult(path, file, (int)file.tellg());
+			}
+		}
+
+		return nullptr;
+	}
+
+	// Search for a valid <system> path.
+	// Not implemented yet; returning nullptr signals failure to find.
+	virtual IncludeResult* readSystemPath(const char* /*headerName*/) const
 	{
 		return nullptr;
 	}
 
-	// For the "local"-only aspect of a "" include. Should not search in the
-	// "system" paths, because on returning a failure, the parser will
-	// call includeSystem() to look in the "system" locations.
-	virtual IncludeResult* includeLocal(
-		const char* headerName, const char* includerName, size_t inclusionDepth) override
+	// Do actual reading of the file, filling in a new include result.
+	virtual IncludeResult* newIncludeResult(const std::string& path, std::ifstream& file, int length) const
 	{
-		{
-			//log_debug("includeLocal({}, {}, {})", headerName, includerName, inclusionDepth);
-
-			//    std::string resolvedHeaderName =
-			//        fileio::directory_get_absolute_path(mShaderdir, headerName);
-			if (auto it = mIncludes.find(resolvedHeaderName); it != mIncludes.end())
-			{
-				// `headerName' was already present, so return that, and probably log about it
-				return it->second;
-			}
-
-			//    if (!fileio::file_exists(mShaderdir, headerName))
-			//    {
-			//        log_error("#Included GLSL shader file \"{}\" does not exist!", resolvedHeaderName);
-			//        return &smFailResult;
-			//    }
-
-			//    mSources[resolvedHeaderName] = {}; // insert an empty vector!
-			//    fileio::File* file = fileio::file_open(
-			//        mShaderdir, headerName, fileio::FileModeFlag::read);
-			//    if (file == nullptr)
-			//    {
-			//        log_error("Failed to open #included GLSL shader file: {}", resolvedHeaderName);
-			//        return &smFailResult;
-			//    }
-
-			//    if (!fileio::file_read_into_buffer(file, mSources[resolvedHeaderName]))
-			//    {
-			//        log_error("Failed to read #included GLSL shader file: {}", resolvedHeaderName);
-			//        fileio::file_close(file);
-			//        return &smFailResult;
-			//    }
-
-			IncludeResult* result = new IncludeResult(
-				resolvedHeaderName, mSources[resolvedHeaderName].data(),
-				mSources[resolvedHeaderName].size(), nullptr);
-
-			auto [it, b] = mIncludes.emplace(std::make_pair(resolvedHeaderName, result));
-			if (!b)
-			{
-				log_error("Failed to insert IncludeResult into std::map!");
-				return &smFailResult;
-			}
-			return it->second;
-		}
+		char* content = new tUserDataElement[length];
+		file.seekg(0, file.beg);
+		file.read(content, length);
+		return new IncludeResult(path, content, length, content);
 	}
 
-	virtual void releaseInclude(IncludeResult*) override
+	// If no path markers, return current working directory.
+	// Otherwise, strip file name and return path leading up to it.
+	virtual std::string getDirectory(const std::string path) const
 	{
-		
-		//log_debug("releaseInclude(result->headerName: {})", result->headerName);
-		if (auto it = mSources.find(result->headerName); it != mSources.end())
-		{
-			mSources.erase(it);
-		}
-		if (auto it = mIncludes.find(result->headerName); it != mIncludes.end())
-		{
-			// EDIT: I have forgotten to use "delete" here on the IncludeResult, but should probably be done!
-			mIncludes.erase(it);
-		}
-		
+		size_t last = path.find_last_of("/\\");
+		return last == std::string::npos ? "." : path.substr(0, last);
 	}
-
-private:
-	static inline const std::string sEmpty = "";
-	static inline IncludeResult smFailResult =
-		IncludeResult(sEmpty, "Header does not exist!", 0, nullptr);
-
-	//    const fileio::Directory* mShaderdir {nullptr};
-	std::map<std::string, IncludeResult*> mIncludes;
-	std::map<std::string, std::vector<char>> mSources;
 };
-*/
 
 ShaderCompiler::ShaderCompiler()
 {
@@ -111,34 +114,45 @@ ShaderCompiler::ShaderCompiler()
 }
 
 
-std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(EShLanguage inLang, const fm::File& inFile, EShMessages messageFlags)
+
+
+std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompilerSettings& inSettings, EShLanguage inLang, const fm::File& inFile, EShMessages messageFlags)
 {
-	EShLanguage lang = EShLanguage::EShLangFragment;
 	std::unique_ptr<glslang::TShader> shader = std::make_unique<glslang::TShader>(inLang);
 
 	std::string content = inFile.GetContent();
 	const char* sources[1] = { content.c_str()};
 	shader->setStrings(sources, 1);
-	glslang::EShTargetClientVersion targetApiVersion = glslang::EShTargetVulkan_1_3;
-	shader->setEnvClient(glslang::EShClientVulkan, targetApiVersion);
 
-	glslang::EShTargetLanguageVersion spirvVersion = glslang::EShTargetSpv_1_3;
-	shader->setEnvTarget(glslang::EshTargetSpv, spirvVersion);
+
+	if (inSettings.api == GRAPHIC_API::OPENGL)
+	{
+		glslang::EShTargetClientVersion targetApiVersion = glslang::EShTargetOpenGL_450;
+		glslang::EShClient client = glslang::EShClientOpenGL;
+		shader->setEnvClient(client, targetApiVersion);
+		shader->setEnvInput(glslang::EShSourceGlsl, inLang, glslang::EShClientOpenGL, 420);
+		shader->setEnvTarget(glslang::EshTargetSpv, (glslang::EShTargetLanguageVersion)0);
+		shader->setAutoMapLocations(true);
+	}
+	else if (inSettings.api == GRAPHIC_API::VULKAN)
+	{
+		glslang::EShTargetClientVersion targetApiVersion = glslang::EShTargetVulkan_1_3;
+		glslang::EShClient client = glslang::EShClientVulkan;
+		glslang::EShTargetLanguageVersion spirvVersion = glslang::EShTargetSpv_1_3;
+		shader->setEnvTarget(glslang::EshTargetSpv, spirvVersion);
+		shader->setEnvClient(client, targetApiVersion);
+	}
 
 	shader->setEntryPoint("main"); // We can specify a different entry point
 
-	// The resource is an entire discussion in and by itself, here just use default.
-	//TBuiltInResource* resources = GetDefaultResources();
-	// int defaultVersion = 110, // use 100 for ES environment, overridden by #version in shader
+
 	const TBuiltInResource* resources = GetDefaultResources();
 	const int defaultVersion = 450;
 	const bool forwardCompatible = false;
-	EProfile defaultProfile = ENoProfile; // NOTE: Only for desktop, before profiles showed up!
+	EProfile defaultProfile = ECoreProfile;
 
-	// NOTE: Here a custom file I/O library is used, your implementation may be different.
-	//fileio::Directory* shaderdir = ...
-	//	GlslShaderIncluder includer(shaderdir);
-	glslang::TShader::ForbidIncluder includer;
+
+	DirStackFileIncluder includer;
 
 	std::string preprocessedStr;
 	if (!shader->preprocess(
@@ -146,9 +160,23 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(EShLanguage inLan
 	{
 		const std::string failure = shader->getInfoLog();
 		DEBUG_ERROR(failure)
-			//log_error("Failed to preprocess shader: {}", shader.getInfoLog());
-			// FAIL
 	}
+
+	if (inSettings.generatePreprocess)
+	{
+		std::string outputName = "vert.vert";
+		if (EShLanguage::EShLangFragment == inLang)
+		{
+			outputName = "frag.frag";
+		}
+		fm::FilePath preprocessedFolder = fm::FilePath(inSettings.shaderFolder.GetPath()).ToSub("Preprocessed");
+		if (!fm::Folder(preprocessedFolder).Exist())
+		{
+			fm::Folder(preprocessedFolder).CreateFolder();
+		}
+		fm::File(fm::FilePath(preprocessedFolder).ToSub(outputName)).SetContent(preprocessedStr);
+	}
+
 	const char* preprocessedSources[1] = { preprocessedStr.c_str() };
 	shader->setStrings(preprocessedSources, 1);
 
@@ -158,8 +186,6 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(EShLanguage inLan
 		const std::string failure = shader->getInfoLog();
 		DEBUG_ERROR(failure)
 		return nullptr;
-		//vtek_log_error("Failed to parse shader: {}", shader.getInfoLog());
-		// FAIL
 	}
 	return shader;
 }
@@ -183,20 +209,60 @@ fm::ValuesType ConvertGLSLTypeToMaterial(const glslang::TType* inType)
 		return fm::ValuesType::VALUE_VECTOR4_FLOAT;
 	else if (inType->isVector() && inType->getVectorSize() == 2)
 		return fm::ValuesType::VALUE_VECTOR2_FLOAT;
+
+	return fm::ValuesType::VALUE_NONE;
 }
 
-bool ShaderCompiler::Compile(const fm::FilePath& inPath, Reflection& outReflection)
+void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::Shader::Reflection& outReflection)
 {
-	fm::FilePath path(inPath);
+	program.buildReflection();
+	//program.dumpReflection()
+	for (int i = 0; i < program.getNumUniformVariables(); i++)
+	{
+		std::string name = program.getUniformName(i);
+		fm::Shader::Uniform uniform;
+		uniform.name = name;
+		uniform.binding = program.getUniform(i).getBinding();
+		if (uniform.binding == -1)
+			continue;
+		uniform.set = program.getUniform(i).getType()->getQualifier().layoutSet;
+		uniform.type = ConvertGLSLTypeToMaterial(program.getUniform(i).getType());
+		outReflection.uniforms.emplace(name, uniform);
+	}
+
+	for (int i = 0; i < program.getNumUniformBlocks(); i++)
+	{
+		std::string name = program.getUniformBlockName(i);
+		fm::Shader::Uniform uniform;
+		uniform.name = name;
+		uniform.binding = program.getUniformBlock(i).getBinding();
+		if (uniform.binding == -1)
+			continue;
+		uniform.set = program.getUniformBlock(i).getType()->getQualifier().layoutSet;
+
+		outReflection.uniforms.emplace(name, uniform);
+	}
+}
+
+
+
+
+bool ShaderCompiler::Compile(const ShaderCompilerSettings& inSettings, fm::Shader::Reflection& outReflection)
+{
+	fm::FilePath path(inSettings.shaderFolder.GetPath());
 
 	//_path.ToSub("SPIR-V");
-	File frag(Folder(path), inPath.GetName(true) + ".frag");
-	File vert(Folder(path), inPath.GetName(true) + ".vert");
+	File frag(inSettings.shaderFolder, inSettings.shaderFolder.GetPath().GetName(true) + ".frag");
+	File vert(inSettings.shaderFolder, inSettings.shaderFolder.GetPath().GetName(true) + ".vert");
 
-	const EShMessages messageFlags = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
-	EShLanguage lang = EShLanguage::EShLangFragment;
-	std::unique_ptr<glslang::TShader> shaderFrag = _CompileLang(EShLanguage::EShLangFragment, frag, messageFlags);
-	std::unique_ptr<glslang::TShader> shaderVert = _CompileLang(EShLanguage::EShLangVertex, vert, messageFlags);
+	EShMessages messageFlags = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+	if (inSettings.api == GRAPHIC_API::OPENGL)
+	{
+		messageFlags = (EShMessages)(EShMsgSpvRules);
+	}
+
+	std::unique_ptr<glslang::TShader> shaderFrag = _CompileLang(inSettings, EShLanguage::EShLangFragment, frag, messageFlags);
+	std::unique_ptr<glslang::TShader> shaderVert = _CompileLang(inSettings, EShLanguage::EShLangVertex, vert, messageFlags);
 	if (shaderFrag == nullptr || shaderVert == nullptr)
 		return false;
 	
@@ -210,40 +276,38 @@ bool ShaderCompiler::Compile(const fm::FilePath& inPath, Reflection& outReflecti
 	{
 		std::string failed = program.getInfoLog();
 		DEBUG_ERROR(failed)
-		//vtek_log_error("Failed to link shader: {}", program.getInfoLog());
-		// FAIL
 	}
-
-	program.buildReflection();
-	//program.dumpReflection()
-	for (int i = 0; i < program.getNumUniformVariables(); i++)
+	if (inSettings.generateReflection)
 	{
-		std::string name = program.getUniformName(i);
-		Uniform uniform;
-		uniform.name = name;
-		uniform.binding = program.getUniform(i).getBinding();
-		if (uniform.binding == -1)
-			continue;
-		uniform.set = program.getUniform(i).getType()->getQualifier().layoutSet;
-		uniform.type = ConvertGLSLTypeToMaterial(program.getUniform(i).getType());
-		outReflection.uniforms.emplace(name, uniform);
+		_BuildReflection(program, outReflection);
 	}
 
-	for (int i = 0; i < program.getNumUniformBlocks(); i++)
+
+	if (inSettings.generateSPV)
 	{
-		std::string name = program.getUniformBlockName(i);
-		Uniform uniform;
-		uniform.name = name;
-		uniform.binding = program.getUniformBlock(i).getBinding();
-		if (uniform.binding == -1)
-			continue;
-		uniform.set = program.getUniformBlock(i).getType()->getQualifier().layoutSet;
+		fm::FilePath spirvPath(inSettings.shaderFolder.GetPath());
+		spirvPath.ToSub("SPIR-V");
+		fm::Folder spirvFolder(spirvPath);
+		if (!spirvFolder.Exist())
+		{
+			spirvFolder.CreateFolder();
+		}
+		else
+		{
+			//spirvFolder.Delete(true);
+		}
 
-		outReflection.uniforms.emplace(name, uniform);
+		_WriteSPV(program.getIntermediate(EShLanguage::EShLangFragment), fm::FilePath(spirvFolder.GetPath()).ToSub("_frag.spv"));
+		_WriteSPV(program.getIntermediate(EShLanguage::EShLangVertex), fm::FilePath(spirvFolder.GetPath()).ToSub("_vert.spv"));
 	}
 
-	// Convert the intermediate generated by glslang to Spir-V
-	glslang::TIntermediate* intermediateRef = (program.getIntermediate(lang));
+
+	return true;
+}
+
+
+void ShaderCompiler::_WriteSPV(glslang::TIntermediate* intermediateRef, const fm::FilePath& inDestination)
+{
 	std::vector<uint32_t> spirv;
 	glslang::SpvOptions options{};
 	options.validate = true;
@@ -252,5 +316,5 @@ bool ShaderCompiler::Compile(const fm::FilePath& inPath, Reflection& outReflecti
 	// glslang::GlslangToSpv(intermediateRef, spirv, &logger, &options);
 	glslang::GlslangToSpv(*intermediateRef, spirv, &options);
 
-	return true;
+	fm::File(inDestination).SetContent(spirv);
 }

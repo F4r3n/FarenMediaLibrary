@@ -209,6 +209,15 @@ bool Folder::Exist() const
 	return _path.IsValid() && fs::is_directory(_path.GetPath()) && fs::exists(_path.GetPath());
 }
 
+bool Folder::Delete(bool recursive)
+{
+	if(recursive)
+		return fs::remove_all(_path.GetPath());
+	else
+		return fs::remove(_path.GetPath());
+}
+
+
 
 void Folder::Iterate(bool recursive, const std::function<void(const fm::Folder * inFolder, const fm::File * inFile)>& inCallback) const
 {
@@ -345,6 +354,14 @@ void File::SetContent(const std::string& inContent) const
 	myfile.open(_path.GetPathString());
 	myfile << inContent;
 	myfile.close();
+}
+
+void File::SetContent(const std::vector<uint32_t>& inContent) const
+{
+	std::ofstream f;
+	f.open(_path.GetPathString(), std::ofstream::binary);
+	f.write((char*)(inContent.data()), inContent.size()*sizeof(uint32_t));
+	f.close();
 }
 
 

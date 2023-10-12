@@ -62,6 +62,8 @@ namespace fm
 		bool Exist() const;
 		std::string GetContent() const;
 		void		SetContent(const std::string& inContent) const;
+		void		SetContent(const std::vector<uint32_t>& inContent) const;
+
 		File CreateUniqueFile();
 		std::filesystem::file_time_type GetTimeStamp() const;
 		std::optional<std::vector<char>> GetBinaryContent() const;
@@ -83,7 +85,7 @@ namespace fm
 
 		bool Exist() const;
 		void Iterate(bool recursive, const std::function<void(const fm::Folder *inFolder, const fm::File *inFile)>& inCallback) const;
-
+		bool Delete(bool recursive);
 	private:
 		fm::FilePath _path;
 	};

@@ -26,11 +26,11 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_vulkan = std::make_unique<Vulkan>();
 	_vulkan->Init(inWindow->getWindow());
 	_window = inWindow;
-	fm::ResourcesManager::get().LoadShaders(_api);
-	//fm::ResourcesManager::get().LoadFonts();
-	fm::ResourcesManager::get().LoadMaterials();
 
+}
 
+void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
+{
 	_renderPass = _CreateRenderPass();
 	_SetupDescriptors();
 	_SetupGlobalUniforms();
@@ -47,7 +47,6 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	auto it = _textures.emplace(0, std::make_unique<fm::VkTexture>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); }));
 	it.first->second->UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
 	//texture.Destroy();
-
 }
 
 bool VkRenderingSystem::_SetupUploadContext()
@@ -459,10 +458,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 }
 
 
-void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
-{
 
-}
 void VkRenderingSystem::pre_update(EntityManager& manager)
 {
 

@@ -57,19 +57,25 @@ namespace fms
 RenderingSystem::RenderingSystem(size_t width, size_t height)
     : _width(width), _height(height)
 {
-	fm::ResourcesManager::get().LoadShaders(GRAPHIC_API::OPENGL);
-	fm::ResourcesManager::get().LoadFonts();
-	fm::ResourcesManager::get().LoadMaterials();
 
-    _finalShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "simple.shader"));
-    _lightShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "light.shader"));
-
-    _textdef.projection = fm::math::ortho(
-                0.0f, (float)_width, 0.0f, (float)_height);
 	_type = SYSTEM_MODE::ALWAYS;
 
 }
+void RenderingSystem::init(EntityManager& em, EventManager&)
+{
+	fm::Debug::log("INIT Standard Shapes");
 
+	_InitStandardShapes();
+
+
+
+	_finalShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "simple.shader"));
+	_lightShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "light.shader"));
+
+	_textdef.projection = fm::math::ortho(
+		0.0f, (float)_width, 0.0f, (float)_height);
+
+}
 
 RenderingSystem::~RenderingSystem()
 {
@@ -105,25 +111,7 @@ void RenderingSystem::_InitStandardShapes()
 }
 
 
-void RenderingSystem::init(EntityManager& em, EventManager&)
-{
-    fm::Debug::log("INIT Standard Shapes");
 
-    _InitStandardShapes();
-
-	//for(const auto& [_, shader] : fm::ResourcesManager::get().)
-
-    //for(auto &&e : em.iterate<fmc::CMaterial>(fm::IsEntityActive))
-    //{
-    //    fmc::CMaterial* material = e.get<fmc::CMaterial>();
-    //    std::vector<std::shared_ptr<fm::Material>> materials = material->GetAllMaterials();
-    //    for(auto &m : materials)
-    //    {
-	//		m->Compile();
-    //    }
-    //}
-
-}
 
 
 

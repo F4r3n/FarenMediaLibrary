@@ -111,8 +111,9 @@ class Application
 		void						Stop();
 		void						SetConfig(const Config &inConfig);
         void						Init();
+		void						InitSystems();
         void						DeInit();
-
+		void						LoadInternalResources();
         void						Update();
 
         fm::Window*					GetWindow() const;
@@ -140,7 +141,7 @@ class Application
 		void						SerializeCurrentScene(nlohmann::json& outjson);
 
 private:
-
+		
         std::unique_ptr<fm::Engine>			_engine;
         std::shared_ptr<fm::Window>			_window;
         fm::Config							_currentConfig;

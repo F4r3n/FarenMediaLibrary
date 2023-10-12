@@ -39,6 +39,10 @@ int main(int argc, char** argv)
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);
 	app.Init();
+	app.LoadInternalResources();
+
+	app.InitSystems();
+
 	app.LoadProject(path);
 	app.Start();
 	fm::Window *window = app.GetWindow();

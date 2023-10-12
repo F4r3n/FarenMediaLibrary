@@ -11,7 +11,7 @@
 #include "Core/Math/Vector3.h"
 #include <Resource/Resource.h>
 #include <filesystem>
-
+#include "MaterialValue.h"
 namespace fm {
 
 	class MaterialValue;
@@ -20,6 +20,20 @@ namespace fm {
 class Shader : public Resource
 {
 public:
+
+	struct Uniform
+	{
+		std::string name;
+		int binding = -1;
+		int set = -1;
+		fm::ValuesType type = fm::ValuesType::VALUE_NONE;
+	};
+
+	struct Reflection
+	{
+		std::map<std::string, Uniform> uniforms;
+	};
+
     Shader();
     
     Shader(const fm::FilePath& inFilePath);
@@ -47,7 +61,7 @@ public:
 
 	void Save(nlohmann::json& outJSON) const override;
 	void Load(const nlohmann::json& inJSON) override;
-
+	void SetReflection(const Shader::Reflection& inReflection) { _reflection = inReflection; }
 protected:
 	virtual bool _Load() { return false; }
 
@@ -56,7 +70,7 @@ protected:
 
 	bool _isReady = false;
 private:
-
+	Reflection _reflection;
     std::string _name;
 };
 }

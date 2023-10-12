@@ -2,7 +2,8 @@
 #include <memory>
 #include <map>
 #include "glslang/Public/ShaderLang.h"
-#include "Rendering/MaterialValue.h"
+#include "Rendering/Shader.h"
+#include "Rendering/GraphicsAPI.h"
 namespace fm
 {
 	class FilePath;
@@ -14,24 +15,22 @@ namespace gui
 	class ShaderCompiler
 	{
 	public:
-		struct Uniform
+		struct ShaderCompilerSettings
 		{
-			std::string name;
-			int binding = -1;
-			int set = -1;
-			fm::ValuesType type = fm::ValuesType::VALUE_NONE;
+			GRAPHIC_API				api;
+			fm::Folder				shaderFolder;
+			bool					generateReflection = true;
+			bool					generatePreprocess = true;
+			bool					generateSPV = true;
+			std::vector<fm::File>	listFilesToInclude;
 		};
-
-		struct Reflection
-		{
-			std::map<std::string, Uniform> uniforms;
-		};
-
 
 		ShaderCompiler();
-		bool Compile(const fm::FilePath& inPath, Reflection & outReflection);
+		bool Compile(const ShaderCompilerSettings& inSettings, fm::Shader::Reflection & outReflection);
 	private:
-		std::unique_ptr<glslang::TShader> _CompileLang(EShLanguage inLang, const fm::File& inFile, EShMessages messageFlags);
-		
+		std::unique_ptr<glslang::TShader> _CompileLang(const ShaderCompilerSettings& inSettings, EShLanguage inLang, const fm::File& inFile, EShMessages messageFlags);
+		void							  _WriteSPV(glslang::TIntermediate* intermediateRef, const fm::FilePath& inDestination);
+		void							  _BuildReflection(glslang::TProgram& program, fm::Shader::Reflection& outReflection);
+		GRAPHIC_API _api = GRAPHIC_API::OPENGL;
 	};
 }

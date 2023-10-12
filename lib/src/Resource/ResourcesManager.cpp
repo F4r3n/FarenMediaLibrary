@@ -225,7 +225,7 @@ bool ResourcesManager::LoadFonts()
 {
 	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
 	p.ToSub("Roboto-Medium.ttf");
-	ResourcesManager::get().load<RFont>("dejavu", std::make_shared<RFont>(p.GetPath()));
+	//ResourcesManager::get().load<RFont>("dejavu", std::make_shared<RFont>(p.GetPath()));
 	return true;
 }
 

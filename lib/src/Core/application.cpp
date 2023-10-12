@@ -105,10 +105,20 @@ void Application::Init()
     _engine = std::make_unique<fm::Engine>();
     _window = std::make_shared<fm::Window>(_currentConfig.graphicAPI, _currentConfig.windowFlag);
     _window->Init(_currentConfig.width, _currentConfig.height);
-
 	_window->setName(_currentConfig.name);
+}
 
-    _engine->Init(_currentConfig.graphicAPI, _window);
+void Application::LoadInternalResources()
+{
+	fm::ResourcesManager::get().LoadShaders(_currentConfig.graphicAPI);
+	fm::ResourcesManager::get().LoadFonts();
+	fm::ResourcesManager::get().LoadMaterials();
+}
+
+
+void Application::InitSystems()
+{
+	_engine->Init(_currentConfig.graphicAPI, _window);
 }
 
 

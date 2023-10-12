@@ -12,10 +12,65 @@
 #include "Rendering/Renderer.h"
 #include "Window.h"
 #include "Editor.h"
+#include "ShaderCompiler.h"
+#include "Resource/ResourcesManager.h"
+#include "Resource/ResourceLoader.h"
+void CompileShaders()
+{
+	fm::ResourceLoader loader;
+	loader.Init();
+
+	fm::FilePath path(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "");
+	gui::ShaderCompiler compiler;
+
+	fm::Folder(path).Iterate(false, [&compiler, &loader](const fm::Folder* inFolder, const fm::File* inFile)
+	{
+		if (inFolder)
+		{
+			if (inFolder->GetPath().GetExtension() == ".vkshader")
+			{
+				gui::ShaderCompiler::ShaderCompilerSettings settings{};
+				settings.api = GRAPHIC_API::VULKAN;
+				settings.generatePreprocess = false;
+				settings.generateReflection = true;
+				settings.generateSPV = true;
+				settings.shaderFolder = *inFolder;
+
+				fm::Shader::Reflection reflect;
+				compiler.Compile(settings, reflect);
+				auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FileSystem::ConvertPathToFileSystem(inFolder->GetPath()));
+				if (shader != nullptr)
+				{
+					shader->SetReflection(reflect);
+				}
+				loader.SaveImport(inFolder->GetPath(), false);
+			}
+			else if (inFolder->GetPath().GetExtension() == ".shader")
+			{
+				gui::ShaderCompiler::ShaderCompilerSettings settings{};
+				settings.api = GRAPHIC_API::OPENGL;
+				settings.generatePreprocess = true;
+				settings.generateReflection = true;
+				settings.generateSPV = false;
+				settings.shaderFolder = *inFolder;
+
+				fm::Shader::Reflection reflect;
+				compiler.Compile(settings, reflect);
+				auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FileSystem::ConvertPathToFileSystem(inFolder->GetPath()));
+				if (shader != nullptr)
+				{
+					shader->compile();
+					shader->SetReflection(reflect);
+				}
+				loader.SaveImport(inFolder->GetPath(), false);
+			}
+		}
+	});
+}
+
 
 int main()
 {
-
 	fm::Config config;
 	config.name = "FML Engine";
 	config.fpsWanted = 60;
@@ -23,9 +78,14 @@ int main()
 	config.height = 720;
 	config.windowFlag = SDL_WINDOW_RESIZABLE;
 	config.graphicAPI = GRAPHIC_API::OPENGL;
-	fm::Application::Get().SetConfig(config);
-	fm::Application::Get().Init();
 
+	fm::Application& app = fm::Application::Get();
+	app.SetConfig(config);
+	app.Init();
+
+	app.LoadInternalResources();
+	CompileShaders();
+	app.InitSystems();
 
 	fm::Window* window = fm::Application::Get().GetWindow();
 
@@ -35,8 +95,8 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;         // Enable Multi-Viewport / Platform Windows
-	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;         // Enable Multi-Viewport / Platform Windows
+	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;     // Enable Multi-Viewport / Platform Windows
+	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports; // Enable Multi-Viewport / Platform Windows
 	//io.DisplayFramebufferScale = ImVec2(1.25f, 1.25f);
 	ImGui_ImplSDL3_InitForOpenGL(window->getWindow(), window->GetContext());
 	ImGui_ImplOpenGL3_Init("#version 330");

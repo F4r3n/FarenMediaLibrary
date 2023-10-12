@@ -4,6 +4,7 @@
 #include <ranges>
 #include <nlohmann/json.hpp>
 #include "ShaderCompiler.h"
+#include "Rendering/Shader.h"
 using namespace gui;
 
 ExportManager::ExportManager(const ExportSettings& inSettings) : _settings(inSettings)
@@ -24,8 +25,20 @@ bool ExportManager::Run()
 			{
 				if (inFolder->GetPath().GetExtension() == ".vkshader")
 				{
-					ShaderCompiler::Reflection reflect;
-					compiler.Compile(inFolder->GetPath(), reflect);
+					fm::Shader::Reflection reflect;
+					gui::ShaderCompiler::ShaderCompilerSettings settings{};
+					settings.api = GRAPHIC_API::VULKAN;
+					settings.generatePreprocess = false;
+					settings.generateReflection = true;
+					settings.generateSPV = true;
+					settings.shaderFolder = *inFolder;
+					compiler.Compile(settings, reflect);
+
+					auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(inFolder->GetPath());
+					if (shader != nullptr)
+					{
+						shader->SetReflection(reflect);
+					}
 				}
 			}
 		});

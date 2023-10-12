@@ -14,7 +14,7 @@ using namespace fm;
 void ResourceLoader::Init()
 {
 	//order is important
-	_loaders.emplace_back(std::make_shared<fm::ResourceObjectImporter<fm::Shader> >(std::vector<std::string>({ ".shader", ".vkshader" }), false));
+	_loaders.emplace_back(std::make_shared<fm::ResourceObjectImporter<fm::Shader> >(std::vector<std::string>({ ".shader", ".vkshader" }), true));
 	_loaders.emplace_back(std::make_shared<fm::ResourceObjectImporter<fm::Image> >(std::vector<std::string>({".png"}), true));
 
 	//materials use shaders, png, should be loaded last
