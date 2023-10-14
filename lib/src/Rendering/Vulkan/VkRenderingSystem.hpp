@@ -10,6 +10,7 @@
 #include "Core/Math/Matrix.h"
 #include <unordered_map>
 #include <array>
+#include "Rendering/GPUData.hpp"
 class Vulkan;
 
 namespace fm
@@ -23,14 +24,6 @@ namespace fm
 
 namespace fms
 {
-	struct GPUSceneData {
-		fm::math::vec4 fogColor; // w is for exponent
-		fm::math::vec4 fogDistances; //x for min, y for max, zw unused.
-		fm::math::vec4 ambientColor;
-		fm::math::vec4 sunlightDirection; //w for sun power
-		fm::math::vec4 sunlightColor;
-	};
-
 	struct UploadContext {
 		VkFence			_uploadFence;
 		VkCommandPool	_commandPool;
@@ -46,10 +39,7 @@ namespace fms
 		fm::AllocatedBuffer objectBuffer;
 	};
 
-	struct GPUObjectData
-	{
-		fm::math::mat modelMatrix;
-	};
+
 
 	class VkRenderingSystem : public System<VkRenderingSystem>
 	{

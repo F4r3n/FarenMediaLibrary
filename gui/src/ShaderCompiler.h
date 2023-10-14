@@ -22,7 +22,7 @@ namespace gui
 			bool					generateReflection = true;
 			bool					generatePreprocess = true;
 			bool					generateSPV = true;
-			std::vector<fm::File>	listFilesToInclude;
+			std::vector<fm::Folder>	listFoldersToInclude;
 		};
 
 		ShaderCompiler();

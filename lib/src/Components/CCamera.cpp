@@ -224,7 +224,7 @@ void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeByte
 	{
 		_rendererConfiguration.uboLight = std::make_unique<fm::OGLUniformbuffer>(fm::OGLUniformbuffer());
 		//_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
-		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2);
+		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2, GL_UNIFORM_BUFFER);
 		UpdateViewMatrix(inTransform);
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };

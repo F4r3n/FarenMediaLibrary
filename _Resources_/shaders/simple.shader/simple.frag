@@ -1,4 +1,4 @@
-#version 420 core
+#version 450
 
 out vec4 FragColor;
 in vec2 TexCoords;
@@ -11,6 +11,6 @@ uniform vec2 viewPos;
 
 void main()
  {
-	vec4 hdrColor = texture2D(screenTexture, vec2(TexCoords.x, TexCoords.y));
+	vec4 hdrColor = texture(screenTexture, TexCoords.xy);
 	FragColor = vec4(hdrColor.rgb, 1);
 }

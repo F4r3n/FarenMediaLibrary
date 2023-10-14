@@ -32,6 +32,7 @@ bool OGLModel::Destroy()
 			mesh.vertexBuffer->destroy();
 		}
 	}
+	_isReady = false;
 	return true;
 }
 
@@ -50,16 +51,38 @@ void OGLModel::_PrepareBuffer()
 			v->prepareData();
 		}
 	}
+	_isReady = true;
 }
 
 void OGLModel::Draw()
 {
-	_PrepareBuffer();
+	if (!_isReady)
+	{
+		_PrepareBuffer();
+	}
 
 	for (size_t i = 0; i < _model->GetNumberMeshes(); ++i)
 	{
 		fm::rendering::MeshContainer* mesh = _model->GetMeshContainer(i);
 		_BindIndex(i);
 		glDrawElements(GL_TRIANGLES, (GLsizei)mesh->listIndices.size(), GL_UNSIGNED_INT, (void*)(size_t*)mesh->listIndices.data());
+		//glDrawElementsInstancedBaseInstance(mode, count, type, indices, 1 /* one instance */, instance);
 	}
 }
+
+void OGLModel::DrawInstance(uint32_t inNumber, uint32_t inBaseInstance)
+{
+	if (!_isReady)
+	{
+		_PrepareBuffer();
+	}
+
+	for (size_t i = 0; i < _model->GetNumberMeshes(); ++i)
+	{
+		fm::rendering::MeshContainer* mesh = _model->GetMeshContainer(i);
+		_BindIndex(i);
+		glDrawElementsInstancedBaseInstance(GL_TRIANGLES, (GLsizei)mesh->listIndices.size(),
+			GL_UNSIGNED_INT, (void*)(size_t*)mesh->listIndices.data(), inNumber, inBaseInstance);
+	}
+}
+

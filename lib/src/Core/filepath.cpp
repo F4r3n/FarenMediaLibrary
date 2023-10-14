@@ -356,6 +356,12 @@ void File::SetContent(const std::string& inContent) const
 	myfile.close();
 }
 
+bool File::Delete()
+{
+	return fs::remove(_path.GetPathString());
+}
+
+
 void File::SetContent(const std::vector<uint32_t>& inContent) const
 {
 	std::ofstream f;

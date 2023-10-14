@@ -58,9 +58,24 @@ The dependencies are all in the folder extlib.
 | FarenEngine | &check;  | &check;  | &check;  | &dash; | &dash; |
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+---
+title: ResourceImporter
+---
+classDiagram
+    note for Resource "can load data"
+
+    Resource <|-- Image
+    Resource <|-- Audio
+
+    note for ResourceImporter "Load only meta data"
+    ResourceImporter <|-- ResourceImageImporter
+    ResourceImporter <|-- ResourceAudioImporter
+
+    ResourceImporter: +bool save()
+    ResourceImporter: +Resource load()
+
+    ResourceLoader "1" --> "*" ResourceImporter
+    ResourceManager "1" --> "*" Resource
+
+
 ```

@@ -35,6 +35,7 @@ void CompileShaders()
 				settings.generateReflection = true;
 				settings.generateSPV = true;
 				settings.shaderFolder = *inFolder;
+				settings.listFoldersToInclude = { fm::Folder(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "includes")) };
 
 				fm::Shader::Reflection reflect;
 				compiler.Compile(settings, reflect);
@@ -53,6 +54,7 @@ void CompileShaders()
 				settings.generateReflection = true;
 				settings.generateSPV = false;
 				settings.shaderFolder = *inFolder;
+				settings.listFoldersToInclude = { fm::Folder(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "includes")) };
 
 				fm::Shader::Reflection reflect;
 				compiler.Compile(settings, reflect);

@@ -10,6 +10,9 @@
 #include "GraphicsAPI.h"
 #include "Rendering/OpenGL/OGLMaterial.hpp"
 #include <memory>
+#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
+#include "Rendering/GPUData.hpp"
+
 namespace fmc 
 {
 	class CText;
@@ -62,11 +65,15 @@ public:
     void _FillQueue(fmc::CCamera* cam, EntityManager& em);
     void _Draw(fmc::CCamera *cam);
 	void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
-	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel, std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties = nullptr);
+	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel,
+		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties);
+	void _DrawMeshInstaned(fmc::CCamera* cam, const fm::Transform& inTransform, std::shared_ptr<fm::Model> inModel,
+		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties, uint32_t inNumber, uint32_t inBaseInstance);
 
 	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 	bool _HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
-
+	void _PrepareShader(fmc::CCamera* cam, const fm::Transform& inTransform,
+		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties);
 	virtual ~RenderingSystem();
 
 private:
@@ -74,7 +81,7 @@ private:
 	std::shared_ptr<fm::Shader> _lightShader;
 	size_t _width;
 	size_t _height;
-	int _lightNumber = 0;
+	//int _lightNumber = 0;
 
 	fm::Graphics _graphics;
 
@@ -85,5 +92,6 @@ private:
 	fm::OGLMaterial*												_currentMaterial = nullptr;
 	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLCamera>>	_cameras;
 	fm::OGLCamera*													_currentCamera = nullptr;
+	fm::OGLUniformbuffer											_ssbo;
 };
 }

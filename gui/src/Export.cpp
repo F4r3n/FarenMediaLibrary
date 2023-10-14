@@ -32,6 +32,8 @@ bool ExportManager::Run()
 					settings.generateReflection = true;
 					settings.generateSPV = true;
 					settings.shaderFolder = *inFolder;
+					settings.listFoldersToInclude = { fm::Folder(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "includes")) };
+
 					compiler.Compile(settings, reflect);
 
 					auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(inFolder->GetPath());

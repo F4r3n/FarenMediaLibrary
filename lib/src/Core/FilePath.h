@@ -63,7 +63,7 @@ namespace fm
 		std::string GetContent() const;
 		void		SetContent(const std::string& inContent) const;
 		void		SetContent(const std::vector<uint32_t>& inContent) const;
-
+		bool		Delete();
 		File CreateUniqueFile();
 		std::filesystem::file_time_type GetTimeStamp() const;
 		std::optional<std::vector<char>> GetBinaryContent() const;

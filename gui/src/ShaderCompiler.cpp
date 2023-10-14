@@ -124,7 +124,8 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 	const char* sources[1] = { content.c_str()};
 	shader->setStrings(sources, 1);
 
-
+	std::string preambleString;
+	//preambleString += "#extension GL_GOOGLE_include_directive : require\n";
 	if (inSettings.api == GRAPHIC_API::OPENGL)
 	{
 		glslang::EShTargetClientVersion targetApiVersion = glslang::EShTargetOpenGL_450;
@@ -133,6 +134,7 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		shader->setEnvInput(glslang::EShSourceGlsl, inLang, glslang::EShClientOpenGL, 420);
 		shader->setEnvTarget(glslang::EshTargetSpv, (glslang::EShTargetLanguageVersion)0);
 		shader->setAutoMapLocations(true);
+		preambleString += "#define _VULKAN_ 0\n#define _OPENGL_ 1";
 	}
 	else if (inSettings.api == GRAPHIC_API::VULKAN)
 	{
@@ -141,24 +143,29 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		glslang::EShTargetLanguageVersion spirvVersion = glslang::EShTargetSpv_1_3;
 		shader->setEnvTarget(glslang::EshTargetSpv, spirvVersion);
 		shader->setEnvClient(client, targetApiVersion);
+		preambleString += "#define _VULKAN_ 1\n#define _OPENGL_ 0";
 	}
-
+	shader->setPreamble(preambleString.c_str());
 	shader->setEntryPoint("main"); // We can specify a different entry point
 
 
 	const TBuiltInResource* resources = GetDefaultResources();
-	const int defaultVersion = 450;
+	const int defaultVersion = 460;
 	const bool forwardCompatible = false;
 	EProfile defaultProfile = ECoreProfile;
 
 
 	DirStackFileIncluder includer;
+	std::for_each(inSettings.listFoldersToInclude.begin(), inSettings.listFoldersToInclude.end(), [&includer](const fm::Folder& inFolder) {
+		includer.pushExternalLocalDirectory(inFolder.GetPathString());
+	});
 
 	std::string preprocessedStr;
 	if (!shader->preprocess(
-		resources, defaultVersion, defaultProfile, false, forwardCompatible, messageFlags, &preprocessedStr, includer))
+		resources, defaultVersion, defaultProfile, true, forwardCompatible, messageFlags, &preprocessedStr, includer))
 	{
 		const std::string failure = shader->getInfoLog();
+		assert(false);
 		DEBUG_ERROR(failure)
 	}
 
@@ -174,7 +181,11 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		{
 			fm::Folder(preprocessedFolder).CreateFolder();
 		}
-		fm::File(fm::FilePath(preprocessedFolder).ToSub(outputName)).SetContent(preprocessedStr);
+		fm::File finalFile = fm::File(fm::FilePath(preprocessedFolder).ToSub(outputName));
+		if (finalFile.Exist())
+			finalFile.Delete();
+
+		finalFile.SetContent("#version " + std::to_string(defaultVersion)+"\n" + preprocessedStr);
 	}
 
 	const char* preprocessedSources[1] = { preprocessedStr.c_str() };
@@ -184,6 +195,8 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		forwardCompatible, messageFlags, includer))
 	{
 		const std::string failure = shader->getInfoLog();
+		assert(false);
+
 		DEBUG_ERROR(failure)
 		return nullptr;
 	}
