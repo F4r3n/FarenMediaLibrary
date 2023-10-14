@@ -143,6 +143,8 @@ void RenderingSystem::pre_update(EntityManager& em)
 
 void RenderingSystem::update(float, EntityManager& em, EventManager&)
 {
+	uint32_t instance = 0;
+
 	for (auto &&e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
 	{
 		LOG_DEBUG
@@ -203,7 +205,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		else
 		{
 			_graphics.Disable(fm::RENDERING_TYPE::BLEND);
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam, instance);
 		}
 
 		LOG_DEBUG
@@ -220,21 +222,12 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			_FillQueue(cam, em);
 			for (const fm::RenderQueue::Batch& batch : cam->_rendererConfiguration.queue.Iterate())
 			{
-				assert(true);
 				_DrawMeshInstaned(cam, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
-
-				//_Draw(cam);
 			}
-			//if (!cam->_rendererConfiguration.queue.Empty())
-			//{
-				//TODO sort by model, to be able to draw multiple models at the same time
-				//cam->_rendererConfiguration.queue.Sort();
-				//_Draw(cam);
-			//}
 		}
 		else
 		{
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam, instance);
 		}
 
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
@@ -261,12 +254,11 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		//}
 			fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam);
+		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam, instance);
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
 		if (cam->_onPostRendering != nullptr)
 		{
-			//glFinish();
 			cam->_onPostRendering();
 		}
 
@@ -283,7 +275,7 @@ bool RenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCa
 }
 
 
-void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera* currentCamera)
+void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera* currentCamera, uint32_t& instance)
 {
 	LOG_DEBUG
 	fmc::CameraCommandBuffer::iterator it = currentCamera->_commandBuffers.find(queue);
@@ -336,7 +328,8 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
 				assert(true);
-				_DrawMesh(currentCamera, cmd._transform, cmd._model.lock().get(), cmd._material.lock(), &cmd._materialProperties);
+				_DrawMeshInstaned(currentCamera, cmd._transform, cmd._model.lock(), cmd._material.lock(), &cmd._materialProperties, 1, instance);
+				instance++;
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR)
 			{

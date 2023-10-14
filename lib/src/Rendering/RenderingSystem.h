@@ -70,7 +70,7 @@ public:
 	void _DrawMeshInstaned(fmc::CCamera* cam, const fm::Transform& inTransform, std::shared_ptr<fm::Model> inModel,
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties, uint32_t inNumber, uint32_t inBaseInstance);
 
-	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
+	void _ExecuteCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera, uint32_t &instance);
 	bool _HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 	void _PrepareShader(fmc::CCamera* cam, const fm::Transform& inTransform,
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties);
