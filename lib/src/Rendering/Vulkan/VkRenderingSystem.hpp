@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <array>
 #include "Rendering/GPUData.hpp"
+#include "Rendering/ShaderKind.hpp"
+#include "Rendering/SubShader.hpp"
 class Vulkan;
 
 namespace fm
@@ -20,6 +22,7 @@ namespace fm
 	class VkModel;
 	class VkMaterial;
 	class VkTexture;
+	class VkShader;
 }
 
 namespace fms
@@ -67,6 +70,7 @@ namespace fms
 		bool						_SetupUploadContext();
 		void						_ImmediateSubmit(std::function<void(VkCommandBuffer)>&& function);
 		void						_UploadMesh(fm::VkModel* inModel);
+		std::shared_ptr<fm::VkShader> _FindOrCreateShader(const fm::SubShader& inSubShader);
 
 	private:
 		inline const static int MAX_FRAMES_IN_FLIGHT = 2;
@@ -98,6 +102,8 @@ namespace fms
 		std::map<uint32_t, std::unique_ptr<fm::VkMaterial>>		_materials;
 		std::vector< fm::VkMaterial*>							_materialsToUpdate;
 		std::unordered_map<uint32_t, std::unique_ptr<fm::VkTexture>> _textures;
+		std::unordered_map<fm::ShaderID, std::shared_ptr<fm::VkShader>> _shaders;
+
 
 		fm::VkMaterial*				_currentMaterial;
 		uint64_t					_frame = 0;

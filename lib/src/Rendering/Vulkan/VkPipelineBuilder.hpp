@@ -1,6 +1,7 @@
 #pragma once
 #include "vulkan/vulkan.h"
 #include <vector>
+#include <memory>
 namespace fm
 {
 	class Shader;
@@ -9,7 +10,7 @@ namespace fm
 	{
 	public:
 		VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent, const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts,
-						Shader* inShader);
+			std::shared_ptr<VkShader> inShader);
 		~VkPipelineBuilder();
 		VkPipelineBuilder() = default;
 

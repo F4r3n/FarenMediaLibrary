@@ -6,35 +6,39 @@
 
 namespace fm
 {
-class VkShader
-{
-public:
-	enum class KIND
+	class SubShader;
+	class VkShader
 	{
-		VERT,
-		FRAG
+	public:
+		enum class KIND
+		{
+			VERT,
+			FRAG
+		};
+		struct MeshPushConstants {
+			fm::math::vec4	data;
+			fm::math::mat	render_matrix;
+		};
+
+		VkShader(const fm::SubShader& inSubShader);
+
+		~VkShader();
+
+		bool Make(VkDevice inDevice);
+		bool Delete(VkDevice inDevice);
+		VkPipelineShaderStageCreateInfo GetStageCreateInfo(KIND inKind) const;
+		fm::SubShader::Reflection GetReflection() { return _subShader->GetReflection(GRAPHIC_API::VULKAN); }
+	protected:
+
+
+	private:
+		VkShaderModule _CreateShaderModule(const std::vector<char>& code, VkDevice inDevice) const;
+
+		VkShaderModule _vertShaderModule = nullptr;
+		VkShaderModule _fragShaderModule = nullptr;
+
+		fm::FilePath	_path;
+		std::optional<fm::SubShader> _subShader;
+
 	};
-	struct MeshPushConstants {
-		fm::math::vec4	data;
-		fm::math::mat	render_matrix;
-	};
-
-	VkShader(const fm::FilePath& inFilePath);
-
-	~VkShader();
-
-	bool Make(VkDevice inDevice);
-	bool Delete(VkDevice inDevice);
-	VkPipelineShaderStageCreateInfo GetStageCreateInfo(KIND inKind) const;
-protected:
-
-
-private:
-	VkShaderModule _CreateShaderModule(const std::vector<char>& code, VkDevice inDevice) const;
-
-	VkShaderModule _vertShaderModule = nullptr;
-	VkShaderModule _fragShaderModule = nullptr;
-
-	fm::FilePath	_path;
-};
 }

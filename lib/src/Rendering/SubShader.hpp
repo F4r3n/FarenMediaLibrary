@@ -30,6 +30,7 @@ namespace fm
 		void SetReflection(const Reflections& inReflection);
 		const fm::FilePath& GetPath() const { return _path; }
 		ShaderID	GetID() const { return _ID; }
+		fm::SubShader::Reflection GetReflection(GRAPHIC_API inAPI) const { return _reflections[(size_t)inAPI]; }
 	private:
 		Reflections _reflections;
 		fm::FilePath _path;

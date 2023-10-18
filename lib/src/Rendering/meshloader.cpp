@@ -70,7 +70,7 @@ void MeshLoader::ProcessMesh(Model* inModel, const tinyobj::ObjReader& inReader)
 			size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
 
 			Vertex vertex;
-
+			vertex.color = fm::math::vec3(1, 1, 1);
 
 			// Loop over vertices in the face.
 			for (size_t v = 0; v < fv; v++) {

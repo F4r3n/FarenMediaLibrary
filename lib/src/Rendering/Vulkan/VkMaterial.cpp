@@ -3,26 +3,27 @@
 #include "Rendering/material.hpp"
 #include "Rendering/Vulkan/VkTexture.hpp"
 #include "Resource/ResourcesManager.h"
-#include "Rendering/Shader.h"
+#include "Rendering/Vulkan/VkShader.hpp"
 using namespace fm;
 
 VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
 {
 	_textures = inInfo.textures;
 	_material = inInfo.material;
-	_textureLayout = inInfo.textureLayout;
+	//_textureLayout = inInfo.textureLayout;
 	_vulkan = inInfo.vulkan;
 	_textureDescriptorSets.resize(inInfo.maxFramesInFlight);
+
+	fm::SubShader::Reflection r = inInfo.shader->GetReflection();
 	auto layouts = inInfo.descriptorLayout;
 
-	if (!_textures.empty()) //The texture cannot be set during rendering, should wait for next frame
-	{
-		layouts.emplace_back(_textureLayout);
-		isReady = false;
-	}
-	auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(_material->GetShaderPath());
-	_pipeline = std::make_unique<fm::VkPipelineBuilder>(_vulkan->GetDevice(), inInfo.renderPass, inInfo.extent, layouts,
-		shader.get());
+	//if (!_textures.empty()) //The texture cannot be set during rendering, should wait for next frame
+	//{
+	//	layouts.emplace_back(_textureLayout);
+	//	isReady = false;
+	//}
+	
+	_pipeline = std::make_unique<fm::VkPipelineBuilder>(_vulkan->GetDevice(), inInfo.renderPass, inInfo.extent, layouts, inInfo.shader);
 }
 
 
@@ -38,28 +39,28 @@ void VkMaterial::BindPipeline(VkCommandBuffer cmd, VkPipelineBindPoint inType)
 
 bool VkMaterial::BindSet(VkCommandBuffer inBuffer, uint32_t inFrameNumber)
 {
-	vkCmdBindDescriptorSets(inBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1, &_textureDescriptorSets[inFrameNumber], 0, nullptr);
+	//vkCmdBindDescriptorSets(inBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1, &_textureDescriptorSets[inFrameNumber], 0, nullptr);
 	return true;
 }
 
 
 void VkMaterial::Update(VkDescriptorPool inPool)
 {
-
-	for (auto& descriptorSet : _textureDescriptorSets)
-	{
-		if (_vulkan->AllocateDescriptorSet(inPool, &descriptorSet, &_textureLayout))
-		{
-			fm::VkTexture* texture = _textures.front();
-			VkDescriptorImageInfo imageInfo(texture->GetDescriptor());
-			std::vector<VkWriteDescriptorSet> setWrites = {
-				vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorSet, &imageInfo, 0)
-			};
-			vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
-		
-			isReady = true;
-		}
-	}
+	isReady = true;
+	//for (auto& descriptorSet : _textureDescriptorSets)
+	//{
+	//	if (_vulkan->AllocateDescriptorSet(inPool, &descriptorSet, &_textureLayout))
+	//	{
+	//		fm::VkTexture* texture = _textures.front();
+	//		VkDescriptorImageInfo imageInfo(texture->GetDescriptor());
+	//		std::vector<VkWriteDescriptorSet> setWrites = {
+	//			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorSet, &imageInfo, 0)
+	//		};
+	//		vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
+	//	
+	//		isReady = true;
+	//	}
+	//}
 
 }
 

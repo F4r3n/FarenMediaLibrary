@@ -6,11 +6,11 @@ using namespace fm;
 
 VkPipelineBuilder::VkPipelineBuilder(VkDevice inDevice, VkRenderPass inRenderPass, VkExtent2D inExtent,
 	const std::vector<VkDescriptorSetLayout>& inDescriptorLayouts,
-	Shader* inShader)
+	std::shared_ptr<VkShader> inShader)
 {
 	_device = inDevice;
 	_pipelineLayout = _CreatePipelineLayout(inDescriptorLayouts);
-	_pipeline = _CreatePipeline(_pipelineLayout, inRenderPass, inExtent, dynamic_cast<VkShader*>(inShader));
+	_pipeline = _CreatePipeline(_pipelineLayout, inRenderPass, inExtent, inShader.get());
 }
 
 VkPipelineBuilder::~VkPipelineBuilder()
@@ -23,7 +23,7 @@ VkPipelineLayout VkPipelineBuilder::_CreatePipelineLayout(const std::vector<VkDe
 	VkPipelineLayout pipelineLayout;
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = inDescriptorLayouts.size();
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(inDescriptorLayouts.size());
 	pipelineLayoutInfo.pSetLayouts = inDescriptorLayouts.data();
 
 	//setup push constants
@@ -59,7 +59,7 @@ VkPipeline  VkPipelineBuilder::_CreatePipeline(VkPipelineLayout inLayout,
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDesc; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = attributeDesc.size();
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDesc.size());
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDesc.data(); // Optional
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};

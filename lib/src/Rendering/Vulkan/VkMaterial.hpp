@@ -2,24 +2,26 @@
 #include <memory>
 #include "Vulkan.hpp"
 #include <vector>
+#include "Rendering/SubShader.hpp"
 namespace fm
 {
 	class Material;
 	class VkPipelineBuilder;
 	class VkTexture;
-
+	class VkShader;
 	class VkMaterial
 	{
 	public:
 		struct VkMaterialCreateInfo {
-			std::shared_ptr<fm::Material> material;
-			Vulkan* vulkan;
-			VkRenderPass renderPass;
-			VkExtent2D extent;
-			std::vector<VkDescriptorSetLayout> descriptorLayout;
+			std::shared_ptr<fm::Material>		material;
+			Vulkan*								vulkan;
+			VkRenderPass						renderPass;
+			VkExtent2D							extent;
+			std::vector<VkDescriptorSetLayout>	descriptorLayout;
 			std::vector<VkTexture*>				textures;
 			VkDescriptorSetLayout				textureLayout;
 			size_t								maxFramesInFlight = 1;
+			std::shared_ptr<fm::VkShader>		shader;
 		};
 
 		VkMaterial(const VkMaterialCreateInfo& inInfo);

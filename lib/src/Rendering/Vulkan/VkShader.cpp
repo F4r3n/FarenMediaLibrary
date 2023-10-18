@@ -3,11 +3,11 @@
 using namespace fm;
 
 
-VkShader::VkShader(const fm::FilePath& inFilePath)
+VkShader::VkShader(const fm::SubShader& inSubShader)
 {
-	_path = inFilePath;
+	_path = inSubShader.GetPath();
+	_subShader = inSubShader;
 }
-
 VkShader::~VkShader()
 {
 

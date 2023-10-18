@@ -227,7 +227,7 @@ bool VkRenderingSystem::_SetupDescriptors()
 		return false;
 
 	VkDescriptorSetLayoutBinding objectBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-																							VK_SHADER_STAGE_VERTEX_BIT, 0);
+																							VK_SHADER_STAGE_VERTEX_BIT, 2);
 	_objectSetLayout = _vulkan->CreateDescriporSetLayout({ objectBinding });
 	if (_objectSetLayout == nullptr)
 		return false;
@@ -276,7 +276,7 @@ bool VkRenderingSystem::_SetupGlobalUniforms()
 		std::vector<VkWriteDescriptorSet> setWrites = {
 			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _framesData[i].globalDescriptorSet, &binfo, 0),
 			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, _framesData[i].globalDescriptorSet, &sceneInfo, 1),
-			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, _framesData[i].objectDescriptor, &objectInfo, 0)
+			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, _framesData[i].objectDescriptor, &objectInfo, 2)
 		};
 
 		vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
@@ -298,6 +298,19 @@ std::vector<VkCommandBuffer> VkRenderingSystem::_CreateCommandBuffers(VkCommandP
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 	return commandBuffers;
+}
+
+std::shared_ptr<fm::VkShader> VkRenderingSystem::_FindOrCreateShader(const fm::SubShader& inSubShader)
+{
+	fm::ShaderID ID = inSubShader.GetID();
+	auto it = _shaders.find(ID);
+	if (it != _shaders.end())
+		return it->second;
+
+	std::shared_ptr<fm::VkShader> shader = std::make_shared<fm::VkShader>(inSubShader);
+	_shaders.emplace(ID, shader);
+	shader->Make(_vulkan->GetDevice());
+	return shader;
 }
 
 bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFramebuffer inFrameBuffer, VkRenderPass inRenderPass, EntityManager& em)
@@ -411,7 +424,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			materialInfo.textureLayout = _textureSetLayout;
 			materialInfo.textures.push_back(_textures.find(0)->second.get());
 			materialInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
-			//materialInfo.descriptorLayout.push_back(_textureSetLayout);
+			materialInfo.shader = _FindOrCreateShader(mainMaterial->GetSubShader().value());
 
 			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(materialInfo);
 			_materialsToUpdate.emplace_back(mat.get());
@@ -580,6 +593,12 @@ VkRenderingSystem::~VkRenderingSystem()
 	{
 		texture->Destroy();
 	}
+
+	for (const auto& [_, shader] : _shaders)
+	{
+		shader->Delete(_vulkan->GetDevice());
+	}
+
 
 	for (auto& frame : _framesData)
 	{
