@@ -4,69 +4,85 @@
 #include "Rendering/MaterialValue.h"
 #include "Core/Color.h"
 #include "Core/FilePath.h"
-
+#include "SubShader.hpp"
 
 using namespace fm;
 
-namespace fm {
-	void to_json(nlohmann::json& j, const Shader::Uniform& p) {
-		j["name"] = p.name;
-		j["binding"] = p.binding;
-		j["set"] = p.set;
-		j["type"] = p.type;
-	}
 
-	void to_json(nlohmann::json& j, const Shader::Reflection& p) {
-		nlohmann::json &uniforms = j["uniforms"];
-		for (const auto& [name, uniform] : p.uniforms)
-		{
-			uniforms[name] = uniform;
-		}
-	}
-	void from_json(const nlohmann::json& j, Shader::Uniform& p) {
-		p.name = j["name"];
-		p.binding = j["binding"];
-		p.set = j["set"];
-		p.type = j["type"];
-	}
-
-	void from_json(const nlohmann::json& j, Shader::Reflection& p) {
-		for (const auto& uniform : j["uniforms"])
-		{
-			Shader::Uniform u = uniform;
-
-			p.uniforms.emplace(u.name, u);
-		}
-	}
-
-}
-
-
-Shader::Shader() :Resource(fm::FilePath(std::string(""))) {
-}
 
 Shader::Shader(const fm::FilePath& inFilePath) : Resource(inFilePath)
 {
 	_name = inFilePath.GetName(true);
+	_ID++;
+	_currentID = _ID;
 }
 
 void Shader::Save(nlohmann::json& outJSON) const
 {
 	fm::Resource::Save(outJSON);
-	outJSON["reflection"] = this->_reflection;
 
+	nlohmann::json& s = outJSON["subShaders"];
+
+	for (const auto& [type, subshader] : _subShaders)
+	{
+		nlohmann::json subShaderJSON;
+		subshader.Save(subShaderJSON);
+
+		nlohmann::json j;
+		j["kind"] = type;
+		j["data"] = subShaderJSON;
+		s.push_back(j);
+	}
 }
 
 void Shader::Load(const nlohmann::json& inJSON)
 {
 	fm::Resource::Load(inJSON);
-	this->_reflection = inJSON["reflection"];
+
+	for (const auto& subshader : inJSON["subShaders"])
+	{
+		fm::SHADER_KIND kind = (fm::SHADER_KIND)subshader["kind"];
+		ShaderID id = uint64_t(kind) | (uint64_t(_currentID) << 32);
+
+		SubShader sub(fm::FilePath(_path).ToSub(std::to_string(kind)), id);
+		sub.Load(subshader["data"]);
+
+		_subShaders.emplace((fm::SHADER_KIND)subshader["kind"], sub);
+	}
 }
 
+void Shader::AddSubShader(SHADER_KIND inKind, const SubShader::Reflections& inReflection)
+{
+	ShaderID id = uint64_t(inKind) | (uint64_t(_currentID) << 32);
+	SubShader sub(fm::FilePath(_path).ToSub(std::to_string(inKind)), id);
+	sub.SetReflection(inReflection);
+	_subShaders.emplace(inKind, sub);
+}
+
+std::optional<SubShader> Shader::GetSubShader(SHADER_KIND inKind) const
+{
+	auto it = _subShaders.find(inKind);
+	if (it != _subShaders.end())
+		return it->second;
+
+	return std::nullopt;
+}
 
 
 Shader::~Shader()
 {
 }
 
+SHADER_KIND Shader::ConvertStringsToShaderKind(const std::vector<std::string>& inStrings)
+{
+	int kind = SHADER_KIND::PLAIN;
+	for (const auto& s : inStrings)
+	{
+		if (s == "texture")
+		{
+			kind |= (int)SHADER_KIND::TEXTURE;
+		}
+	}
+	return (SHADER_KIND)kind;
+}
 

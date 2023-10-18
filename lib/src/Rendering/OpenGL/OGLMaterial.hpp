@@ -9,6 +9,7 @@ namespace fm
 	class MaterialProperties;
 	struct OGLMaterialCreateInfo {
 		std::shared_ptr<fm::Material> material;
+		std::shared_ptr<fm::OGLShader> shader;
 	};
 
 	class OGLMaterial

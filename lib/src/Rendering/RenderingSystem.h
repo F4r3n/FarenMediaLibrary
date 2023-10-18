@@ -12,7 +12,7 @@
 #include <memory>
 #include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 #include "Rendering/GPUData.hpp"
-
+#include "ShaderKind.hpp"
 namespace fmc 
 {
 	class CText;
@@ -34,6 +34,7 @@ namespace fm
 	class OGLModel;
 	class OGLMaterial;
 	class OGLCamera;
+	class SubShader;
 }
 
 struct TextDef 
@@ -76,21 +77,27 @@ public:
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties);
 	virtual ~RenderingSystem();
 
+	std::shared_ptr<fm::OGLShader> _FindOrCreateShader(const fm::SubShader& inSubShader);
 private:
-	std::shared_ptr<fm::Shader> _finalShader;
-	std::shared_ptr<fm::Shader> _lightShader;
+	std::unique_ptr<fm::OGLShader> _finalShader;
+	//std::unique_ptr<fm::OGLShader> _lightShader;
 	size_t _width;
 	size_t _height;
 	//int _lightNumber = 0;
 
 	fm::Graphics _graphics;
 
-	TextDef _textdef;
+	//TextDef _textdef;
 	GRAPHIC_API _api = GRAPHIC_API::OPENGL;
 	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLModel>>		_models;
 	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLMaterial>>	_materials;
+
+	//ShaderID + SHADER_KIND
+	std::unordered_map<fm::ShaderID, std::shared_ptr<fm::OGLShader>> _shaders;
+
 	fm::OGLMaterial*												_currentMaterial = nullptr;
 	std::unordered_map<uint32_t, std::unique_ptr<fm::OGLCamera>>	_cameras;
+	
 	fm::OGLCamera*													_currentCamera = nullptr;
 	fm::OGLUniformbuffer											_ssbo;
 };

@@ -71,11 +71,11 @@ namespace fm
 			std::shared_ptr<T> data = fm::ResourcesManager::get().getResource<T>(inPath);
 			if (inRegister)
 			{
+				fm::FilePath localisationData = _isImportNeeded ? path : inPath;
 				if (data == nullptr)
 				{
 					nlohmann::json object;
-					std::string content = fm::File(inPath).GetContent();
-					object = object.parse(content);
+					fm::File(localisationData).GetJSONContent(object);
 					data = std::make_shared<T>(inPath);
 					data->Load(object);
 

@@ -15,6 +15,51 @@
 #include "ShaderCompiler.h"
 #include "Resource/ResourcesManager.h"
 #include "Resource/ResourceLoader.h"
+#include <algorithm>
+#include "Rendering/ShaderKind.hpp"
+#include <bitset>
+using Combinations = std::vector<std::vector<std::string>>;
+
+Combinations GetPossibleCombinations(const fm::Folder& inFolder, std::vector<std::string>& outListDrivers)
+{
+	Combinations comb;
+	nlohmann::json j;
+	fm::File file(fm::FilePath(inFolder.GetPath()).ToSub("combinations.json"));
+	if (!file.Exist())
+	{
+		return comb;
+	}
+	file.GetJSONContent(j);
+	std::vector<std::string> listDrivers = j["drivers"];
+	outListDrivers = std::move(listDrivers);
+
+	if (j.contains("combination"))
+	{
+		std::vector<std::string> combination = j["combination"];
+		const fm::ShaderID numberOfCombination = (uint64_t)1 << (uint32_t)combination.size();
+		for (size_t i = 0; i < numberOfCombination; ++i)
+		{
+			std::vector<std::string> currentCombi;
+			std::bitset<32> bits = i;
+			for (int j = 0; j < bits.count(); ++j)
+			{
+				if (bits.test(j))
+				{
+					currentCombi.emplace_back(combination[j]);
+				}
+			}
+			comb.emplace_back(currentCombi);
+		}
+	}
+	else
+	{
+		comb.push_back({});
+	}
+
+
+	return comb;
+}
+
 void CompileShaders()
 {
 	fm::ResourceLoader loader;
@@ -24,50 +69,89 @@ void CompileShaders()
 	gui::ShaderCompiler compiler;
 
 	fm::Folder(path).Iterate(false, [&compiler, &loader](const fm::Folder* inFolder, const fm::File* inFile)
-	{
-		if (inFolder)
 		{
-			if (inFolder->GetPath().GetExtension() == ".vkshader")
+			if (inFolder)
 			{
-				gui::ShaderCompiler::ShaderCompilerSettings settings{};
-				settings.api = GRAPHIC_API::VULKAN;
-				settings.generatePreprocess = false;
-				settings.generateReflection = true;
-				settings.generateSPV = true;
-				settings.shaderFolder = *inFolder;
-				settings.listFoldersToInclude = { fm::Folder(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "includes")) };
-
-				fm::Shader::Reflection reflect;
-				compiler.Compile(settings, reflect);
-				auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FileSystem::ConvertPathToFileSystem(inFolder->GetPath()));
-				if (shader != nullptr)
+				if (inFolder->GetPath().GetExtension() == ".shader")
 				{
-					shader->SetReflection(reflect);
-				}
-				loader.SaveImport(inFolder->GetPath(), false);
-			}
-			else if (inFolder->GetPath().GetExtension() == ".shader")
-			{
-				gui::ShaderCompiler::ShaderCompilerSettings settings{};
-				settings.api = GRAPHIC_API::OPENGL;
-				settings.generatePreprocess = true;
-				settings.generateReflection = true;
-				settings.generateSPV = false;
-				settings.shaderFolder = *inFolder;
-				settings.listFoldersToInclude = { fm::Folder(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "includes")) };
+					std::vector<std::string> listDrivers;
+					Combinations combinations = GetPossibleCombinations(*inFolder, listDrivers);
+					gui::ShaderCompiler::ShaderCompilerSettings settings{};
+					settings.api = GRAPHIC_API::OPENGL;
+					settings.generateReflection = true;
+					settings.shaderFolder = *inFolder;
+					settings.listFoldersToInclude = { fm::Folder(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "includes")) };
 
-				fm::Shader::Reflection reflect;
-				compiler.Compile(settings, reflect);
-				auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FileSystem::ConvertPathToFileSystem(inFolder->GetPath()));
-				if (shader != nullptr)
-				{
-					shader->compile();
-					shader->SetReflection(reflect);
+					std::string shaderPath = fm::FileSystem::ConvertPathToFileSystem(inFolder->GetPath());
+					auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(shaderPath);
+					if (shader == nullptr)
+					{
+						shader = std::make_shared<fm::Shader>(inFolder->GetPath());
+						fm::ResourcesManager::get().load<fm::Shader>(shaderPath, shader);
+					}
+
+					for (const auto& combination : combinations)
+					{
+						fm::SubShader::Reflections reflections;
+						fm::SHADER_KIND kind = fm::Shader::ConvertStringsToShaderKind(combination);
+
+						gui::ShaderCompiler::ShaderMacro macros;
+
+						for (const auto& value : combination)
+						{
+							std::string v(value);
+							std::transform(value.begin(), value.end(), v.begin(), ::toupper);
+
+							macros.DefineMacro("_" + v + "_", 1);
+						}
+
+						for (const auto& driver : listDrivers)
+						{
+							if (driver == "opengl")
+							{
+								settings.generateSPV = false;
+								settings.generatePreprocess = true;
+								settings.api = GRAPHIC_API::OPENGL;
+							}
+							else
+							{
+								settings.api = GRAPHIC_API::VULKAN;
+								settings.generateSPV = true;
+								settings.generatePreprocess = false;
+							}
+							if (driver == "opengl")
+							{
+								macros.DefineMacro("_VULKAN_", 0);
+								macros.DefineMacro("_OPENGL_", 1);
+							}
+							else
+							{
+								macros.DefineMacro("_VULKAN_", 1);
+								macros.DefineMacro("_OPENGL_", 0);
+							}
+							
+
+							settings.macros = macros;
+							settings.shaderOutputFolder = fm::Folder(fm::FilePath(settings.shaderFolder.GetPath()).ToSub(std::to_string(kind)));
+							settings.shaderOutputFolder->CreateFolder();
+
+							fm::SubShader::Reflection reflect;
+							compiler.Compile(settings, reflect);
+							reflections[settings.api] = reflect;
+						}
+						
+						if (shader != nullptr)
+						{
+							shader->AddSubShader(kind, reflections);
+						}
+
+					}
+
+					loader.SaveImport(inFolder->GetPath(), false);
+
 				}
-				loader.SaveImport(inFolder->GetPath(), false);
 			}
-		}
-	});
+		});
 }
 
 
@@ -117,7 +201,7 @@ int main()
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 
-		
+
 		fm::Application::Get().Update();
 
 		const bool hasFocus = ((SDL_GetWindowFlags(window->getWindow()) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS);
@@ -140,7 +224,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		
+
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
@@ -161,5 +245,5 @@ int main()
 	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
-	return 0;	
+	return 0;
 }

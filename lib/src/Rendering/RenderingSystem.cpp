@@ -69,11 +69,15 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
 
 	_ssbo.Generate(sizeof(fms::GPUObjectData) * 10000, 2, GL_SHADER_STORAGE_BUFFER);
-	_finalShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "simple.shader"));
-	_lightShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "light.shader"));
+	auto finalShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "simple.shader"));
+	//auto lightShader = fm::ResourcesManager::get().getResource<fm::Shader>(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "simple.shader"));
 
-	_textdef.projection = fm::math::ortho(
-		0.0f, (float)_width, 0.0f, (float)_height);
+	_finalShader = std::make_unique<fm::OGLShader>(finalShader->GetSubShader(fm::SHADER_KIND::PLAIN).value());
+	_finalShader->compile();
+	//_lightShader = std::make_unique<fm::OGLShader>(finalShader->GetSubShader(fm::SHADER_KIND::PLAIN));
+
+	//_textdef.projection = fm::math::ortho(
+	//	0.0f, (float)_width, 0.0f, (float)_height);
 
 }
 
@@ -291,10 +295,11 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			fm::Command && cmd = cmdBuffer.Pop();
 			if (cmd._command == fm::Command::COMMAND_KIND::BLIT)
 			{
-				std::shared_ptr<fm::Shader> shader = _finalShader;
-				if (auto m  = cmd._material.lock())
+				fm::OGLShader* shader = _finalShader.get();
+				if (auto m  = cmd._material.lock(); m->GetSubShader().has_value())
 				{
-					shader = fm::ResourcesManager::get().getResource<fm::Shader>(m->GetShaderPath());
+					
+					shader = _FindOrCreateShader(m->GetSubShader().value()).get();
 					shader->Use();
 					for (auto const& value : m->GetProperties())
 					{
@@ -321,7 +326,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 				{
 					if (cmd._destination.renderTexture != nullptr)
 					{
-						fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader.get());
+						fm::Renderer::getInstance().blit(_graphics, *cmd._destination.renderTexture, shader);
 					}
 				}
 			}
@@ -372,6 +377,20 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 	LOG_DEBUG
 }
 
+std::shared_ptr<fm::OGLShader> RenderingSystem::_FindOrCreateShader(const fm::SubShader& inSubShader)
+{
+	fm::ShaderID ID = inSubShader.GetID();
+	auto it = _shaders.find(ID);
+	if (it != _shaders.end())
+		return it->second;
+
+	std::shared_ptr<fm::OGLShader> shader = std::make_shared<fm::OGLShader>(inSubShader);
+	_shaders.emplace(ID, shader);
+	shader->compile();
+	return shader;
+}
+
+
 void RenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inTransform,
 	std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties)
 {
@@ -379,8 +398,17 @@ void RenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inT
 	{
 		if (auto it = _materials.find(inMaterial->GetID()); it == _materials.end())
 		{
+			std::optional<fm::SubShader> sub = inMaterial->GetSubShader();
+			if (!sub.has_value())
+			{
+				assert(false);
+			}
+
+			std::shared_ptr<fm::OGLShader> shader = _FindOrCreateShader(sub.value());
+			
 			fm::OGLMaterialCreateInfo info;
 			info.material = inMaterial;
+			info.shader = shader;
 			std::unique_ptr<fm::OGLMaterial> mat = std::make_unique< fm::OGLMaterial>(info);
 			_currentMaterial = _materials.emplace(inMaterial->GetID(), std::move(mat)).first->second.get();
 		}
@@ -508,7 +536,7 @@ void RenderingSystem::_Draw(fmc::CCamera* cam)
 	_currentCamera = nullptr;
 
 
-	int i = 0;
+	//int i = 0;
 /*    while (!cam->_rendererConfiguration.queue.Empty())
     {
         const fm::RenderNode node = cam->_rendererConfiguration.queue.getFrontElement();
@@ -627,6 +655,8 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 	if (inText->GetText().empty())
 		return;
 
+	assert(false);
+	/*
 	std::weak_ptr<fm::RFont> font = fm::ResourcesManager::get().getResource<fm::RFont>(inText->GetFontName());
 	std::weak_ptr<fm::Shader> shader = fm::ResourcesManager::get().getResource<fm::Shader>(inMaterial->GetShaderPath());
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
@@ -669,7 +699,7 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 	}
-
+	*/
 
 }
 

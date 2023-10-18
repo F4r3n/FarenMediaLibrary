@@ -5,7 +5,7 @@
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Model.hpp"
-
+#include "Rendering/OpenGL/OGLShader.hpp"
 using namespace fm;
 
 Renderer Renderer::_instance;
@@ -21,16 +21,17 @@ void Renderer::lightComputation(fm::Graphics& graphics,
                                 const OGLTexture&colorBuffer,
                                 bool compute) 
 {
-    std::shared_ptr<fm::Shader> light = ResourcesManager::get().getResource<fm::Shader>("no_light");
-
-    light->Use();
-    int error = glGetError();
-    if(error != 0) 
-	{
-        std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
-    }
-    graphics.BindTexture2D(0, colorBuffer.getID(), (int)colorBuffer.GetKind());
-    graphics.Draw(_quad);
+	assert(false);
+    //std::shared_ptr<fm::Shader> light = ResourcesManager::get().getResource<fm::Shader>("no_light");
+	//
+    //light->Use();
+    //int error = glGetError();
+    //if(error != 0) 
+	//{
+    //    std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
+    //}
+    //graphics.BindTexture2D(0, colorBuffer.getID(), (int)colorBuffer.GetKind());
+    //graphics.Draw(_quad);
 }
 
 void Renderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
@@ -42,18 +43,20 @@ void Renderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
     graphics.Draw(_quad);
 }
 
-void Renderer::blit(fm::Graphics& graphics,
-	OGLTexture& texture,
-                    Shader* shader) const {
+void Renderer::blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* shader) const
+{
     shader->Use();
     graphics.BindTexture2D(0, texture.getID(), (int)texture.GetKind());
 
     graphics.Draw(_quad);
 }
+
+
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& source,
                     RenderTexture& dest,
-                    Shader* shader) const {
+					OGLShader* shader) const
+{
     dest.bind();
     shader->Use();
     graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), (int)source.GetColorBufferTexture(0).GetKind());
@@ -92,10 +95,12 @@ void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTextu
     }
 }
 
+
 void Renderer::blit(fm::Graphics& graphics,
                     int ID,
                     RenderTexture& dest,
-                    Shader* shader) const {
+					OGLShader* shader) const
+{
     dest.bind();
     shader->Use();
     glActiveTexture(GL_TEXTURE0);
@@ -104,24 +109,33 @@ void Renderer::blit(fm::Graphics& graphics,
     graphics.Draw(_quad);
 }
 
+
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& dest,
-                    Shader* shader) {
+					OGLShader* shader)
+{
 
     shader->Use();
     dest.bind();
     graphics.Draw(_quad);
 }
-void Renderer::blit(fm::Graphics& graphics, Shader* shader) {
+
+
+void Renderer::blit(fm::Graphics& graphics, OGLShader* shader)
+{
     shader->Use();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     graphics.Draw(_quad);
 }
 
-void Renderer::clear(fm::Graphics& graphics) {
+
+void Renderer::clear(fm::Graphics& graphics)
+{
     graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 }
 
-Renderer::~Renderer() {
+
+Renderer::~Renderer()
+{
 }

@@ -4,6 +4,7 @@
 #include <cstring>
 #include "Resource/ResourcesManager.h"
 #include <cassert>
+#include "nlohmann/json.hpp"
 namespace fs = std::filesystem;
 using namespace fm;
 
@@ -111,8 +112,7 @@ std::string	FilePath::GetPathString() const
 
 void FilePath::AddExtension(const std::string& inExtention)
 {
-	auto extension = _path.replace_extension();
-	extension += inExtention;
+	_path += inExtention;
 }
 
 
@@ -337,15 +337,10 @@ bool File::Exist() const
 
 std::string File::GetContent() const
 {
-	if (Exist())
-	{
-		std::ifstream stream(_path.GetPath());
-		std::string s((std::istreambuf_iterator<char>(stream)),
-			std::istreambuf_iterator<char>());
-		return s;
-	}
-
-	return "";
+	std::ifstream stream(_path.GetPath());
+	std::string s((std::istreambuf_iterator<char>(stream)),
+		std::istreambuf_iterator<char>());
+	return s;
 }
 
 void File::SetContent(const std::string& inContent) const
@@ -386,8 +381,14 @@ std::optional<std::vector<char>> File::GetBinaryContent() const
 	file.close();
 
 	return buffer;
-
 }
+
+void File::GetJSONContent(nlohmann::json& outJSON) const
+{
+	std::string content = GetContent();
+	outJSON = nlohmann::json::parse(content);
+}
+
 
 
 void FileSystem::ConvertFileSystemToPath(const std::string& inPath, std::string& outPath, fm::LOCATION &outID)

@@ -151,7 +151,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 
 void ResourcesManager::Reload(bool force)
 {
-	for (size_t i = 0; i < RESOURCE_TYPE::LAST_RESOURCE; ++i)
+	for (size_t i = 0; i < (size_t)RESOURCE_TYPE::LAST_RESOURCE; ++i)
 	{
 		auto rKind = resources[i];
 		for (auto&& r : rKind)
@@ -167,27 +167,11 @@ void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
 
 	Folder shaders(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_SHADERS_LOCATION)));
 
-	shaders.Iterate(false, [inAPI](const fm::Folder* inFolder, const fm::File* inFile)
+	shaders.Iterate(false, [this](const fm::Folder* inFolder, const fm::File* inFile)
 	{
 		if (inFolder != nullptr)
 		{
-			if (inAPI == GRAPHIC_API::OPENGL && inFolder->GetPath().GetExtension() == ".shader")
-			{
-				const std::string name = inFolder->GetPath().GetName(true);
-				std::shared_ptr<Shader> shader = std::make_shared<OGLShader>(inFolder->GetPath(), name);
-				shader->compile();
-				fm::ResourcesManager::get().load<fm::Shader>(inFolder->GetPath(), shader);
-			}
-#if WITH_VULKAN
-			else if (inAPI == GRAPHIC_API::VULKAN && inFolder->GetPath().GetExtension() == ".vkshader")
-			{
-				const std::string name = inFolder->GetPath().GetName(true);
-				std::shared_ptr<Shader> shader = std::make_shared<fm::VkShader>(inFolder->GetPath(), name);
-				fm::FilePath changeName = inFolder->GetPath().GetParent();
-				changeName.ToSub(name + ".shader");
-				fm::ResourcesManager::get().load<fm::Shader>(changeName, shader);
-			}
-#endif
+			_loader->Load(inFolder->GetPath(), true);
 		}
 	});
 

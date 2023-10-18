@@ -23,7 +23,7 @@ bool ExportManager::Run()
 		{
 			if (inFolder)
 			{
-				if (inFolder->GetPath().GetExtension() == ".vkshader")
+				/*if (inFolder->GetPath().GetExtension() == ".vkshader")
 				{
 					fm::Shader::Reflection reflect;
 					gui::ShaderCompiler::ShaderCompilerSettings settings{};
@@ -41,7 +41,7 @@ bool ExportManager::Run()
 					{
 						shader->SetReflection(reflect);
 					}
-				}
+				}*/
 			}
 		});
 

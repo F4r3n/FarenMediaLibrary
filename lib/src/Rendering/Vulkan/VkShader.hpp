@@ -6,7 +6,7 @@
 
 namespace fm
 {
-class VkShader : public Shader
+class VkShader
 {
 public:
 	enum class KIND
@@ -18,11 +18,9 @@ public:
 		fm::math::vec4	data;
 		fm::math::mat	render_matrix;
 	};
-	VkShader();
 
-	VkShader(const fm::FilePath& inFilePath, const std::string& name);
+	VkShader(const fm::FilePath& inFilePath);
 
-	virtual bool compile();
 	~VkShader();
 
 	bool Make(VkDevice inDevice);
@@ -36,5 +34,7 @@ private:
 
 	VkShaderModule _vertShaderModule = nullptr;
 	VkShaderModule _fragShaderModule = nullptr;
+
+	fm::FilePath	_path;
 };
 }

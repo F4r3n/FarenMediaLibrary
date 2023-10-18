@@ -5,6 +5,7 @@
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
 #include <fstream>
+#include <unordered_map>
 using namespace fm;
 using namespace gui;
 class DirStackFileIncluder : public glslang::TShader::Includer {
@@ -108,12 +109,57 @@ protected:
 	}
 };
 
+void ShaderCompiler::ShaderMacro::DefineMacro(const std::string& inMacro, uint32_t inValue)
+{
+	_macros[inMacro] = inValue;
+}
+
+void ShaderCompiler::ShaderMacro::UndefMacro(const std::string& inMacro)
+{
+	_undefMacros.emplace(inMacro);
+}
+
+void ShaderCompiler::ShaderMacro::RemoveMacro(const std::string& inMacro)
+{
+	_macros.erase(inMacro);
+	_undefMacros.erase(inMacro);
+}
+
+std::vector<std::string> ShaderCompiler::ShaderMacro::ToPreprocess() const
+{
+	std::vector<std::string> preprocess;
+	preprocess.reserve(_macros.size());
+	for (const auto& [macro, value] : _macros)
+	{
+		preprocess.emplace_back("define-macro " + macro);
+	}
+
+	for (const auto& macro : _undefMacros)
+	{
+		preprocess.emplace_back("undef-macro " + macro);
+	}
+	return preprocess;
+}
+
+std::string ShaderCompiler::ShaderMacro::ToPreamble() const
+{
+	std::string preamble;
+	for (const auto& [macro, value] : _macros)
+	{
+		preamble += "#define " + macro + " " + std::to_string(value) + "\n";
+	}
+
+	for (const auto& macro : _undefMacros)
+	{
+		preamble += "#undef " + macro + "\n";
+	}
+	return preamble;
+}
+
 ShaderCompiler::ShaderCompiler()
 {
 	ShInitialize();
 }
-
-
 
 
 std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompilerSettings& inSettings, EShLanguage inLang, const fm::File& inFile, EShMessages messageFlags)
@@ -124,7 +170,6 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 	const char* sources[1] = { content.c_str()};
 	shader->setStrings(sources, 1);
 
-	std::string preambleString;
 	//preambleString += "#extension GL_GOOGLE_include_directive : require\n";
 	if (inSettings.api == GRAPHIC_API::OPENGL)
 	{
@@ -134,7 +179,6 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		shader->setEnvInput(glslang::EShSourceGlsl, inLang, glslang::EShClientOpenGL, 420);
 		shader->setEnvTarget(glslang::EshTargetSpv, (glslang::EShTargetLanguageVersion)0);
 		shader->setAutoMapLocations(true);
-		preambleString += "#define _VULKAN_ 0\n#define _OPENGL_ 1";
 	}
 	else if (inSettings.api == GRAPHIC_API::VULKAN)
 	{
@@ -143,9 +187,11 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		glslang::EShTargetLanguageVersion spirvVersion = glslang::EShTargetSpv_1_3;
 		shader->setEnvTarget(glslang::EshTargetSpv, spirvVersion);
 		shader->setEnvClient(client, targetApiVersion);
-		preambleString += "#define _VULKAN_ 1\n#define _OPENGL_ 0";
 	}
-	shader->setPreamble(preambleString.c_str());
+
+	std::string preamble = inSettings.macros.ToPreamble();
+	shader->setPreamble(preamble.c_str());
+	shader->addProcesses(inSettings.macros.ToPreprocess());
 	shader->setEntryPoint("main"); // We can specify a different entry point
 
 
@@ -176,7 +222,7 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		{
 			outputName = "frag.frag";
 		}
-		fm::FilePath preprocessedFolder = fm::FilePath(inSettings.shaderFolder.GetPath()).ToSub("Preprocessed");
+		fm::FilePath preprocessedFolder = fm::FilePath(inSettings.GetDestinationPath()).ToSub("Preprocessed");
 		if (!fm::Folder(preprocessedFolder).Exist())
 		{
 			fm::Folder(preprocessedFolder).CreateFolder();
@@ -185,7 +231,7 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		if (finalFile.Exist())
 			finalFile.Delete();
 
-		finalFile.SetContent("#version " + std::to_string(defaultVersion)+"\n" + preprocessedStr);
+		finalFile.SetContent(preprocessedStr);
 	}
 
 	const char* preprocessedSources[1] = { preprocessedStr.c_str() };
@@ -226,14 +272,14 @@ fm::ValuesType ConvertGLSLTypeToMaterial(const glslang::TType* inType)
 	return fm::ValuesType::VALUE_NONE;
 }
 
-void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::Shader::Reflection& outReflection)
+void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::SubShader::Reflection& outReflection)
 {
 	program.buildReflection();
 	//program.dumpReflection()
 	for (int i = 0; i < program.getNumUniformVariables(); i++)
 	{
 		std::string name = program.getUniformName(i);
-		fm::Shader::Uniform uniform;
+		fm::SubShader::Uniform uniform;
 		uniform.name = name;
 		uniform.binding = program.getUniform(i).getBinding();
 		if (uniform.binding == -1)
@@ -246,7 +292,7 @@ void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::Shader::Re
 	for (int i = 0; i < program.getNumUniformBlocks(); i++)
 	{
 		std::string name = program.getUniformBlockName(i);
-		fm::Shader::Uniform uniform;
+		fm::SubShader::Uniform uniform;
 		uniform.name = name;
 		uniform.binding = program.getUniformBlock(i).getBinding();
 		if (uniform.binding == -1)
@@ -260,7 +306,7 @@ void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::Shader::Re
 
 
 
-bool ShaderCompiler::Compile(const ShaderCompilerSettings& inSettings, fm::Shader::Reflection& outReflection)
+bool ShaderCompiler::Compile(const ShaderCompilerSettings& inSettings, fm::SubShader::Reflection& outReflection)
 {
 	fm::FilePath path(inSettings.shaderFolder.GetPath());
 
@@ -298,7 +344,7 @@ bool ShaderCompiler::Compile(const ShaderCompilerSettings& inSettings, fm::Shade
 
 	if (inSettings.generateSPV)
 	{
-		fm::FilePath spirvPath(inSettings.shaderFolder.GetPath());
+		fm::FilePath spirvPath = inSettings.GetDestinationPath();
 		spirvPath.ToSub("SPIR-V");
 		fm::Folder spirvFolder(spirvPath);
 		if (!spirvFolder.Exist())
@@ -310,8 +356,8 @@ bool ShaderCompiler::Compile(const ShaderCompilerSettings& inSettings, fm::Shade
 			//spirvFolder.Delete(true);
 		}
 
-		_WriteSPV(program.getIntermediate(EShLanguage::EShLangFragment), fm::FilePath(spirvFolder.GetPath()).ToSub("_frag.spv"));
-		_WriteSPV(program.getIntermediate(EShLanguage::EShLangVertex), fm::FilePath(spirvFolder.GetPath()).ToSub("_vert.spv"));
+		_WriteSPV(program.getIntermediate(EShLanguage::EShLangFragment), fm::FilePath(spirvFolder.GetPath()).ToSub("frag.spv"));
+		_WriteSPV(program.getIntermediate(EShLanguage::EShLangVertex), fm::FilePath(spirvFolder.GetPath()).ToSub("vert.spv"));
 	}
 
 
@@ -328,6 +374,9 @@ void ShaderCompiler::_WriteSPV(glslang::TIntermediate* intermediateRef, const fm
 	// glslang::spv::SpvBuildLogger logger;
 	// glslang::GlslangToSpv(intermediateRef, spirv, &logger, &options);
 	glslang::GlslangToSpv(*intermediateRef, spirv, &options);
-
+	if (fm::File(inDestination).Exist())
+	{
+		fm::File(inDestination).Delete();
+	}
 	fm::File(inDestination).SetContent(spirv);
 }

@@ -11,7 +11,7 @@ namespace fm
 
 
  namespace fm {   
-	 enum RESOURCE_TYPE {
+	 enum class RESOURCE_TYPE {
 		TEXTURE,
 		FONT,
 		MESH,

@@ -255,35 +255,35 @@ void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeByte
 
 void CCamera::InitUniformBuffer()
 {
-	glGenBuffers(1, &_rendererConfiguration.generatedBlockBinding);
-	glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
-	glBufferData(GL_UNIFORM_BUFFER,
-				sizeof(shader_data),
-				&shader_data,
-				GL_DYNAMIC_COPY);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
-	{
-		std::shared_ptr<fm::Shader> s = std::dynamic_pointer_cast<fm::Shader>(shader.second);
-		s->Use();
-
-		glBindBufferBase(GL_UNIFORM_BUFFER,
-						_rendererConfiguration.bindingPointIndex,
-						_rendererConfiguration.generatedBlockBinding);
-
-		std::shared_ptr<OGLShader> glshader = std::dynamic_pointer_cast<OGLShader>(s);
-		glshader->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
-	}
+	//glGenBuffers(1, &_rendererConfiguration.generatedBlockBinding);
+	//glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
+	//glBufferData(GL_UNIFORM_BUFFER,
+	//			sizeof(shader_data),
+	//			&shader_data,
+	//			GL_DYNAMIC_COPY);
+	//
+	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	//
+	//for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
+	//{
+	//	std::shared_ptr<fm::Shader> s = std::dynamic_pointer_cast<fm::Shader>(shader.second);
+	//	s->Use();
+	//
+	//	glBindBufferBase(GL_UNIFORM_BUFFER,
+	//					_rendererConfiguration.bindingPointIndex,
+	//					_rendererConfiguration.generatedBlockBinding);
+	//
+	//	std::shared_ptr<OGLShader> glshader = std::dynamic_pointer_cast<OGLShader>(s);
+	//	glshader->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
+	//}
 }
 
 void CCamera::UpdateUniformBufferCamera()
 {
-	glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
-	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-	memcpy(p, &shader_data, sizeof(shader_data));
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
+	//glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
+	//GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+	//memcpy(p, &shader_data, sizeof(shader_data));
+	//glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
 void CCamera::UpdateRenderConfigBounds(const fm::Transform &inTransform)

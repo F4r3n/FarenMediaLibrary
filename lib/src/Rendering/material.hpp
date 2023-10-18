@@ -6,6 +6,7 @@
 #include <Resource/Resource.h>
 #include <Core/serializer.hpp>
 #include <Rendering/Graphics.hpp>
+#include "Rendering/Shader.h"
 namespace fm
 {
 	class Shader;
@@ -144,10 +145,12 @@ namespace fm
 		void Load(const nlohmann::json& inJSON) override;
 
 		void Save() const override;
-
+		std::optional<fm::SubShader> GetSubShader();
+		SHADER_KIND GetShaderKind() const { return _kind; }
+		
 	private:
 		fm::FilePath _shaderPath;
-
+		SHADER_KIND _kind = SHADER_KIND::PLAIN;
 		std::string _name;
 		MaterialProperties _properties;
 

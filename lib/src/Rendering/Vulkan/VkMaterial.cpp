@@ -45,6 +45,7 @@ bool VkMaterial::BindSet(VkCommandBuffer inBuffer, uint32_t inFrameNumber)
 
 void VkMaterial::Update(VkDescriptorPool inPool)
 {
+
 	for (auto& descriptorSet : _textureDescriptorSets)
 	{
 		if (_vulkan->AllocateDescriptorSet(inPool, &descriptorSet, &_textureLayout))
@@ -55,7 +56,7 @@ void VkMaterial::Update(VkDescriptorPool inPool)
 				vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorSet, &imageInfo, 0)
 			};
 			vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
-
+		
 			isReady = true;
 		}
 	}

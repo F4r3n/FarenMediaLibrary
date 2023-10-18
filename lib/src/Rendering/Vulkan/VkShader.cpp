@@ -2,14 +2,10 @@
 #include "Core/Debug.h"
 using namespace fm;
 
-VkShader::VkShader()
+
+VkShader::VkShader(const fm::FilePath& inFilePath)
 {
-
-}
-
-VkShader::VkShader(const fm::FilePath& inFilePath, const std::string& name) : Shader(inFilePath)
-{
-
+	_path = inFilePath;
 }
 
 VkShader::~VkShader()
@@ -17,11 +13,6 @@ VkShader::~VkShader()
 
 }
 
-
-bool VkShader::compile()
-{
-	return false;
-}
 
 VkShaderModule VkShader::_CreateShaderModule(const std::vector<char>& code, VkDevice inDevice) const
 {

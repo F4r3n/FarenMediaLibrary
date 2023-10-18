@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <optional>
 #include <vector>
+#include <nlohmann/json_fwd.hpp>
 namespace fs = std::filesystem;
 namespace fm
 {
@@ -64,7 +65,8 @@ namespace fm
 		void		SetContent(const std::string& inContent) const;
 		void		SetContent(const std::vector<uint32_t>& inContent) const;
 		bool		Delete();
-		File CreateUniqueFile();
+		File		CreateUniqueFile();
+		void		GetJSONContent(nlohmann::json& outJSON) const;
 		std::filesystem::file_time_type GetTimeStamp() const;
 		std::optional<std::vector<char>> GetBinaryContent() const;
 	private:

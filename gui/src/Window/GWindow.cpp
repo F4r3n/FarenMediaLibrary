@@ -96,6 +96,10 @@ void GWindow::Draw()
 			if (_iswindowDocked)
 			{
 				size = context->CurrentWindow->DockNode->Size;
+				if (size.x == 0 && size.y == 0)
+				{
+					context->CurrentWindow->DockNode->SizeRef;
+				}
 				pos = context->CurrentWindow->DockNode->Pos;
 			}
 			else

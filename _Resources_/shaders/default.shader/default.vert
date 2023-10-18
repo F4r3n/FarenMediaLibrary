@@ -10,9 +10,7 @@ layout (location = 3) in vec2 vTexCoord;
 layout (location = 0) out vec3 outPosition;
 layout (location = 1) out vec3 outNormals;
 layout (location = 2) out vec2 outUVs;
-
-uniform mat4 FM_M;
-
+layout (location = 3) out vec3 outColors;
 
 UNIFORM(0, 0) CameraBuffer{
 	mat4 view;
@@ -31,16 +29,12 @@ READ_ONLY_BUFFER(1, 2) ObjectBuffer{
 
 void main()
 {
-	mat4 modelMatrix = objectBuffer.objects[gl_BaseInstance + gl_InstanceID].model;
+	mat4 modelMatrix = objectBuffer.objects[INSTANCE_INDEX].model;
 	mat4 transformMatrix = (cameraData.viewproj * modelMatrix);
 	gl_Position = transformMatrix * vec4(vPosition, 1.0f);
 
-	//mat4 transformMatrix = (cameraData.viewproj * FM_M);
-	//gl_Position = transformMatrix * vec4(vPosition, 1.0f);
-	
-	vec4 screenPos = vec4(vPosition, 1.0f);
-	//gl_Position = FM_PVM * screenPos;
-	outPosition = (FM_M*screenPos).xyz;
-	outNormals = mat3(transpose(inverse(FM_M))) * vNormal;
+	outNormals = mat3(transpose(inverse(modelMatrix))) * vNormal;
 	outUVs = vTexCoord;
+	outColors = vColor;
+	outPosition = gl_Position.xyz;
 }

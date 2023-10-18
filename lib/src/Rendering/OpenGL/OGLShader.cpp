@@ -7,11 +7,11 @@
 
 using namespace fm;
 
-OGLShader::OGLShader() :Shader() {
-}
 
-OGLShader::OGLShader(const fm::FilePath& inFilePath, const std::string& name) : Shader(inFilePath)
+OGLShader::OGLShader(const fm::SubShader& inSubShader)
 {
+	_path = inSubShader.GetPath();
+	_subShader = inSubShader;
 }
 
 void OGLShader::Reload(bool force)
@@ -102,48 +102,48 @@ bool OGLShader::compile()
 	return true;
 }
 
-const Shader* OGLShader::Use() const {
+const OGLShader* OGLShader::Use() const {
 	glUseProgram(_program);
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, fm::math::mat matrix) const
+const OGLShader* OGLShader::setValue(const std::string& name, fm::math::mat matrix) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(_program, name.c_str()), 1, GL_FALSE, fm::math::value_ptr(matrix));
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, fm::math::vec2 vector) const
+const OGLShader* OGLShader::setValue(const std::string& name, fm::math::vec2 vector) const
 {
 	glUniform2f(glGetUniformLocation(_program, name.c_str()), vector.x, vector.y);
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, fm::math::vec3 vector) const
+const OGLShader* OGLShader::setValue(const std::string& name, fm::math::vec3 vector) const
 {
 	glUniform3f(glGetUniformLocation(_program, name.c_str()), vector.x, vector.y, vector.z);
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, float val) const
+const OGLShader* OGLShader::setValue(const std::string& name, float val) const
 {
 	glUniform1f(glGetUniformLocation(_program, name.c_str()), val);
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, fm::math::vec4 vector) const
+const OGLShader* OGLShader::setValue(const std::string& name, fm::math::vec4 vector) const
 {
 	glUniform4f(glGetUniformLocation(_program, name.c_str()), vector.x, vector.y, vector.z, vector.w);
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, int val) const
+const OGLShader* OGLShader::setValue(const std::string& name, int val) const
 {
 	glUniform1i(glGetUniformLocation(_program, name.c_str()), val);
 	return this;
 }
 
-const Shader* OGLShader::setValue(const std::string& name, const Color& vector) const
+const OGLShader* OGLShader::setValue(const std::string& name, const Color& vector) const
 {
 	return setValue(name, fm::math::vec4(vector.r, vector.g, vector.b, vector.a));
 }

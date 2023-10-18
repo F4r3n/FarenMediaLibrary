@@ -3,5 +3,6 @@
 enum GRAPHIC_API
 {
 	OPENGL,
-	VULKAN
+	VULKAN,
+	LAST
 };
