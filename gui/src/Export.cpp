@@ -47,7 +47,7 @@ bool ExportManager::Run()
 
 
 	auto shaders = fm::ResourcesManager::get().getAll<fm::Shader>();
-	for (const auto& shader : shaders | std::views::values)
+	for (const auto& [_, shader] : shaders)
 	{
 		if (!shader->IsInternal())
 		{
