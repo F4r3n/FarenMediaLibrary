@@ -6,8 +6,7 @@
 
 using namespace fm;
 
-RenderTexture::RenderTexture(size_t width, size_t height,
-unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling) {
+RenderTexture::RenderTexture(size_t width, size_t height, size_t numberColorAttchment, Format *formats, Type *types, size_t depth, int multiSampling) {
     _width = width;
     _height = height;
     _depth = depth;

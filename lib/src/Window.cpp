@@ -118,7 +118,7 @@ bool Window::Init(size_t width, size_t height)
 }
 
 
-double Window::GetTicks() const
+uint64_t Window::GetTicks() const
 {
 	return SDL_GetTicks();
 }
@@ -145,7 +145,7 @@ void Window::setName(const std::string& name)
 
 
 
-void Window::update(size_t fps) 
+void Window::update(size_t fps)
 {
 	_fpsMax = fps;
 
@@ -165,12 +165,12 @@ void Window::update(size_t fps)
 void Window::_FrameLimit() 
 {
     _currFrameTime = SDL_GetTicks() - _frameStart;
-    double dur = (_waitTime * 1000 - _currFrameTime);
+	uint64_t dur = (static_cast<uint64_t>(_waitTime * 1000) - _currFrameTime);
     if(dur > 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
+        std::this_thread::sleep_for(std::chrono::milliseconds(dur));
     }
 
-    double frame_end = SDL_GetTicks();
+	uint64_t frame_end = SDL_GetTicks();
     Time::dt = (float)((frame_end - _frameStart) / 1000.0);
     Time::timeStamp += Time::dt;
     _frameStart = frame_end;

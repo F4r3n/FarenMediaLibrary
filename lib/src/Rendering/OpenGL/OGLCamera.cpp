@@ -1,5 +1,5 @@
 #include "OGLCamera.hpp"
-#include <gl/glew.h>
+#include <GL/glew.h>
 using namespace fm;
 
 OGLCamera::OGLCamera(uint32_t inID) : _ID(inID)

@@ -70,7 +70,7 @@ class OGLTexture
 
     void				bind() const;
     void				clear();
-    inline unsigned int getID() const {return _id;}
+    inline GLuint		getID() const {return _id;}
     void				generate(size_t width, size_t height, Format format, Type type, int multiSampled = 0);
     void				release();
 

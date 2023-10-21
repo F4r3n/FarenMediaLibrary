@@ -22,9 +22,9 @@ namespace fm
 	struct Config
 	{
 		std::string name = "Empty";
-		size_t		width = 800;
-		size_t		height = 600;
-		size_t		fpsWanted = 60;
+		uint32_t		width = 800;
+		uint32_t		height = 600;
+		uint32_t		fpsWanted = 60;
 		bool		standAlone = false;
 		GRAPHIC_API graphicAPI = GRAPHIC_API::VULKAN;
 		size_t		windowFlag = 0;

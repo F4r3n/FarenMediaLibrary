@@ -204,7 +204,7 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 	DirStackFileIncluder includer;
 	std::for_each(inSettings.listFoldersToInclude.begin(), inSettings.listFoldersToInclude.end(), [&includer](const fm::Folder& inFolder) {
 		includer.pushExternalLocalDirectory(inFolder.GetPathString());
-	});
+		});
 
 	std::string preprocessedStr;
 	if (!shader->preprocess(
@@ -244,7 +244,7 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 		assert(false);
 
 		DEBUG_ERROR(failure)
-		return nullptr;
+			return nullptr;
 	}
 	return shader;
 }
@@ -261,15 +261,28 @@ uint32_t GetGLSLTypeSize(const glslang::TType* inType)
 	else if (inType->isFloatingDomain() && inType->isScalar())
 		return sizeof(float);
 	else if (inType->isMatrix())
-		return sizeof(float)*16;
-	else if (inType->isVector() && inType->getVectorSize() == 3)
-		return sizeof(float)*3;
-	else if (inType->isVector() && inType->getVectorSize() == 4)
-		return sizeof(float) * 4;
-	else if (inType->isVector() && inType->getVectorSize() == 2)
-		return sizeof(float) * 2;
+		return sizeof(float) * 16;
+	else if (inType->isVector() && inType->isFloatingDomain())
+	{
+		sizeof(float) * inType->getVectorSize();
+	}
 
 	return 0;
+}
+
+fm::SubShader::STAGE ConvertGLSLStageToStage(EShLanguageMask inMask)
+{
+	fm::SubShader::STAGE stage = fm::SubShader::STAGE::NONE;
+	if ((inMask & EShLanguageMask::EShLangVertexMask) == 0)
+	{
+		stage = (fm::SubShader::STAGE)(stage | fm::SubShader::STAGE::VERTEX);
+	}
+	if ((inMask & EShLanguageMask::EShLangFragmentMask) == 0)
+	{
+		stage = (fm::SubShader::STAGE)(stage | fm::SubShader::STAGE::FRAGMENT);
+	}
+
+	return stage;
 }
 
 fm::ValuesType ConvertGLSLTypeToMaterial(const glslang::TType* inType)
@@ -367,6 +380,7 @@ void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::SubShader:
 		{
 			uniform.set = set;
 		}
+		uniform.stages = ConvertGLSLStageToStage(uniformReflect.stages);
 		uniform.variables.push_back(variable);
 		outReflection.uniforms.emplace(name, uniform);
 	}
@@ -385,6 +399,8 @@ void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::SubShader:
 		{
 			uniform.set = set;
 		}
+		uniform.stages = ConvertGLSLStageToStage(blockReflection.stages);
+
 		outReflection.uniforms.emplace(name, uniform);
 
 		//Add block definition

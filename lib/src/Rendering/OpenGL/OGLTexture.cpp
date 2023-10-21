@@ -190,7 +190,7 @@ void OGLTexture::generate(size_t width, size_t height, Format format, Type type,
         _numberChannels = 1;
     }
 
-    GLenum internalFormat;
+    GLenum internalFormat = GL_RGBA32F;
     if(type == Type::FLOAT) {
         if(format == Format::RGBA)
             internalFormat = GL_RGBA32F;

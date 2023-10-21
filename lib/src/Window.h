@@ -27,7 +27,7 @@ public:
     bool Init(size_t width, size_t height);
 	void* GetContext();
 	size_t GetMSAA() const { return _msaa; }
-	double GetTicks() const;
+	uint64_t GetTicks() const;
 	fm::math::Vector2i GetSize() const;
 	bool IsMinimized() const;
 private:
@@ -44,10 +44,10 @@ private:
     SDL_Window* _window;
     void *		_mainContext;
 
-    size_t		_fpsMax;
-    double		_waitTime;
-	double		_currFrameTime;
-    double		_frameStart;
+	size_t		_fpsMax;
+	double		_waitTime;
+	uint64_t	_currFrameTime;
+	uint64_t	_frameStart;
 	size_t		_windowFlag;
 	GRAPHIC_API	_api = GRAPHIC_API::OPENGL;
 	int			_msaa;

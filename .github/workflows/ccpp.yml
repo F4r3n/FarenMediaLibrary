@@ -21,6 +21,11 @@ jobs:
       - name: Install Dependencies (Linux)
         run: sudo apt-get update && sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
         if: matrix.os == 'ubuntu-latest'
+      - name: Last XCode (Mac)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+            xcode-version: latest-stable
+        if: matrix.os == 'macos-latest'
       - name: Prepare Vulkan SDK
         uses: kpet/install-vulkan-sdk@fcb077a6dbe3e852f53ad05d29ce0a1481ba073f
         with:

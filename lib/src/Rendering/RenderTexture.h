@@ -10,8 +10,7 @@ namespace fm
 	{
     public:
         RenderTexture() {}
-        RenderTexture(size_t width, size_t height, 
-unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling = 0);
+        RenderTexture(size_t width, size_t height, size_t numberColorAttchment, Format *formats, Type *types, size_t depth, int multiSampling = 0);
         RenderTexture(const RenderTexture &renderTexture, int multiSampling = -1);
         ~RenderTexture();
         
@@ -35,10 +34,10 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
 		void _Release();
 
         bool _isReady = false;
-        size_t _width = 0;
-        size_t _height = 0;
-        unsigned short _depth = 0;
-        unsigned short _numberColors = 0;
+		size_t _width = 0;
+		size_t _height = 0;
+		size_t _depth = 0;
+		size_t _numberColors = 0;
         int _multiSampling = 0;
         std::vector<Format> _formats;
         std::vector<Type> _types;

@@ -94,7 +94,7 @@ RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
         Characters.insert(std::pair<GLchar, Character>(i, character));
         rowh = std::max(rowh, g->bitmap.rows);
         ox += g->bitmap.width + 1;
-        delete tempBuffer;
+        delete []tempBuffer;
     }
 	//texture->writeToPNG("C:/Users/guill/Downloads/test.png");
 

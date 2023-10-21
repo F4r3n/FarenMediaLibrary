@@ -9,6 +9,13 @@ namespace fm
 	class SubShader
 	{
 	public:
+		enum STAGE
+		{
+			NONE = 0,
+			VERTEX = 1,
+			FRAGMENT = 2,
+			ALL = VERTEX | FRAGMENT
+		};
 
 		struct Variable
 		{
@@ -32,6 +39,7 @@ namespace fm
 			std::string name;
 			int binding = -1;
 			int set = -1;
+			int stages = (int)STAGE::ALL;
 			std::vector<Variable> variables; //order is needed
 		};
 

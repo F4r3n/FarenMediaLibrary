@@ -40,6 +40,7 @@ namespace fm {
 		j["name"] = p.name;
 		j["binding"] = p.binding;
 		j["set"] = p.set;
+		j["stages"] = p.stages;
 		j["variables"] = std::vector<SubShader::Variable>(p.variables);
 	}
 
@@ -47,6 +48,7 @@ namespace fm {
 		p.name = j["name"];
 		p.binding = j["binding"];
 		p.set = j["set"];
+		p.stages = j["stages"];
 		for (const fm::SubShader::Variable& v : j["variables"])
 		{
 			p.variables.emplace_back(v);

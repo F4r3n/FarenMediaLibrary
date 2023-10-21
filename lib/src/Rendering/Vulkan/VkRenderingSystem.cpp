@@ -279,7 +279,7 @@ bool VkRenderingSystem::_SetupGlobalUniforms()
 			vk_init::CreateWriteDescriptorSet(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, _framesData[i].objectDescriptor, &objectInfo, 2)
 		};
 
-		vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(_vulkan->GetDevice(), (uint32_t)setWrites.size(), setWrites.data(), 0, nullptr);
 	}
 
 	return true;
@@ -370,7 +370,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 	const size_t offset = _vulkan->PadUniformBufferSize(sizeof(GPUSceneData)) * _currentFrame;
 	_vulkan->MapBuffer(_sceneParameterBuffer, &_sceneParameters, sizeof(GPUSceneData), offset);
 
-	uint32_t uniform_offset = offset;
+	uint32_t uniform_offset = static_cast<uint32_t>(offset);
 
 	_vulkan->MapBuffer(_framesData[_currentFrame].objectBuffer, [&em](void** inData) {
 		GPUObjectData* objectSSBO = (GPUObjectData*)(*inData);
