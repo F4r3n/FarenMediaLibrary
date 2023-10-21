@@ -11,7 +11,7 @@ layout (location = 3) in vec3 inColors;
 
 layout(location = 0) out vec4 outColor;
 
-UNIFORM(0, 1) SceneData{
+UNIFORM(0, 1) _SceneData{
     vec4 fogColor; // w is for exponent
 	vec4 fogDistances; //x for min, y for max, zw unused.
 	vec4 ambientColor;

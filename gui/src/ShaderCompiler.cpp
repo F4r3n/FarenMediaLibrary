@@ -249,6 +249,29 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 	return shader;
 }
 
+uint32_t GetGLSLTypeSize(const glslang::TType* inType)
+{
+	if (inType == nullptr)
+		return 0;
+
+	if (inType->isTexture())
+		return 0;
+	else if (inType->isIntegerDomain() && inType->isScalar())
+		return sizeof(int);
+	else if (inType->isFloatingDomain() && inType->isScalar())
+		return sizeof(float);
+	else if (inType->isMatrix())
+		return sizeof(float)*16;
+	else if (inType->isVector() && inType->getVectorSize() == 3)
+		return sizeof(float)*3;
+	else if (inType->isVector() && inType->getVectorSize() == 4)
+		return sizeof(float) * 4;
+	else if (inType->isVector() && inType->getVectorSize() == 2)
+		return sizeof(float) * 2;
+
+	return 0;
+}
+
 fm::ValuesType ConvertGLSLTypeToMaterial(const glslang::TType* inType)
 {
 	if (inType == nullptr)
@@ -256,9 +279,9 @@ fm::ValuesType ConvertGLSLTypeToMaterial(const glslang::TType* inType)
 
 	if (inType->isTexture())
 		return fm::ValuesType::VALUE_TEXTURE;
-	else if(inType->isIntegerDomain())
+	else if(inType->isIntegerDomain() && inType->isScalar())
 		return fm::ValuesType::VALUE_INT;
-	else if (inType->isFloatingDomain())
+	else if (inType->isFloatingDomain() && inType->isScalar())
 		return fm::ValuesType::VALUE_FLOAT;
 	else if (inType->isMatrix())
 		return fm::ValuesType::VALUE_MATRIX_FLOAT;
@@ -272,34 +295,100 @@ fm::ValuesType ConvertGLSLTypeToMaterial(const glslang::TType* inType)
 	return fm::ValuesType::VALUE_NONE;
 }
 
+uint32_t TraverseBlocks(fm::SubShader::Reflection& outReflection, const glslang::TType* blockReflection)
+{
+	if (!blockReflection->isStruct())
+		return 0;
+	//Add block definition
+	fm::SubShader::Block block;
+	block.name = blockReflection->getTypeName();
+	auto it = outReflection.blocks.find(block.name);
+	if (it != outReflection.blocks.end())
+		return it->second.size;
+
+	uint32_t size = 0;
+	for (const auto& structure : *blockReflection->getStruct())
+	{
+		fm::SubShader::Variable variable;
+		variable.name = structure.type->getFieldName();
+		variable.type = ConvertGLSLTypeToMaterial(structure.type);
+		variable.offset = size;
+		if (structure.type->isStruct())
+		{
+			variable.typeName = structure.type->getTypeName();
+			variable.isBlock = true;
+			variable.size = TraverseBlocks(outReflection, structure.type);
+			size += variable.size;
+		}
+		else
+		{
+			variable.size = GetGLSLTypeSize(structure.type);
+			variable.isBlock = false;
+		}
+		size += variable.size;
+		block.variables.emplace_back(variable);
+	}
+	block.size = size;
+	outReflection.blocks.emplace(block.name, block);
+
+
+	return size;
+}
+
 void ShaderCompiler::_BuildReflection(glslang::TProgram& program, fm::SubShader::Reflection& outReflection)
 {
-	program.buildReflection();
+	program.buildReflection(EShReflectionAllBlockVariables | EShReflectionAllIOVariables | EShReflectionSharedStd140UBO | EShReflectionSharedStd140SSBO);
 	//program.dumpReflection()
 	for (int i = 0; i < program.getNumUniformVariables(); i++)
 	{
-		std::string name = program.getUniformName(i);
+		glslang::TObjectReflection uniformReflect = program.getUniform(i);
+
+		std::string name = uniformReflect.name;
 		fm::SubShader::Uniform uniform;
 		uniform.name = name;
-		uniform.binding = program.getUniform(i).getBinding();
+		uniform.binding = uniformReflect.getBinding();
 		if (uniform.binding == -1)
 			continue;
-		uniform.set = program.getUniform(i).getType()->getQualifier().layoutSet;
-		uniform.type = ConvertGLSLTypeToMaterial(program.getUniform(i).getType());
+
+		fm::SubShader::Variable variable;
+		variable.name = name;
+		variable.type = ConvertGLSLTypeToMaterial(uniformReflect.getType());
+		if (uniformReflect.getType()->isStruct())
+		{
+			variable.isBlock = true;
+			variable.typeName = uniformReflect.getType()->getTypeName();
+		}
+		else
+		{
+			variable.isBlock = false;
+		}
+		const unsigned int set = uniformReflect.getType()->getQualifier().layoutSet;
+		if (set < glslang::TQualifier::layoutSetEnd)
+		{
+			uniform.set = set;
+		}
+		uniform.variables.push_back(variable);
 		outReflection.uniforms.emplace(name, uniform);
 	}
 
 	for (int i = 0; i < program.getNumUniformBlocks(); i++)
 	{
-		std::string name = program.getUniformBlockName(i);
+		glslang::TObjectReflection blockReflection = program.getUniformBlock(i);
+		std::string name = blockReflection.name;
 		fm::SubShader::Uniform uniform;
 		uniform.name = name;
-		uniform.binding = program.getUniformBlock(i).getBinding();
+		uniform.binding = blockReflection.getBinding();
 		if (uniform.binding == -1)
 			continue;
-		uniform.set = program.getUniformBlock(i).getType()->getQualifier().layoutSet;
-
+		const unsigned int set = blockReflection.getType()->getQualifier().layoutSet;
+		if (set < glslang::TQualifier::layoutSetEnd)
+		{
+			uniform.set = set;
+		}
 		outReflection.uniforms.emplace(name, uniform);
+
+		//Add block definition
+		TraverseBlocks(outReflection, blockReflection.getType());
 	}
 }
 

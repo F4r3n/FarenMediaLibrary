@@ -12,7 +12,7 @@ layout (location = 1) out vec3 outNormals;
 layout (location = 2) out vec2 outUVs;
 layout (location = 3) out vec3 outColors;
 
-UNIFORM(0, 0) CameraBuffer{
+UNIFORM(0, 0) _CameraBuffer{
 	mat4 view;
 	mat4 proj;
 	mat4 viewproj;
@@ -22,9 +22,18 @@ struct ObjectData{
 	mat4 model;
 };
 
-READ_ONLY_BUFFER(1, 2) ObjectBuffer{
+READ_ONLY_BUFFER(1, 2) _ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
+
+struct UserData
+{
+	vec4 info1;
+};
+
+UNIFORM(0, 3) MaterialBuffer {
+	UserData data;
+} materialBuffer;
 
 
 void main()

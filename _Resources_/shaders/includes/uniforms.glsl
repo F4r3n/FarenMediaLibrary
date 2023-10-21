@@ -8,5 +8,5 @@
 #define INSTANCE_INDEX gl_BaseInstance + gl_InstanceID
 #define UNIFORM(inSet, inBinding) layout(std140, binding = inBinding) uniform
 #define READ_ONLY_BUFFER(inSet, inBinding) layout(std430, binding = inBinding) readonly buffer
-#define UNIFORM_SAMPLER(inSet, inBinding) uniform sampler2D
+#define UNIFORM_SAMPLER(inSet, inBinding) layout(binding = inBinding) uniform sampler2D
 #endif

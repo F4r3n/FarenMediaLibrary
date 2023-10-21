@@ -3,23 +3,42 @@
 #include "Core/FilePath.h"
 #include "ShaderKind.hpp"
 #include "Rendering/GraphicsAPI.h"
+
 namespace fm
 {
 	class SubShader
 	{
 	public:
 
+		struct Variable
+		{
+			std::string name;
+			std::string typeName;
+			fm::ValuesType type = fm::ValuesType::VALUE_NONE;
+			uint32_t size = 0;
+			uint32_t offset = 0;
+			bool isBlock = false;
+		};
+
+		struct Block
+		{
+			std::string name;
+			uint32_t size = 0;
+			std::vector<Variable> variables;
+		};
+
 		struct Uniform
 		{
 			std::string name;
 			int binding = -1;
 			int set = -1;
-			fm::ValuesType type = fm::ValuesType::VALUE_NONE;
+			std::vector<Variable> variables; //order is needed
 		};
 
 		struct Reflection
 		{
 			std::map<std::string, Uniform> uniforms;
+			std::map<std::string, Block> blocks;
 		};
 		using Reflections = std::array< fm::SubShader::Reflection, GRAPHIC_API::LAST>;
 
