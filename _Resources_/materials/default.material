@@ -1,0 +1,25 @@
+{
+  "deps": {
+    "path": "!4/default.material"
+  },
+  "params": {
+    "materialValues": {
+      "properties": [
+          {
+              "name": "MaterialBuffer[PLAIN]plain.mainColor",
+              "type": 3,
+              "value": [
+                  0.8093023300170898,
+                  0.12045429646968842,
+                  0.12045429646968842,
+                  0.0
+              ]
+          }
+      ],
+      "uniforms": null
+  },
+    "name": "default",
+    "shader": "!3/default.shader",
+    "shaderName": "default"
+  }
+}

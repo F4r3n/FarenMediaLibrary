@@ -301,9 +301,9 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 					
 					shader = _FindOrCreateShader(m->GetSubShader().value()).get();
 					shader->Use();
-					for (auto const& value : m->GetProperties())
+					for (auto const& [name, value] : m->GetUniforms())
 					{
-						shader->setValue(value.name, value.materialValue);
+						shader->setValue(name, value);
 					}
 				}
 
@@ -442,9 +442,9 @@ void RenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inT
 	fm::MaterialProperties properties;
 	if (inMaterialProperties != nullptr)
 	{
-		for (const auto& property : *inMaterialProperties)
+		for (const auto& [name, property] : *inMaterialProperties)
 		{
-			properties.AddValue(property.name, property.materialValue);
+			properties.AddValue(name, property);
 		}
 	}
 	fm::math::mat modelPosition = inTransform.worldTransform;
@@ -502,7 +502,7 @@ void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransf
 		cam->_rendererConfiguration.uboLight->Bind();
 		std::dynamic_pointer_cast<fm::OGLShader>(shader)->SetUniformBuffer("PointLights", cam->_rendererConfiguration.uboLight->GetBindingPoint());
 
-		for (auto const& value : inMaterial->GetProperties())
+		for (auto const& value : inMaterial->GetUniforms())
 		{
 			shader->setValue(value.name, value.materialValue);
 		}
@@ -681,7 +681,7 @@ void RenderingSystem::_DrawText(fmc::CCamera* cam,
 		wshader->setValue("PM", pm);
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		for (auto const& value : inMaterial->GetProperties())
+		for (auto const& value : inMaterial->GetUniforms())
 		{
 			wshader->setValue(value.name, value.materialValue);
 		}

@@ -6,6 +6,7 @@
 #include "nlohmann/json.hpp"
 #include <fstream>
 #include "imgui/imgui.h"
+#include "GMaterialEditor.h"
 using namespace gui;
 
 
@@ -278,10 +279,10 @@ void GFileNavigator::SetPathSelected(const fm::FilePath& inFilePath)
 
 void GFileNavigator::CustomDraw()
 {
-	if (_splitter_1 == -1)
+	if (_splitter_1 <= 0)
 		_splitter_1 = GetSize().x * 0.5f;
 
-	if (_splitter_2 == -1)
+	if (_splitter_2 <= 0)
 		_splitter_2 = GetSize().x * 0.5f;
 	float h = GetSize().y;
 
@@ -306,7 +307,6 @@ void GFileNavigator::CustomDraw()
 				{
 					_pathSelected = f;
 				}
-				//ImGui::Text(f.GetName(false).c_str());
 			}
 			ImGui::PopStyleColor();
 		}
@@ -322,25 +322,10 @@ void GFileNavigator::CustomDraw()
 			if (ImGui::MenuItem("Create Material"))
 			{
 				_listToRefresh.push(_currentFolderSelected.GetPath());
-				
-				fm::FilePath path = fm::FilePath(_currentFolderSelected.GetPath()).ToSub("newMaterial.material");
-				fm::FilePath newFilePath = fm::File(path).CreateUniqueFile().GetPath();
-				std::shared_ptr<fm::Material> material = std::make_shared<fm::Material>(newFilePath);
-			
-				nlohmann::json j;
-				material->Save(j);
-				std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
-				o << j << std::endl;
-				o.close();
-			
-				fm::ResourcesManager::get().load<fm::Material>(newFilePath, material);
-
-				_pathSelected = newFilePath;
+				_pathSelected = GMaterialEditor::CreateNewMaterial(_currentFolderSelected.GetPath());
 			}
 			ImGui::EndPopup();
 		}
-		
-
 		ImGui::EndChild();
 	}       
 }

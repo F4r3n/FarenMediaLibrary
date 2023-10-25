@@ -40,7 +40,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		0));
 
 
-	_material = std::make_shared<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default_material"));
+	_material = std::make_shared<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default"));
 	_material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "picking.shader"));
 	//_material->Compile();
 }
@@ -94,7 +94,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
 						fm::CommandBuffer commandBuffer;
-						fm::MaterialProperties materialProperties = _material->GetProperties();
+						fm::MaterialProperties materialProperties = _material->GetUniforms();
 						Entity::Id i = go->getID();
 						unsigned char r[sizeof(i)];
 						memcpy(r, &i, sizeof(i));

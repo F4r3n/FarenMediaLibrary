@@ -69,9 +69,22 @@ std::optional<SubShader> Shader::GetSubShader(SHADER_KIND inKind) const
 }
 
 
+std::vector<SHADER_KIND> Shader::GetPossibleShaderKind() const
+{
+	std::vector<SHADER_KIND> kinds;
+	for (const auto& [k, _] : _subShaders)
+	{
+		kinds.push_back(k);
+	}
+
+	return kinds;
+}
+
+
 Shader::~Shader()
 {
 }
+
 
 SHADER_KIND Shader::ConvertStringsToShaderKind(const std::vector<std::string>& inStrings)
 {

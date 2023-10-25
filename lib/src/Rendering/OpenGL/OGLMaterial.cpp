@@ -15,14 +15,14 @@ OGLMaterial::OGLMaterial(const OGLMaterialCreateInfo& inInfo)
 void OGLMaterial::Bind(const fm::MaterialProperties& inMaterialProperties)
 {
 	_shader->Use();
-	for (auto const& value : _material->GetProperties())
+	for (auto const& [name, value] : _material->GetProperties())
 	{
-		_shader->setValue(value.name, value.materialValue);
+		_shader->setValue(name, value);
 	}
 
-	for (auto const& value : inMaterialProperties)
+	for (auto const& [name, value] : inMaterialProperties)
 	{
-		_shader->setValue(value.name, value.materialValue);
+		_shader->setValue(name, value);
 	}
 }
 

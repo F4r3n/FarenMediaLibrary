@@ -396,15 +396,17 @@ void FileSystem::ConvertFileSystemToPath(const std::string& inPath, std::string&
 	if (!inPath.empty() && inPath.front() == '!')
 	{
 		const size_t index = inPath.find_first_of('/');
-		const std::string number = inPath.substr(1, index - 1);
-		outID = (LOCATION)std::stoi(number);
+		if (index != std::string::npos)
+		{
+			const std::string number = inPath.substr(1, index - 1);
+			outID = (LOCATION)std::stoi(number);
 
-		outPath = ResourcesManager::get().GetFilePathResource(outID).GetPath().string();
-		outPath += fm::FilePath::GetFolderSeparator();
-		outPath += inPath.substr(index + 1, inPath.size() - index - 1);
-		
-		std::replace(outPath.begin(), outPath.end(), '/', fm::FilePath::GetFolderSeparator());
+			outPath = ResourcesManager::get().GetFilePathResource(outID).GetPath().string();
+			outPath += fm::FilePath::GetFolderSeparator();
+			outPath += inPath.substr(index + 1, inPath.size() - index - 1);
 
+			std::replace(outPath.begin(), outPath.end(), '/', fm::FilePath::GetFolderSeparator());
+		}
 	}
 	else
 	{

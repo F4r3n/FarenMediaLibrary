@@ -100,7 +100,7 @@ RenderQueue::Iterator RenderQueue::Iterator::begin()
 }
 RenderQueue::Iterator RenderQueue::Iterator::end()
 {
-	return Iterator(_array, RENDER_QUEUE::LAST_STATE, _array[fm::RENDER_QUEUE::LAST_STATE - 1].size(), 0);
+	return Iterator(_array, RENDER_QUEUE::LAST_STATE, static_cast<uint32_t>(_array[fm::RENDER_QUEUE::LAST_STATE - 1].size()), 0);
 }
 bool RenderQueue::Iterator::operator!=(Iterator& i)
 {

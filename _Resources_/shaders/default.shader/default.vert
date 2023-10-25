@@ -22,17 +22,18 @@ struct ObjectData{
 	mat4 model;
 };
 
+struct PLAIN {
+	vec4 mainColor;
+};
+
 READ_ONLY_BUFFER(1, 2) _ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 
-struct UserData
-{
-	vec4 info1;
-};
+
 
 UNIFORM(0, 3) MaterialBuffer {
-	UserData data;
+	PLAIN plain;
 } materialBuffer;
 
 

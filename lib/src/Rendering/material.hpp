@@ -16,52 +16,16 @@ namespace fm
 
 namespace fm
 {
-
-	struct MaterialProperty
+	enum class MaterialKind
 	{
-		fm::MaterialValue materialValue;
-		std::string name;
-
-		MaterialProperty()
-		{
-			// materialValue = fm::MaterialValue();
-		}
-
-		fm::MaterialProperty& operator=(fm::MaterialProperty&& m)
-		{
-			name = m.name;
-			materialValue = m.materialValue;
-
-			return *this;
-		}
-
-
-		fm::MaterialProperty& operator=(const fm::MaterialProperty& m)
-		{
-			name = m.name;
-			materialValue = m.materialValue;
-
-			return *this;
-		}
-
-		MaterialProperty(const fm::MaterialProperty& m)
-		{
-			materialValue.setValue(m.materialValue.getType(), m.materialValue);
-			name = m.name;
-		}
-
-		MaterialProperty(const std::string& inName, const fm::MaterialValue& inMaterialValue)
-		{
-			materialValue = inMaterialValue;
-			name = inName;
-		}
+		STANDARD,
+		SHADER
 	};
-
 
 	class MaterialProperties
 	{
 
-		using properties_t = std::vector< MaterialProperty>;
+		using properties_t = std::unordered_map< std::string, MaterialValue>;
 	public:
 		using iterator = properties_t::iterator;
 		using const_iterator = properties_t::const_iterator;
@@ -75,25 +39,25 @@ namespace fm
 
 		void AddValue(const std::string& name, const fm::MaterialValue& inMaterialValue)
 		{
-			MaterialProperty p(name, inMaterialValue);
-			_materialProperties.push_back(p);
+			_materialProperties.emplace(name, inMaterialValue);
 		}
 
-		void UpdateProperty(size_t index, const fm::MaterialProperty& inProperty)
+		void UpdateProperty(const std::string& inName, const fm::MaterialValue& inProperty)
 		{
-			if (index >= 0 && index < _materialProperties.size())
-			{
-				_materialProperties[index] = inProperty;
-			}
+			_materialProperties[inName] = inProperty;
 		}
 
-		void AddSettings(fm::RENDERING_TYPE inRenderingType, bool value)
+		MaterialValue& Get(const std::string& inName)
 		{
-			_renderingSettings[inRenderingType] = value;
+			return _materialProperties[inName];
+		}
+
+		bool Has(const std::string& inName) const
+		{
+			return _materialProperties.contains(inName);
 		}
 	private:
-		std::unordered_map<fm::RENDERING_TYPE, bool> _renderingSettings;
-		std::vector< MaterialProperty> _materialProperties;
+		properties_t _materialProperties;
 	};
 
 	class Material : public Resource
@@ -107,52 +71,73 @@ namespace fm
 			Material mat(p);
 			mat._shaderPath = _shaderPath;
 			mat._properties = _properties;
+			mat._uniforms = _uniforms;
+			mat._bufferSize = _bufferSize;
+			memcpy(mat._buffer, _buffer, _bufferSize);
 		}
+
+		~Material()
+		{
+			delete[] _buffer;
+			_buffer = nullptr;
+		}
+
 		Material(const fm::FilePath& inFilePath);
 
 		template <typename T>
-		void setValue(const std::string& name, T value) {
+		void SetPropertyValue(const std::string& name, T value) {
 			fm::MaterialValue materialValue;
 			materialValue = value;
 
 			_properties.AddValue(name, materialValue);
 
 		}
-
-		void UpdateProperty(size_t inIndex, const fm::MaterialProperty& inProperty)
-		{
-			_properties.UpdateProperty(inIndex, inProperty);
+		void SetPropertyValue(const std::string& name, fm::MaterialValue& inMaterialValue) {
+			_properties.AddValue(name, inMaterialValue);
 		}
 
-		void setValue(const std::string& name, fm::MaterialValue& inMaterialValue) {
-			_properties.AddValue(name, inMaterialValue);
+		template <typename T>
+		void SetUniformValue(const std::string& name, T value) {
+			fm::MaterialValue materialValue;
+			materialValue = value;
+
+			_uniforms.AddValue(name, materialValue);
+
+		}
+		void SetUniformValue(const std::string& name, fm::MaterialValue& inMaterialValue) {
+			_uniforms.AddValue(name, inMaterialValue);
 		}
 		static constexpr fm::RESOURCE_TYPE getType() { return fm::RESOURCE_TYPE::MATERIAL; }
 		virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
+		MaterialProperties& GetUniforms() { return _uniforms; }
 		MaterialProperties& GetProperties() { return _properties; }
-
-
 
 		const std::string& GetName() const { return _name; }
 		const fm::FilePath& GetShaderPath() const { return _shaderPath; }
-		void SetShaderPath(const fm::FilePath& inPath) { _shaderPath = inPath; }
-		//void Compile();
-		//bool IsReady() const;
-
+		void SetShaderPath(const fm::FilePath& inPath);
 
 		void Save(nlohmann::json& outJSON) const override;
 		void Load(const nlohmann::json& inJSON) override;
 
 		void Save() const override;
-		std::optional<fm::SubShader> GetSubShader();
-		SHADER_KIND GetShaderKind() const { return _kind; }
-		
+		std::optional<fm::SubShader> GetSubShader() const;
+		SHADER_KIND GetShaderKind() const { return _shaderkind; }
+		void		SetShaderKind(fm::SHADER_KIND inKind);
+		MaterialKind GetMaterialKind() const;
+		void		UpdateProperty(const std::string& inName, fm::MaterialValue& inProperty, uint32_t offset);
 	private:
-		fm::FilePath _shaderPath;
-		SHADER_KIND _kind = SHADER_KIND::PLAIN;
-		std::string _name;
-		MaterialProperties _properties;
+		void _FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const;
+		void _GetJSONValue(const nlohmann::json& valueJSON, std::string& outName, fm::MaterialValue& outValue) const;
+		bool _GetOffsetFromReflection(const std::string& inName, uint32_t& offset) const;
+
+		fm::FilePath		_shaderPath;
+		SHADER_KIND			_shaderkind = SHADER_KIND::PLAIN;
+		std::string			_name;
+		MaterialProperties	_properties;
+		MaterialProperties	_uniforms;
+		unsigned char*		_buffer = nullptr;
+		uint32_t			_bufferSize = 0;
 
 	public:
 		uint32_t GetID() const { return _currentID; }

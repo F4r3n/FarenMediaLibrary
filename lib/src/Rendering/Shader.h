@@ -38,6 +38,8 @@ namespace fm
 		void AddSubShader(SHADER_KIND inKind, const SubShader::Reflections& inReflection);
 		std::optional<SubShader> GetSubShader(SHADER_KIND inKind) const;
 		static SHADER_KIND ConvertStringsToShaderKind(const std::vector<std::string>& inStrings);
+
+		std::vector<SHADER_KIND> GetPossibleShaderKind() const;
 	protected:
 
 	private:

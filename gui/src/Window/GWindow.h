@@ -90,6 +90,7 @@ public:
 	void SetModal(bool inModal) { _modal = inModal; }
 	void SetCallBackClosure(std::function<void(GWindow*, std::optional<Context>)>&& inF) { _callBackClosure = inF; }
 protected:
+	virtual void			OnLoseFocus() { ; }
 	virtual void			_Update(float, Context &inContext) {};
 	virtual void			CustomDraw();
 	virtual void			BeforeWindowCreation() {}

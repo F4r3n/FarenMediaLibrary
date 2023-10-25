@@ -264,7 +264,7 @@ uint32_t GetGLSLTypeSize(const glslang::TType* inType)
 		return sizeof(float) * 16;
 	else if (inType->isVector() && inType->isFloatingDomain())
 	{
-		sizeof(float) * inType->getVectorSize();
+		return sizeof(float) * inType->getVectorSize();
 	}
 
 	return 0;

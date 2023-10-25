@@ -41,24 +41,9 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
 
             if (ImGui::TreeNode(materialName.c_str()))
             {
-                size_t j = 0;
 				std::string shaderName = m->GetShaderPath().GetName(true);
 
-				GMaterialEditor::DrawMaterialInspector(m.get());
-
-				ImGui::Separator();
-
-                if(ImGui::Button("Add"))
-                {
-                    m->setValue("NEW", (int)0);
-                }
-
-                //std::string currentItem = shaderName.c_str();
-                //size_t index = 0;
-				//if (DrawCombo("Shader##" + m->GetName(), _valuesShader, currentItem, &index))
-				//{
-				//	m->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>(currentItem));
-				//}
+				_editor.DrawMaterialInspector(m);
 
                 ImGui::TreePop();
             }

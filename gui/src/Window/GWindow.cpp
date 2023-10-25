@@ -164,6 +164,12 @@ void GWindow::Update(float dt, Context &inContext)
 
 		if (_isVisible)
 		{
+			//was focused
+			if (!_isFocused && inContext.currentWindowFocused == _kind)
+			{
+				OnLoseFocus();
+			}
+
 			if (_isFocused)
 			{
 				inContext.currentWindowFocused = _kind;

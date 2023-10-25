@@ -12,7 +12,7 @@ using namespace fm;
 CMaterial::CMaterial()
 {
 	_name = "Material";
-   _materials.push_back(fm::ResourcesManager::get().getResource<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION, "default_material.material")));
+   _materials.push_back(fm::ResourcesManager::get().getResource<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION, "default.material")));
 }
 
 

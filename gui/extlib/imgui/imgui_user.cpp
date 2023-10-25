@@ -38,3 +38,28 @@ bool DrawCombo(const std::string& inNameCombo, const std::vector<std::string>& v
     currentItem = std::string(item_current_char);
     return hasChanged;
 }
+
+
+bool DrawCombo(const std::string& inNameCombo, const std::vector<std::string>& values, size_t* index)
+{
+    size_t beforeIndex = *index;
+    const char* item_current_char = values[*index].c_str();
+    std::string nameCombo = inNameCombo;
+    if (ImGui::BeginCombo(nameCombo.c_str(), item_current_char, 0))
+    {
+        for (size_t n = 0; n < values.size(); n++)
+        {
+            bool is_selected = (item_current_char == values[n]);
+            if (ImGui::Selectable(values[n].c_str(), is_selected))
+            {
+                item_current_char = values[n].c_str();
+                *index = n;
+            }
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    return beforeIndex != *index;
+}

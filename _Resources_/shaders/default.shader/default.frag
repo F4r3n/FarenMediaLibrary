@@ -20,12 +20,12 @@ UNIFORM(0, 1) _SceneData{
 } sceneData;
 
 #ifdef _TEXTURE_
-UNIFORM_SAMPLER(2, 0) tex1;
+UNIFORM_SAMPLER(2, 0) TEXTURE_tex1;
 #endif
 
 void main() {
 #ifdef _TEXTURE_
-    vec4 color = vec4(inColors*texture(tex1,inUVs).xyz, 1.0);
+    vec4 color = vec4(inColors*texture(TEXTURE_tex1,inUVs).xyz, 1.0);
 #else
 	vec4 color = vec4(inColors, 1.0);
 #endif
