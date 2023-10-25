@@ -34,25 +34,28 @@ float Quaternion::_Yaw() const
 
 Quaternion Quaternion::FromEulerAngles(const vec3& inRotation)
 {
-	fm::math::vec3 angle = inRotation;
+	fm::math::vec3d angle;
+	angle.x = inRotation.x;
+	angle.y = inRotation.y;
+	angle.z = inRotation.z;
 
 	angle.x = fm::math::radians(angle.x*0.5);
 	angle.y = fm::math::radians(angle.y*0.5);
 	angle.z = fm::math::radians(angle.z*0.5);
 
 	// Abbreviations for the various angular functions
-	double cz = cos(angle.z);
-	double sz = sin(angle.z);
-	double cy = cos(angle.y);
-	double sy = sin(angle.y);
-	double cx = cos(angle.x);
-	double sx = sin(angle.x);
+	const double cz = cos(angle.z);
+	const double sz = sin(angle.z);
+	const double cy = cos(angle.y);
+	const double sy = sin(angle.y);
+	const double cx = cos(angle.x);
+	const double sx = sin(angle.x);
 
 	Quaternion q;
-	q.w = cx * cy * cz + sx * sy * sz;
-	q.x = sx * cy * cz - cx * sy * sz;
-	q.y = cx * sy * cz + sx * cy * sz;
-	q.z = cx * cy * sz - sx * sy * cz;
+	q.w = float(cx * cy * cz + sx * sy * sz);
+	q.x = float(sx * cy * cz - cx * sy * sz);
+	q.y = float(cx * sy * cz + sx * cy * sz);
+	q.z = float(cx * cy * sz - sx * sy * cz);
 
 	return q;
 
@@ -119,12 +122,12 @@ Quaternion Quaternion::Rotate(const Quaternion& q)
 
 fm::math::Quaternion Quaternion::operator *(const fm::math::Quaternion& q) const
 {
-	const float w = w * q.w - x * q.x - y * q.y - z * q.z;
-	const float x = w * q.x + x * q.w + y * q.z - z * q.y;
-	const float y = w * q.y + y * q.w + z * q.x - x * q.z;
-	const float z = w * q.z + z * q.w + x * q.y - y * q.x;
+	const float _w = w * q.w - x * q.x - y * q.y - z * q.z;
+	const float _x = w * q.x + x * q.w + y * q.z - z * q.y;
+	const float _y = w * q.y + y * q.w + z * q.x - x * q.z;
+	const float _z = w * q.z + z * q.w + x * q.y - y * q.x;
 
-	return Quaternion(w, x, y, z);
+	return Quaternion(_w, _x, _y, _z);
 }
 
 fm::math::Quaternion Quaternion::Conjugate() const

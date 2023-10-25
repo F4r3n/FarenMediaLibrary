@@ -135,7 +135,7 @@ private:
 	//Setup allocator
 	bool _SetupAllocator(VkPhysicalDevice physicalDevice, VkDevice inDevice, VkInstance instance);
 private:
-	VkDebugUtilsMessengerEXT _debugMessenger;
+	VkDebugUtilsMessengerEXT _debugMessenger = nullptr;
 
 	bool			_enableValidationLayers = true;
 	VkInstance		_instance = nullptr;
@@ -143,11 +143,11 @@ private:
 	VkSurfaceKHR	_surface = nullptr;
 	VkPhysicalDevice _physicalDevice = nullptr;
 
-	VkQueue			_graphicsQueue;
-	VkQueue			_presentQueue;
+	VkQueue			_graphicsQueue = nullptr;
+	VkQueue			_presentQueue = nullptr;
 
 	//Swap chain
-	VkSwapchainKHR				_swapChain;
+	VkSwapchainKHR				_swapChain = nullptr;
 	std::vector<VkImage>		_swapChainImages;
 	VkFormat					_swapChainImageFormat;
 	VkExtent2D					_swapChainExtent;
@@ -155,14 +155,14 @@ private:
 	std::vector<VkFramebuffer>	_swapChainFramebuffers;
 
 	//Depth
-	VkImageView		_depthImageView;
+	VkImageView		_depthImageView = nullptr;
 	AllocatedImage	_depthImage;
 	VkFormat		_depthFormat;
 
 
-	VkCommandPool	_commandPool;
+	VkCommandPool	_commandPool = nullptr;
 
-	VmaAllocator	_allocator; //vma lib allocator
+	VmaAllocator	_allocator = nullptr; //vma lib allocator
 	VkPhysicalDeviceProperties			_gpuProperties;
 	vk_init::QueueFamilyIndices			_queueFamilyIndices;
 };

@@ -9,7 +9,7 @@ CSource::CSource() {
      _name = "Source";
 }
 
-CSource::CSource(const std::string& path) {
+CSource::CSource(const std::string&) {
     _name = "Source";
 }
 

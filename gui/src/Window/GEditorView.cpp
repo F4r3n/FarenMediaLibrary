@@ -92,7 +92,7 @@ void GEditorView::CustomDraw()
 			const fm::OGLTexture texture = renderTexture->GetColorBufferTexture(0);
 
 			ImGui::SetCursorPos(_cursorPos);
-			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
+			ImGui::Image(ImTextureID((intptr_t)texture.getID()), ImVec2(texture.getWidth(), texture.getHeight()));
 			ImGuizmo::SetDrawlist();
 			_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 

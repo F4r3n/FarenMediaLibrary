@@ -12,6 +12,8 @@ namespace fm {
 
 		typedef vec<int, 3> Vector3i;
 		typedef vec<double, 3> Vector3d;
+		typedef vec<double, 3> vec3d;
+
 		typedef vec<unsigned int, 3> Vector3ui;
 
 		void to_json(nlohmann::json& j, const vec3& p);

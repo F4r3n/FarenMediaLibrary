@@ -121,7 +121,7 @@ MeshContainer* StandardShapes::CreateCircle()
     MeshContainer* meshContainer = new MeshContainer();
 
     unsigned int numberVertices = 100;
-    float intervall = 2 * fm::math::pi() / numberVertices;
+    float intervall = float(2 * fm::math::pi() / numberVertices);
 
     AddVertex(meshContainer, {0.5, 0.5, 0}, {0.5, 0.5}, {0.0,0.0,0.0});
 

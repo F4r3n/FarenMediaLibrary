@@ -11,7 +11,7 @@ InputManager::InputManager(Window& window) {
     init(window);
 }
 
-void InputManager::init(Window& window) {
+void InputManager::init(Window&) {
 
 }
 

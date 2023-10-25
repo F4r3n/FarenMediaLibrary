@@ -28,7 +28,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 	}
 }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback([[maybe_unused]] VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, [[maybe_unused]]void* pUserData) {
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
 	return VK_FALSE;
@@ -202,7 +202,7 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	VkInstanceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
-	createInfo.enabledExtensionCount = extensionNames.size();
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensionNames.size());
 	createInfo.ppEnabledExtensionNames = extensionNames.data();
 #if __APPLE__
 	createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -401,7 +401,7 @@ bool Vulkan::_SetupLogicalDevice(VkPhysicalDevice device, const std::vector<cons
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
-	createInfo.queueCreateInfoCount = queueCreateInfos.size();
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 	createInfo.pEnabledFeatures = &deviceFeatures;
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
@@ -778,12 +778,14 @@ VkDescriptorSetLayout Vulkan::CreateDescriporSetLayout(const std::vector< VkDesc
 	VkDescriptorSetLayoutCreateInfo setinfo = {};
 	setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	setinfo.pNext = nullptr;
-	setinfo.bindingCount = inBindings.size();
+	setinfo.bindingCount = static_cast<uint32_t>(inBindings.size());
 	setinfo.flags = 0;
 	setinfo.pBindings = inBindings.data();
 
 	VkDescriptorSetLayout layout;
 	const VkResult result = vkCreateDescriptorSetLayout(_device, &setinfo, nullptr, &layout);
+	if (result != VK_SUCCESS)
+		return nullptr;
 
 	return layout;
 }
@@ -876,12 +878,12 @@ namespace vk_init
 		info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		info.pNext = nullptr;
 
-		info.waitSemaphoreCount = inWaitSemaphore.size();
+		info.waitSemaphoreCount = static_cast<uint32_t>(inWaitSemaphore.size());
 		info.pWaitSemaphores = inWaitSemaphore.data();
 		info.pWaitDstStageMask = inWaitPipelineStages.data();
 		info.commandBufferCount = 1;
 		info.pCommandBuffers = cmd;
-		info.signalSemaphoreCount = inSignalSemaphores.size();
+		info.signalSemaphoreCount = static_cast<uint32_t>(inSignalSemaphores.size());
 		info.pSignalSemaphores = inSignalSemaphores.data();
 
 		return info;

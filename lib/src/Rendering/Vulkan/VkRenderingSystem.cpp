@@ -44,8 +44,8 @@ void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
 	//TODO: TEST
 	//fm::VkTexture texture();
 	//texture.UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
-	auto it = _textures.emplace(0, std::make_unique<fm::VkTexture>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); }));
-	it.first->second->UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
+	//auto it = _textures.emplace(0, std::make_unique<fm::VkTexture>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); }));
+	//it.first->second->UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
 	//texture.Destroy();
 }
 
@@ -421,8 +421,8 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			materialInfo.extent = _vulkan->GetSwapChainExtent();
 			materialInfo.descriptorLayout = std::vector<VkDescriptorSetLayout>{ _globalSetLayout,_objectSetLayout };
 			materialInfo.material = mainMaterial;
-			materialInfo.textureLayout = _textureSetLayout;
-			materialInfo.textures.push_back(_textures.find(0)->second.get());
+			//materialInfo.textureLayout = _textureSetLayout;
+			//materialInfo.textures.push_back(_textures.find(0)->second.get());
 			materialInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 			materialInfo.shader = _FindOrCreateShader(mainMaterial->GetSubShader().value());
 

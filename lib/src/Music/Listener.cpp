@@ -10,7 +10,7 @@ Listener::Listener() {
 	//alListenerfv(AL_ORIENTATION, listenerOri);
 }
 
-void Listener::setPosition(math::Vector2f pos) {
+void Listener::setPosition(const math::Vector2f&) {
 	//alListener3f(AL_POSITION, pos.x, pos.y, 1.0f);
 }
 

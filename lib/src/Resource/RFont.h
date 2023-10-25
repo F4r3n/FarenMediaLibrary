@@ -7,9 +7,9 @@
 #include "Resource/Resource.h"
 
 struct Character {
-    fm::math::vec2 advance;
-    fm::math::vec2 b_wh;
-    fm::math::vec2 b_lt;
+    fm::math::vec2l advance;
+    fm::math::vec2l b_wh;
+    fm::math::vec2l b_lt;
     fm::math::vec2 t;    
 };
 

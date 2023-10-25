@@ -93,15 +93,15 @@ class OGLTexture
 
 
     Kind _textureKind = Kind::TEXTURE2D;
-    size_t _width;
-    size_t _height;
+    size_t _width = 0;
+    size_t _height = 0;
     size_t _numberChannels = 4;
 
-    Format _format;
-    Type _type;
+    Format _format = fm::Format::RGBA;
+    Type _type = fm::Type::FLOAT;
     std::vector<unsigned char> _content;
 
-    GLuint _id;
+    GLuint _id = 0;
 };
 
 

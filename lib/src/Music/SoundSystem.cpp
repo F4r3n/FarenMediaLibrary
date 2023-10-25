@@ -15,11 +15,10 @@ SoundSystem::SoundSystem()
 }
 SoundSystem::~SoundSystem() {
 }
-void SoundSystem::pre_update(EntityManager& em) {
+void SoundSystem::pre_update(EntityManager&) {
 }
 
 void SoundSystem::update(float , EntityManager& em, EventManager& ) {
-    int error = 0;
     for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>(fm::IsEntityActive))
 	{
 
@@ -32,7 +31,7 @@ void SoundSystem::update(float , EntityManager& em, EventManager& ) {
     }
 }
 
-void SoundSystem::_SetSettings(const fm::Transform &inTransform, fmc::CSource* sound) {
+void SoundSystem::_SetSettings(const fm::Transform &, fmc::CSource*) {
     //alSourcef(sound->source, AL_PITCH, sound->pitch);
     //alSourcef(sound->source, AL_GAIN, sound->volume);
     //alSource3f(sound->source, AL_POSITION, inTransform.position.x, inTransform.position.y, 0);
@@ -40,7 +39,7 @@ void SoundSystem::_SetSettings(const fm::Transform &inTransform, fmc::CSource* s
     //alSourcei(sound->source, AL_LOOPING, sound->isLooping);
 }
 
-void SoundSystem::init(EntityManager& em, EventManager& event)
+void SoundSystem::init(EntityManager& em, EventManager&)
 {
 	_speaker = std::unique_ptr<fm::Speaker>(new fm::Speaker());
 	_listener = std::unique_ptr<fm::Listener>(new fm::Listener());

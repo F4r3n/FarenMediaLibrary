@@ -19,7 +19,6 @@ public:
     float r = 0, g = 0, b = 0;
     float a = 1;
     float mean();
-    void RGB2HSV(Color& color);
 
 
 private:

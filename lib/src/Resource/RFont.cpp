@@ -87,9 +87,9 @@ RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
 
         //#endif
         Character character = {
-            fm::math::vec2(g->advance.x >> 6, g->advance.y >> 6),
-            fm::math::vec2(g->bitmap.width, g->bitmap.rows),
-            fm::math::vec2(g->bitmap_left, g->bitmap_top),
+            fm::math::vec2l(g->advance.x >> 6, g->advance.y >> 6),
+            fm::math::vec2l(g->bitmap.width, g->bitmap.rows),
+            fm::math::vec2l(g->bitmap_left, g->bitmap_top),
             fm::math::vec2(ox / (float)w, oy / (float)h)};
         Characters.insert(std::pair<GLchar, Character>(i, character));
         rowh = std::max(rowh, g->bitmap.rows);

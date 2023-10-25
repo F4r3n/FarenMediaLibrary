@@ -8,6 +8,8 @@ namespace fm {
 
 		typedef vec<float, 2> Vector2f;
 		typedef vec<int, 2> Vector2i;
+		typedef vec<int, 2> vec2i;
+		typedef vec<long, 2> vec2l;
 		typedef vec<double, 2> Vector2d;
 		typedef vec<unsigned int, 2> Vector2ui;
 		typedef vec<float,2> vec2;
