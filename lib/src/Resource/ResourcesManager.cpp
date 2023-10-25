@@ -162,7 +162,7 @@ void ResourcesManager::Reload(bool force)
 }
 
 
-void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
+void ResourcesManager::_LoadInternalShaders()
 {
 
 	Folder shaders(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_SHADERS_LOCATION)));
@@ -179,9 +179,9 @@ void ResourcesManager::_LoadInternalShaders(GRAPHIC_API inAPI)
 
 
 
-bool ResourcesManager::LoadShaders(GRAPHIC_API inAPI)
+bool ResourcesManager::LoadShaders()
 {
-	_LoadInternalShaders(inAPI);
+	_LoadInternalShaders();
 	return true;
 }
 

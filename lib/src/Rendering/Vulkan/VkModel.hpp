@@ -5,6 +5,9 @@
 namespace fm
 {
 	class Model;
+
+	class VkVertexBuffer;
+
 	class VkModel
 	{
 	public:
@@ -14,6 +17,7 @@ namespace fm
 		void	Draw(VkCommandBuffer inCmd, uint32_t inInstanceIndex);
 	private:
 		std::shared_ptr<Model> _model = nullptr;
+		std::vector<std::shared_ptr<fm::VkVertexBuffer>> _vertexes;
 		Vulkan* _vulkan = nullptr;
 	};
 }

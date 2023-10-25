@@ -16,38 +16,29 @@ bool VkModel::UploadData(std::function<void(std::function<void(VkCommandBuffer c
 {
 	for (auto& mesh : _model->_meshes)
 	{
-		if (mesh.vertexBuffer == nullptr)
-		{
-			mesh.vertexBuffer = std::unique_ptr<rendering::VertexBuffer>(new fm::VkVertexBuffer(_vulkan, inSubmit));
-		}
-		mesh.vertexBuffer->UploadData(*mesh.meshContainer);
+		auto it = _vertexes.emplace_back(std::make_shared<fm::VkVertexBuffer>(_vulkan, inSubmit));
+		it->UploadData(*mesh.meshContainer);
 	}
 	return true;
 }
 
 bool VkModel::Destroy()
 {
-	for (auto& mesh : _model->_meshes)
+	for (auto& mesh : _vertexes)
 	{
-		if (mesh.vertexBuffer != nullptr)
-		{
-			mesh.vertexBuffer->destroy();
-		}
+		mesh->destroy();
 	}
 	return true;
 }
 
 void VkModel::Draw(VkCommandBuffer inCmd, uint32_t inInstanceIndex)
 {
-	for (auto& mesh : _model->_meshes)
+	for (auto& mesh : _vertexes)
 	{
-		fm::VkVertexBuffer* vertex = dynamic_cast<fm::VkVertexBuffer*>(mesh.vertexBuffer.get());
-		if (vertex == nullptr)
-			break;
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(inCmd, 0, 1, &vertex->_allocatedBuffer._buffer, &offset);
-		vkCmdBindIndexBuffer(inCmd, vertex->_allocatedIndexBuffer._buffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDraw(inCmd, vertex->GetNumberVertices(), 1, 0, inInstanceIndex);
+		vkCmdBindVertexBuffers(inCmd, 0, 1, &mesh->_allocatedBuffer._buffer, &offset);
+		vkCmdBindIndexBuffer(inCmd, mesh->_allocatedIndexBuffer._buffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdDraw(inCmd, mesh->GetNumberVertices(), 1, 0, inInstanceIndex);
 	}
 
 }

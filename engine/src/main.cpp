@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	config.width = 0;
 	config.height = 0;
 	config.standAlone = true;
-	config.graphicAPI = GRAPHIC_API::VULKAN;
+	config.graphicAPI = RENDERING_MODE_VULKAN;
 	config.windowFlag = SDL_WINDOW_RESIZABLE;
 	config.internalResourcesDirectory = fm::Folder(lineParser.GetArg("internal"));
 
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 		fm::InputManager::Get().PollEvents();
 		app.Update();
 
-		window->swapBuffers();
+		app.SwapBuffers();
 	}
 
 	fm::Application::Get().DeInit();

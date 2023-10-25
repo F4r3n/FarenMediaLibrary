@@ -59,21 +59,21 @@ SYSTEM_MANAGER_MODE Engine::GetStatus() const
 }
 
 
-void Engine::Init(GRAPHIC_API inAPI, std::shared_ptr<fm::Window> window)
+void Engine::Init(RENDERING_MODE inMode, std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST> window)
 {
     _systems->addSystem(new fms::SoundSystem());
 	_systems->addSystem(new fms::PhysicSystem());
 
     _systems->addSystem(new fms::ScriptManagerSystem());
-	if (inAPI == GRAPHIC_API::OPENGL)
+	if ((inMode & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
 	{
-		auto size = window->GetSize();
+		auto size = window[GRAPHIC_API::OPENGL]->GetSize();
 		_systems->addSystem(new fms::RenderingSystem(size.x, size.y));
 	}
 #if WITH_VULKAN
-	else if (inAPI == GRAPHIC_API::VULKAN)
+	if ((inMode & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
 	{
-		_systems->addSystem(new fms::VkRenderingSystem(window));
+		_systems->addSystem(new fms::VkRenderingSystem(window[GRAPHIC_API::VULKAN]));
 	}
 #endif
 

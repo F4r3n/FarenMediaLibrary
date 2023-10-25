@@ -163,7 +163,7 @@ int main()
 	config.width = 1280;
 	config.height = 720;
 	config.windowFlag = SDL_WINDOW_RESIZABLE;
-	config.graphicAPI = GRAPHIC_API::OPENGL;
+	config.graphicAPI = RENDERING_MODE(RENDERING_MODE_OPENGL | RENDERING_MODE_VULKAN);
 
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);
@@ -234,7 +234,7 @@ int main()
 			SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
 		}
 
-		window->swapBuffers();
+		app.SwapBuffers();
 
 	}
 	Editor::Get().Unsubscribe(mainWindow.get());

@@ -94,23 +94,36 @@ bool Application::Read()
 }
 
 
-fm::Window* Application::GetWindow() const
+fm::Window* Application::GetWindow(GRAPHIC_API api) const
 {
-    return _window.get();
+    return _window[api].get();
 }
 
 
 void Application::Init()
 {
     _engine = std::make_unique<fm::Engine>();
-    _window = std::make_shared<fm::Window>(_currentConfig.graphicAPI, _currentConfig.windowFlag);
-    _window->Init(_currentConfig.width, _currentConfig.height);
-	_window->setName(_currentConfig.name);
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		_window[GRAPHIC_API::OPENGL] = std::make_shared<fm::Window>(GRAPHIC_API::OPENGL, _currentConfig.windowFlag);
+		_window[GRAPHIC_API::OPENGL]->Init(_currentConfig.width, _currentConfig.height);
+		_window[GRAPHIC_API::OPENGL]->setName(_currentConfig.name);
+
+	}
+#if WITH_VULKAN
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
+	{
+		_window[GRAPHIC_API::VULKAN] = std::make_shared<fm::Window>(GRAPHIC_API::VULKAN, _currentConfig.windowFlag);
+		_window[GRAPHIC_API::VULKAN]->Init(_currentConfig.width, _currentConfig.height);
+		_window[GRAPHIC_API::VULKAN]->setName(_currentConfig.name);
+	}
+#endif
+
 }
 
 void Application::LoadInternalResources()
 {
-	fm::ResourcesManager::get().LoadShaders(_currentConfig.graphicAPI);
+	fm::ResourcesManager::get().LoadShaders();
 	fm::ResourcesManager::get().LoadFonts();
 	fm::ResourcesManager::get().LoadMaterials();
 }
@@ -124,7 +137,15 @@ void Application::InitSystems()
 
 void Application::Update()
 {
-    _window->update(_currentConfig.fpsWanted);
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		_window[GRAPHIC_API::OPENGL]->update(_currentConfig.fpsWanted);
+	}
+
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
+	{
+		_window[GRAPHIC_API::VULKAN]->update(_currentConfig.fpsWanted);
+	}
     _engine->Update(fm::Time::dt);
 }
 
@@ -213,6 +234,13 @@ std::shared_ptr<fm::Scene> Application::LoadScene(const fm::FilePath& inPath)
 	return s;
 }
 
+void Application::SwapBuffers()
+{
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		_window[GRAPHIC_API::OPENGL]->swapBuffers();
+	}
+}
 
 
 std::shared_ptr<fm::Scene>	Application::AddNewScene(const fm::FilePath& inPath)

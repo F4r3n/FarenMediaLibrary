@@ -78,7 +78,7 @@ public:
 	static FilePath GetFilePathResource(LOCATION inLocation);
 
 
-	bool LoadShaders(GRAPHIC_API inAPI);
+	bool LoadShaders();
 	bool LoadMaterials();
 	bool LoadFonts();
 
@@ -88,7 +88,7 @@ public:
     }
 
 private:
-	void _LoadInternalShaders(GRAPHIC_API inAPI);
+	void _LoadInternalShaders();
 	void _LoadInternalMaterials();
 
 	ArrayOfResources resources;

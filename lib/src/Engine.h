@@ -20,7 +20,7 @@ public:
     ~Engine();
    
     void Update(float dt);
-    void Init(GRAPHIC_API inAPI, std::shared_ptr<fm::Window> window);
+    void Init(RENDERING_MODE inAPI, std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST> window);
     void Start();
     void Run(std::shared_ptr<fm::Window> window);
     

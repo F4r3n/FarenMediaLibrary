@@ -26,7 +26,7 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_vulkan = std::make_unique<Vulkan>();
 	_vulkan->Init(inWindow->getWindow());
 	_window = inWindow;
-
+	_type = SYSTEM_MODE::ALWAYS;
 }
 
 void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
