@@ -2,7 +2,7 @@
 #include "nlohmann/json.hpp"
 using namespace fm;
 
-Texture::Texture(const fm::FilePath& inPath, const std::string& inName)
+Texture::Texture(const fm::FilePath& inPath)
 	: _path(inPath)
 {
 

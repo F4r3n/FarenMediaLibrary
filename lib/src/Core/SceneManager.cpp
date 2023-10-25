@@ -109,7 +109,7 @@ bool SceneManager::Read(const nlohmann::json &injson)
 			AddScene(_currentScene);
 		}
 	}
-	catch(std::out_of_range& e)
+	catch(std::out_of_range&)
 	{
 		return false;
 	}

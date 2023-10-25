@@ -91,7 +91,7 @@ void MeshLoader::ProcessMesh(Model* inModel, const tinyobj::ObjReader& inReader)
 					vertex.uv.y = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
 				}
 				meshContainer->vertices.push_back(vertex);
-				meshContainer->listIndices.push_back(meshContainer->listIndices.size());
+				meshContainer->listIndices.push_back(static_cast<uint32_t>(meshContainer->listIndices.size()));
 
 				// Optional: vertex colors
 				// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];

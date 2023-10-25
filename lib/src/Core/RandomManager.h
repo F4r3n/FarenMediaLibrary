@@ -6,7 +6,7 @@ public:
 	~RandomManager();
 	static RandomManager& getInstance();
 	int uniform_int_distribution(int a, int b);
-	float uniform_real_distribution(float a, float b);
+	double uniform_real_distribution(float a, float b);
 private:
 	RandomManager();
 	static RandomManager _instance;

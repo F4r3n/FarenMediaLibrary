@@ -12,7 +12,7 @@ int RandomManager::uniform_int_distribution(int a, int b) {
     return uniform_dist(e1);
 }
 
-float RandomManager::uniform_real_distribution(float a, float b) {
+double RandomManager::uniform_real_distribution(float a, float b) {
     thread_local static std::default_random_engine e1(r());
     std::uniform_real_distribution<double> uniform_dist(a, b);
     return uniform_dist(e1);

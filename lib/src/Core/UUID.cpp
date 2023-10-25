@@ -1,21 +1,19 @@
 #include "Core/UUID.h"
 #include <cassert>
-using namespace fm;
 
-#if 0
+
 #if _WIN32
 #include <Rpc.h>
 #include <guiddef.h>
 #elif __linux__
 #include <uuid/uuid.h>
 #endif
-#endif
 
-std::string UUID::Generate(const std::string& inString)
+
+std::string fm::UUID::Generate(const std::string& inString)
 {
-#if 0
 #if _WIN32
-	UUID uuid = { 0 };
+	GUID uuid = { 0 };
 	std::string guid;
 
 	// Create uuid or load from a string by UuidFromString() function
@@ -42,9 +40,8 @@ std::string UUID::Generate(const std::string& inString)
 	std::string s(uuid_str);
 
 	return s;
-#endif
 #else
-	return "";
+	return inString;
 #endif
 	
 }

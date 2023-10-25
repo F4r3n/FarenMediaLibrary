@@ -8,7 +8,7 @@ namespace fm
 	{
 	public:
 		Texture() = default;
-		Texture(const fm::FilePath& inPath, const std::string& inName);
+		Texture(const fm::FilePath& inPath);
 		const fm::FilePath& GetPath() const { return _path; }
 
 		fm::FilePath _path;

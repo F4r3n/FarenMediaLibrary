@@ -25,7 +25,7 @@ VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
 	_materialBuffer.setPoint = infoMaterialBuffer.setPoint;
 
 	_materialBuffer.bufferLayout = _vulkan->CreateDescriporSetLayout({ materialBinding });
-	_materialBuffer.maxBufferSize = inInfo.maxFramesInFlight * _vulkan->PadUniformBufferSize(infoMaterialBuffer.bufferSize);
+	_materialBuffer.maxBufferSize = static_cast<uint32_t>(inInfo.maxFramesInFlight * _vulkan->PadUniformBufferSize(infoMaterialBuffer.bufferSize));
 	_materialBuffer.buffer = _vulkan->CreateBuffer(_materialBuffer.maxBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	_materialBuffer.descriptorSets.resize(inInfo.maxFramesInFlight);
 	_materialBuffer.stamps.resize(inInfo.maxFramesInFlight);
@@ -62,18 +62,16 @@ bool VkMaterial::BindSet(VkCommandBuffer inBuffer, uint32_t inFrameNumber)
 {
 	if (_materialBuffer.descriptorSetReady)
 	{
-		size_t offset = 0;
+		uint32_t offset = 0;
 		if (_materialBuffer.stamps[inFrameNumber] != _material->GetStamp())
 		{
 			_materialBuffer.stamps[inFrameNumber] = _material->GetStamp();
-			offset = _vulkan->PadUniformBufferSize(_material->GetBufferSize()) * inFrameNumber;
+			offset = static_cast<uint32_t>(_vulkan->PadUniformBufferSize(_material->GetBufferSize()) * inFrameNumber);
 			_vulkan->MapBuffer(_materialBuffer.buffer, _material->GetBufferPtr(), (uint32_t)_material->GetBufferSize(), offset);
 		}
 
-
-		uint32_t uniform_offset = static_cast<uint32_t>(offset);
 		vkCmdBindDescriptorSets(inBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), _materialBuffer.setPoint, 1,
-			&_materialBuffer.descriptorSets[inFrameNumber], 1, &uniform_offset);
+			&_materialBuffer.descriptorSets[inFrameNumber], 1, &offset);
 	}
 
 
