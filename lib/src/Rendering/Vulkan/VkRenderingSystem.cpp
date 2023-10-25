@@ -429,7 +429,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(materialInfo);
 			_materialsToUpdate.emplace_back(mat.get());
 
-			_currentMaterial = _materials.emplace(material->GetID(), std::move(mat)).first->second.get();
+			_currentMaterial = _materials.emplace(mainMaterial->GetID(), std::move(mat)).first->second.get();
 
 		}
 

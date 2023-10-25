@@ -32,7 +32,7 @@ READ_ONLY_BUFFER(1, 2) _ObjectBuffer{
 
 
 
-UNIFORM(0, 3) MaterialBuffer {
+UNIFORM(2, 3) MaterialBuffer {
 	PLAIN plain;
 } materialBuffer;
 
@@ -45,6 +45,6 @@ void main()
 
 	outNormals = mat3(transpose(inverse(modelMatrix))) * vNormal;
 	outUVs = vTexCoord;
-	outColors = vColor;
+	outColors = vColor*materialBuffer.plain.mainColor.xyz;
 	outPosition = gl_Position.xyz;
 }

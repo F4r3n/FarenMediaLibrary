@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
-
+#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 namespace fm
 {
 	class Material;
@@ -21,5 +21,8 @@ namespace fm
 	private:
 		std::shared_ptr<Material>	_material = nullptr;
 		std::shared_ptr<OGLShader>	_shader = nullptr;
+		fm::OGLUniformbuffer		_materialBuffer;
+
+		size_t _materialStamp = 0;
 	};
 }

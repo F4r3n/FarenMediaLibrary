@@ -20,7 +20,7 @@ UNIFORM(0, 1) _SceneData{
 } sceneData;
 
 #ifdef _TEXTURE_
-UNIFORM_SAMPLER(2, 0) TEXTURE_tex1;
+UNIFORM_SAMPLER(3, 0) TEXTURE_tex1;
 #endif
 
 void main() {

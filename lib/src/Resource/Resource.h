@@ -44,8 +44,12 @@ namespace fm
 			const auto id = _path.GetFileSystemID();
 			return fm::IsInternal(id);
 		}
+
+		void Touch() { _stamp++; }
+		size_t GetStamp() const { return _stamp; }
     protected:
 		fm::FilePath	_path;
+		size_t			_stamp = 0;
 
 
     };

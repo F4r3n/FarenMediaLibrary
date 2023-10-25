@@ -331,7 +331,6 @@ uint32_t TraverseBlocks(fm::SubShader::Reflection& outReflection, const glslang:
 			variable.typeName = structure.type->getTypeName();
 			variable.isBlock = true;
 			variable.size = TraverseBlocks(outReflection, structure.type);
-			size += variable.size;
 		}
 		else
 		{

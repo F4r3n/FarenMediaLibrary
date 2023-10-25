@@ -304,22 +304,17 @@ void Material::UpdateProperty(const std::string& inName, fm::MaterialValue& inPr
 	GetProperties().UpdateProperty(inName, inProperty);
 	if (_buffer == nullptr)
 	{
-		auto currentSubShader = GetSubShader();
-		if (currentSubShader.has_value())
+		auto block = _GetReflectionBlock("MaterialBuffer", GRAPHIC_API::OPENGL);
+		if (block.has_value())
 		{
-			auto reflection = currentSubShader->GetReflection(GRAPHIC_API::OPENGL);
-			auto it = reflection.blocks.find("MaterialBuffer");
-			if (it != reflection.blocks.end())
-			{
-				_bufferSize = it->second.size;
-				_buffer = (unsigned char*)calloc(_bufferSize, sizeof(unsigned char));
-			}
-
+			_bufferSize = block->size;
+			_buffer = (unsigned char*)calloc(_bufferSize, sizeof(unsigned char));
 		}
 	}
 
 	if (_buffer != nullptr)
 	{
+		Resource::Touch();
 		unsigned char* buffer = _buffer;
 		std::visit(overloaded{
 			[&buffer, offset](auto& arg) {
@@ -328,4 +323,51 @@ void Material::UpdateProperty(const std::string& inName, fm::MaterialValue& inPr
 			},
 		}, inProperty.GetVariant());
 	}
+}
+std::optional<fm::SubShader::Block>	Material::_GetReflectionBlock(const std::string& inName, GRAPHIC_API inAPI) const
+{
+	auto currentSubShader = GetSubShader();
+	if (currentSubShader.has_value())
+	{
+		auto reflection = currentSubShader->GetReflection(inAPI);
+		auto it = reflection.blocks.find(inName);
+		if (it != reflection.blocks.end())
+		{
+			return it->second;
+		}
+	}
+	return std::nullopt;
+}
+
+std::optional<fm::SubShader::Uniform> Material::_GetReflectionUniform(const std::string& inName, GRAPHIC_API inAPI) const
+{
+	auto currentSubShader = GetSubShader();
+	if (currentSubShader.has_value())
+	{
+		auto reflection = currentSubShader->GetReflection(inAPI);
+		auto it = reflection.uniforms.find(inName);
+		if (it != reflection.uniforms.end())
+		{
+			return it->second;
+		}
+	}
+	return std::nullopt;
+}
+
+
+
+Material::MaterialBufferInfo Material::GetMaterialBufferInfo(GRAPHIC_API inAPI) const
+{
+	MaterialBufferInfo info;
+	auto uniform = _GetReflectionUniform("MaterialBuffer", inAPI);
+	if (uniform.has_value())
+	{
+		info.bindingPoint = uniform->binding;
+		info.setPoint = uniform->set;
+		info.stages = (fm::SubShader::STAGE)uniform->stages;
+	}
+	info.buffer = _buffer;
+	info.bufferSize = _bufferSize;
+
+	return info;
 }

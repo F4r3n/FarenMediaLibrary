@@ -12,6 +12,21 @@ namespace fm
 	class VkMaterial
 	{
 	public:
+
+		struct MaterialBuffer
+		{
+			VkDescriptorSetLayout				bufferLayout = nullptr;
+			std::vector<VkDescriptorSet>		descriptorSets;
+			fm::AllocatedBuffer					buffer;
+
+			uint32_t							bindingPoint = 0;
+			uint32_t							setPoint = 0;
+			uint32_t							maxBufferSize = 0;
+
+			bool								descriptorSetReady = false;
+			std::vector<size_t>					stamps;
+		};
+
 		struct VkMaterialCreateInfo {
 			std::shared_ptr<fm::Material>		material;
 			Vulkan*								vulkan;
@@ -40,5 +55,7 @@ namespace fm
 		std::vector<VkDescriptorSet>		_textureDescriptorSets;
 		VkDescriptorSetLayout				_textureLayout;
 		Vulkan*								_vulkan = nullptr;
+
+		MaterialBuffer						_materialBuffer;
 	};
 }

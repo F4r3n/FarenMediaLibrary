@@ -18,6 +18,7 @@ class OGLUniformbuffer
         void Free();
         void Bind() const;
 		void SetBindingPoint(uint32_t inBindingPoint);
+		bool IsValid() const { return _ubo > 0; }
     private:
         unsigned int _bindingPoint = 0;
         unsigned int _ubo = 0;

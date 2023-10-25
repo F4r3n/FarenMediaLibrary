@@ -76,6 +76,15 @@ namespace fm
 			memcpy(mat._buffer, _buffer, _bufferSize);
 		}
 
+		struct MaterialBufferInfo
+		{
+			unsigned char*		buffer = nullptr;
+			uint32_t			bufferSize = 0;
+			uint32_t			bindingPoint = 0;
+			uint32_t			setPoint = 0;
+			fm::SubShader::STAGE	stages = fm::SubShader::STAGE::ALL;
+		};
+
 		~Material()
 		{
 			delete[] _buffer;
@@ -122,20 +131,29 @@ namespace fm
 
 		void Save() const override;
 		std::optional<fm::SubShader> GetSubShader() const;
-		SHADER_KIND GetShaderKind() const { return _shaderkind; }
-		void		SetShaderKind(fm::SHADER_KIND inKind);
-		MaterialKind GetMaterialKind() const;
-		void		UpdateProperty(const std::string& inName, fm::MaterialValue& inProperty, uint32_t offset);
+
+		SHADER_KIND		GetShaderKind() const { return _shaderkind; }
+		void			SetShaderKind(fm::SHADER_KIND inKind);
+		MaterialKind	GetMaterialKind() const;
+		void			UpdateProperty(const std::string& inName, fm::MaterialValue& inProperty, uint32_t offset);
+		uint32_t		GetBufferSize() const { return _bufferSize; }
+		unsigned char*	GetBufferPtr() const { return _buffer; }
+
+		MaterialBufferInfo GetMaterialBufferInfo(GRAPHIC_API inAPI) const;
 	private:
 		void _FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const;
 		void _GetJSONValue(const nlohmann::json& valueJSON, std::string& outName, fm::MaterialValue& outValue) const;
 		bool _GetOffsetFromReflection(const std::string& inName, uint32_t& offset) const;
+		std::optional<fm::SubShader::Block>	_GetReflectionBlock(const std::string& inName, GRAPHIC_API inAPI) const;
+		std::optional<fm::SubShader::Uniform>	_GetReflectionUniform(const std::string& inName, GRAPHIC_API inAPI) const;
 
 		fm::FilePath		_shaderPath;
 		SHADER_KIND			_shaderkind = SHADER_KIND::PLAIN;
 		std::string			_name;
 		MaterialProperties	_properties;
 		MaterialProperties	_uniforms;
+
+
 		unsigned char*		_buffer = nullptr;
 		uint32_t			_bufferSize = 0;
 
