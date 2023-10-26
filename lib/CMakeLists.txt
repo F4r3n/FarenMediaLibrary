@@ -38,26 +38,27 @@ link_directories(${FML_EXTLIB_LIB}/glew)
 if(WANT_VULKAN)
   #Vulkan
   find_package(Vulkan REQUIRED)
-  include_directories(${Vulkan_INCLUDE_DIRS})
+  include_directories(SYSTEM ${Vulkan_INCLUDE_DIRS})
 
   #VMA
   FETCHCONTENT_GETPROPERTIES(VMA)
-  include_directories(${vma_SOURCE_DIR}/include)
+  include_directories(SYSTEM ${vma_SOURCE_DIR}/include)
+
 endif(WANT_VULKAN)
 
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
-include_directories(${sdl_SOURCE_DIR}/include)
+include_directories(SYSTEM ${sdl_SOURCE_DIR}/include)
 link_directories(${sdl_BINARY_DIR})
 
 #sol2
-include_directories(${FML_EXTLIB}/sol2)
+include_directories(SYSTEM ${FML_EXTLIB}/sol2)
 
 #STB
-include_directories(${FML_EXTLIB}/stb)
+include_directories(SYSTEM ${FML_EXTLIB}/stb)
 
-#RAPID_JSON
-include_directories(${FML_EXTLIB}/json/include)
+#JSON
+include_directories(SYSTEM ${FML_EXTLIB}/json/include)
 
 
 #ECS
@@ -70,17 +71,17 @@ include_directories(${FML_EXTLIB}/freetype2/include)
 link_directories(${FML_EXTLIB_LIB}/freetype2)
 
 #LUA
-include_directories(${FML_EXTLIB}/lua/src)
+include_directories(SYSTEM ${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
 
 #Assimp
 if(WANT_ASSIMP)
 	FETCHCONTENT_GETPROPERTIES(ASSIMP)
-	include_directories(${assimp_SOURCE_DIR}/include) 
+	include_directories(SYSTEM ${assimp_SOURCE_DIR}/include) 
 	link_directories(${assimp_BINARY_DIR}/code)
 else()
 	FETCHCONTENT_GETPROPERTIES(TINYOBJLOADER)
-	include_directories(${tinyobjloader_SOURCE_DIR}/include) 
+	include_directories(SYSTEM ${tinyobjloader_SOURCE_DIR}/include) 
 	link_directories(${tinyobjloader_BINARY_DIR}/lib)
 endif()
 

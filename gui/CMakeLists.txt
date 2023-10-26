@@ -62,21 +62,21 @@ add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
 include_directories(${FML_EXTLIB}/glew/include)
 
 #sol2
-include_directories(${FML_EXTLIB}/sol2)
+include_directories(SYSTEM ${FML_EXTLIB}/sol2)
 
 #JSON
-include_directories(${FML_EXTLIB}/json/include)
+include_directories(SYSTEM ${FML_EXTLIB}/json/include)
 
 #ECS
 FETCHCONTENT_GETPROPERTIES(ECS)
-include_directories(${ecs_SOURCE_DIR}/lib/include)
+include_directories(SYSTEM ${ecs_SOURCE_DIR}/lib/include)
 
 #FML
 include_directories(${FML_PATH}/lib/src)
 link_directories(${FML_LIB_PATH}/lib)
 
 #LUA
-include_directories(${FML_EXTLIB}/lua/src)
+include_directories(SYSTEM ${FML_EXTLIB}/lua/src)
 link_directories(${FML_EXTLIB_LIB}/lua)
 
 #IMGUI
