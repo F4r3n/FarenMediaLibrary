@@ -1,5 +1,7 @@
 #pragma once
+#if defined(_MSC_VER) && _MSC_VER >= 1900
 #pragma warning(disable: 4100)
+#endif
 #include <Core/Math/Vector2.h>
 #include "Rendering/OpenGL/OGLGraphicsDef.hpp"
 #include <Rendering/Mesh.hpp>
@@ -12,8 +14,8 @@ namespace fm
 		public:
 
 			VertexBuffer();
-			~VertexBuffer();
-			virtual bool AddVertices(Vertex* inVertices, size_t number, size_t offset) { return false; }
+			virtual ~VertexBuffer();
+			virtual bool AddVertices([[maybe_unused]] Vertex* inVertices, [[maybe_unused]] size_t number, [[maybe_unused]] size_t offset) { return false; }
 			virtual void destroy() { ; }
 			virtual bool isGenerated() { return false; }
 			size_t GetNumberVertices() const { return _numberVertices; }

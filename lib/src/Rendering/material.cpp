@@ -8,8 +8,7 @@
 using namespace fm;
 
 Material::Material(const fm::FilePath& inFilePath)
-	:_name(inFilePath.GetName(true)),
-	Resource(inFilePath)
+	:Resource(inFilePath), _name(inFilePath.GetName(true))
 {
 	_ID++;
 	_currentID = _ID;
@@ -172,7 +171,7 @@ bool _BlockIterator(const fm::SubShader::Reflection& reflection, const fm::SubSh
 {
 	std::string blockName;
 	size_t i = inNameIndex;
-	for (i; i < nameToFind.size(); ++i)
+	for (; i < nameToFind.size(); ++i)
 	{
 		const char c = nameToFind[i];
 		if (c == '[')

@@ -30,7 +30,8 @@ namespace fm {
 	void from_json(const nlohmann::json& j, SubShader::Block& p) {
 		p.name = j["name"];
 		p.size = j["size"];
-		for (const fm::SubShader::Variable& v : j["variables"])
+		const std::vector<SubShader::Variable>& variables = j["variables"];
+		for (const fm::SubShader::Variable& v : variables)
 		{
 			p.variables.emplace_back(v);
 		}
@@ -49,7 +50,8 @@ namespace fm {
 		p.binding = j["binding"];
 		p.set = j["set"];
 		p.stages = j["stages"];
-		for (const fm::SubShader::Variable& v : j["variables"])
+		const std::vector<SubShader::Variable>& variables = j["variables"];
+		for (const fm::SubShader::Variable& v : variables)
 		{
 			p.variables.emplace_back(v);
 		}

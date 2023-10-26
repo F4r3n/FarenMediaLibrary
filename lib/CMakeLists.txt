@@ -118,7 +118,7 @@ target_compile_definitions (${LIB_NAME} PRIVATE GLEW_NO_GLU=1 )
 if(MSVC)
   target_compile_options(${LIB_NAME} PRIVATE /W4)
 else()
-  target_compile_options(${LIB_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(${LIB_NAME} PRIVATE -Wall -Wpedantic)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)

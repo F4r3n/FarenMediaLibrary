@@ -32,11 +32,6 @@ FETCHCONTENT_GETPROPERTIES(SDL)
 include_directories(${sdl_SOURCE_DIR}/include)
 link_directories(${sdl_BINARY_DIR})
 
-#GLSLANG
-FETCHCONTENT_GETPROPERTIES(GLSLANG)
-include_directories(${glslang_SOURCE_DIR}/include)
-link_directories(${glslang_BINARY_DIR})
-
 #JSON
 include_directories(${FML_EXTLIB}/json/include)
 

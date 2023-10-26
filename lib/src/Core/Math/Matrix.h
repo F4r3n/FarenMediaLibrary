@@ -128,7 +128,6 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
                T a33);
 
         Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4);
-        Matrix(const Matrix<T> &m);
 
         Matrix(T a)
         {
@@ -169,14 +168,7 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 		}
 
     };
-    template <typename T>
-    Matrix<T>::Matrix(const Matrix<T> &matrix) 
-	{
-        m[0] = matrix[0];
-        m[1] = matrix[1];
-        m[2] = matrix[2];
-        m[3] = matrix[3];
-    }
+
     template <typename T> Matrix<T>::Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4) {
         m[0] = l1;
         m[1] = l2;

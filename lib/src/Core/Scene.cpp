@@ -6,7 +6,7 @@
 #include <fstream>
 using namespace fm;
 
-Scene::Scene(const fm::FilePath &inPath) : fm::Observable("Scene"), _path(inPath), _name(inPath.GetName(true))
+Scene::Scene(const fm::FilePath &inPath) : fm::Observable("Scene"),_name(inPath.GetName(true)), _path(inPath)
 {
 }
 Scene::Scene(const std::string& inName) : fm::Observable("Scene"), _name(inName)

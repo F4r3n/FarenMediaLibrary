@@ -53,8 +53,9 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 	if(auto && s = scene.lock())
 	{
 		std::shared_ptr<fm::GameObject> cameraGo = nullptr;
-		if(auto && editorScene = _editorScene.lock(); cameraGo = editorScene->GetGameObjectByID(EntityManager::get().CreateID(inCameraID)))
+		if(auto && editorScene = _editorScene.lock())
 		{
+			cameraGo = editorScene->GetGameObjectByID(EntityManager::get().CreateID(inCameraID));
 			if (cameraGo != nullptr)
 			{
 				if (auto&& specialCamera = _specialCamera.lock())

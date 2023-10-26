@@ -1,5 +1,7 @@
 #pragma once
+#if defined(_MSC_VER) && _MSC_VER >= 1900
 #pragma warning(disable: 4100)
+#endif
 #include <string>
 #include <Core/FilePath.h>
 #include <nlohmann/json_fwd.hpp>
@@ -46,7 +48,7 @@ public:
 
 
     Script() {}
-    ~Script() {}
+    virtual ~Script() {}
 	virtual bool init() = 0;
 	virtual void start() = 0;
 	virtual void update(float) = 0;
@@ -55,7 +57,6 @@ public:
 	virtual bool Read(const nlohmann::json &inJSON) = 0;
 
 	virtual SCRIPT_TYPE GetType() const = 0;
-	virtual void CallEvent(fm::BaseEvent* inEvent) {}
 
 	virtual bool Reload(bool inCreateInstance) { return false; }
 

@@ -115,7 +115,6 @@ namespace fmc
 		bool HasTarget() const { return _target != nullptr; }
 		fm::math::mat GetOrthographicProjectionForText() const;
 	private:
-		std::shared_ptr<fm::RenderTexture> _target = nullptr;
 
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;
@@ -126,16 +125,17 @@ namespace fmc
 
 		fm::RenderTexture		_renderTexture;
 		bool					_isOrto;
-		float					_farPlane;
 		float					_nearPlane;
-		int						_multiSampled;
+		float					_farPlane;
+		float					_fovy;
 		size_t					_width;
 		size_t					_height;
-		float					_fovy;
+		int						_multiSampled;
+		bool					_isInit;
 		bool					_isAuto;
+		std::shared_ptr<fm::RenderTexture> _target = nullptr;
 
 		CameraCommandBuffer		_commandBuffers;
-		bool					_isInit;
 
 		fm::Rect<int>			_viewPort;
 		fm::math::mat			_projection;

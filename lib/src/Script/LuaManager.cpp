@@ -77,7 +77,7 @@ void LuaManager::_OpenInternalLibs()
 {
 	FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_LUA_LOCATION);
 	Folder f(p);
-	f.Iterate(true, [this](const fm::Folder* inFolder, const fm::File* inFile)
+	f.Iterate(true, [this](const fm::Folder*, const fm::File* inFile)
 		{
 			if (inFile != nullptr)
 			{

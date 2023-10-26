@@ -104,12 +104,6 @@ endif(MSVC)
 find_package(PythonInterp)
 find_package(Python)
 
-if(MSVC)
-set(GLSLANG_EXE ${glslang_BINARY_DIR}/StandAlone/glslang.exe)
-else()
-set(GLSLANG_EXE ${glslang_BINARY_DIR}/StandAlone/glslang)
-endif(MSVC)
-
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/_Resources_ ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/_Resources_ 
 	#COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/compileShader.py ${glslang_BINARY_DIR}/StandAlone/ $<TARGET_FILE_DIR:${PROJECT_NAME}>/_Resources_/shaders/ DEPENDS ${GLSLANG_EXE}

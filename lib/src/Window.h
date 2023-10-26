@@ -48,10 +48,8 @@ private:
 	double		_waitTime;
 	uint64_t	_currFrameTime;
 	uint64_t	_frameStart;
-	size_t		_windowFlag;
-	GRAPHIC_API	_api = GRAPHIC_API::OPENGL;
 	int			_msaa;
-
-	
+	GRAPHIC_API	_api = GRAPHIC_API::OPENGL;
+	size_t		_windowFlag;	
 };
 }

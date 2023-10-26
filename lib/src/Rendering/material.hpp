@@ -74,6 +74,7 @@ namespace fm
 			mat._uniforms = _uniforms;
 			mat._bufferSize = _bufferSize;
 			memcpy(mat._buffer, _buffer, _bufferSize);
+			return mat;
 		}
 
 		struct MaterialBufferInfo

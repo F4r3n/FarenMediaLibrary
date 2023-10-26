@@ -130,6 +130,9 @@ bool LuaScriptManager::Read(const nlohmann::json &inJSON)
 			_scripts.emplace_back(script);
 		}
 			break;
+		default:
+		assert(false);
+		break;
 		}
 	}
 	return true;

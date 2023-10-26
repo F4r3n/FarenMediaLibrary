@@ -40,6 +40,9 @@ void CCollider::Init(const fm::math::vec3& inScale)
 														btScalar(_scale.y * inScale.y * 0.5f),
 														btScalar(_scale.z * inScale.z * 0.5f)));//TODO fix
 			break;
+		default:
+			assert(false);
+		break;
 		}
 	}
 	else

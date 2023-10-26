@@ -45,7 +45,7 @@ namespace gui
 	public:
 		GListEntities();
 		~GListEntities();
-		void CustomDraw();
+		virtual void CustomDraw() override;
 		virtual void Notify(fm::Observable*, const fm::EventObserver& inEvent) override;
 		void OnBeforeLoad(const std::string& inCurrentSceneName);
 		void OnAfterLoad(const std::string& inCurrentSceneName);
@@ -53,7 +53,7 @@ namespace gui
 		void PurgeTree();
 
 	private:
-		void _Update(float dt, Context &inContext);
+		virtual void _Update(float dt, Context &inContext) override;
 		void _UpdateTree();
 
 

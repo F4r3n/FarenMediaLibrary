@@ -55,7 +55,6 @@ void CText::UpdateBuffer(const fm::Transform& inTransform, fm::RFont* inFont)
 
 	if (_isDirty)
 	{
-		fm::math::vec3 worldSpace = inTransform.position;
 		fm::math::vec4* coords = new fm::math::vec4[6 * _text.size()];
 		float x = 0;
 		float y = 0;

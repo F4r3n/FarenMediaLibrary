@@ -27,7 +27,7 @@ class CTransform : public FMComponent<CTransform>
         bool						Serialize(nlohmann::json &ioJson) const override;
         bool						Read(const nlohmann::json &inJSON) override;
         const std::string&			GetName() const override;
-        virtual uint16_t			GetType() const {return kTransform;}
+        virtual uint16_t			GetType() const override {return kTransform;}
 		fm::Transform				GetTransform() const;
 		fm::math::mat				GetLocalMatrixModel(bool opposePosition = false) const;
 		void						From(const fmc::CTransform *inTransform);

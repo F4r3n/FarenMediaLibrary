@@ -111,10 +111,10 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 				auto reflection = subShader->GetReflection(GRAPHIC_API::OPENGL);
 				for (const auto& [name, uniform] : reflection.uniforms)
 				{
-					ImGui::Text(name.c_str());
+					ImGui::Text("%s", name.c_str());
 					for (const auto& variable : uniform.variables)
 					{
-						ImGui::Text(variable.name.c_str());
+						ImGui::Text("%s", variable.name.c_str());
 
 						if (!variable.isBlock)
 						{
@@ -130,15 +130,16 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 			{
 				for (auto& [name, value] : _properties)
 				{
+					auto& v = value;
 					if (name.starts_with("MaterialBuffer[PLAIN]"))
 					{
 						const std::string currentName = value.name;
 						std::visit(overloaded{
-							[currentName, material, &value](fm::math::vec4 &arg) {
+							[currentName, material, &v](fm::math::vec4 &arg) {
 								ImGui::PushID(currentName.c_str());
 								if (ImGui::ColorEdit4("##", &arg[0], ImGuiColorEditFlags_NoLabel))
 								{
-									material->UpdateProperty(currentName, value.value, value.offset);
+									material->UpdateProperty(currentName, v.value, v.offset);
 								}
 								ImGui::PopID();
 							},
@@ -163,7 +164,7 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 			}
 			if ((_currentKind & fm::SHADER_KIND::TEXTURE) == fm::SHADER_KIND::TEXTURE)
 			{
-				ImGui::Text("Texture");
+				ImGui::Text("%s", "Texture");
 
 				//ImGui::PushID("MainColor");
 				//ImGui::ColorEdit3("##", &c.r, ImGuiColorEditFlags_NoLabel);

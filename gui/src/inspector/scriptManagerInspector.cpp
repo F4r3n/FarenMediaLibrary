@@ -61,7 +61,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 				for (auto && valueToStartWith : valuesToStartWith)
 				{
 					std::string name = valueToStartWith.first;
-					ImGui::Text(name.c_str());
+					ImGui::Text("%s", name.c_str());
 
 					ImGui::SameLine();
 

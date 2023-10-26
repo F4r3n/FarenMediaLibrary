@@ -99,8 +99,6 @@ Quaternion::Quaternion()
 {
 }
 
-Quaternion::Quaternion(const Quaternion &q) : w(q.w), x(q.x), y(q.y), z(q.z)
-{}
 
 Quaternion::Quaternion(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) 
 {}

@@ -1,7 +1,7 @@
 #include "ShaderCompiler.h"
 #include "glslang/Public/ResourceLimits.h"
-#include "glslang/SPIRV/SpvTools.h"
-#include "glslang/SPIRV/GlslangToSpv.h"
+#include "SPIRV/SpvTools.h"
+#include "SPIRV/GlslangToSpv.h"
 #include "Core/FilePath.h"
 #include "Core/Debug.h"
 #include <fstream>

@@ -3,7 +3,9 @@
 #include "Core/FilePath.h"
 #include "FileSystem.h"
 #include <nlohmann/json_fwd.hpp>
+#if defined(_MSC_VER) && _MSC_VER >= 1900
 #pragma warning(disable: 4100)
+#endif
 namespace fm
 {
 	class FilePath;
@@ -31,7 +33,7 @@ namespace fm
 		Resource() = default;
         virtual ~Resource() {}
 
-		virtual void Reload(bool force = false) {}
+		virtual void Reload([[maybe_unused]] bool force = false) {}
 		virtual void Save() const {}
 		virtual void Load() {}
 

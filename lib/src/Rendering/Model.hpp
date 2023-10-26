@@ -26,7 +26,7 @@ public:
     Model(const fm::FilePath &inFilePath);
 	Model() = delete;
     ~Model();
-    static const fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
+    static fm::RESOURCE_TYPE getType() {return fm::RESOURCE_TYPE::MESH;}
 	virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
     void AddMesh(rendering::MeshContainer* inMeshContainer);
@@ -36,7 +36,6 @@ public:
     size_t GetNumberMeshes() {return _meshes.size();}
     rendering::MeshContainer* GetMeshContainer(size_t index) {return _meshes[index].meshContainer;}
 	void BindIndex(size_t index) const;
-	void Reload(bool force = false) {}
 
 	uint32_t GetID() const { return _currentID; }
 	void Destroy();

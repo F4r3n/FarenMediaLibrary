@@ -10,7 +10,6 @@ namespace fm
 		{
 		public:
 			Quaternion();
-			Quaternion(const Quaternion &q);
 			Quaternion(float w, float x, float y, float z);
 			Quaternion(const vec4& inVec4);
 			operator vec4() const { return fm::math::vec4(x, y, z, w); }

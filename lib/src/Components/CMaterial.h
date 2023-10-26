@@ -29,7 +29,5 @@ class CMaterial : public FMComponent<CMaterial> {
 		std::shared_ptr<fm::Material> GetMainMaterial() const { if (!_materials.empty()) return _materials[0]; else return nullptr; }
     private:
         fm::Materials _materials;
-        bool _hasChanged = false;
-
 };
 }

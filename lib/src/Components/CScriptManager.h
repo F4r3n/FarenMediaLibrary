@@ -33,7 +33,7 @@ class CScriptManager : public FMComponent<CScriptManager> {
 		void ReloadScript(const std::string &inName);
         void RemoveScript(const std::string &name);
 
-        virtual uint16_t GetType() const {return kScriptManager;}
+        virtual uint16_t GetType() const override {return kScriptManager;}
 
 		bool Serialize(nlohmann::json &ioJson) const override;
 		bool Read(const nlohmann::json &inJSON) override;

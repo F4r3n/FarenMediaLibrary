@@ -32,14 +32,14 @@ CCamera::CCamera()
 
 CCamera::CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
 	:
+_isOrto(ortho),
 _nearPlane(0.1f),
 _farPlane(1000.0f),
 _fovy(60.0f),
-_isInit(false),
 _width(width),
 _height(height),
-_isOrto(ortho),
 _multiSampled(multiSampled),
+_isInit(false),
 _isAuto(isAuto),
 _target(nullptr)
 {
