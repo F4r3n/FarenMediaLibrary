@@ -129,7 +129,7 @@ private:
 	bool				_SetupSwapChainImageViews(VkDevice inDevice);
 
 
-	bool _SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice);
+	bool _SetUpCommandPool(VkDevice inDevice);
 	void _CleanUpSwapChain();
 
 	//Setup allocator

@@ -10,7 +10,7 @@
 #endif
 
 
-std::string fm::UUID::Generate(const std::string& inString)
+std::string fm::UUID::Generate()
 {
 #if _WIN32
 	GUID uuid = { 0 };
@@ -41,7 +41,7 @@ std::string fm::UUID::Generate(const std::string& inString)
 
 	return s;
 #else
-	return inString;
+	return "";
 #endif
 	
 }

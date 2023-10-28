@@ -73,7 +73,7 @@ bool Vulkan::Init(SDL_Window* inWindow)
 	if (!_SetupSwapChainImageViews(_device))
 		return false;
 
-	if (!_SetUpCommandPool(_physicalDevice, _device))
+	if (!_SetUpCommandPool(_device))
 		return false;
 
 	if (!_SetupAllocator(_physicalDevice, _device, _instance))
@@ -266,7 +266,7 @@ vk_init::QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurface
 	return indices;
 }
 
-bool Vulkan::_SetUpCommandPool(VkPhysicalDevice physicalDevice, VkDevice inDevice)
+bool Vulkan::_SetUpCommandPool(VkDevice inDevice)
 {
 	vk_init::QueueFamilyIndices queueFamilyIndices = _queueFamilyIndices;
 

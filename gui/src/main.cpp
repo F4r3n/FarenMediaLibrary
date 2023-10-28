@@ -163,7 +163,7 @@ int main()
 	config.width = 1280;
 	config.height = 720;
 	config.windowFlag = SDL_WINDOW_RESIZABLE;
-	config.graphicAPI = RENDERING_MODE(RENDERING_MODE_OPENGL | RENDERING_MODE_VULKAN);
+	config.graphicAPI = RENDERING_MODE(RENDERING_MODE_OPENGL);
 
 	fm::Application& app = fm::Application::Get();
 	app.SetConfig(config);

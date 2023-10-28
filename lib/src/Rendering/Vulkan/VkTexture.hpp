@@ -21,7 +21,7 @@ namespace fm
 		VkDescriptorImageInfo _descriptor;
 		VkSampler             _sampler;
 		VkImageView           _view;
-		fm::math::vec2        _size;
+		fm::math::vec2i       _size;
 		uint32_t              _mipLevels = 0;
 		uint32_t              _layerCount;
 		VkImageLayout         _imageLayout;

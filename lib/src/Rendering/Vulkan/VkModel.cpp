@@ -38,7 +38,7 @@ void VkModel::Draw(VkCommandBuffer inCmd, uint32_t inInstanceIndex)
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(inCmd, 0, 1, &mesh->_allocatedBuffer._buffer, &offset);
 		vkCmdBindIndexBuffer(inCmd, mesh->_allocatedIndexBuffer._buffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDraw(inCmd, mesh->GetNumberVertices(), 1, 0, inInstanceIndex);
+		vkCmdDraw(inCmd, static_cast<uint32_t>(mesh->GetNumberVertices()), 1, 0, inInstanceIndex);
 	}
 
 }

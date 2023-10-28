@@ -24,7 +24,7 @@ endif(WANT_VULKAN)
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
 FETCHCONTENT_GETPROPERTIES(BULLET)
-include_directories(${bullet_SOURCE_DIR}/src)
+include_directories(SYSTEM ${bullet_SOURCE_DIR}/src)
 link_directories(${bullet_BINARY_DIR})
 
 #Opengl
@@ -67,7 +67,7 @@ include_directories(${ecs_SOURCE_DIR}/lib/include)
 link_directories(${ecs_BINARY_DIR}/lib)
 
 #FREETYPE
-include_directories(${FML_EXTLIB}/freetype2/include)
+include_directories(SYSTEM ${FML_EXTLIB}/freetype2/include)
 link_directories(${FML_EXTLIB_LIB}/freetype2)
 
 #LUA

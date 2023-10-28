@@ -348,6 +348,17 @@ void GMaterialEditor::_Init(std::shared_ptr<fm::Material> inCurrentMaterial)
 				}
 			}
 		}
+
+		auto currentProperties = inCurrentMaterial->GetProperties();
+
+		for (auto& [name, property] : _properties)
+		{
+			if (currentProperties.Has(name))
+			{
+				property.value = currentProperties.Get(name);
+
+			}
+		}
 	}
 }
 
