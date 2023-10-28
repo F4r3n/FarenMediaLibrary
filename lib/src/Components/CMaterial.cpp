@@ -12,7 +12,7 @@ using namespace fm;
 CMaterial::CMaterial()
 {
 	_name = "Material";
-   _materials.push_back(fm::ResourcesManager::get().getResource<fm::Material>("default_material"));
+   _materials.push_back(fm::ResourcesManager::get().getResource<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION, "default.material")));
 }
 
 
@@ -25,7 +25,7 @@ CMaterial::~CMaterial()
 bool CMaterial::Serialize(nlohmann::json &ioJson) const
 {
     nlohmann::json j;
-    for(fm::Material *s : _materials)
+    for(auto s : _materials)
     {
         nlohmann::json m = s->GetName();
        j.push_back(m);
@@ -36,10 +36,10 @@ bool CMaterial::Serialize(nlohmann::json &ioJson) const
 
 bool CMaterial::Read(const nlohmann::json &inJSON)
 {
-	for (const auto& m : inJSON["Materials"])
+	/*for (const auto& m : inJSON["Materials"])
 	{
 		//Material material
-	}
+	}*/
     return true;
 }
 

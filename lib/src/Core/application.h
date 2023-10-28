@@ -1,17 +1,21 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
-#include "Core/FilePath.h"
 #include <vector>
 #include <string>
 #include <memory>
 #include "Core/Observer.h"
 #include "nlohmann/json_fwd.hpp"
+#include "Rendering/GraphicsAPI.h"
+#include <memory>
+#include "Core/FilePath.h"
+#include <array>
 namespace fm
 {
 class Window;
 class Engine;
 class Scene;
 class SceneManager;
+class FilePath;
 }
 
 namespace fm
@@ -19,12 +23,15 @@ namespace fm
 	struct Config
 	{
 		std::string name = "Empty";
-		size_t width = 800;
-		size_t height = 600;
-		size_t fpsWanted = 60;
-		bool	standAlone = false;
-		size_t windowFlag;
-		fm::Folder userDirectory;
+		uint32_t		width = 800;
+		uint32_t		height = 600;
+		uint32_t		fpsWanted = 60;
+		bool			standAlone = false;
+		RENDERING_MODE	graphicAPI = RENDERING_MODE_VULKAN;
+		size_t			windowFlag = 0;
+
+		fm::Folder	userDirectory;
+		fm::Folder	internalResourcesDirectory;
 	};
 
 	struct ProjectSettings
@@ -83,7 +90,7 @@ namespace fm
 	};
 
 
-
+	using Windows = std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST>;
 class Application 
 {
     public:
@@ -105,14 +112,15 @@ class Application
 		void						Stop();
 		void						SetConfig(const Config &inConfig);
         void						Init();
+		void						InitSystems();
         void						DeInit();
+		void						LoadInternalResources();
+        void						Update();
 
-        void						Update(bool withEditor);
-
-        fm::Window*					GetWindow() const;
-        fm::Engine*					GetEngine() const;
+        fm::Window*					GetWindow(GRAPHIC_API api = GRAPHIC_API::OPENGL) const;
 
 		const fm::Folder&			GetUserDirectory() const;
+		const fm::Folder&			GetInternalResources() const;
 
 		const fm::Config&			GetCurrentConfig() const;
 		bool						IsRunning() const;
@@ -132,11 +140,11 @@ class Application
 		bool						ClearScene(const std::string& inName, bool isPrivate, bool remove = false);
 		std::shared_ptr<Scene>		RenameScene(std::shared_ptr<Scene> inCurrentScene, const fm::FilePath& inPath);
 		void						SerializeCurrentScene(nlohmann::json& outjson);
-
+		void						SwapBuffers();
 private:
-
-        fm::Engine*							_engine;
-        fm::Window*							_window;
+		
+        std::unique_ptr<fm::Engine>			_engine;
+		Windows								_window;
         fm::Config							_currentConfig;
 		std::string							_nameLastScene;
 		std::unique_ptr<fm::SceneManager>	_sceneManager;

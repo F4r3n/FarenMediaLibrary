@@ -61,7 +61,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 				for (auto && valueToStartWith : valuesToStartWith)
 				{
 					std::string name = valueToStartWith.first;
-					ImGui::Text(name.c_str());
+					ImGui::Text("%s", name.c_str());
 
 					ImGui::SameLine();
 
@@ -120,7 +120,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 				p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_RESOURCES_LOCATION);
 			}
 			std::string fileName = std::string(nameScript) + ".lua";
-			p.ToSubFile(fileName);
+			p.ToSub(fileName);
 			
 			_target->addScriptLua(p);
 			

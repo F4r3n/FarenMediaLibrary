@@ -9,7 +9,7 @@ class Material;
 
 namespace fm
 {
-	using Materials = std::vector<fm::Material*>;
+	using Materials = std::vector<std::shared_ptr<fm::Material>>;
 }
 
 
@@ -26,10 +26,8 @@ class CMaterial : public FMComponent<CMaterial> {
 		uint16_t GetType() const override {return kMaterial;}
 		
         const fm::Materials& GetAllMaterials() {return _materials;}
-		fm::Material* GetMainMaterial() const { if (!_materials.empty()) return _materials[0]; else return nullptr; }
+		std::shared_ptr<fm::Material> GetMainMaterial() const { if (!_materials.empty()) return _materials[0]; else return nullptr; }
     private:
         fm::Materials _materials;
-        bool _hasChanged = false;
-
 };
 }

@@ -11,16 +11,12 @@
 #include <iostream>
 #include "Core/Debug.h"
 #include <string>
+#include <optional>
 
 using namespace fm;
-size_t Window::kWidth = 0;
-size_t Window::kHeight = 0;
-
-int Window::kX = 0;
-int Window::kY = 0;
 
 
-Window::Window(size_t width, size_t height, size_t inWindowFlag)
+Window::Window(GRAPHIC_API inAPI, size_t inWindowFlag)
 :_isInit(false),
 _window(nullptr),
 _mainContext(nullptr),
@@ -29,35 +25,45 @@ _waitTime(1.0f/_fpsMax),
 _currFrameTime(0),
 _frameStart(0),
 _msaa(0),
+_api(inAPI),
 _windowFlag(inWindowFlag)
 {
-    Window::kWidth = width;
-    Window::kHeight = height;
 
+	if (inAPI == GRAPHIC_API::OPENGL)
+	{
+		_windowFlag |= SDL_WINDOW_OPENGL;
+	}
+	else if (inAPI == GRAPHIC_API::VULKAN)
+	{
+		_windowFlag |= SDL_WINDOW_VULKAN;
+	}
 }
 
 
-bool Window::Init()
-{
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMEPAD) != 0) {
-        printf("Unable to initialize SDL: %s\n", SDL_GetError());
-        return false;
-    }
 
+void Window::_OpenGL_SetProfile()
+{
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-		SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+}
+
+
+bool Window::Init(size_t width, size_t height)
+{
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMEPAD) != 0) {
+        printf("Unable to initialize SDL: %s\n", SDL_GetError());
+        return false;
+    }
 
 	SDL_DisplayID id = SDL_GetPrimaryDisplay();
 
-	//bool isFullScreen = Window::kWidth == -1 || Window::kHeight == -1;
-	if (Window::kWidth <= 0 || Window::kHeight <= 0)
+	if (width <= 0 || height <= 0)
 	{
 		SDL_Rect rect;
 
@@ -79,15 +85,24 @@ bool Window::Init()
 			rect.h -= 20;
 #endif
 		}
-		Window::kWidth = rect.w;
-		Window::kHeight = rect.h;
+		width = rect.w;
+		height = rect.h;
 
 	}
 
     _window = SDL_CreateWindow("FML engine",
-							  (int)Window::kWidth,
-                              (int)Window::kHeight,
+							  (int)width,
+                              (int)height,
                               (Uint32)_windowFlag);
+
+	if (_api == GRAPHIC_API::OPENGL)
+	{
+		_OpenGL_SetProfile();
+	}
+	else
+	{
+		//_vulkan.Init(_window);
+	}
 
 	SDL_SetWindowPosition(_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
@@ -95,10 +110,6 @@ bool Window::Init()
     if(_Init())
     {
 		SDL_ShowWindow(_window);
-		int error = glGetError();
-		if (error != 0) {
-			std::cerr << "ERROR OPENGL " << error << " " << __LINE__ << " " << __FILE__ << std::endl;
-		}
         _isInit = true;
         fm::Debug::get().LogError("Init");
         return true;
@@ -107,7 +118,7 @@ bool Window::Init()
 }
 
 
-double Window::GetTicks() const
+uint64_t Window::GetTicks() const
 {
 	return SDL_GetTicks();
 }
@@ -134,7 +145,7 @@ void Window::setName(const std::string& name)
 
 
 
-void Window::update(size_t fps) 
+void Window::update(size_t fps)
 {
 	_fpsMax = fps;
 
@@ -154,12 +165,12 @@ void Window::update(size_t fps)
 void Window::_FrameLimit() 
 {
     _currFrameTime = SDL_GetTicks() - _frameStart;
-    double dur = (_waitTime * 1000 - _currFrameTime);
+	uint64_t dur = (static_cast<uint64_t>(_waitTime * 1000) - _currFrameTime);
     if(dur > 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)dur));
+        std::this_thread::sleep_for(std::chrono::milliseconds(dur));
     }
 
-    double frame_end = SDL_GetTicks();
+	uint64_t frame_end = SDL_GetTicks();
     Time::dt = (float)((frame_end - _frameStart) / 1000.0);
     Time::timeStamp += Time::dt;
     _frameStart = frame_end;
@@ -168,7 +179,7 @@ void Window::_FrameLimit()
 
 void Window::swapBuffers() const
 {
-    if(_window)
+    if(_window && _api == GRAPHIC_API::OPENGL)
         SDL_GL_SwapWindow(_window);
 }
 
@@ -191,7 +202,11 @@ bool Window::isClosed()
 Window::~Window() 
 {
     if(_isInit) {
-        SDL_GL_DeleteContext(_mainContext);
+		if (_api == GRAPHIC_API::OPENGL)
+		{
+			SDL_GL_DeleteContext(_mainContext);
+		}
+
 
         // Destroy our window
         SDL_DestroyWindow(_window);
@@ -218,8 +233,8 @@ int Window::_Init()
     }
 
     _ErrorDisplay();
-
-    glViewport(kX, kY, kWidth, kHeight);
+	auto size = GetSize();
+    glViewport(0, 0, size.x, size.y);
 
     return 1;
 }
@@ -228,4 +243,17 @@ int Window::_Init()
 SDL_GLContext Window::GetContext()
 { 
 	return (SDL_GLContext)_mainContext; 
+}
+
+fm::math::Vector2i Window::GetSize() const
+{
+	fm::math::Vector2i size;
+	SDL_GetWindowSizeInPixels(_window, &size.x, &size.y);
+	return size;
+}
+
+
+bool Window::IsMinimized() const
+{
+	return ((SDL_GetWindowFlags(_window) & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED);
 }

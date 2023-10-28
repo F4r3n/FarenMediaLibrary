@@ -7,7 +7,9 @@ namespace fm
 {
 	class RenderTexture;
 	class Shader;
-	class Texture;
+	class OGLTexture;
+	class OGLModel;
+	class OGLShader;
 }
 
 namespace fm {
@@ -20,24 +22,24 @@ public:
         return _instance;
     }
     
-    void createQuadScreen();
+    void SetQuadScreen(fm::OGLModel* inModel);
     // void blur(GLuint *colorBuffer, GLuint *pingpongFBO, GLuint *pingpongColorbuffers);
-    void lightComputation(fm::Graphics &graphics, const Texture& incolorBuffer, bool compute = false);
-    void postProcess(fm::Graphics &graphics, const Texture& inTexture1);
+    void lightComputation(fm::Graphics &graphics, const OGLTexture& incolorBuffer, bool compute = false);
+    void postProcess(fm::Graphics &graphics, const OGLTexture& inTexture1);
     void clear(fm::Graphics &graphics);
-    void blit(fm::Graphics &graphics,Texture& texture, Shader* shader) const;
+    void blit(fm::Graphics &graphics, OGLTexture& texture, OGLShader* shader) const;
 	void blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const;
 	void blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bufferBit) const;
 
-    void blit(fm::Graphics &graphics,RenderTexture& source, RenderTexture& dest, Shader* shader) const;
-    void blit(fm::Graphics &graphics,int ID, RenderTexture& dest, Shader* shader) const;
-    void SetSources(fm::Graphics &graphics, const std::vector<Texture> &intextures, size_t numberIDs);
-    void blit(fm::Graphics &graphics,RenderTexture& dest, Shader* shader);
-    void blit(fm::Graphics &graphics,Shader* shader);
+    void blit(fm::Graphics &graphics,RenderTexture& source, RenderTexture& dest, OGLShader* shader) const;
+    void blit(fm::Graphics &graphics,int ID, RenderTexture& dest, OGLShader* shader) const;
+    void SetSources(fm::Graphics &graphics, const std::vector<OGLTexture> &intextures, size_t numberIDs);
+    void blit(fm::Graphics &graphics,RenderTexture& dest, OGLShader* shader);
+    void blit(fm::Graphics &graphics, OGLShader* shader);
 
 private:
     static Renderer _instance;
 
-    fm::Model* quad;
+    fm::OGLModel* _quad;
 };
 }

@@ -69,6 +69,7 @@ namespace gui
 
 		void DrawHierarchy(const fm::FilePath&, Node* currentNode);
 		void SetPathSelected(const fm::FilePath& inFilePath);
+
 	private:
 		void _Update(float dt, Context &inContext);
 		fm::Folder _root;
@@ -77,6 +78,12 @@ namespace gui
 		PathStorage _cache;
 		std::queue<fm::FilePath> _listToRefresh;
 		std::vector<fm::FilePath> _listFiles;
+
+		std::optional<fm::FilePath> _pathSelected;
+
+		float	_splitter_1 = -1;
+		float	_splitter_2 = -1;
+
 
 		//fm::FilePath
 	};

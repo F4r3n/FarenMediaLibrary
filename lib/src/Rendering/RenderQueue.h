@@ -7,10 +7,14 @@
 #include "Rendering/RenderQueueEvents.hpp"
 #include "Core/Transform.h"
 #include "Entity.h"
+#include <optional>
+#include "Model.hpp"
+#include "material.hpp"
+#include <memory>
 namespace fm
 {
 	class Model;
-	class Material;
+	class Material;	
 }
 
 namespace fmc
@@ -20,66 +24,61 @@ namespace fmc
 	class CText;
 }
 
-namespace fm
-{
-	using Materials = std::vector<fm::Material*>;
-}
 
 namespace fm {
 
-struct RenderNode {
-    const fm::Transform transform;
-    const fm::Materials *mat;
-		  fm::Model *model;
-    const fmc::CDirectionalLight *dlight;
-    const fmc::CPointLight *plight;
-		  fmc::CText *text;
+struct RenderNode
+{
+	RenderNode() = default;
+	RenderNode(const RenderNode&) = default;
+	fm::RenderNode& operator=(const RenderNode&) = default;
+    fm::Transform transform;
+    std::weak_ptr<fm::Material> material;
+	std::weak_ptr<fm::Model> model;
+	fmc::CText *text = nullptr;
     
     RENDER_QUEUE state;
-    int queue = 0;
-    Entity::Id idEntity;
+
+	static int64_t Compare(const RenderNode& inRenderNodeA, const RenderNode& inRenderNodeB);
 };
-    inline bool operator<(const RenderNode& a, const RenderNode &b){
-        return a.queue > b.queue; //Inverse heap
-    }
+
 class RenderQueue {
 public:
+
+	struct Batch
+	{
+		RenderNode	node;
+		uint32_t	baseInstance = 0;
+		uint32_t	number = 0;
+	};
+	using ArrayNode = std::array< std::vector<RenderNode>, RENDER_QUEUE::LAST_STATE>;
+	struct Iterator
+	{
+		Iterator(const ArrayNode& inArray, RENDER_QUEUE inCurrentState, uint32_t inCurrentBaseBatch, uint32_t inCurrentGlobalBaseBatch);
+		Batch operator*();
+		Iterator operator++();
+		Iterator begin();
+		Iterator end();
+		bool operator!=(Iterator& i);
+		void next();
+	private:
+		uint32_t		_currentState = FIRST_STATE;
+		uint32_t		_currentBaseBatch = 0;
+		uint32_t		_currentGlobalBaseBatch = 0;
+		ArrayNode		_array;
+		Batch			_currentBatch;
+	};
+	Iterator Iterate();
     RenderQueue();
     ~RenderQueue();
-    void addElement(RenderNode &&node);
-    void addElement(const RenderNode &node);
-    RenderNode getFrontElement() const;
-    void nextState();
-    void nextQueue();
-    void nextIndex();
-    
-    void next();
-    void init();
-    void start();
-    inline size_t Size() const
-    {
-        return _elements.size();
-    }
+    void AddElement(const RenderNode &node);
 
-    inline bool Empty() const
-    {
-        return _indexElements >= _elements.size() || _elements.size() == 0;
-    }
+    void Init();
+    void Sort();
+
     
     private:
-    const static size_t _knumberElementsBetweenStates = 10;
-    std::array< std::vector<RenderNode>, RENDER_QUEUE::LAST_STATE * _knumberElementsBetweenStates> _nodes;
-    std::vector<size_t> _elements;
-    std::bitset<RENDER_QUEUE::LAST_STATE * _knumberElementsBetweenStates> _bits;
-    
-    size_t _currentState = FIRST_STATE;
-    size_t _currentQueue = 0;
-    size_t _currentIndex = 0;
-    size_t _currentIndexGlobal = 0;
-    size_t _sizeCurrentVector = 0;
-    
-    size_t _indexElements = 0;
-    bool e = false;
+    ArrayNode _nodes;
 };
 
 }

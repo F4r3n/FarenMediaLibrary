@@ -32,7 +32,7 @@ class Debug {
     struct Message
     {
         std::string content;
-        MESSAGE_TYPE type;
+        MESSAGE_TYPE type = MESSAGE_TYPE_WARNING;
 
         Message() = default;
         Message(const Message &m)

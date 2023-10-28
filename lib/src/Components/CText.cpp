@@ -6,6 +6,7 @@
 #include "Core/Transform.h"
 #include "nlohmann/json.hpp"
 #include "Core/Debug.h"
+#include "Rendering/OpenGL/OGLVertexBuffer.hpp"
 using namespace fmc;
 
 CText::CText()
@@ -41,19 +42,19 @@ fm::rendering::VertexBuffer* CText::GetVertexBuffer() const
 void CText::UpdateBuffer(const fm::Transform& inTransform, fm::RFont* inFont)
 {
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
+	fm::rendering::OGLVertextBuffer* oglBuffer = nullptr;
 	if (_buffer == nullptr)
 	{
-		_buffer = std::make_unique<fm::rendering::VertexBuffer>();
-		_buffer->generate();
-		_buffer->SetVertexAttribArray(0, 4, fm::rendering::VertexBuffer::DATA_TYPE::FLOAT, 4 * sizeof(float));
+		_buffer = std::make_unique<fm::rendering::OGLVertextBuffer>();
+		oglBuffer = dynamic_cast<fm::rendering::OGLVertextBuffer*>(_buffer.get());
+		oglBuffer->generate();
+		oglBuffer->SetVertexAttribArray(0, 4, fm::rendering::OGLVertextBuffer::DATA_TYPE::FLOAT, 4 * sizeof(float));
 	}
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
 
 	if (_isDirty)
 	{
-		fm::math::vec3 worldSpace = inTransform.position;
 		fm::math::vec4* coords = new fm::math::vec4[6 * _text.size()];
 		float x = 0;
 		float y = 0;
@@ -80,7 +81,7 @@ void CText::UpdateBuffer(const fm::Transform& inTransform, fm::RFont* inFont)
 			coords[n++] = fm::math::vec4(x2,		-y2 - h,	ch.t.x, ch.t.y + ch.b_wh.y / inFont->atlas_height);
 			coords[n++] = fm::math::vec4(x2 + w,	-y2 - h,	ch.t.x + ch.b_wh.x / inFont->atlas_width, ch.t.y + ch.b_wh.y / inFont->atlas_height);
 		}
-		_buffer->setBufferData(&coords[0], 0, n, sizeof(float) * 4, false);
+		oglBuffer->setBufferData(&coords[0], 0, n, sizeof(float) * 4, false);
 		delete [] coords;
 	}
 	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);

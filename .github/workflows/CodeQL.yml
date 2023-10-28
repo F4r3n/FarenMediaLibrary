@@ -1,0 +1,58 @@
+
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "dev", "main" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "dev", "main" ]
+
+jobs:
+  analyze:
+    name: Analyze
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners
+    # Consider using larger runners for possible analysis time improvements.
+    runs-on: ${{ 'ubuntu-latest' }}
+    timeout-minutes: ${{ 360 }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'c-cpp' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies (Linux)
+      run: sudo apt-get update && sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
+
+    - name: Prepare Vulkan SDK
+      uses: kpet/install-vulkan-sdk@fcb077a6dbe3e852f53ad05d29ce0a1481ba073f
+      with:
+        version: latest
+        cache: true
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        config-file: ./.github/codeql/codeql-config.yml
+        languages: ${{ matrix.language }}
+
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"

@@ -10,7 +10,8 @@
 #include "Components/CMaterial.h"
 #include "Components/CMesh.h"
 #include "Rendering/Shader.h"
-
+#include "Rendering/material.hpp"
+#include "Rendering/commandBuffer.hpp"
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
@@ -19,7 +20,9 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 	_specialCamera = inEditorScene->CreateGameObject(true);
 	if (auto&& specialCamera = _specialCamera.lock())
 	{
-		_camera = specialCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight, fmc::RENDER_MODE::FORWARD, false, false, 0);
+		auto size = fm::Application::Get().GetWindow()->GetSize();
+
+		_camera = specialCamera->addComponent<fmc::CCamera>(size.x, size.y, fmc::RENDER_MODE::FORWARD, false, false, 0);
 		_camera->Init();
 		specialCamera->SetName("Camera");
 	}
@@ -37,9 +40,9 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		0));
 
 
-	_material = std::make_unique<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default_material"));
-	_material->SetShader(fm::ResourcesManager::get().getResource<fm::Shader>("picking"));
-	_material->Compile();
+	_material = std::make_shared<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default"));
+	_material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "picking.shader"));
+	//_material->Compile();
 }
 
 
@@ -50,22 +53,22 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 	if(auto && s = scene.lock())
 	{
 		std::shared_ptr<fm::GameObject> cameraGo = nullptr;
-		if(auto && editorScene = _editorScene.lock(); cameraGo = editorScene->GetGameObjectByID(EntityManager::get().CreateID(inCameraID)))
+		if(auto && editorScene = _editorScene.lock())
 		{
-
+			cameraGo = editorScene->GetGameObjectByID(EntityManager::get().CreateID(inCameraID));
 			if (cameraGo != nullptr)
 			{
 				if (auto&& specialCamera = _specialCamera.lock())
 				{
 					specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
 				}
-
+				
 				_camera->SetCallBackOnPostRendering([this, inPos, inSceneName]()
 					{
 						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 						if (scene != nullptr)
 						{
-							fm::Texture texture = _camera->GetTarget()->GetColorBufferTexture(0);
+							fm::OGLTexture texture = _camera->GetTarget()->GetColorBufferTexture(0);
 							_camera->GetTarget()->bind(true);
 							unsigned char pixel[4];
 							texture.GetPixel(inPos, pixel);
@@ -92,7 +95,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
 						fm::CommandBuffer commandBuffer;
-						fm::MaterialProperties materialProperties = _material->GetProperties();
+						fm::MaterialProperties materialProperties = _material->GetUniforms();
 						Entity::Id i = go->getID();
 						unsigned char r[sizeof(i)];
 						memcpy(r, &i, sizeof(i));
@@ -100,7 +103,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 						//float colorID = go->getID();
 						materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f)));
-						commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material.get(), materialProperties);
+						commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material, materialProperties);
 
 						_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 					}

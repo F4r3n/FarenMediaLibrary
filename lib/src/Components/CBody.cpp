@@ -243,7 +243,7 @@ void CBody::Init(CCollider *inCollider, Entity::Id inID)
 		_GetBody()->setFriction(_friction);
 		_GetBody()->setAngularFactor(btVector3(_angularFactor.x, _angularFactor.y, _angularFactor.z));
 		_GetBody()->setLinearFactor(btVector3(_linearFactor.x, _linearFactor.y, _linearFactor.z));
-		_GetBody()->setCcdMotionThreshold(1e-7);
+		_GetBody()->setCcdMotionThreshold((float)1e-7);
 		_GetBody()->setCcdSweptSphereRadius(0.01f);
 	}
 	else
@@ -324,9 +324,7 @@ void CBody::GetRotation(fm::math::Quaternion &outQuaternion) const
 {
 	btTransform transform;
 	_GetCurrentTransform(transform);
-
-	fm::math::vec3 v;
-	btQuaternion q = transform.getRotation();
+	const btQuaternion q = transform.getRotation();
 	outQuaternion = fm::math::Quaternion(fm::math::vec4(q.x(), q.y(), q.z(), q.w()));
 }
 

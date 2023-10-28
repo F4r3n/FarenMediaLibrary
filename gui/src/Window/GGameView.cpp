@@ -28,9 +28,9 @@ void GGameView::CustomDraw()
 	{
 		if (renderTexture->isCreated())
 		{
-			const fm::Texture texture = renderTexture->GetColorBufferTexture(0);
+			const fm::OGLTexture texture = renderTexture->GetColorBufferTexture(0);
 	
-			ImGui::GetWindowDrawList()->AddImage((ImTextureID)texture.getID(), _startImagePos, _endImagePos);
+			ImGui::GetWindowDrawList()->AddImage(ImTextureID((intptr_t)texture.getID()), _startImagePos, _endImagePos);
 		}
 	}
 	else

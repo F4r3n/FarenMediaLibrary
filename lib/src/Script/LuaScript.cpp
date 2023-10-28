@@ -68,7 +68,7 @@ bool LuaScript::Load(bool inParseInitValue)
 	bool ok = false;
 	try
 	{
-		if (LuaManager::get().ReadFile(_file.GetPath().GetPath()) && inParseInitValue)
+		if (LuaManager::get().ReadFile(_file.GetPathString()) && inParseInitValue)
 		{
 			sol::state* lua = (LuaManager::get().GetState());
 			sol::table cclass = (*lua)[_scriptName];
@@ -79,7 +79,7 @@ bool LuaScript::Load(bool inParseInitValue)
 	}
 	catch (std::exception& e)
 	{
-		std::string error = "Lua error " + _file.GetPath().GetPath();
+		std::string error = "Lua error " + _file.GetPathString();
 		error += std::string(e.what());
 		fm::Debug::get().LogError(error);
 	}
@@ -231,7 +231,7 @@ bool LuaScript::Read(const nlohmann::json &inJSON)
 			_valuesToInit[it.key()] = it.value();
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 
 	}

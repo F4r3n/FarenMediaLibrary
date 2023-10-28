@@ -14,15 +14,15 @@ public:
     }
 
     void addProfile(Profile* profile);
-    long int getTime(const std::string& name) {
+    int64_t getTime(const std::string& name) {
         mutex.lock();
-        long int t = times[name];
+		int64_t t = times[name];
         mutex.unlock();
         return t;
     }
 
 private:
     static Profiler instance;
-    std::unordered_map<std::string, long int> times;
+    std::unordered_map<std::string, int64_t> times;
     std::mutex mutex;
 };

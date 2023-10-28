@@ -1,11 +1,11 @@
 #include "Rendering/Renderer.h"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 #include "Rendering/Shader.h"
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Model.hpp"
-
+#include "Rendering/OpenGL/OGLShader.hpp"
 using namespace fm;
 
 Renderer Renderer::_instance;
@@ -13,55 +13,55 @@ Renderer Renderer::_instance;
 Renderer::Renderer() {
 }
 
-void Renderer::createQuadScreen() {
-    if(quad == nullptr) {
-        quad = ResourcesManager::get().getResource<fm::Model>("QuadFS");
-    }
+void Renderer::SetQuadScreen(fm::OGLModel* inModel) {
+	_quad = inModel;
 }
 
 void Renderer::lightComputation(fm::Graphics& graphics,
-                                const Texture &colorBuffer,
+                                const OGLTexture&colorBuffer,
                                 bool compute) 
 {
-    fm::Shader* light;
-    light = ResourcesManager::get().getResource<fm::Shader>("no_light");
-
-    light->Use();
-    int error = glGetError();
-    if(error != 0) 
-	{
-        std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
-    }
-    graphics.BindTexture2D(0, colorBuffer.getID(), (int)colorBuffer.GetKind());
-    graphics.Draw(quad);
+	assert(false);
+    //std::shared_ptr<fm::Shader> light = ResourcesManager::get().getResource<fm::Shader>("no_light");
+	//
+    //light->Use();
+    //int error = glGetError();
+    //if(error != 0) 
+	//{
+    //    std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ <<std::endl;
+    //}
+    //graphics.BindTexture2D(0, colorBuffer.getID(), (int)colorBuffer.GetKind());
+    //graphics.Draw(_quad);
 }
 
-void Renderer::postProcess(fm::Graphics& graphics, const Texture& inTexture1) 
+void Renderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
 {
 	graphics.Disable(DEPTH_TEST);
     graphics.BindTexture2D(0, inTexture1.getID(), (int)inTexture1.GetKind());
     //graphics.bindTexture2D(1, colorBuffer[1].getID(), colorBuffer[1].GetKind());
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
-void Renderer::blit(fm::Graphics& graphics,
-                    Texture& texture,
-                    Shader* shader) const {
+void Renderer::blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* shader) const
+{
     shader->Use();
     graphics.BindTexture2D(0, texture.getID(), (int)texture.GetKind());
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
+
+
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& source,
                     RenderTexture& dest,
-                    Shader* shader) const {
+					OGLShader* shader) const
+{
     dest.bind();
     shader->Use();
     graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), (int)source.GetColorBufferTexture(0).GetKind());
 	
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
 
@@ -69,9 +69,9 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bu
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, source.getWidth(), source.getHeight(), 0, 0,
-		source.getWidth(),
-		source.getHeight(),
+	glBlitFramebuffer(0, 0, (GLint)source.getWidth(), (GLint)source.getHeight(), 0, 0,
+		(GLint)source.getWidth(),
+		(GLint)source.getHeight(),
 		bufferBit, GL_NEAREST);
 }
 
@@ -80,14 +80,14 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.GetId());
-	glBlitFramebuffer(0, 0, source.getWidth(), source.getHeight(), 0, 0,
-		dest.getWidth(),
-		dest.getHeight(),
+	glBlitFramebuffer(0, 0, (GLint)source.getWidth(), (GLint)source.getHeight(), 0, 0,
+		(GLint)dest.getWidth(),
+		(GLint)dest.getHeight(),
 		bufferBit, GL_NEAREST);
 }
 
 
-void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture> &textures, size_t numberIDs) 
+void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTexture> &textures, size_t numberIDs)
 {
     for(size_t i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{
@@ -95,36 +95,47 @@ void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::Texture>
     }
 }
 
+
 void Renderer::blit(fm::Graphics& graphics,
                     int ID,
                     RenderTexture& dest,
-                    Shader* shader) const {
+					OGLShader* shader) const
+{
     dest.bind();
     shader->Use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ID);
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
+
 
 void Renderer::blit(fm::Graphics& graphics,
                     RenderTexture& dest,
-                    Shader* shader) {
+					OGLShader* shader)
+{
 
     shader->Use();
     dest.bind();
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
-void Renderer::blit(fm::Graphics& graphics, Shader* shader) {
+
+
+void Renderer::blit(fm::Graphics& graphics, OGLShader* shader)
+{
     shader->Use();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    graphics.Draw(quad);
+    graphics.Draw(_quad);
 }
 
-void Renderer::clear(fm::Graphics& graphics) {
+
+void Renderer::clear(fm::Graphics& graphics)
+{
     graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 }
 
-Renderer::~Renderer() {
+
+Renderer::~Renderer()
+{
 }

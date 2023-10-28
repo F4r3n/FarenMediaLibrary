@@ -1,4 +1,7 @@
 #pragma once
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(disable: 4100)
+#endif
 #include <Core/Math/Vector2.h>
 #include "Rendering/OpenGL/OGLGraphicsDef.hpp"
 #include <Rendering/Mesh.hpp>
@@ -9,31 +12,17 @@ namespace fm
 		class VertexBuffer
 		{
 		public:
-			enum class DATA_TYPE
-			{
-				FLOAT
-			};
-			size_t DataTypeToOpengl(DATA_TYPE inType) const;
 
 			VertexBuffer();
-			~VertexBuffer();
-			void generate(const std::vector<Vertex> &vertices);
-			void generate();
-			void SetVertexAttribArray(size_t index, size_t size, DATA_TYPE type, size_t stride);
-			void setBufferData(void* data, unsigned int offset, unsigned int size, unsigned int dataSize, bool staticData = true);
-			void prepareData();
-			void Bind() const;
-			void destroy();
-			bool isGenerated();
-			void GenerateEmpty(size_t maxVertices);
-			bool AddVertices(Vertex *inVertices, size_t number, size_t offset);
+			virtual ~VertexBuffer();
+			virtual bool AddVertices([[maybe_unused]] Vertex* inVertices, [[maybe_unused]] size_t number, [[maybe_unused]] size_t offset) { return false; }
+			virtual void destroy() { ; }
+			virtual bool isGenerated() { return false; }
 			size_t GetNumberVertices() const { return _numberVertices; }
+			virtual void UploadData(const MeshContainer& inMeshContainer, bool inDynamic = false) = 0;
 
-		private:
-			bool _vaoIsSet;
+		protected:
 			size_t _numberVertices;
-			unsigned int _indexVBO = 0;
-			unsigned int _indexVAO = 0;
 		};
 	}
 }

@@ -3,9 +3,11 @@
 #include <EntityManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
-#include "Rendering/uniformbuffer.hpp"
+#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 #include "Rendering/Shader.h"
 #include <Core/Debug.h>
+#include "Rendering/OpenGL/OGLShader.hpp"
+#include "Rendering/commandBuffer.hpp"
 using namespace fmc;
 using namespace fm;
 
@@ -14,34 +16,36 @@ using namespace fm;
 CCamera::CCamera()
 {
     _name = "Camera";
-	_width = fm::Window::kWidth;
-	_height = fm::Window::kHeight;
+	_width = 0;
+	_height = 0;
 	_fovy = 60.0f;
 	_nearPlane = 0.1f;
 	_farPlane = 1000.0f;
 	_isOrto = false;
 	_isAuto = true;
 	_multiSampled = 0;
-	shader_data.render_mode = fmc::RENDER_MODE::FORWARD;
 
 	_isInit = false;
+	_ID++;
+	_currentID = _ID;
 }
 
 CCamera::CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
 	:
+_isOrto(ortho),
 _nearPlane(0.1f),
 _farPlane(1000.0f),
 _fovy(60.0f),
-_isInit(false),
 _width(width),
 _height(height),
-_isOrto(ortho),
 _multiSampled(multiSampled),
+_isInit(false),
 _isAuto(isAuto),
 _target(nullptr)
 {
 	_name = "Camera";
-	shader_data.render_mode = mode;
+	_ID++;
+	_currentID = _ID;
 }
 
 CCamera::~CCamera()
@@ -50,8 +54,6 @@ CCamera::~CCamera()
 	{
 		_rendererConfiguration.uboLight->Free();
 	}
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
-
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
@@ -62,7 +64,6 @@ bool CCamera::Serialize(nlohmann::json &ioJson) const
     ioJson["nearPlane"] = _nearPlane;
     ioJson["isOrtho"] = _isOrto;
     ioJson["fovy"] = _fovy;
-    ioJson["Render_Mode"] = shader_data.render_mode;
     ioJson["multiSampled"] = _multiSampled;
 	ioJson["isAuto"] = _isAuto;
 
@@ -76,7 +77,6 @@ bool CCamera::Read(const nlohmann::json &inJSON)
     _farPlane				= inJSON["farPlane"];
     _nearPlane				= inJSON["nearPlane"];
     _isOrto					= inJSON["isOrtho"];
-    shader_data.render_mode = inJSON["Render_Mode"];
     _fovy					= inJSON["fovy"];
     _multiSampled			= inJSON["multiSampled"];
 	_isAuto					= inJSON["isAuto"];
@@ -87,25 +87,12 @@ bool CCamera::Read(const nlohmann::json &inJSON)
 
 void CCamera::_InitRenderTexture()
 {
-	if (shader_data.render_mode == fmc::RENDER_MODE::DEFERRED)
-	{
-		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
-#if OPENGL_ES_VERSION > 2
-		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::HALF_FLOAT };
-#else
-		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-#endif
-		_renderTexture = fm::RenderTexture(_width, _height, 3, formats, types, 24, _multiSampled);
-	}
-	else if (shader_data.render_mode == fmc::RENDER_MODE::FORWARD)
-	{
-		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
-		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-		_renderTexture = fm::RenderTexture(_width, _height, 2, formats, types, 24, _multiSampled);
-	}
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
+	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
 
+	fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
+	_renderTexture = fm::RenderTexture(_width, _height, 2, formats, types, 24, _multiSampled);
+	
 }
 
 fm::math::mat CCamera::GetOrthographicProjectionForText() const
@@ -146,8 +133,6 @@ void CCamera::Init()
 		_InitRenderTexture();
 		_renderTexture.create();
 		_isInit = true;
-
-		fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 	}
 
 }
@@ -237,9 +222,9 @@ void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeByte
 
 	if ( !_rendererConfiguration.isInit)
 	{
-		_rendererConfiguration.uboLight = std::make_unique<fm::UniformBuffer>(fm::UniformBuffer());
+		_rendererConfiguration.uboLight = std::make_unique<fm::OGLUniformbuffer>(fm::OGLUniformbuffer());
 		//_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
-		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2);
+		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2, GL_UNIFORM_BUFFER);
 		UpdateViewMatrix(inTransform);
 
 		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
@@ -266,40 +251,39 @@ void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeByte
 
 		_rendererConfiguration.isInit = true;
 	}
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
-
 }
 
 void CCamera::InitUniformBuffer()
 {
-	glGenBuffers(1, &_rendererConfiguration.generatedBlockBinding);
-	glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
-	glBufferData(GL_UNIFORM_BUFFER,
-				sizeof(shader_data),
-				&shader_data,
-				GL_DYNAMIC_COPY);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
-	{
-		fm::Shader* s = dynamic_cast<fm::Shader*>(shader.second);
-		s->Use();
-
-		glBindBufferBase(GL_UNIFORM_BUFFER,
-						_rendererConfiguration.bindingPointIndex,
-						_rendererConfiguration.generatedBlockBinding);
-
-		s->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
-	}
+	//glGenBuffers(1, &_rendererConfiguration.generatedBlockBinding);
+	//glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
+	//glBufferData(GL_UNIFORM_BUFFER,
+	//			sizeof(shader_data),
+	//			&shader_data,
+	//			GL_DYNAMIC_COPY);
+	//
+	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	//
+	//for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
+	//{
+	//	std::shared_ptr<fm::Shader> s = std::dynamic_pointer_cast<fm::Shader>(shader.second);
+	//	s->Use();
+	//
+	//	glBindBufferBase(GL_UNIFORM_BUFFER,
+	//					_rendererConfiguration.bindingPointIndex,
+	//					_rendererConfiguration.generatedBlockBinding);
+	//
+	//	std::shared_ptr<OGLShader> glshader = std::dynamic_pointer_cast<OGLShader>(s);
+	//	glshader->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
+	//}
 }
 
 void CCamera::UpdateUniformBufferCamera()
 {
-	glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
-	GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-	memcpy(p, &shader_data, sizeof(shader_data));
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
+	//glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
+	//GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+	//memcpy(p, &shader_data, sizeof(shader_data));
+	//glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
 void CCamera::UpdateRenderConfigBounds(const fm::Transform &inTransform)

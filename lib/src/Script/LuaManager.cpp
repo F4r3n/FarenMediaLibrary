@@ -77,11 +77,11 @@ void LuaManager::_OpenInternalLibs()
 {
 	FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_LUA_LOCATION);
 	Folder f(p);
-	f.Iterate(true, [this](const fm::Folder* inFolder, const fm::File* inFile)
+	f.Iterate(true, [this](const fm::Folder*, const fm::File* inFile)
 		{
 			if (inFile != nullptr)
 			{
-				lua->script_file(inFile->GetPath().GetPath(), sol::load_mode::text);
+				lua->script_file(inFile->GetPathString(), sol::load_mode::text);
 			}
 		}
 	);
@@ -153,7 +153,7 @@ void LuaManager::registerComponents()
 	  "viewPort", &CCamera::GetViewport,
 	  "isOrthographic", &CCamera::IsOrthographic
 	  );
-	lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
+	//lua->new_usertype<CSource>("CSource", "play", &CSource::play, "status", &CSource::getStatus);
 
 	//lua->new_usertype<Body2D>("Body2D",
 	//  "applyForceCenter", &Body2D::ApplyForceCenter2,

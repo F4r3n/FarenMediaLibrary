@@ -7,7 +7,7 @@ namespace fm
 	class UUID
 	{
 	public:
-		static std::string Generate(const std::string& inString);
+		static std::string Generate();
 
 	private:
 	};

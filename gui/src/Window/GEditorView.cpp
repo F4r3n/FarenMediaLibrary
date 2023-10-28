@@ -11,6 +11,7 @@
 #include "Components/CMesh.h"
 #include "Components/CMaterial.h"
 #include "Rendering/Graphics.hpp"
+#include "Rendering/commandBuffer.hpp"
 
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
@@ -88,10 +89,10 @@ void GEditorView::CustomDraw()
 	{
 		if (renderTexture->isCreated())
 		{
-			const fm::Texture texture = renderTexture->GetColorBufferTexture(0);
+			const fm::OGLTexture texture = renderTexture->GetColorBufferTexture(0);
 
 			ImGui::SetCursorPos(_cursorPos);
-			ImGui::Image((ImTextureID)texture.getID(), ImVec2(texture.getWidth(), texture.getHeight()));
+			ImGui::Image(ImTextureID((intptr_t)texture.getID()), ImVec2(texture.getWidth(), texture.getHeight()));
 			ImGuizmo::SetDrawlist();
 			_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 
@@ -234,6 +235,7 @@ void GEditorView::_Update(float dt, Context &inContext)
 			if (_resultPicking)
 			{
 				inContext.currentGameObjectSelected = _gameObjectSelectedByPicking;
+				inContext.currentWindowToDisplay = gui::WINDOWS::WIN_LIST_ENTITIES;
 				_resultPicking = false;
 			}
 			_gameObjectSelectedByPicking = inContext.currentGameObjectSelected;

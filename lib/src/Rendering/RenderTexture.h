@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Config.h>
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 
 namespace fm 
 {
@@ -10,8 +10,7 @@ namespace fm
 	{
     public:
         RenderTexture() {}
-        RenderTexture(size_t width, size_t height, 
-unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling = 0);
+        RenderTexture(size_t width, size_t height, size_t numberColorAttchment, Format *formats, Type *types, size_t depth, int multiSampling = 0);
         RenderTexture(const RenderTexture &renderTexture, int multiSampling = -1);
         ~RenderTexture();
         
@@ -20,8 +19,8 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
         inline size_t getWidth() const {return _width;}
         inline size_t getHeight() const {return _height;}
         
-		const fm::Texture& GetColorBufferTexture(size_t id) const;
-		const std::vector<Texture>& GetColorBuffer() const { return _textureColorbuffer; }
+		const fm::OGLTexture& GetColorBufferTexture(size_t id) const;
+		const std::vector<OGLTexture>& GetColorBuffer() const { return _textureColorbuffer; }
 
         void create();
         bool IsMultiSampled() const {return _multiSampling > 0;}
@@ -35,16 +34,16 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
 		void _Release();
 
         bool _isReady = false;
-        size_t _width = 0;
-        size_t _height = 0;
-        unsigned short _depth = 0;
-        unsigned short _numberColors = 0;
+		size_t _width = 0;
+		size_t _height = 0;
+		size_t _depth = 0;
+		size_t _numberColors = 0;
         int _multiSampling = 0;
         std::vector<Format> _formats;
         std::vector<Type> _types;
         bool _InitFrameBuffer(Format *formats, Type *types);
         //main Framebuffer + position fragcolor bright color
-        std::vector<Texture> _textureColorbuffer;
+        std::vector<OGLTexture> _textureColorbuffer;
 
         //Texture rboDepth;
 		GLuint _framebuffer = 0;

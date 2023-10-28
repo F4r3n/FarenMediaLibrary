@@ -14,11 +14,11 @@ PhysicSystem::PhysicSystem()
 
 
 
-void PhysicSystem::init(EntityManager& em, EventManager& event)
+void PhysicSystem::init(EntityManager&, EventManager&)
 {
 }
 
-void _CheckCollision(btDynamicsWorld* world, btScalar timeStep)
+void _CheckCollision(btDynamicsWorld* world, [[maybe_unused]] btScalar timeStep)
 {
 	int numManifolds = world->getDispatcher()->getNumManifolds();
 	bool hasFoundOneCollision = false;
@@ -117,13 +117,13 @@ void PhysicSystem::_InitAllBodies()
 }
 
 
-void PhysicSystem::pre_update(EntityManager& em)
+void PhysicSystem::pre_update(EntityManager&)
 {
 
 	_InitAllBodies();
 }
 
-void PhysicSystem::update(float dt, EntityManager& em, EventManager& event)
+void PhysicSystem::update(float dt, EntityManager& em, EventManager&)
 {
 	_dynamicsWorld->stepSimulation(dt, 10);
 

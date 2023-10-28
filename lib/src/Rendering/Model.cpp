@@ -10,6 +10,8 @@ using namespace rendering;
 Model::Model(const fm::FilePath& inFilePath): Resource(inFilePath)
 {
     _name = inFilePath.GetName(true);
+	_ID++;
+	_currentID = _ID;
 }
 
 
@@ -28,34 +30,11 @@ Model::~Model()
     }
 }
 
-void Model::BindIndex(size_t index) const
+
+void Model::Destroy()
 {
-	_meshes[index].vertexBuffer->Bind();
+	if (_destroyCallback != nullptr)
+		_destroyCallback();
 }
 
-void Model::PrepareBuffer()
-{
-    for(auto &mesh : _meshes)
-    {
-        if(mesh.vertexBuffer == nullptr)
-        {
-            fm::Debug::get().LogError("Vertex buffer is empty and should be prepared ???");
-        }
 
-        mesh.vertexBuffer->prepareData();
-    }
-}
-
-void Model::generate()
-{
-
-    for(auto &mesh : _meshes)
-    {
-        if(mesh.vertexBuffer == nullptr)
-        {
-            mesh.vertexBuffer = std::unique_ptr<VertexBuffer>(new VertexBuffer());
-        }
-
-        mesh.vertexBuffer->generate(mesh.meshContainer->vertices);
-    }
-}

@@ -66,7 +66,7 @@ void LuaScriptManager::RemoveScript(const std::string &name)
 
 
 
-void LuaScriptManager::update(const Entity& e, float dt)
+void LuaScriptManager::update(const Entity&, float dt)
 {
 	for (auto &s : _scripts)
 	{
@@ -74,7 +74,7 @@ void LuaScriptManager::update(const Entity& e, float dt)
 	}
 }
 
-void LuaScriptManager::Start(const Entity& e)
+void LuaScriptManager::Start(const Entity&)
 {
 	for (auto &s : _scripts)
 	{
@@ -130,6 +130,9 @@ bool LuaScriptManager::Read(const nlohmann::json &inJSON)
 			_scripts.emplace_back(script);
 		}
 			break;
+		default:
+		assert(false);
+		break;
 		}
 	}
 	return true;

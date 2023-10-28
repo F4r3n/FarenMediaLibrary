@@ -69,7 +69,7 @@ void GWindow::Draw()
 			OnInit();
 			ImGui::SetWindowCollapsed(false, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowPos(_position, ImGuiCond_FirstUseEver);
-			if (_size.x != 0 && _size.y != 0)
+			if (_size.x > 0 && _size.y > 0)
 				ImGui::SetNextWindowContentSize(_size);
 		}
 
@@ -96,6 +96,10 @@ void GWindow::Draw()
 			if (_iswindowDocked)
 			{
 				size = context->CurrentWindow->DockNode->Size;
+				if (size.x == 0 && size.y == 0)
+				{
+					size = context->CurrentWindow->DockNode->SizeRef;
+				}
 				pos = context->CurrentWindow->DockNode->Pos;
 			}
 			else
@@ -160,6 +164,12 @@ void GWindow::Update(float dt, Context &inContext)
 
 		if (_isVisible)
 		{
+			//was focused
+			if (!_isFocused && inContext.currentWindowFocused == _kind)
+			{
+				OnLoseFocus();
+			}
+
 			if (_isFocused)
 			{
 				inContext.currentWindowFocused = _kind;

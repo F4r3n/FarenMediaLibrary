@@ -94,42 +94,65 @@ bool Application::Read()
 }
 
 
-fm::Window* Application::GetWindow() const
+fm::Window* Application::GetWindow(GRAPHIC_API api) const
 {
-    return _window;
+    return _window[api].get();
 }
-fm::Engine* Application::GetEngine() const
-{
-    return _engine;
-}
+
 
 void Application::Init()
 {
-    _engine = new fm::Engine();
-    _window = new fm::Window(_currentConfig.width, _currentConfig.height, _currentConfig.windowFlag);
-    _window->Init();
+    _engine = std::make_unique<fm::Engine>();
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		_window[GRAPHIC_API::OPENGL] = std::make_shared<fm::Window>(GRAPHIC_API::OPENGL, _currentConfig.windowFlag);
+		_window[GRAPHIC_API::OPENGL]->Init(_currentConfig.width, _currentConfig.height);
+		_window[GRAPHIC_API::OPENGL]->setName(_currentConfig.name);
 
-	_window->setName(_currentConfig.name);
+	}
+#if WITH_VULKAN
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
+	{
+		_window[GRAPHIC_API::VULKAN] = std::make_shared<fm::Window>(GRAPHIC_API::VULKAN, _currentConfig.windowFlag);
+		_window[GRAPHIC_API::VULKAN]->Init(_currentConfig.width, _currentConfig.height);
+		_window[GRAPHIC_API::VULKAN]->setName(_currentConfig.name);
+	}
+#endif
 
+}
+
+void Application::LoadInternalResources()
+{
 	fm::ResourcesManager::get().LoadShaders();
 	fm::ResourcesManager::get().LoadFonts();
 	fm::ResourcesManager::get().LoadMaterials();
-
-    _engine->Init();
 }
 
 
-void Application::Update(bool withEditor)
+void Application::InitSystems()
 {
-    _window->update(_currentConfig.fpsWanted);
+	_engine->Init(_currentConfig.graphicAPI, _window);
+}
+
+
+void Application::Update()
+{
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		_window[GRAPHIC_API::OPENGL]->update(_currentConfig.fpsWanted);
+	}
+
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
+	{
+		_window[GRAPHIC_API::VULKAN]->update(_currentConfig.fpsWanted);
+	}
     _engine->Update(fm::Time::dt);
 }
 
 
 void Application::DeInit()
 {
-    delete _engine;
-	delete _window;
+	_engine.reset();
 }
 
 
@@ -155,6 +178,10 @@ const fm::Folder& Application::GetUserDirectory() const
 	return _currentConfig.userDirectory;
 }
 
+const fm::Folder& Application::GetInternalResources() const
+{
+	return _currentConfig.internalResourcesDirectory;
+}
 
 void Application::SetProjectName(const std::string &inName)
 {
@@ -207,6 +234,13 @@ std::shared_ptr<fm::Scene> Application::LoadScene(const fm::FilePath& inPath)
 	return s;
 }
 
+void Application::SwapBuffers()
+{
+	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		_window[GRAPHIC_API::OPENGL]->swapBuffers();
+	}
+}
 
 
 std::shared_ptr<fm::Scene>	Application::AddNewScene(const fm::FilePath& inPath)

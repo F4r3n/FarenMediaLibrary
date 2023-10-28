@@ -2,8 +2,11 @@
 #include "Core/application.h"
 #include "Rendering/material.hpp"
 #include "Resource/ResourcesManager.h"
+#include "Rendering/Shader.h"
 #include "nlohmann/json.hpp"
 #include <fstream>
+#include "imgui/imgui.h"
+#include "GMaterialEditor.h"
 using namespace gui;
 
 
@@ -62,13 +65,6 @@ Node* PathStorage::GetNode(const fm::FilePath &inPath)
 void PathStorage::_GetRelative(const fm::FilePath &inPath, std::string &outRelativePath) const
 {
 	fm::FilePath::GetRelativeFromRoot(_rootpath, inPath, outRelativePath);
-	if (inPath.IsFolder())
-	{
-		if (!outRelativePath.empty() && outRelativePath.back() != fm::FilePath::GetFolderSeparator())
-		{
-			outRelativePath.push_back(fm::FilePath::GetFolderSeparator());
-		}
-	}
 }
 
 
@@ -76,38 +72,40 @@ void PathStorage::_GetRelative(const fm::FilePath &inPath, std::string &outRelat
 
 Node* PathStorage::_GetNode(const std::string &inRelativePath, Node* inCurrentNode)
 {
-	size_t pos = inRelativePath.find_first_of(fm::FilePath::GetFolderSeparator(), 0);
+
+	size_t pos = inRelativePath.find_first_of(fm::FilePath::GetFolderSeparator());
+	std::string name;
 	if (pos != std::string::npos)
 	{
-
-		std::string name = inRelativePath.substr(0, pos);
-		if (!name.empty())
+		name = inRelativePath.substr(0, pos);
+	}
+	if (!name.empty())
+	{
+		for (auto && n : inCurrentNode->nodes)
 		{
-			for (auto && n : inCurrentNode->nodes)
+			if (n.name == name)
 			{
-				if (n.name == name)
-				{
-					std::string p = inRelativePath.substr(pos + 1, inRelativePath.size() - pos - 1);
-					if (!p.empty())
-						return _GetNode(p, &n);
-					else
-						return &n;
-				}
-			}
-		}
-		else
-		{
-			std::string name = inRelativePath.substr(pos);
-
-			for (auto && n : inCurrentNode->nodes)
-			{
-				if (n.name == name)
-				{
+				std::string p = inRelativePath.substr(pos + 1, inRelativePath.size() - pos - 1);
+				if (!p.empty())
+					return _GetNode(p, &n);
+				else
 					return &n;
-				}
 			}
 		}
 	}
+	else
+	{
+		name = inRelativePath;
+
+		for (auto && n : inCurrentNode->nodes)
+		{
+			if (n.name == name)
+			{
+				return &n;
+			}
+		}
+	}
+	
 	return nullptr;
 }
 
@@ -203,7 +201,7 @@ GFileNavigator::GFileNavigator() : GWindow("File Navigator", true)
 
 void GFileNavigator::_Update(float dt, Context &inContext)
 {
-	_root = fm::Application::Get().GetCurrentConfig().userDirectory;
+	_root = fm::Folder(fm::FilePath(fm::LOCATION::USER_LOCATION, ""));
 	if ((_root.GetPath().GetPath() != _currentFolderSelected.GetPath().GetPath()) && !_currentFolderSelected.Exist())
 	{
 		_currentFolderSelected = _root;
@@ -221,7 +219,8 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 		{
 			if (inFile)
 			{
-				_listFiles.emplace_back(inFile->GetPath());
+				if(inFile->GetPath().GetExtension() != ".import")
+					_listFiles.emplace_back(inFile->GetPath());
 			}
 		});
 	}
@@ -233,6 +232,16 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 
 		_cache.RefreshPath(path);
 	}
+
+	if (_pathSelected.has_value())
+	{
+		if (_pathSelected.value().GetExtension() == ".material")
+		{
+			inContext.currentWindowToDisplay = gui::WINDOWS::WIN_MATERIAL_EDITOR;
+			inContext.currentPathSelected = _pathSelected;
+		}
+		_pathSelected = std::nullopt;
+	}
 }
 
 void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode)
@@ -241,7 +250,7 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 	for (auto& n : currentNode->nodes)
 	{
 		fm::FilePath p(inRoot);
-		p.ToSubFolder(n.name);
+		p.ToSub(n.name);
 
 
 		bool opened = ImGui::TreeNodeEx(n.name.c_str());
@@ -249,6 +258,7 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 		if (ImGui::IsItemClicked())
 		{
 			_listToRefresh.push(p);
+			SetPathSelected(p);
 		}
 		if (opened)
 		{
@@ -266,9 +276,18 @@ void GFileNavigator::SetPathSelected(const fm::FilePath& inFilePath)
 }
 
 
+
 void GFileNavigator::CustomDraw()
 {
-	if (ImGui::BeginChild("##folderNavigator", ImVec2(GetSize().x*0.5f, 0), false, ImGuiWindowFlags_NoTitleBar))
+	if (_splitter_1 <= 0)
+		_splitter_1 = GetSize().x * 0.5f;
+
+	if (_splitter_2 <= 0)
+		_splitter_2 = GetSize().x * 0.5f;
+	float h = GetSize().y;
+
+	Splitter(true, 8.0f, &_splitter_1, &_splitter_2, 8, 8, h);
+	if (ImGui::BeginChild("##folderNavigator", ImVec2(_splitter_1, 0), false, ImGuiWindowFlags_NoTitleBar))
 	{
 		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode());
 	}
@@ -278,41 +297,35 @@ void GFileNavigator::CustomDraw()
 	
 	if (_currentFolderSelected.GetPath().IsValid())
 	{
-		if(ImGui::BeginChild("##files", ImVec2(0, 0), false, ImGuiWindowFlags_NoTitleBar))
+
+		if(ImGui::BeginChild("##files", ImVec2(_splitter_2, 0), false, ImGuiWindowFlags_NoTitleBar))
 		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			for (auto && f : _listFiles)
 			{
-				ImGui::Text(f.GetName(false).c_str());
+				if (ImGui::Button(f.GetName(false).c_str()))
+				{
+					_pathSelected = f;
+				}
 			}
+			ImGui::PopStyleColor();
 		}
 
-		if (ImGui::IsWindowFocused())
+
+		if (ImGui::IsWindowFocused() && ImGui::IsMouseClicked(1))
 		{
-
-			if (ImGui::IsMouseClicked(1))
-			{
-				ImGui::OpenPopup("popup from button");
-
-			}
-			if (ImGui::BeginPopup("popup from button"))
-			{
-				//if (ImGui::MenuItem("Create Material"))
-				//{
-				//	fm::FilePath newFilePath = fm::FilePath::CreateUniqueFile(_currentFolderSelected, "newMaterial", ".mat");
-				//	fm::Material* material = new fm::Material(newFilePath.GetName(true), fm::ResourcesManager::get().getResource<fm::Shader>("default"));
-				//
-				//	nlohmann::json j;
-				//	material->Serialize(j);
-				//	std::ofstream o(newFilePath.GetPath(), std::ofstream::out);
-				//	o << j << std::endl;
-				//	o.close();
-				//
-				//	fm::ResourcesManager::get().load<fm::Material>(material->GetName(), material);
-				//}
-				//ImGui::EndPopup();
-			}
+			ImGui::OpenPopup("popup from button");
 		}
 
+		if (ImGui::BeginPopup("popup from button"))
+		{
+			if (ImGui::MenuItem("Create Material"))
+			{
+				_listToRefresh.push(_currentFolderSelected.GetPath());
+				_pathSelected = GMaterialEditor::CreateNewMaterial(_currentFolderSelected.GetPath());
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::EndChild();
 	}       
 }

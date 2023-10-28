@@ -1,7 +1,6 @@
 #pragma once
 
-struct ALCdevice;
-struct ALCcontext;
+
 
 namespace fm {
 class Speaker {
@@ -10,7 +9,6 @@ public:
     ~Speaker();
 
 private:
-    ALCcontext* context;
-    ALCdevice* device;
+
 };
 }

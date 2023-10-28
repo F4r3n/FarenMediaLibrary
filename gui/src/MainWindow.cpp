@@ -29,9 +29,10 @@
 #include "Window/GLauncher.h"
 
 #include "Resource/ResourcesManager.h"
-
+#include "Resource/ResourceLoader.h"
 #include <imgui/imgui_internal.h>
 #include "Editor.h"
+#include "Export.hpp"
 
 const std::string JSON_KEY = "FML";
 
@@ -76,7 +77,7 @@ MainWindow::MainWindow()
 
 void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 {
-	Editor::Get().NewProject(fm::Folder(inFilePath));
+	Editor::Get().NewProject(inFilePath);
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->Start();
 	_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->Start();
@@ -86,6 +87,23 @@ void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 	_windows[gui::WINDOWS::WIN_INSPECTOR]->Start();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR]->Start();
 	//_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
+
+	fm::FilePath path(fm::LOCATION::USER_LOCATION, "");
+	_RefreshResources(path);
+}
+
+void MainWindow::_RefreshResources(const fm::FilePath& inPath)
+{
+	fm::Folder folder(inPath);
+	fm::ResourceLoader loader;
+	loader.Init();
+	folder.Iterate(true, [&loader](const fm::Folder* inFolder, const fm::File* inFile) {
+		if (inFile != nullptr)
+		{
+			loader.SaveImport(inFile->GetPath(), false);
+			loader.Load(inFile->GetPath(), true);
+		}
+	});
 }
 
 
@@ -122,8 +140,9 @@ void MainWindow::Init()
 
 void MainWindow::_InitEditorCamera()
 {
+	auto size = fm::Application::Get().GetWindow()->GetSize();
 	_editorCamera = _editorScene->CreateGameObject(true);
-	_editorCamera->addComponent<fmc::CCamera>(fm::Window::kWidth, fm::Window::kHeight,
+	_editorCamera->addComponent<fmc::CCamera>(size.x, size.y,
 		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
 	_editorCamera->get<fmc::CTransform>()->SetPosition(fm::math::vec3(0, 0, -1));
 	_editorCamera->SetName("Camera");
@@ -205,7 +224,7 @@ void MainWindow::_DrawMenu()
 							std::string relative;
 							fm::FilePath::GetRelativeFromRoot(p, result, relative);
 
-							if(!relative.empty())
+							if (!relative.empty())
 								result = fm::FilePath(fm::LOCATION::USER_LOCATION, relative);
 
 							scene = Editor::Get().RenameScene(scene, result);
@@ -258,6 +277,22 @@ void MainWindow::_DrawMenu()
 				}
 				ImGui::EndMenu();
 			}
+			if (ImGui::MenuItem("Export"))
+			{
+
+				pfd::select_folder dialog = pfd::select_folder("Choose where to export", ".");
+
+				std::string resultFromDialog = dialog.result();
+
+				if (!resultFromDialog.empty())
+				{
+					fm::FilePath result(resultFromDialog);
+					gui::ExportManager::ExportSettings settings;
+					settings.destination = result;
+					gui::ExportManager exportm(settings);
+					exportm.Run();
+				}
+			}
 			ImGui::EndMenu();
 
 		}
@@ -300,7 +335,7 @@ void MainWindow::_DrawMenu()
 			}
 			if (ImGui::MenuItem("List entity"))
 			{
-				//_windowListEntity = true;
+				_SetWindowPosition(_windows[gui::WINDOWS::WIN_LIST_ENTITIES].get(), MainWindow::dock_right_id);
 			}
 			if (ImGui::MenuItem("Copy", "CTRL+C"))
 			{
@@ -368,7 +403,8 @@ void MainWindow::OnUpdate(bool hasFocus, bool force)
 
 	if (hasFocus && !_hasFocus)
 	{
-		fm::ResourcesManager::get().Reload();
+		fm::FilePath path(fm::LOCATION::USER_LOCATION, "");
+		_RefreshResources(path);
 	}
 	_hasFocus = hasFocus;
 	_needUpdate = false;
@@ -384,6 +420,13 @@ void MainWindow::OnUpdate(bool hasFocus, bool force)
 	{
 		_currentEntity = _context.currentGameObjectSelected;
 	}
+
+	if (_context.currentWindowToDisplay.has_value())
+	{
+		_SetWindowPosition(_windows[_context.currentWindowToDisplay.value()].get(), MainWindow::dock_right_id);
+		_context.currentWindowToDisplay = std::nullopt;
+	}
+
 }
 
 void MainWindow::_AddDock(gui::WINDOWS inWindow, ImGuiID inID)
@@ -413,6 +456,7 @@ void MainWindow::OnDraw()
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	window_flags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -438,6 +482,14 @@ void MainWindow::OnDraw()
 		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_left_id, ImGuiDir_Down, 0.2f, nullptr, &dock_left_id);
 		ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_right_id, ImGuiDir_Down, 0.5f, nullptr, &dock_right_id);
 
+		_docks[DOCK_ID::dock_main_id] = dock_main_id;
+		_docks[DOCK_ID::dock_up_id] = dock_up_id;
+		_docks[DOCK_ID::dock_right_id] = dock_right_id;
+		_docks[DOCK_ID::dock_left_id] = dock_left_id;
+		_docks[DOCK_ID::dock_left_right_id] = dock_left_right_id;
+		_docks[DOCK_ID::dock_down_id] = dock_down_id;
+		_docks[DOCK_ID::dock_down_right_id] = dock_down_right_id;
+
 		_AddDock(gui::WINDOWS::WIN_TOOLBAR, dock_up_id);
 		_AddDock(gui::WINDOWS::WIN_LIST_ENTITIES, dock_right_id);
 		_AddDock(gui::WINDOWS::WIN_EDITOR_VIEW, dock_left_id);
@@ -445,6 +497,7 @@ void MainWindow::OnDraw()
 		_AddDock(gui::WINDOWS::WIN_SCENE_VIEW, dock_left_right_id);
 		_AddDock(gui::WINDOWS::WIN_INSPECTOR, dock_down_right_id);
 		_AddDock(gui::WINDOWS::WIN_LOGGER, dock_down_id);
+
 
 
 		//ImGuiDockNodeFlags_
@@ -502,10 +555,15 @@ void MainWindow::OnDraw()
 
 	ImGui::End();
 	
-
-
-
 }
+
+void MainWindow::_SetWindowPosition(gui::GWindow* window, DOCK_ID inID)
+{
+	window->Start();
+	ImGui::DockBuilderDockWindow(window->GetTitle().c_str(), _docks[DOCK_ID::dock_right_id]);
+	ImGui::SetWindowFocus(window->GetTitle().c_str());
+}
+
 
 void MainWindow::_ClearBeforeSceneChange()
 {
@@ -539,6 +597,8 @@ void MainWindow::_ClearBeforeSceneChange()
 
 	_needUpdate = true;
 }
+
+
 void MainWindow::_InitGameView()
 {
 	std::shared_ptr<fm::Scene> currentScene = Editor::Get().GetScene(_context.currentSceneName);
@@ -597,6 +657,7 @@ void MainWindow::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 		case Editor::Event::ON_AFTER_SCENE_LOAD:
 			_OnAfterLoad(inEvent.value);
 			break;
+
 		default:
 			break;
 		}
@@ -715,8 +776,8 @@ void MainWindow::_ConfigureStyle()
 	ImGuiIO& io = ImGui::GetIO();
 
 	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
-	p.ToSubFile("Roboto-Medium.ttf");
-	io.Fonts->AddFontFromFileTTF(p.GetPath().c_str(), 14.0f);
+	p.ToSub("Roboto-Medium.ttf");
+	io.Fonts->AddFontFromFileTTF(p.GetPathString().c_str(), 14.0f);
 	style.GrabRounding = 0.f;
 	style.WindowRounding = 0.f;
 	style.ScrollbarRounding = 3.f;

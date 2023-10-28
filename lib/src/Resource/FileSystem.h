@@ -2,6 +2,7 @@
 #include <string>
 namespace fm
 {
+	//Order cannot be changed
 	enum class LOCATION
 	{
 		INTERNAL_LUA_LOCATION,
@@ -16,9 +17,12 @@ namespace fm
 		WORKING_DIRECTORY,
 		SETTINGS,
 		SETTINGS_LAST_PROJECTS,
-		NONE
+		INTERNAL_MODELS_LOCATION,
+		INTERNAL_IMAGES_LOCATION,
+		NONE,
+		LAST
 	};
 
-
+	bool IsInternal(LOCATION inLocation);
 
 }

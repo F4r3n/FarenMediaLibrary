@@ -2,8 +2,6 @@
 
 # FarenEngine
 
-*Note: Due to the recent changes on MacOS (notarization, Opengl deprecation...) the FML project will not support this platform.*
-
 ### Introduction
 This library enables to create 2D or 3D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
@@ -29,13 +27,12 @@ To install the whole project:
 git clone https://github.com/F4r3n/FarenMediaLibrary.git
 
 
+```sh
+cmake . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
-mkdir build
-cd build
-cmake ..
-make
-```
-It will create a static lib and the exe FarenEngine.
+It will create the library static FarenMediaLibary, the FarenEngine and the FarenEditor
+
 
 ### List of dependencies
 
@@ -49,35 +46,36 @@ The engine needs different libraries to work:
 + lua 5.3
 + ECS (Custom)
 + Opengl
++ Vulkan
 
 The dependencies are all in the folder extlib.
 
-### How to use it ?
+### Platforms
 
-#### Simple Window
+|  | Windows | Linux | Mac | Android | iOS |
+|---|---|---|---|---|---|
+| FarenEditor | &check;  | &check;  | &check;  | &cross; | &cross; |
+| FarenEngine | &check;  | &check;  | &check;  | &dash; | &dash; |
 
-```c++
-	fm::Config config;
-	config.name = "FML Engine";//Name of the window
-	config.fpsWanted = 60;//Fps wanted
-	config.width = 800;
-	config.height = 600;
-	fm::Application app(config);
-	app.Init();//Init then engine
+```mermaid
+---
+title: ResourceImporter
+---
+classDiagram
+    note for Resource "can load data"
+
+    Resource <|-- Image
+    Resource <|-- Audio
+
+    note for ResourceImporter "Load only meta data"
+    ResourceImporter <|-- ResourceImageImporter
+    ResourceImporter <|-- ResourceAudioImporter
+
+    ResourceImporter: +bool save()
+    ResourceImporter: +Resource load()
+
+    ResourceLoader "1" --> "*" ResourceImporter
+    ResourceManager "1" --> "*" Resource
 
 
-	fm::Window *window = app.GetWindow();
-	fm::Engine *engine = app.GetEngine();
-
-	while (!window->isClosed())
-	{
-		app.Update();
-		window->swapBuffers();
-	}
-	app.DeInit();
 ```
-
-### TODO
-
-https://trello.com/b/Krgov6CB/fml
-...

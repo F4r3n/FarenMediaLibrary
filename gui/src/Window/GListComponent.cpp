@@ -42,7 +42,7 @@ void GListComponent::_Draw()
 		std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_currentGameObjectSelected.value());
 		if (go != nullptr)
 		{
-			ImGui::Text(go->GetName().c_str());
+			ImGui::Text("%s", go->GetName().c_str());
 			_DrawComponents(go);
 
 			if (ImGui::Button("Add Component"))

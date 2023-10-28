@@ -4,7 +4,7 @@
 #include "Editor.h"
 using namespace gui;
 
-GToolBar::GToolBar() : GWindow("GToolBar", true)
+GToolBar::GToolBar() : GWindow("GToolBar", true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)
 {
 	_enabled = true;
 	_state = TRANSFORM_CONTEXT::TRANSLATE;

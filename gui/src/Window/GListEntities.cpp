@@ -213,7 +213,8 @@ void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f, 0.2f, 0.2f, 1.0f));
 			}
 			float oldPos = ImGui::GetCursorPosX();
-			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, go->GetName().c_str(), i);
+			std::string nameID = "ID" + std::to_string(i);
+			bool node_open = ImGui::TreeNodeEx(nameID.c_str(), node_flags, go->GetName().c_str(), i);
 			if (_isRenaming && isSelected)
 			{
 
@@ -240,6 +241,45 @@ void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 				_gameObjectSelected = n->value;
 				_goSelectedHasChanged = true;
 			}
+			std::string namePopUp = "Popup" + nameID;
+
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked(1))
+			{
+				ImGui::OpenPopup(namePopUp.c_str());
+			}
+
+
+			if (ImGui::BeginPopup(namePopUp.c_str()))
+			{
+				if (ImGui::MenuItem("Rename"))
+				{
+					_isRenaming = true;
+				}
+				else if (ImGui::MenuItem("Delete"))
+				{
+					Entity::Id id = go->getID();
+					std::string scene(_currentSceneName);
+					AddEvent([id, scene](gui::GWindow* window, std::optional<gui::Context> Context) {
+						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
+						currentScene->DeleteGameObjectByID(id);
+
+						});
+					_gameObjectSelected.reset();
+					_goSelectedHasChanged = true;
+				}
+				else if (go->IsActive() && ImGui::MenuItem("Disable"))
+				{
+					go->SetStatus(false);
+				}
+				else if (!go->IsActive() && ImGui::MenuItem("Activate"))
+				{
+					go->SetStatus(true);
+				}
+
+				ImGui::EndPopup();
+			}
+			
+			
 
 
 			if (node_open)
@@ -281,46 +321,12 @@ void GListEntities::CustomDraw()
 		size_t i = 0;
 
 		_IterateTree();
-
-		if (ImGui::IsMouseClicked(1))
-		{
-			ImGui::OpenPopup("popup from button");
-		}
-
+		
 		std::shared_ptr<fm::GameObject> goSelected = _gameObjectSelected.has_value() ? listEntities[_gameObjectSelected.value()] : nullptr;
 
 		if (goSelected != nullptr)
 		{
-			
-			if (ImGui::BeginPopup("popup from button"))
-			{
-				if (ImGui::MenuItem("Rename"))
-				{
-					_isRenaming = true;
-				}
-				else if (ImGui::MenuItem("Delete"))
-				{
-					Entity::Id id = goSelected->getID();
-					std::string scene(_currentSceneName);
-					AddEvent([id, scene](gui::GWindow* window, std::optional<gui::Context> Context) {
-						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
-						currentScene->DeleteGameObjectByID(id);
 
-						});
-					_gameObjectSelected.reset();
-					_goSelectedHasChanged = true;
-				}
-				else if (goSelected->IsActive() && ImGui::MenuItem("Disable"))
-				{
-					goSelected->SetStatus(false);
-				}
-				else if (!goSelected->IsActive() && ImGui::MenuItem("Activate"))
-				{
-					goSelected->SetStatus(true);
-				}
-
-				ImGui::EndPopup();
-			}
 		}
 
 

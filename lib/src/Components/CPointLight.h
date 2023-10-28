@@ -8,7 +8,7 @@ namespace fmc {
 class CPointLight : public FMComponent<CPointLight> {
     public:
         CPointLight();
-        virtual uint16_t GetType() const {return kPointLight;}
+        virtual uint16_t GetType() const override {return kPointLight;}
 
 		bool Serialize(nlohmann::json& ioJson) const override;
 		bool Read(const nlohmann::json& inJSON) override;

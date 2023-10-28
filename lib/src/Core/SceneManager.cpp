@@ -109,7 +109,7 @@ bool SceneManager::Read(const nlohmann::json &injson)
 			AddScene(_currentScene);
 		}
 	}
-	catch(std::out_of_range& e)
+	catch(std::out_of_range&)
 	{
 		return false;
 	}
@@ -209,7 +209,7 @@ bool SceneManager::ClearScene(const std::string &inName, bool isPrivate, bool re
 	else
 	{
 		std::vector<std::shared_ptr<fm::Scene>>::iterator it = _privateScenes.begin();
-		for (it; it != _privateScenes.end(); it++)
+		for (;it != _privateScenes.end(); it++)
 		{
 			if ((*it)->GetName() == inName)
 			{

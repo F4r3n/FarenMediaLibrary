@@ -1,0 +1,6 @@
+name: "C++ CodeQL config"
+
+paths:
+  - lib
+  - gui
+  - engine

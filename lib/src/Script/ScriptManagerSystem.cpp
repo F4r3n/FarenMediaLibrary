@@ -17,7 +17,7 @@ ScriptManagerSystem::~ScriptManagerSystem()
 {
 }
 
-void ScriptManagerSystem::init(EntityManager& em, EventManager&)
+void ScriptManagerSystem::init(EntityManager&, EventManager&)
 {
 	LuaManager::get().openLibraries();
 	CPPManager::get().LoadPlugin();

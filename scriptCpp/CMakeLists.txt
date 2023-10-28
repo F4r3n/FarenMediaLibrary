@@ -25,11 +25,6 @@ set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 #Opengl
 find_package(OpenGL)
 
-#OpenAL
-set(OPENAL_LIBRARIES OpenAL32)
-link_directories(${FML_EXTLIB_LIB}/openal/lib)
-include_directories(${FML_EXTLIB}/openal/include)
-
 #GLEW
 set(GLEW_LIBRARIES glew)
 link_directories(${FML_EXTLIB_LIB}/glew)
@@ -75,7 +70,7 @@ add_library(${LIB_NAME} SHARED
             ${Scripts_SRC} ${Scripts_HDR}
 
 )
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua ${GLEW_LIBRARIES} freetype ${OPENAL_LIBRARIES} ECS Box2D assimp ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua ${GLEW_LIBRARIES} freetype ECS Box2D tinyobjloader ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 
 

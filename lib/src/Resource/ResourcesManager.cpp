@@ -16,12 +16,18 @@
 #elif __linux__
 #include <cstdlib>
 #endif
-
+#include "Rendering/OpenGL/OGLShader.hpp"
+#if WITH_VULKAN
+#include "Rendering/Vulkan/VkShader.hpp"
+#endif
+#include "ResourceLoader.h"
 using namespace fm;
 ResourcesManager ResourcesManager::_instance;
 
 ResourcesManager::ResourcesManager() 
 {
+	_loader = std::make_unique<fm::ResourceLoader>();
+	_loader->Init();
 }
 
 
@@ -39,35 +45,50 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_LUA_LOCATION);
-		p.ToSubFolder("lua");
+		p.ToSub("lua");
 		return p;
 	}
 	case LOCATION::INTERNAL_FONT_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_FONT_LOCATION);
-		p.ToSubFolder("fonts");
+		p.ToSub("fonts");
 		return p;
 	}
 	case LOCATION::INTERNAL_SHADERS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_SHADERS_LOCATION);
-		p.ToSubFolder("shaders");
+		p.ToSub("shaders");
+		return p;
+	}
+	case LOCATION::INTERNAL_MODELS_LOCATION:
+	{
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_MODELS_LOCATION);
+		p.ToSub("models");
 		return p;
 	}
 	case LOCATION::INTERNAL_RESOURCES_LOCATION:
 	{
-		FilePath p(FilePath::GetWorkingDirectory());
+		fm::FilePath _internal = fm::Application::Get().GetInternalResources().GetPath();
+		FilePath p = !_internal.IsValid() ? FilePath::GetWorkingDirectory() : _internal;
 		p.SetSystemID(LOCATION::INTERNAL_RESOURCES_LOCATION);
-		p.ToSubFolder("Resources");
+		p.ToSub("_Resources_");
+		return p;
+	}
+	case LOCATION::INTERNAL_IMAGES_LOCATION:
+	{
+		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
+		p.SetSystemID(LOCATION::INTERNAL_MODELS_LOCATION);
+		p.ToSub("images");
 		return p;
 	}
 	case LOCATION::INTERNAL_MATERIALS_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::INTERNAL_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::INTERNAL_MATERIALS_LOCATION);
-		p.ToSubFolder("materials");
+		p.ToSub("materials");
 		return p;
 	}
 	case LOCATION::USER_LOCATION:
@@ -79,14 +100,14 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
 		p.SetSystemID(LOCATION::USER_RESOURCES_LOCATION);
-		p.ToSubFolder("Resources");
+		p.ToSub("Resources");
 		return p;
 	}
 	case LOCATION::USER_LUA_LOCATION:
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_RESOURCES_LOCATION));
 		p.SetSystemID(LOCATION::USER_LUA_LOCATION);
-		p.ToSubFolder("lua");
+		p.ToSub("lua");
 		return p;
 	}
 
@@ -98,7 +119,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	{
 		FilePath p(GetFilePathResource(LOCATION::USER_LOCATION));
 		p.SetSystemID(LOCATION::USER_SETTINGS);
-		p.ToSubFolder("Settings");
+		p.ToSub("Settings");
 		return p;
 	}
 	case LOCATION::SETTINGS:
@@ -120,7 +141,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	case LOCATION::SETTINGS_LAST_PROJECTS:
 	{
 		FilePath p(GetFilePathResource(LOCATION::SETTINGS));
-		p.ToSubFile("lastProjects.json");
+		p.ToSub("lastProjects.json");
 		return p;
 	}
 	default:
@@ -130,7 +151,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 
 void ResourcesManager::Reload(bool force)
 {
-	for (size_t i = 0; i < RESOURCE_TYPE::LAST_RESOURCE; ++i)
+	for (size_t i = 0; i < (size_t)RESOURCE_TYPE::LAST_RESOURCE; ++i)
 	{
 		auto rKind = resources[i];
 		for (auto&& r : rKind)
@@ -146,17 +167,11 @@ void ResourcesManager::_LoadInternalShaders()
 
 	Folder shaders(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_SHADERS_LOCATION)));
 
-	shaders.Iterate(false, [](const fm::Folder* inFolder, const fm::File* inFile)
+	shaders.Iterate(false, [this](const fm::Folder* inFolder, const fm::File* inFile)
 	{
 		if (inFolder != nullptr)
 		{
-			if (inFolder->GetPath().GetExtension() == ".shader")
-			{
-				const std::string name = inFolder->GetPath().GetName(true);
-				Shader* shader = new Shader(inFolder->GetPath(), name);
-				shader->compile();
-				fm::ResourcesManager::get().load<fm::Shader>(name, shader);
-			}
+			_loader->Load(inFolder->GetPath(), true);
 		}
 	});
 
@@ -181,16 +196,11 @@ void ResourcesManager::_LoadInternalMaterials()
 {
 	Folder materials(Folder(GetFilePathResource(fm::LOCATION::INTERNAL_MATERIALS_LOCATION)));
 
-	materials.Iterate(true, [](const fm::Folder* inFolder, const fm::File* inFile)
+	materials.Iterate(true, [this](const fm::Folder* inFolder, const fm::File* inFile)
 		{
 			if (inFile != nullptr)
 			{
-				if (inFile->GetPath().GetExtension() == ".material")
-				{
-					fm::Material* mat = new fm::Material(inFile->GetPath());
-					mat->Load();
-					fm::ResourcesManager::get().load<Material>(mat->GetName(), mat);
-				}
+				_loader->Load(inFile->GetPath(), true);
 			}
 		});
 }
@@ -198,8 +208,8 @@ void ResourcesManager::_LoadInternalMaterials()
 bool ResourcesManager::LoadFonts()
 {
 	fm::FilePath p = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_FONT_LOCATION);
-	p.ToSubFile("Roboto-Medium.ttf");
-	ResourcesManager::get().load<RFont>("dejavu", new RFont(p.GetPath()));
+	p.ToSub("Roboto-Medium.ttf");
+	//ResourcesManager::get().load<RFont>("dejavu", std::make_shared<RFont>(p.GetPath()));
 	return true;
 }
 

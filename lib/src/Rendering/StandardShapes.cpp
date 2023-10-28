@@ -9,7 +9,7 @@ void StandardShapes::AddVertex(MeshContainer* mesh,
                                const fm::math::Vector2f& uv,
                                const fm::math::Vector3f& normals
                                ) {
-    mesh->vertices.push_back({position, uv, normals});
+	mesh->vertices.push_back({ position, {1.0f, 1.0f, 1.0f}, uv, normals });
 }
 
 MeshContainer* StandardShapes::CreateQuad()
@@ -24,6 +24,26 @@ MeshContainer* StandardShapes::CreateQuad()
 
     return meshContainer;
 }
+
+MeshContainer* StandardShapes::CreateTriangle(GRAPHIC_API inAPI)
+{
+	MeshContainer* meshContainer = new MeshContainer();
+	if (inAPI == GRAPHIC_API::VULKAN)
+	{
+		AddVertex(meshContainer, { 1.0, 1.0, 0 }, { 0.0, 1.0 }, { 0.0,0.0,-1.0 });
+		AddVertex(meshContainer, { -1.0, 1.0, 0 }, { 0.0, 0.0 }, { 0.0,0.0,-1.0 });
+		AddVertex(meshContainer, { 0.0f, -1.0f, 0 }, { 1.0, 0.0 }, { 0.0,0.0,-1.0 });
+	}
+	else if (inAPI == GRAPHIC_API::OPENGL)
+	{
+
+	}
+	meshContainer->listIndices = { 0, 1, 2 };
+
+
+	return meshContainer;
+}
+
 
 MeshContainer* StandardShapes::CreateCube()
 {
@@ -101,7 +121,7 @@ MeshContainer* StandardShapes::CreateCircle()
     MeshContainer* meshContainer = new MeshContainer();
 
     unsigned int numberVertices = 100;
-    float intervall = 2 * fm::math::pi() / numberVertices;
+    float intervall = float(2 * fm::math::pi() / numberVertices);
 
     AddVertex(meshContainer, {0.5, 0.5, 0}, {0.5, 0.5}, {0.0,0.0,0.0});
 

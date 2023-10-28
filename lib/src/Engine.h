@@ -4,6 +4,7 @@
 #include <memory>
 #include "SystemManager.h"
 #include "Entity.h"
+#include "Rendering/GraphicsAPI.h"
 namespace fm {
     class GameObject;
 	class Window;
@@ -19,9 +20,9 @@ public:
     ~Engine();
    
     void Update(float dt);
-    void Init();
+    void Init(RENDERING_MODE inAPI, std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST> window);
     void Start();
-    void Run(fm::Window &window);
+    void Run(std::shared_ptr<fm::Window> window);
     
     void Stop();
     void Resume();

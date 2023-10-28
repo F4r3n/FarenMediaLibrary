@@ -16,10 +16,10 @@
 #include "Core/GameObject.h"
 #include "Physic/PhysicSystem.h"
 #include "Components/cevent.hpp"
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
 #include "Components/CIdentity.h"
+#if WITH_VULKAN
+#include "Rendering/Vulkan/VkRenderingSystem.hpp"
+#endif
 using namespace fm;
 
 class GarbageCollector
@@ -58,13 +58,24 @@ SYSTEM_MANAGER_MODE Engine::GetStatus() const
 	return _systems->GetStatus(); 
 }
 
-void Engine::Init()
+
+void Engine::Init(RENDERING_MODE inMode, std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST> window)
 {
     _systems->addSystem(new fms::SoundSystem());
 	_systems->addSystem(new fms::PhysicSystem());
 
     _systems->addSystem(new fms::ScriptManagerSystem());
-    _systems->addSystem(new fms::RenderingSystem(fm::Window::kWidth, fm::Window::kHeight));
+	if ((inMode & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
+	{
+		auto size = window[GRAPHIC_API::OPENGL]->GetSize();
+		_systems->addSystem(new fms::RenderingSystem(size.x, size.y));
+	}
+#if WITH_VULKAN
+	if ((inMode & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
+	{
+		_systems->addSystem(new fms::VkRenderingSystem(window[GRAPHIC_API::VULKAN]));
+	}
+#endif
 
     _systems->init(EntityManager::get(), EventManager::Get());
 }

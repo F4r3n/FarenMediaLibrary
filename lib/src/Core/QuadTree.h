@@ -30,8 +30,8 @@ private:
     void subdivide();
 
 public:
-    QuadTree<T>();
-    QuadTree<T>(Bounds boundary);
+    QuadTree();
+    QuadTree(Bounds boundary);
 
     ~QuadTree();
 

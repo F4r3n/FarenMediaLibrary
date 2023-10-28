@@ -13,3 +13,11 @@ Resource::Resource(const fm::FilePath& inFilePath)
 }
 
 
+void Resource::Load(const nlohmann::json& inJSON)
+{
+	_path = fm::FilePath(std::string(inJSON["deps"]["path"]));
+}
+void Resource::Save(nlohmann::json& outJSON) const
+{
+	outJSON["deps"]["path"] = fm::FileSystem::ConvertPathToFileSystem(_path);
+}

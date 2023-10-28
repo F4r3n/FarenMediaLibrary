@@ -96,7 +96,7 @@ bool GameObject::Read(const nlohmann::json &inJson)
 	{
 		_order = inJson.at("order");
 	}
-	catch (std::exception& e)
+	catch (std::exception&)
 	{
 
 	}

@@ -6,10 +6,10 @@
 #include <imgui/imgui.h>
 #include <utility>
 #include <functional>
-#include <Config.h>
 #include <queue>
 #include <optional>
 #include "Entity.h"
+#include "Core/FilePath.h"
 
 namespace fm
 {
@@ -52,6 +52,9 @@ namespace gui
 		std::string						currentSceneName;
 		TRANSFORM_CONTEXT				currentTransformContext;
 		WINDOWS							currentWindowFocused;
+
+		std::optional<WINDOWS>			currentWindowToDisplay;
+		std::optional<fm::FilePath>		currentPathSelected;
 	};
 
 	class IWidget
@@ -59,6 +62,7 @@ namespace gui
 	public:
 		virtual void Draw() = 0;
 		virtual void Update(float, Context &inContext) = 0;
+		virtual ~IWidget() {};
 	};
 
 
@@ -86,6 +90,7 @@ public:
 	void SetModal(bool inModal) { _modal = inModal; }
 	void SetCallBackClosure(std::function<void(GWindow*, std::optional<Context>)>&& inF) { _callBackClosure = inF; }
 protected:
+	virtual void			OnLoseFocus() { ; }
 	virtual void			_Update(float, Context &inContext) {};
 	virtual void			CustomDraw();
 	virtual void			BeforeWindowCreation() {}
@@ -122,6 +127,7 @@ private:
 	bool								  _enableCustomDraw = true;
 	bool								  _modal = false;
 	std::function<void(GWindow*, std::optional<Context>)>	_callBackClosure;
+
 };
 }
 

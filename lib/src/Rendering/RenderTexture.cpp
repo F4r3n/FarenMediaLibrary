@@ -2,10 +2,11 @@
 #include <iostream>
 #include <cassert>
 #include "Core/Debug.h"
+#include "GL/glew.h"
+
 using namespace fm;
 
-RenderTexture::RenderTexture(size_t width, size_t height,
-unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short depth, int multiSampling) {
+RenderTexture::RenderTexture(size_t width, size_t height, size_t numberColorAttchment, Format *formats, Type *types, size_t depth, int multiSampling) {
     _width = width;
     _height = height;
     _depth = depth;
@@ -17,7 +18,7 @@ unsigned int numberColorAttchment, Format *formats, Type *types, unsigned short 
     _multiSampling = multiSampling;
 }
 
-RenderTexture::RenderTexture(const RenderTexture &renderTexture, int multiSampling) {
+RenderTexture::RenderTexture(const RenderTexture &renderTexture, [[maybe_unused]] int multiSampling) {
     _width = renderTexture._width;
     _height = renderTexture._height;
     _depth = renderTexture._depth;
@@ -101,8 +102,6 @@ void RenderTexture::_Release() {
 	{
 		glDeleteFramebuffers(1, &_framebuffer);
 	}
-
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
 
 bool RenderTexture::isCreated() const
@@ -117,26 +116,18 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
 
     glGenFramebuffers(1, &_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    int error = glGetError();
-    if(error != 0) 
-	{
-        std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-    }
+
     // Create a color attachment texture [FragColor and BrightColor]
     if(formats != nullptr && types != nullptr)
     {
         
         for(int i = 0; i < _numberColors; i++)
         {
-            Texture t;
+			OGLTexture t;
             t.filter = Filter::NEAREST;
 
             t.generate(_width, _height, formats[i], types[i], _multiSampling);
 
-            int error = glGetError();
-            if(error != 0) {
-                std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-            }
             if(_multiSampling > 0)
             {
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, t.getID(), 0);
@@ -146,11 +137,6 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, t.getID(), 0);
             }
 
-            error = glGetError();
-            if(error != 0) 
-			{
-                std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
-            }
             _textureColorbuffer.push_back(t);
         }
     }
@@ -194,7 +180,7 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
     return true;
 }
 
-const fm::Texture& RenderTexture::GetColorBufferTexture(size_t id) const
+const fm::OGLTexture& RenderTexture::GetColorBufferTexture(size_t id) const
 {
 	assert(id < _numberColors && id >= 0);
 	return _textureColorbuffer[id];

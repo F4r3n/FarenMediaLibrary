@@ -128,28 +128,27 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
                T a33);
 
         Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4);
-        Matrix(const Matrix<T> &m);
 
         Matrix(T a)
         {
             m[0][0] = a;
-            m[0][1] = a;
-            m[0][2] = a;
-            m[0][3] = a;
+            m[0][1] = 0;
+            m[0][2] = 0;
+            m[0][3] = 0;
 
-            m[1][0] = a;
+            m[1][0] = 0;
             m[1][1] = a;
-            m[1][2] = a;
-            m[1][3] = a;
+            m[1][2] = 0;
+            m[1][3] = 0;
 
-            m[2][0] = a;
-            m[2][1] = a;
+            m[2][0] = 0;
+            m[2][1] = 0;
             m[2][2] = a;
-            m[2][3] = a;
+            m[2][3] = 0;
 
-            m[3][0] = a;
-            m[3][1] = a;
-            m[3][2] = a;
+            m[3][0] = 0;
+            m[3][1] = 0;
+            m[3][2] = 0;
             m[3][3] = a;
         }
 
@@ -169,14 +168,7 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
 		}
 
     };
-    template <typename T>
-    Matrix<T>::Matrix(const Matrix<T> &matrix) 
-	{
-        m[0] = matrix[0];
-        m[1] = matrix[1];
-        m[2] = matrix[2];
-        m[3] = matrix[3];
-    }
+
     template <typename T> Matrix<T>::Matrix(col<T> l1, col<T> l2, col<T> l3, col<T> l4) {
         m[0] = l1;
         m[1] = l2;
@@ -242,8 +234,6 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
     template<typename T>
        Matrix<T> perspective(T fovy, T aspect, T zNear, T zFar)
         {
-            //assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
-
             T const tanHalfFovy = tan(fovy / static_cast<T>(2));
 
             Matrix<T> Result;
@@ -254,6 +244,20 @@ template <typename T> vec<T,2> rotate(float angle, const vec<T, 2>& v) {
             Result[3][2] = - (static_cast<T>(2) * zFar * zNear) / (zFar - zNear);
             return Result;
         }
+
+	   template<typename T>
+	   Matrix<T> perspective_RH_ZO(T fovy, T aspect, T zNear, T zFar)
+	   {
+		   T const tanHalfFovy = tan(fovy / static_cast<T>(2));
+
+		   Matrix<T> Result;
+		   Result[0][0] = static_cast<T>(1) / (aspect * tanHalfFovy);
+		   Result[1][1] = static_cast<T>(1) / (tanHalfFovy);
+		   Result[2][2] = zFar / (zFar - zNear);
+		   Result[2][3] = static_cast<T>(1);
+		   Result[3][2] = -(zFar * zNear) / (zFar - zNear);
+		   return Result;
+	   }
 
     template <typename T> Matrix<T> ortho(T left, T right, T bottom, T top, T zNear, T zFar) {
         Matrix<T> Result;

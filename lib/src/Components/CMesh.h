@@ -32,7 +32,7 @@ class CMesh : public FMComponent<CMesh> {
         bool IsmodelReady();
         const std::string& GetModelType() const {return _type;}
         void SetModelType(const std::string &type) {_type = type;}
-        fm::Model* model = nullptr;
+        std::shared_ptr<fm::Model> model = nullptr;
 
     private:
         std::string _type;

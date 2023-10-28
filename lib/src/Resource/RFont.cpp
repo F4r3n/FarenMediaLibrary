@@ -5,11 +5,11 @@
 #include <iostream>
 #include <algorithm>
 
-#include "Rendering/Texture.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 
 #define MAXWIDTH 512
 using namespace fm;
-RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
+RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
     unsigned int size = 32;
     FT_Face face;
     FT_Library ft;
@@ -19,7 +19,7 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
 
     // Load font as face
 
-    if(FT_New_Face(ft, path.c_str(), 0, &face))
+    if(FT_New_Face(ft, inPath.GetPathString().c_str(), 0, &face))
         std::cerr << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
     FT_Set_Pixel_Sizes(face, 0, size);
@@ -51,7 +51,7 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
     atlas_width = w;
     atlas_height = h;
 
-    texture = new fm::Texture();
+    texture = new fm::OGLTexture();
     texture->wrapping = fm::Wrapping::CLAMP_EDGE;
     texture->filter = fm::Filter::LINEAR;
     texture->generate(w, h, fm::Format::RED, fm::Type::UNSIGNED_BYTE);
@@ -87,14 +87,14 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
 
         //#endif
         Character character = {
-            fm::math::vec2(g->advance.x >> 6, g->advance.y >> 6),
-            fm::math::vec2(g->bitmap.width, g->bitmap.rows),
-            fm::math::vec2(g->bitmap_left, g->bitmap_top),
+            fm::math::vec2l(g->advance.x >> 6, g->advance.y >> 6),
+            fm::math::vec2l(g->bitmap.width, g->bitmap.rows),
+            fm::math::vec2l(g->bitmap_left, g->bitmap_top),
             fm::math::vec2(ox / (float)w, oy / (float)h)};
         Characters.insert(std::pair<GLchar, Character>(i, character));
         rowh = std::max(rowh, g->bitmap.rows);
         ox += g->bitmap.width + 1;
-        delete tempBuffer;
+        delete []tempBuffer;
     }
 	//texture->writeToPNG("C:/Users/guill/Downloads/test.png");
 
@@ -104,7 +104,7 @@ RFont::RFont(const std::string& path) : Resource(fm::FilePath(path)) {
     std::cout << "Font loaded " << !glGetError() << std::endl;
     // exit(-1);
 }
-RFont::RFont() : Resource(fm::FilePath("")) {
+RFont::RFont() : Resource(fm::FilePath(std::string(""))) {
 }
 RFont::~RFont() {
 }
