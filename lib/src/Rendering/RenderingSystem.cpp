@@ -209,7 +209,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		else
 		{
 			_graphics.Disable(fm::RENDERING_TYPE::BLEND);
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, cam, instance);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, cam, instance);
 		}
 
 		LOG_DEBUG
@@ -231,7 +231,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 		else
 		{
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, cam, instance);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, cam, instance);
 		}
 
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
@@ -258,7 +258,7 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 		//}
 			fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		_ExecuteCommandBuffer(fm::RENDER_QUEUE::AFTER_RENDERING, cam, instance);
+		_ExecuteCommandBuffer(fm::RENDER_QUEUE_AFTER_RENDERING, cam, instance);
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
 		if (cam->_onPostRendering != nullptr)
@@ -591,7 +591,7 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
     {
 		fmc::CTransform* transform = e.get<fmc::CTransform>();
 		fm::RenderNode node;
-		node.state = fm::RENDER_QUEUE::OPAQUE;
+		node.state = fm::RENDER_QUEUE_OPAQUE;
 		node.transform = transform->GetTransform();
 		node.text = e.get<fmc::CText>();
         

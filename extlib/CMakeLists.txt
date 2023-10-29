@@ -101,6 +101,13 @@ FetchContent_Declare(
 )
 FETCHCONTENT_MAKEAVAILABLE(GLSLANG)
 
+#DOCTEST
+FetchContent_Declare(
+  DOCTEST
+  GIT_REPOSITORY https://github.com/doctest/doctest.git
+  GIT_TAG        ae7a13539fb71f270b87eb2e874fbac80bc8dda2
+)
+FETCHCONTENT_MAKEAVAILABLE(DOCTEST)
 
 foreach(TARGET freetype2 lua glew)
 

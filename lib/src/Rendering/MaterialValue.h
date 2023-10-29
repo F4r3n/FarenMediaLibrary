@@ -1,8 +1,9 @@
 #pragma once
 #include "Core/Math/Vector2.h"
 #include "Core/Color.h"
-#include "Core/Math/Matrix.h"
+#include "Core/Math/Matrix44.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Math/Vector4.h"
 #include <Core/Math/Vector.h>
 #include "Rendering/Texture.h"
 #include <variant>
@@ -11,12 +12,12 @@ namespace fm {
 	struct TextureMat
 	{
 		fm::Texture texture;
-		int position;
+		int position = 0;
 	};
 
 
-	void to_json(nlohmann::json& j, const TextureMat& p);
-	void from_json(const nlohmann::json& j, TextureMat& p);
+	//void to_json(nlohmann::json& j, const TextureMat& p);
+	//void from_json(const nlohmann::json& j, TextureMat& p);
 
 
 	void to_json(nlohmann::json& j, const Texture& p);

@@ -19,7 +19,7 @@ file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
 if(NOT WANT_VULKAN)
   LIST(FILTER SOURCES EXCLUDE REGEX "Vulkan/")
   LIST(FILTER HEADERS EXCLUDE REGEX "Vulkan/")
-endif(WANT_VULKAN)
+endif(NOT WANT_VULKAN)
 
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
@@ -81,7 +81,7 @@ if(WANT_ASSIMP)
 	link_directories(${assimp_BINARY_DIR}/code)
 else()
 	FETCHCONTENT_GETPROPERTIES(TINYOBJLOADER)
-	include_directories(SYSTEM ${tinyobjloader_SOURCE_DIR}/include) 
+	include_directories(SYSTEM ${tinyobjloader_SOURCE_DIR}) 
 	link_directories(${tinyobjloader_BINARY_DIR}/lib)
 endif()
 

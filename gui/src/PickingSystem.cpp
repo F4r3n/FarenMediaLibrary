@@ -84,7 +84,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 				{
 					fm::CommandBuffer commandBuffer;
 					commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-					_camera->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+					_camera->AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
 				}
 
 				for (auto&& o : s->GetAllGameObjects())
@@ -105,7 +105,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f)));
 						commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), _material, materialProperties);
 
-						_camera->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+						_camera->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 					}
 				}
 			}

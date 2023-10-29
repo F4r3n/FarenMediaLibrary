@@ -1,6 +1,4 @@
 #pragma once
-#include <cmath>
-#include <ostream>
 #include "Vector.h"
 #include <nlohmann/json_fwd.hpp>
 
