@@ -32,6 +32,8 @@ jobs:
             version: latest
             cache: true
       - name: configure
-        run: cmake . -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake . -B build -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS
       - name: build
         run: cmake --build build
+      - name: test
+        run: make test
