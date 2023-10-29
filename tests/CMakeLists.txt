@@ -61,3 +61,21 @@ if(MSVC)
 	set_property( DIRECTORY ${PROJECT_BINARY_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} )
 endif(MSVC)
 
+
+add_test(
+        NAME ${PROJECT_NAME}
+        COMMAND ${PROJECT_NAME})
+
+add_test(NAME "All Tests"
+  COMMAND $<TARGET_FILE:${PROJECT_NAME}>
+)
+
+add_custom_target(check 
+        ${CMAKE_COMMAND} -E echo CWD=${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E echo CMD=${CMAKE_CTEST_COMMAND} -C $<CONFIG>
+        COMMAND ${CMAKE_COMMAND} -E echo ----------------------------------
+        COMMAND ${CMAKE_COMMAND} -E env CTEST_OUTPUT_ON_FAILURE=1
+            ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS ALL_BUILD
+    )

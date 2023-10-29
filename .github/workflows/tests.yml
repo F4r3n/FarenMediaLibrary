@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - name: Install Dependencies (Linux)
+        run: sudo apt-get update && sudo apt-get install ninja-build mesa-utils libgl1-mesa-dev
+        if: matrix.os == 'ubuntu-latest'
+      - name: Set clang as compiler (Mac)
+        run: |
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+        if: matrix.os == 'macos-latest'
+      - name: Prepare Vulkan SDK
+        uses: kpet/install-vulkan-sdk@fcb077a6dbe3e852f53ad05d29ce0a1481ba073f
+        with:
+            version: latest
+            cache: true
+      - name: configure
+        run: cmake . -B build -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=true
+      - name: build
+        run: cmake --build build
