@@ -66,7 +66,7 @@ add_test(
         NAME ${PROJECT_NAME}
         COMMAND ${PROJECT_NAME})
 
-add_test(NAME "All Tests"
+add_test(NAME "All"
   COMMAND $<TARGET_FILE:${PROJECT_NAME}>
 )
 
