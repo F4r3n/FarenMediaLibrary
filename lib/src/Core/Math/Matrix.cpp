@@ -1,4 +1,3 @@
-#pragma once
 #include "Matrix.h"
 #include <nlohmann/json.hpp>
 

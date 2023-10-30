@@ -4,28 +4,28 @@
 
 TEST_SUITE("FilePath") {
 	TEST_CASE("Working directory") {
-		fm::FilePath path(fm::LOCATION::WORKING_DIRECTORY, "");
+		fm::FilePath path = fm::FilePath::GetWorkingDirectory();
 		CHECK(path.GetPathString() == fs::current_path());
 	}
 	TEST_CASE("Extension") {
-		fm::FilePath path(fm::LOCATION::WORKING_DIRECTORY, "");
+		fm::FilePath path = fm::FilePath::GetWorkingDirectory();
 		path.ToSub("file.test");
 		CHECK(path.GetExtension() == ".test");
 	}
 	TEST_CASE("Extension_2") {
-		fm::FilePath path(fm::LOCATION::WORKING_DIRECTORY, "");
+		fm::FilePath path = fm::FilePath::GetWorkingDirectory();
 		path.ToSub("file.test.all");
 		CHECK(path.GetExtension() == ".all");
 	}
 	TEST_CASE("Name") {
-		fm::FilePath path(fm::LOCATION::WORKING_DIRECTORY, "");
+		fm::FilePath path = fm::FilePath::GetWorkingDirectory();
 		path.ToSub("file.test.all");
 		CHECK(path.GetName(true) == "file.test");
 		CHECK(path.GetName(false) == "file.test.all");
 	}
 
 	TEST_CASE("Parent") {
-		fm::FilePath path(fm::LOCATION::WORKING_DIRECTORY, "");
+		fm::FilePath path = fm::FilePath::GetWorkingDirectory();
 		path.ToSub("file");
 		path.ToSub("file_2");
 		CHECK(path.GetParent().GetName(true) == "file");
