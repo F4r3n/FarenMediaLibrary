@@ -69,6 +69,3 @@ add_test(
 add_test(NAME "All"
   COMMAND $<TARGET_FILE:${PROJECT_NAME}>
 )
-add_custom_command(TARGET ${PROJECT_NAME}
-                   POST_BUILD
-                   COMMAND ctest -C $<CONFIGURATION> --output-on-failure)

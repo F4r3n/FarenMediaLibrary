@@ -32,6 +32,24 @@ jobs:
             version: latest
             cache: true
       - name: configure
-        run: cmake . -B build -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=true
+        run: |
+             if [ "$RUNNER_OS" == "Windows" ]; then
+                cmake . -B build -DCMAKE_BUILD_TYPE=Release
+             else
+                cmake . -B build -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=true
+             fi
+        shell: bash
       - name: build
-        run: cmake --build build
+        run: |
+            if [ "$RUNNER_OS" == "Windows" ]; then
+                cmake --build build --config Release
+            else
+                cmake --build build
+            fi
+      - name: test
+        run: |
+            cd build
+            make test ARGS="-V"
+        if: matrix.os != 'windows-latest'
+
+        
