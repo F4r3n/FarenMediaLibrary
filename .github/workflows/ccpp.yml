@@ -45,8 +45,8 @@ jobs:
       - name: test
         run: |
             if [ "$RUNNER_OS" == "Windows" ]; then
-                cd build/Release/tests
-                ctest
+                cd build/tests
+                ctest --output-on-failure -C Release
             else
                 cd build
                 make test ARGS="-V"
