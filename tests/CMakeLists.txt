@@ -69,13 +69,6 @@ add_test(
 add_test(NAME "All"
   COMMAND $<TARGET_FILE:${PROJECT_NAME}>
 )
-
-add_custom_target(check 
-        ${CMAKE_COMMAND} -E echo CWD=${CMAKE_BINARY_DIR}
-        COMMAND ${CMAKE_COMMAND} -E echo CMD=${CMAKE_CTEST_COMMAND} -C $<CONFIG>
-        COMMAND ${CMAKE_COMMAND} -E echo ----------------------------------
-        COMMAND ${CMAKE_COMMAND} -E env CTEST_OUTPUT_ON_FAILURE=1
-            ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    DEPENDS ALL_BUILD
-    )
+add_custom_command(TARGET ${PROJECT_NAME}
+                   POST_BUILD
+                   COMMAND ctest -C $<CONFIGURATION> --output-on-failure)

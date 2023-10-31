@@ -35,7 +35,3 @@ jobs:
         run: cmake . -B build -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=true
       - name: build
         run: cmake --build build
-      - name: test
-        run: | 
-            cd build
-            make test ARGS="-V"

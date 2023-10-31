@@ -93,7 +93,11 @@ FetchContent_Declare(
 FETCHCONTENT_MAKEAVAILABLE(VMA)
 
 #GLSLANG
+set(ENABLE_HLSL OFF)
 set(ENABLE_CTEST OFF)
+set(ENABLE_GLSLANG_BINARIES OFF)
+set(ENABLE_CTEST OFF)
+set(ENABLE_SPVREMAPPER OFF)
 FetchContent_Declare(
   GLSLANG
   GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
