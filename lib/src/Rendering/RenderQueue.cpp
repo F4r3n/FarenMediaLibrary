@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Model.hpp"
 #include "material.hpp"
+
 using namespace fm;
 
 RenderQueue::RenderQueue() 
@@ -73,7 +74,7 @@ void RenderQueue::Sort()
 
 RenderQueue::Iterator RenderQueue::Iterate()
 {
-	return Iterator(_nodes, RENDER_QUEUE::FIRST_STATE, 0, 0);
+	return Iterator(_nodes, RENDER_QUEUE_FIRST_STATE, 0, 0);
 }
 
 RenderQueue::Iterator::Iterator(const ArrayNode& inArray, RENDER_QUEUE inCurrentState, uint32_t inCurrentBaseBatch, uint32_t inCurrentGlobalBaseBatch)
@@ -96,11 +97,11 @@ RenderQueue::Iterator RenderQueue::Iterator::operator++()
 }
 RenderQueue::Iterator RenderQueue::Iterator::begin()
 {
-	return Iterator(_array, RENDER_QUEUE::FIRST_STATE, 0, 0);
+	return Iterator(_array, RENDER_QUEUE_FIRST_STATE, 0, 0);
 }
 RenderQueue::Iterator RenderQueue::Iterator::end()
 {
-	return Iterator(_array, RENDER_QUEUE::LAST_STATE, static_cast<uint32_t>(_array[fm::RENDER_QUEUE::LAST_STATE - 1].size()), 0);
+	return Iterator(_array, RENDER_QUEUE_LAST_STATE, static_cast<uint32_t>(_array[fm::RENDER_QUEUE_LAST_STATE - 1].size()), 0);
 }
 bool RenderQueue::Iterator::operator!=(Iterator& i)
 {
@@ -112,12 +113,12 @@ void RenderQueue::Iterator::next()
 	_currentBatch.baseInstance = _currentGlobalBaseBatch;
 	_currentBatch.number = 0;
 
-	uint32_t firstState = fm::RENDER_QUEUE::LAST_STATE;
+	uint32_t firstState = fm::RENDER_QUEUE_LAST_STATE;
 	uint32_t sizeBatch = 0;
 	bool hasFound = false;
 	while (!hasFound)
 	{
-		for (firstState = _currentState; firstState < fm::RENDER_QUEUE::LAST_STATE; ++firstState)
+		for (firstState = _currentState; firstState < fm::RENDER_QUEUE_LAST_STATE; ++firstState)
 		{
 			if (!_array[firstState].empty())
 			{
@@ -125,7 +126,7 @@ void RenderQueue::Iterator::next()
 			}
 		}
 
-		if (firstState == fm::RENDER_QUEUE::LAST_STATE)
+		if (firstState == fm::RENDER_QUEUE_LAST_STATE)
 		{
 			_currentState = firstState;
 			break;
@@ -164,7 +165,7 @@ void RenderQueue::Iterator::next()
 		_currentGlobalBaseBatch += sizeBatch;
 		_currentState = firstState;
 
-		if (_currentState >= fm::RENDER_QUEUE::LAST_STATE)
+		if (_currentState >= fm::RENDER_QUEUE_LAST_STATE)
 			break;
 
 		if (sizeBatch > 0)

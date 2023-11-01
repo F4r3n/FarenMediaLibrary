@@ -5,6 +5,7 @@
 #include "Core/Color.h"
 #include "Core/FilePath.h"
 #include "SubShader.hpp"
+#include <nlohmann/json.hpp>
 
 using namespace fm;
 

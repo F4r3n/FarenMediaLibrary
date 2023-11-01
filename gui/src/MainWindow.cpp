@@ -33,6 +33,7 @@
 #include <imgui/imgui_internal.h>
 #include "Editor.h"
 #include "Export.hpp"
+#include <nlohmann/json.hpp>
 
 const std::string JSON_KEY = "FML";
 

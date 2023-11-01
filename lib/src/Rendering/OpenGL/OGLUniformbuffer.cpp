@@ -3,7 +3,7 @@
 #include "Rendering/OpenGL/OGLShader.hpp"
 #include <Core/Debug.h>
 #include "GL/glew.h"
-
+#include <cassert>
 using namespace fm;
 
 OGLUniformbuffer::OGLUniformbuffer() {}

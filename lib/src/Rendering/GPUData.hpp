@@ -1,5 +1,6 @@
 #pragma once
-
+#include "Core/Math/Matrix44.h"
+#include "Core/Math/Vector4.h"
 namespace fms
 {
 	struct GPUObjectData

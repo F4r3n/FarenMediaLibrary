@@ -6,6 +6,7 @@
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Model.hpp"
 #include "Rendering/OpenGL/OGLShader.hpp"
+#include <cassert>
 using namespace fm;
 
 Renderer Renderer::_instance;

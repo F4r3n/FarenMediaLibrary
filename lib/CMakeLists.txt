@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 set(PROJECT_NAME "FarenMediaLibrary")
 project(${PROJECT_NAME} CXX)
 include(CheckCXXCompilerFlag)
@@ -16,10 +16,10 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 
 include_directories("src")
 file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
-if(NOT WANT_VULKAN)
+if(NOT ENABLE_VULKAN)
   LIST(FILTER SOURCES EXCLUDE REGEX "Vulkan/")
   LIST(FILTER HEADERS EXCLUDE REGEX "Vulkan/")
-endif(WANT_VULKAN)
+endif(NOT ENABLE_VULKAN)
 
 #Bullet
 set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
@@ -35,7 +35,7 @@ find_package(OpenGL)
 include_directories(${FML_EXTLIB}/glew/include)
 link_directories(${FML_EXTLIB_LIB}/glew)
 
-if(WANT_VULKAN)
+if(ENABLE_VULKAN)
   #Vulkan
   find_package(Vulkan REQUIRED)
   include_directories(SYSTEM ${Vulkan_INCLUDE_DIRS})
@@ -44,7 +44,7 @@ if(WANT_VULKAN)
   FETCHCONTENT_GETPROPERTIES(VMA)
   include_directories(SYSTEM ${vma_SOURCE_DIR}/include)
 
-endif(WANT_VULKAN)
+endif(ENABLE_VULKAN)
 
 #SDL3
 FETCHCONTENT_GETPROPERTIES(SDL)
@@ -81,9 +81,11 @@ if(WANT_ASSIMP)
 	link_directories(${assimp_BINARY_DIR}/code)
 else()
 	FETCHCONTENT_GETPROPERTIES(TINYOBJLOADER)
-	include_directories(SYSTEM ${tinyobjloader_SOURCE_DIR}/include) 
+	include_directories(SYSTEM ${tinyobjloader_SOURCE_DIR}) 
 	link_directories(${tinyobjloader_BINARY_DIR}/lib)
 endif()
+
+
 
 
 set(LIB_NAME ${PROJECT_NAME}_s)
@@ -98,20 +100,28 @@ target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} SDL3-static)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} OpenGL::GL )
+target_precompile_headers(${LIB_NAME}
+  PRIVATE
+	<string>
+    <filesystem>
+	<map>
+	<unordered_map>
+	<nlohmann/json.hpp>
+)
 
-if(WANT_ASSIMP)
+if(ENABLE_ASSIMP)
 	target_link_libraries(${LIB_NAME} assimp)
 	target_compile_definitions(${LIB_NAME} PRIVATE WITH_ASSIMP=1)
 else()
 	target_link_libraries(${LIB_NAME} tinyobjloader)
-endif()
+endif(ENABLE_ASSIMP)
 
 target_link_libraries(${LIB_NAME} ${BULLET_LIBRARIES})
 target_link_libraries(${LIB_NAME} ${CMAKE_DL_LIBS})
-if(WANT_VULKAN)
+if(ENABLE_VULKAN)
   target_link_libraries(${LIB_NAME} Vulkan::Vulkan)
   target_compile_definitions(${LIB_NAME} PRIVATE WITH_VULKAN=1)
-endif(WANT_VULKAN)
+endif(ENABLE_VULKAN)
 
 target_compile_definitions (${LIB_NAME} PRIVATE GLEW_STATIC=1 )
 target_compile_definitions (${LIB_NAME} PRIVATE GLEW_NO_GLU=1 )
@@ -126,3 +136,15 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	target_link_libraries(${LIB_NAME} gcc_s stdc++) 
 	target_link_libraries(${LIB_NAME} stdc++fs)
 endif(CMAKE_COMPILER_IS_GNUCXX)
+
+if(ENABLE_COMPILER_PROFILER)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${LIB_NAME} PRIVATE -ftime-trace)
+	endif()
+endif(ENABLE_COMPILER_PROFILER)
+
+if(ENABLE_PROFILER)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES LINK_FLAGS "/PROFILE")
+  endif()
+endif(ENABLE_PROFILER)

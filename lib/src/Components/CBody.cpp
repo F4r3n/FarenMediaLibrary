@@ -4,6 +4,8 @@
 #include <EntityManager.h>
 #include "Components/CTransform.h"
 #include "Components/CCollider.h"
+#include <nlohmann/json.hpp>
+
 using namespace fmc;
 
 CBody::CBody()

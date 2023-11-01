@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 set(PROJECT_NAME "FMLEditor")
 project(${PROJECT_NAME})
 
@@ -94,20 +94,28 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
 target_link_libraries(${PROJECT_NAME} glslang SPIRV glslang-default-resource-limits)
 
+target_precompile_headers(${PROJECT_NAME}
+  PRIVATE
+	<string>
+    <filesystem>
+	<map>
+	<unordered_map>
+)
+
 
 if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)")
+if(ENABLE_PROFILER)
+	SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/PROFILE")
+endif(ENABLE_PROFILER)
 	set_property( DIRECTORY ${PROJECT_BINARY_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} )
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+	COMMAND_EXPAND_LISTS
+)
 endif(MSVC)
 
-
-find_package(PythonInterp)
-find_package(Python)
-
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/_Resources_ ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/_Resources_ 
-	#COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/compileShader.py ${glslang_BINARY_DIR}/StandAlone/ $<TARGET_FILE_DIR:${PROJECT_NAME}>/_Resources_/shaders/ DEPENDS ${GLSLANG_EXE}
-	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/InternalResources/imgui.ini $<TARGET_FILE_DIR:${PROJECT_NAME}>
-	COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/_Resources_ ${CMAKE_SOURCE_DIR}/InternalResources $<TARGET_FILE_DIR:${PROJECT_NAME}>/_Resources_ 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/InternalResources/imgui.ini $<TARGET_FILE_DIR:${PROJECT_NAME}>
 	COMMAND_EXPAND_LISTS
 )

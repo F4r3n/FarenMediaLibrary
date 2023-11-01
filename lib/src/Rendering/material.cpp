@@ -14,6 +14,18 @@ Material::Material(const fm::FilePath& inFilePath)
 	_currentID = _ID;
 }
 
+Material Material::Clone() const
+{
+	fm::FilePath p(_name);
+	Material mat(p);
+	mat._shaderPath = _shaderPath;
+	mat._properties = _properties;
+	mat._uniforms = _uniforms;
+	mat._bufferSize = _bufferSize;
+	memcpy(mat._buffer, _buffer, _bufferSize);
+	return mat;
+}
+
 void Material::_FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const
 {
 	fm::ValuesType type = inValue.getType();

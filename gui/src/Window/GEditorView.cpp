@@ -48,13 +48,13 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 			{
 				fm::CommandBuffer commandBuffer;
 				commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
 			}
 
 			{
 				fm::CommandBuffer commandBuffer;
 				commandBuffer.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
-				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::FIRST_STATE, commandBuffer);
+				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
 			}
 			for (auto&& o : gos)
 			{
@@ -70,7 +70,7 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 
 					commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
 
-					camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE::BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+					camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 				}
 			}
 		}

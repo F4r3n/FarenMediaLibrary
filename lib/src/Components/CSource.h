@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Math/Vector2.h"
 #include "component.h"
 
 namespace fmc {

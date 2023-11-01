@@ -1,7 +1,6 @@
 #pragma once
 #include "component.h"
 #include "Core/Color.h"
-#include "Core/Math/Vector2.h"
 #include <nlohmann/json_fwd.hpp>
 
 namespace fmc {

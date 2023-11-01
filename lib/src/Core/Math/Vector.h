@@ -267,6 +267,18 @@ namespace fm
             return vec<T, 3>(a.x + b.x, a.y + b.x, a.z + b.x);
         }
 
+		template <typename T>
+		bool operator==(const vec<T, 3>& a, const vec<T, 3>& b)
+		{
+			return a.x == b.x && a.y == b.y && a.z == b.z;
+		}
+
+		template <typename T>
+		bool operator!=(const vec<T, 3>& a, const vec<T, 3>& b)
+		{
+			return memcmp(&a[0], &b[0], sizeof(T)*3) != 0;
+		}
+
         template <typename T>
         vec<T, 3> &vec<T, 3>::operator+=(const vec<T, 1> &b)
         {

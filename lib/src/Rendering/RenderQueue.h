@@ -1,16 +1,12 @@
 #pragma once
 
 
-#include <queue>
 #include <vector>
-#include <bitset>
 #include "Rendering/RenderQueueEvents.hpp"
 #include "Core/Transform.h"
-#include "Entity.h"
 #include <optional>
-#include "Model.hpp"
-#include "material.hpp"
 #include <memory>
+#include <array>
 namespace fm
 {
 	class Model;
@@ -51,7 +47,7 @@ public:
 		uint32_t	baseInstance = 0;
 		uint32_t	number = 0;
 	};
-	using ArrayNode = std::array< std::vector<RenderNode>, RENDER_QUEUE::LAST_STATE>;
+	using ArrayNode = std::array< std::vector<RenderNode>, RENDER_QUEUE_LAST_STATE>;
 	struct Iterator
 	{
 		Iterator(const ArrayNode& inArray, RENDER_QUEUE inCurrentState, uint32_t inCurrentBaseBatch, uint32_t inCurrentGlobalBaseBatch);
@@ -62,7 +58,7 @@ public:
 		bool operator!=(Iterator& i);
 		void next();
 	private:
-		uint32_t		_currentState = FIRST_STATE;
+		uint32_t		_currentState = RENDER_QUEUE_FIRST_STATE;
 		uint32_t		_currentBaseBatch = 0;
 		uint32_t		_currentGlobalBaseBatch = 0;
 		ArrayNode		_array;

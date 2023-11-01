@@ -18,6 +18,8 @@
 #include <algorithm>
 #include "Rendering/ShaderKind.hpp"
 #include <bitset>
+#include <nlohmann/json.hpp>
+
 using Combinations = std::vector<std::vector<std::string>>;
 
 Combinations GetPossibleCombinations(const fm::Folder& inFolder, std::vector<std::string>& outListDrivers)
