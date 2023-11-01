@@ -65,17 +65,7 @@ namespace fm
 
 	public:
 
-		Material Clone() const
-		{
-			fm::FilePath p(_name);
-			Material mat(p);
-			mat._shaderPath = _shaderPath;
-			mat._properties = _properties;
-			mat._uniforms = _uniforms;
-			mat._bufferSize = _bufferSize;
-			memcpy(mat._buffer, _buffer, _bufferSize);
-			return mat;
-		}
+		Material Clone() const;
 
 		struct MaterialBufferInfo
 		{
