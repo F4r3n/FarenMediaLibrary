@@ -12,7 +12,7 @@
 #include "Rendering/Shader.h"
 #include "Rendering/material.hpp"
 #include "Rendering/commandBuffer.hpp"
-
+#include <cstring>
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
