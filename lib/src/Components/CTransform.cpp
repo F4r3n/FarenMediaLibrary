@@ -3,6 +3,7 @@
 #include <EntityManager.h>
 #include "Core/Math/Matrix44.h"
 #include "Core/Math/Functions.h"
+#include <nlohmann/json.hpp>
 //#include "TransformInspector.h"
 using namespace fmc;
 namespace Keys

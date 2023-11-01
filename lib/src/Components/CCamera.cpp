@@ -8,6 +8,8 @@
 #include <Core/Debug.h>
 #include "Rendering/OpenGL/OGLShader.hpp"
 #include "Rendering/commandBuffer.hpp"
+#include <nlohmann/json.hpp>
+
 using namespace fmc;
 using namespace fm;
 

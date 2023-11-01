@@ -1,7 +1,7 @@
 #pragma once
 #include "Vector.h"
 #include "Functions.h"
-#include "nlohmann/json.hpp"
+
 namespace fm {
 
 	namespace math {
@@ -498,18 +498,5 @@ namespace fm {
 			stream << m[0] << "\n" << m[1] << "\n" << m[2] << "\n" << m[3];
 			return stream;
 		}
-
-		template <typename T>
-		void to_json(nlohmann::json& j, const Matrix<T>& p) {
-			j = nlohmann::json{ p[0], p[1], p[2], p[3] };
-		}
-		template <typename T>
-		void from_json(const nlohmann::json& j, Matrix<T>& p) {
-			p[0] = j[0];
-			p[1] = j[1];
-			p[2] = j[2];
-			p[3] = j[3];
-		}
-
 	}
 }

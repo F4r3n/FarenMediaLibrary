@@ -9,6 +9,7 @@
 #include "Core/Bounds.h"
 #include <mutex>
 #include <queue>
+#include <functional>
 namespace fm
 {
 	class RenderTexture;

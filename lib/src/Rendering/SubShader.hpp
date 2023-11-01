@@ -3,7 +3,7 @@
 #include "Core/FilePath.h"
 #include "ShaderKind.hpp"
 #include "Rendering/GraphicsAPI.h"
-
+#include <array>
 namespace fm
 {
 	class SubShader

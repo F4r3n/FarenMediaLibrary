@@ -6,6 +6,7 @@
 #include "Core/Transform.h"
 #include <optional>
 #include <memory>
+#include <array>
 namespace fm
 {
 	class Model;

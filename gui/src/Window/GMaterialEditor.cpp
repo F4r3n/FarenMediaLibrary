@@ -13,6 +13,7 @@
 #include "Resource/ResourcesManager.h"
 #include <variant>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
 using namespace gui;
 

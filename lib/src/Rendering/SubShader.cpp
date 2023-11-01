@@ -1,4 +1,5 @@
 #include "SubShader.hpp"
+#include <nlohmann/json.hpp>
 
 namespace fm {
 

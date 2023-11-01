@@ -4,7 +4,7 @@
 #include "Core/Color.h"
 #include "OGLShader.hpp"
 #include "GL/glew.h"
-
+#include <cassert>
 using namespace fm;
 
 
