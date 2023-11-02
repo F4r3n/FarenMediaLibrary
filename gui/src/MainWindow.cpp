@@ -560,8 +560,12 @@ void MainWindow::OnDraw()
 
 void MainWindow::_SetWindowPosition(gui::GWindow* window, DOCK_ID inID)
 {
-	window->Start();
-	ImGui::DockBuilderDockWindow(window->GetTitle().c_str(), _docks[DOCK_ID::dock_right_id]);
+	if (!window->IsEnabled())
+	{
+		window->Start();
+		ImGui::DockBuilderDockWindow(window->GetTitle().c_str(), _docks[inID]);
+	}
+
 	ImGui::SetWindowFocus(window->GetTitle().c_str());
 }
 

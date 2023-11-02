@@ -36,6 +36,14 @@ FilePath::FilePath(const fs::path& inPath)
 	_path = std::filesystem::path(path);
 }
 
+FilePath::FilePath(fm::LOCATION inLocation)
+{
+	_path = fm::FileSystem::ConvertFileSystemToPath(inLocation, "");
+	_fileSystemID = inLocation;
+	_path = _path.native();
+}
+
+
 
 FilePath::FilePath(fm::LOCATION inLocation, const std::string& inFollowingPath)
 {

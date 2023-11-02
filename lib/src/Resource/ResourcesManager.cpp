@@ -13,7 +13,7 @@
 #if _WIN32
 #include <shlobj_core.h>
 #include <sstream>
-#elif __linux__
+#elif __linux__ || __APPLE__
 #include <cstdlib>
 #endif
 #include "Rendering/OpenGL/OGLShader.hpp"
@@ -129,13 +129,13 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 
 		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path);
 		std::wstringstream ss;
-		ss << path << L"\\FML\\";
+		ss << path << L"\\FML";
 		CoTaskMemFree(static_cast<void*>(path));
 		std::filesystem::path p(ss.str());
 
 		return FilePath(p.u8string());
-#elif __linux__
-		return FilePath(std::string(getenv("HOME")) + std::string(".config/FML/"));
+#elif __linux__ || __APPLE__
+		return FilePath(std::string(getenv("HOME")) + std::string(".config/FML"));
 #endif
 	}
 	case LOCATION::SETTINGS_LAST_PROJECTS:

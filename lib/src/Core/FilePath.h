@@ -19,6 +19,7 @@ namespace fm
 
 		FilePath(const FilePath &inPath);
 		FilePath(fm::LOCATION inLocation, const std::string& inFollowingPath);
+		FilePath(fm::LOCATION inLocation);
 
 		FilePath& ToSub(const std::string &inFolderName);
 
