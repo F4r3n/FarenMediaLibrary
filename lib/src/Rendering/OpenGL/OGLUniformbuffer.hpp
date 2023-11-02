@@ -1,6 +1,6 @@
 #pragma once
-#include <cstddef>
 #include <string>
+
 namespace fm {
 class Shader;
 }

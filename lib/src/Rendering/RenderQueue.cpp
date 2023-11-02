@@ -24,7 +24,7 @@ RenderQueue::~RenderQueue()
 {
 }
 
-int64_t RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB)
+bool RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB)
 {
 	uint32_t modelAID = 0;
 	uint32_t modelBID = 0;
@@ -54,9 +54,9 @@ int64_t RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB
 
 	if (modelAID == modelBID)
 	{
-		return (materialAID - materialBID);
+		return (materialAID < materialBID);
 	}
-	return (modelAID - modelBID);
+	return (modelAID < modelBID);
 }
 
 

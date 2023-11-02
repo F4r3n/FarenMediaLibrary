@@ -1,16 +1,15 @@
 #include "Core/application.h"
-
-
-#include <Engine.h>
-#include <Window.h>
-#include <TimeDef.h>
-#include <nlohmann/json.hpp>
-#include "Core/SceneManager.h"
-#include <iomanip>      // std::setw
-#include "Core/Scene.h"
 #include <fstream>
-#include "Resource/ResourcesManager.h"
+#include <iomanip>      // std::setw
+#include <nlohmann/json.hpp>
+
 #include "SystemManager.h"
+#include "Engine.h"
+
+#include "Window.h"
+#include "TimeDef.h"
+#include "Core/Scene.h"
+#include "Resource/ResourcesManager.h"
 #include "Core/Debug.h"
 #include "Core/SceneManager.h"
 using namespace fm;

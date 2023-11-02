@@ -4,6 +4,7 @@
 #include <Core/Debug.h>
 #include "GL/glew.h"
 #include <cassert>
+#include <cstring>
 using namespace fm;
 
 OGLUniformbuffer::OGLUniformbuffer() {}

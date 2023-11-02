@@ -202,10 +202,7 @@ void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 		std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetScene(_currentSceneName)->GetGameObjectByID(n->value);
 		if (go != nullptr)
 		{
-			if (!go->IsActive())
-			{
-				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-			}
+
 
 			ImGuiTreeNodeFlags node_flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
 			if (isSelected)
@@ -214,7 +211,16 @@ void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 			}
 			float oldPos = ImGui::GetCursorPosX();
 			std::string nameID = "ID" + std::to_string(i);
+			if (!go->IsActive())
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+			}
+
 			bool node_open = ImGui::TreeNodeEx(nameID.c_str(), node_flags, go->GetName().c_str(), i);
+			if (!go->IsActive())
+			{
+				ImGui::PopStyleVar();
+			}
 			if (_isRenaming && isSelected)
 			{
 
@@ -291,10 +297,7 @@ void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 				ImGui::TreePop();
 			}
 
-			if (!go->IsActive())
-			{
-				ImGui::PopStyleVar();
-			}
+
 
 
 			i++;

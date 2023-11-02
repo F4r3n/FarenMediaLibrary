@@ -8,7 +8,6 @@
 #include "Rendering/Renderer.h"
 #include "Input/InputManager.h"
 #include "Resource/ResourcesManager.h"
-#include <iostream>
 #include "Core/Debug.h"
 #include <string>
 #include <optional>

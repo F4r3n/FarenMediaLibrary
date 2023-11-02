@@ -35,7 +35,7 @@ struct RenderNode
     
     RENDER_QUEUE state;
 
-	static int64_t Compare(const RenderNode& inRenderNodeA, const RenderNode& inRenderNodeB);
+	static bool Compare(const RenderNode& inRenderNodeA, const RenderNode& inRenderNodeB);
 };
 
 class RenderQueue {

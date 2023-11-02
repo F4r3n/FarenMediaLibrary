@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 #include "Core/Observer.h"
-#include "nlohmann/json_fwd.hpp"
 #include "Rendering/GraphicsAPI.h"
 #include <memory>
 #include "Core/FilePath.h"
