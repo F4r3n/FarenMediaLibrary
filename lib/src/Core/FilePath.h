@@ -88,6 +88,8 @@ namespace fm
 		bool Exist() const;
 		void Iterate(bool recursive, const std::function<void(const fm::Folder *inFolder, const fm::File *inFile)>& inCallback) const;
 		bool Delete(bool recursive);
+		Folder		CreateUniqueFolder();
+
 	private:
 		fm::FilePath _path;
 	};

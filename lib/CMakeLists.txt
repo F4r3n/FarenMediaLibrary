@@ -100,14 +100,15 @@ target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} SDL3-static)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} OpenGL::GL )
-target_precompile_headers(${LIB_NAME}
-  PRIVATE
-	<string>
-    <filesystem>
-	<map>
-	<unordered_map>
-	<nlohmann/json.hpp>
-)
+if(ENABLE_PCH)
+  target_precompile_headers(${LIB_NAME}
+    PRIVATE
+  	<string>
+  	<map>
+  	<filesystem>
+  	<unordered_map>
+  )
+endif(ENABLE_PCH)
 
 if(ENABLE_ASSIMP)
 	target_link_libraries(${LIB_NAME} assimp)

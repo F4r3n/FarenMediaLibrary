@@ -67,7 +67,7 @@ namespace gui
 		~GFileNavigator();
 		void CustomDraw();
 
-		void DrawHierarchy(const fm::FilePath&, Node* currentNode);
+		void DrawHierarchy(const fm::FilePath&, Node* currentNode, bool &popupOpened);
 		void SetPathSelected(const fm::FilePath& inFilePath);
 
 	private:

@@ -244,6 +244,33 @@ void Folder::Iterate(bool recursive, const std::function<void(const fm::Folder *
 	}
 }
 
+Folder Folder::CreateUniqueFolder()
+{
+	const fm::FilePath parent = _path.GetParent();
+	fm::FilePath path(parent);
+
+	const std::string name = _path.GetName(true);
+	const std::string extension = _path.GetExtension();
+
+	size_t i = 0;
+	do
+	{
+		path = fm::FilePath(parent);
+		if (i == 0)
+		{
+			path.ToSub(name + extension);
+		}
+		else
+		{
+			path.ToSub(name + "_" + std::to_string(i) + extension);
+		}
+		i++;
+	} while (Folder(path).Exist());
+	Folder(path).CreateFolder();
+	return Folder(path);
+}
+
+
 
 
 File::File(const fm::FilePath& inFilePath)
@@ -302,7 +329,6 @@ File File::CopyTo(const fm::FilePath& inDestination) const
 
 File File::CreateUniqueFile()
 {
-
 	const fm::FilePath parent = _path.GetParent();
 	fm::FilePath path(parent);
 
@@ -325,7 +351,6 @@ File File::CreateUniqueFile()
 	} while (File(path).Exist());
 	File(path).CreateFile();
 	return File(path);
-
 }
 
 

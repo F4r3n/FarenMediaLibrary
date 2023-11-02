@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 project("FML")
 option(ENABLE_VULKAN "Build with vulkan" ON)
 option(ENABLE_ASSIMP "Build with assimp" OFF)
+option(ENABLE_PCH "Build with pch" ON)
 
 SET_COMPILER_OPTIONS()
 

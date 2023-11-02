@@ -116,12 +116,19 @@ bool PathStorage::HasRoot() const
 
 void PathStorage::RefreshPath(const fm::Folder &inPath)
 {
+
 	Node* n = GetNode(inPath.GetPath());
 	if (n == nullptr)
 	{
 		n = AddPath(inPath.GetPath());
 	}
 	n->nodes.clear();
+
+	if (!inPath.Exist())
+	{
+		return;
+	}
+
 	inPath.Iterate(false, [&n](const fm::Folder* inFolder, const fm::File* inFile)
 	{
 		
@@ -141,7 +148,6 @@ void PathStorage::RefreshPath(const fm::Folder &inPath)
 
 Node* PathStorage::_AddPath(const std::string &inRelativePath, Node* inCurrentNode)
 {
-
 	size_t pos = inRelativePath.find_first_of(fm::FilePath::GetFolderSeparator(), 0);
 	if (pos != std::string::npos)
 	{
@@ -244,9 +250,8 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 	}
 }
 
-void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode)
+void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode, bool &popupopened)
 {
-
 	for (auto& n : currentNode->nodes)
 	{
 		fm::FilePath p(inRoot);
@@ -260,9 +265,28 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 			_listToRefresh.push(p);
 			SetPathSelected(p);
 		}
+
+		ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+		if (!popupopened && ImGui::BeginPopup("context"))
+		{
+			popupopened = true;
+			if (ImGui::MenuItem("Delete"))
+			{
+				fm::Folder(p).Delete(true);
+				_listToRefresh.push(p);
+			}
+			else if (ImGui::MenuItem("Create Folder"))
+			{
+				_listToRefresh.push(_currentFolderSelected.GetPath());
+				_currentFolderSelected = fm::Folder(fm::FilePath(_currentFolderSelected.GetPath()).ToSub("New Folder")).CreateUniqueFolder();
+			}
+
+			ImGui::EndPopup();
+		}
+		
 		if (opened)
 		{
-			DrawHierarchy(p, &n);
+			DrawHierarchy(p, &n, popupopened);
 
 			ImGui::TreePop();
 		}
@@ -289,7 +313,18 @@ void GFileNavigator::CustomDraw()
 	Splitter(true, 8.0f, &_splitter_1, &_splitter_2, 8, 8, h);
 	if (ImGui::BeginChild("##folderNavigator", ImVec2(_splitter_1, 0), false, ImGuiWindowFlags_NoTitleBar))
 	{
-		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode());
+		bool hasPopupOpened = false;
+		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode(), hasPopupOpened);
+		if (!hasPopupOpened && ImGui::BeginPopupContextWindow())
+		{
+			if (ImGui::MenuItem("Create Folder"))
+			{
+				_listToRefresh.push(_currentFolderSelected.GetPath());
+				_currentFolderSelected = fm::Folder(fm::FilePath(_currentFolderSelected.GetPath()).ToSub("New Folder")).CreateUniqueFolder();
+			}
+			ImGui::EndPopup();
+		}
+
 	}
 	ImGui::EndChild();
 
@@ -300,31 +335,39 @@ void GFileNavigator::CustomDraw()
 
 		if(ImGui::BeginChild("##files", ImVec2(_splitter_2, 0), false, ImGuiWindowFlags_NoTitleBar))
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			bool hasSelectedAnItem = false;
 			for (auto && f : _listFiles)
 			{
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 				if (ImGui::Button(f.GetName(false).c_str()))
 				{
 					_pathSelected = f;
 				}
+				ImGui::PopStyleColor();
+				if (ImGui::BeginPopupContextItem())
+				{
+					hasSelectedAnItem = true;
+					if (ImGui::MenuItem("Delete"))
+					{
+						fm::File(f).Delete();
+						_listToRefresh.push(_currentFolderSelected.GetPath());
+					}
+
+					ImGui::EndPopup();
+				}
+
 			}
-			ImGui::PopStyleColor();
-		}
 
 
-		if (ImGui::IsWindowFocused() && ImGui::IsMouseClicked(1))
-		{
-			ImGui::OpenPopup("popup from button");
-		}
-
-		if (ImGui::BeginPopup("popup from button"))
-		{
-			if (ImGui::MenuItem("Create Material"))
+			if (!hasSelectedAnItem && ImGui::BeginPopupContextWindow())
 			{
-				_listToRefresh.push(_currentFolderSelected.GetPath());
-				_pathSelected = GMaterialEditor::CreateNewMaterial(_currentFolderSelected.GetPath());
+				if (ImGui::MenuItem("Create Material"))
+				{
+					_listToRefresh.push(_currentFolderSelected.GetPath());
+					_pathSelected = GMaterialEditor::CreateNewMaterial(_currentFolderSelected.GetPath());
+				}
+				ImGui::EndPopup();
 			}
-			ImGui::EndPopup();
 		}
 		ImGui::EndChild();
 	}       

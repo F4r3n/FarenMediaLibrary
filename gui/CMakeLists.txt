@@ -94,13 +94,15 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
 target_link_libraries(${PROJECT_NAME} glslang SPIRV glslang-default-resource-limits)
 
-target_precompile_headers(${PROJECT_NAME}
-  PRIVATE
-	<string>
-    <filesystem>
-	<map>
-	<unordered_map>
+if(ENABLE_PCH)
+	target_precompile_headers(${PROJECT_NAME}
+  	PRIVATE
+		<string>
+		<map>
+		<unordered_map>
+		<filesystem>
 )
+endif(ENABLE_PCH)
 
 
 if(MSVC)
