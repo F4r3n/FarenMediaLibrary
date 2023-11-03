@@ -71,6 +71,11 @@ std::string FilePath::GetFileSystemPath() const
 	return _path.string();
 }
 
+void FilePath::Clear()
+{
+	_path = "";
+	_fileSystemID = fm::LOCATION::NONE;
+}
 
 char FilePath::GetFolderSeparator()
 {

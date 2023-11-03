@@ -92,6 +92,9 @@ void CompileShaders()
 						fm::ResourcesManager::get().load<fm::Shader>(shaderPath, shader);
 					}
 
+					if (!shader->NeedReload())
+						return;
+
 					for (const auto& combination : combinations)
 					{
 						fm::SubShader::Reflections reflections;
@@ -149,7 +152,7 @@ void CompileShaders()
 
 					}
 
-					loader.SaveImport(inFolder->GetPath(), false);
+					loader.SaveImport(inFolder->GetPath(), true);
 
 				}
 			}

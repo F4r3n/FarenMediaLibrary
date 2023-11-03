@@ -42,7 +42,9 @@ namespace fm
 		static SHADER_KIND ConvertStringsToShaderKind(const std::vector<std::string>& inStrings);
 
 		std::vector<SHADER_KIND> GetPossibleShaderKind() const;
+
 	protected:
+		virtual std::filesystem::file_time_type GetTimeStamp() const override;
 
 	private:
 		std::string _name;

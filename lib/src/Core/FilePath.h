@@ -40,6 +40,7 @@ namespace fm
 		fm::LOCATION GetFileSystemID() const{ return _fileSystemID; }
 		void SetSystemID(fm::LOCATION inSystemID) { _fileSystemID = inSystemID; }
 		void AddExtension(const std::string& inExtention);
+		void Clear();
 	private:
 		std::string		_GetName() const;
 

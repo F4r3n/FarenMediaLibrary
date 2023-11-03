@@ -68,7 +68,7 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 					fm::CommandBuffer commandBuffer;
 					fm::MaterialProperties materialProperties;
 
-					commandBuffer.DrawMesh(mesh->model, go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
+					commandBuffer.DrawMesh(mesh->GetModel(), go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
 
 					camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 				}

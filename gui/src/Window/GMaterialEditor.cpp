@@ -74,7 +74,10 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 	_CheckMaterial(inMaterial);
 	if (auto material = _material.lock())
 	{
-		auto shaderPath = material->GetShaderPath();
+		const bool isDisabled = !material->CanBeModified();
+		if (isDisabled) ImGui::BeginDisabled();
+
+		const auto shaderPath = material->GetShaderPath();
 
 		size_t index = _currentMaterialKind == fm::MaterialKind::STANDARD ? 0 : 1;
 		if (DrawCombo("Kind", { "Standard", "Shader" }, &index))
@@ -100,6 +103,7 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 		auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(material->GetShaderPath());
 		if (shader == nullptr)
 			return;
+
 
 		if (material->GetMaterialKind() == fm::MaterialKind::SHADER)
 		{
@@ -176,10 +180,9 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 		{
 			assert(false);
 		}
-		if (ImGui::Button("Save"))
-		{
-			_Save(material);
-		}
+
+		if (isDisabled) ImGui::EndDisabled();
+
 		/*
 		for (auto& materialProperty : inMaterial->GetUniforms())
 		{
@@ -401,11 +404,13 @@ void GMaterialEditor::CustomDraw()
 	if (auto material = _material.lock())
 	{
 		DrawMaterialInspector(material);
-
-		if (ImGui::Button("##Save")) {
-			AddEvent([material](gui::GWindow* window, std::optional<gui::Context> context) {
-				material.get()->Save();
-				});
+		if (material->CanBeModified())
+		{
+			if (ImGui::Button("Save")) {
+				AddEvent([material](gui::GWindow* window, std::optional<gui::Context> context) {
+					material.get()->Save();
+					});
+			}
 		}
 	}
 }
@@ -421,8 +426,7 @@ fm::FilePath GMaterialEditor::CreateNewMaterial(const fm::FilePath& inPath)
 	fm::FilePath path = fm::FilePath(inPath).ToSub("newMaterial.material");
 	fm::FilePath newFilePath = fm::File(path).CreateUniqueFile().GetPath();
 	std::shared_ptr<fm::Material> material = std::make_shared<fm::Material>(newFilePath);
-
-	//TODO: load default settings
+	material->From(*fm::Material::GetDefaultStandardMaterial());
 	material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "default.shader"));
 	material->SetShaderKind(fm::SHADER_KIND::PLAIN);
 

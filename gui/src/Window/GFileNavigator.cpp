@@ -7,6 +7,8 @@
 #include <fstream>
 #include "imgui/imgui.h"
 #include "GMaterialEditor.h"
+#include "imgui/misc/cpp/imgui_stdlib.h"
+
 using namespace gui;
 
 
@@ -339,10 +341,24 @@ void GFileNavigator::CustomDraw()
 			for (auto && f : _listFiles)
 			{
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-				if (ImGui::Button(f.GetName(false).c_str()))
+				if (f == _pathBeingRenamed)
 				{
-					_pathSelected = f;
+					if (ImGui::InputText("##test", &_currentRename, ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::IsItemDeactivatedAfterEdit())
+					{
+						_listToRefresh.push(_currentFolderSelected.GetPath());
+						fm::File(f).Rename(_currentRename);
+						_pathBeingRenamed.Clear();
+						_currentRename.clear();
+					}
 				}
+				else
+				{
+					if (ImGui::Button(f.GetName(false).c_str()))
+					{
+						_pathSelected = f;
+					}
+				}
+
 				ImGui::PopStyleColor();
 				if (ImGui::BeginPopupContextItem())
 				{
@@ -352,10 +368,14 @@ void GFileNavigator::CustomDraw()
 						fm::File(f).Delete();
 						_listToRefresh.push(_currentFolderSelected.GetPath());
 					}
+					else if (ImGui::MenuItem("Rename"))
+					{
+						_pathBeingRenamed = f;
+						_currentRename = f.GetName(false);
+					}
 
 					ImGui::EndPopup();
 				}
-
 			}
 
 

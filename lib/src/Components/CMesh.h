@@ -5,7 +5,7 @@
 
 #include "Core/Color.h"
 #include "Core/Bounds.h"
-
+#include "Core/FilePath.h"
 namespace fm
 {
 	class Model;
@@ -27,14 +27,11 @@ class CMesh : public FMComponent<CMesh> {
         const std::string& GetName() const override;
 		uint16_t GetType() const override {return KMesh;}
 
-
-        void SetType(const std::string &type);
-        bool IsmodelReady();
-        const std::string& GetModelType() const {return _type;}
-        void SetModelType(const std::string &type) {_type = type;}
-        std::shared_ptr<fm::Model> model = nullptr;
-
+		fm::FilePath GetModelPath() const { return _modelPath; }
+		void SetModelPath(const fm::FilePath& inPath);
+		std::shared_ptr<fm::Model>	GetModel() const { return _model; }
     private:
-        std::string _type;
+		fm::FilePath _modelPath;
+		std::shared_ptr<fm::Model> _model = nullptr;
 };
 }

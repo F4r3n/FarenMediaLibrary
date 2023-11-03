@@ -78,10 +78,6 @@ namespace fm
 					fm::File(localisationData).GetJSONContent(object);
 					data = std::make_shared<T>(inPath);
 					data->Load(object);
-
-					//nlohmann::json object2;
-					//data->Save(object2);
-					//fm::File(inPath).SetContent(object2.dump());
 				}
 				fm::ResourcesManager::get().load<T>(inPath, data);
 			}

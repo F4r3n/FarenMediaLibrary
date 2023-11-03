@@ -88,19 +88,19 @@ RenderingSystem::~RenderingSystem()
 
 void RenderingSystem::_InitStandardShapes()
 {
-    std::shared_ptr<fm::Model> quad =	std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Quad"));
-    std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "QuadFS"));
-    std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Circle"));
-    std::shared_ptr<fm::Model> cube =	std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Cube"));
+    std::shared_ptr<fm::Model> quad =	std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Quad"));
+    std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "QuadFS"));
+    std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Circle"));
+    std::shared_ptr<fm::Model> cube =	std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"));
     quad->AddMesh(fm::StandardShapes::CreateQuad());
     circle->AddMesh(fm::StandardShapes::CreateCircle());
     quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
     cube->AddMesh(fm::StandardShapes::CreateCube());
 
-    fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
-    fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
-    fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
-    fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
+    fm::ResourcesManager::get().load(quad);
+    fm::ResourcesManager::get().load(quadFS);
+    fm::ResourcesManager::get().load(circle);
+    fm::ResourcesManager::get().load(cube);
 	_models.emplace(quad->GetID(), std::make_unique<fm::OGLModel>(quad));
 	_models.emplace(cube->GetID(), std::make_unique<fm::OGLModel>(cube));
 	_models.emplace(quadFS->GetID(), std::make_unique<fm::OGLModel>(quadFS));
@@ -597,17 +597,13 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
         
 
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
-		if (mesh != nullptr && mesh->model == nullptr)
-		{
-			mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
-		}
 		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		bool add = false;
 		bool hasMesh = false;
-		if (mesh != nullptr && material != nullptr)
+		if (mesh != nullptr && material != nullptr && mesh->GetModel() != nullptr)
 		{
 			hasMesh = true;
-			node.model = mesh->model;
+			node.model = mesh->GetModel();
 			node.material = material->GetMainMaterial();
 			add = true;
 		}

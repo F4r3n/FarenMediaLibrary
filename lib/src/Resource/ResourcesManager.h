@@ -20,14 +20,6 @@ public:
     ResourcesManager();
     ~ResourcesManager();
 
-    template <typename T> std::shared_ptr<T> getResource(const std::string& name)
-	{
-		MapOfResources::const_iterator it = resources[(size_t)T::getType()].find(name);
-        if(it == resources[(size_t)T::getType()].cend())
-			return nullptr;
-
-        return std::dynamic_pointer_cast<T>(it->second);
-    }
 
 	template <typename T> std::shared_ptr<T> getResource(const fm::FilePath& inPath)
 	{
@@ -36,24 +28,6 @@ public:
 			return nullptr;
 
 		return std::dynamic_pointer_cast<T>(it->second);
-	}
-
-    template <typename T> bool Exists(const std::string& name)
-	{
-        return resources[(size_t)T::getType()].find(name) != resources[T::getType()].end();
-    }
-
-    template <typename T>
-    void load(const std::string& name, std::shared_ptr<Resource> resource) 
-	{
-        if(T::getType() > RESOURCE_TYPE::LAST_RESOURCE) return;
-        resources[(size_t)T::getType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(name, resource));
-    }
-
-	void load(const std::string& name, std::shared_ptr<Resource> resource)
-	{
-		if (resource->GetType() > RESOURCE_TYPE::LAST_RESOURCE) return;
-		resources[(size_t)resource->GetType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(name, resource));
 	}
 
 	template <typename T>
@@ -67,6 +41,12 @@ public:
 	{
 		if (resource->GetType() > RESOURCE_TYPE::LAST_RESOURCE) return;
 		resources[(size_t)resource->GetType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(fm::FileSystem::ConvertPathToFileSystem(inPath), resource));
+	}
+
+	void load(std::shared_ptr<Resource> resource)
+	{
+		if (resource->GetType() > RESOURCE_TYPE::LAST_RESOURCE) return;
+		resources[(size_t)resource->GetType()].insert(std::pair<std::string, std::shared_ptr<Resource>>(fm::FileSystem::ConvertPathToFileSystem(resource->GetPath()), resource));
 	}
     
     template <typename T>

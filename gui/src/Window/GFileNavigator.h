@@ -80,6 +80,8 @@ namespace gui
 		std::vector<fm::FilePath> _listFiles;
 
 		std::optional<fm::FilePath> _pathSelected;
+		std::string					_currentRename;
+		fm::FilePath				_pathBeingRenamed;
 
 		float	_splitter_1 = -1;
 		float	_splitter_2 = -1;

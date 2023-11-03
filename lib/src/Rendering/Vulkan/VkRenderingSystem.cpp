@@ -72,9 +72,9 @@ bool VkRenderingSystem::_SetupUploadContext()
 
 void VkRenderingSystem::_InitStandardShapes()
 {
-	std::shared_ptr<fm::Model> quad = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Quad"));
-	std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "QuadFS"));
-	std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Circle"));
+	std::shared_ptr<fm::Model> quad = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Quad"));
+	std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "QuadFS"));
+	std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Circle"));
 	//std::shared_ptr<fm::Model> cube = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "Cube"));
 	quad->AddMesh(fm::StandardShapes::CreateQuad());
 	circle->AddMesh(fm::StandardShapes::CreateCircle());
@@ -90,7 +90,7 @@ void VkRenderingSystem::_InitStandardShapes()
 	//fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
 	//fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
 	//fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
-	fm::ResourcesManager::get().load<fm::Model>(cube->GetName(), cube);
+	fm::ResourcesManager::get().load<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"), cube);
 	//_staticModels.emplace(quad->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quad));
 	_staticModels.emplace(cube->GetID(), std::make_unique<fm::VkModel>(_vulkan.get(), cube));
 	//_staticModels.emplace(quadFS->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quadFS));
@@ -437,13 +437,10 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			continue;
 
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
-		if (mesh->model == nullptr)
-		{
-			mesh->model = fm::ResourcesManager::get().getResource<fm::Model>(mesh->GetModelType());
-		}
-		if (mesh->model == nullptr)
+
+		if (mesh->GetModel() == nullptr)
 			continue;
-		auto it = _staticModels.find(mesh->model->GetID());
+		auto it = _staticModels.find(mesh->GetModel()->GetID());
 
 		if (it != _staticModels.end())
 		{
@@ -451,11 +448,11 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 		}
 		else
 		{
-			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan.get(), mesh->model);
+			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan.get(), mesh->GetModel());
 			_UploadMesh(modelMesh.get());
 			modelMesh->Draw(commandBuffer, instanceIndex);
 
-			_staticModels.emplace(mesh->model->GetID(), std::move(modelMesh));
+			_staticModels.emplace(mesh->GetModel()->GetID(), std::move(modelMesh));
 		}
 		instanceIndex++;
 	}

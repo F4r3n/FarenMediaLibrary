@@ -34,25 +34,24 @@ namespace fm
         virtual ~Resource() {}
 
 		virtual void Reload([[maybe_unused]] bool force = false) {}
-		virtual void Save() const {}
-		virtual void Load() {}
 
 		virtual void Load(const nlohmann::json& inJSON);
 		virtual void Save(nlohmann::json& outJSON) const;
 		virtual RESOURCE_TYPE GetType() const = 0;
 
 		const fm::FilePath& GetPath() const { return _path; }
-		bool  IsInternal() {
+		bool  IsInternal() const{
 			const auto id = _path.GetFileSystemID();
 			return fm::IsInternal(id);
 		}
-
+		virtual std::filesystem::file_time_type GetTimeStamp() const;
 		void Touch() { _stamp++; }
 		size_t GetStamp() const { return _stamp; }
+		bool NeedReload() const;
     protected:
 		fm::FilePath	_path;
 		size_t			_stamp = 0;
-
+		std::chrono::system_clock::rep _timeStamp;
 
     };
     

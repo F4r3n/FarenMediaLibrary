@@ -81,6 +81,16 @@ std::vector<SHADER_KIND> Shader::GetPossibleShaderKind() const
 	return kinds;
 }
 
+std::filesystem::file_time_type Shader::GetTimeStamp() const
+{
+	fm::FilePath p(_path);
+	const std::filesystem::file_time_type t1 = fm::File(fm::FilePath(_path).ToSub(_path.GetName(true) + ".frag")).GetTimeStamp();
+	const std::filesystem::file_time_type t2 = fm::File(fm::FilePath(_path).ToSub(_path.GetName(true) + ".vert")).GetTimeStamp();
+
+	return std::max(t1, t2);
+}
+
+
 
 Shader::~Shader()
 {

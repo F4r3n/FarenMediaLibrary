@@ -26,6 +26,17 @@ Material Material::Clone() const
 	return mat;
 }
 
+void Material::From(const fm::Material& inMaterial)
+{
+	this->_shaderPath = inMaterial._shaderPath;
+	this->_properties = inMaterial._properties;
+	this->_uniforms = inMaterial._uniforms;
+	this->_bufferSize = inMaterial._bufferSize;
+	_buffer = (unsigned char*)calloc(_bufferSize, sizeof(unsigned char));
+	memcpy(this->_buffer, _buffer, _bufferSize);
+}
+
+
 void Material::_FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const
 {
 	fm::ValuesType type = inValue.getType();
@@ -365,6 +376,15 @@ std::optional<fm::SubShader::Uniform> Material::_GetReflectionUniform(const std:
 	return std::nullopt;
 }
 
+bool Material::CanBeModified() const
+{
+	return !Resource::IsInternal();
+}
+
+std::shared_ptr<fm::Material> Material::GetDefaultStandardMaterial()
+{
+	return fm::ResourcesManager::get().getResource<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION, "default.material"));
+}
 
 
 Material::MaterialBufferInfo Material::GetMaterialBufferInfo(GRAPHIC_API inAPI) const

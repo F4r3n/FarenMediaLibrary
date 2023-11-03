@@ -83,7 +83,7 @@ namespace fm
 		}
 
 		Material(const fm::FilePath& inFilePath);
-
+		void From(const fm::Material& inMaterial);
 		template <typename T>
 		void SetPropertyValue(const std::string& name, T value) {
 			fm::MaterialValue materialValue;
@@ -120,7 +120,8 @@ namespace fm
 		void Save(nlohmann::json& outJSON) const override;
 		void Load(const nlohmann::json& inJSON) override;
 
-		void Save() const override;
+		void Save() const;
+		bool CanBeModified() const;
 		std::optional<fm::SubShader> GetSubShader() const;
 
 		SHADER_KIND		GetShaderKind() const { return _shaderkind; }
@@ -131,6 +132,8 @@ namespace fm
 		unsigned char*	GetBufferPtr() const { return _buffer; }
 
 		MaterialBufferInfo GetMaterialBufferInfo(GRAPHIC_API inAPI) const;
+
+		static std::shared_ptr<fm::Material> GetDefaultStandardMaterial();
 	private:
 		void _FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const;
 		void _GetJSONValue(const nlohmann::json& valueJSON, std::string& outName, fm::MaterialValue& outValue) const;

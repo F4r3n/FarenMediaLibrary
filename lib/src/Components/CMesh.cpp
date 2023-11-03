@@ -14,39 +14,35 @@ CMesh::~CMesh()
 CMesh::CMesh() 
 {
 	_name = "Mesh";
-	_type = "Quad";
-	model = fm::ResourcesManager::get().getResource<fm::Model>(_type);
+	_modelPath = fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Quad");
+	_model = fm::ResourcesManager::get().getResource<fm::Model>(_modelPath);
 }
 
 bool CMesh::Serialize(nlohmann::json &ioJson) const
 {
-    ioJson["type"] = _type;
+    ioJson["modelPath"] = fm::FileSystem::ConvertPathToFileSystem(_modelPath);
     return true;
 }
 bool CMesh::Read(const nlohmann::json &inJSON)
 {
-    _type = inJSON["type"];
-	model = fm::ResourcesManager::get().getResource<fm::Model>(_type);
+	if (inJSON.contains("modelPath"))
+	{
+		_modelPath = fm::FilePath((std::string)inJSON["modelPath"]);
+		_model = fm::ResourcesManager::get().getResource<fm::Model>(_modelPath);
+	}
 
     return true;
 }
+
+void CMesh::SetModelPath(const fm::FilePath& inPath)
+{
+	_modelPath = inPath;
+	_model = fm::ResourcesManager::get().getResource<fm::Model>(_modelPath);
+}
+
 
 const std::string& CMesh::GetName() const
 {
     return _name;
 }
 
-bool CMesh::IsmodelReady() {
-    return model != nullptr;
-}
-
-void CMesh::SetType(const std::string &type) {
-    _type = type;
-}
-
-
-CMesh::CMesh(std::string type) {
-    _type = type;
-	_name = "Mesh";
-
-}
