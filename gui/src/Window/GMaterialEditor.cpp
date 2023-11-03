@@ -380,7 +380,7 @@ void GMaterialEditor::_CheckMaterial(std::shared_ptr<fm::Material> inMaterial)
 		else if (auto currentMat = _material.lock(); inMaterial->GetID() != currentMat->GetID())
 		{
 			_material = inMaterial;
-			_Init(currentMat);
+			_Init(inMaterial);
 		}
 	}
 }

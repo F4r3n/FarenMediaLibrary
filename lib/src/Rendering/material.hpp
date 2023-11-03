@@ -78,7 +78,7 @@ namespace fm
 
 		~Material()
 		{
-			delete[] _buffer;
+			free(_buffer);
 			_buffer = nullptr;
 		}
 

@@ -365,6 +365,7 @@ void GFileNavigator::CustomDraw()
 					hasSelectedAnItem = true;
 					if (ImGui::MenuItem("Delete"))
 					{
+						fm::ResourcesManager::get().Purge(f);
 						fm::File(f).Delete();
 						_listToRefresh.push(_currentFolderSelected.GetPath());
 					}

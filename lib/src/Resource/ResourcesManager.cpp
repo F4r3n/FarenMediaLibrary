@@ -149,18 +149,6 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 	}
 }
 
-void ResourcesManager::Reload(bool force)
-{
-	for (size_t i = 0; i < (size_t)RESOURCE_TYPE::LAST_RESOURCE; ++i)
-	{
-		auto rKind = resources[i];
-		for (auto&& r : rKind)
-		{
-			r.second->Reload(force);
-		}
-	}
-}
-
 
 void ResourcesManager::_LoadInternalShaders()
 {
