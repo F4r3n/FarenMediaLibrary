@@ -19,9 +19,9 @@ void OGLUniformbuffer::Generate(size_t size, int indexBuffer, int bufferType)
     glGenBuffers(1, &_ubo);
     glBindBuffer(_bufferType, _ubo);
     glBufferData(_bufferType, size, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(_bufferType, 0);
-    glBindBufferRange(_bufferType, _bindingPoint, _ubo, 0,size);
-
+    glBindBufferRange(_bufferType, _bindingPoint, _ubo, 0, size);
+	_size = size;
+	
     fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
 
@@ -36,6 +36,8 @@ void OGLUniformbuffer::Bind() const
 {
 	assert(_ubo > 0);
     glBindBuffer(_bufferType, _ubo);
+	glBindBufferRange(_bufferType, _bindingPoint, _ubo, 0, _size);
+
 }
 
 void OGLUniformbuffer::SetData(void *data, size_t size) const
@@ -45,7 +47,6 @@ void OGLUniformbuffer::SetData(void *data, size_t size) const
 	{
 		glBindBuffer(_bufferType, _ubo);
 		glBufferSubData(_bufferType, 0, size, data);
-		glBindBuffer(_bufferType, 0);
 	}
 	else
 	{
@@ -64,6 +65,9 @@ void OGLUniformbuffer::LinkWithShader(Shader *shader, int index, const std::stri
 
 void OGLUniformbuffer::Free()
 {
-	assert(_ubo > 0);
-    glDeleteBuffers(1, &_ubo);
+	if (_ubo > 0)
+	{
+		glDeleteBuffers(1, &_ubo);
+	}
+	_ubo = 0;
 }

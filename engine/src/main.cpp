@@ -4,7 +4,7 @@
 #include "Resource/ResourcesManager.h"
 #include <span>
 #include <Utilities/CommandLineParser.h>
-
+#include "Resource/ResourceLoader.h"
 int main(int argc, char** argv)
 {
 	fm::FilePath path = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY);
@@ -44,10 +44,15 @@ int main(int argc, char** argv)
 
 	app.InitSystems();
 
+
 	app.LoadProject(path);
+
+
+
 	app.Start();
-	fm::Window *window = app.GetWindow();
-	
+	fm::Window* window = app.GetWindow();
+
+
 
 	while (!window->isClosed())
 	{

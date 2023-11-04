@@ -56,6 +56,12 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 				commandBuffer.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
 				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
 			}
+
+			std::vector<std::shared_ptr<fm::Model>> models;
+			std::vector<std::shared_ptr<fm::Material>> materials;
+			std::vector<fm::Transform> transforms;
+
+
 			for (auto&& o : gos)
 			{
 				std::shared_ptr<fm::GameObject> go = o.second;
@@ -64,15 +70,17 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 				if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 				{
 					fmc::CMesh* mesh = go->get<fmc::CMesh>();
-
-					fm::CommandBuffer commandBuffer;
-					fm::MaterialProperties materialProperties;
-
-					commandBuffer.DrawMesh(mesh->GetModel(), go->get<fmc::CTransform>()->GetTransform(), go->get<fmc::CMaterial>()->GetMainMaterial(), materialProperties);
-
-					camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+					auto mat = go->get<fmc::CMaterial>();
+					materials.push_back(mat->GetMainMaterial());
+					models.push_back(mesh->GetModel());
+					transforms.push_back(go->get<fmc::CTransform>()->GetTransform());
 				}
 			}
+
+			fm::CommandBuffer commandBuffer;
+			commandBuffer.DrawInstancedMesh(models, transforms, materials);
+			camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+
 		}
 	}
 }
@@ -97,6 +105,46 @@ void GEditorView::CustomDraw()
 			_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 
 			_EditObject();
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FileNavigator"))
+				{
+					fm::math::vec2 mousePos = ImGui::GetMousePos();
+					fm::math::vec2 start = GetPosition();
+					fm::math::vec2 startCursorPos;
+					startCursorPos = _cursorPos;
+					startCursorPos.y += start.y;
+					startCursorPos.x += start.x;
+
+					fm::math::vec2 mPos(mousePos);
+					mPos.x -= startCursorPos.x - _scrollPos.x;
+					mPos.y -= startCursorPos.y - _scrollPos.y;
+
+					char* payload_n = (char*)payload->Data;
+					std::string data(payload_n);
+					fm::FilePath path = fm::FilePath(data);
+					AddEvent([this, mPos, path](gui::GWindow*, std::optional<gui::Context> inContext)
+					{
+							_pickingSystem->PickGameObject(inContext->currentSceneName, _editorView.id.value().index(), mPos,
+							[this, path](Entity::Id id) {
+									_resultPicking = true;
+									_gameObjectSelectedByPicking = id;
+
+									std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
+									if (go != nullptr)
+									{
+										auto cmaterial = go->get<fmc::CMaterial>();
+										cmaterial->SetMainMaterial(path);
+									}
+							});
+
+					});
+
+				}
+
+				ImGui::EndDragDropTarget();
+			}
 		}
 	}
     
@@ -191,7 +239,6 @@ void GEditorView::_Update(float dt, Context &inContext)
 	{
 		if (renderTexture->isCreated() && HasBeenDrawn())
 		{
-			fm::math::vec2 startCursorPos;
 
 			const float rapport = (float)renderTexture->getWidth() / (float)renderTexture->getHeight();
 
@@ -204,6 +251,7 @@ void GEditorView::_Update(float dt, Context &inContext)
 
 			_cursorPos = fm::math::vec2(-(renderTexture->getWidth() - size.x) * 0.5f,
 				-(renderTexture->getHeight() - size.y) * 0.5f);
+			fm::math::vec2 startCursorPos;
 			startCursorPos = _cursorPos;
 			startCursorPos.y += start.y;
 			startCursorPos.x += start.x;

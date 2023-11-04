@@ -89,7 +89,7 @@ void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR]->Start();
 	//_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
 
-	fm::FilePath path(fm::LOCATION::USER_LOCATION, "");
+	fm::FilePath path(fm::LOCATION::USER_LOCATION);
 	_RefreshResources(path);
 }
 

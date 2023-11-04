@@ -23,6 +23,7 @@ class OGLUniformbuffer
         unsigned int _bindingPoint = 0;
         unsigned int _ubo = 0;
 		uint32_t	 _bufferType = 0;
+		size_t		 _size = 0;
 };
 }
 

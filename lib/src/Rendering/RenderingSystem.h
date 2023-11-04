@@ -66,7 +66,7 @@ public:
     void _FillQueue(fmc::CCamera* cam, EntityManager& em);
     void _Draw(fmc::CCamera *cam);
 	void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
-	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel,
+	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, std::shared_ptr<fm::Model> inModel,
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties);
 	void _DrawMeshInstaned(fmc::CCamera* cam, const fm::Transform& inTransform, std::shared_ptr<fm::Model> inModel,
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties, uint32_t inNumber, uint32_t inBaseInstance);

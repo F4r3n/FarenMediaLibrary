@@ -24,7 +24,7 @@ RenderQueue::~RenderQueue()
 {
 }
 
-bool RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB)
+bool RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB, bool isSame)
 {
 	uint32_t modelAID = 0;
 	uint32_t modelBID = 0;
@@ -51,12 +51,38 @@ bool RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB)
 		materialBID = materialB->GetID();
 	}
 
-
-	if (modelAID == modelBID)
+	if (!isSame)
 	{
-		return (materialAID < materialBID);
+		if (modelAID == modelBID)
+		{
+			return (materialAID < materialBID);
+		}
+		return (modelAID < modelBID);
 	}
-	return (modelAID < modelBID);
+	else
+	{
+		return modelAID == modelBID && materialAID == materialBID;
+	}
+
+}
+
+std::vector<fms::GPUObjectData> RenderQueue::GetSSBOData() const
+{
+	std::vector<fms::GPUObjectData> datas;
+	for (const auto& node : _nodes)
+	{
+		for (const auto element : node)
+		{
+
+			if (!element.model.expired())
+			{
+				fms::GPUObjectData data;
+				data.modelMatrix = element.transform.worldTransform;
+				datas.push_back(data);
+			}
+		}
+	}
+	return datas;
 }
 
 
@@ -146,19 +172,19 @@ void RenderQueue::Iterator::next()
 			_currentState+= 1;
 			continue;
 		}
+		sizeBatch = 1;
 		uint32_t baseBatch = 0;
 		_currentBatch.node = RenderNode(firstNode);
-		for (baseBatch = _currentBaseBatch; baseBatch < _array[firstState].size(); ++baseBatch)
+		for (baseBatch = _currentBaseBatch + 1; baseBatch < _array[firstState].size(); ++baseBatch)
 		{
+
 			RenderNode currentNode = _array[firstState][baseBatch];
-			if (RenderNode::Compare(firstNode, currentNode) == 0)
-			{
-				sizeBatch++;
-			}
-			else
+			if (!RenderNode::Compare(firstNode, currentNode, true))
 			{
 				break;
 			}
+			sizeBatch++;
+
 		}
 		_currentBatch.number = sizeBatch;
 		_currentBaseBatch = baseBatch;

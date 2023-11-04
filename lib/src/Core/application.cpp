@@ -12,6 +12,7 @@
 #include "Resource/ResourcesManager.h"
 #include "Core/Debug.h"
 #include "Core/SceneManager.h"
+#include "Resource/ResourceLoader.h"
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -23,7 +24,7 @@ Application::~Application()
 }
 
 
-void Application::SetConfig(const Config &inConfig)
+void Application::SetConfig(const Config& inConfig)
 {
 	_currentConfig = inConfig;
 	if (!_currentConfig.userDirectory.GetPath().IsValid())
@@ -33,7 +34,7 @@ void Application::SetConfig(const Config &inConfig)
 }
 
 
-Application::Application() 
+Application::Application()
 {
 	_sceneManager = std::make_unique<fm::SceneManager>();
 }
@@ -48,17 +49,17 @@ bool Application::SerializeCurrentScene() const
 
 bool Application::Serialize() const
 {
-	
+
 	nlohmann::json s;
 	_sceneManager->Serialize(s);
 
 	File f(_currentConfig.userDirectory, _currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
-	
+
 	std::ofstream o(f.GetPath().GetPath(), std::ofstream::out);
 	o << std::setw(4) << s << std::endl;
 	o.close();
-	
-    return true;
+
+	return true;
 
 }
 
@@ -75,10 +76,10 @@ void Application::Stop()
 
 bool Application::Read()
 {
-    nlohmann::json s;
+	nlohmann::json s;
 	File f(_currentConfig.userDirectory, _currentConfig.name + PROJECT_FILE_NAME_EXTENSION);
 
-    std::ifstream i(f.GetPath().GetPath());
+	std::ifstream i(f.GetPath().GetPath());
 	try
 	{
 		nlohmann::json j;
@@ -89,19 +90,19 @@ bool Application::Read()
 	{
 		return false;
 	}
-    return true;
+	return true;
 }
 
 
 fm::Window* Application::GetWindow(GRAPHIC_API api) const
 {
-    return _window[api].get();
+	return _window[api].get();
 }
 
 
 void Application::Init()
 {
-    _engine = std::make_unique<fm::Engine>();
+	_engine = std::make_unique<fm::Engine>();
 	if ((_currentConfig.graphicAPI & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
 	{
 		_window[GRAPHIC_API::OPENGL] = std::make_shared<fm::Window>(GRAPHIC_API::OPENGL, _currentConfig.windowFlag);
@@ -145,7 +146,7 @@ void Application::Update()
 	{
 		_window[GRAPHIC_API::VULKAN]->update(_currentConfig.fpsWanted);
 	}
-    _engine->Update(fm::Time::dt);
+	_engine->Update(fm::Time::dt);
 }
 
 
@@ -159,6 +160,17 @@ void Application::DeInit()
 void Application::LoadProject(const fm::Folder& inPath)
 {
 	_currentConfig.userDirectory = inPath;
+	fm::FilePath userDirectory(fm::LOCATION::USER_LOCATION);
+	fm::Folder folder(userDirectory);
+	fm::ResourceLoader loader;
+	loader.Init();
+	folder.Iterate(true, [&loader](const fm::Folder* inFolder, const fm::File* inFile) {
+		if (inFile != nullptr)
+		{
+			loader.Load(inFile->GetPath(), true);
+		}
+	});
+
 	if (Read())
 	{
 		_sceneManager->GetCurrentScene()->Load();
@@ -166,7 +178,7 @@ void Application::LoadProject(const fm::Folder& inPath)
 }
 
 
-void Application::SetUserDirectory(const fm::Folder &inPath)
+void Application::SetUserDirectory(const fm::Folder& inPath)
 {
 	_currentConfig.userDirectory = inPath;
 }
@@ -182,7 +194,7 @@ const fm::Folder& Application::GetInternalResources() const
 	return _currentConfig.internalResourcesDirectory;
 }
 
-void Application::SetProjectName(const std::string &inName)
+void Application::SetProjectName(const std::string& inName)
 {
 	_currentConfig.name = inName;
 }
@@ -194,7 +206,7 @@ const fm::Config& Application::GetCurrentConfig() const
 }
 
 
-std::shared_ptr<fm::Scene> Application::GetScene(const std::string &inName) const
+std::shared_ptr<fm::Scene> Application::GetScene(const std::string& inName) const
 {
 	return _sceneManager->GetScene(inName);
 }

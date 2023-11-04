@@ -18,6 +18,8 @@ namespace fm
 		OGLMaterial(const OGLMaterialCreateInfo& inInfo);
 		void Bind(const fm::MaterialProperties& inMaterialProperties);
 		uint32_t GetID() const;
+
+		void Destroy();
 	private:
 		std::shared_ptr<Material>	_material = nullptr;
 		std::shared_ptr<OGLShader>	_shader = nullptr;

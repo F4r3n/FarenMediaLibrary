@@ -90,6 +90,29 @@ void CommandBuffer::DrawMesh(std::shared_ptr<Model> inModel, const Transform &in
 	_commands.push(cmd);
 }
 
+void CommandBuffer::DrawInstancedMesh(const std::vector<std::shared_ptr<Model>>& inModel, const std::vector<Transform>& inTranform,
+	std::vector<std::shared_ptr<fm::Material>> inMaterial)
+{
+	Command cmd;
+	cmd._command = Command::COMMAND_KIND::DRAW_INSTACED_MESH;
+	for (const auto& model : inModel)
+	{
+		cmd._models.push_back(model);
+	}
+
+	for (const auto& material : inMaterial)
+	{
+		cmd._materials.push_back(material);
+	}
+
+	for (const auto& trans : inTranform)
+	{
+		cmd._transforms.push_back(trans);
+	}
+
+	_commands.push(cmd);
+}
+
 
 Command CommandBuffer::Pop()
 {

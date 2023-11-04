@@ -290,9 +290,10 @@ std::optional<fm::SubShader> Material::GetSubShader() const
 void Material::Save() const
 {
 	nlohmann::json json;
+	fm::File file(_path);
+	file.CreateFile();
 	Save(json);
 
-	fm::File file(_path);
 	file.SetContent(json.dump());
 }
 

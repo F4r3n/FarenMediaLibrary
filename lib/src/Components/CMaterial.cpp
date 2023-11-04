@@ -27,7 +27,7 @@ bool CMaterial::Serialize(nlohmann::json &ioJson) const
     nlohmann::json j;
     for(auto s : _materials)
     {
-        nlohmann::json m = s->GetName();
+        nlohmann::json m = fm::FileSystem::ConvertPathToFileSystem(s->GetPath());
        j.push_back(m);
     }
     ioJson["Materials"] = j;
@@ -36,12 +36,32 @@ bool CMaterial::Serialize(nlohmann::json &ioJson) const
 
 bool CMaterial::Read(const nlohmann::json &inJSON)
 {
-	/*for (const auto& m : inJSON["Materials"])
+	_materials.clear();
+	for (const auto& m : inJSON["Materials"])
 	{
-		//Material material
-	}*/
+		fm::FilePath p((std::string)m);
+		auto mat = fm::ResourcesManager::get().getResource<fm::Material>(p);
+		if (mat != nullptr)
+		{
+			_materials.push_back(mat);
+		}
+	}
     return true;
 }
+
+void CMaterial::SetMainMaterial(const fm::FilePath& inPath)
+{
+	std::shared_ptr<fm::Material> mat = fm::ResourcesManager::get().getResource<fm::Material>(inPath);
+	if (_materials.empty())
+	{
+		_materials.push_back(mat);
+	}
+	else
+	{
+		_materials[0] = mat;
+	}
+}
+
 
 
 const std::string& CMaterial::GetName() const

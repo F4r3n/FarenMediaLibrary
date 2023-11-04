@@ -83,6 +83,10 @@ void RenderingSystem::init(EntityManager& em, EventManager&)
 
 RenderingSystem::~RenderingSystem()
 {
+	for (auto& material : _materials)
+	{
+		material.second->Destroy();
+	}
 }
 
 
@@ -228,6 +232,8 @@ void RenderingSystem::update(float, EntityManager& em, EventManager&)
 			{
 				_DrawMeshInstaned(cam, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
 			}
+			_currentMaterial = nullptr;
+			_currentCamera = nullptr;
 		}
 		else
 		{
@@ -283,8 +289,7 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 {
 	LOG_DEBUG
 	fmc::CameraCommandBuffer::iterator it = currentCamera->_commandBuffers.find(queue);
-	_currentCamera = nullptr;
-	_currentMaterial = nullptr;
+
 	if (it != currentCamera->_commandBuffers.end())
 	{
 		std::queue<fm::CommandBuffer> &cmdBuffers = it->second;
@@ -332,9 +337,30 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_MESH)
 			{
-				assert(true);
 				_DrawMeshInstaned(currentCamera, cmd._transform, cmd._model.lock(), cmd._material.lock(), &cmd._materialProperties, 1, instance);
 				instance++;
+			}
+			else if (cmd._command == fm::Command::COMMAND_KIND::DRAW_INSTACED_MESH)
+			{
+				fm::RenderQueue queue;
+				assert((cmd._materials.size() == cmd._models.size()) && (cmd._models.size() == cmd._transforms.size()));
+				for (size_t i = 0; i < cmd._materials.size(); ++i)
+				{
+					fm::RenderNode node;
+					node.material = cmd._materials[i];
+					node.model = cmd._models[i];
+					node.transform = cmd._transforms[i];
+					node.state = fm::RENDER_QUEUE_OPAQUE;
+					queue.AddElement(node);
+				}
+				queue.Sort();
+				auto ssboData = queue.GetSSBOData();
+				_ssbo.SetData(ssboData.data(), ssboData.size() * sizeof(fms::GPUObjectData));
+				for (const fm::RenderQueue::Batch& batch : queue.Iterate())
+				{
+					_DrawMeshInstaned(currentCamera, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
+				}
+
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR)
 			{
@@ -374,6 +400,8 @@ void RenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE queue, fmc::CCamera
 		}
 		currentCamera->_commandBuffers.erase(it);
 	}
+	_currentCamera = nullptr;
+	_currentMaterial = nullptr;
 	LOG_DEBUG
 }
 
@@ -435,7 +463,6 @@ void RenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inT
 		camData.FM_V = cam->GetViewMatrix();
 		camData.FM_PV = camData.FM_P * camData.FM_V;
 
-		_currentCamera->BindBuffer();
 		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
 	}
 
@@ -447,8 +474,7 @@ void RenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inT
 			properties.AddValue(name, property);
 		}
 	}
-	fm::math::mat modelPosition = inTransform.worldTransform;
-	properties.AddValue("FM_M", modelPosition);
+	
 	_currentMaterial->Bind(properties);
 }
 
@@ -467,7 +493,7 @@ void RenderingSystem::_DrawMeshInstaned(fmc::CCamera* cam, const fm::Transform& 
 	}
 }
 
-void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, fm::Model *inModel,
+void RenderingSystem::_DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, std::shared_ptr<fm::Model> inModel,
 	std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties *inMaterialProperties)
 {
 	//if (!inMaterial->IsReady()) return;
@@ -586,7 +612,6 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 {
 	cam->_rendererConfiguration.queue.Init();
 
-	std::vector<fms::GPUObjectData> objectDatas;
     for(auto &&e : em.iterate<fmc::CTransform>(fm::IsEntityActive))
     {
 		fmc::CTransform* transform = e.get<fmc::CTransform>();
@@ -617,22 +642,15 @@ void RenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
 		{
 			cam->_rendererConfiguration.queue.AddElement(node);
 		}
-
-		if (hasMesh)
-		{
-			fms::GPUObjectData data;
-			data.modelMatrix = transform->GetWorldPosMatrix();
-			objectDatas.emplace_back(data);
-		}
-		
     }
+
+
+	cam->_rendererConfiguration.queue.Sort();
+	std::vector<fms::GPUObjectData> objectDatas = cam->_rendererConfiguration.queue.GetSSBOData();
 	if (!objectDatas.empty())
 	{
 		_ssbo.SetData(objectDatas.data(), objectDatas.size() * sizeof(fms::GPUObjectData));
 	}
-
-	cam->_rendererConfiguration.queue.Sort();
-
 }
 
 void RenderingSystem::over()

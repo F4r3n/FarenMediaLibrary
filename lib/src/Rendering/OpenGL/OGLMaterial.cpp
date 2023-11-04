@@ -42,8 +42,13 @@ void OGLMaterial::Bind(const fm::MaterialProperties& inMaterialProperties)
 			_materialBuffer.SetData(_material->GetBufferPtr(), _material->GetBufferSize());
 		}
 	}
-
 }
+
+void OGLMaterial::Destroy()
+{
+	_materialBuffer.Free();
+}
+
 
 uint32_t OGLMaterial::GetID() const
 {

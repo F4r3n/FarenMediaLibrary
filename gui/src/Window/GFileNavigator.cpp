@@ -8,7 +8,7 @@
 #include "imgui/imgui.h"
 #include "GMaterialEditor.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
-
+#include "Resource/ResourceLoader.h"
 using namespace gui;
 
 
@@ -345,17 +345,37 @@ void GFileNavigator::CustomDraw()
 				{
 					if (ImGui::InputText("##test", &_currentRename, ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::IsItemDeactivatedAfterEdit())
 					{
-						_listToRefresh.push(_currentFolderSelected.GetPath());
-						fm::File(f).Rename(_currentRename);
-						_pathBeingRenamed.Clear();
-						_currentRename.clear();
+
+						AddEvent([f, this](gui::GWindow* inWindow, std::optional<gui::Context> Context) {
+							fm::ResourcesManager::get().Purge(f);
+							_listToRefresh.push(_currentFolderSelected.GetPath());
+							fm::File newFile = fm::File(f).Rename(_currentRename);
+							//TODO: reload
+							fm::ResourceLoader loader;
+							loader.Init();
+							loader.Load(newFile.GetPath(), true);
+							loader.SaveImport(newFile.GetPath(), false);
+
+							_pathBeingRenamed.Clear();
+							_currentRename.clear();
+						});
 					}
 				}
 				else
 				{
+
 					if (ImGui::Button(f.GetName(false).c_str()))
 					{
 						_pathSelected = f;
+					}
+
+					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					{
+						std::string moveData = fm::FileSystem::ConvertPathToFileSystem(f);
+						ImGui::SetDragDropPayload("FileNavigator", moveData.c_str(), moveData.length() + 1);
+
+						ImGui::Text("Move %s", f.GetName(false).c_str());
+						ImGui::EndDragDropSource();
 					}
 				}
 

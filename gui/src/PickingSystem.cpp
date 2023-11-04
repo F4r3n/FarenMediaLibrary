@@ -47,7 +47,7 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 }
 
 
-void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCameraID, const fm::math::vec2 &inPos)
+void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCameraID, const fm::math::vec2 &inPos, std::function<void(Entity::Id)> inCallback)
 {
 	std::weak_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 
@@ -64,7 +64,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 					specialCamera->get<fmc::CTransform>()->From(cameraGo->get<fmc::CTransform>());
 				}
 				
-				_camera->SetCallBackOnPostRendering([this, inPos, inSceneName]()
+				_camera->SetCallBackOnPostRendering([this, inPos, inSceneName, inCallback]()
 					{
 						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 						if (scene != nullptr)
@@ -77,7 +77,14 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 							std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(EntityManager::get().CreateID(id));
 							if (go != nullptr)
 							{
-								_callback(go->getID());
+								if (inCallback != nullptr)
+								{
+									inCallback(go->getID());
+								}
+								else
+								{
+									_callback(go->getID());
+								}
 							}
 						}
 					});
@@ -102,6 +109,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						memcpy(r, &i, sizeof(i));
 
 						//float colorID = go->getID();
+						materialProperties.AddValue("FM_M", go->get<fmc::CTransform>()->GetTransform().worldTransform);
 						materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f)));
 						commandBuffer.DrawMesh(mesh->GetModel(), go->get<fmc::CTransform>()->GetTransform(), _material, materialProperties);
 

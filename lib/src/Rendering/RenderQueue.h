@@ -7,6 +7,7 @@
 #include <optional>
 #include <memory>
 #include <array>
+#include "GPUData.hpp"
 namespace fm
 {
 	class Model;
@@ -35,7 +36,7 @@ struct RenderNode
     
     RENDER_QUEUE state;
 
-	static bool Compare(const RenderNode& inRenderNodeA, const RenderNode& inRenderNodeB);
+	static bool Compare(const RenderNode& inRenderNodeA, const RenderNode& inRenderNodeB, bool isSame = false);
 };
 
 class RenderQueue {
@@ -71,7 +72,7 @@ public:
 
     void Init();
     void Sort();
-
+	std::vector<fms::GPUObjectData> GetSSBOData() const;
     
     private:
     ArrayNode _nodes;
