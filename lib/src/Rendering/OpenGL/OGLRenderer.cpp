@@ -1,4 +1,4 @@
-#include "Rendering/Renderer.h"
+#include "OGLRenderer.h"
 #include "Resource/ResourcesManager.h"
 #include <iostream>
 #include "Rendering/OpenGL/OGLTexture.hpp"
@@ -9,16 +9,16 @@
 #include <cassert>
 using namespace fm;
 
-Renderer Renderer::_instance;
+OGLRenderer OGLRenderer::_instance;
 
-Renderer::Renderer() {
+OGLRenderer::OGLRenderer() {
 }
 
-void Renderer::SetQuadScreen(fm::OGLModel* inModel) {
+void OGLRenderer::SetQuadScreen(fm::OGLModel* inModel) {
 	_quad = inModel;
 }
 
-void Renderer::lightComputation(fm::Graphics& graphics,
+void OGLRenderer::lightComputation(fm::Graphics& graphics,
                                 const OGLTexture&colorBuffer,
                                 bool compute) 
 {
@@ -35,7 +35,7 @@ void Renderer::lightComputation(fm::Graphics& graphics,
     //graphics.Draw(_quad);
 }
 
-void Renderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
+void OGLRenderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
 {
 	graphics.Disable(DEPTH_TEST);
     graphics.BindTexture2D(0, inTexture1.getID(), (int)inTexture1.GetKind());
@@ -44,7 +44,7 @@ void Renderer::postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1)
     graphics.Draw(_quad);
 }
 
-void Renderer::blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* shader) const
+void OGLRenderer::blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* shader) const
 {
     shader->Use();
     graphics.BindTexture2D(0, texture.getID(), (int)texture.GetKind());
@@ -53,8 +53,8 @@ void Renderer::blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* shad
 }
 
 
-void Renderer::blit(fm::Graphics& graphics,
-                    RenderTexture& source,
+void OGLRenderer::blit(fm::Graphics& graphics,
+                    const RenderTexture& source,
                     RenderTexture& dest,
 					OGLShader* shader) const
 {
@@ -66,7 +66,7 @@ void Renderer::blit(fm::Graphics& graphics,
 }
 
 
-void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bufferBit) const
+void OGLRenderer::blit(fm::Graphics &graphics, const RenderTexture& source, BUFFER_BIT bufferBit) const
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -77,7 +77,7 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, BUFFER_BIT bu
 }
 
 
-void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const
+void OGLRenderer::blit(fm::Graphics &graphics, const RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.GetId());
@@ -88,7 +88,7 @@ void Renderer::blit(fm::Graphics &graphics, RenderTexture& source, RenderTexture
 }
 
 
-void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTexture> &textures, size_t numberIDs)
+void OGLRenderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTexture> &textures, size_t numberIDs)
 {
     for(size_t i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{
@@ -97,7 +97,7 @@ void Renderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTextu
 }
 
 
-void Renderer::blit(fm::Graphics& graphics,
+void OGLRenderer::blit(fm::Graphics& graphics,
                     int ID,
                     RenderTexture& dest,
 					OGLShader* shader) const
@@ -111,7 +111,7 @@ void Renderer::blit(fm::Graphics& graphics,
 }
 
 
-void Renderer::blit(fm::Graphics& graphics,
+void OGLRenderer::blit(fm::Graphics& graphics,
                     RenderTexture& dest,
 					OGLShader* shader)
 {
@@ -122,7 +122,7 @@ void Renderer::blit(fm::Graphics& graphics,
 }
 
 
-void Renderer::blit(fm::Graphics& graphics, OGLShader* shader)
+void OGLRenderer::blit(fm::Graphics& graphics, OGLShader* shader)
 {
     shader->Use();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -131,12 +131,12 @@ void Renderer::blit(fm::Graphics& graphics, OGLShader* shader)
 }
 
 
-void Renderer::clear(fm::Graphics& graphics)
+void OGLRenderer::clear(fm::Graphics& graphics)
 {
     graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 }
 
 
-Renderer::~Renderer()
+OGLRenderer::~OGLRenderer()
 {
 }

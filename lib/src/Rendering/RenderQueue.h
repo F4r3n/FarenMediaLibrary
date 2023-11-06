@@ -34,7 +34,7 @@ struct RenderNode
 	std::weak_ptr<fm::Model> model;
 	fmc::CText *text = nullptr;
     
-    RENDER_QUEUE state;
+    RENDER_QUEUE state = RENDER_QUEUE_FIRST_STATE;
 
 	static bool Compare(const RenderNode& inRenderNodeA, const RenderNode& inRenderNodeB, bool isSame = false);
 };
@@ -65,7 +65,7 @@ public:
 		ArrayNode		_array;
 		Batch			_currentBatch;
 	};
-	Iterator Iterate();
+	Iterator Iterate() const;
     RenderQueue();
     ~RenderQueue();
     void AddElement(const RenderNode &node);

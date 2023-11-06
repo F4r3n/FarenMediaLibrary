@@ -33,7 +33,7 @@ public:
 private:
 	void _FrameLimit();
 
-    int  _Init();
+    bool  _Init();
     void _ErrorDisplay();
 
 	void _OpenGL_SetProfile();

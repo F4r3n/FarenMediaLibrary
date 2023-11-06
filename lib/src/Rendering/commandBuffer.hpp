@@ -4,10 +4,6 @@
 #include "Rendering/MaterialValue.h"
 #include "Rendering/material.hpp"
 #include "Core/Transform.h"
-namespace fms
-{
-	class RenderingSystem;
-}
 
 
 namespace fm
@@ -42,7 +38,7 @@ namespace fm
 			OGLTexture*texture = nullptr;
 			RenderTexture *renderTexture = nullptr;
 		};
-	private:
+	public:
 		COMMAND_KIND _command;
 		fm::MaterialValue _materialValue;
 		TextureKind _source;
@@ -57,9 +53,6 @@ namespace fm
 		std::vector< std::weak_ptr<Material>> _materials;
 		std::vector< std::weak_ptr<Model>> _models;
 		std::vector<Transform> _transforms;
-
-		friend class CommandBuffer;
-		friend class fms::RenderingSystem;
 	};
 
 	class CommandBuffer

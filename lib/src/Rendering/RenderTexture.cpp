@@ -187,7 +187,7 @@ const fm::OGLTexture& RenderTexture::GetColorBufferTexture(size_t id) const
 }
 
 
-void RenderTexture::bind(bool isRead)
+void RenderTexture::bind(bool isRead) const
 {
 	if (isRead)
 	{

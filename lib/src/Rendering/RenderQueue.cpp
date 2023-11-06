@@ -98,7 +98,7 @@ void RenderQueue::Sort()
 	});
 }
 
-RenderQueue::Iterator RenderQueue::Iterate()
+RenderQueue::Iterator RenderQueue::Iterate() const
 {
 	return Iterator(_nodes, RENDER_QUEUE_FIRST_STATE, 0, 0);
 }

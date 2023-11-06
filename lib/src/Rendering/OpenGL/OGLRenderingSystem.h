@@ -7,12 +7,13 @@
 #include "Core/Bounds.h"
 #include "Rendering/Graphics.hpp"
 #include "Core/Math/Matrix.h"
-#include "GraphicsAPI.h"
+#include "Rendering/GraphicsAPI.h"
 #include "Rendering/OpenGL/OGLMaterial.hpp"
 #include <memory>
 #include "Rendering/OpenGL/OGLUniformbuffer.hpp"
 #include "Rendering/GPUData.hpp"
-#include "ShaderKind.hpp"
+#include "Rendering/ShaderKind.hpp"
+#include "Rendering/RenderQueue.h"
 namespace fmc 
 {
 	class CText;
@@ -35,6 +36,7 @@ namespace fm
 	class OGLMaterial;
 	class OGLCamera;
 	class SubShader;
+	class Window;
 }
 
 struct TextDef 
@@ -47,10 +49,10 @@ struct TextDef
 namespace fms 
 {
 
-class RenderingSystem : public System<RenderingSystem> 
+class OGLRenderingSystem : public System<OGLRenderingSystem> 
 {
 public:
-    RenderingSystem(size_t width, size_t height);
+	OGLRenderingSystem(std::shared_ptr<fm::Window> inWindow);
     void InitCamera(Entity* camera);
 
     virtual void update(float dt, EntityManager& em, EventManager& event);
@@ -63,7 +65,7 @@ public:
  private:
     void _InitStandardShapes();
     void _ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
-    void _FillQueue(fmc::CCamera* cam, EntityManager& em);
+	fm::RenderQueue _FillQueue(fmc::CCamera* cam, EntityManager& em);
     void _Draw(fmc::CCamera *cam);
 	void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
 	void _DrawMesh(fmc::CCamera *cam, const fm::Transform &inTransform, std::shared_ptr<fm::Model> inModel,
@@ -75,15 +77,11 @@ public:
 	bool _HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera);
 	void _PrepareShader(fmc::CCamera* cam, const fm::Transform& inTransform,
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties);
-	virtual ~RenderingSystem();
+	virtual ~OGLRenderingSystem();
 
 	std::shared_ptr<fm::OGLShader> _FindOrCreateShader(const fm::SubShader& inSubShader);
 private:
 	std::unique_ptr<fm::OGLShader> _finalShader;
-	//std::unique_ptr<fm::OGLShader> _lightShader;
-	size_t _width;
-	size_t _height;
-	//int _lightNumber = 0;
 
 	fm::Graphics _graphics;
 
@@ -100,5 +98,6 @@ private:
 	
 	fm::OGLCamera*													_currentCamera = nullptr;
 	fm::OGLUniformbuffer											_ssbo;
+	std::shared_ptr<fm::Window>										_window = nullptr;
 };
 }

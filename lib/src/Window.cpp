@@ -5,7 +5,6 @@
 #include <TimeDef.h>
 #include <chrono>
 #include <thread>
-#include "Rendering/Renderer.h"
 #include "Input/InputManager.h"
 #include "Resource/ResourcesManager.h"
 #include "Core/Debug.h"
@@ -126,14 +125,14 @@ uint64_t Window::GetTicks() const
 void Window::setMSAA(int value) 
 {
 	_msaa = value;
-    if(_msaa > 0)
+    /*if (_msaa > 0)
     {
         glEnable(GL_MULTISAMPLE);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, _msaa);
     }else
     {
         glDisable(GL_MULTISAMPLE);
-    }
+    }*/
 }
 
 
@@ -183,15 +182,6 @@ void Window::swapBuffers() const
 }
 
 
-void Window::_ErrorDisplay() 
-{
-    const int error = glGetError();
-    if(error != 0) {
-        fm::Debug::get().logErrorExit(error, __FILE__, __LINE__);
-    }
-}
-
-
 bool Window::isClosed() 
 {
     return InputManager::Get().isClosed();
@@ -216,26 +206,19 @@ Window::~Window()
 }
 
 
-int Window::_Init()
+bool Window::_Init()
 {
     if(_window == nullptr) 
 	{
-        return -1;
+        return false;
     }
     _mainContext = SDL_GL_CreateContext(_window);
 	SDL_GL_SetSwapInterval(0);
 
-    glewExperimental = GL_TRUE;
-    if(glewInit() != GLEW_OK) 
-	{
-        return -1;
-    }
+	if (_mainContext == nullptr)
+		return false;
 
-    _ErrorDisplay();
-	auto size = GetSize();
-    glViewport(0, 0, size.x, size.y);
-
-    return 1;
+    return true;
 }
 
 

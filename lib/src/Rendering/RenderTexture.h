@@ -15,7 +15,7 @@ namespace fm
         ~RenderTexture();
         
         bool isCreated() const;
-        void bind(bool isRead = false);
+        void bind(bool isRead = false) const;
         inline size_t getWidth() const {return _width;}
         inline size_t getHeight() const {return _height;}
         

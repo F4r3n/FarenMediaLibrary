@@ -4,12 +4,13 @@
 
 #include "Core/Math/Matrix44.h"
 #include "Core/Rect.h"
-#include "Rendering/RenderQueue.h"
 #include "Rendering/RenderTexture.h"
 #include "Core/Bounds.h"
 #include <mutex>
 #include <queue>
 #include <functional>
+#include "Rendering/RenderQueueEvents.hpp"
+
 namespace fm
 {
 	class RenderTexture;
@@ -43,7 +44,6 @@ namespace fmc
 		bool isInit = false;
 		const GLuint bindingPointIndex = 2;
 		GLuint generatedBlockBinding;
-		fm::RenderQueue queue;
 
 		bool blendingMode = false;
 		int queuePreviousValue = 0;
@@ -60,7 +60,6 @@ namespace fmc
 	class CCamera : public FMComponent<CCamera>
 	{
 	public:
-		friend class fms::RenderingSystem;
 
 		CCamera();
 		CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
@@ -113,8 +112,13 @@ namespace fmc
 		std::shared_ptr<fm::RenderTexture> SetTarget(const fm::RenderTexture& inRenderTexture);
 
 		std::shared_ptr<fm::RenderTexture> GetTarget() const { return _target; }
-		bool HasTarget() const { return _target != nullptr; }
+		inline bool HasTarget() const { return _target != nullptr; }
 		fm::math::mat GetOrthographicProjectionForText() const;
+		inline bool IsAuto() const { return _isAuto; }
+		inline CameraCommandBuffer& GetCommandBuffer() { return _commandBuffers; }
+		void ExecuteStartRendering();
+
+		void ExecutePostRendering();
 	private:
 
 		std::function<void()> _onStartRendering = nullptr;

@@ -4,7 +4,6 @@
 
 #include "TimeDef.h"
 #include "Engine.h"
-#include "Rendering/RenderingSystem.h"
 
 #include "Components/Components.h"
 

@@ -317,3 +317,17 @@ std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(fm::RenderTexture *inRende
 	}
 }
 
+
+void CCamera::ExecuteStartRendering() {
+	if (_onStartRendering != nullptr)
+	{
+		_onStartRendering();
+	}
+}
+
+void CCamera::ExecutePostRendering() {
+	if (_onPostRendering != nullptr)
+	{
+		_onPostRendering();
+	}
+}

@@ -9,7 +9,7 @@
 #include "MainWindow.h"
 #include <Core/Debug.h>
 #include <Input/InputManager.h>
-#include "Rendering/Renderer.h"
+
 #include "Window.h"
 #include "Editor.h"
 #include "ShaderCompiler.h"
@@ -19,6 +19,7 @@
 #include "Rendering/ShaderKind.hpp"
 #include <bitset>
 #include <nlohmann/json.hpp>
+#include <GL/glew.h>
 
 using Combinations = std::vector<std::vector<std::string>>;
 

@@ -4,7 +4,7 @@
 #include <TimeDef.h>
 
 #include "Physic/PhysicSystem.h"
-#include "Rendering/RenderingSystem.h"
+#include "Rendering/OpenGL/OGLRenderingSystem.h"
 #include "Script/ScriptManagerSystem.h"
 
 #include "Music/SoundSystem.h"
@@ -67,8 +67,7 @@ void Engine::Init(RENDERING_MODE inMode, std::array<std::shared_ptr<fm::Window>,
     _systems->addSystem(new fms::ScriptManagerSystem());
 	if ((inMode & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
 	{
-		auto size = window[GRAPHIC_API::OPENGL]->GetSize();
-		_systems->addSystem(new fms::RenderingSystem(size.x, size.y));
+		_systems->addSystem(new fms::OGLRenderingSystem(window[GRAPHIC_API::OPENGL]));
 	}
 #if WITH_VULKAN
 	if ((inMode & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
