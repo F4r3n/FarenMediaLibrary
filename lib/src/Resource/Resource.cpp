@@ -19,6 +19,9 @@ bool Resource::NeedReload() const
 
 void Resource::Load(const nlohmann::json& inJSON)
 {
+	if (inJSON.is_null())
+		return;
+
 	_path = fm::FilePath(std::string(inJSON["deps"]["path"]));
 	if (inJSON["deps"].contains("timeStamp"))
 	{

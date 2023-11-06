@@ -83,7 +83,9 @@ namespace fm {
 		template <typename T>
 		const T& getAnyType() const;
 
+		MaterialVariant GetConstVariant() const;
 		MaterialVariant& GetVariant();
+
 	private:
 		ValuesType _valueType;
 		MaterialVariant	_value;

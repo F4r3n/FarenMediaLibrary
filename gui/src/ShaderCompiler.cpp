@@ -254,17 +254,23 @@ uint32_t GetGLSLTypeSize(const glslang::TType* inType)
 	if (inType == nullptr)
 		return 0;
 
+	int sizeBytes = 0;
+	if (inType->isIntegerDomain() || inType->isFloatingDomain())
+		sizeBytes = 4;
+	else if (inType->isTexture())
+		sizeBytes = 0;
+	else
+		assert(false);
+
 	if (inType->isTexture())
-		return 0;
-	else if (inType->isIntegerDomain() && inType->isScalar())
-		return sizeof(int);
-	else if (inType->isFloatingDomain() && inType->isScalar())
-		return sizeof(float);
+		return sizeBytes;
+	else if (inType->isScalar())
+		return sizeBytes;
 	else if (inType->isMatrix())
-		return sizeof(float) * 16;
-	else if (inType->isVector() && inType->isFloatingDomain())
+		return sizeBytes * 16;
+	else if (inType->isVector())
 	{
-		return sizeof(float) * inType->getVectorSize();
+		return sizeBytes * inType->getVectorSize();
 	}
 
 	return 0;

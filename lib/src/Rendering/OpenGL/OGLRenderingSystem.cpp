@@ -427,6 +427,9 @@ namespace fms
 	void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inTransform,
 		std::shared_ptr<fm::Material> inMaterial, fm::MaterialProperties* inMaterialProperties)
 	{
+		if (inMaterial == nullptr)
+			return;
+
 		if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetID())
 		{
 			if (auto it = _materials.find(inMaterial->GetID()); it == _materials.end())

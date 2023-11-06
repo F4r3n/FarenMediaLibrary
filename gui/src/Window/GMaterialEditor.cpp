@@ -138,13 +138,13 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 					auto& v = value;
 					if (name.starts_with("MaterialBuffer[PLAIN]"))
 					{
-						const std::string currentName = value.name;
+						const std::string currentName = value.info.name;
 						std::visit(overloaded{
 							[currentName, material, &v](fm::math::vec4 &arg) {
 								ImGui::PushID(currentName.c_str());
 								if (ImGui::ColorEdit4("##", &arg[0], ImGuiColorEditFlags_NoLabel))
 								{
-									material->UpdateProperty(currentName, v.value, v.offset);
+									material->UpdateProperty(currentName, v.value, v.info.offset);
 								}
 								ImGui::PopID();
 							},
@@ -157,24 +157,9 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 
 			if (ImGui::Checkbox("Texture", &_textureCheckBox))
 			{
-				if (_textureCheckBox)
-				{
-					_currentKind = (fm::SHADER_KIND)(_currentKind | fm::SHADER_KIND::TEXTURE);
-				}
-				else
-				{
-					_currentKind = (fm::SHADER_KIND)(_currentKind & ~fm::SHADER_KIND::TEXTURE);
-				}
-				material->SetShaderKind(_currentKind);
+				
 			}
-			if ((_currentKind & fm::SHADER_KIND::TEXTURE) == fm::SHADER_KIND::TEXTURE)
-			{
-				ImGui::Text("%s", "Texture");
 
-				//ImGui::PushID("MainColor");
-				//ImGui::ColorEdit3("##", &c.r, ImGuiColorEditFlags_NoLabel);
-				//ImGui::PopID();
-			}
 		}
 		else
 		{
@@ -183,139 +168,12 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 
 		if (isDisabled) ImGui::EndDisabled();
 
-		/*
-		for (auto& materialProperty : inMaterial->GetUniforms())
-		{
-			fm::ValuesType type = materialProperty.materialValue.getType();
-			const fm::ValuesType ctype = type;
-			std::string currentTypeName = ValueTypeToName(type);
-
-			static char nameType[256];
-			static std::vector<std::string> valueTypesNames = GetValueTypeNames();
-			memcpy(nameType, materialProperty.name.c_str(), materialProperty.name.length());
-			{
-				size_t t = (size_t)type;
-				DrawCombo("Type##" + materialProperty.name + std::to_string(j), valueTypesNames, currentTypeName, &t);
-				type = (fm::ValuesType)t;
-				std::string nameTextInput = std::string(nameType) + "##Text" + materialProperty.name + std::to_string(j);
-				if (ImGui::InputText(nameTextInput.c_str(), nameType, IM_ARRAYSIZE(nameType), ImGuiInputTextFlags_EnterReturnsTrue))
-				{
-					materialProperty.name = std::string(nameType);
-				}
-			}
-
-			std::string name = std::string(materialProperty.name) + " " + ValueTypeToName(type) + "##" + materialProperty.name;
-			name += std::to_string(j);
-
-			if (type == fm::ValuesType::VALUE_COLOR)
-			{
-				fm::Color c = materialProperty.materialValue.getColor();
-				ImGui::PushID(name.c_str());
-				ImGui::ColorEdit3("##", &c.r, ImGuiColorEditFlags_NoLabel);
-				ImGui::PopID();
-
-				materialProperty.materialValue = c;
-			}
-			else if (type == fm::ValuesType::VALUE_INT)
-			{
-				int c = materialProperty.materialValue.getInt();
-				ImGui::PushID(name.c_str());
-				ImGui::InputInt("##", &c);
-				ImGui::PopID();
-
-				materialProperty.materialValue = c;
-
-			}
-			else if (type == fm::ValuesType::VALUE_FLOAT)
-			{
-				float c = materialProperty.materialValue.getInt();
-				ImGui::PushID(name.c_str());
-				ImGui::InputFloat("##", &c);
-				ImGui::PopID();
-				materialProperty.materialValue = c;
-
-			}
-			else if (type == fm::ValuesType::VALUE_VECTOR2_FLOAT)
-			{
-				fm::math::vec2 c = materialProperty.materialValue.getVector2();
-				ImGui::PushID(name.c_str());
-				ImGui::InputFloat2("##", &c.x);
-				ImGui::PopID();
-
-				materialProperty.materialValue = c;
-
-			}
-			else if (type == fm::ValuesType::VALUE_VECTOR3_FLOAT)
-			{
-				fm::math::vec3 c = materialProperty.materialValue.getVector3();
-				ImGui::PushID(name.c_str());
-				ImGui::InputFloat3("##", &c.x);
-				ImGui::PopID();
-
-				materialProperty.materialValue = c;
-			}
-			else if (type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
-			{
-				fm::math::vec4 c = materialProperty.materialValue.getVector4();
-				ImGui::PushID(name.c_str());
-				ImGui::InputFloat4("##", &c.x);
-				ImGui::PopID();
-
-				materialProperty.materialValue = c;
-			}
-			else if (type == fm::ValuesType::VALUE_TEXTURE)
-			{
-				fm::TextureMat c = materialProperty.materialValue.getTexture();
-				ImGui::PushID(name.c_str());
-				std::string text = fm::FileSystem::GetRelativePathOfFileSystemPath(c.texture.GetPath());
-				if (ImGui::InputText("##", &text))
-				{
-					c.texture._path = fm::FilePath(fm::LOCATION::USER_LOCATION, text);
-				}
-				ImGui::PopID();
-
-				materialProperty.materialValue = c;
-			}
-
-			inMaterial->UpdateProperty(j, materialProperty);
-
-			j++;
-		}*/
 	}
 }
 
 void GMaterialEditor::_Save(std::shared_ptr<fm::Material> inMaterial)
 {
 	inMaterial->Save();
-}
-
-void GMaterialEditor::_BlockIterator(const fm::SubShader::Reflection& reflection, const std::string& name, uint32_t& offset, const fm::SubShader::Variable& inVariable)
-{
-	const auto block = reflection.blocks.find(inVariable.typeName);
-
-	if (block != reflection.blocks.end())
-	{
-		for (const auto& variable : block->second.variables)
-		{
-			if (variable.isBlock)
-			{
-				_BlockIterator(reflection, "[" + variable.typeName + "]" + variable.name + "." + name, offset, variable);
-			}
-			else
-			{
-				MaterialValueEditor value;
-				value.name = name + "." + variable.name;
-				value.offset = offset;
-				value.size = variable.size;
-				value.value.setValue(variable.type);
-
-				_properties.emplace(value.name, value);
-
-				offset += variable.size;
-
-			}
-		}
-	}
 }
 
 
@@ -325,45 +183,24 @@ void GMaterialEditor::_Init(std::shared_ptr<fm::Material> inCurrentMaterial)
 	_currentShaderPath.clear();
 	_currentKind = inCurrentMaterial->GetShaderKind();
 	_currentShaderPath = fm::FileSystem::ConvertPathToFileSystem(inCurrentMaterial->GetShaderPath());
-	_textureCheckBox = (_currentKind & fm::SHADER_KIND::TEXTURE) == fm::SHADER_KIND::TEXTURE;
+	_textureCheckBox = false;
 	_currentMaterialKind = inCurrentMaterial->GetMaterialKind();
-
 	_properties.clear();
-	std::optional<fm::SubShader> currentSubShader = inCurrentMaterial->GetSubShader();
+	std::unordered_map<std::string, fm::MaterialValueInfo> properties = inCurrentMaterial->GetMaterialPropertiesInfo();
 
-	if (currentSubShader.has_value())
+	auto currentProperties = inCurrentMaterial->GetProperties();
+
+	for (auto& [name, property] : properties)
 	{
-		const auto reflection = currentSubShader->GetReflection(GRAPHIC_API::OPENGL);
-		for (const auto& [name, uniform] : reflection.uniforms)
+		if (currentProperties.Has(name))
 		{
-			if (name.starts_with("_"))
-				continue;
-
-			auto block = reflection.blocks.find(name);
-			uint32_t offset = 0;
-			if (block != reflection.blocks.end())
-			{
-				for (const auto& variable : block->second.variables)
-				{
-					if (variable.isBlock)
-					{
-						_BlockIterator(reflection, uniform.name + "[" + variable.typeName + "]" + variable.name, offset, variable);
-					}
-				}
-			}
-		}
-
-		auto currentProperties = inCurrentMaterial->GetProperties();
-
-		for (auto& [name, property] : _properties)
-		{
-			if (currentProperties.Has(name))
-			{
-				property.value = currentProperties.Get(name);
-
-			}
+			MaterialValueEditor valueEditor;
+			valueEditor.info = property;
+			valueEditor.value = currentProperties.Get(name);
+			_properties.emplace(name, valueEditor);
 		}
 	}
+	
 }
 
 

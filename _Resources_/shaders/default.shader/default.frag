@@ -1,7 +1,6 @@
 #version 460
 #extension GL_GOOGLE_include_directive : require
-#include "uniforms.glsl"
-
+#include "common.glsl"
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormals;
@@ -19,15 +18,16 @@ UNIFORM(0, 1) _SceneData{
 	vec4 sunlightColor;
 } sceneData;
 
-#ifdef _TEXTURE_
-UNIFORM_SAMPLER(3, 0) TEXTURE_tex1;
-#endif
+
+
+
+UNIFORM_SAMPLER(3, 4) TEXTURE_tex1;
+
 
 void main() {
-#ifdef _TEXTURE_
-    vec4 color = vec4(inColors*texture(TEXTURE_tex1,inUVs).xyz, 1.0);
-#else
+
+    //vec4 color = vec4(inColors*texture(TEXTURE_tex1,inUVs).xyz, 1.0);
 	vec4 color = vec4(inColors, 1.0);
-#endif
+
     outColor = color;
 }

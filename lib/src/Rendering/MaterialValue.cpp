@@ -223,5 +223,7 @@ namespace fm {
 		return std::get<T>(_value);
 	}
 
+	MaterialVariant MaterialValue::GetConstVariant() const { return _value; }
 	MaterialVariant& MaterialValue::GetVariant() { return _value; }
+
 }

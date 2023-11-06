@@ -1,6 +1,6 @@
 #version 460
 #extension GL_GOOGLE_include_directive : require
-#include "uniforms.glsl"
+#include "common.glsl"
 
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
@@ -22,19 +22,11 @@ struct ObjectData{
 	mat4 model;
 };
 
-struct PLAIN {
-	vec4 mainColor;
-};
 
 READ_ONLY_BUFFER(1, 2) _ObjectBuffer{
 	ObjectData objects[];
 } objectBuffer;
 
-
-
-UNIFORM(2, 3) MaterialBuffer {
-	PLAIN plain;
-} materialBuffer;
 
 
 void main()

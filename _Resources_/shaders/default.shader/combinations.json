@@ -2,6 +2,5 @@
     "drivers": [
         "opengl",
         "vulkan"
-    ],
-    "combination": ["texture"]
+    ]
 }

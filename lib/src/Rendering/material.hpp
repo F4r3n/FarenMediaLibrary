@@ -56,8 +56,18 @@ namespace fm
 		{
 			return _materialProperties.contains(inName);
 		}
+
+		bool IsEmpty() const { return _materialProperties.empty(); }
 	private:
 		properties_t _materialProperties;
+	};
+
+	struct MaterialValueInfo
+	{
+		uint32_t			offset = 0;
+		uint32_t			size = 0;
+		std::string			name;
+		fm::ValuesType		type;
 	};
 
 	class Material : public Resource
@@ -127,14 +137,16 @@ namespace fm
 		SHADER_KIND		GetShaderKind() const { return _shaderkind; }
 		void			SetShaderKind(fm::SHADER_KIND inKind);
 		MaterialKind	GetMaterialKind() const;
-		void			UpdateProperty(const std::string& inName, fm::MaterialValue& inProperty, uint32_t offset);
+		void			UpdateProperty(const std::string& inName, const fm::MaterialValue& inProperty, uint32_t offset);
 		uint32_t		GetBufferSize() const { return _bufferSize; }
 		unsigned char*	GetBufferPtr() const { return _buffer; }
 
 		MaterialBufferInfo GetMaterialBufferInfo(GRAPHIC_API inAPI) const;
 
 		static std::shared_ptr<fm::Material> GetDefaultStandardMaterial();
+		std::unordered_map<std::string, MaterialValueInfo> GetMaterialPropertiesInfo() const;
 	private:
+		void _UpdateInternalBuffWithProperties();
 		void _FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const;
 		void _GetJSONValue(const nlohmann::json& valueJSON, std::string& outName, fm::MaterialValue& outValue) const;
 		bool _GetOffsetFromReflection(const std::string& inName, uint32_t& offset) const;

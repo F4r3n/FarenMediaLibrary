@@ -74,10 +74,15 @@ namespace fm
 				fm::FilePath localisationData = _isImportNeeded ? path : inPath;
 				if (data == nullptr)
 				{
-					nlohmann::json object;
-					fm::File(localisationData).GetJSONContent(object);
-					data = std::make_shared<T>(inPath);
-					data->Load(object);
+					fm::File localisationDataFile(localisationData);
+
+					if (localisationDataFile.Exist())
+					{
+						nlohmann::json object;
+						localisationDataFile.GetJSONContent(object);
+						data = std::make_shared<T>(inPath);
+						data->Load(object);
+					}
 				}
 				fm::ResourcesManager::get().load<T>(inPath, data);
 			}

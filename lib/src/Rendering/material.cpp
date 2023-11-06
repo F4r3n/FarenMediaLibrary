@@ -28,12 +28,25 @@ Material Material::Clone() const
 
 void Material::From(const fm::Material& inMaterial)
 {
-	this->_shaderPath = inMaterial._shaderPath;
-	this->_properties = inMaterial._properties;
-	this->_uniforms = inMaterial._uniforms;
-	this->_bufferSize = inMaterial._bufferSize;
+	_shaderPath = inMaterial._shaderPath;
+	_properties = inMaterial._properties;
+	_uniforms = inMaterial._uniforms;
+	_bufferSize = inMaterial._bufferSize;
 	_buffer = (unsigned char*)calloc(_bufferSize, sizeof(unsigned char));
-	memcpy(this->_buffer, _buffer, _bufferSize);
+	if (_buffer == nullptr)
+	{
+		assert(false);
+		return;
+	}
+
+	if (inMaterial._buffer == nullptr && !_properties.IsEmpty() )
+	{
+		_UpdateInternalBuffWithProperties();
+	}
+	else
+	{
+		memcpy(_buffer, inMaterial._buffer, _bufferSize);
+	}
 }
 
 
@@ -146,6 +159,8 @@ void Material::_GetJSONValue(const nlohmann::json& valueJSON, std::string& outNa
 
 void Material::Load(const nlohmann::json& inJSON)
 {
+	if (inJSON.is_null())
+		return;
 	fm::Resource::Load(inJSON);
 	nlohmann::json params = inJSON["params"];
 
@@ -322,7 +337,7 @@ struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-void Material::UpdateProperty(const std::string& inName, fm::MaterialValue& inProperty, uint32_t offset)
+void Material::UpdateProperty(const std::string& inName, const fm::MaterialValue& inProperty, uint32_t offset)
 {
 	GetProperties().UpdateProperty(inName, inProperty);
 	if (_buffer == nullptr)
@@ -340,13 +355,100 @@ void Material::UpdateProperty(const std::string& inName, fm::MaterialValue& inPr
 		Resource::Touch();
 		unsigned char* buffer = _buffer;
 		std::visit(overloaded{
-			[&buffer, offset](auto& arg) {
+			[&buffer, offset](const auto& arg) {
 				const uint32_t size = sizeof(arg);
 				memcpy(buffer + offset, &arg, size);
 			},
-		}, inProperty.GetVariant());
+		}, inProperty.GetConstVariant());
 	}
 }
+
+
+
+void _BlockIterator(const fm::SubShader::Reflection& reflection, const std::string& name, uint32_t& offset, const fm::SubShader::Variable& inVariable, std::unordered_map<std::string, MaterialValueInfo> &properties)
+{
+	const auto block = reflection.blocks.find(inVariable.typeName);
+
+	if (block != reflection.blocks.end())
+	{
+		for (const auto& variable : block->second.variables)
+		{
+			if (variable.isBlock)
+			{
+				_BlockIterator(reflection, "[" + variable.typeName + "]" + variable.name + "." + name, offset, variable, properties);
+			}
+			else
+			{
+				MaterialValueInfo value;
+				value.name = name + "." + variable.name;
+				value.offset = offset;
+				value.size = variable.size;
+				value.type = variable.type;
+
+				properties.emplace(value.name, value);
+
+				offset += variable.size;
+
+			}
+		}
+	}
+}
+
+std::unordered_map<std::string, MaterialValueInfo> Material::GetMaterialPropertiesInfo() const
+{
+	std::unordered_map<std::string, MaterialValueInfo> properties;
+	std::optional<fm::SubShader> currentSubShader = GetSubShader();
+
+	if (currentSubShader.has_value())
+	{
+		const auto reflection = currentSubShader->GetReflection(GRAPHIC_API::OPENGL);
+		for (const auto& [name, uniform] : reflection.uniforms)
+		{
+			auto block = reflection.blocks.find(name);
+			uint32_t offset = 0;
+			if (block != reflection.blocks.end())
+			{
+				for (const auto& variable : block->second.variables)
+				{
+					if (variable.isBlock)
+					{
+						_BlockIterator(reflection, uniform.name + "[" + variable.typeName + "]" + variable.name, offset, variable, properties);
+					}
+					else
+					{
+						MaterialValueInfo value;
+						value.name = name + "." + variable.name;
+						value.offset = offset;
+						value.size = variable.size;
+						value.type = variable.type;
+
+						properties.emplace(value.name, value);
+
+						offset += variable.size;
+					}
+				}
+			}
+		}
+	}
+	return properties;
+}
+
+
+void Material::_UpdateInternalBuffWithProperties()
+{
+	std::unordered_map<std::string, MaterialValueInfo> properties = GetMaterialPropertiesInfo();
+
+	for (const auto& [name, value] : GetProperties())
+	{
+		if (auto info = properties.find(name); info != properties.end())
+		{
+			UpdateProperty(name, value, info->second.offset);
+		}
+	}
+	
+}
+
+
 std::optional<fm::SubShader::Block>	Material::_GetReflectionBlock(const std::string& inName, GRAPHIC_API inAPI) const
 {
 	auto currentSubShader = GetSubShader();

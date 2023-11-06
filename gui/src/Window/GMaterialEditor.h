@@ -10,6 +10,7 @@ namespace fm
 {
 	class GameObject;
 	class Material;
+	struct MaterialValueInfo;
 }
 
 namespace gui
@@ -20,10 +21,8 @@ namespace gui
 
 		struct MaterialValueEditor
 		{
-			uint32_t			offset = 0;
-			uint32_t			size = 0;
-			std::string			name;
-			fm::MaterialValue	value;
+			fm::MaterialValueInfo info;
+			fm::MaterialValue	  value;
 		};
 
 		GMaterialEditor();

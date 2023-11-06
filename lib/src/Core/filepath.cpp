@@ -424,7 +424,10 @@ std::optional<std::vector<char>> File::GetBinaryContent() const
 void File::GetJSONContent(nlohmann::json& outJSON) const
 {
 	std::string content = GetContent();
-	outJSON = nlohmann::json::parse(content);
+	if (!content.empty())
+	{
+		outJSON = nlohmann::json::parse(content);
+	}
 }
 
 
