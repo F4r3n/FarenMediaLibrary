@@ -7,6 +7,8 @@
 #include "Rendering/Shader.h"
 #include <Core/Debug.h>
 #include "Rendering/OpenGL/OGLShader.hpp"
+#include "Rendering/OpenGL/OGLTexture.hpp"
+
 #include "Rendering/commandBuffer.hpp"
 #include <nlohmann/json.hpp>
 

@@ -9,6 +9,7 @@
 #include "Core/Debug.h"
 #include "Core/application.h"
 #include "Components/CTransform.h"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 using namespace gui;
 GGameView::GGameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar)
 {
@@ -28,9 +29,9 @@ void GGameView::CustomDraw()
 	{
 		if (renderTexture->isCreated())
 		{
-			const fm::OGLTexture texture = renderTexture->GetColorBufferTexture(0);
+			std::shared_ptr<fm::OGLTexture> texture = renderTexture->GetColorBufferTexture(0);
 	
-			ImGui::GetWindowDrawList()->AddImage(ImTextureID((intptr_t)texture.getID()), _startImagePos, _endImagePos);
+			ImGui::GetWindowDrawList()->AddImage(ImTextureID((intptr_t)texture->getID()), _startImagePos, _endImagePos);
 		}
 	}
 	else

@@ -42,6 +42,8 @@ std::string ValueTypeToName(fm::ValuesType inValueType)
 		return "Vector3f";
 	case fm::ValuesType::VALUE_VECTOR4_FLOAT:
 		return "Vector4f";
+	case fm::ValuesType::VALUE_VECTOR4_UINTEGER:
+		return "Vector4ui";
 	default:
 		break;
 	}
@@ -152,13 +154,16 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 							}, value.value.GetVariant());
 
 					}
+
 				}
 			}
 
-			if (ImGui::Checkbox("Texture", &_textureCheckBox))
+			//Texture albedo
+			if (ImGui::Checkbox("Texture Albedo", &_textureCheckBox))
 			{
-				
+
 			}
+			
 
 		}
 		else
@@ -183,24 +188,24 @@ void GMaterialEditor::_Init(std::shared_ptr<fm::Material> inCurrentMaterial)
 	_currentShaderPath.clear();
 	_currentKind = inCurrentMaterial->GetShaderKind();
 	_currentShaderPath = fm::FileSystem::ConvertPathToFileSystem(inCurrentMaterial->GetShaderPath());
-	_textureCheckBox = false;
 	_currentMaterialKind = inCurrentMaterial->GetMaterialKind();
 	_properties.clear();
 	std::unordered_map<std::string, fm::MaterialValueInfo> properties = inCurrentMaterial->GetMaterialPropertiesInfo();
+	_textureCheckBox = inCurrentMaterial->HasAlbedoTexture();
 
 	auto currentProperties = inCurrentMaterial->GetProperties();
 
 	for (auto& [name, property] : properties)
 	{
-		if (currentProperties.Has(name))
+		if (auto it = currentProperties.find(name); it != currentProperties.end())
 		{
 			MaterialValueEditor valueEditor;
 			valueEditor.info = property;
-			valueEditor.value = currentProperties.Get(name);
+			valueEditor.value = it->second;
+
 			_properties.emplace(name, valueEditor);
 		}
 	}
-	
 }
 
 
@@ -264,8 +269,7 @@ fm::FilePath GMaterialEditor::CreateNewMaterial(const fm::FilePath& inPath)
 	fm::FilePath newFilePath = fm::File(path).CreateUniqueFile().GetPath();
 	std::shared_ptr<fm::Material> material = std::make_shared<fm::Material>(newFilePath);
 	material->From(*fm::Material::GetDefaultStandardMaterial());
-	material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "default.shader"));
-	material->SetShaderKind(fm::SHADER_KIND::PLAIN);
+	material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "default.shader"), fm::SHADER_KIND::PLAIN);
 
 	nlohmann::json j;
 	material->Save(j);

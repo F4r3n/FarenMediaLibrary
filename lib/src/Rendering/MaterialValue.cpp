@@ -1,5 +1,7 @@
 #include "MaterialValue.h"
 #include <nlohmann/json.hpp>
+#include "Rendering/Texture.h"
+#include "Resource/ResourcesManager.h"
 namespace fm {
 
 
@@ -37,6 +39,9 @@ namespace fm {
 		case fm::ValuesType::VALUE_VECTOR4_FLOAT:
 			_value = fm::math::vec4(0, 0, 0, 0);
 			break;
+		case fm::ValuesType::VALUE_VECTOR4_UINTEGER:
+			_value = fm::math::vec4ui(0, 0, 0, 0);
+			break;
 		case fm::ValuesType::VALUE_VECTOR2_FLOAT:
 			_value = fm::math::vec2(0, 0);
 			break;
@@ -49,8 +54,8 @@ namespace fm {
 		break;
 		case fm::ValuesType::VALUE_TEXTURE:
 		{
-			fm::TextureMat mat;
-			_value = mat;
+			fm::FilePath path;
+			_value = path;
 		}
 		break;
 		case fm::ValuesType::VALUE_COLOR:
@@ -91,17 +96,24 @@ namespace fm {
 		_value = v;
 	}
 
+	MaterialValue::MaterialValue(math::vec4ui v)
+	{
+		_valueType = (ValuesType::VALUE_VECTOR4_UINTEGER);
+		_value = v;
+	}
+
 	MaterialValue::MaterialValue(math::mat v)
 	{
 		_valueType = (ValuesType::VALUE_MATRIX_FLOAT);
 		_value = v;
 	}
 
-	MaterialValue::MaterialValue(TextureMat v)
+	MaterialValue::MaterialValue(std::shared_ptr<fm::Texture> v)
 	{
 		_valueType = (ValuesType::VALUE_TEXTURE);
-		_value = v;
+		_value = v->GetPath();
 	}
+
 
 
 	MaterialValue::MaterialValue(fm::Color v)
@@ -151,6 +163,13 @@ namespace fm {
 		return *this;
 	}
 
+	MaterialValue& MaterialValue::operator=(math::vec4ui v)
+	{
+		_valueType = (ValuesType::VALUE_VECTOR4_UINTEGER);
+		_value = static_cast<math::vec4ui>(v);
+		return *this;
+	}
+
 	MaterialValue& MaterialValue::operator=(math::mat v)
 	{
 		_valueType = (ValuesType::VALUE_MATRIX_FLOAT);
@@ -158,10 +177,10 @@ namespace fm {
 		return *this;
 	}
 
-	MaterialValue& MaterialValue::operator=(TextureMat v)
+	MaterialValue& MaterialValue::operator=(std::shared_ptr<fm::Texture> v)
 	{
 		_valueType = (ValuesType::VALUE_TEXTURE);
-		_value = static_cast<TextureMat>(v);
+		_value = v->GetPath();
 		return *this;
 	}
 
@@ -198,13 +217,18 @@ namespace fm {
 		return std::get<fm::math::vec4>(_value);
 	}
 
+	const math::vec4ui& MaterialValue::getVector4ui() const
+	{
+		return std::get<fm::math::vec4ui>(_value);
+	}
+
 	const math::mat& MaterialValue::getMatrix() const
 	{
 		return std::get<fm::math::mat>(_value);
 	}
-	const TextureMat& MaterialValue::getTexture() const
+	std::shared_ptr<fm::Texture> MaterialValue::getTexture() const
 	{
-		return std::get<TextureMat>(_value);
+		return fm::ResourcesManager::get().getResource<fm::Texture>(std::get<fm::FilePath>(_value));
 	}
 
 	const fm::Color MaterialValue::getColor() const

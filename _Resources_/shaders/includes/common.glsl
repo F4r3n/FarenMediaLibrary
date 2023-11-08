@@ -9,4 +9,7 @@ UNIFORM(2, 3) MaterialBuffer {
 	uvec4 _properties;
 } materialBuffer;
 
-bool has_texture_albedo() { return (materialBuffer._properties.x & uint(1U << 0)) == 0; }
+UNIFORM_SAMPLER(3, 4) TEXTURE_albedo;
+
+bool has_properties() {return materialBuffer._properties.x != 0;}
+bool has_texture_albedo() { return (materialBuffer._properties.x & uint(1U << 1)) != 0; }

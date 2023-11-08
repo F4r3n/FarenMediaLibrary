@@ -12,6 +12,7 @@
 #include "Components/CMaterial.h"
 #include "Rendering/Graphics.hpp"
 #include "Rendering/commandBuffer.hpp"
+#include "Rendering/OpenGL/OGLTexture.hpp"
 
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
@@ -97,10 +98,10 @@ void GEditorView::CustomDraw()
 	{
 		if (renderTexture->isCreated())
 		{
-			const fm::OGLTexture texture = renderTexture->GetColorBufferTexture(0);
+			const std::shared_ptr<fm::OGLTexture> texture = renderTexture->GetColorBufferTexture(0);
 
 			ImGui::SetCursorPos(_cursorPos);
-			ImGui::Image(ImTextureID((intptr_t)texture.getID()), ImVec2(texture.getWidth(), texture.getHeight()));
+			ImGui::Image(ImTextureID((intptr_t)texture->getID()), ImVec2(texture->getWidth(), texture->getHeight()));
 			ImGuizmo::SetDrawlist();
 			_scrollPos = fm::math::vec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 

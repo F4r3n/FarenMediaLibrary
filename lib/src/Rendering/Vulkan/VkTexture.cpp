@@ -18,7 +18,7 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 {
 	Image image(inPath);
 	
-	if (!image.loadImage(inPath.GetPathString())) {
+	if (!image.LoadImage()) {
 		fm::Debug::get().LogError("Failed to load texture file " + inPath.GetPathString());
 		return false;
 	}

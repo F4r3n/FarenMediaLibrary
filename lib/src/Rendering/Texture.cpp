@@ -3,16 +3,18 @@
 using namespace fm;
 
 Texture::Texture(const fm::FilePath& inPath)
-	: _path(inPath)
+	:Resource(inPath)
 {
-
+	_currentID = ++_ID;
 }
 
-void to_json(nlohmann::json& j, const Texture& p) {
-	j["path"] = fm::FileSystem::ConvertPathToFileSystem(p._path);
+void Texture::Load(const nlohmann::json& inJSON)
+{
+	Resource::Load(inJSON);
 }
 
-void from_json(const nlohmann::json& j, Texture& p) {
-	std::string path = j["path"];
-	p._path = fm::FilePath(path);
+void Texture::Save(nlohmann::json& outJSON) const
+{
+	Resource::Save(outJSON);
 }
+

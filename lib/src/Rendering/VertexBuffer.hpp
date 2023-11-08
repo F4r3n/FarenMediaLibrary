@@ -2,7 +2,6 @@
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #pragma warning(disable: 4100)
 #endif
-#include "Rendering/OpenGL/OGLGraphicsDef.hpp"
 #include <Rendering/Mesh.hpp>
 namespace fm
 {

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Core/Config.h>
-#include "Rendering/OpenGL/OGLTexture.hpp"
-
 namespace fm 
 {
+	enum class Format;
+	enum class Type;
+	class OGLTexture;
 
     class RenderTexture
 	{
@@ -19,8 +19,8 @@ namespace fm
         inline size_t getWidth() const {return _width;}
         inline size_t getHeight() const {return _height;}
         
-		const fm::OGLTexture& GetColorBufferTexture(size_t id) const;
-		const std::vector<OGLTexture>& GetColorBuffer() const { return _textureColorbuffer; }
+		std::shared_ptr<fm::OGLTexture> GetColorBufferTexture(size_t id) const;
+		const std::vector<std::shared_ptr<fm::OGLTexture>>& GetColorBuffer() const { return _textureColorbuffer; }
 
         void create();
         bool IsMultiSampled() const {return _multiSampling > 0;}
@@ -43,10 +43,10 @@ namespace fm
         std::vector<Type> _types;
         bool _InitFrameBuffer(Format *formats, Type *types);
         //main Framebuffer + position fragcolor bright color
-        std::vector<OGLTexture> _textureColorbuffer;
+        std::vector<std::shared_ptr<OGLTexture>> _textureColorbuffer;
 
         //Texture rboDepth;
-		GLuint _framebuffer = 0;
-		GLuint _rboDepth = 0;
+		unsigned int _framebuffer = 0;
+		unsigned int _rboDepth = 0;
     };
 }

@@ -1,6 +1,11 @@
 #pragma once
 #include "GWindow.h"
 
+namespace fm
+{
+	class Texture2D;
+}
+
 namespace gui
 {
 	class GToolBar : public GWindow
@@ -18,6 +23,8 @@ namespace gui
 		void _DrawTransformContext();
 		void _UpdateInputTransformContext(Context &inContext);
 		TRANSFORM_CONTEXT _state;
-		 
+		std::shared_ptr<fm::Texture2D>	  _textureStart = nullptr;
+		std::shared_ptr<fm::Texture2D>	  _textureStop = nullptr;
+
 	};
 }

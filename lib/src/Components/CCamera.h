@@ -42,8 +42,8 @@ namespace fmc
 	struct RendererConfiguration
 	{
 		bool isInit = false;
-		const GLuint bindingPointIndex = 2;
-		GLuint generatedBlockBinding;
+		const unsigned int bindingPointIndex = 2;
+		unsigned int generatedBlockBinding;
 
 		bool blendingMode = false;
 		int queuePreviousValue = 0;

@@ -3,8 +3,6 @@
 #include <memory>
 #include <vector>
 #include <Rendering/MaterialValue.h>
-#include <Resource/Resource.h>
-#include <Core/serializer.hpp>
 #include <Rendering/Graphics.hpp>
 #include "Rendering/Shader.h"
 namespace fm
@@ -22,45 +20,12 @@ namespace fm
 		SHADER
 	};
 
-	class MaterialProperties
+	enum STANDARD_MATERIAL_PROPERTIES
 	{
-
-		using properties_t = std::unordered_map< std::string, MaterialValue>;
-	public:
-		using iterator = properties_t::iterator;
-		using const_iterator = properties_t::const_iterator;
-
-		iterator begin() { return _materialProperties.begin(); }
-		iterator end() { return _materialProperties.end(); }
-		const_iterator begin() const { return _materialProperties.begin(); }
-		const_iterator end() const { return _materialProperties.end(); }
-		const_iterator cbegin() const { return _materialProperties.cbegin(); }
-		const_iterator cend() const { return _materialProperties.cend(); }
-
-		void AddValue(const std::string& name, const fm::MaterialValue& inMaterialValue)
-		{
-			_materialProperties.emplace(name, inMaterialValue);
-		}
-
-		void UpdateProperty(const std::string& inName, const fm::MaterialValue& inProperty)
-		{
-			_materialProperties[inName] = inProperty;
-		}
-
-		MaterialValue& Get(const std::string& inName)
-		{
-			return _materialProperties[inName];
-		}
-
-		bool Has(const std::string& inName) const
-		{
-			return _materialProperties.contains(inName);
-		}
-
-		bool IsEmpty() const { return _materialProperties.empty(); }
-	private:
-		properties_t _materialProperties;
+		ALBEDO = 0,
+		TEXTURE_ALBEDO = 1
 	};
+	using MaterialValues = std::unordered_map< std::string, MaterialValue>;
 
 	struct MaterialValueInfo
 	{
@@ -79,11 +44,22 @@ namespace fm
 
 		struct MaterialBufferInfo
 		{
-			unsigned char*		buffer = nullptr;
-			uint32_t			bufferSize = 0;
-			uint32_t			bindingPoint = 0;
-			uint32_t			setPoint = 0;
+			uint32_t				bindingPoint = 0;
+			uint32_t				setPoint = 0;
 			fm::SubShader::STAGE	stages = fm::SubShader::STAGE::ALL;
+		};
+
+		struct MaterialBufferInfo_Buffer
+		{
+			unsigned char*			buffer = nullptr;
+			uint32_t				bufferSize = 0;
+			MaterialBufferInfo		info;
+		};
+
+		struct MaterialBufferInfo_Texture
+		{
+			MaterialBufferInfo			info;
+			std::weak_ptr<fm::Texture>	texture;
 		};
 
 		~Material()
@@ -99,11 +75,11 @@ namespace fm
 			fm::MaterialValue materialValue;
 			materialValue = value;
 
-			_properties.AddValue(name, materialValue);
+			_properties[name] = materialValue;
 
 		}
 		void SetPropertyValue(const std::string& name, fm::MaterialValue& inMaterialValue) {
-			_properties.AddValue(name, inMaterialValue);
+			_properties[name] = inMaterialValue;
 		}
 
 		template <typename T>
@@ -111,21 +87,21 @@ namespace fm
 			fm::MaterialValue materialValue;
 			materialValue = value;
 
-			_uniforms.AddValue(name, materialValue);
+			_uniforms[name] = materialValue;
 
 		}
 		void SetUniformValue(const std::string& name, fm::MaterialValue& inMaterialValue) {
-			_uniforms.AddValue(name, inMaterialValue);
+			_uniforms[name] = inMaterialValue;
 		}
 		static constexpr fm::RESOURCE_TYPE getType() { return fm::RESOURCE_TYPE::MATERIAL; }
 		virtual fm::RESOURCE_TYPE GetType() const override { return getType(); }
 
-		MaterialProperties& GetUniforms() { return _uniforms; }
-		MaterialProperties& GetProperties() { return _properties; }
+		MaterialValues& GetUniforms() { return _uniforms; }
+		MaterialValues& GetProperties() { return _properties; }
 
 		const std::string& GetName() const { return _name; }
 		const fm::FilePath& GetShaderPath() const { return _shaderPath; }
-		void SetShaderPath(const fm::FilePath& inPath);
+		void SetShaderPath(const fm::FilePath& inPath, fm::SHADER_KIND inKind = fm::SHADER_KIND::PLAIN);
 
 		void Save(nlohmann::json& outJSON) const override;
 		void Load(const nlohmann::json& inJSON) override;
@@ -135,29 +111,34 @@ namespace fm
 		std::optional<fm::SubShader> GetSubShader() const;
 
 		SHADER_KIND		GetShaderKind() const { return _shaderkind; }
-		void			SetShaderKind(fm::SHADER_KIND inKind);
 		MaterialKind	GetMaterialKind() const;
 		void			UpdateProperty(const std::string& inName, const fm::MaterialValue& inProperty, uint32_t offset);
 		uint32_t		GetBufferSize() const { return _bufferSize; }
 		unsigned char*	GetBufferPtr() const { return _buffer; }
 
-		MaterialBufferInfo GetMaterialBufferInfo(GRAPHIC_API inAPI) const;
+		MaterialBufferInfo_Buffer GetMaterialBufferInfo_Buffer(GRAPHIC_API inAPI) const;
+		std::vector<MaterialBufferInfo_Texture> GetMaterialBufferInfo_Textures(GRAPHIC_API inAPI) const;
 
 		static std::shared_ptr<fm::Material> GetDefaultStandardMaterial();
 		std::unordered_map<std::string, MaterialValueInfo> GetMaterialPropertiesInfo() const;
+		bool HasAlbedoTexture() const;
+		void SetAlbedoTexture(const fm::FilePath& inPath);
 	private:
+		void _BuildMaterialPropertiesInfo();
 		void _UpdateInternalBuffWithProperties();
 		void _FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const;
 		void _GetJSONValue(const nlohmann::json& valueJSON, std::string& outName, fm::MaterialValue& outValue) const;
 		bool _GetOffsetFromReflection(const std::string& inName, uint32_t& offset) const;
 		std::optional<fm::SubShader::Block>	_GetReflectionBlock(const std::string& inName, GRAPHIC_API inAPI) const;
 		std::optional<fm::SubShader::Uniform>	_GetReflectionUniform(const std::string& inName, GRAPHIC_API inAPI) const;
+		std::vector<fm::SubShader::Uniform>		_GetReflectionTextures(GRAPHIC_API inAPI) const;
 
 		fm::FilePath		_shaderPath;
 		SHADER_KIND			_shaderkind = SHADER_KIND::PLAIN;
 		std::string			_name;
-		MaterialProperties	_properties;
-		MaterialProperties	_uniforms;
+		MaterialValues		_properties;
+		MaterialValues		_uniforms;
+		std::unordered_map<std::string, MaterialValueInfo> _materialPropertiesInfos;
 
 
 		unsigned char*		_buffer = nullptr;

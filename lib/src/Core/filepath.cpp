@@ -108,7 +108,10 @@ FilePath& FilePath::ToSub(const std::string& inFolderName)
 	if (inFolderName.empty())
 		return *this;
 
-	_path += GetFolderSeparator() + inFolderName;
+	std::string p = inFolderName;
+	std::replace(p.begin(), p.end(), '/', fm::FilePath::GetFolderSeparator());
+
+	_path += GetFolderSeparator() + p;
 	return *this;
 }
 

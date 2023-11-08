@@ -4,6 +4,7 @@
 #include "ShaderKind.hpp"
 #include "Rendering/GraphicsAPI.h"
 #include <array>
+#include <vector>
 namespace fm
 {
 	class SubShader
@@ -41,6 +42,7 @@ namespace fm
 			int set = -1;
 			int stages = (int)STAGE::ALL;
 			std::vector<Variable> variables; //order is needed
+			bool IsTexture() const { return (variables.size() == 1 && variables.front().type == fm::ValuesType::VALUE_TEXTURE); }
 		};
 
 		struct Reflection

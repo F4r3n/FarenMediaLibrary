@@ -19,15 +19,13 @@ UNIFORM(0, 1) _SceneData{
 } sceneData;
 
 
-
-
-UNIFORM_SAMPLER(3, 4) TEXTURE_tex1;
-
-
 void main() {
-
-    //vec4 color = vec4(inColors*texture(TEXTURE_tex1,inUVs).xyz, 1.0);
 	vec4 color = vec4(inColors, 1.0);
+
+	if(has_texture_albedo())
+	{
+    	color = vec4(inColors*texture(TEXTURE_albedo,inUVs).xyz, 1.0);
+	}
 
     outColor = color;
 }

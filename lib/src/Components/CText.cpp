@@ -7,6 +7,7 @@
 #include "nlohmann/json.hpp"
 #include "Core/Debug.h"
 #include "Rendering/OpenGL/OGLVertexBuffer.hpp"
+#include <GL/glew.h>
 using namespace fmc;
 
 CText::CText()

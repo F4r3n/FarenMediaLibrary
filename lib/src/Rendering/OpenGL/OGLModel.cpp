@@ -1,6 +1,7 @@
 #include "OGLModel.hpp"
 #include "Rendering/Model.hpp"
 #include "OGLVertexBuffer.hpp"
+#include <GL/glew.h>
 using namespace fm;
 
 OGLModel::OGLModel(std::shared_ptr<fm::Model> inModel)

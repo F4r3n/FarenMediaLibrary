@@ -17,12 +17,12 @@ VkMaterial::VkMaterial(const VkMaterialCreateInfo& inInfo)
 	fm::SubShader::Reflection r = inInfo.shader->GetReflection();
 	auto layouts = inInfo.descriptorLayout;
 
-	auto infoMaterialBuffer = inInfo.material->GetMaterialBufferInfo(GRAPHIC_API::VULKAN);
+	auto infoMaterialBuffer = inInfo.material->GetMaterialBufferInfo_Buffer(GRAPHIC_API::VULKAN);
 	
 	VkDescriptorSetLayoutBinding materialBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-		VK_SHADER_STAGE_VERTEX_BIT, infoMaterialBuffer.bindingPoint);
-	_materialBuffer.bindingPoint = infoMaterialBuffer.bindingPoint;
-	_materialBuffer.setPoint = infoMaterialBuffer.setPoint;
+		VK_SHADER_STAGE_VERTEX_BIT, infoMaterialBuffer.info.bindingPoint);
+	_materialBuffer.bindingPoint = infoMaterialBuffer.info.bindingPoint;
+	_materialBuffer.setPoint = infoMaterialBuffer.info.setPoint;
 
 	_materialBuffer.bufferLayout = _vulkan->CreateDescriporSetLayout({ materialBinding });
 	_materialBuffer.maxBufferSize = static_cast<uint32_t>(inInfo.maxFramesInFlight * _vulkan->PadUniformBufferSize(infoMaterialBuffer.bufferSize));

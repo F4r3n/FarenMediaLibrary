@@ -12,6 +12,8 @@
 #include "Rendering/Shader.h"
 #include "Rendering/material.hpp"
 #include "Rendering/commandBuffer.hpp"
+#include "Rendering/OpenGL/OGLTexture.hpp"
+
 #include <cstring>
 using namespace fms;
 
@@ -69,10 +71,10 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 						if (scene != nullptr)
 						{
-							fm::OGLTexture texture = _camera->GetTarget()->GetColorBufferTexture(0);
+							std::shared_ptr<fm::OGLTexture> texture = _camera->GetTarget()->GetColorBufferTexture(0);
 							_camera->GetTarget()->bind(true);
 							unsigned char pixel[4];
-							texture.GetPixel(inPos, pixel);
+							texture->GetPixel(inPos, pixel);
 							size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
 							std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(EntityManager::get().CreateID(id));
 							if (go != nullptr)
@@ -103,14 +105,14 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						fmc::CMesh* mesh = go->get<fmc::CMesh>();
 
 						fm::CommandBuffer commandBuffer;
-						fm::MaterialProperties materialProperties = _material->GetUniforms();
+						fm::MaterialValues materialProperties = _material->GetUniforms();
 						Entity::Id i = go->getID();
 						unsigned char r[sizeof(i)];
 						memcpy(r, &i, sizeof(i));
 
 						//float colorID = go->getID();
-						materialProperties.AddValue("FM_M", go->get<fmc::CTransform>()->GetTransform().worldTransform);
-						materialProperties.AddValue("colorID", fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f)));
+						materialProperties["FM_M"] = go->get<fmc::CTransform>()->GetTransform().worldTransform;
+						materialProperties["colorID"] = fm::MaterialValue(fm::Color(r[0] / 255.f, r[1] / 255.f, r[2] / 255.f, r[3] / 255.f));
 						commandBuffer.DrawMesh(mesh->GetModel(), go->get<fmc::CTransform>()->GetTransform(), _material, materialProperties);
 
 						_camera->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);

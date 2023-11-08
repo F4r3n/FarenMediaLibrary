@@ -3,57 +3,19 @@
 #include <Core/Config.h>
 #include "Core/Rect.h"
 #include <nlohmann/json_fwd.hpp>
-#include "GL/glew.h"
+#include "OGLTextureDef.hpp"
 
 namespace fm {
 
 	class Image;
 
-enum class Format
-{
-    RED = GL_RED,
-    RGB = GL_RGB,
-    RGBA = GL_RGBA,
-    DEPTH_16 = GL_DEPTH_COMPONENT16,
-    DEPTH_24 = GL_DEPTH_COMPONENT24,
-    DEPTH_32 = GL_DEPTH_COMPONENT32,
-    DEPTH_32F = GL_DEPTH_COMPONENT32F,
-    DEPTH_STENCIL = GL_DEPTH_STENCIL,
-    STENCIL = GL_STENCIL_INDEX
-};
-
-enum class Type
-{
-    FLOAT = GL_FLOAT,
-    HALF_FLOAT = GL_HALF_FLOAT,
-    UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
-    UNSIGNED_24_8 = GL_UNSIGNED_INT_24_8
-};
-
-enum class Kind
-{
-    TEXTURE2D = GL_TEXTURE_2D,
-    TEXTURE2D_MULTISAMPLED = GL_TEXTURE_2D_MULTISAMPLE
-};
-
-enum class Filter
-{
-	NEAREST = GL_NEAREST,
-	LINEAR = GL_LINEAR
-};
-
-enum class Wrapping
-{
-    REPEAT = GL_REPEAT,
-    CLAMP_BORDER = GL_CLAMP_TO_BORDER,
-    MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
-    CLAMP_EDGE = GL_CLAMP_TO_EDGE
-};
 
 class OGLTexture 
 {
    public:
-    OGLTexture(const Image& image, Recti rect = {0, 0, -1, -1});
+    OGLTexture(const Image& image, Recti rect);
+	OGLTexture(const Image& image);
+
     OGLTexture(const std::string& path,
             Recti rect = {0, 0, -1, -1},
             bool alpha = true);
@@ -69,7 +31,8 @@ class OGLTexture
     void				setData(unsigned char* image, bool alpha);
 
     void				bind() const;
-    void				clear();
+	void				bind(size_t inIndex) const;
+
     inline GLuint		getID() const {return _id;}
     void				generate(size_t width, size_t height, Format format, Type type, int multiSampled = 0);
     void				release();
@@ -87,7 +50,7 @@ class OGLTexture
 
 	Filter filter = Filter::NEAREST;
 	Wrapping wrapping = Wrapping::REPEAT;
-
+	void UploadImage(const Image& image);
    private:
 	void				_init(std::vector<unsigned char>& data, Recti& rect);
 

@@ -5,24 +5,12 @@
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector4.h"
 #include <Core/Math/Vector.h>
-#include "Rendering/Texture.h"
+
 #include <variant>
-namespace fm {
-
-	struct TextureMat
-	{
-		fm::Texture texture;
-		int position = 0;
-	};
-
-
-	//void to_json(nlohmann::json& j, const TextureMat& p);
-	//void from_json(const nlohmann::json& j, TextureMat& p);
-
-
-	void to_json(nlohmann::json& j, const Texture& p);
-	void from_json(const nlohmann::json& j, Texture& p);
-
+#include "Core/FilePath.h"
+namespace fm
+{
+	class Texture;
 	enum class ValuesType
 	{
 		VALUE_INT,
@@ -33,11 +21,12 @@ namespace fm {
 		VALUE_MATRIX_FLOAT,
 		VALUE_TEXTURE,
 		VALUE_COLOR,
+		VALUE_VECTOR4_UINTEGER,
 		VALUE_LAST,
 		VALUE_NONE
 		// etc
 	};
-	using MaterialVariant = std::variant<int, float, fm::math::vec2, fm::math::vec3, fm::math::vec4, fm::math::mat, fm::Color, TextureMat>;
+	using MaterialVariant = std::variant<int, float, fm::math::vec2, fm::math::vec3, fm::math::vec4, fm::math::vec4ui, fm::math::mat, fm::Color, fm::FilePath>;
 	class MaterialValue
 	{
 	public:
@@ -55,8 +44,10 @@ namespace fm {
 		MaterialValue(math::vec2 v);
 		MaterialValue(math::vec3 v);
 		MaterialValue(math::vec4 v);
+		MaterialValue(math::vec4ui v);
+
 		MaterialValue(math::mat v);
-		MaterialValue(TextureMat v);
+		MaterialValue(std::shared_ptr<fm::Texture> v);
 		MaterialValue(fm::Color v);
 
 		MaterialValue& operator=(const MaterialValue& m);
@@ -65,8 +56,10 @@ namespace fm {
 		MaterialValue& operator=(math::vec2 v);
 		MaterialValue& operator=(math::vec3 v);
 		MaterialValue& operator=(math::vec4 v);
+		MaterialValue& operator=(math::vec4ui v);
+
 		MaterialValue& operator=(math::mat v);
-		MaterialValue& operator=(TextureMat v);
+		MaterialValue& operator=(std::shared_ptr<fm::Texture> v);
 		MaterialValue& operator=(fm::Color v);
 
 		int getInt() const;
@@ -74,8 +67,10 @@ namespace fm {
 		const math::vec2& getVector2() const;
 		const math::vec3& getVector3() const;
 		const math::vec4& getVector4() const;
+		const math::vec4ui& getVector4ui() const;
+
 		const math::mat& getMatrix() const;
-		const TextureMat& getTexture() const;
+		std::shared_ptr<fm::Texture> getTexture() const;
 		const fm::Color getColor() const;
 
 		ValuesType getType() const;

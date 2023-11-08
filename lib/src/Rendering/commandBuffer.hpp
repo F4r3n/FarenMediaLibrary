@@ -46,7 +46,7 @@ namespace fm
 		std::weak_ptr<Material> _material;
 		std::weak_ptr<Model> _model;
 		Transform _transform;
-		MaterialProperties _materialProperties;
+		MaterialValues _materialProperties;
 		BUFFER_BIT _bufferBit;
 		RENDERING_TYPE _renderingType;
 
@@ -69,7 +69,7 @@ namespace fm
 
 		void Blit(RenderTexture &inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
 		void Blit(OGLTexture&inSource, RenderTexture &inDestination, std::shared_ptr<fm::Material> inMaterial = nullptr);
-		void DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialProperties &inMaterialProperties);
+		void DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialValues &inMaterialProperties);
 		void DrawInstancedMesh(const std::vector<std::shared_ptr<Model>>& inModel, const std::vector<Transform>& inTranform,
 			std::vector<std::shared_ptr<fm::Material>> inMaterial);
 

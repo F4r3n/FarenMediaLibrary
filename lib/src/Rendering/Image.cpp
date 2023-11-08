@@ -11,18 +11,23 @@ Image::Image(const fm::FilePath& inPath) : Resource(inPath)
 
 Image::~Image()
 {
+	clear();
 }
 
-void Image::create(float width, float height)
-{
-}
 
 void Image::clear()
 {
 	_size.reset();
 	if (_pixel)
 	{
-		stbi_image_free(_pixel);
+		if (_isBlank)
+		{
+			free(_pixel);
+		}
+		else
+		{
+			stbi_image_free(_pixel);
+		}
 	}
 	_pixel = nullptr;
 }
@@ -34,7 +39,7 @@ const math::Vector2i& Image::getSize() const
 
 void Image::getPart(std::vector<unsigned char>& imagePart, Recti rect) const
 {
-	imagePart.resize((rect.w) * (rect.h) * _canalNumber, 255);
+	imagePart.resize((rect.w) * (rect.h) * _canalNumber);
 	const unsigned int sizeByte = (rect.w) * _canalNumber;
 
 	unsigned char* ptr = imagePart.data();
@@ -54,10 +59,23 @@ size_t Image::GetDataSize() const
 	return _size.x * _size.y * _canalNumber;
 }
 
-
-bool Image::loadImage(const std::string& path)
+Image::Image(bool blank)
 {
-	_pixel = stbi_load(path.c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
+	_isBlank = blank;
+}
+
+bool Image::create(const math::Vector2i& inSize)
+{
+	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
+	_pixel = (unsigned char*)calloc(inSize.x * inSize.x * _canalNumber, sizeof(unsigned char));
+	_size = inSize;
+	return _pixel != nullptr;
+}
+
+
+bool Image::LoadImage()
+{
+	_pixel = stbi_load(_path.GetPathString().c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
 	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
 	if(_pixel == nullptr) return false;
 	return true;

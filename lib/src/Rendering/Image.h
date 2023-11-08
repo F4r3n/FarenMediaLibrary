@@ -16,10 +16,11 @@ public:
 	};
 
     Image(const fm::FilePath& inPath);
+	Image(bool blank);
     ~Image();
-    void create(float width, float height);
     unsigned char* getImagePtr();
-    bool loadImage(const std::string& pathImage);
+	bool create(const math::Vector2i& inSize);
+    bool LoadImage();
     const math::Vector2i& getSize() const;
     void clear();
     void getPart(std::vector<unsigned char>& imagePart, Recti rect) const;
@@ -29,13 +30,13 @@ public:
 
 	void Load(const nlohmann::json& inJSON) override;
 	void Save(nlohmann::json& outJSON) const override;
+	unsigned char* GetPtr() const { return _pixel; }
 private:
 	size_t				_mipmapLevel = 0;
 	IMAGE_CANAL_NUMBER	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
 
     unsigned char* _pixel = nullptr;
     math::Vector2i _size;
-    math::Vector2i _realSize;
-	
+	bool		   _isBlank = false;
 };
 }

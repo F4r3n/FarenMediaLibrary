@@ -19,7 +19,7 @@ OGLTexture::OGLTexture(const std::string& path, Recti rect, bool alpha)
         _format = Format::RGB;
 
     Image image(path);
-    if(!image.loadImage(path)) 
+    if(!image.LoadImage()) 
 	{
         std::cerr << "Error loading image " << path << std::endl;
     }
@@ -112,6 +112,43 @@ OGLTexture& OGLTexture::operator=(OGLTexture&& texture)
     wrapping = texture.wrapping;
     return *this;
 }
+
+OGLTexture::OGLTexture(const Image& image)
+{
+	UploadImage(image);
+}
+
+void OGLTexture::UploadImage(const Image& image)
+{
+	glGenTextures(1, &_id);
+	glBindTexture((GLenum)_textureKind, _id);  // All upcoming GL_TEXTURE_2D operations
+
+	_width = image.getSize().x;
+	_height = image.getSize().y;
+
+	glTexImage2D((GLenum)_textureKind,
+		0,
+		GL_RGBA,
+		(GLsizei)_width,
+		(GLsizei)_height,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		image.GetPtr());
+
+	glTexParameteri((GLenum)_textureKind,
+		GL_TEXTURE_WRAP_S,
+		GL_REPEAT);  // Set texture wrapping to GL_REPEAT (usually
+	// basic wrapping method)
+	glTexParameteri((GLenum)_textureKind, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// Set texture filtering parameters
+	glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture((GLenum)_textureKind, 0);
+}
+
+
 
 OGLTexture::OGLTexture(const Image& image, Recti rect) {
     // std::cout << "Texture " << texture.path << " Loaded " << texture.width <<
@@ -426,13 +463,20 @@ void OGLTexture::release()
 	}
 }
 
-void OGLTexture::clear()
-{
-}
 
-void OGLTexture::bind() const {
+void OGLTexture::bind() const
+{
     glBindTexture((GLenum)_textureKind, _id);
 }
 
-OGLTexture::~OGLTexture() {
+void OGLTexture::bind(size_t inIndex) const
+{
+	glActiveTexture(GL_TEXTURE0 + (GLenum)inIndex);
+	bind();
+}
+
+
+OGLTexture::~OGLTexture()
+{
+	release();
 }

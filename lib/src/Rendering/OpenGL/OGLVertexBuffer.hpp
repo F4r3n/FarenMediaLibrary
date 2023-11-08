@@ -1,6 +1,5 @@
 #pragma once
 #include <Core/Math/Vector2.h>
-#include "Rendering/OpenGL/OGLGraphicsDef.hpp"
 #include <Rendering/Mesh.hpp>
 #include "Rendering/VertexBuffer.hpp"
 namespace fm
@@ -14,7 +13,7 @@ namespace fm
 			{
 				FLOAT
 			};
-			GLenum DataTypeToOpengl(DATA_TYPE inType) const;
+			unsigned int DataTypeToOpengl(DATA_TYPE inType) const;
 
 			OGLVertextBuffer();
 			~OGLVertextBuffer();

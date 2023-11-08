@@ -79,7 +79,7 @@ void CommandBuffer::Disable( RENDERING_TYPE inType)
 
 }
 
-void CommandBuffer::DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialProperties &inMaterialProperties)
+void CommandBuffer::DrawMesh(std::shared_ptr<Model> inModel, const Transform &inTranform, std::shared_ptr<fm::Material> inMaterial, const fm::MaterialValues& inMaterialProperties)
 {
 	Command cmd;
 	cmd._command = Command::COMMAND_KIND::DRAW_MESH;

@@ -178,14 +178,6 @@ void OGLShader::setValue(const std::string& name, const fm::MaterialValue& value
 	{
 		setValue(name, value.getColor());
 	}
-	else if (value.getType() == fm::ValuesType::VALUE_TEXTURE)
-	{
-		TextureMat t = value.getTexture();
-		setValue("texture" + std::to_string(t.position), t.position);
-		assert(false);
-		/*glActiveTexture(t.position);
-		t.texture.bind();*/
-	}
 }
 
 

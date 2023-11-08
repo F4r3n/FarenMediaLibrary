@@ -3,6 +3,8 @@
 #include <cassert>
 #include "Core/Debug.h"
 #include "GL/glew.h"
+#include "OpenGL/OGLTextureDef.hpp"
+#include "OpenGL/OGLTexture.hpp"
 
 using namespace fm;
 
@@ -89,7 +91,7 @@ void RenderTexture::_Release() {
 
 	for(unsigned int i = 0; i < _textureColorbuffer.size(); i++)
     {
-        _textureColorbuffer[i].release();
+        _textureColorbuffer[i]->release();
     }
 	
 
@@ -123,21 +125,20 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
         
         for(int i = 0; i < _numberColors; i++)
         {
-			OGLTexture t;
-            t.filter = Filter::NEAREST;
-
-            t.generate(_width, _height, formats[i], types[i], _multiSampling);
+			std::shared_ptr<OGLTexture> t = std::make_shared<fm::OGLTexture>();
+            t->filter = Filter::NEAREST;
+            t->generate(_width, _height, formats[i], types[i], _multiSampling);
 
             if(_multiSampling > 0)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, t.getID(), 0);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, t->getID(), 0);
 
             }else
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, t.getID(), 0);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, t->getID(), 0);
             }
 
-            _textureColorbuffer.push_back(t);
+            _textureColorbuffer.emplace_back(t);
         }
     }
 
@@ -180,7 +181,7 @@ bool RenderTexture::_InitFrameBuffer(Format *formats, Type *types)
     return true;
 }
 
-const fm::OGLTexture& RenderTexture::GetColorBufferTexture(size_t id) const
+std::shared_ptr<fm::OGLTexture> RenderTexture::GetColorBufferTexture(size_t id) const
 {
 	assert(id < _numberColors && id >= 0);
 	return _textureColorbuffer[id];

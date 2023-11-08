@@ -2,13 +2,12 @@
 #include <Core/Config.h>
 
 #include "Rendering/Graphics.hpp"
-
 namespace fm
 {
 	class RenderTexture;
-	class OGLTexture;
 	class OGLModel;
 	class OGLShader;
+	class OGLTexture;
 }
 
 namespace fm
@@ -34,7 +33,7 @@ namespace fm
 
 		void blit(fm::Graphics& graphics, const RenderTexture& source, RenderTexture& dest, OGLShader* shader) const;
 		void blit(fm::Graphics& graphics, int ID, RenderTexture& dest, OGLShader* shader) const;
-		void SetSources(fm::Graphics& graphics, const std::vector<OGLTexture>& intextures, size_t numberIDs);
+		void SetSources(fm::Graphics& graphics, const std::vector<std::shared_ptr<fm::OGLTexture>>& intextures, size_t numberIDs);
 		void blit(fm::Graphics& graphics, RenderTexture& dest, OGLShader* shader);
 		void blit(fm::Graphics& graphics, OGLShader* shader);
 

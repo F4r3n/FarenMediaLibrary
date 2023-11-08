@@ -3,6 +3,7 @@
 #include "Rendering/material.hpp"
 #include <nlohmann/json.hpp>
 #include "Resource/ResourcesManager.h"
+#include "Rendering/Texture.h"
 #include <fstream>
 
 using namespace fm;
@@ -22,6 +23,7 @@ Material Material::Clone() const
 	mat._properties = _properties;
 	mat._uniforms = _uniforms;
 	mat._bufferSize = _bufferSize;
+	mat._materialPropertiesInfos = _materialPropertiesInfos;
 	memcpy(mat._buffer, _buffer, _bufferSize);
 	return mat;
 }
@@ -33,13 +35,14 @@ void Material::From(const fm::Material& inMaterial)
 	_uniforms = inMaterial._uniforms;
 	_bufferSize = inMaterial._bufferSize;
 	_buffer = (unsigned char*)calloc(_bufferSize, sizeof(unsigned char));
+	_materialPropertiesInfos = inMaterial._materialPropertiesInfos;
 	if (_buffer == nullptr)
 	{
 		assert(false);
 		return;
 	}
 
-	if (inMaterial._buffer == nullptr && !_properties.IsEmpty() )
+	if (inMaterial._buffer == nullptr && !_properties.empty() )
 	{
 		_UpdateInternalBuffWithProperties();
 	}
@@ -70,6 +73,8 @@ void Material::_FillJSONValue(nlohmann::json& valueJSON, const std::string& inNa
 		valueJSON["value"] = inValue.getVector3();
 	else if (type == fm::ValuesType::VALUE_VECTOR4_FLOAT)
 		valueJSON["value"] = inValue.getVector4();
+	else if (type == fm::ValuesType::VALUE_VECTOR4_UINTEGER)
+		valueJSON["value"] = inValue.getVector4ui();
 }
 
 void Material::Save(nlohmann::json& outJSON) const
@@ -121,7 +126,7 @@ void Material::_GetJSONValue(const nlohmann::json& valueJSON, std::string& outNa
 	}
 	else if (type == fm::ValuesType::VALUE_COLOR)
 	{
-		fm::Color c = valueJSON["value"];
+		fm::Color c = (fm::Color)valueJSON["value"];
 		outValue = fm::MaterialValue(c);
 	}
 	else if (type == fm::ValuesType::VALUE_FLOAT)
@@ -148,12 +153,16 @@ void Material::_GetJSONValue(const nlohmann::json& valueJSON, std::string& outNa
 		fm::math::vec4 c = valueJSON["value"];
 		outValue = fm::MaterialValue(c);
 	}
-
-	//else if(type == fm::ValuesType::VALUE_TEXTURE)
-//{
-//    fm::TextureMat t = v["value"];
-//    setValue(v["name"], t);
-//}
+	else if (type == fm::ValuesType::VALUE_VECTOR4_UINTEGER)
+	{
+		fm::math::vec4ui c = valueJSON["value"];
+		outValue = fm::MaterialValue(c);
+	}
+	else if(type == fm::ValuesType::VALUE_TEXTURE)
+	{
+		fm::FilePath path((std::string)valueJSON["value"]);
+		outValue = fm::MaterialValue(fm::ResourcesManager::get().getResource<fm::Texture>(path));
+	}
 }
 
 
@@ -168,7 +177,7 @@ void Material::Load(const nlohmann::json& inJSON)
 
 	fm::FilePath path = fm::FilePath((std::string)params["shader"]);
 	_shaderPath = path;
-
+	_BuildMaterialPropertiesInfo();
 	if (params.contains("shaderKind"))
 	{
 		_shaderkind = params["shaderKind"];
@@ -181,11 +190,11 @@ void Material::Load(const nlohmann::json& inJSON)
 			std::string name;
 			fm::MaterialValue value;
 			_GetJSONValue(v, name, value);
+
 			//get offset
-			uint32_t offset = 0;
-			if (_GetOffsetFromReflection(name, offset))
+			if (auto it2 = _materialPropertiesInfos.find(name); it2 != _materialPropertiesInfos.end())
 			{
-				UpdateProperty(name, value, offset);
+				UpdateProperty(name, value, it2->second.offset);
 			}
 		}
 	}
@@ -294,7 +303,7 @@ bool Material::_GetOffsetFromReflection(const std::string& inName, uint32_t& off
 
 std::optional<fm::SubShader> Material::GetSubShader() const
 {
-	auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(GetShaderPath());
+	auto shader = fm::ResourcesManager::get().getResource<fm::Shader>(_shaderPath);
 	if (shader == nullptr)
 		return std::nullopt;
 
@@ -313,9 +322,18 @@ void Material::Save() const
 }
 
 
-void Material::SetShaderPath(const fm::FilePath& inPath)
+void Material::SetShaderPath(const fm::FilePath& inPath, fm::SHADER_KIND inKind)
 {
+	bool hasChanged = _shaderPath != inPath || _shaderkind != inKind;
+	
 	_shaderPath = inPath;
+	_shaderkind = inKind;
+
+	if (hasChanged)
+	{
+		_BuildMaterialPropertiesInfo();
+	}
+
 }
 
 MaterialKind Material::GetMaterialKind() const
@@ -326,10 +344,7 @@ MaterialKind Material::GetMaterialKind() const
 	return MaterialKind::SHADER;
 }
 
-void Material::SetShaderKind(fm::SHADER_KIND inKind)
-{
-	_shaderkind = inKind;
-}
+
 
 template<class... Ts>
 struct overloaded : Ts... { using Ts::operator()...; };
@@ -339,7 +354,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 void Material::UpdateProperty(const std::string& inName, const fm::MaterialValue& inProperty, uint32_t offset)
 {
-	GetProperties().UpdateProperty(inName, inProperty);
+	_properties[inName] =  inProperty;
 	if (_buffer == nullptr)
 	{
 		auto block = _GetReflectionBlock("MaterialBuffer", GRAPHIC_API::OPENGL);
@@ -394,7 +409,7 @@ void _BlockIterator(const fm::SubShader::Reflection& reflection, const std::stri
 	}
 }
 
-std::unordered_map<std::string, MaterialValueInfo> Material::GetMaterialPropertiesInfo() const
+void Material::_BuildMaterialPropertiesInfo()
 {
 	std::unordered_map<std::string, MaterialValueInfo> properties;
 	std::optional<fm::SubShader> currentSubShader = GetSubShader();
@@ -430,7 +445,13 @@ std::unordered_map<std::string, MaterialValueInfo> Material::GetMaterialProperti
 			}
 		}
 	}
-	return properties;
+	_materialPropertiesInfos = properties;
+}
+
+
+std::unordered_map<std::string, MaterialValueInfo> Material::GetMaterialPropertiesInfo() const
+{
+	return _materialPropertiesInfos;
 }
 
 
@@ -479,6 +500,24 @@ std::optional<fm::SubShader::Uniform> Material::_GetReflectionUniform(const std:
 	return std::nullopt;
 }
 
+std::vector<fm::SubShader::Uniform> Material::_GetReflectionTextures(GRAPHIC_API inAPI) const
+{
+	std::vector<fm::SubShader::Uniform> uniforms;
+	auto currentSubShader = GetSubShader();
+	if (currentSubShader.has_value())
+	{
+		auto reflection = currentSubShader->GetReflection(inAPI);
+		for (const auto& [name, uniform] : reflection.uniforms)
+		{
+			if (uniform.IsTexture())
+			{
+				uniforms.emplace_back(uniform);
+			}
+		}
+	}
+	return uniforms;
+}
+
 bool Material::CanBeModified() const
 {
 	return !Resource::IsInternal();
@@ -489,8 +528,61 @@ std::shared_ptr<fm::Material> Material::GetDefaultStandardMaterial()
 	return fm::ResourcesManager::get().getResource<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION, "default.material"));
 }
 
+std::vector<Material::MaterialBufferInfo_Texture> Material::GetMaterialBufferInfo_Textures(GRAPHIC_API inAPI) const
+{
+	MaterialBufferInfo info;
 
-Material::MaterialBufferInfo Material::GetMaterialBufferInfo(GRAPHIC_API inAPI) const
+	std::vector<Material::MaterialBufferInfo_Texture> textures;
+
+	for (const auto& uniform : _GetReflectionTextures(inAPI))
+	{
+		Material::MaterialBufferInfo_Texture texture;
+		texture.info.bindingPoint = uniform.binding;
+		texture.info.setPoint = uniform.set;
+		texture.info.stages = (fm::SubShader::STAGE)uniform.stages;
+		if (auto it = _properties.find(uniform.name); it != _properties.end())
+		{
+			auto value = it->second;
+			texture.texture = value.getTexture();
+		}
+		textures.push_back(texture);
+
+	}
+
+	std::sort(textures.begin(), textures.end(), [](const auto& inTextureA, const auto& inTextureB) {
+		return inTextureA.info.bindingPoint < inTextureB.info.bindingPoint;
+	});
+	
+
+	return textures;
+}
+
+
+void Material::SetAlbedoTexture(const fm::FilePath& inPath)
+{
+	auto info = GetMaterialPropertiesInfo();
+	if (auto it = info.find("Material._properties"); it != info.end())
+	{
+		_properties["Texture_albedo"] = fm::MaterialValue(fm::ResourcesManager::get().getResource<fm::Texture>(inPath));
+		fm::math::vec4ui properties;
+		if (auto it2 = _properties.find("Material._properties"); it2 != _properties.end())
+		{
+			properties = it2->second.getVector4ui();
+		}
+		properties.x |= unsigned int(1 << fm::STANDARD_MATERIAL_PROPERTIES::TEXTURE_ALBEDO);
+		UpdateProperty("Material._properties", properties, it->second.offset);
+
+	}
+}
+
+
+bool Material::HasAlbedoTexture() const
+{
+	return _properties.contains("Texture_albedo");
+}
+
+
+Material::MaterialBufferInfo_Buffer Material::GetMaterialBufferInfo_Buffer(GRAPHIC_API inAPI) const
 {
 	MaterialBufferInfo info;
 	auto uniform = _GetReflectionUniform("MaterialBuffer", inAPI);
@@ -500,8 +592,10 @@ Material::MaterialBufferInfo Material::GetMaterialBufferInfo(GRAPHIC_API inAPI) 
 		info.setPoint = uniform->set;
 		info.stages = (fm::SubShader::STAGE)uniform->stages;
 	}
-	info.buffer = _buffer;
-	info.bufferSize = _bufferSize;
+	MaterialBufferInfo_Buffer buffer;
+	buffer.info = info;
+	buffer.buffer = _buffer;
+	buffer.bufferSize = _bufferSize;
 
-	return info;
+	return buffer;
 }

@@ -60,7 +60,7 @@ void OGLRenderer::blit(fm::Graphics& graphics,
 {
     dest.bind();
     shader->Use();
-    graphics.BindTexture2D(0, source.GetColorBufferTexture(0).getID(), (int)source.GetColorBufferTexture(0).GetKind());
+    graphics.BindTexture2D(0, source.GetColorBufferTexture(0)->getID(), (int)source.GetColorBufferTexture(0)->GetKind());
 	
     graphics.Draw(_quad);
 }
@@ -88,11 +88,11 @@ void OGLRenderer::blit(fm::Graphics &graphics, const RenderTexture& source, Rend
 }
 
 
-void OGLRenderer::SetSources(fm::Graphics& graphics, const std::vector<fm::OGLTexture> &textures, size_t numberIDs)
+void OGLRenderer::SetSources(fm::Graphics& graphics, const std::vector<std::shared_ptr<fm::OGLTexture>> &textures, size_t numberIDs)
 {
     for(size_t i = 0; (i < numberIDs && i < textures.size()); ++i) 
 	{
-        graphics.BindTexture2D(i, textures[i].getID(), (int)textures[i].GetKind());
+        graphics.BindTexture2D(i, textures[i]->getID(), (int)textures[i]->GetKind());
     }
 }
 
