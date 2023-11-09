@@ -118,6 +118,21 @@ OGLTexture::OGLTexture(const Image& image)
 	UploadImage(image);
 }
 
+GLint  ConvertCanalNumberTo_GLInternalFormat(Image::IMAGE_CANAL_NUMBER inCanal)
+{
+	switch (inCanal)
+	{
+	case Image::IMAGE_CANAL_NUMBER::RGBA:
+		return GL_RGBA;
+	case Image::IMAGE_CANAL_NUMBER::RGB:
+			return GL_RGB;
+	case Image::IMAGE_CANAL_NUMBER::RG:
+		return GL_RG;
+	case Image::IMAGE_CANAL_NUMBER::R:
+		return GL_RED;
+	}
+}
+
 void OGLTexture::UploadImage(const Image& image)
 {
 	glGenTextures(1, &_id);
@@ -125,14 +140,15 @@ void OGLTexture::UploadImage(const Image& image)
 
 	_width = image.getSize().x;
 	_height = image.getSize().y;
+	GLint  canalNumber = ConvertCanalNumberTo_GLInternalFormat(image.GetCanalNumber());
 
 	glTexImage2D((GLenum)_textureKind,
 		0,
-		GL_RGBA,
+		canalNumber,
 		(GLsizei)_width,
 		(GLsizei)_height,
 		0,
-		GL_RGBA,
+		canalNumber,
 		GL_UNSIGNED_BYTE,
 		image.GetPtr());
 

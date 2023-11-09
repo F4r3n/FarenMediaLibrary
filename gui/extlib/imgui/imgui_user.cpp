@@ -63,3 +63,35 @@ bool DrawCombo(const std::string& inNameCombo, const std::vector<std::string>& v
 
     return beforeIndex != *index;
 }
+
+
+bool TreeNodeWithIcon(const char* label, ImTextureID inImage)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+
+    ImU32 id = window->GetID(label);
+    ImVec2 pos = window->DC.CursorPos;
+    ImRect bb(pos, ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + g.FontSize + g.Style.FramePadding.y * 2));
+    bool opened = ImGui::TreeNodeBehaviorIsOpen(id);
+    bool hovered, held;
+    if (ImGui::ButtonBehavior(bb, id, &hovered, &held, true))
+        window->DC.StateStorage->SetInt(id, opened ? 0 : 1);
+    if (hovered || held)
+    {
+        const ImU32 bg_col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
+        window->DrawList->AddRectFilled(bb.Min, bb.Max, bg_col);
+    }
+
+    // Icon, text
+    float button_sz = g.FontSize + g.Style.FramePadding.y * 2;
+    window->DrawList->AddImage(inImage, pos, ImVec2(pos.x + button_sz, pos.y + button_sz), ImVec2(0, 0), ImVec2(1, 1));
+    ImGui::RenderText(ImVec2(pos.x + button_sz + g.Style.ItemInnerSpacing.x, pos.y + g.Style.FramePadding.y), label);
+
+    ImGui::ItemSize(bb, g.Style.FramePadding.y);
+    ImGui::ItemAdd(bb, id);
+
+    if (opened)
+        ImGui::TreePush(label);
+    return opened;
+}

@@ -61,8 +61,8 @@ namespace fms
 		virtual void init(EntityManager& em, EventManager& event);
 		virtual void pre_update(EntityManager& em);
 
-		virtual void Start() {}
-		virtual void Stop() {}
+		virtual void Start();
+		virtual void Stop();
 	private:
 		void _InitStandardShapes();
 		void _ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
@@ -101,5 +101,6 @@ namespace fms
 		fm::OGLCamera* _currentCamera = nullptr;
 		fm::OGLUniformbuffer											_ssbo;
 		std::shared_ptr<fm::Window>										_window = nullptr;
+		bool															_running = false;
 	};
 }

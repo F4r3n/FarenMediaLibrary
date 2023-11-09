@@ -4,7 +4,7 @@
 #include <cstring>
 #include <nlohmann/json.hpp>
 using namespace fm;
-Image::Image(const fm::FilePath& inPath) : Resource(inPath)
+Image::Image(const fm::FilePath& inPath)
 {
 	_path = inPath;
 }
@@ -75,24 +75,16 @@ bool Image::create(const math::Vector2i& inSize)
 
 bool Image::LoadImage()
 {
-	_pixel = stbi_load(_path.GetPathString().c_str(), &_size.x, &_size.y, 0, STBI_rgb_alpha);
 	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
+	if (_path.GetExtension() == ".jpg")
+	{
+		_canalNumber = IMAGE_CANAL_NUMBER::RGB;
+	}
+	int c;
+	_pixel = stbi_load(_path.GetPathString().c_str(), &_size.x, &_size.y, &c, _canalNumber);
+	_canalNumber = (IMAGE_CANAL_NUMBER)c;
 	if(_pixel == nullptr) return false;
 	return true;
 }
 
 
-void Image::Load(const nlohmann::json& inJSON)
-{
-	Resource::Load(inJSON);
-	_mipmapLevel = inJSON["params"]["mipmapLevel"];
-	_canalNumber = inJSON["params"]["canalNumber"];
-}
-
-void Image::Save(nlohmann::json& outJSON) const
-{
-	Resource::Save(outJSON);
-
-	outJSON["params"]["mipmapLevel"] = _mipmapLevel;
-	outJSON["params"]["canalNumber"] = _canalNumber;
-}

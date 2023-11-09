@@ -16,7 +16,7 @@ std::shared_ptr<fm::OGLTexture> TextureCache::FindOrCreateTexture(std::shared_pt
 	fm::Image image(inTexture->GetPath());
 	if (image.LoadImage())
 	{
-		texture = std::make_shared<fm::OGLTexture>();
+		texture = std::make_shared<fm::OGLTexture>(image);
 		_textures.emplace(inTexture->GetID(), texture);
 	}
 	else

@@ -3,6 +3,7 @@
 #include "Core/application.h"
 #include "Editor.h"
 #include "Rendering/Texture2D.hpp"
+#include "Resources/IconManager.hpp"
 using namespace gui;
 
 GToolBar::GToolBar() : GWindow("GToolBar", true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoResize)
@@ -21,14 +22,12 @@ void GToolBar::_Update(float, Context &inContext)
 {
 	if (_textureStart == nullptr)
 	{
-		_textureStart = fm::Texture2D::CreateTexture2D(GRAPHIC_API::OPENGL,
-			fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "editor/images/PlayButton.png"));
+		_textureStart =  gui::LoadIconEditor("PlayButton.png");
 	}
 
 	if (_textureStop == nullptr)
 	{
-		_textureStop = fm::Texture2D::CreateTexture2D(GRAPHIC_API::OPENGL,
-			fm::FilePath(fm::LOCATION::INTERNAL_RESOURCES_LOCATION, "editor/images/StopButton.png"));
+		_textureStop = gui::LoadIconEditor("StopButton.png");
 	}
 
 	_UpdateInputTransformContext(inContext);
@@ -72,12 +71,16 @@ void GToolBar::_DrawStartStop()
 			ImGui::BeginDisabled();
 		}
 
-		if (ImGui::ImageButton("textureStart", ImTextureID((intptr_t)_textureStart->GetID()), ImVec2(25, 25)))
+		if (_textureStart != nullptr)
 		{
-			AddEvent([](GWindow*, std::optional<gui::Context> context) {
-				Editor::Get().Start();
-			});	
+			if (ImGui::ImageButton("textureStart", ImTextureID((intptr_t)_textureStart->GetID()), ImVec2(25, 25)))
+			{
+				AddEvent([](GWindow*, std::optional<gui::Context> context) {
+					Editor::Get().Start();
+					});
+			}
 		}
+
 		if (status)
 		{
 			ImGui::EndDisabled();
@@ -91,13 +94,17 @@ void GToolBar::_DrawStartStop()
 		{
 			ImGui::BeginDisabled();
 		}
-		if (ImGui::ImageButton("textureStop", ImTextureID((intptr_t)_textureStop->GetID()), ImVec2(25, 25)))
+		if (_textureStop != nullptr)
 		{
+			if (ImGui::ImageButton("textureStop", ImTextureID((intptr_t)_textureStop->GetID()), ImVec2(25, 25)))
+			{
 
-			AddEvent([](GWindow*, std::optional<gui::Context> Context) {
-				Editor::Get().Stop();
-			});
+				AddEvent([](GWindow*, std::optional<gui::Context> Context) {
+					Editor::Get().Stop();
+					});
+			}
 		}
+
 		if (status)
 		{
 			ImGui::EndDisabled();

@@ -59,13 +59,22 @@ void OGLMaterial::Bind(const fm::MaterialValues& inMaterialProperties, fm::Textu
 			}
 			else//blank
 			{
-				inTextures.GetBlank()->bind(texture.info.bindingPoint);
+				//inTextures.GetBlank()->bind(texture.info.bindingPoint);
 			}
 		}
 		if (_materialStamp != _material->GetStamp())
 		{
 			_materialStamp = _material->GetStamp();
 			_materialBuffer.SetData(_material->GetBufferPtr(), _material->GetBufferSize());
+			_texturesInfo = _material->GetMaterialBufferInfo_Textures(GRAPHIC_API::OPENGL);
+
+			for (const auto& texture : _texturesInfo)
+			{
+				if (auto t = texture.texture.lock())
+				{
+					inTextures.FindOrCreateTexture(t);
+				}
+			}
 		}
 	}
 }

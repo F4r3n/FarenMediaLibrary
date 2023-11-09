@@ -81,20 +81,11 @@ void VkRenderingSystem::_InitStandardShapes()
 	quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
 	//cube->AddMesh(fm::StandardShapes::CreateTriangle(_api));
 	fm::FilePath models(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION));
-
 	fm::FilePath cubeModel = models.ToSub("cube.obj");
 	std::shared_ptr<fm::Model> cube = fm::MeshLoader::Load(cubeModel, "Cube").value();
-	//cube->AddMesh(fm::StandardShapes::CreateCube());
-
-
-	//fm::ResourcesManager::get().load<fm::Model>(quad->GetName(), quad);
-	//fm::ResourcesManager::get().load<fm::Model>(quadFS->GetName(), quadFS);
-	//fm::ResourcesManager::get().load<fm::Model>(circle->GetName(), circle);
 	fm::ResourcesManager::get().load<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"), cube);
-	//_staticModels.emplace(quad->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quad));
+
 	_staticModels.emplace(cube->GetID(), std::make_unique<fm::VkModel>(_vulkan.get(), cube));
-	//_staticModels.emplace(quadFS->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), quadFS));
-	//_staticModels.emplace(circle->GetID(), std::make_unique<fm::VkModel>(_vulkan->GetAllocator(), circle));
 
 	for (const auto& m : _staticModels)
 	{

@@ -7,6 +7,7 @@
 namespace fm
 {
 	class GameObject;
+	class Texture2D;
 }
 
 
@@ -86,6 +87,10 @@ namespace gui
 		float	_splitter_1 = -1;
 		float	_splitter_2 = -1;
 
+		std::shared_ptr<fm::Texture2D>	_folderIcon = nullptr;
+		std::shared_ptr<fm::Texture2D>	_fileIcon = nullptr;
+
+		std::shared_ptr<fm::Texture2D>	_textureDraging = nullptr;
 
 		//fm::FilePath
 	};

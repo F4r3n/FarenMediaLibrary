@@ -24,6 +24,8 @@ Material Material::Clone() const
 	mat._uniforms = _uniforms;
 	mat._bufferSize = _bufferSize;
 	mat._materialPropertiesInfos = _materialPropertiesInfos;
+	mat._materialTexturesInfos = _materialTexturesInfos;
+
 	memcpy(mat._buffer, _buffer, _bufferSize);
 	return mat;
 }
@@ -36,6 +38,8 @@ void Material::From(const fm::Material& inMaterial)
 	_bufferSize = inMaterial._bufferSize;
 	_buffer = (unsigned char*)calloc(_bufferSize, sizeof(unsigned char));
 	_materialPropertiesInfos = inMaterial._materialPropertiesInfos;
+	_materialTexturesInfos = inMaterial._materialTexturesInfos;
+
 	if (_buffer == nullptr)
 	{
 		assert(false);
@@ -75,6 +79,15 @@ void Material::_FillJSONValue(nlohmann::json& valueJSON, const std::string& inNa
 		valueJSON["value"] = inValue.getVector4();
 	else if (type == fm::ValuesType::VALUE_VECTOR4_UINTEGER)
 		valueJSON["value"] = inValue.getVector4ui();
+	else if (type == fm::ValuesType::VALUE_TEXTURE)
+	{
+		auto texture = inValue.getTexture();
+		if (texture != nullptr)
+		{
+			valueJSON["value"] = fm::FileSystem::ConvertPathToFileSystem(texture->GetPath());
+		}
+
+	}
 }
 
 void Material::Save(nlohmann::json& outJSON) const
@@ -161,7 +174,7 @@ void Material::_GetJSONValue(const nlohmann::json& valueJSON, std::string& outNa
 	else if(type == fm::ValuesType::VALUE_TEXTURE)
 	{
 		fm::FilePath path((std::string)valueJSON["value"]);
-		outValue = fm::MaterialValue(fm::ResourcesManager::get().getResource<fm::Texture>(path));
+		outValue = std::make_shared<fm::Texture>(path);
 	}
 }
 
@@ -178,6 +191,7 @@ void Material::Load(const nlohmann::json& inJSON)
 	fm::FilePath path = fm::FilePath((std::string)params["shader"]);
 	_shaderPath = path;
 	_BuildMaterialPropertiesInfo();
+	_materialTexturesInfos = GetMaterialBufferInfo_Textures(GRAPHIC_API::OPENGL);
 	if (params.contains("shaderKind"))
 	{
 		_shaderkind = params["shaderKind"];
@@ -195,6 +209,10 @@ void Material::Load(const nlohmann::json& inJSON)
 			if (auto it2 = _materialPropertiesInfos.find(name); it2 != _materialPropertiesInfos.end())
 			{
 				UpdateProperty(name, value, it2->second.offset);
+			}
+			else
+			{
+				_properties[name] = value;
 			}
 		}
 	}
@@ -545,6 +563,7 @@ std::vector<Material::MaterialBufferInfo_Texture> Material::GetMaterialBufferInf
 			auto value = it->second;
 			texture.texture = value.getTexture();
 		}
+		texture.name = uniform.name;
 		textures.push_back(texture);
 
 	}
@@ -558,27 +577,48 @@ std::vector<Material::MaterialBufferInfo_Texture> Material::GetMaterialBufferInf
 }
 
 
-void Material::SetAlbedoTexture(const fm::FilePath& inPath)
+void Material::SetStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTextureKind, const fm::FilePath& inPath)
 {
 	auto info = GetMaterialPropertiesInfo();
-	if (auto it = info.find("Material._properties"); it != info.end())
+	if (auto it = info.find("MaterialBuffer._properties"); it != info.end())
 	{
-		_properties["Texture_albedo"] = fm::MaterialValue(fm::ResourcesManager::get().getResource<fm::Texture>(inPath));
+		if (inTextureKind >= _materialTexturesInfos.size())
+		{
+			assert(false); //Too many textures
+		}
+
+		_properties[_materialTexturesInfos[inTextureKind].name] = fm::MaterialValue(fm::ResourcesManager::get().getResource<fm::Texture>(inPath));
 		fm::math::vec4ui properties;
-		if (auto it2 = _properties.find("Material._properties"); it2 != _properties.end())
+		if (auto it2 = _properties.find("MaterialBuffer._properties"); it2 != _properties.end())
 		{
 			properties = it2->second.getVector4ui();
 		}
-		properties.x |= unsigned int(1 << fm::STANDARD_MATERIAL_PROPERTIES::TEXTURE_ALBEDO);
-		UpdateProperty("Material._properties", properties, it->second.offset);
-
+		properties.x |= unsigned int(1 << inTextureKind);
+		UpdateProperty("MaterialBuffer._properties", properties, it->second.offset);
 	}
+}
+std::shared_ptr<fm::Texture> Material::GetStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTextureKind) const
+{
+	if (inTextureKind >= _materialTexturesInfos.size())
+	{
+		assert(false); //Too many textures
+	}
+
+	if (auto it = _properties.find(_materialTexturesInfos[inTextureKind].name); it != _properties.end())
+	{
+		return it->second.getTexture();
+	}
+	return nullptr;
 }
 
 
-bool Material::HasAlbedoTexture() const
+bool Material::HasStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTextureKind) const
 {
-	return _properties.contains("Texture_albedo");
+	if (inTextureKind >= _materialTexturesInfos.size())
+	{
+		assert(false); //Too many textures
+	}
+	return _properties.contains(_materialTexturesInfos[inTextureKind].name);
 }
 
 

@@ -26,6 +26,7 @@
 #include "Window/GFileNavigator.h"
 #include "Window/GMaterialEditor.h"
 #include "Window/GLauncher.h"
+#include "Window/GTextureEditor.hpp"
 
 #include "Resource/ResourcesManager.h"
 #include "Resource/ResourceLoader.h"
@@ -58,6 +59,7 @@ MainWindow::MainWindow()
 	_windows[gui::WINDOWS::WIN_INSPECTOR] = std::make_unique<gui::GListComponent>();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR] = std::make_unique<gui::GFileNavigator>();
 	_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR] = std::make_unique<gui::GMaterialEditor>();
+	_windows[gui::WINDOWS::WIN_TEXTURE_EDITOR] = std::make_unique<gui::GTextureEditor>();
 	_windows[gui::WINDOWS::WIN_LAUNCHER] = std::make_unique<gui::GLauncher>();
 	for (auto&& [key, value] : _windows)
 	{
@@ -86,7 +88,6 @@ void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 	_windows[gui::WINDOWS::WIN_SCENE_VIEW]->Start();
 	_windows[gui::WINDOWS::WIN_INSPECTOR]->Start();
 	_windows[gui::WINDOWS::WIN_FILE_NAVIGATOR]->Start();
-	//_windows[gui::WINDOWS::WIN_MATERIAL_EDITOR]->Start();
 
 	fm::FilePath path(fm::LOCATION::USER_LOCATION);
 	_RefreshResources(path);

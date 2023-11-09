@@ -20,10 +20,9 @@ namespace fm
 		SHADER
 	};
 
-	enum STANDARD_MATERIAL_PROPERTIES
+	enum STANDARD_MATERIAL_PROPERTIES_TEXTURE
 	{
-		ALBEDO = 0,
-		TEXTURE_ALBEDO = 1
+		TEXTURE_ALBEDO = 0
 	};
 	using MaterialValues = std::unordered_map< std::string, MaterialValue>;
 
@@ -59,6 +58,7 @@ namespace fm
 		struct MaterialBufferInfo_Texture
 		{
 			MaterialBufferInfo			info;
+			std::string					name;
 			std::weak_ptr<fm::Texture>	texture;
 		};
 
@@ -121,8 +121,9 @@ namespace fm
 
 		static std::shared_ptr<fm::Material> GetDefaultStandardMaterial();
 		std::unordered_map<std::string, MaterialValueInfo> GetMaterialPropertiesInfo() const;
-		bool HasAlbedoTexture() const;
-		void SetAlbedoTexture(const fm::FilePath& inPath);
+		bool HasStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTextureKind) const;
+		std::shared_ptr<fm::Texture> GetStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTextureKind) const;
+		void SetStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTextureKind, const fm::FilePath& inPath);
 	private:
 		void _BuildMaterialPropertiesInfo();
 		void _UpdateInternalBuffWithProperties();
@@ -139,10 +140,11 @@ namespace fm
 		MaterialValues		_properties;
 		MaterialValues		_uniforms;
 		std::unordered_map<std::string, MaterialValueInfo> _materialPropertiesInfos;
-
+		std::vector< MaterialBufferInfo_Texture>		   _materialTexturesInfos;
 
 		unsigned char*		_buffer = nullptr;
 		uint32_t			_bufferSize = 0;
+
 
 	public:
 		uint32_t GetID() const { return _currentID; }

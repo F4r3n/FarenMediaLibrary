@@ -41,6 +41,7 @@
 #include "Rendering/RenderTexture.h"
 #include "Rendering/Image.h"
 #include "Rendering/Texture.h"
+#include "Rendering/meshloader.hpp"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -108,7 +109,13 @@ void OGLRenderingSystem::_InitStandardShapes()
 	std::shared_ptr<fm::Model> quad = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Quad"));
 	std::shared_ptr<fm::Model> quadFS = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "QuadFS"));
 	std::shared_ptr<fm::Model> circle = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Circle"));
-	std::shared_ptr<fm::Model> cube = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"));
+	//std::shared_ptr<fm::Model> cube = std::make_shared<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"));
+
+	fm::FilePath models(fm::ResourcesManager::GetFilePathResource(fm::LOCATION::INTERNAL_MODELS_LOCATION));
+	fm::FilePath cubeModel = models.ToSub("cube.obj");
+	std::shared_ptr<fm::Model> cube = fm::MeshLoader::Load(cubeModel, "Cube").value();
+	fm::ResourcesManager::get().load<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"), cube);
+
 	quad->AddMesh(fm::StandardShapes::CreateQuad());
 	circle->AddMesh(fm::StandardShapes::CreateCircle());
 	quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
@@ -168,11 +175,13 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 
 	for (auto&& e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
 	{
-		LOG_DEBUG
-			fmc::CCamera* cam = e.get<fmc::CCamera>();
+		LOG_DEBUG;
+		fmc::CCamera* cam = e.get<fmc::CCamera>();
 		if (!cam->Enabled || (!cam->IsAuto() && cam->GetCommandBuffer().empty()))
 			continue;
 
+		if (cam->IsAuto() && !_running)
+			continue;
 
 		fmc::CTransform* transform = e.get<fmc::CTransform>();
 
@@ -191,44 +200,44 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 				cam->GetTarget()->create();
 			}
 		}
-		LOG_DEBUG
+		LOG_DEBUG;
 
-			if (cam->IsAuto())
+		if (cam->IsAuto())
+		{
+			if (cam->HasTarget())
 			{
-				if (cam->HasTarget())
-				{
-					cam->GetTarget()->bind();
-					_graphics.SetViewPort(cam->GetViewport());
-					_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-				}
-				else
-				{
-					//Clear buffers
-					_graphics.BindFrameBuffer(0);
-					_graphics.SetViewPort(cam->GetViewport());
-					_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-				}
-
-				cam->GetRendererConfig().postProcessRenderTexture.bind();
-				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-
-				cam->GetRenderTexture().bind();
+				cam->GetTarget()->bind();
 				_graphics.SetViewPort(cam->GetViewport());
 				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-				_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
-
-				if (_graphics.Enable(fm::RENDERING_TYPE::BLEND))
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 			else
 			{
-				_graphics.Disable(fm::RENDERING_TYPE::BLEND);
-				_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, cam, instance);
+				//Clear buffers
+				_graphics.BindFrameBuffer(0);
+				_graphics.SetViewPort(cam->GetViewport());
+				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 			}
 
-		LOG_DEBUG
-			//Prepare camera data
-			cam->UpdateShaderData();
+			cam->GetRendererConfig().postProcessRenderTexture.bind();
+			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+
+			cam->GetRenderTexture().bind();
+			_graphics.SetViewPort(cam->GetViewport());
+			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+			_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
+
+			if (_graphics.Enable(fm::RENDERING_TYPE::BLEND))
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+		else
+		{
+			_graphics.Disable(fm::RENDERING_TYPE::BLEND);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, cam, instance);
+		}
+
+		LOG_DEBUG;
+		//Prepare camera data
+		cam->UpdateShaderData();
 
 		int error = glGetError();
 		if (error != 0) {
@@ -289,6 +298,16 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 bool OGLRenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::CCamera* currentCamera)
 {
 	return !currentCamera->GetCommandBuffer()[inRenderQueue].empty();
+}
+
+void OGLRenderingSystem::Start()
+{
+	_running = true;
+}
+
+void OGLRenderingSystem::Stop()
+{
+	_running = false;
 }
 
 

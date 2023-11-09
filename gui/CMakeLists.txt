@@ -42,11 +42,13 @@ set(SOURCES ${SOURCES}
 	src/Window/GLauncher.cpp
 	src/Window/GWindow.cpp
 	src/Window/GMaterialEditor.cpp
+	src/Window/GTextureEditor.cpp
 	src/Export.cpp
 	src/ShaderCompiler.cpp
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp
 	src/ImGuizmo/ImGuizmo.cpp
+	src/Resources/IconManager.cpp
 	)
 
 include_directories("src")

@@ -131,13 +131,16 @@ void GEditorView::CustomDraw()
 							[this, path](Entity::Id id) {
 									_resultPicking = true;
 									_gameObjectSelectedByPicking = id;
-
-									std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
-									if (go != nullptr)
+									if (path.GetExtension() == ".material")
 									{
-										auto cmaterial = go->get<fmc::CMaterial>();
-										cmaterial->SetMainMaterial(path);
+										std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
+										if (go != nullptr)
+										{
+											auto cmaterial = go->get<fmc::CMaterial>();
+											cmaterial->SetMainMaterial(path);
+										}
 									}
+
 							});
 
 					});

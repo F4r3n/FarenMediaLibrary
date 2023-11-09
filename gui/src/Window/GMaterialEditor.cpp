@@ -14,7 +14,8 @@
 #include <variant>
 #include <fstream>
 #include <nlohmann/json.hpp>
-
+#include "Rendering/Texture2D.hpp"
+#include "Rendering/Texture.h"
 using namespace gui;
 
 GMaterialEditor::GMaterialEditor() : GWindow("Material Editor", true)
@@ -142,7 +143,7 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 					{
 						const std::string currentName = value.info.name;
 						std::visit(overloaded{
-							[currentName, material, &v](fm::math::vec4 &arg) {
+							[currentName, material, &v](fm::math::vec4& arg) {
 								ImGui::PushID(currentName.c_str());
 								if (ImGui::ColorEdit4("##", &arg[0], ImGuiColorEditFlags_NoLabel))
 								{
@@ -150,7 +151,7 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 								}
 								ImGui::PopID();
 							},
-							[](auto &arg) {  },
+							[](auto& arg) {},
 							}, value.value.GetVariant());
 
 					}
@@ -158,12 +159,9 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 				}
 			}
 
-			//Texture albedo
-			if (ImGui::Checkbox("Texture Albedo", &_textureCheckBox))
-			{
+			ImGui::Text("Texture");
+			_TextureViewer(material, fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE::TEXTURE_ALBEDO);
 
-			}
-			
 
 		}
 		else
@@ -175,6 +173,46 @@ void GMaterialEditor::DrawMaterialInspector(std::shared_ptr<fm::Material> inMate
 
 	}
 }
+
+void GMaterialEditor::_TextureViewer(std::shared_ptr<fm::Material> inMaterial, fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inKind)
+{
+	auto texture = inMaterial->GetStandardTexture(inKind);
+	ImTextureID id = nullptr;
+
+	if (texture != nullptr)
+	{
+		if (auto it = _textures.find(texture->GetID()); it != _textures.end())
+		{
+			id = (ImTextureID)intptr_t(it->second->GetID());
+		}
+		else
+		{
+			auto texture2D = fm::Texture2D::CreateTexture2D(GRAPHIC_API::OPENGL, texture->GetPath());
+			_textures.emplace(texture->GetID(), texture2D);
+			id = (ImTextureID)intptr_t(texture2D->GetID());
+		}
+
+	}
+	//Texture albedo
+	if (ImGui::ImageButton("Texture", id, ImVec2(128, 128)))
+	{
+
+	}
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FileNavigator"))
+		{
+			char* payload_n = (char*)payload->Data;
+			std::string data(payload_n);
+			fm::FilePath path = fm::FilePath(data);
+			inMaterial->SetStandardTexture(inKind, path);
+		}
+
+		ImGui::EndDragDropTarget();
+	}
+}
+
 
 void GMaterialEditor::_Save(std::shared_ptr<fm::Material> inMaterial)
 {
@@ -191,7 +229,6 @@ void GMaterialEditor::_Init(std::shared_ptr<fm::Material> inCurrentMaterial)
 	_currentMaterialKind = inCurrentMaterial->GetMaterialKind();
 	_properties.clear();
 	std::unordered_map<std::string, fm::MaterialValueInfo> properties = inCurrentMaterial->GetMaterialPropertiesInfo();
-	_textureCheckBox = inCurrentMaterial->HasAlbedoTexture();
 
 	auto currentProperties = inCurrentMaterial->GetProperties();
 

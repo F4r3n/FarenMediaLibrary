@@ -9,6 +9,9 @@
 #include "GMaterialEditor.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include "Resource/ResourceLoader.h"
+#include "Resources/IconManager.hpp"
+#include "imgui/imgui_user.h"
+#include "Rendering/Texture2D.hpp"
 using namespace gui;
 
 
@@ -209,7 +212,17 @@ GFileNavigator::GFileNavigator() : GWindow("File Navigator", true)
 
 void GFileNavigator::_Update(float dt, Context &inContext)
 {
-	_root = fm::Folder(fm::FilePath(fm::LOCATION::USER_LOCATION, ""));
+	if (_fileIcon == nullptr)
+	{
+		_fileIcon = gui::LoadIconEditor("FileIcon.png");
+	}
+
+	if (_folderIcon == nullptr)
+	{
+		_folderIcon = gui::LoadIconEditor("DirectoryIcon.png");
+	}
+
+	_root = fm::Folder(fm::FilePath(fm::LOCATION::USER_LOCATION));
 	if ((_root.GetPath().GetPath() != _currentFolderSelected.GetPath().GetPath()) && !_currentFolderSelected.Exist())
 	{
 		_currentFolderSelected = _root;
@@ -243,12 +256,19 @@ void GFileNavigator::_Update(float dt, Context &inContext)
 
 	if (_pathSelected.has_value())
 	{
+		inContext.currentPathSelected = _pathSelected;
+
 		if (_pathSelected.value().GetExtension() == ".material")
 		{
 			inContext.currentWindowToDisplay = gui::WINDOWS::WIN_MATERIAL_EDITOR;
-			inContext.currentPathSelected = _pathSelected;
 		}
+		else if (_pathSelected.value().GetExtension() == ".png" || _pathSelected.value().GetExtension() == ".jpg")
+		{
+			inContext.currentWindowToDisplay = gui::WINDOWS::WIN_TEXTURE_EDITOR;
+		}
+
 		_pathSelected = std::nullopt;
+		
 	}
 }
 
@@ -259,8 +279,8 @@ void GFileNavigator::DrawHierarchy(const fm::FilePath& inRoot, Node* currentNode
 		fm::FilePath p(inRoot);
 		p.ToSub(n.name);
 
-
-		bool opened = ImGui::TreeNodeEx(n.name.c_str());
+		
+		bool opened = TreeNodeWithIcon(n.name.c_str(), (ImTextureID)intptr_t(_folderIcon->GetID()));
 		
 		if (ImGui::IsItemClicked())
 		{
@@ -375,6 +395,17 @@ void GFileNavigator::CustomDraw()
 						ImGui::SetDragDropPayload("FileNavigator", moveData.c_str(), moveData.length() + 1);
 
 						ImGui::Text("Move %s", f.GetName(false).c_str());
+						if (f.GetExtension() == ".png" || f.GetExtension() == ".jpg")
+						{
+							if (_textureDraging == nullptr)
+							{
+								_textureDraging = fm::Texture2D::CreateTexture2D(GRAPHIC_API::OPENGL, f);
+							}
+							if (_textureDraging)
+							{
+								ImGui::Image(ImTextureID(intptr_t(_textureDraging->GetID())), ImVec2(128, 128));
+							}
+						}
 						ImGui::EndDragDropSource();
 					}
 				}
