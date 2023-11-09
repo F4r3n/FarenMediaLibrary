@@ -71,9 +71,8 @@ std::vector<fms::GPUObjectData> RenderQueue::GetSSBOData() const
 	std::vector<fms::GPUObjectData> datas;
 	for (const auto& node : _nodes)
 	{
-		for (const auto element : node)
+		for (const auto& element : node)
 		{
-
 			if (!element.model.expired())
 			{
 				fms::GPUObjectData data;

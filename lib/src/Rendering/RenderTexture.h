@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 namespace fm 
 {
 	enum class Format;

@@ -50,7 +50,7 @@ class OGLTexture
 
 	Filter filter = Filter::NEAREST;
 	Wrapping wrapping = Wrapping::REPEAT;
-	void UploadImage(const Image& image);
+	void				UploadImage(const Image& image);
    private:
 	void				_init(std::vector<unsigned char>& data, Recti& rect);
 
