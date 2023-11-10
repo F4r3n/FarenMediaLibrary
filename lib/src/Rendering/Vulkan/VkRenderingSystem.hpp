@@ -13,6 +13,7 @@
 #include "Rendering/GPUData.hpp"
 #include "Rendering/ShaderKind.hpp"
 #include "Rendering/SubShader.hpp"
+#include "Rendering/Vulkan/VkTextureCache.hpp"
 class Vulkan;
 
 namespace fm
@@ -87,7 +88,7 @@ namespace fms
 		std::array<FrameData, MAX_FRAMES_IN_FLIGHT>				_framesData;
 		VkDescriptorSetLayout									_globalSetLayout;
 		VkDescriptorSetLayout									_objectSetLayout;
-		VkDescriptorSetLayout									_textureSetLayout;
+		//VkDescriptorSetLayout									_textureSetLayout;
 
 		VkDescriptorPool										_descriptorPool;
 		GPUSceneData		_sceneParameters;
@@ -101,8 +102,8 @@ namespace fms
 		std::map<uint32_t, std::unique_ptr<fm::VkModel>>		_staticModels;
 		std::map<uint32_t, std::unique_ptr<fm::VkMaterial>>		_materials;
 		std::vector< fm::VkMaterial*>							_materialsToUpdate;
-		std::unordered_map<uint32_t, std::unique_ptr<fm::VkTexture>> _textures;
 		std::unordered_map<fm::ShaderID, std::shared_ptr<fm::VkShader>> _shaders;
+		std::unique_ptr<fm::VkTextureCache>								_textureCache;
 
 
 		fm::VkMaterial*				_currentMaterial;

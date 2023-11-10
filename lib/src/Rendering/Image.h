@@ -22,7 +22,6 @@ namespace fm
 		Image(const fm::FilePath& inPath);
 		Image(bool blank);
 		~Image();
-		unsigned char* getImagePtr();
 		bool create(const math::Vector2i& inSize);
 		bool LoadImage();
 		const math::Vector2i& getSize() const;
@@ -32,9 +31,12 @@ namespace fm
 
 		unsigned char* GetPtr() const { return _pixel; }
 		IMAGE_CANAL_NUMBER GetCanalNumber() const { return _canalNumber; }
+		IMAGE_CANAL_NUMBER GetInternalCanalNumber() const { return _internalCanalNumber; }
+
 	private:
 		size_t				_mipmapLevel = 0;
 		IMAGE_CANAL_NUMBER	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
+		IMAGE_CANAL_NUMBER	_internalCanalNumber = IMAGE_CANAL_NUMBER::RGBA;
 
 		unsigned char* _pixel = nullptr;
 		math::Vector2i _size;

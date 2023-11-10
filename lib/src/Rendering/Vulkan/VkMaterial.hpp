@@ -9,25 +9,49 @@ namespace fm
 	class VkPipelineBuilder;
 	class VkTexture;
 	class VkShader;
+	struct VkTextureCache;
 	class VkMaterial
 	{
 	public:
 
-		struct MaterialBuffer
+		struct Frame
 		{
-			VkDescriptorSetLayout				bufferLayout = nullptr;
-			std::vector<VkDescriptorSet>		descriptorSets;
-			fm::AllocatedBuffer					buffer;
-
-			uint32_t							bindingPoint = 0;
-			uint32_t							setPoint = 0;
-			uint32_t							maxBufferSize = 0;
-
-			bool								descriptorSetReady = false;
-			std::vector<size_t>					stamps;
+			VkDescriptorSet		descriptorSet;
+			unsigned char		descriptorSetReady;
+			size_t				stamp;
 		};
 
-		struct VkMaterialCreateInfo {
+		struct SetInfo
+		{
+			VkDescriptorSetLayout				layout = nullptr;
+			uint32_t							setPoint = 0;
+			std::vector<Frame>					frames;
+			Frame& GetFrame(unsigned int inFrameNumber)
+			{
+				if (inFrameNumber >= frames.size())
+					return frames.front();
+				return frames[inFrameNumber];
+			}
+		};
+
+		struct MaterialBuffer
+		{
+			fm::AllocatedBuffer			buffer;
+			uint32_t					maxBufferSize = 0;
+
+			uint32_t					bindingPoint;
+		};
+
+		struct MaterialBufferTexture
+		{
+			std::shared_ptr<fm::VkTexture>		vkTexture;
+			std::weak_ptr<fm::Texture>			texture;
+
+			uint32_t							bindingPoint;
+		};
+
+		struct VkMaterialCreateInfo
+		{
 			std::shared_ptr<fm::Material>		material;
 			Vulkan*								vulkan;
 			VkRenderPass						renderPass;
@@ -43,19 +67,20 @@ namespace fm
 
 		void Destroy();
 		void BindPipeline(VkCommandBuffer cmd, VkPipelineBindPoint inType);
-		void Update(VkDescriptorPool inPool);
+		void Update(VkDescriptorPool inPool, VkTextureCache& inCache);
 		VkPipelineLayout GetPipelineLayout() const;
 		bool BindSet(VkCommandBuffer inBuffer, uint32_t inFrameNumber);
 
-		bool isReady = false;
+		bool IsReady() const;
 	private:
 		std::shared_ptr<Material>			_material = nullptr;
 		std::unique_ptr<VkPipelineBuilder>	_pipeline = nullptr;
-		std::vector<VkTexture*>				_textures;
-		std::vector<VkDescriptorSet>		_textureDescriptorSets;
-		VkDescriptorSetLayout				_textureLayout;
 		Vulkan*								_vulkan = nullptr;
 
 		MaterialBuffer						_materialBuffer;
+		SetInfo								_materialBufferInfo;
+
+		std::vector<MaterialBufferTexture>	_materialBufferTextures;
+		SetInfo								_materialBufferTextureInfo;
 	};
 }

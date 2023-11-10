@@ -49,10 +49,6 @@ void Image::getPart(std::vector<unsigned char>& imagePart, Recti rect) const
 	}
 }
 
-unsigned char* Image::getImagePtr()
-{
-	return _pixel;
-}
 
 size_t Image::GetDataSize() const
 {
@@ -81,8 +77,9 @@ bool Image::LoadImage()
 		_canalNumber = IMAGE_CANAL_NUMBER::RGB;
 	}
 	int c;
-	_pixel = stbi_load(_path.GetPathString().c_str(), &_size.x, &_size.y, &c, _canalNumber);
-	_canalNumber = (IMAGE_CANAL_NUMBER)c;
+	_pixel = stbi_load(_path.GetPathString().c_str(), &_size.x, &_size.y, &c, STBI_rgb_alpha);
+	_canalNumber = IMAGE_CANAL_NUMBER::RGBA;
+	_internalCanalNumber = (IMAGE_CANAL_NUMBER)c;
 	if(_pixel == nullptr) return false;
 	return true;
 }

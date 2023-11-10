@@ -5,7 +5,7 @@
 
 using namespace fm;
 
-VkTexture::VkTexture(Vulkan* inVulkan, std::function<void(std::function<void(VkCommandBuffer cmd)>)>&& inSubmit)
+VkTexture::VkTexture(Vulkan* inVulkan, std::function<void(std::function<void(VkCommandBuffer cmd)>)>& inSubmit)
 {
 	_vulkan = inVulkan;
 	_submitBuffer = inSubmit;
@@ -14,29 +14,31 @@ VkTexture::VkTexture(Vulkan* inVulkan, std::function<void(std::function<void(VkC
 
 }
 
-bool VkTexture::UploadImage(const fm::FilePath& inPath)
+bool VkTexture::UploadImage(const fm::Image& inImage)
 {
-	Image image(inPath);
-	
-	if (!image.LoadImage()) {
-		fm::Debug::get().LogError("Failed to load texture file " + inPath.GetPathString());
-		return false;
-	}
+	return _UploadImage(inImage);
+}
 
-	fm::AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(image.GetDataSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_AUTO,
+bool VkTexture::_UploadImage(const fm::Image& inImage)
+{
+	fm::AllocatedBuffer stagingBuffer = _vulkan->CreateBuffer(inImage.GetDataSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_AUTO,
 		(VmaAllocationCreateFlagBits)(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT));
-	_vulkan->MapBuffer(stagingBuffer, (void*)image.getImagePtr(), image.GetDataSize(), 0);
+	_vulkan->MapBuffer(stagingBuffer, (void*)inImage.GetPtr(), inImage.GetDataSize(), 0);
 
 
 	VkExtent3D imageExtent;
-	imageExtent.width = static_cast<uint32_t>(image.getSize().x);
-	imageExtent.height = static_cast<uint32_t>(image.getSize().y);
+	imageExtent.width = static_cast<uint32_t>(inImage.getSize().x);
+	imageExtent.height = static_cast<uint32_t>(inImage.getSize().y);
 	imageExtent.depth = 1;
 
 	_size.x = imageExtent.width;
 	_size.y = imageExtent.height;
 
 	VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB;
+	if (inImage.GetCanalNumber() == fm::Image::IMAGE_CANAL_NUMBER::RGB)
+	{
+		image_format = VK_FORMAT_R8G8B8_SRGB;
+	}
 
 	VkImageCreateInfo dimg_info = vk_init::CreateImageInfo(image_format, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, imageExtent);
 
@@ -45,10 +47,10 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 	VmaAllocationCreateInfo dimg_allocinfo = {};
 	dimg_allocinfo.usage = VMA_MEMORY_USAGE_AUTO;
 	dimg_allocinfo.flags = 0;
-	
+
 	vmaCreateImage(_vulkan->GetAllocator(), &dimg_info, &dimg_allocinfo, &newImage._image, &newImage._allocation, nullptr);
 
-	image.clear();
+	//image.clear();
 
 	_submitBuffer([&newImage, &imageExtent, &stagingBuffer, this](VkCommandBuffer cmd) {
 		VkImageSubresourceRange range;
@@ -96,7 +98,7 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 
 		//barrier the image into the shader readable layout
 		vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier_toReadable);
-	});
+		});
 
 	// Create a default sampler
 	VkSamplerCreateInfo samplerCreateInfo = {};
@@ -129,7 +131,7 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 	viewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 	// Linear tiling usually won't support mip maps
 	// Only set mip map count if optimal tiling is used
-	viewCreateInfo.subresourceRange.levelCount = _mipLevels == 0? VK_REMAINING_MIP_LEVELS : _mipLevels;
+	viewCreateInfo.subresourceRange.levelCount = _mipLevels == 0 ? VK_REMAINING_MIP_LEVELS : _mipLevels;
 	viewCreateInfo.image = newImage._image;
 	vkCreateImageView(_vulkan->GetDevice(), &viewCreateInfo, nullptr, &_view);
 
@@ -139,6 +141,22 @@ bool VkTexture::UploadImage(const fm::FilePath& inPath)
 	_descriptor.imageView = _view;
 	_descriptor.sampler = _sampler;
 
+	return true;
+}
+
+
+bool VkTexture::UploadImage(const fm::FilePath& inPath)
+{
+	Image image(inPath);
+	
+	if (!image.LoadImage()) {
+		fm::Debug::get().LogError("Failed to load texture file " + inPath.GetPathString());
+		return false;
+	}
+	_UploadImage(image);
+	image.clear();
+
+	
 	return true;
 }
 

@@ -47,6 +47,7 @@ void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
 	//auto it = _textures.emplace(0, std::make_unique<fm::VkTexture>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); }));
 	//it.first->second->UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
 	//texture.Destroy();
+	_textureCache = std::make_unique<fm::VkTextureCache>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); });
 }
 
 bool VkRenderingSystem::_SetupUploadContext()
@@ -223,11 +224,11 @@ bool VkRenderingSystem::_SetupDescriptors()
 	if (_objectSetLayout == nullptr)
 		return false;
 
-	VkDescriptorSetLayoutBinding textureBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-	_textureSetLayout = _vulkan->CreateDescriporSetLayout({ textureBinding });
-	if (_textureSetLayout == nullptr)
-		return false;
+	//VkDescriptorSetLayoutBinding textureBinding = vk_init::CreateDescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+	//	VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+	//_textureSetLayout = _vulkan->CreateDescriporSetLayout({ textureBinding });
+	//if (_textureSetLayout == nullptr)
+	//	return false;
 
 	return true;
 }
@@ -424,7 +425,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 
 		}
 
-		if (!_currentMaterial->isReady)
+		if (!_currentMaterial->IsReady())
 			continue;
 
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
@@ -473,7 +474,7 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 
 	for (auto& material : _materialsToUpdate)
 	{
-		material->Update(_descriptorPool);
+		material->Update(_descriptorPool, *_textureCache);
 	}
 	_materialsToUpdate.clear();
 
@@ -569,7 +570,7 @@ VkRenderingSystem::~VkRenderingSystem()
 	vkDestroyCommandPool(_vulkan->GetDevice(), _uploadContext._commandPool, nullptr);
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _globalSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _objectSetLayout, nullptr);
-	vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _textureSetLayout, nullptr);
+	//vkDestroyDescriptorSetLayout(_vulkan->GetDevice(), _textureSetLayout, nullptr);
 
 	vkDestroyDescriptorPool(_vulkan->GetDevice(), _descriptorPool, nullptr);
 	for (const auto& [_, model] : _staticModels)
@@ -577,10 +578,7 @@ VkRenderingSystem::~VkRenderingSystem()
 		model->Destroy();
 	}
 
-	for (const auto& [_, texture] : _textures)
-	{
-		texture->Destroy();
-	}
+	_textureCache->Destroy();
 
 	for (const auto& [_, shader] : _shaders)
 	{
