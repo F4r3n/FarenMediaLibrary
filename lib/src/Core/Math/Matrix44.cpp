@@ -1,4 +1,3 @@
-#pragma once
 #include "Matrix44.h"
 #include "Vector4.h"
 #include <nlohmann/json.hpp>

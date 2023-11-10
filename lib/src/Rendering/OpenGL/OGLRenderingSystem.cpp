@@ -575,10 +575,8 @@ fm::RenderQueue OGLRenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager&
 		fmc::CMesh* mesh = e.get<fmc::CMesh>();
 		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		bool add = false;
-		bool hasMesh = false;
 		if (mesh != nullptr && material != nullptr && mesh->GetModel() != nullptr)
 		{
-			hasMesh = true;
 			node.model = mesh->GetModel();
 			node.material = material->GetMainMaterial();
 			add = true;

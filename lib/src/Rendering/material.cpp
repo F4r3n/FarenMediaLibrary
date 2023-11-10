@@ -593,7 +593,7 @@ void Material::SetStandardTexture(fm::STANDARD_MATERIAL_PROPERTIES_TEXTURE inTex
 		{
 			properties = it2->second.getVector4ui();
 		}
-		properties.x |= unsigned int(1 << inTextureKind);
+		properties.x |= (unsigned int)(1 << inTextureKind);
 		UpdateProperty("MaterialBuffer._properties", properties, it->second.offset);
 	}
 }

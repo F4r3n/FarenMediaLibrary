@@ -1,4 +1,3 @@
-#pragma once
 #include "Vector4.h"
 #include <nlohmann/json.hpp>
 

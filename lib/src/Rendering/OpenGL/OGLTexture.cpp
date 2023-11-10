@@ -131,6 +131,8 @@ GLint  ConvertCanalNumberTo_GLInternalFormat(Image::IMAGE_CANAL_NUMBER inCanal)
 	case Image::IMAGE_CANAL_NUMBER::R:
 		return GL_RED;
 	}
+	assert(false);
+	return GL_RGBA;
 }
 
 void OGLTexture::UploadImage(const Image& image)
