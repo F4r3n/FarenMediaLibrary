@@ -328,12 +328,11 @@ void GFileNavigator::CustomDraw()
 	if (_splitter_1 <= 0)
 		_splitter_1 = GetSize().x * 0.5f;
 
-	if (_splitter_2 <= 0)
-		_splitter_2 = GetSize().x * 0.5f;
-	float h = GetSize().y;
+	_splitter_2 = GetSize().x - _splitter_1 - 20;
+	float h = GetSize().y - 60;
 
-	Splitter(true, 8.0f, &_splitter_1, &_splitter_2, 8, 8, h);
-	if (ImGui::BeginChild("##folderNavigator", ImVec2(_splitter_1, 0), false, ImGuiWindowFlags_NoTitleBar))
+	Splitter(true, 2.0f, &_splitter_1, &_splitter_2, 2, 2, h);
+	if (ImGui::BeginChild("##folderNavigator", ImVec2(_splitter_1, h), false, ImGuiWindowFlags_NoTitleBar))
 	{
 		bool hasPopupOpened = false;
 		DrawHierarchy(_cache.GetRoot(), _cache.GetRootNode(), hasPopupOpened);
@@ -355,7 +354,7 @@ void GFileNavigator::CustomDraw()
 	if (_currentFolderSelected.GetPath().IsValid())
 	{
 
-		if(ImGui::BeginChild("##files", ImVec2(_splitter_2, 0), false, ImGuiWindowFlags_NoTitleBar))
+		if(ImGui::BeginChild("##files", ImVec2(_splitter_2, h), false, ImGuiWindowFlags_NoTitleBar))
 		{
 			bool hasSelectedAnItem = false;
 			for (auto && f : _listFiles)

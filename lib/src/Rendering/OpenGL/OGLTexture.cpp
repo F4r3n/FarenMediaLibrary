@@ -118,7 +118,7 @@ OGLTexture::OGLTexture(const Image& image)
 	UploadImage(image);
 }
 
-GLint  ConvertCanalNumberTo_GLInternalFormat(Image::IMAGE_CANAL_NUMBER inCanal)
+GLint  ConvertCanalNumberTo_GLFormat(Image::IMAGE_CANAL_NUMBER inCanal)
 {
 	switch (inCanal)
 	{
@@ -142,15 +142,14 @@ void OGLTexture::UploadImage(const Image& image)
 
 	_width = image.getSize().x;
 	_height = image.getSize().y;
-	GLint  canalNumber = ConvertCanalNumberTo_GLInternalFormat(image.GetCanalNumber());
 
 	glTexImage2D((GLenum)_textureKind,
 		0,
-		canalNumber,
+		ConvertCanalNumberTo_GLFormat(image.GetInternalCanalNumber()),
 		(GLsizei)_width,
 		(GLsizei)_height,
 		0,
-		canalNumber,
+		ConvertCanalNumberTo_GLFormat(image.GetCanalNumber()),
 		GL_UNSIGNED_BYTE,
 		image.GetPtr());
 

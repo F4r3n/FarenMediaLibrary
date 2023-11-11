@@ -4,14 +4,35 @@
 #include "Editor.h"
 #include "Rendering/Texture2D.hpp"
 #include "Resources/IconManager.hpp"
+#include <imgui/imgui_internal.h>
+
 using namespace gui;
 
-GToolBar::GToolBar() : GWindow("GToolBar", true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoResize)
+GToolBar::GToolBar() : GWindow("GToolBar", true,
+	ImGuiWindowFlags_NoTitleBar
+	| ImGuiWindowFlags_NoScrollbar
+	| ImGuiWindowFlags_NoScrollWithMouse
+	| ImGuiWindowFlags_AlwaysUseWindowPadding)
 {
 	_enabled = true;
 	_state = TRANSFORM_CONTEXT::TRANSLATE;
 	_kind = WINDOWS::WIN_TOOLBAR;
 }
+
+void GToolBar::OnInit()
+{
+	ImGuiWindowClass window_class;
+	window_class.DockingAllowUnclassed = true;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoCloseButton;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_HiddenTabBar; // ImGuiDockNodeFlags_NoTabBar // FIXME: Will need a working Undock widget for _NoTabBar to work
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingSplitMe;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverMe;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverOther;
+	window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeY;
+
+	ImGui::SetNextWindowClass(&window_class);
+}
+
 
 GToolBar::~GToolBar()
 {
@@ -163,6 +184,7 @@ void GToolBar::_DrawTransformContext()
 	{
 		ImGui::EndDisabled();
 	}
+
 }
 
 
@@ -170,4 +192,11 @@ void GToolBar::CustomDraw()
 {
 	_DrawTransformContext();
 	_DrawStartStop();
+}
+
+void GToolBar::BeforeWindowCreation()
+{
+}
+void GToolBar::AfterWindowCreation()
+{
 }

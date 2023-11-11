@@ -75,7 +75,6 @@ void GWindow::Draw()
 
 		bool previousStatus = _enabled;
 
-
 		BeforeWindowCreation();
 		if (_modal)
 		{
