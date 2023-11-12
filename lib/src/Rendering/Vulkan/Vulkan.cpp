@@ -617,8 +617,9 @@ fm::AllocatedBuffer Vulkan::CreateBuffer(size_t allocSize, VkBufferUsageFlags us
 
 void* Vulkan::MapBuffer(fm::AllocatedBuffer& inBuffer, void* inData, size_t inDataSize, size_t inOffset) const
 {
-	char* data;
-	vmaMapMemory(_allocator, inBuffer._allocation, (void**)&data);
+	char* data = nullptr;
+	if (vmaMapMemory(_allocator, inBuffer._allocation, (void**)&data) != VK_SUCCESS)
+		return nullptr;
 	data += inOffset;
 	memcpy((char*)data, inData, inDataSize);
 	vmaUnmapMemory(_allocator, inBuffer._allocation);
@@ -714,14 +715,6 @@ bool Vulkan::_SetupSwapChainImageViews(VkDevice inDevice)
 
 	for (size_t i = 0; i < _swapChainImages.size(); i++)
 	{
-
-		//depth image size will match the window
-		VkExtent3D depthImageExtent = {
-			_swapChainExtent.width,
-			_swapChainExtent.height,
-			1
-		};
-
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfo.image = _swapChainImages[i];
