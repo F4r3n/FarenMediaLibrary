@@ -58,6 +58,7 @@ if(ENABLE_PCH)
 )
 endif(ENABLE_PCH)
 
+
 if(ENABLE_VULKAN)
         target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_VULKAN=1)
 endif(ENABLE_VULKAN)

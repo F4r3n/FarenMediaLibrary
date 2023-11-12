@@ -16,6 +16,7 @@
 #include <nlohmann/json.hpp>
 #include "Rendering/Texture2D.hpp"
 #include "Rendering/Texture.h"
+
 using namespace gui;
 
 GMaterialEditor::GMaterialEditor() : GWindow("Material Editor", true)

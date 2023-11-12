@@ -26,9 +26,11 @@ Material Material::Clone() const
 	mat._materialPropertiesInfos = _materialPropertiesInfos;
 	mat._materialTexturesInfos = _materialTexturesInfos;
 
+
 	memcpy(mat._buffer, _buffer, _bufferSize);
 	return mat;
 }
+
 
 void Material::From(const fm::Material& inMaterial)
 {
@@ -55,7 +57,6 @@ void Material::From(const fm::Material& inMaterial)
 		memcpy(_buffer, inMaterial._buffer, _bufferSize);
 	}
 }
-
 
 void Material::_FillJSONValue(nlohmann::json& valueJSON, const std::string& inName, const fm::MaterialValue& inValue) const
 {

@@ -8,6 +8,7 @@
 #include <memory>
 #include <array>
 #include "GPUData.hpp"
+
 namespace fm
 {
 	class Model;

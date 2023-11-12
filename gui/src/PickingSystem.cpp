@@ -13,7 +13,6 @@
 #include "Rendering/material.hpp"
 #include "Rendering/commandBuffer.hpp"
 #include "Rendering/OpenGL/OGLTexture.hpp"
-
 #include <cstring>
 using namespace fms;
 

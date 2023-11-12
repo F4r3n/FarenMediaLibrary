@@ -5,6 +5,8 @@
 #include <span>
 #include <Utilities/CommandLineParser.h>
 #include "Resource/ResourceLoader.h"
+
+
 int main(int argc, char** argv)
 {
 	fm::FilePath path = fm::ResourcesManager::GetFilePathResource(fm::LOCATION::WORKING_DIRECTORY);
