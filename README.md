@@ -6,18 +6,18 @@
 This library enables to create 2D or 3D games with lua scripts. The engine is linked to an entity system component.
 The image below show the possibilities of the library.
 
-![Link image](https://i.imgur.com/NR0jOMK.png)
+![Link image](.github/images/interface.png)
 
-For the moment, the FarenEngine can :
+FarenEngine features:
 + Camera system 
-+ Display simple shapes
++ Display simple textured shapes
 + Sound
 + Physics
 + Lua scripting
 + Forward
 + Light effects (basic)
 + Serialization system
-+ Multiple scene
++ Multiple scenes
 
 ### Installation
 
@@ -38,10 +38,8 @@ It will create the library static FarenMediaLibary, the FarenEngine and the Fare
 
 The engine needs different libraries to work:
 
-+ Box2D
 + Bullet
 + glew
-+ Openal
 + sdl2
 + lua 5.3
 + ECS (Custom)
