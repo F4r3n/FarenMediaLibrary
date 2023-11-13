@@ -1,6 +1,6 @@
 #pragma once
 #include "inspector.hpp"
-#include "Components/CMesh.h"
+#include <FML/Components/CMesh.h>
 
 #include "macroInspectorHelper.hpp"
 

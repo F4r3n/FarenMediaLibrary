@@ -11,8 +11,5 @@ namespace fm
 		fm::math::vec3 position;
 		fm::math::vec3 scale;
 		fm::math::Quaternion rotation;
-		
-	private:
-
 	};
 }

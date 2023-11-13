@@ -1,5 +1,4 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 #include <vector>
 #include <string>
 #include <memory>
@@ -10,11 +9,11 @@
 #include <array>
 namespace fm
 {
-class Window;
-class Engine;
-class Scene;
-class SceneManager;
-class FilePath;
+	class Window;
+	class Engine;
+	class Scene;
+	class SceneManager;
+	class FilePath;
 }
 
 namespace fm
@@ -45,11 +44,11 @@ namespace fm
 	class CircularBuffer
 	{
 	public:
-		
+
 		CircularBuffer()
 		{
 		}
-		void Push(T & t)
+		void Push(T& t)
 		{
 			size_t nextLimit = _currentLimit + 1;
 			if (_maxLimit < nextLimit)
@@ -90,11 +89,11 @@ namespace fm
 
 
 	using Windows = std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST>;
-class Application 
-{
-    public:
+	class Application
+	{
+	public:
 
-        ~Application();
+		~Application();
 		Application();
 		inline static Application& Get()
 		{
@@ -102,37 +101,37 @@ class Application
 			return app;
 		}
 
-        bool						Serialize() const;
+		bool						Serialize() const;
 		bool						SerializeCurrentScene() const;
 
-        bool						Read();
+		bool						Read();
 
-        void						Start();
+		void						Start();
 		void						Stop();
-		void						SetConfig(const Config &inConfig);
-        void						Init();
+		void						SetConfig(const Config& inConfig);
+		void						Init();
 		void						InitSystems();
-        void						DeInit();
+		void						DeInit();
 		void						LoadInternalResources();
-        void						Update();
+		void						Update();
 
-        fm::Window*					GetWindow(GRAPHIC_API api = GRAPHIC_API::OPENGL) const;
+		fm::Window* GetWindow(GRAPHIC_API api = GRAPHIC_API::OPENGL) const;
 
-		const fm::Folder&			GetUserDirectory() const;
-		const fm::Folder&			GetInternalResources() const;
+		const fm::Folder& GetUserDirectory() const;
+		const fm::Folder& GetInternalResources() const;
 
-		const fm::Config&			GetCurrentConfig() const;
+		const fm::Config& GetCurrentConfig() const;
 		bool						IsRunning() const;
 
 		void						SetProjectName(const std::string& inName);
-		std::shared_ptr<fm::Scene>	GetScene(const std::string &inName) const;
-		const std::string&			GetCurrentSceneName() const;
+		std::shared_ptr<fm::Scene>	GetScene(const std::string& inName) const;
+		const std::string& GetCurrentSceneName() const;
 		std::shared_ptr<fm::Scene>	GetCurrentScene() const;
 		void						LoadProject(const fm::Folder& inPath);
 		void						SetUserDirectory(const fm::Folder& inPath);
 		std::shared_ptr<fm::Scene>	LoadScene(const fm::FilePath& inPath);
 
-		
+
 		std::shared_ptr<fm::Scene>	AddNewScene(const fm::FilePath& inPath);
 		void						SetCurrentScene(const std::string& name, bool isPrivate);
 		std::shared_ptr<fm::Scene>	AddPrivateScene(const std::string& inName);
@@ -140,16 +139,15 @@ class Application
 		std::shared_ptr<Scene>		RenameScene(std::shared_ptr<Scene> inCurrentScene, const fm::FilePath& inPath);
 		void						SerializeCurrentScene(nlohmann::json& outjson);
 		void						SwapBuffers();
-private:
-		
-        std::unique_ptr<fm::Engine>			_engine;
+	private:
+
+		std::unique_ptr<fm::Engine>			_engine;
 		Windows								_window;
-        fm::Config							_currentConfig;
+		fm::Config							_currentConfig;
 		std::string							_nameLastScene;
 		std::unique_ptr<fm::SceneManager>	_sceneManager;
-};
+	};
 
 }
 
-#endif // APPLICATION_H
 

@@ -36,7 +36,7 @@ link_directories(${sdl_BINARY_DIR})
 include_directories(SYSTEM ${FML_EXTLIB}/json/include)
 
 #FML
-include_directories(${FML_PATH}/lib/src)
+include_directories(${FML_PATH}/lib)
 link_directories(${FML_PATH}/build/lib)
 
 #LUA

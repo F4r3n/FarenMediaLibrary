@@ -1,5 +1,4 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#pragma once
 #include <Component.h>
 #include "Core/serializer.hpp"
 
@@ -43,5 +42,4 @@ protected:
 
 }
 
-#endif // COMPONENT_H
 

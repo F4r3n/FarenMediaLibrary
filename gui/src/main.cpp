@@ -4,19 +4,19 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_opengl3.h>
 
-#include "Core/application.h"
+#include <FML/Core/application.h>
 
 #include "MainWindow.h"
-#include <Core/Debug.h>
-#include <Input/InputManager.h>
+#include <FML/Core/Debug.h>
+#include <FML/Input/InputManager.h>
 
-#include "Window.h"
+#include <FML/Window.h>
 #include "Editor.h"
 #include "ShaderCompiler.h"
-#include "Resource/ResourcesManager.h"
-#include "Resource/ResourceLoader.h"
+#include <FML/Resource/ResourcesManager.h>
+#include <FML/Resource/ResourceLoader.h>
 #include <algorithm>
-#include "Rendering/ShaderKind.hpp"
+#include <FML/Rendering/ShaderKind.hpp>
 #include <bitset>
 #include <nlohmann/json.hpp>
 #include <GL/glew.h>

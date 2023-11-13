@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/FilePath.h"
+#include <FML/Core/FilePath.h>
 #include "doctest/doctest.h"
 
 TEST_SUITE("FilePath") {

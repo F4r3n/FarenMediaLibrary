@@ -12,10 +12,9 @@ set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 option(FML_BUILD_STATIC ON)
 option(FML_BUILD_SHARED OFF)
 
-file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE SOURCES FML/*.cpp)
 
-include_directories("src")
-file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
+file(GLOB_RECURSE HEADERS "FML/*.h" "FML/*.hpp")
 if(NOT ENABLE_VULKAN)
   LIST(FILTER SOURCES EXCLUDE REGEX "Vulkan/")
   LIST(FILTER HEADERS EXCLUDE REGEX "Vulkan/")
@@ -91,6 +90,10 @@ endif()
 set(LIB_NAME ${PROJECT_NAME}_s)
 
 add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
+
+target_include_directories(${LIB_NAME} PUBLIC "FML")
+
+
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
     
@@ -100,7 +103,6 @@ target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} SDL3-static)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} OpenGL::GL )
-
 if(ENABLE_PCH)
   target_precompile_headers(${LIB_NAME}
     PRIVATE

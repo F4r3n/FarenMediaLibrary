@@ -2,7 +2,7 @@
 #define POINTLIGHTINSPECTOR_H
 
 #include "inspector.hpp"
-#include "Components/CPointLight.h"
+#include <FML/Components/CPointLight.h>
 
 #include "macroInspectorHelper.hpp"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "inspector.hpp"
-#include "Components/CCollider.h"
+#include <FML/Components/CCollider.h>
 #include "macroInspectorHelper.hpp"
 
 namespace gui {

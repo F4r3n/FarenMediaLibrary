@@ -1,7 +1,7 @@
 #pragma once
-#include "Rendering/RenderTexture.h"
+#include <FML/Rendering/RenderTexture.h>
 #include <memory>
-#include "Core/GameObject.h"
+#include <FML/Core/GameObject.h>
 #include <vector>
 #include "GWindow.h"
 #include <optional>

@@ -1,6 +1,6 @@
 #ifndef DEBUGLOGGE_H
 #define DEBUGLOGGE_H
-#include <Core/Debug.h>
+#include <FML/Core/Debug.h>
 #include <imgui/imgui.h>
 #include <mutex>
 #include "Window/GWindow.h"
