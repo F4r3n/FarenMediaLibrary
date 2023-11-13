@@ -20,69 +20,8 @@ if(NOT ENABLE_VULKAN)
   LIST(FILTER HEADERS EXCLUDE REGEX "Vulkan/")
 endif(NOT ENABLE_VULKAN)
 
-#Bullet
-set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
-FETCHCONTENT_GETPROPERTIES(BULLET)
-include_directories(SYSTEM ${bullet_SOURCE_DIR}/src)
-link_directories(${bullet_BINARY_DIR})
-
 #Opengl
 find_package(OpenGL)
-
-
-#GLEW
-include_directories(${FML_EXTLIB}/glew/include)
-link_directories(${FML_EXTLIB_LIB}/glew)
-
-if(ENABLE_VULKAN)
-  #Vulkan
-  find_package(Vulkan REQUIRED)
-  include_directories(SYSTEM ${Vulkan_INCLUDE_DIRS})
-
-  #VMA
-  FETCHCONTENT_GETPROPERTIES(VMA)
-  include_directories(SYSTEM ${vma_SOURCE_DIR}/include)
-
-endif(ENABLE_VULKAN)
-
-#SDL3
-FETCHCONTENT_GETPROPERTIES(SDL)
-include_directories(SYSTEM ${sdl_SOURCE_DIR}/include)
-link_directories(${sdl_BINARY_DIR})
-
-#sol2
-include_directories(SYSTEM ${FML_EXTLIB}/sol2)
-
-#STB
-include_directories(SYSTEM ${FML_EXTLIB}/stb)
-
-#JSON
-include_directories(SYSTEM ${FML_EXTLIB}/json/include)
-
-
-#ECS
-FETCHCONTENT_GETPROPERTIES(ECS)
-include_directories(${ecs_SOURCE_DIR}/lib/include) 
-link_directories(${ecs_BINARY_DIR}/lib)
-
-#FREETYPE
-include_directories(SYSTEM ${FML_EXTLIB}/freetype2/include)
-link_directories(${FML_EXTLIB_LIB}/freetype2)
-
-#LUA
-include_directories(SYSTEM ${FML_EXTLIB}/lua/src)
-link_directories(${FML_EXTLIB_LIB}/lua)
-
-#Assimp
-if(WANT_ASSIMP)
-	FETCHCONTENT_GETPROPERTIES(ASSIMP)
-	include_directories(SYSTEM ${assimp_SOURCE_DIR}/include) 
-	link_directories(${assimp_BINARY_DIR}/code)
-else()
-	FETCHCONTENT_GETPROPERTIES(TINYOBJLOADER)
-	include_directories(SYSTEM ${tinyobjloader_SOURCE_DIR}) 
-	link_directories(${tinyobjloader_BINARY_DIR}/lib)
-endif()
 
 
 
@@ -92,6 +31,66 @@ set(LIB_NAME ${PROJECT_NAME}_s)
 add_library(${LIB_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${LIB_NAME} PUBLIC "FML")
+#sol2
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/sol2)
+#STB
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/stb)
+
+#LUA
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/lua/src)
+target_link_directories(${LIB_NAME} PRIVATE ${FML_EXTLIB_LIB}/lua)
+
+#Bullet
+set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody)
+FETCHCONTENT_GETPROPERTIES(BULLET)
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${bullet_SOURCE_DIR}/src)
+target_link_directories(${LIB_NAME} PRIVATE ${bullet_BINARY_DIR})
+
+
+#GLEW
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/glew/include)
+target_link_directories(${LIB_NAME} PRIVATE ${FML_EXTLIB_LIB}/glew)
+
+if(ENABLE_VULKAN)
+  #Vulkan
+  find_package(Vulkan REQUIRED)
+  target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${Vulkan_INCLUDE_DIRS})
+
+  #VMA
+  FETCHCONTENT_GETPROPERTIES(VMA)
+  target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${vma_SOURCE_DIR}/include)
+
+endif(ENABLE_VULKAN)
+
+#SDL3
+FETCHCONTENT_GETPROPERTIES(SDL)
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${sdl_SOURCE_DIR}/include)
+target_link_directories(${LIB_NAME} PRIVATE ${sdl_BINARY_DIR})
+
+#JSON
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/json/include)
+
+
+#ECS
+FETCHCONTENT_GETPROPERTIES(ECS)
+target_include_directories(${LIB_NAME} PRIVATE ${ecs_SOURCE_DIR}/lib/include) 
+target_link_directories(${LIB_NAME} PRIVATE ${ecs_BINARY_DIR}/lib)
+
+#FREETYPE
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/freetype2/include)
+target_link_directories(${LIB_NAME} PRIVATE ${FML_EXTLIB_LIB}/freetype2)
+
+#Assimp
+if(WANT_ASSIMP)
+	FETCHCONTENT_GETPROPERTIES(ASSIMP)
+	target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${assimp_SOURCE_DIR}/include) 
+	target_link_directories(${LIB_NAME} PRIVATE ${assimp_BINARY_DIR}/code)
+else()
+	FETCHCONTENT_GETPROPERTIES(TINYOBJLOADER)
+	target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${tinyobjloader_SOURCE_DIR}) 
+	target_link_directories(${LIB_NAME} PRIVATE ${tinyobjloader_BINARY_DIR}/lib)
+endif()
+
 
 
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 20)

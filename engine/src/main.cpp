@@ -1,10 +1,10 @@
-#include "Core/application.h"
-#include <Input/InputManager.h>
+#include <FML/core/application.h>
+#include <FML/Input/InputManager.h>
 #include "Window.h"
-#include "Resource/ResourcesManager.h"
+#include <FML/Resource/ResourcesManager.h>
 #include <span>
 #include <Utilities/CommandLineParser.h>
-#include "Resource/ResourceLoader.h"
+#include <FML/Resource/ResourceLoader.h>
 
 
 int main(int argc, char** argv)

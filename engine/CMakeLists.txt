@@ -18,30 +18,12 @@ set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 set(FML_LIB_PATH ${CMAKE_BINARY_DIR})
 
 
-#Opengl
-find_package(OpenGL)
-
-#Vulkan
-if(ENABLE_VULKAN)
-        find_package(Vulkan REQUIRED)
-        include_directories(${Vulkan_INCLUDE_DIRS})
-endif(ENABLE_VULKAN)
-
-#SDL3
-FETCHCONTENT_GETPROPERTIES(SDL)
-include_directories(SYSTEM ${sdl_SOURCE_DIR}/include)
-link_directories(${sdl_BINARY_DIR})
-
 #JSON
 include_directories(SYSTEM ${FML_EXTLIB}/json/include)
 
 #FML
 include_directories(${FML_PATH}/lib)
 link_directories(${FML_PATH}/build/lib)
-
-#LUA
-include_directories(SYSTEM ${FML_EXTLIB}/lua/src)
-link_directories(${FML_EXTLIB_LIB}/lua)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)

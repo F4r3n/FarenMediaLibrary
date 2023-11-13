@@ -59,38 +59,42 @@ set(FML_LIB_PATH ${CMAKE_BINARY_DIR})
 set(FML_EXTLIB ${FML_PATH}/extlib) 
 set(FML_EXTLIB_LIB ${CMAKE_BINARY_DIR}/extlib)
 
-#GLEW
-add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
-include_directories(${FML_EXTLIB}/glew/include)
 
-#sol2
-include_directories(SYSTEM ${FML_EXTLIB}/sol2)
-
-#JSON
-include_directories(SYSTEM ${FML_EXTLIB}/json/include)
-
-#ECS
-FETCHCONTENT_GETPROPERTIES(ECS)
-include_directories(SYSTEM ${ecs_SOURCE_DIR}/lib/include)
-
-#FML
-include_directories(${FML_PATH}/lib)
-link_directories(${FML_LIB_PATH}/lib)
-
-#LUA
-include_directories(SYSTEM ${FML_EXTLIB}/lua/src)
-link_directories(${FML_EXTLIB_LIB}/lua)
-
-#IMGUI
-include_directories(${FML_EXTLIB}/imgui/)
-
-#GLSLANG
-FETCHCONTENT_GETPROPERTIES(GLSLANG)
-include_directories(${glslang_SOURCE_DIR})
-link_directories(${glslang_BINARY_DIR})
 
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+#GLEW
+add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
+target_include_directories(${PROJECT_NAME} PRIVATE ${FML_EXTLIB}/glew/include)
+
+#sol2
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/sol2)
+
+#JSON
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/json/include)
+
+#ECS
+FETCHCONTENT_GETPROPERTIES(ECS)
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${ecs_SOURCE_DIR}/lib/include)
+
+#FML
+target_include_directories(${PROJECT_NAME} PRIVATE ${FML_PATH}/lib)
+target_link_directories(${PROJECT_NAME} PRIVATE ${FML_LIB_PATH}/lib)
+
+#LUA
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/lua/src)
+target_link_directories(${PROJECT_NAME} PRIVATE ${FML_EXTLIB_LIB}/lua)
+
+#IMGUI
+target_include_directories(${PROJECT_NAME} PRIVATE ${FML_EXTLIB}/imgui/)
+
+#GLSLANG
+FETCHCONTENT_GETPROPERTIES(GLSLANG)
+target_include_directories(${PROJECT_NAME} PRIVATE ${glslang_SOURCE_DIR})
+target_link_directories(${PROJECT_NAME} PRIVATE ${glslang_BINARY_DIR})
+
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
