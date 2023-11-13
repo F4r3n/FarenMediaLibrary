@@ -1,4 +1,4 @@
-#include <FML/core/application.h>
+#include <FML/Core/application.h>
 #include <FML/Input/InputManager.h>
 #include "Window.h"
 #include <FML/Resource/ResourcesManager.h>
