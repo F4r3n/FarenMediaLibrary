@@ -4,7 +4,7 @@
 #include "Rendering/Graphics.hpp"
 namespace fm
 {
-	class RenderTexture;
+	class OGLFrameBuffer;
 	class OGLModel;
 	class OGLShader;
 	class OGLTexture;
@@ -28,13 +28,13 @@ namespace fm
 		void postProcess(fm::Graphics& graphics, const OGLTexture& inTexture1);
 		void clear(fm::Graphics& graphics);
 		void blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* shader) const;
-		void blit(fm::Graphics& graphics, const RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const;
-		void blit(fm::Graphics& graphics, const RenderTexture& source, BUFFER_BIT bufferBit) const;
+		void blit(fm::Graphics& graphics, const OGLFrameBuffer& source, const OGLFrameBuffer& dest, BUFFER_BIT bufferBit) const;
+		void blit(fm::Graphics& graphics, const OGLFrameBuffer& source, BUFFER_BIT bufferBit) const;
 
-		void blit(fm::Graphics& graphics, const RenderTexture& source, RenderTexture& dest, OGLShader* shader) const;
-		void blit(fm::Graphics& graphics, int ID, RenderTexture& dest, OGLShader* shader) const;
+		void blit(fm::Graphics& graphics, const OGLFrameBuffer& source, const OGLFrameBuffer& dest, OGLShader* shader) const;
+		void blit(fm::Graphics& graphics, int ID, const OGLFrameBuffer& dest, OGLShader* shader) const;
 		void SetSources(fm::Graphics& graphics, const std::vector<std::shared_ptr<fm::OGLTexture>>& intextures, size_t numberIDs);
-		void blit(fm::Graphics& graphics, RenderTexture& dest, OGLShader* shader);
+		void blit(fm::Graphics& graphics, const OGLFrameBuffer& dest, OGLShader* shader);
 		void blit(fm::Graphics& graphics, OGLShader* shader);
 
 	private:

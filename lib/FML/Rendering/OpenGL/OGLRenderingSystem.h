@@ -15,6 +15,7 @@
 #include "Rendering/ShaderKind.hpp"
 #include "Rendering/RenderQueue.h"
 #include "OGLTextureCache.hpp"
+#include "CameraCache.hpp"
 namespace fmc
 {
 	class CText;
@@ -65,7 +66,6 @@ namespace fms
 		virtual void Stop();
 	private:
 		void _InitStandardShapes();
-		void _ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture, fmc::CCamera* cam, bool hasLight);
 		fm::RenderQueue _FillQueue(fmc::CCamera* cam, EntityManager& em);
 		void _Draw(fmc::CCamera* cam);
 		void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
@@ -96,9 +96,9 @@ namespace fms
 		std::unordered_map<fm::ShaderID, std::shared_ptr<fm::OGLShader>> _shaders;
 
 		fm::OGLMaterial* _currentMaterial = nullptr;
-		std::unordered_map<uint32_t, std::unique_ptr<fm::OGLCamera>>	_cameras;
+		fm::CameraCache													_cameraCache;
 
-		fm::OGLCamera* _currentCamera = nullptr;
+		std::shared_ptr<fm::OGLCamera> _currentCamera = nullptr;
 		fm::OGLUniformbuffer											_ssbo;
 		std::shared_ptr<fm::Window>										_window = nullptr;
 		bool															_running = false;

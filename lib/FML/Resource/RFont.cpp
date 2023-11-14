@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "Rendering/OpenGL/OGLTexture.hpp"
-
+#include <GL/glew.h>
 #define MAXWIDTH 512
 using namespace fm;
 RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
@@ -52,9 +52,9 @@ RFont::RFont(const fm::FilePath& inPath) : Resource(inPath) {
     atlas_height = h;
 
     texture = new fm::OGLTexture();
-    texture->wrapping = fm::Wrapping::CLAMP_EDGE;
-    texture->filter = fm::Filter::LINEAR;
-    texture->generate(w, h, fm::Format::RED, fm::Type::UNSIGNED_BYTE);
+    texture->wrapping = fm::OGLTextureWrapping::CLAMP_EDGE;
+    texture->filter = fm::OGLTextureFilter::LINEAR;
+    texture->generate(w, h, fm::OGLTextureFormat::RED, fm::OGLTextureType::UNSIGNED_BYTE);
     texture->bind();
 
     int ox = 0;

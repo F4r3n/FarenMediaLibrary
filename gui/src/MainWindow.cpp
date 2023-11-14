@@ -122,7 +122,7 @@ void MainWindow::_AddEmptyScene()
 	go = currentScene->CreateGameObject(true);
 	tr = go->get<fmc::CTransform>();
 	tr->SetPosition(fm::math::vec3(0, 0, 0));
-	go->addComponent<fmc::CCamera>()->Init();
+	go->addComponent<fmc::CCamera>();
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
 		gui::GGameView* gv = dynamic_cast<gui::GGameView*>(_windows[gui::WINDOWS::WIN_SCENE_VIEW].get());
@@ -144,7 +144,7 @@ void MainWindow::_InitEditorCamera()
 	auto size = fm::Application::Get().GetWindow()->GetSize();
 	_editorCamera = _editorScene->CreateGameObject(true);
 	_editorCamera->addComponent<fmc::CCamera>(size.x, size.y,
-		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA())->Init();
+		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
 	_editorCamera->get<fmc::CTransform>()->SetPosition(fm::math::vec3(0, 0, -1));
 	_editorCamera->SetName("Camera");
 }

@@ -38,7 +38,8 @@
 #include "Rendering/Model.hpp"
 #include "Engine.h"
 
-#include "Rendering/RenderTexture.h"
+#include "Rendering/RenderTexture.hpp"
+#include "OGLFrameBuffer.hpp"
 #include "Rendering/Image.h"
 #include "Rendering/Texture.h"
 #include "Rendering/meshloader.hpp"
@@ -119,7 +120,6 @@ void OGLRenderingSystem::_InitStandardShapes()
 	quad->AddMesh(fm::StandardShapes::CreateQuad());
 	circle->AddMesh(fm::StandardShapes::CreateCircle());
 	quadFS->AddMesh(fm::StandardShapes::CreateQuadFullScreen());
-	cube->AddMesh(fm::StandardShapes::CreateCube());
 
 	fm::ResourcesManager::get().load(quad);
 	fm::ResourcesManager::get().load(quadFS);
@@ -152,19 +152,9 @@ void OGLRenderingSystem::pre_update(EntityManager& em)
 		if (!cam->Enabled)
 			continue;
 
-		if (!cam->IsInit())
-		{
-			cam->Init();
-		}
-
-		if (!cam->GetRendererConfig().isInit)
-		{
-			cam->InitRenderConfig(tr, sizeof(PointLight) * NUMBER_POINTLIGHT_MAX);
-		}
-
-		cam->UpdateRenderTexture();
-		cam->UpdateRenderConfigBounds(tr);
 		cam->UpdateViewMatrix(ct->GetTransform());
+
+		_cameraCache.FindOrCreateCamera(cam)->CheckStamp();
 	}
 }
 
@@ -182,46 +172,23 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		if (cam->IsAuto() && !_running)
 			continue;
-
 		fmc::CTransform* transform = e.get<fmc::CTransform>();
+		cam->UpdateViewMatrix(transform->GetTransform());
+		cam->UpdateProjectionMatrix();
 
-		if (!cam->GetRenderTexture().isCreated())
-		{
-			fm::Debug::logError("No render texture created");
-			return;
-		}
-
+		std::shared_ptr<fm::OGLCamera> camera = _cameraCache.FindOrCreateCamera(cam);
 		cam->ExecuteStartRendering();
-
-		if (cam->HasTarget())
-		{
-			if (!cam->GetTarget()->isCreated())
-			{
-				cam->GetTarget()->create();
-			}
-		}
-		LOG_DEBUG;
 
 		if (cam->IsAuto())
 		{
-			if (cam->HasTarget())
-			{
-				cam->GetTarget()->bind();
-				_graphics.SetViewPort(cam->GetViewport());
-				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-			}
-			else
-			{
-				//Clear buffers
-				_graphics.BindFrameBuffer(0);
-				_graphics.SetViewPort(cam->GetViewport());
-				_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-			}
+			camera->BindTarget(_graphics);
+			_graphics.SetViewPort(cam->GetViewport());
+			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);;
 
-			cam->GetRendererConfig().postProcessRenderTexture.bind();
+			camera->BindPostProcess();
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
-			cam->GetRenderTexture().bind();
+			camera->BindInternal();
 			_graphics.SetViewPort(cam->GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 			_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
@@ -236,13 +203,6 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 		}
 
 		LOG_DEBUG;
-		//Prepare camera data
-		cam->UpdateShaderData();
-
-		int error = glGetError();
-		if (error != 0) {
-			fm::Debug::logError("ERROR opengl" + std::string(LINE_STRING));
-		}
 
 		if (cam->IsAuto())
 		{
@@ -263,22 +223,22 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 
 		//if (cam->_isAuto)
 		//{
-		cam->GetRendererConfig().postProcessRenderTexture.bind();
+		camera->BindPostProcess();
 		_finalShader->Use();
 		_finalShader->setValue("screenSize", fm::math::vec2((float)cam->GetViewport().w, (float)cam->GetViewport().h));
 		_finalShader->setValue("viewPos", transform->GetWorldPosition());
 		_finalShader->setValue("screenTexture", 0);
 
-		fm::OGLRenderer::getInstance().postProcess(_graphics, *cam->GetRenderTexture().GetColorBufferTexture(0).get());
+		fm::OGLRenderer::getInstance().postProcess(_graphics, *camera->GetInternal()->GetColorBufferTexture(0));
 
 
 		if (cam->HasTarget())
 		{
-			fm::OGLRenderer::getInstance().blit(_graphics, cam->GetRendererConfig().postProcessRenderTexture, *(cam->GetTarget().get()), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+			fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), *camera->GetTarget(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 		}
 		else
 		{
-			fm::OGLRenderer::getInstance().blit(_graphics, cam->GetRendererConfig().postProcessRenderTexture, fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+			fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 		}
 		//}
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
@@ -315,7 +275,7 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 {
 	LOG_DEBUG;
 	fmc::CameraCommandBuffer::iterator it = currentCamera->GetCommandBuffer().find(inQueue);
-
+	auto oglCamera = _cameraCache.FindOrCreateCamera(currentCamera);
 	if (it != currentCamera->GetCommandBuffer().end())
 	{
 		std::queue<fm::CommandBuffer>& cmdBuffers = it->second;
@@ -347,8 +307,8 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 					}
 					else
 					{
-						std::vector<std::shared_ptr<fm::OGLTexture>> textures = currentCamera->GetRenderTexture().GetColorBuffer();
-						fm::OGLRenderer::getInstance().SetSources(_graphics, currentCamera->GetRenderTexture().GetColorBuffer(), textures.size());
+						std::vector<std::shared_ptr<fm::OGLTexture>> textures = oglCamera->GetInternal()->GetColorBuffer();
+						fm::OGLRenderer::getInstance().SetSources(_graphics, oglCamera->GetInternal()->GetColorBuffer(), textures.size());
 					}
 				}
 
@@ -391,27 +351,20 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR)
 			{
-				if (cmd._source.kind == fm::Command::TEXTURE_KIND::RENDER_TEXTURE)
-					cmd._source.renderTexture->bind();
-				_graphics.Clear(cmd._bufferBit);
+				//if (cmd._source.kind == fm::Command::TEXTURE_KIND::RENDER_TEXTURE)
+				//	cmd._source.renderTexture->bind();
+				//_graphics.Clear(cmd._bufferBit);
 			}
 			else if (cmd._command == fm::Command::COMMAND_KIND::CLEAR_ALL)
 			{
-				if (currentCamera->HasTarget())
-				{
-					currentCamera->GetTarget()->bind();
-				}
-				else
-				{
-					_graphics.BindFrameBuffer(0);
-				}
-
+				oglCamera->BindTarget(_graphics);
 				_graphics.SetViewPort(currentCamera->GetViewport());
 				_graphics.Clear(cmd._bufferBit);
-				currentCamera->GetRendererConfig().postProcessRenderTexture.bind();
+
+				oglCamera->BindPostProcess();
 				_graphics.Clear(cmd._bufferBit);
 
-				currentCamera->GetRenderTexture().bind();
+				oglCamera->BindInternal();
 				_graphics.SetViewPort(currentCamera->GetViewport());
 				_graphics.Clear(cmd._bufferBit);
 			}
@@ -474,20 +427,17 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 		{
 			_currentMaterial = it->second.get();
 		}
+		if (_currentCamera != nullptr)
+		{
+			_currentCamera->BindBuffer();
+		}
+
 	}
 
 	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetInstance())
 	{
-		if (auto it = _cameras.find(cam->GetInstance()); it == _cameras.end())
-		{
-			std::unique_ptr<fm::OGLCamera> mat = std::make_unique< fm::OGLCamera>(cam->GetInstance());
-			_currentCamera = _cameras.emplace(cam->GetInstance(), std::move(mat)).first->second.get();
-			_currentCamera->PrepareBuffer(sizeof(fmc::CCamera::shader_data));
-		}
-		else
-		{
-			_currentCamera = it->second.get();
-		}
+		_currentCamera = _cameraCache.FindOrCreateCamera(cam);
+		_currentCamera->CheckStamp();
 		fmc::Shader_data camData;
 		camData.FM_P = cam->GetProjectionMatrix();
 		camData.FM_V = cam->GetViewMatrix();
@@ -504,7 +454,6 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 			properties.emplace(name, property);
 		}
 	}
-
 	_currentMaterial->Bind(properties, _textures);
 }
 
@@ -550,13 +499,6 @@ void OGLRenderingSystem::_Draw(fmc::CCamera* cam)
 	_currentCamera = nullptr;
 
 
-}
-
-void OGLRenderingSystem::_ComputeLighting(std::shared_ptr<fm::RenderTexture> lightRenderTexture,
-	fmc::CCamera* cam,
-	bool hasLight)
-{
-	fm::OGLRenderer::getInstance().lightComputation(_graphics, *cam->GetRendererConfig().postProcessRenderTexture.GetColorBufferTexture(0), false);
 }
 
 fm::RenderQueue OGLRenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)

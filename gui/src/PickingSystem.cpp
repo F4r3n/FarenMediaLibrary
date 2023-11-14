@@ -14,6 +14,8 @@
 #include "Rendering/commandBuffer.hpp"
 #include "Rendering/OpenGL/OGLTexture.hpp"
 #include <cstring>
+#include "Rendering/TextureDef.hpp"
+#include "Rendering/OpenGL/OGLFrameBuffer.hpp"
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
@@ -25,22 +27,12 @@ PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
 		auto size = fm::Application::Get().GetWindow()->GetSize();
 
 		_camera = specialCamera->addComponent<fmc::CCamera>(size.x, size.y, fmc::RENDER_MODE::FORWARD, false, false, 0);
-		_camera->Init();
 		specialCamera->SetName("Camera");
+
+		std::vector<fm::TextureFormat> formats{ fm::TextureFormat::RGBA, fm::TextureFormat::RGBA, fm::TextureFormat::RGB };
+		std::vector<fm::TextureType> types{ fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE };
+		_camera->SetTarget(std::make_shared<fm::OGLFrameBuffer>(_camera->GetWidth(), _camera->GetHeight(), formats, types, 24, 0));
 	}
-
-
-	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA, fm::Format::RGB };
-	fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-
-	_camera->SetTarget(fm::RenderTexture(_camera->getInternalRenderTexture().getWidth(),
-		_camera->getInternalRenderTexture().getHeight(),
-		3,
-		formats,
-		types,
-		24,
-		0));
-
 
 	_material = std::make_shared<fm::Material>(fm::FilePath(fm::LOCATION::INTERNAL_MATERIALS_LOCATION,"default"));
 	_material->SetShaderPath(fm::FilePath(fm::LOCATION::INTERNAL_SHADERS_LOCATION, "picking.shader"));
@@ -70,11 +62,12 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 						std::shared_ptr<fm::Scene> scene = fm::Application::Get().GetScene(inSceneName);
 						if (scene != nullptr)
 						{
-							std::shared_ptr<fm::OGLTexture> texture = _camera->GetTarget()->GetColorBufferTexture(0);
-							_camera->GetTarget()->bind(true);
+							std::shared_ptr<fm::OGLFrameBuffer> oglFrameBuffer = std::dynamic_pointer_cast<fm::OGLFrameBuffer>(_camera->GetTarget());
+							std::shared_ptr<fm::OGLTexture> texture = oglFrameBuffer->GetColorBufferTexture(0);
+							oglFrameBuffer->bind(true);
 							unsigned char pixel[4];
 							texture->GetPixel(inPos, pixel);
-							size_t id = ((size_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
+							uint32_t id = ((uint32_t)pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256);
 							std::shared_ptr<fm::GameObject> go = scene->GetGameObjectByID(EntityManager::get().CreateID(id));
 							if (go != nullptr)
 							{
@@ -105,7 +98,7 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 
 						fm::CommandBuffer commandBuffer;
 						fm::MaterialValues materialProperties = _material->GetUniforms();
-						Entity::Id i = go->getID();
+						uint32_t i = go->getID().index();
 						unsigned char r[sizeof(i)];
 						memcpy(r, &i, sizeof(i));
 

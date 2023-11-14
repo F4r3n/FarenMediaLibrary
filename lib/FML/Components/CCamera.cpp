@@ -1,5 +1,5 @@
 #include "Components/CCamera.h"
-#include "Rendering/RenderTexture.h"
+#include "Rendering/RenderTexture.hpp"
 #include <EntityManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
@@ -11,7 +11,7 @@
 
 #include "Rendering/commandBuffer.hpp"
 #include <nlohmann/json.hpp>
-
+#include "Rendering/TextureDef.hpp"
 using namespace fmc;
 using namespace fm;
 
@@ -54,16 +54,13 @@ _target(nullptr)
 
 CCamera::~CCamera()
 {
-	if (_rendererConfiguration.isInit)
-	{
-		_rendererConfiguration.uboLight->Free();
-	}
+
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
 {
-    ioJson["width"] = _viewPort.w;
-    ioJson["height"] = _viewPort.h;
+    ioJson["width"] = _width;
+    ioJson["height"] = _height;
     ioJson["farPlane"] = _farPlane;
     ioJson["nearPlane"] = _nearPlane;
     ioJson["isOrtho"] = _isOrto;
@@ -86,17 +83,6 @@ bool CCamera::Read(const nlohmann::json &inJSON)
 	_isAuto					= inJSON["isAuto"];
 
     return true;
-}
-
-
-void CCamera::_InitRenderTexture()
-{
-
-	fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
-
-	fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-	_renderTexture = fm::RenderTexture(_width, _height, 2, formats, types, 24, _multiSampled);
-	
 }
 
 fm::math::mat CCamera::GetOrthographicProjectionForText() const
@@ -128,21 +114,6 @@ void CCamera::UpdateProjectionMatrix()
 }
 
 
-void CCamera::Init()
-{
-	if (!_isInit)
-	{
-		UpdateProjectionMatrix();
-
-		_InitRenderTexture();
-		_renderTexture.create();
-		_isInit = true;
-	}
-
-}
-
-
-
 void CCamera::SetNewProjection(int width, int height)
 {
     _width = width;
@@ -155,18 +126,15 @@ void CCamera::SetNewProjection(int width, int height)
     _viewPort.h = height;
     _viewPort.x = 0;
     _viewPort.y = 0;
-
-
 }
 
-void CCamera::UpdateRenderTexture()
-{
 
-	if (_viewPort.w != _renderTexture.getWidth() || _viewPort.h != _renderTexture.getHeight())
-	{
-		_InitRenderTexture();
-	}
-    
+void CCamera::_InitRenderTexture()
+{
+	std::vector<fm::TextureFormat> formats{ fm::TextureFormat::RGBA, fm::TextureFormat::RGBA };
+	std::vector<fm::TextureType> types{ fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE };
+	_renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, formats, types, 24, _multiSampled);
+	_Touch();
 }
 
 void CCamera::SetNewViewPort(int x, int y, int width, int height)
@@ -212,122 +180,26 @@ void CCamera::UpdateViewMatrix(const fm::Transform &inTransform)
 	}
 }
 
-void CCamera::UpdateShaderData()
+
+
+
+void CCamera::SetTarget(std::shared_ptr<fm::FrameBuffer> inFrameBuffer)
 {
-	shader_data.FM_PV = _projection * _viewMatrix;
-	shader_data.FM_P = _projection;
-	shader_data.FM_V = _viewMatrix;
+	_Touch();
+	_target = inFrameBuffer;
 }
 
 
-void CCamera::InitRenderConfig(const fm::Transform &inTransform, size_t sizeBytesLight)
+void CCamera::ExecuteStartRendering()
 {
-	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
-
-	if ( !_rendererConfiguration.isInit)
-	{
-		_rendererConfiguration.uboLight = std::make_unique<fm::OGLUniformbuffer>(fm::OGLUniformbuffer());
-		//_rendererConfiguration.uboLight->Generate(sizeof(PointLight)*NUMBER_POINTLIGHT_MAX, 2);
-		_rendererConfiguration.uboLight->Generate(sizeBytesLight, 2, GL_UNIFORM_BUFFER);
-		UpdateViewMatrix(inTransform);
-
-		fm::Format formats[] = { fm::Format::RGBA, fm::Format::RGBA };
-		fm::Type types[] = { fm::Type::UNSIGNED_BYTE, fm::Type::UNSIGNED_BYTE };
-		_rendererConfiguration.lightRenderTexture = fm::RenderTexture(
-			_renderTexture.getWidth(),
-			_renderTexture.getHeight(),
-			2,
-			formats,
-			types,
-			0);
-
-		_rendererConfiguration.postProcessRenderTexture = fm::RenderTexture(
-			_renderTexture.getWidth(),
-			_renderTexture.getHeight(),
-			1,
-			formats,
-			types,
-			0);
-
-
-		_rendererConfiguration.lightRenderTexture.create();
-		_rendererConfiguration.postProcessRenderTexture.create();
-
-		_rendererConfiguration.isInit = true;
-	}
-}
-
-void CCamera::InitUniformBuffer()
-{
-	//glGenBuffers(1, &_rendererConfiguration.generatedBlockBinding);
-	//glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
-	//glBufferData(GL_UNIFORM_BUFFER,
-	//			sizeof(shader_data),
-	//			&shader_data,
-	//			GL_DYNAMIC_COPY);
-	//
-	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	//
-	//for (auto shader : fm::ResourcesManager::get().getAll<fm::Shader>())
-	//{
-	//	std::shared_ptr<fm::Shader> s = std::dynamic_pointer_cast<fm::Shader>(shader.second);
-	//	s->Use();
-	//
-	//	glBindBufferBase(GL_UNIFORM_BUFFER,
-	//					_rendererConfiguration.bindingPointIndex,
-	//					_rendererConfiguration.generatedBlockBinding);
-	//
-	//	std::shared_ptr<OGLShader> glshader = std::dynamic_pointer_cast<OGLShader>(s);
-	//	glshader->SetUniformBuffer("shader_data", _rendererConfiguration.bindingPointIndex);
-	//}
-}
-
-void CCamera::UpdateUniformBufferCamera()
-{
-	//glBindBuffer(GL_UNIFORM_BUFFER, _rendererConfiguration.generatedBlockBinding);
-	//GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-	//memcpy(p, &shader_data, sizeof(shader_data));
-	//glUnmapBuffer(GL_UNIFORM_BUFFER);
-}
-
-void CCamera::UpdateRenderConfigBounds(const fm::Transform &inTransform)
-{
-	_rendererConfiguration.bounds.setSize(fm::math::vec3(static_cast<float>(_viewPort.w),
-														 static_cast<float>(_viewPort.h),
-														 static_cast<float>(_farPlane - _nearPlane)));
-	_rendererConfiguration.bounds.setCenter(fm::math::vec3(inTransform.position.x, inTransform.position.y, -1) + _rendererConfiguration.bounds.getSize() / 2.0f);
-	_rendererConfiguration.bounds.setScale(fm::math::vec3(1, 1, 1));
-}
-
-std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(const fm::RenderTexture& inRenderTexture)
-{
-	_target = std::make_shared<fm::RenderTexture>(inRenderTexture);
-	return _target;
-}
-
-
-std::shared_ptr<fm::RenderTexture> CCamera::SetTarget(fm::RenderTexture *inRenderTexture)
-{
-	if (inRenderTexture == nullptr)
-	{
-		_target = std::make_shared<fm::RenderTexture>(fm::RenderTexture(getInternalRenderTexture(), 0));
-		return _target;
-	}
-	else
-	{
-		return SetTarget(*inRenderTexture);
-	}
-}
-
-
-void CCamera::ExecuteStartRendering() {
 	if (_onStartRendering != nullptr)
 	{
 		_onStartRendering();
 	}
 }
 
-void CCamera::ExecutePostRendering() {
+void CCamera::ExecutePostRendering()
+{
 	if (_onPostRendering != nullptr)
 	{
 		_onPostRendering();

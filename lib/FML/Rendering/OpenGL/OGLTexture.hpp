@@ -34,7 +34,7 @@ class OGLTexture
 	void				bind(size_t inIndex) const;
 
     inline GLuint		getID() const {return _id;}
-    void				generate(size_t width, size_t height, Format format, Type type, int multiSampled = 0);
+    void				generate(size_t width, size_t height, OGLTextureFormat format, OGLTextureType type, int multiSampled = 0);
     void				release();
 
 
@@ -45,23 +45,23 @@ class OGLTexture
     size_t				getWidth() const{ return _width; }
     size_t				getHeight() const{  return _height; }
     size_t				getNumberChannels() const{ return _numberChannels; }
-	Kind				GetKind() const { return _textureKind; }
+	OGLTextureKind				GetKind() const { return _textureKind; }
 	void				GetPixel(const fm::math::vec2& inPosition, void *outValue) const;
 
-	Filter filter = Filter::NEAREST;
-	Wrapping wrapping = Wrapping::REPEAT;
+	OGLTextureFilter filter = OGLTextureFilter::NEAREST;
+	OGLTextureWrapping wrapping = OGLTextureWrapping::REPEAT;
 	void				UploadImage(const Image& image);
    private:
 	void				_init(std::vector<unsigned char>& data, Recti& rect);
 
 
-    Kind _textureKind = Kind::TEXTURE2D;
+	OGLTextureKind _textureKind = OGLTextureKind::TEXTURE2D;
     size_t _width = 0;
     size_t _height = 0;
     size_t _numberChannels = 4;
 
-    Format _format = fm::Format::RGBA;
-    Type _type = fm::Type::FLOAT;
+	OGLTextureFormat _format = fm::OGLTextureFormat::RGBA;
+	OGLTextureType _type = fm::OGLTextureType::FLOAT;
     std::vector<unsigned char> _content;
 
     GLuint _id = 0;

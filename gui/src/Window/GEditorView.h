@@ -1,5 +1,4 @@
 #pragma once
-#include <FML/Rendering/RenderTexture.h>
 #include <memory>
 #include <FML/Core/GameObject.h>
 #include <vector>
@@ -13,6 +12,7 @@ namespace fms
 namespace fm
 {
 	class Scene;
+	class FrameBuffer;
 }
 namespace gui
 {
@@ -22,7 +22,7 @@ namespace gui
 		struct CameraPreview
 		{
 			std::optional<Entity::Id> id;
-			std::weak_ptr<fm::RenderTexture> renderTexture;
+			std::shared_ptr<fm::FrameBuffer> renderTexture;
 		};
 
 

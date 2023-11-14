@@ -13,7 +13,8 @@
 #include "Rendering/Graphics.hpp"
 #include "Rendering/commandBuffer.hpp"
 #include "Rendering/OpenGL/OGLTexture.hpp"
-
+#include "Rendering/OpenGL/OGLFrameBuffer.hpp"
+#include "Rendering/RenderTexture.hpp"
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
 	GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar)
@@ -28,7 +29,8 @@ GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_p
 	{
 		_editorView.id = inCamera->getID();
 		fmc::CCamera *camera = inCamera->get<fmc::CCamera>();
-		_editorView.renderTexture = camera->SetTarget();
+		_editorView.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera->GetWidth(), camera->GetHeight(), 0));
+		camera->SetTarget(_editorView.renderTexture);
 	}
 
 	_kind = gui::WINDOWS::WIN_EDITOR_VIEW;
@@ -94,11 +96,11 @@ GEditorView::~GEditorView()
 void GEditorView::CustomDraw()
 {
 
-	if (auto && renderTexture = _editorView.renderTexture.lock())
+	if (auto & renderTexture = _editorView.renderTexture)
 	{
-		if (renderTexture->isCreated())
+		if (renderTexture->IsCreated())
 		{
-			const std::shared_ptr<fm::OGLTexture> texture = renderTexture->GetColorBufferTexture(0);
+			const std::shared_ptr<fm::OGLTexture> texture = std::dynamic_pointer_cast<fm::OGLFrameBuffer>(renderTexture)->GetColorBufferTexture(0);
 
 			ImGui::SetCursorPos(_cursorPos);
 			ImGui::Image(ImTextureID((intptr_t)texture->getID()), ImVec2(texture->getWidth(), texture->getHeight()));
@@ -187,7 +189,7 @@ void GEditorView::_EditObject()
 		std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
 		if (go != nullptr)
 		{
-			if (auto&& renderTexture = _editorView.renderTexture.lock())
+			if (auto&& renderTexture = _editorView.renderTexture)
 			{
 				fmc::CTransform* transform = go->get<fmc::CTransform>();
 				//delete transform;
@@ -195,8 +197,8 @@ void GEditorView::_EditObject()
 				//float scrollPosX = ImGui::GetScrollX();
 				ImGuizmo::SetRect(_cursorPos.x + _startImagePos.x - ImGui::GetScrollX(),
 					_cursorPos.y + _startImagePos.y - ImGui::GetScrollY(),
-					renderTexture->getWidth(),
-					renderTexture->getHeight());
+					renderTexture->GetWidth(),
+					renderTexture->GetHeight());
 				const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
 				const fm::math::mat projecttion = camera->get<fmc::CCamera>()->GetProjectionMatrix();
 				fm::math::mat model;
@@ -239,12 +241,12 @@ void GEditorView::_Update(float dt, Context &inContext)
 	_DrawContentEditorCamera(inContext);
 
 	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
-	if (auto&& renderTexture = _editorView.renderTexture.lock())
+	if (auto& renderTexture = _editorView.renderTexture)
 	{
-		if (renderTexture->isCreated() && HasBeenDrawn())
+		if (renderTexture->IsCreated() && HasBeenDrawn())
 		{
 
-			const float rapport = (float)renderTexture->getWidth() / (float)renderTexture->getHeight();
+			const float rapport = (float)renderTexture->GetWidth() / (float)renderTexture->GetHeight();
 
 			fm::math::vec2 start = GetPosition();
 			fm::math::vec2 size = GetSize();
@@ -253,8 +255,8 @@ void GEditorView::_Update(float dt, Context &inContext)
 			_startImagePos.x = start.x;
 			_startImagePos.y = start.y;
 
-			_cursorPos = fm::math::vec2(-(renderTexture->getWidth() - size.x) * 0.5f,
-				-(renderTexture->getHeight() - size.y) * 0.5f);
+			_cursorPos = fm::math::vec2(-(renderTexture->GetWidth() - size.x) * 0.5f,
+				-(renderTexture->GetHeight() - size.y) * 0.5f);
 			fm::math::vec2 startCursorPos;
 			startCursorPos = _cursorPos;
 			startCursorPos.y += start.y;

@@ -3,7 +3,7 @@
 #include <iostream>
 #include "Rendering/OpenGL/OGLTexture.hpp"
 #include "Rendering/Shader.h"
-#include "Rendering/RenderTexture.h"
+#include "OGLFrameBuffer.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/OpenGL/OGLShader.hpp"
 #include <cassert>
@@ -54,8 +54,8 @@ void OGLRenderer::blit(fm::Graphics& graphics, OGLTexture& texture, OGLShader* s
 
 
 void OGLRenderer::blit(fm::Graphics& graphics,
-                    const RenderTexture& source,
-                    RenderTexture& dest,
+                    const OGLFrameBuffer& source,
+					const OGLFrameBuffer& dest,
 					OGLShader* shader) const
 {
     dest.bind();
@@ -66,24 +66,24 @@ void OGLRenderer::blit(fm::Graphics& graphics,
 }
 
 
-void OGLRenderer::blit(fm::Graphics &graphics, const RenderTexture& source, BUFFER_BIT bufferBit) const
+void OGLRenderer::blit(fm::Graphics &graphics, const OGLFrameBuffer& source, BUFFER_BIT bufferBit) const
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, (GLint)source.getWidth(), (GLint)source.getHeight(), 0, 0,
-		(GLint)source.getWidth(),
-		(GLint)source.getHeight(),
+	glBlitFramebuffer(0, 0, (GLint)source.GetWidth(), (GLint)source.GetHeight(), 0, 0,
+		(GLint)source.GetWidth(),
+		(GLint)source.GetHeight(),
 		bufferBit, GL_NEAREST);
 }
 
 
-void OGLRenderer::blit(fm::Graphics &graphics, const RenderTexture& source, RenderTexture& dest, BUFFER_BIT bufferBit) const
+void OGLRenderer::blit(fm::Graphics &graphics, const OGLFrameBuffer& source, const OGLFrameBuffer& dest, BUFFER_BIT bufferBit) const
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.GetId());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.GetId());
-	glBlitFramebuffer(0, 0, (GLint)source.getWidth(), (GLint)source.getHeight(), 0, 0,
-		(GLint)dest.getWidth(),
-		(GLint)dest.getHeight(),
+	glBlitFramebuffer(0, 0, (GLint)source.GetWidth(), (GLint)source.GetHeight(), 0, 0,
+		(GLint)dest.GetWidth(),
+		(GLint)dest.GetHeight(),
 		bufferBit, GL_NEAREST);
 }
 
@@ -99,7 +99,7 @@ void OGLRenderer::SetSources(fm::Graphics& graphics, const std::vector<std::shar
 
 void OGLRenderer::blit(fm::Graphics& graphics,
                     int ID,
-                    RenderTexture& dest,
+	const OGLFrameBuffer& dest,
 					OGLShader* shader) const
 {
     dest.bind();
@@ -112,7 +112,7 @@ void OGLRenderer::blit(fm::Graphics& graphics,
 
 
 void OGLRenderer::blit(fm::Graphics& graphics,
-                    RenderTexture& dest,
+                    const OGLFrameBuffer& dest,
 					OGLShader* shader)
 {
 

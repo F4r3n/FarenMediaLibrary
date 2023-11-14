@@ -1,10 +1,8 @@
 #pragma once
 #include "component.h"
-#include "Rendering/OpenGL/OGLUniformbuffer.hpp"
-
 #include "Core/Math/Matrix44.h"
 #include "Core/Rect.h"
-#include "Rendering/RenderTexture.h"
+#include "Rendering/RenderTexture.hpp"
 #include "Core/Bounds.h"
 #include <mutex>
 #include <queue>
@@ -17,6 +15,7 @@ namespace fm
 	struct Transform;
 	class UniformBuffer;
 	class CommandBuffer;
+	class FrameBuffer;
 }
 
 namespace fms
@@ -39,22 +38,6 @@ namespace fmc
 		fm::math::mat FM_PV;
 	};
 
-	struct RendererConfiguration
-	{
-		bool isInit = false;
-		const unsigned int bindingPointIndex = 2;
-		unsigned int generatedBlockBinding;
-
-		bool blendingMode = false;
-		int queuePreviousValue = 0;
-
-		fm::RenderTexture lightRenderTexture;
-		fm::RenderTexture postProcessRenderTexture;
-
-		fm::Bounds bounds;
-		std::unique_ptr<fm::OGLUniformbuffer> uboLight;
-	};
-
 	typedef std::unordered_map<fm::RENDER_QUEUE, std::queue<fm::CommandBuffer>> CameraCommandBuffer;
 
 	class CCamera : public FMComponent<CCamera>
@@ -72,12 +55,9 @@ namespace fmc
 		void SetNewProjection(int width, int height);
 		void UpdateRenderTexture();
 		void SetNewViewPort(int x, int y, int width, int height);
-		void Init();
 
 
 		Shader_data shader_data;
-		const fm::RenderTexture& getInternalRenderTexture() const { return _renderTexture; }
-		bool IsInit() { return _renderTexture.isCreated() && _isInit; }
 		void AddCommandBuffer(fm::RENDER_QUEUE inQueue, const fm::CommandBuffer& inCommandBuffer);
 
 		void SetCallBackOnStartRendering(std::function<void()>&& inCallback) { _onStartRendering = inCallback; }
@@ -85,18 +65,13 @@ namespace fmc
 
 		void UpdateProjectionMatrix();
 		void UpdateViewMatrix(const fm::Transform& inTransform);
-		void UpdateShaderData();
 
 		const fm::Rect<int>& GetViewport()const { return _viewPort; }
 		const fm::math::mat& GetProjectionMatrix()const { return _projection; }
 		const fm::math::mat& GetViewMatrix() const { return _viewMatrix; }
-		const RendererConfiguration& GetRendererConfig() const { return _rendererConfiguration; }
-		void InitRenderConfig(const fm::Transform& inTransform, size_t sizeBytesLight);
 		void InitUniformBuffer();
 		void UpdateUniformBufferCamera();
-		void UpdateRenderConfigBounds(const fm::Transform& inTransform);
 
-		const fm::RenderTexture& GetRenderTexture() const { return _renderTexture; }
 		float GetFOV() const { return _fovy; }
 		float GetFarPlane() const { return _farPlane; }
 		float GetNearPlane() const { return _nearPlane; }
@@ -108,10 +83,9 @@ namespace fmc
 		void SetNearPlane(float inValue) { _nearPlane = inValue; }
 		void SetOrthoGraphic(bool value) { _isOrto = value; }
 
-		std::shared_ptr<fm::RenderTexture> SetTarget(fm::RenderTexture* inRenderTexture = nullptr);
-		std::shared_ptr<fm::RenderTexture> SetTarget(const fm::RenderTexture& inRenderTexture);
+		void SetTarget(std::shared_ptr<fm::FrameBuffer> inFrameBuffer);
 
-		std::shared_ptr<fm::RenderTexture> GetTarget() const { return _target; }
+		std::shared_ptr<fm::FrameBuffer> GetTarget() const { return _target; }
 		inline bool HasTarget() const { return _target != nullptr; }
 		fm::math::mat GetOrthographicProjectionForText() const;
 		inline bool IsAuto() const { return _isAuto; }
@@ -119,16 +93,23 @@ namespace fmc
 		void ExecuteStartRendering();
 
 		void ExecutePostRendering();
-	private:
 
+		size_t GetWidth() const { return _width; }
+		size_t GetHeight() const { return _height; }
+		size_t GetMultiSampled() const { return _multiSampled; }
+
+		size_t GetStamp() const { return _stamp; }
+
+	private:
+		void _Touch() { _stamp++; }
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;
 		bool HasCommandBuffer(fm::RENDER_QUEUE inQueue) const;
 
 		void _InitRenderTexture();
-		RendererConfiguration	_rendererConfiguration;
 
-		fm::RenderTexture		_renderTexture;
+		std::shared_ptr<fm::RenderTexture> _renderTexture = nullptr;
+
 		bool					_isOrto;
 		float					_nearPlane;
 		float					_farPlane;
@@ -138,13 +119,15 @@ namespace fmc
 		int						_multiSampled;
 		bool					_isInit;
 		bool					_isAuto;
-		std::shared_ptr<fm::RenderTexture> _target = nullptr;
+		std::shared_ptr<fm::FrameBuffer> _target = nullptr;
 
 		CameraCommandBuffer		_commandBuffers;
 
 		fm::Rect<int>			_viewPort;
 		fm::math::mat			_projection;
 		fm::math::mat			_viewMatrix;
+
+		size_t					_stamp = 0;
 
 	public:
 		uint32_t GetInstance() const { return _currentID; }

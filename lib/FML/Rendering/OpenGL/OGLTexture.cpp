@@ -13,10 +13,10 @@ OGLTexture::OGLTexture(const std::string& path, Recti rect, bool alpha)
 {
     if(alpha) 
 	{
-        _format = Format::RGBA;
+        _format = OGLTextureFormat::RGBA;
     }
 	else
-        _format = Format::RGB;
+        _format = OGLTextureFormat::RGB;
 
     Image image(path);
     if(!image.LoadImage()) 
@@ -211,7 +211,7 @@ OGLTexture::OGLTexture(const Image& image, Recti rect) {
     _content.clear();
 }
 
-void OGLTexture::generate(size_t width, size_t height, Format format, Type type, int multiSampled) {
+void OGLTexture::generate(size_t width, size_t height, OGLTextureFormat format, OGLTextureType type, int multiSampled) {
     _width = width;
     _height = height;
     _type = type;
@@ -223,12 +223,12 @@ void OGLTexture::generate(size_t width, size_t height, Format format, Type type,
     glGenTextures(1, &_id);
     if(multiSampled > 0)
     {
-        _textureKind = Kind::TEXTURE2D_MULTISAMPLED;
-        wrapping = Wrapping::CLAMP_EDGE;
+        _textureKind = OGLTextureKind::TEXTURE2D_MULTISAMPLED;
+        wrapping = OGLTextureWrapping::CLAMP_EDGE;
     }
     else
     {
-        _textureKind = Kind::TEXTURE2D;
+        _textureKind = OGLTextureKind::TEXTURE2D;
     }
     glBindTexture((GLenum)_textureKind, _id);
     error = glGetError();
@@ -236,37 +236,37 @@ void OGLTexture::generate(size_t width, size_t height, Format format, Type type,
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
     }
 
-    if(format == Format::RGBA) {
+    if(format == OGLTextureFormat::RGBA) {
         _numberChannels = 4;
-    } else if(format == Format::RGB) {
+    } else if(format == OGLTextureFormat::RGB) {
         _numberChannels = 3;
-    } else if(format == Format::RED) {
+    } else if(format == OGLTextureFormat::RED) {
         _numberChannels = 1;
     }
 
     GLenum internalFormat = GL_RGBA32F;
-    if(type == Type::FLOAT) {
-        if(format == Format::RGBA)
+    if(type == OGLTextureType::FLOAT) {
+        if(format == OGLTextureFormat::RGBA)
             internalFormat = GL_RGBA32F;
-        else if(format == Format::RGB)
+        else if(format == OGLTextureFormat::RGB)
             internalFormat = GL_RGB32F;
-        else if(format == Format::RED)
+        else if(format == OGLTextureFormat::RED)
             internalFormat = GL_R32F;
-    } else if(type == Type::HALF_FLOAT) {
-        if(format == Format::RGBA)
+    } else if(type == OGLTextureType::HALF_FLOAT) {
+        if(format == OGLTextureFormat::RGBA)
             internalFormat = GL_RGBA16F;
-        else if(format == Format::RGB)
+        else if(format == OGLTextureFormat::RGB)
             internalFormat = GL_RGB16F;
-        else if(format == Format::RED)
+        else if(format == OGLTextureFormat::RED)
             internalFormat = GL_R16F;
-    } else if(type == Type::UNSIGNED_BYTE) {
+    } else if(type == OGLTextureType::UNSIGNED_BYTE) {
         internalFormat = (GLenum)format;
     }
 
-    if(format == Format::DEPTH_STENCIL) {
+    if(format == OGLTextureFormat::DEPTH_STENCIL) {
         internalFormat = GL_DEPTH24_STENCIL8;
-        if(type != Type::UNSIGNED_24_8) {
-            type = Type::UNSIGNED_24_8;
+        if(type != OGLTextureType::UNSIGNED_24_8) {
+            type = OGLTextureType::UNSIGNED_24_8;
         }
     }
 
@@ -309,7 +309,7 @@ void OGLTexture::generate(size_t width, size_t height, Format format, Type type,
     if(error != 0) {
         std::cerr << "ERROR OPENGL " << error << " " << __LINE__<< " " << __FILE__ << std::endl;
     }
-    if(_textureKind == Kind::TEXTURE2D)
+    if(_textureKind == OGLTextureKind::TEXTURE2D)
     {
         glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MIN_FILTER, (GLint)filter);
         glTexParameteri((GLenum)_textureKind, GL_TEXTURE_MAG_FILTER, (GLint)filter);
@@ -408,7 +408,7 @@ void OGLTexture::GetPixel(const fm::math::vec2& inPosition, void *outValue) cons
 void OGLTexture::writeToPNG(const std::string& name) const
 {
 
-    if(_type == Type::UNSIGNED_BYTE)
+    if(_type == OGLTextureType::UNSIGNED_BYTE)
     {
         unsigned char* data =  new unsigned char[_width * _height * _numberChannels];
         glBindTexture((GLenum)_textureKind, _id);
@@ -417,7 +417,7 @@ void OGLTexture::writeToPNG(const std::string& name) const
         stbi_write_png( name.c_str(), (int)_width, (int)_height, 4, data, (int)(_width * _numberChannels));
         delete [] data;
     }
-    else if(_type == Type::FLOAT)
+    else if(_type == OGLTextureType::FLOAT)
     {
         float* data = new float[_width * _height * _numberChannels];
         glBindTexture((GLenum)_textureKind, _id);
@@ -440,7 +440,7 @@ void OGLTexture::setData(void* data)
 
 void OGLTexture::setTo(int value, const fm::Recti& rect)
 {
-    if(_type == Type::UNSIGNED_BYTE)
+    if(_type == OGLTextureType::UNSIGNED_BYTE)
 	{
         unsigned char* tempBuffer =
             new unsigned char[_width * _height * _numberChannels];
@@ -455,7 +455,7 @@ void OGLTexture::setTo(int value, const fm::Recti& rect)
                         (GLenum)_type,
                         tempBuffer);
         delete [] tempBuffer;
-    } else if(_type == Type::FLOAT) {
+    } else if(_type == OGLTextureType::FLOAT) {
         float* tempBuffer = new float[_width * _height * _numberChannels];
         memset(tempBuffer, value, _width * _height * _numberChannels);
         glTexSubImage2D((GLenum)_textureKind,

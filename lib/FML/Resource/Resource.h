@@ -21,6 +21,7 @@ namespace fm
 		MATERIAL,
 		IMAGE,
 		AUDIO,
+		RENDER_TEXTURE,
         LAST_RESOURCE,
         NONE
     };

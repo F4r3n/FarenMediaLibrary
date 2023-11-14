@@ -1,9 +1,13 @@
 #pragma once
-#include <FML/Rendering/RenderTexture.h>
 #include <memory>
 #include <FML/Core/GameObject.h>
 #include <vector>
 #include "GWindow.h"
+
+namespace fm
+{
+	class FrameBuffer;
+}
 
 namespace fms
 {
@@ -16,7 +20,7 @@ namespace gui
 
 		struct CameraPreview
 		{
-			std::weak_ptr<fm::RenderTexture> renderTexture;
+			std::shared_ptr<fm::FrameBuffer> renderTexture;
 		};
 
 		enum ASPECT_MODE

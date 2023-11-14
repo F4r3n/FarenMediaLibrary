@@ -1,5 +1,5 @@
 #include "Rendering/commandBuffer.hpp"
-#include "Rendering/RenderTexture.h"
+#include "Rendering/RenderTexture.hpp"
 #include "Rendering/OpenGL/OGLTexture.hpp"
 
 using namespace fm;

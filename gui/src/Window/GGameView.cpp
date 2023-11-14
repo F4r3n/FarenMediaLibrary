@@ -10,6 +10,7 @@
 #include "Core/application.h"
 #include "Components/CTransform.h"
 #include "Rendering/OpenGL/OGLTexture.hpp"
+#include "Rendering/OpenGL/OGLFrameBuffer.hpp"
 using namespace gui;
 GGameView::GGameView() : GWindow("Game View", true, ImGuiWindowFlags_HorizontalScrollbar)
 {
@@ -25,11 +26,11 @@ GGameView::~GGameView()
 
 void GGameView::CustomDraw()
 {
-	if (auto renderTexture = _preview.renderTexture.lock())
+	if (auto renderTexture = _preview.renderTexture)
 	{
-		if (renderTexture->isCreated())
+		if (renderTexture->IsCreated())
 		{
-			std::shared_ptr<fm::OGLTexture> texture = renderTexture->GetColorBufferTexture(0);
+			std::shared_ptr<fm::OGLTexture> texture = std::dynamic_pointer_cast<fm::OGLFrameBuffer>(renderTexture)->GetColorBufferTexture(0);
 	
 			ImGui::GetWindowDrawList()->AddImage(ImTextureID((intptr_t)texture->getID()), _startImagePos, _endImagePos);
 		}
@@ -45,7 +46,7 @@ void GGameView::CustomDraw()
 				auto go = scene->CreateGameObject(true);
 				auto tr = go->get<fmc::CTransform>();
 				tr->SetPosition(fm::math::vec3(0, 0, -1));
-				go->addComponent<fmc::CCamera>()->Init();
+				go->addComponent<fmc::CCamera>();
 				
 				go->SetName("Main camera");
 				dynamic_cast<GGameView*>(window)->AddCamera(go);
@@ -67,12 +68,12 @@ void GGameView::AfterWindowCreation()
 
 void GGameView::_Update(float dt, Context &inContext)
 {
-	if (auto renderTexture = _preview.renderTexture.lock())
+	if (auto renderTexture = _preview.renderTexture)
 	{
 		bool isRenderTextureReady = false;
 
 
-		isRenderTextureReady = renderTexture->isCreated();
+		isRenderTextureReady = renderTexture->IsCreated();
 
 		if (isRenderTextureReady && HasBeenDrawn())
 		{
@@ -80,7 +81,7 @@ void GGameView::_Update(float dt, Context &inContext)
 			fm::math::vec2 start;
 			fm::math::vec2 startCursorPos;
 
-			const float rapport = (float)renderTexture->getWidth() / (float)renderTexture->getHeight();
+			const float rapport = (float)renderTexture->GetWidth() / (float)renderTexture->GetHeight();
 
 			start = GetPosition();
 			size = GetSize();
@@ -120,16 +121,8 @@ void GGameView::_Update(float dt, Context &inContext)
 void GGameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
 {
 	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
-	if (!camera->IsInit())
-		camera->Init();
-	if (camera->HasTarget() && camera->GetTarget()->isCreated())
-	{
-		_preview.renderTexture = camera->GetTarget();
-	}
-	else
-	{
-		_preview.renderTexture = camera->SetTarget();
-	}
+	_preview.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera->GetWidth(), camera->GetHeight(), 0));
+	camera->SetTarget(_preview.renderTexture);
 
 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }
