@@ -8,7 +8,7 @@ VkModel::VkModel(Vulkan* inVulkan, std::shared_ptr<fm::Model> inModel)
 {
 	_model = inModel;
 	_vulkan = inVulkan;
-	inModel->_destroyCallback = std::bind(&VkModel::Destroy, this);
+	//inModel->SetDestroyCallback(std::bind(&VkModel::Destroy, this));
 }
 
 

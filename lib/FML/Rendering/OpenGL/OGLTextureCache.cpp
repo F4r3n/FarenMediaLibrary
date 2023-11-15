@@ -5,7 +5,7 @@
 #include <cassert>
 using namespace fm;
 
-std::shared_ptr<fm::OGLTexture> TextureCache::FindOrCreateTexture(std::shared_ptr<fm::Texture> inTexture)
+std::shared_ptr<fm::OGLTexture> OGLTextureCache::FindOrCreateTexture(std::shared_ptr<fm::Texture> inTexture)
 {
 	if (auto it = _textures.find(inTexture->GetID()); it != _textures.end())
 	{

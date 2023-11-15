@@ -10,9 +10,11 @@ namespace fmc
 namespace fm
 {
 	class OGLCamera;
-	struct CameraCache
+	struct OGLCameraCache
 	{
 		std::unordered_map<uint32_t, std::shared_ptr<fm::OGLCamera>> _cameras;
 		std::shared_ptr<fm::OGLCamera> FindOrCreateCamera(fmc::CCamera* inCamera);
+		void Release(uint32_t inID);
+	private:
 	};
 }

@@ -30,8 +30,6 @@ CCamera::CCamera()
 	_multiSampled = 0;
 
 	_isInit = false;
-	_ID++;
-	_currentID = _ID;
 }
 
 CCamera::CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto, int multiSampled)
@@ -48,13 +46,12 @@ _isAuto(isAuto),
 _target(nullptr)
 {
 	_name = "Camera";
-	_ID++;
-	_currentID = _ID;
 }
 
 CCamera::~CCamera()
 {
-
+	if (_destroyCallback != nullptr)
+		_destroyCallback();
 }
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const

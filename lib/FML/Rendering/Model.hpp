@@ -4,7 +4,7 @@
 #include "Resource/Resource.h"
 #include "Core/Bounds.h"
 #include "GraphicsAPI.h"
-
+#include "Object.hpp"
 namespace fm {
 
 namespace rendering
@@ -19,7 +19,7 @@ struct Mesh
     std::unique_ptr<rendering::VertexBuffer> vertexBuffer;
 };
 
-class Model : public Resource
+class Model : public Resource, public fm::Object<Model>
 {
 public:
 
@@ -38,9 +38,7 @@ public:
 	void BindIndex(size_t index) const;
 
 	uint32_t GetID() const { return _currentID; }
-	void Destroy();
 public:
-	std::function<void()> _destroyCallback = {};
     std::vector<Mesh> _meshes;//One model may have more than one mesh
     std::string _name = "";
 	fm::Bounds _bounds;

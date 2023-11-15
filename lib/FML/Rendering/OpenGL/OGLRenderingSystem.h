@@ -15,7 +15,7 @@
 #include "Rendering/ShaderKind.hpp"
 #include "Rendering/RenderQueue.h"
 #include "OGLTextureCache.hpp"
-#include "CameraCache.hpp"
+#include "OGLCameraCache.hpp"
 namespace fmc
 {
 	class CText;
@@ -89,14 +89,14 @@ namespace fms
 		//TextDef _textdef;
 		GRAPHIC_API _api = GRAPHIC_API::OPENGL;
 		std::unordered_map<uint32_t, std::unique_ptr<fm::OGLModel>>		_models;
-		fm::TextureCache												_textures;
+		fm::OGLTextureCache												_textures;
 		std::unordered_map<uint32_t, std::unique_ptr<fm::OGLMaterial>>	_materials;
 
 		//ShaderID + SHADER_KIND
 		std::unordered_map<fm::ShaderID, std::shared_ptr<fm::OGLShader>> _shaders;
 
 		fm::OGLMaterial* _currentMaterial = nullptr;
-		fm::CameraCache													_cameraCache;
+		fm::OGLCameraCache												_cameraCache;
 
 		std::shared_ptr<fm::OGLCamera> _currentCamera = nullptr;
 		fm::OGLUniformbuffer											_ssbo;

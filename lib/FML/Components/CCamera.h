@@ -8,7 +8,7 @@
 #include <queue>
 #include <functional>
 #include "Rendering/RenderQueueEvents.hpp"
-
+#include "Object.hpp"
 namespace fm
 {
 	class RenderTexture;
@@ -40,7 +40,7 @@ namespace fmc
 
 	typedef std::unordered_map<fm::RENDER_QUEUE, std::queue<fm::CommandBuffer>> CameraCommandBuffer;
 
-	class CCamera : public FMComponent<CCamera>
+	class CCamera : public FMComponent<CCamera>, public fm::Object<CCamera>
 	{
 	public:
 
@@ -101,6 +101,8 @@ namespace fmc
 		size_t GetStamp() const { return _stamp; }
 
 	private:
+		std::function<void()> _destroyCallback = {};
+
 		void _Touch() { _stamp++; }
 		std::function<void()> _onStartRendering = nullptr;
 		std::function<void()> _onPostRendering = nullptr;
@@ -128,12 +130,5 @@ namespace fmc
 		fm::math::mat			_viewMatrix;
 
 		size_t					_stamp = 0;
-
-	public:
-		uint32_t GetInstance() const { return _currentID; }
-
-	private:
-		inline static uint32_t _ID = 0;
-		uint32_t	_currentID = 0;
 	};
 }

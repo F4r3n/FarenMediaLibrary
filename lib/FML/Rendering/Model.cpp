@@ -30,11 +30,3 @@ Model::~Model()
     }
 }
 
-
-void Model::Destroy()
-{
-	if (_destroyCallback != nullptr)
-		_destroyCallback();
-}
-
-

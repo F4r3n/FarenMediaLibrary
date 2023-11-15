@@ -1,10 +1,10 @@
 #include "OGLCamera.hpp"
-#include "CameraCache.hpp"
+#include "OGLCameraCache.hpp"
 #include <cassert>
 #include "Components/CCamera.h"
 using namespace fm;
 
-std::shared_ptr<fm::OGLCamera> CameraCache::FindOrCreateCamera(fmc::CCamera* inCamera)
+std::shared_ptr<fm::OGLCamera> OGLCameraCache::FindOrCreateCamera(fmc::CCamera* inCamera)
 {
 	if (auto it = _cameras.find(inCamera->GetInstance()); it != _cameras.end())
 	{
@@ -18,6 +18,8 @@ std::shared_ptr<fm::OGLCamera> CameraCache::FindOrCreateCamera(fmc::CCamera* inC
 		cam->PrepareBuffer(sizeof(fmc::CCamera::shader_data));
 		cam->CreateRenderTexture();
 		_cameras.emplace(inCamera->GetInstance(), cam);
+
+		inCamera->SetDestroyCallback(std::bind(&OGLCameraCache::Release, this, std::placeholders::_1));
 	}
 	else
 	{
@@ -25,4 +27,10 @@ std::shared_ptr<fm::OGLCamera> CameraCache::FindOrCreateCamera(fmc::CCamera* inC
 	}
 	return cam;
 }
+
+void OGLCameraCache::Release(uint32_t inID)
+{
+	_cameras.erase(inID);
+}
+
 

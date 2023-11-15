@@ -5,7 +5,7 @@ namespace fm
 {
 	class OGLTexture;
 	class Texture;
-	struct TextureCache
+	struct OGLTextureCache
 	{
 		std::shared_ptr<fm::OGLTexture>	_blankTexture;
 		std::unordered_map<uint32_t, std::shared_ptr<fm::OGLTexture>> _textures;

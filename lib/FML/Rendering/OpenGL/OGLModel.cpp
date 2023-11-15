@@ -7,7 +7,7 @@ using namespace fm;
 OGLModel::OGLModel(std::shared_ptr<fm::Model> inModel)
 {
 	_model = inModel;
-	inModel->_destroyCallback = std::bind(&OGLModel::Destroy, this);
+	//inModel->SetDestroyCallback(std::bind(&OGLModel::Destroy, this));
 }
 
 
