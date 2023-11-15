@@ -16,6 +16,7 @@
 #include <cstring>
 #include "Rendering/TextureDef.hpp"
 #include "Rendering/OpenGL/OGLFrameBuffer.hpp"
+#include "Components/CIdentity.h"
 using namespace fms;
 
 PickingSystem::PickingSystem( std::shared_ptr<fm::Scene> inEditorScene)
@@ -95,6 +96,12 @@ void PickingSystem::PickGameObject(const std::string &inSceneName, size_t inCame
 					if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 					{
 						fmc::CMesh* mesh = go->get<fmc::CMesh>();
+						fmc::CIdentity* identity = go->get<fmc::CIdentity>();
+						if (identity != nullptr)
+						{
+							if (!identity->IsActive())
+								continue;
+						}
 
 						fm::CommandBuffer commandBuffer;
 						fm::MaterialValues materialProperties = _material->GetUniforms();

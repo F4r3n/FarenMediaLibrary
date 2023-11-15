@@ -97,6 +97,7 @@ protected:
 	virtual void			BeforeWindowCreation() {}
 	virtual void			AfterWindowCreation() {}
 	virtual void			WillClose();
+
 	virtual void			OnInit() {}
 
 			bool			HasFocus() const;

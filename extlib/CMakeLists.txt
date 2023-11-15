@@ -5,17 +5,18 @@ include(FetchContent)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 #ECS
-FetchContent_Declare(
-  ECS
-  GIT_REPOSITORY https://github.com/F4r3n/ECS.git
-  GIT_TAG        ebe5fc753d3e4edc4a8c13580edf86c408f2eab0
-)
-FETCHCONTENT_MAKEAVAILABLE(ECS)
-
 set(ECS_BUILD_STATIC ON CACHE BOOL "" FORCE)
 set(ECS_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(ECS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(ECS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+  ECS
+  GIT_REPOSITORY https://github.com/F4r3n/ECS.git
+  GIT_TAG        14c4129b93b8947c83d018dfddcb6680ccfe2388
+)
+FETCHCONTENT_MAKEAVAILABLE(ECS)
+
+
 
 if(WANT_ASSIMP)
 	#ASSIMP
@@ -38,7 +39,7 @@ else()
 	FetchContent_Declare(
   TINYOBJLOADER
   GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader
-  GIT_TAG        ee45fb41db95bf9563f2a41bc63adfa18475c2ee
+  GIT_TAG        v2.0.0rc10
 )
 FETCHCONTENT_MAKEAVAILABLE(TINYOBJLOADER)
 endif()
@@ -57,7 +58,7 @@ set(SDL_TEST_LIBRARY OFF)
 FetchContent_Declare(
   SDL
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG        6af0448af95fe2d089db3e2b4f1218dab3e76116
+  GIT_TAG        078995bbe079e97251c7f75d45d797f5103c2377 #SDL3
 )
 FETCHCONTENT_MAKEAVAILABLE(SDL)
 
@@ -76,7 +77,7 @@ set(BUILD_OPENGL3_DEMOS OFF)
 FetchContent_Declare(
   BULLET
   GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
-  GIT_TAG        2c204c49e56ed15ec5fcfa71d199ab6d6570b3f5
+  GIT_TAG        3.25
 )
 FETCHCONTENT_MAKEAVAILABLE(BULLET)
 
@@ -109,7 +110,7 @@ FETCHCONTENT_MAKEAVAILABLE(GLSLANG)
 FetchContent_Declare(
   DOCTEST
   GIT_REPOSITORY https://github.com/doctest/doctest.git
-  GIT_TAG        ae7a13539fb71f270b87eb2e874fbac80bc8dda2
+  GIT_TAG        v2.4.11
 )
 FETCHCONTENT_MAKEAVAILABLE(DOCTEST)
 

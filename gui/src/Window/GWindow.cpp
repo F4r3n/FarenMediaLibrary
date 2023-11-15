@@ -125,7 +125,8 @@ void GWindow::Draw()
 
 			if (previousStatus != _enabled)
 			{
-				WillClose();
+				if(!_enabled)
+					WillClose();
 			}
 			_hasBeenDrawn = true;
 

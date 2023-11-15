@@ -40,6 +40,10 @@ namespace gui
 		void Zoom();
 		void AddCamera(std::shared_ptr<fm::GameObject> inGameObject);
 		void Clear();
+	protected:
+		void WillClose();
+		void OnInit();
+
 	private:
 		void _Update(float dt, Context &inContext);
 

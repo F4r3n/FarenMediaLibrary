@@ -133,7 +133,15 @@ void GGameView::Clear()
 }
 
 
+void GGameView::OnInit()
+{
 
+}
+
+void GGameView::WillClose()
+{
+
+}
 
 
 void GGameView::Resize() {}

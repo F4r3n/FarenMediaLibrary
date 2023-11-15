@@ -8,6 +8,7 @@
 #include <cstring>
 #include <set>
 #include <algorithm>
+#include <span>
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 
@@ -158,7 +159,7 @@ bool Vulkan::DeInit()
 
 void Vulkan::_CreateSurface(SDL_Window* inWindow)
 {
-	SDL_Vulkan_CreateSurface(inWindow, _instance, &_surface);
+	SDL_Vulkan_CreateSurface(inWindow, _instance,nullptr, &_surface);
 }
 
 bool Vulkan::_SetupDebugMessenger() {
@@ -189,10 +190,14 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	appInfo.apiVersion = VK_API_VERSION_1_3;
 
 	unsigned int extensionCount = 0;
-	SDL_Vulkan_GetInstanceExtensions(&extensionCount, nullptr);
+	const char* const *data = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
+	
 	std::vector<const char*> extensionNames(extensionCount);
-	SDL_Vulkan_GetInstanceExtensions(&extensionCount, extensionNames.data());
-
+	for (int i = 0; i < extensionCount; ++i)
+	{
+		extensionNames[i] = data[i];
+	}
+	
 #if __APPLE__
 	extensionNames.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
