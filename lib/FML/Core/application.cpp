@@ -152,6 +152,7 @@ void Application::Update()
 
 void Application::DeInit()
 {
+	fm::ResourcesManager::get().PurgeAll();
 	_engine.reset();
 }
 

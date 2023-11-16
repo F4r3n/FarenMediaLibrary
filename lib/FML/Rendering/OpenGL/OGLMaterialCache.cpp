@@ -36,7 +36,10 @@ std::shared_ptr<fm::OGLMaterial> OGLMaterialCache::FindOrCreate(std::shared_ptr<
 
 OGLMaterialCache::~OGLMaterialCache()
 {
-	_materials.clear();
+	for (auto& mat : _materials)
+	{
+		mat.second->Destroy();
+	}
 }
 
 

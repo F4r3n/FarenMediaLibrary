@@ -29,7 +29,7 @@ void GTextureEditor::_Update(float dt, Context& inContext)
 		auto texture = fm::ResourcesManager::get().getResource<fm::Texture>(inContext.currentPathSelected.value());
 		if (texture != nullptr)
 		{
-			if (_texture == nullptr || (_texture->GetID() != texture->GetID()))
+			if (_texture == nullptr || (_texture->GetObjectID() != texture->GetObjectID()))
 			{
 				_texture = texture;
 				_textureIcon = fm::Texture2D::CreateTexture2D(GRAPHIC_API::OPENGL, _texture->GetPath());

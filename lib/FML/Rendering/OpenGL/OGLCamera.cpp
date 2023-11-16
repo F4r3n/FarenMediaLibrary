@@ -96,6 +96,7 @@ std::shared_ptr<fm::OGLFrameBuffer> OGLCamera::GetPostProcess() const
 OGLCamera::~OGLCamera()
 {
 	_shaderDataBuffer.Free();
+	_camera->SetDestroyCallback(nullptr);
 }
 
 

@@ -182,14 +182,14 @@ void GMaterialEditor::_TextureViewer(std::shared_ptr<fm::Material> inMaterial, f
 
 	if (texture != nullptr)
 	{
-		if (auto it = _textures.find(texture->GetID()); it != _textures.end())
+		if (auto it = _textures.find(texture->GetObjectID()); it != _textures.end())
 		{
 			id = (ImTextureID)intptr_t(it->second->GetID());
 		}
 		else
 		{
 			auto texture2D = fm::Texture2D::CreateTexture2D(GRAPHIC_API::OPENGL, texture->GetPath());
-			_textures.emplace(texture->GetID(), texture2D);
+			_textures.emplace(texture->GetObjectID(), texture2D);
 			id = (ImTextureID)intptr_t(texture2D->GetID());
 		}
 
@@ -257,7 +257,7 @@ void GMaterialEditor::_CheckMaterial(std::shared_ptr<fm::Material> inMaterial)
 			_material = inMaterial;
 			_Init(inMaterial);
 		}
-		else if (auto currentMat = _material.lock(); inMaterial->GetID() != currentMat->GetID())
+		else if (auto currentMat = _material.lock(); inMaterial->GetObjectID() != currentMat->GetObjectID())
 		{
 			_material = inMaterial;
 			_Init(inMaterial);

@@ -25,6 +25,7 @@ namespace fm
 		uint32_t GetID() const;
 
 		void Destroy();
+		~OGLMaterial();
 	private:
 		std::shared_ptr<Material>							_material = nullptr;
 		std::shared_ptr<OGLShader>							_shader = nullptr;

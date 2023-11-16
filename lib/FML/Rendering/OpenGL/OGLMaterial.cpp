@@ -84,6 +84,12 @@ void OGLMaterial::Destroy()
 	_materialBuffer.Free();
 }
 
+OGLMaterial::~OGLMaterial()
+{
+	_material->SetDestroyCallback(nullptr);
+}
+
+
 
 uint32_t OGLMaterial::GetID() const
 {

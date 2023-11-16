@@ -244,7 +244,7 @@ int main()
 
 	}
 	Editor::Get().Unsubscribe(mainWindow.get());
-
+	mainWindow.reset();
 	fm::Application::Get().DeInit();
 
 	ImGui_ImplOpenGL3_Shutdown();
