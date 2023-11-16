@@ -86,7 +86,7 @@ void VkRenderingSystem::_InitStandardShapes()
 	std::shared_ptr<fm::Model> cube = fm::MeshLoader::Load(cubeModel, "Cube").value();
 	fm::ResourcesManager::get().load<fm::Model>(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, "Cube"), cube);
 
-	_staticModels.emplace(cube->GetID(), std::make_unique<fm::VkModel>(_vulkan.get(), cube));
+	_staticModels.emplace(cube->GetObjectID(), std::make_unique<fm::VkModel>(_vulkan.get(), cube));
 
 	for (const auto& m : _staticModels)
 	{
@@ -392,7 +392,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 		fmc::CMaterial* material = e.get<fmc::CMaterial>();
 		auto mainMaterial = material->GetMainMaterial();
 		//
-		auto itMaterial = _materials.find(mainMaterial->GetID());
+		auto itMaterial = _materials.find(mainMaterial->GetObjectID());
 		if (itMaterial != _materials.end())
 		{
 			if (_currentMaterial != itMaterial->second.get())
@@ -421,7 +421,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			std::unique_ptr<fm::VkMaterial> mat = std::make_unique<fm::VkMaterial>(materialInfo);
 			_materialsToUpdate.emplace_back(mat.get());
 
-			_currentMaterial = _materials.emplace(mainMaterial->GetID(), std::move(mat)).first->second.get();
+			_currentMaterial = _materials.emplace(mainMaterial->GetObjectID(), std::move(mat)).first->second.get();
 
 		}
 
@@ -432,7 +432,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 
 		if (mesh->GetModel() == nullptr)
 			continue;
-		auto it = _staticModels.find(mesh->GetModel()->GetID());
+		auto it = _staticModels.find(mesh->GetModel()->GetObjectID());
 
 		if (it != _staticModels.end())
 		{
@@ -444,7 +444,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			_UploadMesh(modelMesh.get());
 			modelMesh->Draw(commandBuffer, instanceIndex);
 
-			_staticModels.emplace(mesh->GetModel()->GetID(), std::move(modelMesh));
+			_staticModels.emplace(mesh->GetModel()->GetObjectID(), std::move(modelMesh));
 		}
 		instanceIndex++;
 	}

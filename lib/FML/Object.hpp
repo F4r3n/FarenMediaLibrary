@@ -33,7 +33,7 @@ namespace fm
 		std::function<void(uint32_t)> _destroyCallback = {};
 
 	public:
-		uint32_t GetInstance() const { return _currentID; }
+		inline uint32_t GetObjectID() const { return _currentID; }
 
 	private:
 		inline static uint32_t _ID = 0;

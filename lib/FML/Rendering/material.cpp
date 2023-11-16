@@ -11,8 +11,6 @@ using namespace fm;
 Material::Material(const fm::FilePath& inFilePath)
 	:Resource(inFilePath), _name(inFilePath.GetName(true))
 {
-	_ID++;
-	_currentID = _ID;
 }
 
 Material Material::Clone() const

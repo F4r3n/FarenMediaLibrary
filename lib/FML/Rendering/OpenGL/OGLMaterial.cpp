@@ -87,5 +87,5 @@ void OGLMaterial::Destroy()
 
 uint32_t OGLMaterial::GetID() const
 {
-	return _material->GetID();
+	return _material->GetObjectID();
 }

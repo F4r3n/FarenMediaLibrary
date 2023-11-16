@@ -11,5 +11,7 @@ namespace fm
 		std::unordered_map<uint32_t, std::shared_ptr<fm::OGLTexture>> _textures;
 		std::shared_ptr<fm::OGLTexture> FindOrCreateTexture(std::shared_ptr<fm::Texture> inTexture);
 		std::shared_ptr<fm::OGLTexture> GetBlank() const { return _blankTexture; }
+		void Release(uint32_t inID);
+
 	};
 }

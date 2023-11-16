@@ -33,22 +33,22 @@ bool RenderNode::Compare(const RenderNode& inNodeA, const RenderNode& inNodeB, b
 
 	if (std::shared_ptr<fm::Model> modelA = inNodeA.model.lock())
 	{
-		modelAID = modelA->GetID();
+		modelAID = modelA->GetObjectID();
 	}
 
 	if (std::shared_ptr<fm::Model> modelB = inNodeB.model.lock())
 	{
-		modelBID = modelB->GetID();
+		modelBID = modelB->GetObjectID();
 	}
 
 	if (std::shared_ptr<fm::Material> materialA = inNodeA.material.lock())
 	{
-		materialAID = materialA->GetID();
+		materialAID = materialA->GetObjectID();
 	}
 
 	if (std::shared_ptr<fm::Material> materialB = inNodeB.material.lock())
 	{
-		materialBID = materialB->GetID();
+		materialBID = materialB->GetObjectID();
 	}
 
 	if (!isSame)

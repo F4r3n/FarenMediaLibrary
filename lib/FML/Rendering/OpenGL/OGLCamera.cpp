@@ -130,5 +130,5 @@ void OGLCamera::BindBuffer()
 
 uint32_t OGLCamera::GetID() const
 {
-	return _camera->GetInstance();
+	return _camera->GetObjectID();
 }

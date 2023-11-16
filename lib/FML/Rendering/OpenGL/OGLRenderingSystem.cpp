@@ -43,6 +43,10 @@
 #include "Rendering/Image.h"
 #include "Rendering/Texture.h"
 #include "Rendering/meshloader.hpp"
+#include "OGLTextureCache.hpp"
+#include "OGLMaterialCache.hpp"
+#include "OGLCameraCache.hpp"
+#include "OGLShaderCache.hpp"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -89,19 +93,20 @@ void OGLRenderingSystem::init(EntityManager& em, EventManager&)
 	_finalShader = std::make_unique<fm::OGLShader>(finalShader->GetSubShader(fm::SHADER_KIND::PLAIN).value());
 	_finalShader->compile();
 
+	_texturesCache = std::make_unique<fm::OGLTextureCache>();
+	_camerasCache = std::make_unique<fm::OGLCameraCache>();
+	_materialsCache = std::make_unique<fm::OGLMaterialCache>();
+	_shaderCache = std::make_unique<fm::OGLShaderCache>();
+
 	if (fm::Image blankImage(true); blankImage.create(fm::math::vec2i(1, 1)))
 	{
-		_textures._blankTexture = std::make_shared<fm::OGLTexture>();
-		_textures._blankTexture->UploadImage(blankImage);
+		_texturesCache->_blankTexture = std::make_shared<fm::OGLTexture>();
+		_texturesCache->_blankTexture->UploadImage(blankImage);
 	}
 }
 
 OGLRenderingSystem::~OGLRenderingSystem()
 {
-	for (auto& material : _materials)
-	{
-		material.second->Destroy();
-	}
 }
 
 
@@ -125,37 +130,24 @@ void OGLRenderingSystem::_InitStandardShapes()
 	fm::ResourcesManager::get().load(quadFS);
 	fm::ResourcesManager::get().load(circle);
 	fm::ResourcesManager::get().load(cube);
-	_models.emplace(quad->GetID(), std::make_unique<fm::OGLModel>(quad));
-	_models.emplace(cube->GetID(), std::make_unique<fm::OGLModel>(cube));
-	_models.emplace(quadFS->GetID(), std::make_unique<fm::OGLModel>(quadFS));
-	_models.emplace(circle->GetID(), std::make_unique<fm::OGLModel>(circle));
+	_models.emplace(quad->GetObjectID(), std::make_unique<fm::OGLModel>(quad));
+	_models.emplace(cube->GetObjectID(), std::make_unique<fm::OGLModel>(cube));
+	_models.emplace(quadFS->GetObjectID(), std::make_unique<fm::OGLModel>(quadFS));
+	_models.emplace(circle->GetObjectID(), std::make_unique<fm::OGLModel>(circle));
 
 	for (const auto& m : _models)
 	{
 		m.second->UploadData();
 	}
 
-	fm::OGLRenderer::getInstance().SetQuadScreen(_models.find(quadFS->GetID())->second.get());
+	fm::OGLRenderer::getInstance().SetQuadScreen(_models.find(quadFS->GetObjectID())->second.get());
 }
 
 
 
 void OGLRenderingSystem::pre_update(EntityManager& em)
 {
-	for (auto&& e : em.iterate<fmc::CCamera, fmc::CTransform>(fm::IsEntityActive))
-	{
-		fmc::CCamera* cam = e.get<fmc::CCamera>();
-		fmc::CTransform* ct = e.get<fmc::CTransform>();
-		const fm::Transform tr = ct->GetTransform();
-		fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
-		if (!cam->Enabled)
-			continue;
-
-		cam->UpdateViewMatrix(ct->GetTransform());
-
-		_cameraCache.FindOrCreateCamera(cam)->CheckStamp();
-	}
 }
 
 
@@ -176,7 +168,8 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 		cam->UpdateViewMatrix(transform->GetTransform());
 		cam->UpdateProjectionMatrix();
 
-		std::shared_ptr<fm::OGLCamera> camera = _cameraCache.FindOrCreateCamera(cam);
+		std::shared_ptr<fm::OGLCamera> camera = _camerasCache->FindOrCreateCamera(cam);
+		camera->CheckStamp();
 		cam->ExecuteStartRendering();
 
 		if (cam->IsAuto())
@@ -275,7 +268,7 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 {
 	LOG_DEBUG;
 	fmc::CameraCommandBuffer::iterator it = currentCamera->GetCommandBuffer().find(inQueue);
-	auto oglCamera = _cameraCache.FindOrCreateCamera(currentCamera);
+	auto oglCamera = _camerasCache->FindOrCreateCamera(currentCamera);
 	if (it != currentCamera->GetCommandBuffer().end())
 	{
 		std::queue<fm::CommandBuffer>& cmdBuffers = it->second;
@@ -290,7 +283,7 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 				if (auto m = cmd._material.lock(); m->GetSubShader().has_value())
 				{
 
-					shader = _FindOrCreateShader(m->GetSubShader().value()).get();
+					shader = _shaderCache->FindOrCreate(m->GetSubShader().value()).get();
 					shader->Use();
 					for (auto const& [name, value] : m->GetUniforms())
 					{
@@ -385,18 +378,6 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 	LOG_DEBUG
 }
 
-std::shared_ptr<fm::OGLShader> OGLRenderingSystem::_FindOrCreateShader(const fm::SubShader& inSubShader)
-{
-	fm::ShaderID ID = inSubShader.GetID();
-	auto it = _shaders.find(ID);
-	if (it != _shaders.end())
-		return it->second;
-
-	std::shared_ptr<fm::OGLShader> shader = std::make_shared<fm::OGLShader>(inSubShader);
-	_shaders.emplace(ID, shader);
-	shader->compile();
-	return shader;
-}
 
 
 void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& inTransform,
@@ -404,47 +385,6 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 {
 	if (inMaterial == nullptr)
 		return;
-
-	if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetID())
-	{
-		if (auto it = _materials.find(inMaterial->GetID()); it == _materials.end())
-		{
-			std::optional<fm::SubShader> sub = inMaterial->GetSubShader();
-			if (!sub.has_value())
-			{
-				assert(false);
-			}
-
-			std::shared_ptr<fm::OGLShader> shader = _FindOrCreateShader(sub.value());
-
-			fm::OGLMaterialCreateInfo info;
-			info.material = inMaterial;
-			info.shader = shader;
-			std::unique_ptr<fm::OGLMaterial> mat = std::make_unique< fm::OGLMaterial>(info, _textures);
-			_currentMaterial = _materials.emplace(inMaterial->GetID(), std::move(mat)).first->second.get();
-		}
-		else
-		{
-			_currentMaterial = it->second.get();
-		}
-		if (_currentCamera != nullptr)
-		{
-			_currentCamera->BindBuffer();
-		}
-
-	}
-
-	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetInstance())
-	{
-		_currentCamera = _cameraCache.FindOrCreateCamera(cam);
-		_currentCamera->CheckStamp();
-		fmc::Shader_data camData;
-		camData.FM_P = cam->GetProjectionMatrix();
-		camData.FM_V = cam->GetViewMatrix();
-		camData.FM_PV = camData.FM_P * camData.FM_V;
-
-		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
-	}
 
 	fm::MaterialValues properties;
 	if (inMaterialProperties != nullptr)
@@ -454,7 +394,32 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 			properties.emplace(name, property);
 		}
 	}
-	_currentMaterial->Bind(properties, _textures);
+
+	if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetObjectID())
+	{
+		_currentMaterial = _materialsCache->FindOrCreate(inMaterial, *_shaderCache, *_texturesCache);
+		
+		if (_currentCamera != nullptr)
+		{
+			_currentCamera->BindBuffer();
+		}
+	}
+	_currentMaterial->Bind(properties, *_texturesCache);
+
+
+	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetObjectID())
+	{
+		_currentCamera = _camerasCache->FindOrCreateCamera(cam);
+		_currentCamera->CheckStamp();
+		fmc::Shader_data camData;
+		camData.FM_P = cam->GetProjectionMatrix();
+		camData.FM_V = cam->GetViewMatrix();
+		camData.FM_PV = camData.FM_P * camData.FM_V;
+
+		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
+	}
+
+
 }
 
 void OGLRenderingSystem::_DrawMeshInstaned(fmc::CCamera* cam, const fm::Transform& inTransform, std::shared_ptr<fm::Model> inModel,
@@ -464,7 +429,7 @@ void OGLRenderingSystem::_DrawMeshInstaned(fmc::CCamera* cam, const fm::Transfor
 
 	if (inModel != nullptr)
 	{
-		auto it = _models.find(inModel->GetID());
+		auto it = _models.find(inModel->GetObjectID());
 		if (it != _models.end())
 		{
 			it->second->DrawInstance(inNumber, inBaseInstance);
@@ -481,7 +446,7 @@ void OGLRenderingSystem::_DrawMesh(fmc::CCamera* cam, const fm::Transform& inTra
 
 	if (inModel != nullptr)
 	{
-		auto it = _models.find(inModel->GetID());
+		auto it = _models.find(inModel->GetObjectID());
 		if (it != _models.end())
 		{
 			it->second->Draw();

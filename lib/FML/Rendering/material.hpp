@@ -5,6 +5,7 @@
 #include <Rendering/MaterialValue.h>
 #include <Rendering/Graphics.hpp>
 #include "Rendering/Shader.h"
+#include "Object.hpp"
 namespace fm
 {
 	class Shader;
@@ -34,7 +35,7 @@ namespace fm
 		fm::ValuesType		type;
 	};
 
-	class Material : public Resource
+	class Material : public Resource, public Object<Material>
 	{
 
 	public:
@@ -144,15 +145,6 @@ namespace fm
 
 		unsigned char*		_buffer = nullptr;
 		uint32_t			_bufferSize = 0;
-
-
-	public:
-		uint32_t GetID() const { return _currentID; }
-
-	private:
-		inline static uint32_t _ID = 0;
-		uint32_t	_currentID = 0;
-
 
 	};
 

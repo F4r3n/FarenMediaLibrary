@@ -28,7 +28,7 @@ void VkTextureCache::Destroy()
 
 std::shared_ptr<fm::VkTexture> VkTextureCache::FindOrCreateTexture(std::shared_ptr<fm::Texture> inTexture)
 {
-	if (auto it = _textures.find(inTexture->GetID()); it != _textures.end())
+	if (auto it = _textures.find(inTexture->GetObjectID()); it != _textures.end())
 	{
 		return it->second;
 	}
@@ -40,7 +40,7 @@ std::shared_ptr<fm::VkTexture> VkTextureCache::FindOrCreateTexture(std::shared_p
 		texture = std::make_shared<fm::VkTexture>(_vulkan, _submitBuffer);
 		if (texture->UploadImage(image))
 		{
-			_textures.emplace(inTexture->GetID(), texture);
+			_textures.emplace(inTexture->GetObjectID(), texture);
 		}
 	}
 	else

@@ -6,7 +6,7 @@ using namespace fm;
 
 std::shared_ptr<fm::OGLCamera> OGLCameraCache::FindOrCreateCamera(fmc::CCamera* inCamera)
 {
-	if (auto it = _cameras.find(inCamera->GetInstance()); it != _cameras.end())
+	if (auto it = _cameras.find(inCamera->GetObjectID()); it != _cameras.end())
 	{
 		return it->second;
 	}
@@ -17,7 +17,7 @@ std::shared_ptr<fm::OGLCamera> OGLCameraCache::FindOrCreateCamera(fmc::CCamera* 
 		cam = std::make_shared<fm::OGLCamera>(inCamera);
 		cam->PrepareBuffer(sizeof(fmc::CCamera::shader_data));
 		cam->CreateRenderTexture();
-		_cameras.emplace(inCamera->GetInstance(), cam);
+		_cameras.emplace(inCamera->GetObjectID(), cam);
 
 		inCamera->SetDestroyCallback(std::bind(&OGLCameraCache::Release, this, std::placeholders::_1));
 	}
@@ -30,7 +30,10 @@ std::shared_ptr<fm::OGLCamera> OGLCameraCache::FindOrCreateCamera(fmc::CCamera* 
 
 void OGLCameraCache::Release(uint32_t inID)
 {
-	_cameras.erase(inID);
+	if (auto it = _cameras.find(inID); it != _cameras.end())
+	{
+		_cameras.erase(it);
+	}
 }
 
 

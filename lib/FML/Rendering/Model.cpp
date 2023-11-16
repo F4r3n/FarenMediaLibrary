@@ -10,8 +10,6 @@ using namespace rendering;
 Model::Model(const fm::FilePath& inFilePath): Resource(inFilePath)
 {
     _name = inFilePath.GetName(true);
-	_ID++;
-	_currentID = _ID;
 }
 
 

@@ -5,7 +5,6 @@ using namespace fm;
 Texture::Texture(const fm::FilePath& inPath)
 	:Resource(inPath)
 {
-	_currentID = ++_ID;
 }
 
 void Texture::Load(const nlohmann::json& inJSON)

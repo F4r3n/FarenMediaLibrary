@@ -14,8 +14,7 @@
 #include "Rendering/GPUData.hpp"
 #include "Rendering/ShaderKind.hpp"
 #include "Rendering/RenderQueue.h"
-#include "OGLTextureCache.hpp"
-#include "OGLCameraCache.hpp"
+
 namespace fmc
 {
 	class CText;
@@ -38,6 +37,11 @@ namespace fm
 	class OGLCamera;
 	class SubShader;
 	class Window;
+
+	struct OGLTextureCache;
+	struct OGLMaterialCache;
+	struct OGLCameraCache;
+	struct OGLShaderCache;
 }
 
 struct TextDef
@@ -80,7 +84,6 @@ namespace fms
 			std::shared_ptr<fm::Material> inMaterial, fm::MaterialValues* inMaterialProperties);
 		virtual ~OGLRenderingSystem();
 
-		std::shared_ptr<fm::OGLShader> _FindOrCreateShader(const fm::SubShader& inSubShader);
 	private:
 		std::unique_ptr<fm::OGLShader> _finalShader;
 
@@ -89,16 +92,16 @@ namespace fms
 		//TextDef _textdef;
 		GRAPHIC_API _api = GRAPHIC_API::OPENGL;
 		std::unordered_map<uint32_t, std::unique_ptr<fm::OGLModel>>		_models;
-		fm::OGLTextureCache												_textures;
-		std::unordered_map<uint32_t, std::unique_ptr<fm::OGLMaterial>>	_materials;
+		std::unique_ptr<fm::OGLTextureCache>							_texturesCache = nullptr;
+		std::unique_ptr<fm::OGLMaterialCache>							_materialsCache = nullptr;
+		std::unique_ptr<fm::OGLCameraCache>								_camerasCache = nullptr;
 
 		//ShaderID + SHADER_KIND
-		std::unordered_map<fm::ShaderID, std::shared_ptr<fm::OGLShader>> _shaders;
+		std::unique_ptr<fm::OGLShaderCache>								_shaderCache;
 
-		fm::OGLMaterial* _currentMaterial = nullptr;
-		fm::OGLCameraCache												_cameraCache;
+		std::shared_ptr<fm::OGLMaterial>								_currentMaterial = nullptr;
 
-		std::shared_ptr<fm::OGLCamera> _currentCamera = nullptr;
+		std::shared_ptr<fm::OGLCamera>									_currentCamera = nullptr;
 		fm::OGLUniformbuffer											_ssbo;
 		std::shared_ptr<fm::Window>										_window = nullptr;
 		bool															_running = false;

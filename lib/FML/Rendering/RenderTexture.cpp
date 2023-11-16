@@ -6,7 +6,6 @@ using namespace fm;
 RenderTexture::RenderTexture(const fm::FilePath& inPath)
 	:Resource(inPath)
 {
-	_currentID = ++_ID;
 }
 
 RenderTexture::RenderTexture(size_t width, size_t height, const std::vector<TextureFormat>& formats,
