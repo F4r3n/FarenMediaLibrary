@@ -7,7 +7,7 @@
 #include "OGLTexture.hpp"
 using namespace fm;
 
-OGLMaterial::OGLMaterial(const OGLMaterialCreateInfo& inInfo, fm::TextureCache& inTextures)
+OGLMaterial::OGLMaterial(const OGLMaterialCreateInfo& inInfo, fm::OGLTextureCache& inTextures)
 {
 	_material = inInfo.material;
 	_shader = inInfo.shader;
@@ -35,7 +35,7 @@ OGLMaterial::OGLMaterial(const OGLMaterialCreateInfo& inInfo, fm::TextureCache& 
 }
 
 
-void OGLMaterial::Bind(const fm::MaterialValues& inMaterialProperties, fm::TextureCache& inTextures)
+void OGLMaterial::Bind(const fm::MaterialValues& inMaterialProperties, fm::OGLTextureCache& inTextures)
 {
 	_shader->Use();
 	for (auto const& [name, value] : _material->GetUniforms())

@@ -211,7 +211,7 @@ OGLTexture::OGLTexture(const Image& image, Recti rect) {
     _content.clear();
 }
 
-void OGLTexture::generate(size_t width, size_t height, OGLTextureFormat format, OGLTextureType type, int multiSampled) {
+void OGLTexture::generate(size_t width, size_t height, OGLTextureFormat format, OGLTextureType type, size_t multiSampled) {
     _width = width;
     _height = height;
     _type = type;
@@ -288,7 +288,7 @@ void OGLTexture::generate(size_t width, size_t height, OGLTextureFormat format, 
     }else
     {
         glTexImage2DMultisample((GLenum)_textureKind,
-                     multiSampled,
+					(GLsizei)multiSampled,
                      internalFormat,
                      (GLsizei)width,
                      (GLsizei)height,

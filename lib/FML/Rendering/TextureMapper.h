@@ -2,9 +2,11 @@
 #include "Rendering/Image.h"
 #include "Core/Rect.h"
 #include "NonCopyable.h"
-#include <GL/glew.h>
 
 
+#define WITH_TEXTURE_ATLAS 0
+
+#if WITH_TEXTURE_ATLAS
 #include <array>
 namespace fm {
 enum SIZE { S_32, S_64, S_128, S_256, S_512, S_1024, LAST_SIZE };
@@ -40,6 +42,7 @@ private:
 
     TextureAtlas& getCurrent(SIZE s);
     std::array<std::vector<TextureAtlas>, SIZE::LAST_SIZE> maps;
-    int maxSize;
+    size_t _maxSize;
 };
 }
+#endif

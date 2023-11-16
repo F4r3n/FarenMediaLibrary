@@ -1,10 +1,15 @@
 #include "Rendering/TextureMapper.h"
-#include <iostream>
+#include <GL/glew.h>
 using namespace fm;
-TextureMapper::TextureMapper() {
-    TextureAtlas atlas;
 
+#if WITH_TEXTURE_ATLAS
+
+TextureMapper::TextureMapper()
+{
+    TextureAtlas atlas;
+	int maxSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+	_maxSize = maxSize;
 }
 
 TextureMapper::~TextureMapper() {
@@ -16,7 +21,7 @@ void TextureMapper::addAtlas(SIZE s) {
     atlas.s = s;
     glGenTextures(1, &atlas.id);
     glBindTexture(GL_TEXTURE_2D, atlas.id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, maxSize, maxSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _maxSize, _maxSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -71,19 +76,19 @@ TextureDef TextureMapper::fillTextureAtlas(Image& image, Recti rect, std::vector
     if(s == LAST_SIZE)
         return tex;
     TextureAtlas atlas = getCurrent(s);
-    if((atlas.pos.x + atlas.maxSizeRegion) > maxSize) {
+    if((atlas.pos.x + atlas.maxSizeRegion) > _maxSize) {
         atlas.pos.x = 0;
         atlas.pos.y += atlas.maxSizeRegion;
-        if(atlas.pos.y > maxSize) {
+        if(atlas.pos.y > _maxSize) {
             addAtlas(atlas.s);
             return fillTextureAtlas(image, rect, content);
         }
     }
     tex.id = atlas.id;
-    tex.rectUV.x = atlas.pos.x/maxSize;
-    tex.rectUV.y = atlas.pos.y/maxSize;
-    tex.rectUV.w = rect.w/maxSize;
-    tex.rectUV.h = rect.h/maxSize;
+    tex.rectUV.x = atlas.pos.x/_maxSize;
+    tex.rectUV.y = atlas.pos.y/_maxSize;
+    tex.rectUV.w = rect.w/_maxSize;
+    tex.rectUV.h = rect.h/_maxSize;
     glTexSubImage2D(
         GL_TEXTURE_2D, 0, atlas.pos.x, atlas.pos.y, rect.w, rect.h, GL_RGBA, GL_UNSIGNED_BYTE, content.data());
     return tex;
@@ -100,3 +105,4 @@ TextureDef TextureMapper::registerTexture(const std::string& path, Recti rect) {
     image.getPart(content, rect);
     return fillTextureAtlas(image, rect, content);
 }
+#endif

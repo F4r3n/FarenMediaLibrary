@@ -10,7 +10,7 @@ RenderTexture::RenderTexture(const fm::FilePath& inPath)
 }
 
 RenderTexture::RenderTexture(size_t width, size_t height, const std::vector<TextureFormat>& formats,
-	const std::vector<TextureType>& types, size_t depth, int multiSampling)
+	const std::vector<TextureType>& types, size_t depth, size_t multiSampling)
 	:Resource(fm::FilePath(std::string("")))
 {
 	_formats = formats;

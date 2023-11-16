@@ -5,7 +5,7 @@
 #include "Rendering/material.hpp"
 namespace fm
 {
-	struct TextureCache;
+	struct OGLTextureCache;
 }
 
 namespace fm
@@ -20,8 +20,8 @@ namespace fm
 	class OGLMaterial
 	{
 	public:
-		OGLMaterial(const OGLMaterialCreateInfo& inInfo, fm::TextureCache& inTextures);
-		void Bind(const fm::MaterialValues& inMaterialProperties, fm::TextureCache& ioTextures);
+		OGLMaterial(const OGLMaterialCreateInfo& inInfo, fm::OGLTextureCache& inTextures);
+		void Bind(const fm::MaterialValues& inMaterialProperties, fm::OGLTextureCache& ioTextures);
 		uint32_t GetID() const;
 
 		void Destroy();

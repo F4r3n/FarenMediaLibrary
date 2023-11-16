@@ -34,7 +34,7 @@ class OGLTexture
 	void				bind(size_t inIndex) const;
 
     inline GLuint		getID() const {return _id;}
-    void				generate(size_t width, size_t height, OGLTextureFormat format, OGLTextureType type, int multiSampled = 0);
+    void				generate(size_t width, size_t height, OGLTextureFormat format, OGLTextureType type, size_t multiSampled = 0);
     void				release();
 
 

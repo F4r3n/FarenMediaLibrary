@@ -11,7 +11,7 @@ namespace fm
 	public:
 		RenderTexture(const fm::FilePath& inPath);
 		RenderTexture(size_t width, size_t height, const std::vector<TextureFormat>& formats,
-			const std::vector<TextureType>& types, size_t depth, int multiSampling = 0);
+			const std::vector<TextureType>& types, size_t depth, size_t multiSampling = 0);
 
 		virtual void Load(const nlohmann::json& inJSON) override;
 		virtual void Save(nlohmann::json& outJSON) const override;

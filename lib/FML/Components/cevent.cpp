@@ -30,12 +30,12 @@ void CEvent::AddEvent(fm::BaseEvent *inEvent)
 }
 
 
-bool CEvent::Serialize(nlohmann::json &ioJson) const
+bool CEvent::Serialize([[maybe_unused]]nlohmann::json &ioJson) const
 {
     return false;
 }
 
-bool CEvent::Read(const nlohmann::json &inJSON)
+bool CEvent::Read([[maybe_unused]] const nlohmann::json &inJSON)
 {
     return false;
 }

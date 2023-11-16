@@ -94,7 +94,7 @@ bool OGLFrameBuffer::_InitFrameBuffer()
             glBindRenderbuffer(GL_RENDERBUFFER, _rboDepth);
             if(_multiSampling > 0)
             {
-                glRenderbufferStorageMultisample(GL_RENDERBUFFER, _multiSampling, GL_DEPTH24_STENCIL8, (GLsizei)_width, (GLsizei)_height);
+                glRenderbufferStorageMultisample(GL_RENDERBUFFER, (GLsizei)_multiSampling, GL_DEPTH24_STENCIL8, (GLsizei)_width, (GLsizei)_height);
             }else
             {
                 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)_width, (GLsizei)_height);

@@ -12,7 +12,7 @@ set(ECS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
   ECS
   GIT_REPOSITORY https://github.com/F4r3n/ECS.git
-  GIT_TAG        14c4129b93b8947c83d018dfddcb6680ccfe2388
+  GIT_TAG        e6ce05afc3fbea4f8c2259147a09a2ec5a56d920
 )
 FETCHCONTENT_MAKEAVAILABLE(ECS)
 

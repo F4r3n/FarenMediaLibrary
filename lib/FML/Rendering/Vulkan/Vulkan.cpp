@@ -193,7 +193,7 @@ bool Vulkan::_InitInstance(const std::vector<const char*>& inValidationLayerSupp
 	const char* const *data = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
 	
 	std::vector<const char*> extensionNames(extensionCount);
-	for (int i = 0; i < extensionCount; ++i)
+	for (unsigned int i = 0; i < extensionCount; ++i)
 	{
 		extensionNames[i] = data[i];
 	}

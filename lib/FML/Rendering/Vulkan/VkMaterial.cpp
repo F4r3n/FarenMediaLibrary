@@ -169,7 +169,7 @@ void VkMaterial::Update(VkDescriptorPool inPool, VkTextureCache& inCache)
 				}
 				frame.descriptorSetReady = true;
 
-				vkUpdateDescriptorSets(_vulkan->GetDevice(), setWrites.size(), setWrites.data(), 0, nullptr);
+				vkUpdateDescriptorSets(_vulkan->GetDevice(), static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
 
 			}
 		}
