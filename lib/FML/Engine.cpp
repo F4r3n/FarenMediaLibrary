@@ -96,19 +96,8 @@ void Engine::Reset()
 
 void Engine::Update(float dt)
 {
-  //  auto start = std::chrono::system_clock::now();
-
     _systems->update(dt * Time::scale, EntityManager::get(), EventManager::Get());
 	GarbageCollector::Collect();
-//_numberFramesTimer++;
-    //if(_numberFramesTimer == 200) {
-       //  auto end = std::chrono::system_clock::now();
-       //  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-       //  float time = elapsed.count();
-       //  start = end;
-       //  std::cout << "Time per frame " << time << " ms" << std::endl;
-       // _numberFramesTimer = 0;
-    //}
 }
 
 bool fm::IsEntityActive(EntityManager& em, const Entity::Id& id)

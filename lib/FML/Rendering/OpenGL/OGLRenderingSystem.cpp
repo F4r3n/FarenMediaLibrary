@@ -386,27 +386,6 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 	if (inMaterial == nullptr)
 		return;
 
-	fm::MaterialValues properties;
-	if (inMaterialProperties != nullptr)
-	{
-		for (const auto& [name, property] : *inMaterialProperties)
-		{
-			properties.emplace(name, property);
-		}
-	}
-
-	if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetObjectID())
-	{
-		_currentMaterial = _materialsCache->FindOrCreate(inMaterial, *_shaderCache, *_texturesCache);
-		
-		if (_currentCamera != nullptr)
-		{
-			_currentCamera->BindBuffer();
-		}
-	}
-	_currentMaterial->Bind(properties, *_texturesCache);
-
-
 	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetObjectID())
 	{
 		_currentCamera = _camerasCache->FindOrCreateCamera(cam);
@@ -419,7 +398,25 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
 	}
 
+	fm::MaterialValues properties;
+	if (inMaterialProperties != nullptr)
+	{
+		for (const auto& [name, property] : *inMaterialProperties)
+		{
+			properties.emplace(name, property);
+		}
+	}
 
+	if (_currentMaterial == nullptr || _currentMaterial->GetID() != inMaterial->GetObjectID())
+	{
+		_currentMaterial = _materialsCache->FindOrCreate(inMaterial, *_shaderCache, *_texturesCache);
+
+		if (_currentCamera != nullptr)
+		{
+			_currentCamera->BindBuffer();
+		}
+	}
+	_currentMaterial->Bind(properties, *_texturesCache);
 }
 
 void OGLRenderingSystem::_DrawMeshInstaned(fmc::CCamera* cam, const fm::Transform& inTransform, std::shared_ptr<fm::Model> inModel,
