@@ -14,6 +14,10 @@
 #include "Rendering/GPUData.hpp"
 #include "Rendering/ShaderKind.hpp"
 #include "Rendering/RenderQueue.h"
+#include "OGLTextureCache.hpp"
+#include "OGLMaterialCache.hpp"
+#include "OGLCameraCache.hpp"
+#include "OGLShaderCache.hpp"
 
 namespace fmc
 {
@@ -37,11 +41,6 @@ namespace fm
 	class OGLCamera;
 	class SubShader;
 	class Window;
-
-	struct OGLTextureCache;
-	struct OGLMaterialCache;
-	struct OGLCameraCache;
-	struct OGLShaderCache;
 }
 
 struct TextDef

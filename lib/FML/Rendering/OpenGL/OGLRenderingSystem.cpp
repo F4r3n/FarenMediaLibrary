@@ -43,10 +43,7 @@
 #include "Rendering/Image.h"
 #include "Rendering/Texture.h"
 #include "Rendering/meshloader.hpp"
-#include "OGLTextureCache.hpp"
-#include "OGLMaterialCache.hpp"
-#include "OGLCameraCache.hpp"
-#include "OGLShaderCache.hpp"
+
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
