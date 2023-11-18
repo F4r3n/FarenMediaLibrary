@@ -44,7 +44,8 @@ set(SOURCES ${SOURCES}
 	src/Window/GMaterialEditor.cpp
 	src/Window/GTextureEditor.cpp
 	src/Export.cpp
-	src/ShaderCompiler.cpp
+	src/Shader/ShaderCompiler.cpp
+	src/Shader/ShaderIncluder.cpp
 	src/PickingSystem.cpp
 	src/PortableFileDialog.cpp
 	src/ImGuizmo/ImGuizmo.cpp
@@ -98,7 +99,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE ${glslang_BINARY_DIR})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
-target_link_libraries(${PROJECT_NAME} glslang SPIRV glslang-default-resource-limits)
+target_link_libraries(${PROJECT_NAME} glslang SPIRV glslang-default-resource-limits) 
 
 
 if(ENABLE_PCH)

@@ -3,7 +3,7 @@
 #include "Rendering/Shader.h"
 #include <ranges>
 #include <nlohmann/json.hpp>
-#include "ShaderCompiler.h"
+#include "Shader/ShaderCompiler.h"
 #include "Rendering/Shader.h"
 using namespace gui;
 

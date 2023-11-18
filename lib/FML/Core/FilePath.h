@@ -21,7 +21,7 @@ namespace fm
 		FilePath(fm::LOCATION inLocation, const std::string& inFollowingPath);
 		FilePath(fm::LOCATION inLocation);
 
-		FilePath& ToSub(const std::string &inFolderName);
+		FilePath& ToSub(const std::string& inFolderName);
 
 		FilePath GetParent() const;
 		const fs::path& GetPath() const;
@@ -63,6 +63,7 @@ namespace fm
 		File Rename(const std::string& inNewName) const;
 		File CopyTo(const fm::FilePath& inDestination) const;
 		bool Exist() const;
+		bool ReadLineByLine(std::function<bool(const std::string_view&, size_t)> inCallback) const;
 		std::string GetContent() const;
 		void		SetContent(const std::string& inContent) const;
 		void		SetContent(const std::vector<uint32_t>& inContent) const;

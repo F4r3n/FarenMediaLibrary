@@ -264,6 +264,8 @@ void OGLRenderingSystem::Stop()
 void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CCamera* currentCamera, uint32_t& instance)
 {
 	LOG_DEBUG;
+	_currentCamera = nullptr;
+	_currentMaterial = nullptr;
 	fmc::CameraCommandBuffer::iterator it = currentCamera->GetCommandBuffer().find(inQueue);
 	auto oglCamera = _camerasCache->FindOrCreateCamera(currentCamera);
 	if (it != currentCamera->GetCommandBuffer().end())
@@ -370,8 +372,7 @@ void OGLRenderingSystem::_ExecuteCommandBuffer(fm::RENDER_QUEUE inQueue, fmc::CC
 		}
 		currentCamera->GetCommandBuffer().erase(it);
 	}
-	_currentCamera = nullptr;
-	_currentMaterial = nullptr;
+
 	LOG_DEBUG
 }
 
@@ -383,6 +384,7 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 	if (inMaterial == nullptr)
 		return;
 
+	bool isCameraBinded = false;
 	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetObjectID())
 	{
 		_currentCamera = _camerasCache->FindOrCreateCamera(cam);
@@ -391,7 +393,7 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 		camData.FM_P = cam->GetProjectionMatrix();
 		camData.FM_V = cam->GetViewMatrix();
 		camData.FM_PV = camData.FM_P * camData.FM_V;
-
+		isCameraBinded = true;
 		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
 	}
 

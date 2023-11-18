@@ -6,6 +6,7 @@
 #include "Core/Debug.h"
 #include <fstream>
 #include <unordered_map>
+#include "ShaderIncluder.hpp"
 using namespace fm;
 using namespace gui;
 class DirStackFileIncluder : public glslang::TShader::Includer {
@@ -166,8 +167,11 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 {
 	std::unique_ptr<glslang::TShader> shader = std::make_unique<glslang::TShader>(inLang);
 
-	std::string content = inFile.GetContent();
-	const char* sources[1] = { content.c_str()};
+	ShaderIncluder shaderIncluder(inSettings.listFoldersToInclude);
+	std::string shaderContent;
+	shaderIncluder.Parse(inFile, shaderContent);
+
+	const char* sources[1] = { shaderContent.c_str()};
 	shader->setStrings(sources, 1);
 
 	//preambleString += "#extension GL_GOOGLE_include_directive : require\n";
@@ -201,10 +205,12 @@ std::unique_ptr<glslang::TShader> ShaderCompiler::_CompileLang(const ShaderCompi
 	EProfile defaultProfile = ECoreProfile;
 
 
-	DirStackFileIncluder includer;
-	std::for_each(inSettings.listFoldersToInclude.begin(), inSettings.listFoldersToInclude.end(), [&includer](const fm::Folder& inFolder) {
-		includer.pushExternalLocalDirectory(inFolder.GetPathString());
-		});
+	//DirStackFileIncluder includer;
+	glslang::TShader::ForbidIncluder includer;
+	//std::for_each(inSettings.listFoldersToInclude.begin(), inSettings.listFoldersToInclude.end(), [&includer](const fm::Folder& inFolder) {
+	//	includer.pushExternalLocalDirectory(inFolder.GetPathString());
+	//	});
+
 
 	std::string preprocessedStr;
 	if (!shader->preprocess(

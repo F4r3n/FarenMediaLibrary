@@ -103,12 +103,14 @@ bool FilePath::GetRelativeFromRoot(const fm::FilePath &inRoot, const fm::FilePat
 }
 
 
+
+
 FilePath& FilePath::ToSub(const std::string& inFolderName)
 {
 	if (inFolderName.empty())
 		return *this;
 
-	std::string p = inFolderName;
+	std::string p(inFolderName);
 	std::replace(p.begin(), p.end(), '/', fm::FilePath::GetFolderSeparator());
 
 	_path += GetFolderSeparator() + p;
@@ -375,6 +377,23 @@ bool File::Exist() const
 {
 	return _path.IsValid() && fs::is_regular_file(_path.GetPath()) && fs::exists(_path.GetPath());
 }
+
+bool File::ReadLineByLine(std::function<bool(const std::string_view&, size_t)> inCallback) const
+{
+	bool ok = true;
+	std::ifstream stream(_path.GetPath());
+	size_t i = 0;
+	for (std::string line; std::getline(stream, line); i++)
+	{
+		if (!inCallback(line, i))
+		{
+			ok = false;
+			break;
+		}
+	}
+	return ok;
+}
+
 
 std::string File::GetContent() const
 {

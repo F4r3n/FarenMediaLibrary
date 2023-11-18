@@ -135,7 +135,7 @@ FilePath ResourcesManager::GetFilePathResource(LOCATION inLocation)
 
 		return FilePath(p.u8string());
 #elif __linux__ || __APPLE__
-		return FilePath(std::string(getenv("HOME")) + std::string(".config/FML"));
+		return FilePath(std::string(getenv("HOME")) +"/"+ std::string(".config/FML"));
 #endif
 	}
 	case LOCATION::SETTINGS_LAST_PROJECTS:

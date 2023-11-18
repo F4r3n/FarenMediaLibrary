@@ -12,7 +12,7 @@
 
 #include <FML/Window.h>
 #include "Editor.h"
-#include "ShaderCompiler.h"
+#include "Shader/ShaderCompiler.h"
 #include <FML/Resource/ResourcesManager.h>
 #include <FML/Resource/ResourceLoader.h>
 #include <algorithm>
