@@ -39,7 +39,7 @@ namespace fm
 		std::shared_ptr<fm::OGLFrameBuffer>	_renderTexture;
 
 		std::shared_ptr<fm::OGLFrameBuffer>	_target = nullptr;
-		fmc::CCamera*			_camera = nullptr; //TODO get a shared ptr
+		fmc::CCamera*			_camera = nullptr;
 
 		size_t	_currentStamp = 0;
 	};

@@ -20,8 +20,6 @@ using namespace fm;
 CCamera::CCamera()
 {
     _name = "Camera";
-	_width = 0;
-	_height = 0;
 	_fovy = 60.0f;
 	_nearPlane = 0.1f;
 	_farPlane = 1000.0f;
@@ -38,13 +36,13 @@ _isOrto(ortho),
 _nearPlane(0.1f),
 _farPlane(1000.0f),
 _fovy(60.0f),
-_width(width),
-_height(height),
 _multiSampled(multiSampled),
 _isInit(false),
 _isAuto(isAuto),
 _target(nullptr)
 {
+	_viewPort.w = width;
+	_viewPort.h = height;
 	_name = "Camera";
 }
 
@@ -56,8 +54,7 @@ CCamera::~CCamera()
 
 bool CCamera::Serialize(nlohmann::json &ioJson) const
 {
-    ioJson["width"] = _width;
-    ioJson["height"] = _height;
+    ioJson["viewPort"] = _viewPort;
     ioJson["farPlane"] = _farPlane;
     ioJson["nearPlane"] = _nearPlane;
     ioJson["isOrtho"] = _isOrto;
@@ -70,8 +67,19 @@ bool CCamera::Serialize(nlohmann::json &ioJson) const
 
 bool CCamera::Read(const nlohmann::json &inJSON)
 {
-    _width					= inJSON["width"];
-    _height					= inJSON["height"];
+	if (inJSON.contains("width"))
+	{
+		_viewPort.w = inJSON["width"];
+	}
+	if (inJSON.contains("height"))
+	{
+		_viewPort.h = inJSON["height"];
+	}
+	if (inJSON.contains("viewPort"))
+	{
+		_viewPort = inJSON["viewPort"];
+	}
+
     _farPlane				= inJSON["farPlane"];
     _nearPlane				= inJSON["nearPlane"];
     _isOrto					= inJSON["isOrtho"];
@@ -84,7 +92,7 @@ bool CCamera::Read(const nlohmann::json &inJSON)
 
 fm::math::mat CCamera::GetOrthographicProjectionForText() const
 {
-	return fm::math::ortho(0.0f, (float)_width, 0.0f, (float)_height, -_farPlane, _farPlane);
+	return fm::math::ortho(0.0f, (float)_viewPort.w, 0.0f, (float)_viewPort.h, -_farPlane, _farPlane);
 }
 
 
@@ -92,29 +100,17 @@ void CCamera::UpdateProjectionMatrix()
 {
 	if (_isOrto)
 	{
-		_projection = fm::math::ortho(0.0f, (float)_width, (float)_height, 0.0f, _nearPlane, _farPlane);
-		_viewPort.w = (int)_width;
-		_viewPort.h = (int)_height;
-		_viewPort.x = 0;
-		_viewPort.y = 0;
-
+		_projection = fm::math::ortho(0.0f, (float)_viewPort.w, (float)_viewPort.h, 0.0f, _nearPlane, _farPlane);
 	}
 	else
 	{
-		_projection = fm::math::perspective(fm::math::radians(_fovy), (float)_width / (float)_height, _nearPlane, _farPlane);
-		_viewPort.w = (int)_width;
-		_viewPort.h = (int)_height;
-		_viewPort.x = 0;
-		_viewPort.y = 0;
-
+		_projection = fm::math::perspective(fm::math::radians(_fovy), (float)_viewPort.w / (float)_viewPort.h, _nearPlane, _farPlane);
 	}
 }
 
 
 void CCamera::SetNewProjection(int width, int height)
 {
-    _width = width;
-    _height = height;
     _isOrto = true;
     _farPlane = 100.0f;
 
@@ -130,20 +126,16 @@ void CCamera::_InitRenderTexture()
 {
 	std::vector<fm::TextureFormat> formats{ fm::TextureFormat::RGBA, fm::TextureFormat::RGBA };
 	std::vector<fm::TextureType> types{ fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE };
-	_renderTexture = std::make_shared<fm::RenderTexture>(_width, _height, formats, types, 24, _multiSampled);
+	_renderTexture = std::make_shared<fm::RenderTexture>(_viewPort.w, _viewPort.h, formats, types, 24, _multiSampled);
 	_Touch();
 }
 
-void CCamera::SetNewViewPort(int x, int y, int width, int height)
+void CCamera::SetNewViewPort(size_t x, size_t y, size_t width, size_t height)
 {
-    _isOrto = true;
-    _projection = fm::math::ortho((float)x, (float)x + (float)width, (float)y + (float)height, (float)y, _nearPlane, _farPlane);
     _viewPort.w = width;
     _viewPort.h = height;
     _viewPort.x = x;
     _viewPort.y = y;
-
-	_InitRenderTexture();
 }
 
 bool CCamera::HasCommandBuffer(fm::RENDER_QUEUE inQueue) const

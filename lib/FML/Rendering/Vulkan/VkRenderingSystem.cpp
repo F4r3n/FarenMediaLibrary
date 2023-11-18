@@ -18,7 +18,8 @@
 #include "Components/CIdentity.h"
 #include "VkTexture.hpp"
 #include "Rendering/material.hpp"
-
+#include "Engine.h"
+#include "VkCamera.hpp"
 using namespace fms;
 
 VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
@@ -47,6 +48,7 @@ void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
 	//auto it = _textures.emplace(0, std::make_unique<fm::VkTexture>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); }));
 	//it.first->second->UploadImage(fm::FilePath(fm::LOCATION::INTERNAL_IMAGES_LOCATION, "lost_empire-RGBA.png"));
 	//texture.Destroy();
+	_cameraCache = std::make_unique<fm::VkCameraCache>();
 	_textureCache = std::make_unique<fm::VkTextureCache>(_vulkan.get(), [this](std::function<void(VkCommandBuffer)> inCmd) {this->_ImmediateSubmit(std::move(inCmd)); });
 }
 
@@ -305,13 +307,15 @@ std::shared_ptr<fm::VkShader> VkRenderingSystem::_FindOrCreateShader(const fm::S
 	return shader;
 }
 
-bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFramebuffer inFrameBuffer, VkRenderPass inRenderPass, EntityManager& em)
+bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCamera, VkCommandBuffer commandBuffer, VkFramebuffer inFrameBuffer, VkRenderPass inRenderPass)
 {
+	EntityManager &em = EntityManager::get();
 	VkCommandBufferBeginInfo beginInfo = vk_init::CreateCommandBufferBeginInfo(0);
 
 	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
 		return false;
 	}
+	const VkExtent2D cameraExtent = inCamera->GetExtent();
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -319,7 +323,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 	renderPassInfo.framebuffer = inFrameBuffer;
 
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = _vulkan->GetSwapChainExtent();
+	renderPassInfo.renderArea.extent = cameraExtent;
 
 
 	std::array<VkClearValue, 2> clearValues{};
@@ -333,29 +337,18 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(_vulkan->GetSwapChainExtent().width);
-	viewport.height = static_cast<float>(_vulkan->GetSwapChainExtent().height);
+	viewport.width = static_cast<float>(cameraExtent.width);
+	viewport.height = static_cast<float>(cameraExtent.height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 	VkRect2D scissor{};
 	scissor.offset = { 0, 0 };
-	scissor.extent = _vulkan->GetSwapChainExtent();
+	scissor.extent = cameraExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-
-	fm::math::vec3 camPos = { 0.f,0.f,-2.0f };
-
-	fm::math::mat view = fm::math::translate(fm::math::mat(1.f), camPos);
-	fm::math::mat projection = fm::math::perspective(fm::math::radians(70.f), ((float)_vulkan->GetSwapChainExtent().width / (float)_vulkan->GetSwapChainExtent().height), 0.1f, 200.0f);
-	projection[1][1] *= -1;
-
-	fmc::Shader_data camData;
-	camData.FM_P = projection;
-	camData.FM_V = view;
-	camData.FM_PV = projection * view;
-	_vulkan->MapBuffer(_framesData[_currentFrame].globalBuffer, &camData, sizeof(fmc::Shader_data), 0);
+	inCamera->MapCameraBuffer(_vulkan.get(), _framesData[_currentFrame].globalBuffer);
 	
 	_sceneParameters.ambientColor = fm::math::vec4(1,1,1, 1);
 
@@ -410,7 +403,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(VkCommandBuffer commandBuffer, VkFr
 			fm::VkMaterial::VkMaterialCreateInfo materialInfo{};
 			materialInfo.vulkan = _vulkan.get();
 			materialInfo.renderPass = _renderPass;
-			materialInfo.extent = _vulkan->GetSwapChainExtent();
+			materialInfo.extent = cameraExtent;
 			materialInfo.descriptorLayout = std::vector<VkDescriptorSetLayout>{ _globalSetLayout,_objectSetLayout };
 			materialInfo.material = mainMaterial;
 			//materialInfo.textureLayout = _textureSetLayout;
@@ -465,7 +458,7 @@ void VkRenderingSystem::pre_update(EntityManager& manager)
 {
 
 }
-void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& event)
+void VkRenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 {
 	if (_window->IsMinimized())
 		return;
@@ -487,9 +480,23 @@ void VkRenderingSystem::update(float dt, EntityManager& manager, EventManager& e
 		return;
 	}
 	vkResetFences(device, 1, &_inFlightFences[_currentFrame]);
+	for (auto&& e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
+	{
+		fmc::CCamera* cam = e.get<fmc::CCamera>();
+		if (!cam->Enabled)
+			continue;
 
-	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-	_RecordCommandBuffer(_commandBuffers[_currentFrame], _vulkan->GetSwapChainFrameBuffer(imageIndex), _renderPass, manager);
+		fmc::CTransform* transform = e.get<fmc::CTransform>();
+		cam->SetNewViewPort(0, 0, static_cast<size_t>(_vulkan->GetSwapChainExtent().width),
+								  static_cast<size_t>(_vulkan->GetSwapChainExtent().height));
+
+		cam->UpdateViewMatrix(transform->GetTransform());
+		cam->UpdateProjectionMatrix();
+		vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
+		auto vkCamera = _cameraCache->FindOrCreate(cam);
+		_RecordCommandBuffer(vkCamera, _commandBuffers[_currentFrame], _vulkan->GetSwapChainFrameBuffer(imageIndex), _renderPass);
+	}
+
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

@@ -40,8 +40,7 @@ namespace fm {
         Graphics();
         ~Graphics();
         void Clear(BUFFER_BIT = COLOR_BUFFER_BIT) const;
-        void SetViewPort(const fm::math::vec4i &rect) const;
-        void SetViewPort(const fm::Rect<int> &rect) const;
+        void SetViewPort(const fm::Rect<size_t> &rect) const;
         bool Enable(RENDERING_TYPE renderingTYPE) const;
         void Disable(RENDERING_TYPE renderingTYPE) const;
         void Draw(int primitiveType, size_t vertexCount, size_t* indices) const;

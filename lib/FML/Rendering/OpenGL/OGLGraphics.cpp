@@ -19,14 +19,10 @@ void Graphics::Clear(BUFFER_BIT inOption) const
     glClear(inOption);
 }
 
-void Graphics::SetViewPort(const fm::math::vec4i& rect) const
-{
-    glViewport(rect.x, rect.y, rect.z, rect.w);
-}
 
-void Graphics::SetViewPort(const fm::Rect<int>& rect) const
+void Graphics::SetViewPort(const fm::Rect<size_t>& rect) const
 {
-    glViewport(rect.x, rect.y, rect.w, rect.h);
+    glViewport((GLsizei)rect.x, (GLsizei)rect.y, (GLsizei)rect.w, (GLsizei)rect.h);
 }
 
 bool Graphics::Enable(RENDERING_TYPE r) const

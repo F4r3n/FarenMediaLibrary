@@ -54,7 +54,7 @@ namespace fmc
 
 		void SetNewProjection(int width, int height);
 		void UpdateRenderTexture();
-		void SetNewViewPort(int x, int y, int width, int height);
+		void SetNewViewPort(size_t x, size_t y, size_t width, size_t height);
 
 
 		Shader_data shader_data;
@@ -66,7 +66,7 @@ namespace fmc
 		void UpdateProjectionMatrix();
 		void UpdateViewMatrix(const fm::Transform& inTransform);
 
-		const fm::Rect<int>& GetViewport()const { return _viewPort; }
+		const fm::Rect<size_t>& GetViewport()const { return _viewPort; }
 		const fm::math::mat& GetProjectionMatrix()const { return _projection; }
 		const fm::math::mat& GetViewMatrix() const { return _viewMatrix; }
 		void InitUniformBuffer();
@@ -94,8 +94,8 @@ namespace fmc
 
 		void ExecutePostRendering();
 
-		size_t GetWidth() const { return _width; }
-		size_t GetHeight() const { return _height; }
+		size_t GetWidth() const { return _viewPort.w; }
+		size_t GetHeight() const { return _viewPort.h; }
 		size_t GetMultiSampled() const { return _multiSampled; }
 
 		size_t GetStamp() const { return _stamp; }
@@ -116,8 +116,6 @@ namespace fmc
 		float					_nearPlane;
 		float					_farPlane;
 		float					_fovy;
-		size_t					_width;
-		size_t					_height;
 		int						_multiSampled;
 		bool					_isInit;
 		bool					_isAuto;
@@ -125,7 +123,7 @@ namespace fmc
 
 		CameraCommandBuffer		_commandBuffers;
 
-		fm::Rect<int>			_viewPort;
+		fm::Rect<size_t>		_viewPort;
 		fm::math::mat			_projection;
 		fm::math::mat			_viewMatrix;
 

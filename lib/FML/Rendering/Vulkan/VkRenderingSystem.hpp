@@ -14,6 +14,7 @@
 #include "Rendering/ShaderKind.hpp"
 #include "Rendering/SubShader.hpp"
 #include "Rendering/Vulkan/VkTextureCache.hpp"
+#include "VkCameraCache.hpp"
 class Vulkan;
 
 namespace fm
@@ -24,6 +25,7 @@ namespace fm
 	class VkMaterial;
 	class VkTexture;
 	class VkShader;
+	class VkCamera;
 }
 
 namespace fms
@@ -62,8 +64,8 @@ namespace fms
 	private:
 		VkRenderPass				_CreateRenderPass();
 		std::vector<VkCommandBuffer>_CreateCommandBuffers(VkCommandPool inPool);
-		bool						_RecordCommandBuffer(VkCommandBuffer inBuffer, VkFramebuffer inFrameBuffer,
-														VkRenderPass inRenderPass, EntityManager& inManager);
+		bool						_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCamera, VkCommandBuffer inBuffer, VkFramebuffer inFrameBuffer,
+														VkRenderPass inRenderPass);
 		bool						_SetupSyncObjects();
 		bool						_SetupGlobalUniforms();
 		bool						_SetupDescriptors();
@@ -99,11 +101,12 @@ namespace fms
 		uint32_t						_currentFrame = 0;
 		GRAPHIC_API						_api = GRAPHIC_API::VULKAN;
 
-		std::map<uint32_t, std::unique_ptr<fm::VkModel>>		_staticModels;
-		std::map<uint32_t, std::unique_ptr<fm::VkMaterial>>		_materials;
-		std::vector< fm::VkMaterial*>							_materialsToUpdate;
+		std::unordered_map<uint32_t, std::unique_ptr<fm::VkModel>>		_staticModels;
+		std::unordered_map<uint32_t, std::unique_ptr<fm::VkMaterial>>	_materials;
+		std::vector< fm::VkMaterial*>									_materialsToUpdate;
 		std::unordered_map<fm::ShaderID, std::shared_ptr<fm::VkShader>> _shaders;
 		std::unique_ptr<fm::VkTextureCache>								_textureCache;
+		std::unique_ptr<fm::VkCameraCache>								_cameraCache;
 
 
 		fm::VkMaterial*				_currentMaterial;
