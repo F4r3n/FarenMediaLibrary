@@ -17,7 +17,7 @@
 #include "Rendering/RenderTexture.hpp"
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
-	GWindow("Editor View", true, ImGuiWindowFlags_HorizontalScrollbar)
+	GWindow("Editor View", true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)
 {
 	_editorScene = inScene;
 	_enabled = true;
@@ -36,6 +36,56 @@ GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_p
 	_kind = gui::WINDOWS::WIN_EDITOR_VIEW;
 
 }
+
+void GEditorView::_MoveCamera(float dt, const Context& inContext)
+{
+	if (!_editorView.id.has_value()) return;
+
+	if (auto&& editorScene = _editorScene.lock())
+	{
+		std::shared_ptr<fm::GameObject> camera = editorScene->GetGameObjectByID(_editorView.id.value());
+		std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
+		if (camera != nullptr && camera->IsActive() && currentScene != nullptr)
+		{
+			fmc::CTransform* transform = camera->get<fmc::CTransform>();
+
+			if (ImGui::IsMouseDown(1))
+			{
+				const fm::math::vec2 mousePos = ImGui::GetMousePos();
+				fm::math::vec2 direction = _mousePos - mousePos;
+				if (std::abs(direction.x) > std::abs(direction.y))
+					direction.y = 0;
+				else
+					direction.x = 0;
+
+				const fm::math::Quaternion rotate = fm::math::Quaternion::FromEulerAngles(fm::math::vec3(direction.y, direction.x, 0)*dt*5.0f);
+				
+				transform->SetRotation(rotate* transform->GetRotation());
+			}
+
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Middle))
+			{
+				fm::math::vec3 position = transform->GetPosition();
+				const fm::math::vec2 mousePos = ImGui::GetMousePos();
+				const fm::math::vec2 direction = _mousePos - mousePos;
+				const fm::math::mat rotation = transform->GetRotation().GetRotationMatrix();
+				position += rotation *(fm::math::vec3(direction.x, -direction.y, 0)) * dt * 1.0f;
+				transform->SetPosition(position);
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_MouseWheelY))
+			{
+				fm::math::vec3 position = transform->GetPosition();
+				float wheelPos = ImGui::GetIO().MouseWheel;
+				const fm::math::mat rotation = transform->GetRotation().GetRotationMatrix();
+				position += rotation * (fm::math::vec3(0, 0, wheelPos)) * dt * 10.0f;
+				transform->SetPosition(position);
+			}
+		}
+	}
+	_mousePos = ImGui::GetMousePos();
+}
+
 
 void GEditorView::_DrawContentEditorCamera(Context &inContext)
 {
@@ -243,6 +293,7 @@ void GEditorView::_Update(float dt, Context &inContext)
 	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
 	if (auto& renderTexture = _editorView.renderTexture)
 	{
+		_MoveCamera(dt, inContext);
 		if (renderTexture->IsCreated() && HasBeenDrawn())
 		{
 

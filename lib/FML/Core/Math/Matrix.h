@@ -393,8 +393,8 @@ namespace fm {
 		template <typename T> fm::math::vec<T, 3> operator*(const Matrix<T>& m1, const fm::math::vec<T, 3>& m2)
 		{
 			return fm::math::vec<T, 3>(m1[0][0] * m2[0] + m1[1][0] * m2[1] + m1[2][0] * m2[2],
-				m1[0][1] * m2[0] + m1[1][1] * m2[1] + m1[2][2] * m2[2],
-				m1[0][2] * m2[0] + m1[1][2] * m2[1] + m1[2][3] * m2[2]);
+				m1[0][1] * m2[0] + m1[1][1] * m2[1] + m1[2][1] * m2[2],
+				m1[0][2] * m2[0] + m1[1][2] * m2[1] + m1[2][2] * m2[2]);
 		}
 
 

@@ -40,6 +40,7 @@ namespace gui
 		void _Update(float dt, Context &inContext);
 
 		void _DrawContentEditorCamera(Context &inContext);
+		void _MoveCamera(float dt, const Context& inContext);
 
 		void _EditObject();
 		void _CallBackPickingSystem(Entity::Id inID);
@@ -51,6 +52,8 @@ namespace gui
 		fm::math::vec2			_startImagePos;
 		fm::math::vec2			_endImagePos;
 		fm::math::vec2			_cursorPos;
+		fm::math::vec2			_mousePos;
+
 		fm::math::vec2			_scrollPos;
 
 		bool					_resultPicking;
