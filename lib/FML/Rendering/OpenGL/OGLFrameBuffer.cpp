@@ -66,7 +66,7 @@ bool OGLFrameBuffer::_InitFrameBuffer()
     if(!_formats.empty())
     {
         
-        for(int i = 0; i < _formats.size(); i++)
+        for(size_t i = 0; i < _formats.size(); i++)
         {
 			std::shared_ptr<OGLTexture> t = std::make_shared<fm::OGLTexture>();
             t->filter = OGLTextureFilter::NEAREST;
@@ -74,11 +74,11 @@ bool OGLFrameBuffer::_InitFrameBuffer()
 
             if(_multiSampling > 0)
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, t->getID(), 0);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (GLenum)i, GL_TEXTURE_2D_MULTISAMPLE, t->getID(), 0);
 
             }else
             {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, t->getID(), 0);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (GLenum)i, GL_TEXTURE_2D, t->getID(), 0);
             }
 
             _textureColorbuffer.emplace_back(t);

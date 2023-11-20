@@ -384,7 +384,6 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 	if (inMaterial == nullptr)
 		return;
 
-	bool isCameraBinded = false;
 	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetObjectID())
 	{
 		_currentCamera = _camerasCache->FindOrCreateCamera(cam);
@@ -393,7 +392,6 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 		camData.FM_P = cam->GetProjectionMatrix();
 		camData.FM_V = cam->GetViewMatrix();
 		camData.FM_PV = camData.FM_P * camData.FM_V;
-		isCameraBinded = true;
 		_currentCamera->SetBuffer((void*)&camData, sizeof(fmc::Shader_data));
 	}
 

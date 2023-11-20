@@ -86,7 +86,7 @@ bool Application::Read()
 		i >> j;
 		_sceneManager->Read(j);
 	}
-	catch (std::exception)
+	catch (std::exception&)
 	{
 		return false;
 	}
