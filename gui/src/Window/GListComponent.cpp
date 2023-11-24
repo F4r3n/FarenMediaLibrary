@@ -1,6 +1,8 @@
 #include "GListComponent.hpp"
-#include "Core/GameObject.h"
-#include "Components/Components.h"
+#include <FML/Core/GameObject.h>
+#include <FML/Components/Components.h>
+#include <FML/Core/application.h>
+#include <FML/Core/Scene.h>
 
 #include "inspector/inspector.hpp"
 #include "inspector/transformInspector.hpp"
@@ -11,11 +13,10 @@
 #include "inspector/scriptManagerInspector.hpp"
 #include "inspector/pointLightInspector.hpp"
 #include "inspector/bodyInspector.hpp"
-#include "Core/application.h"
-#include "Core/Scene.h"
+
 #include "inspector/textInspector.hpp"
-#include "EntityManager.h"
-#include "Entity.h"
+#include <entt/entt.hpp>
+
 using namespace gui;
 
 GListComponent::GListComponent() : GWindow("Inspector", true)
@@ -99,65 +100,64 @@ void GListComponent::_Draw()
 void GListComponent::_DrawComponents(std::shared_ptr<fm::GameObject> currentEntity)
 {
 
-	std::vector<BaseComponent*> &&compos = currentEntity->getAllComponents();
-	if (_inspectorComponents.find(currentEntity->getID().id()) == _inspectorComponents.end())
+	if (_inspectorComponents.find(currentEntity->GetID()) == _inspectorComponents.end())
 	{
-		_inspectorComponents[currentEntity->getID().id()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
+		_inspectorComponents[currentEntity->GetID()] = std::unordered_map<size_t, std::unique_ptr<Inspector>>();
 	}
-	auto &&inspectorComponent = _inspectorComponents[currentEntity->getID().id()];
+	auto &&inspectorComponent = _inspectorComponents[currentEntity->GetID()];
 
-	for (auto && c : compos)
+	for (size_t i = 0; i < fmc::ComponentType::kEND; ++i)
 	{
-		uint16_t componentType = c->GetType();
+		uint16_t componentType = i;
 		auto &compo = inspectorComponent[componentType];
 		if (compo == nullptr)
 		{
 			if (componentType == fmc::ComponentType::kTransform)
 			{
-				compo = std::make_unique<gui::TransformInspector>(c);
+				compo = std::make_unique<gui::TransformInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kMaterial)
 			{
-				compo = std::make_unique <gui::MaterialInspector>(c);
+				compo = std::make_unique <gui::MaterialInspector>();
 			}
 			else if (componentType == fmc::ComponentType::KMesh)
 			{
-				compo = std::make_unique <gui::MeshInspector>(c);
+				compo = std::make_unique <gui::MeshInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kScriptManager)
 			{
-				compo = std::make_unique <gui::ScriptManagerInspector>(c);
+				compo = std::make_unique <gui::ScriptManagerInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kPointLight)
 			{
-				compo = std::make_unique <gui::PointLightInspector>(c);
+				compo = std::make_unique <gui::PointLightInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kBody)
 			{
-				compo = std::make_unique <gui::BodyInspector>(c);
+				compo = std::make_unique <gui::BodyInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kCollider)
 			{
-				compo = std::make_unique <gui::ColliderInspector>(c);
+				compo = std::make_unique <gui::ColliderInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kCamera)
 			{
-				compo = std::make_unique <gui::CameraInspector>(c);
+				compo = std::make_unique <gui::CameraInspector>();
 			}
 			else if (componentType == fmc::ComponentType::kText)
 			{
-				compo = std::make_unique <gui::TextInspector>(c);
+				compo = std::make_unique <gui::TextInspector>();
 			}
 		}
 		else
 		{
 			bool value = true;
-			auto& manager = ::EntityManager::get();
-			compo->Draw(&value, manager.GetEntity(currentEntity->getID()));
+
+			compo->Draw(&value, currentEntity);
 
 			if (!value)
 			{
-				compo->RemoveComponent(manager.GetEntity(currentEntity->getID()));
+				compo->RemoveComponent(currentEntity);
 
 				compo.reset();
 				inspectorComponent[componentType] = nullptr;
@@ -211,7 +211,7 @@ void GListComponent::Notify(fm::Observable* o, const fm::EventObserver& inEvent)
 				{
 					if (inEvent.value.has_value())
 					{
-						_inspectorComponents[std::any_cast<Entity::Id>(inEvent.value).id()].clear();
+						_inspectorComponents[std::any_cast<fm::GameObjectID_t>(inEvent.value)].clear();
 					}
 				}
 			});

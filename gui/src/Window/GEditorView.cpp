@@ -15,6 +15,7 @@
 #include "Rendering/OpenGL/OGLTexture.hpp"
 #include "Rendering/OpenGL/OGLFrameBuffer.hpp"
 #include "Rendering/RenderTexture.hpp"
+#include "Core/GameObject.h"
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
 	GWindow("Editor View", true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)
@@ -27,10 +28,10 @@ GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_p
 
 	if (inCamera != nullptr)
 	{
-		_editorView.id = inCamera->getID();
-		fmc::CCamera *camera = inCamera->get<fmc::CCamera>();
-		_editorView.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera->GetWidth(), camera->GetHeight(), 0));
-		camera->SetTarget(_editorView.renderTexture);
+		_editorView.id = inCamera->GetID();
+		fmc::CCamera &camera = inCamera->get<fmc::CCamera>();
+		_editorView.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera.GetWidth(), camera.GetHeight(), 0));
+		camera.SetTarget(_editorView.renderTexture);
 	}
 
 	_kind = gui::WINDOWS::WIN_EDITOR_VIEW;
@@ -47,7 +48,7 @@ void GEditorView::_MoveCamera(float dt, const Context& inContext)
 		std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
 		if (camera != nullptr && camera->IsActive() && currentScene != nullptr)
 		{
-			fmc::CTransform* transform = camera->get<fmc::CTransform>();
+			fmc::CTransform& transform = camera->get<fmc::CTransform>();
 
 			if (ImGui::IsMouseDown(1))
 			{
@@ -60,26 +61,26 @@ void GEditorView::_MoveCamera(float dt, const Context& inContext)
 
 				const fm::math::Quaternion rotate = fm::math::Quaternion::FromEulerAngles(fm::math::vec3(direction.y, direction.x, 0)*dt*5.0f);
 				
-				transform->SetRotation(rotate* transform->GetRotation());
+				transform.SetRotation(rotate* transform.GetRotation());
 			}
 
 			if (ImGui::IsMouseDown(ImGuiMouseButton_Middle))
 			{
-				fm::math::vec3 position = transform->GetPosition();
+				fm::math::vec3 position = transform.GetPosition();
 				const fm::math::vec2 mousePos = ImGui::GetMousePos();
 				const fm::math::vec2 direction = _mousePos - mousePos;
-				const fm::math::mat rotation = transform->GetRotation().GetRotationMatrix();
+				const fm::math::mat rotation = transform.GetRotation().GetRotationMatrix();
 				position += rotation *(fm::math::vec3(direction.x, -direction.y, 0)) * dt * 1.0f;
-				transform->SetPosition(position);
+				transform.SetPosition(position);
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_MouseWheelY))
 			{
-				fm::math::vec3 position = transform->GetPosition();
+				fm::math::vec3 position = transform.GetPosition();
 				float wheelPos = ImGui::GetIO().MouseWheel;
-				const fm::math::mat rotation = transform->GetRotation().GetRotationMatrix();
-				position += rotation * (fm::math::vec3(0, 0, wheelPos)) * dt * 10.0f;
-				transform->SetPosition(position);
+				const fm::math::mat rotation = transform.GetRotation().GetRotationMatrix();
+				position += rotation * (fm::math::vec3(0, 0, wheelPos)) * dt * 20.0f;
+				transform.SetPosition(position);
 			}
 		}
 	}
@@ -101,13 +102,13 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 			{
 				fm::CommandBuffer commandBuffer;
 				commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
+				camera->get<fmc::CCamera>().AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
 			}
 
 			{
 				fm::CommandBuffer commandBuffer;
 				commandBuffer.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
-				camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
+				camera->get<fmc::CCamera>().AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
 			}
 
 			std::vector<std::shared_ptr<fm::Model>> models;
@@ -122,17 +123,17 @@ void GEditorView::_DrawContentEditorCamera(Context &inContext)
 					continue;
 				if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
 				{
-					fmc::CMesh* mesh = go->get<fmc::CMesh>();
+					fmc::CMesh& mesh = go->get<fmc::CMesh>();
 					auto mat = go->get<fmc::CMaterial>();
-					materials.push_back(mat->GetMainMaterial());
-					models.push_back(mesh->GetModel());
-					transforms.push_back(go->get<fmc::CTransform>()->GetTransform());
+					materials.emplace_back(mat.GetMainMaterial());
+					models.emplace_back(mesh.GetModel());
+					transforms.emplace_back(go->get<fmc::CTransform>().GetTransform());
 				}
 			}
 
 			fm::CommandBuffer commandBuffer;
 			commandBuffer.DrawInstancedMesh(models, transforms, materials);
-			camera->get<fmc::CCamera>()->AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
+			camera->get<fmc::CCamera>().AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
 
 		}
 	}
@@ -179,17 +180,17 @@ void GEditorView::CustomDraw()
 					fm::FilePath path = fm::FilePath(data);
 					AddEvent([this, mPos, path](gui::GWindow*, std::optional<gui::Context> inContext)
 					{
-							_pickingSystem->PickGameObject(inContext->currentSceneName, _editorView.id.value().index(), mPos,
-							[this, path](Entity::Id id) {
+							_pickingSystem->PickGameObject(inContext->currentSceneName, _editorView.id.value(), mPos,
+							[this, path](fm::GameObjectID_t id) {
 									_resultPicking = true;
 									_gameObjectSelectedByPicking = id;
 									if (path.GetExtension() == ".material")
 									{
-										std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(_gameObjectSelectedByPicking.value());
+										std::shared_ptr<fm::GameObject> go = fm::Application::Get().GetCurrentScene()->GetGameObjectByID(id);
 										if (go != nullptr)
 										{
 											auto cmaterial = go->get<fmc::CMaterial>();
-											cmaterial->SetMainMaterial(path);
+											cmaterial.SetMainMaterial(path);
 										}
 									}
 
@@ -241,7 +242,7 @@ void GEditorView::_EditObject()
 		{
 			if (auto&& renderTexture = _editorView.renderTexture)
 			{
-				fmc::CTransform* transform = go->get<fmc::CTransform>();
+				fmc::CTransform& transform = go->get<fmc::CTransform>();
 				//delete transform;
 				ImGuiIO& io = ImGui::GetIO();
 				//float scrollPosX = ImGui::GetScrollX();
@@ -249,21 +250,21 @@ void GEditorView::_EditObject()
 					_cursorPos.y + _startImagePos.y - ImGui::GetScrollY(),
 					renderTexture->GetWidth(),
 					renderTexture->GetHeight());
-				const fm::math::mat view = camera->get<fmc::CTransform>()->GetLocalMatrixModel();
-				const fm::math::mat projecttion = camera->get<fmc::CCamera>()->GetProjectionMatrix();
+				const fm::math::mat view = camera->get<fmc::CCamera>().GetViewMatrix();
+				const fm::math::mat projection = camera->get<fmc::CCamera>().GetProjectionMatrix();
 				fm::math::mat model;
 
-				fm::math::vec3 rotation = transform->GetRotation().GetEulerAngles();
-				fm::math::vec3 position = transform->GetPosition();
-				fm::math::vec3 scale = transform->GetScale();
+				fm::math::vec3 rotation = transform.GetRotation().GetEulerAngles();
+				fm::math::vec3 position = transform.GetPosition();
+				fm::math::vec3 scale = transform.GetScale();
 				ImGuizmo::RecomposeMatrixFromComponents(&position[0], &rotation[0], &scale[0], &model[0][0]);
 
-				ImGuizmo::Manipulate(&view[0][0], &projecttion[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
+				ImGuizmo::Manipulate(&view[0][0], &projection[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &model[0][0], NULL, NULL);
 
 				ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &position[0], &rotation[0], &scale[0]);
-				transform->SetPosition(position);
-				transform->SetScale(scale);
-				transform->SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
+				transform.SetPosition(position);
+				transform.SetScale(scale);
+				transform.SetRotation(fm::math::Quaternion::FromEulerAngles(rotation));
 			}
 		}
 	}
@@ -271,7 +272,7 @@ void GEditorView::_EditObject()
 }
 
 
-void GEditorView::_CallBackPickingSystem(Entity::Id inID)
+void GEditorView::_CallBackPickingSystem(fm::GameObjectID_t inID)
 {
 	_resultPicking = true;
 	_gameObjectSelectedByPicking = inID;
@@ -281,7 +282,7 @@ void GEditorView::_CallBackPickingSystem(Entity::Id inID)
 void GEditorView::SetPickingSystem(std::unique_ptr<fms::PickingSystem> inPickingSystem)
 {
 	_pickingSystem = std::move(inPickingSystem);
-	std::function<void(Entity::Id)> f = std::bind(&gui::GEditorView::_CallBackPickingSystem, this, std::placeholders::_1);
+	std::function<void(fm::GameObjectID_t)> f = std::bind(&gui::GEditorView::_CallBackPickingSystem, this, std::placeholders::_1);
 	_pickingSystem->SetCallback(std::move(f));
 }
 
@@ -332,7 +333,7 @@ void GEditorView::_Update(float dt, Context &inContext)
 					mPos.x -= startCursorPos.x - _scrollPos.x;
 					mPos.y -= startCursorPos.y - _scrollPos.y;
 
-					_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id.value().index(), mPos);
+					_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id.value(), mPos);
 				}
 			}
 

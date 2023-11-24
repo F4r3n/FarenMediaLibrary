@@ -1,5 +1,4 @@
 #include "Components/CPointLight.h"
-#include <EntityManager.h>
 #include <nlohmann/json.hpp>
 using namespace fmc;
 

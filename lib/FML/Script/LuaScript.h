@@ -6,8 +6,7 @@
 #include <string>
 #include <any>
 #include <nlohmann/json_fwd.hpp>
-#include "Entity.h"
-class Entity;
+#include <entt/fwd.hpp>
 
 namespace fm
 {
@@ -53,10 +52,10 @@ namespace fm
 	    virtual void update(float dt) override;
 	    virtual void start() override;
 	    virtual bool init() override;
-		virtual void Stop(const Entity& e) override;
+		virtual void Stop(const entt::handle& e) override;
 		virtual bool Serialize(nlohmann::json &ioJson) const override;
 		virtual bool Read(const nlohmann::json &inJSON) override;
-		void CallEvent(fm::BaseEvent* inEvent, sol::table &inTable);
+		void CallEvent(entt::registry& registry, fm::BaseEvent* inEvent, sol::table &inTable);
 
 	    fm::Script::SCRIPT_TYPE GetType() const override
 	    {

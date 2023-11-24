@@ -1,7 +1,4 @@
 #pragma once
-#include <System.h>
-#include <Entity.h>
-
 #include "Rendering/RenderQueueEvents.hpp"
 #include "Resource/RFont.h"
 #include "Core/Bounds.h"
@@ -18,7 +15,7 @@
 #include "OGLMaterialCache.hpp"
 #include "OGLCameraCache.hpp"
 #include "OGLShaderCache.hpp"
-
+#include "Core/System/System.hpp"
 namespace fmc
 {
 	class CText;
@@ -58,18 +55,15 @@ namespace fms
 	{
 	public:
 		OGLRenderingSystem(std::shared_ptr<fm::Window> inWindow);
-		void InitCamera(Entity* camera);
 
-		virtual void update(float dt, EntityManager& em, EventManager& event);
-		virtual void over();
-		virtual void init(EntityManager& em, EventManager& event);
-		virtual void pre_update(EntityManager& em);
+		virtual void update(float dt, entt::registry& registry, EventManager&) override;
+		virtual void init(EventManager& event) override;
 
-		virtual void Start();
-		virtual void Stop();
+		virtual void Start(entt::registry& registry) override;
+		virtual void Stop(entt::registry& registry) override;
 	private:
 		void _InitStandardShapes();
-		fm::RenderQueue _FillQueue(fmc::CCamera* cam, EntityManager& em);
+		fm::RenderQueue _FillQueue(fmc::CCamera* cam, entt::registry& registry);
 		void _Draw(fmc::CCamera* cam);
 		void _DrawText(fmc::CCamera* cam, const fm::Transform& inTransform, fmc::CText* ctext, fm::Material* inMaterial);
 		void _DrawMesh(fmc::CCamera* cam, const fm::Transform& inTransform, std::shared_ptr<fm::Model> inModel,

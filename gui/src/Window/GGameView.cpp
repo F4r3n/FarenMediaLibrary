@@ -44,8 +44,8 @@ void GGameView::CustomDraw()
 					return;
 				auto scene = fm::Application::Get().GetScene(inContext->currentSceneName);
 				auto go = scene->CreateGameObject(true);
-				auto tr = go->get<fmc::CTransform>();
-				tr->SetPosition(fm::math::vec3(0, 0, -1));
+				auto &tr = go->get<fmc::CTransform>();
+				tr.SetPosition(fm::math::vec3(0, 0, -1));
 				go->addComponent<fmc::CCamera>();
 				
 				go->SetName("Main camera");
@@ -120,9 +120,9 @@ void GGameView::_Update(float dt, Context &inContext)
 
 void GGameView::AddCamera(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	fmc::CCamera *camera = inGameObject->get<fmc::CCamera>();
-	_preview.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera->GetWidth(), camera->GetHeight(), 0));
-	camera->SetTarget(_preview.renderTexture);
+	fmc::CCamera &camera = inGameObject->get<fmc::CCamera>();
+	_preview.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera.GetWidth(), camera.GetHeight(), 0));
+	camera.SetTarget(_preview.renderTexture);
 
 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 }

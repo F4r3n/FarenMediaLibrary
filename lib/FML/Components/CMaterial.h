@@ -17,20 +17,23 @@ namespace fm
 
 namespace fmc {
 
-	class CMaterial : public FMComponent<CMaterial> {
+	class CMaterial
+	{
 	public:
 		CMaterial();
 		~CMaterial();
 
-		bool Serialize(nlohmann::json& ioJson) const override;
-		bool Read(const nlohmann::json& inJSON) override;
-		const std::string& GetName() const override;
-		uint16_t GetType() const override { return kMaterial; }
+		bool Serialize(nlohmann::json& ioJson) const;
+		bool Read(const nlohmann::json& inJSON);
+		const std::string& GetName() const;
+		uint16_t GetType() const { return kMaterial; }
 
 		const fm::Materials& GetAllMaterials() { return _materials; }
 		void SetMainMaterial(const fm::FilePath& inPath);
 		std::shared_ptr<fm::Material> GetMainMaterial() const { if (!_materials.empty()) return _materials[0]; else return nullptr; }
 	private:
 		fm::Materials _materials;
+	private:
+		std::string _name;
 	};
 }

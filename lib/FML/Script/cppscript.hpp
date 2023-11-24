@@ -1,7 +1,6 @@
-#ifndef CPPSCRIPT_HPP
-#define CPPSCRIPT_HPP
+#pragma once
 #include "Script/Script.h"
-
+#include <entt/entt.hpp>
 class Entity;
 
 namespace fm
@@ -15,7 +14,7 @@ class CppScript : public fm::Script
         virtual bool init() override;
         virtual void start() override;
         virtual void update(float dt) override;
-		virtual void Stop(const Entity& e) override;
+		virtual void Stop(const entt::handle& e) override;
         fm::Script::SCRIPT_TYPE GetType() const override
         {
             return fm::Script::SCRIPT_TYPE::CPP;
@@ -24,10 +23,10 @@ class CppScript : public fm::Script
 		virtual bool Serialize(nlohmann::json &ioJson) const override;
 		virtual bool Read(const nlohmann::json &inJSON) override;
     private:
-        Entity currentEntity;
+        entt::handle currentEntity;
         Behaviour* behaviour;
 };
 }
 
-#endif // CPPSCRIPT_HPP
+
 

@@ -1,5 +1,4 @@
 #include "Components/cevent.hpp"
-#include <EntityManager.h>
 #include <nlohmann/json.hpp>
 using namespace fmc;
 static const std::string kName = "Event";

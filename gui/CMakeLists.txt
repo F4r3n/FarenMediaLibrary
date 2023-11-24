@@ -75,9 +75,11 @@ target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/sol2)
 #JSON
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/json/include)
 
-#ECS
-FETCHCONTENT_GETPROPERTIES(ECS)
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${ecs_SOURCE_DIR}/lib/include)
+
+#ENTT
+FETCHCONTENT_GETPROPERTIES(ENTT)
+target_include_directories(${PROJECT_NAME} PRIVATE ${entt_SOURCE_DIR}/src) 
+target_link_directories(${PROJECT_NAME} PRIVATE ${entt_BINARY_DIR}/lib)
 
 #FML
 target_include_directories(${PROJECT_NAME} PRIVATE ${FML_PATH}/lib)
@@ -99,6 +101,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE ${glslang_BINARY_DIR})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s)
+target_link_libraries(${PROJECT_NAME} EnTT)
 target_link_libraries(${PROJECT_NAME} glslang SPIRV glslang-default-resource-limits) 
 
 

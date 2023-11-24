@@ -27,15 +27,15 @@ namespace fmc
 	typedef std::vector<fm::BaseEvent*> EventVector;
 	typedef std::array<EventVector, fm::EventKind::LAST> Events;
 
-class CEvent : public FMComponent<CEvent>
+class CEvent
 {
     public:
         CEvent();
         ~CEvent();
-        bool Serialize(nlohmann::json &ioJson) const override;
-        bool Read(const nlohmann::json &inJSON) override;
-        const std::string& GetName() const override;
-		uint16_t GetType() const override {return kEvent;}
+        bool Serialize(nlohmann::json &ioJson) const;
+        bool Read(const nlohmann::json &inJSON);
+        const std::string& GetName() const;
+		uint16_t GetType() const {return kEvent;}
 
 		void AddEvent(fm::BaseEvent *inEvent);
 		Events GetEvents() const { return _events; }
@@ -43,6 +43,8 @@ class CEvent : public FMComponent<CEvent>
 
     private:
 		Events _events;
+private:
+	std::string _name;
 };
 
 

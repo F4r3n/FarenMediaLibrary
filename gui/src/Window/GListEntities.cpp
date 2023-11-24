@@ -5,14 +5,15 @@
 #include "Core/Scene.h"
 #include "Components/CTransform.h"
 #include "Core/application.h"
+#include "Components/CIdentity.h"
 #include <stack>
 #include <algorithm>
 using namespace gui;
 
 
-void LinkedTreeGO::Sort(std::function<bool(std::unique_ptr<Node<Entity::Id>>&, std::unique_ptr<Node<Entity::Id>>&b)> && f)
+void LinkedTreeGO::Sort(std::function<bool(std::unique_ptr<Node<fm::GameObjectID_t>>&, std::unique_ptr<Node<fm::GameObjectID_t>>&b)> && f)
 {
-	std::stack<Node<Entity::Id>*> stack;
+	std::stack<Node<fm::GameObjectID_t>*> stack;
 	stack.push(_head.get());
 
 	while (!stack.empty())
@@ -32,16 +33,16 @@ void LinkedTreeGO::Sort(std::function<bool(std::unique_ptr<Node<Entity::Id>>&, s
 }
 
 
-std::unique_ptr<LinkedTreeGO::Node<Entity::Id>>& LinkedTreeGO::Find(Entity::Id ID, bool& outFound)
+std::unique_ptr<LinkedTreeGO::Node<fm::GameObjectID_t>>& LinkedTreeGO::Find(fm::GameObjectID_t ID, bool& outFound)
 {
-	if (ID == Entity::INVALID)
+	if (ID == 0)
 	{
 		outFound = true;
 		return _head;
 	}
 	else
 	{
-		std::stack<Node<Entity::Id>*> stack;
+		std::stack<Node<fm::GameObjectID_t>*> stack;
 		stack.push(_head.get());
 
 		while (!stack.empty())
@@ -84,7 +85,7 @@ void GListEntities::PurgeTree()
 }
 
 
-void GListEntities::_PurgeTree(LinkedTreeGO::Node<Entity::Id>* parent, const std::shared_ptr<fm::Scene> inScene)
+void GListEntities::_PurgeTree(LinkedTreeGO::Node<fm::GameObjectID_t>* parent, const std::shared_ptr<fm::Scene> inScene)
 {
 	auto it = parent->nodes.begin();
 	while(it != parent->nodes.end())
@@ -117,11 +118,11 @@ void GListEntities::_UpdateTree()
 
 		for (auto&& e : listEntities)
 		{
-			fmc::CTransform* tr = EntityManager::get().GetEntity(e.first).get<fmc::CTransform>();
-			std::stack<Entity::Id> fathers;
+			fmc::CTransform* tr = e.second->try_get<fmc::CTransform>();
+			std::stack<fm::GameObjectID_t> fathers;
 			while (tr->HasFather())
 			{
-				fathers.push(tr->GetFatherID());
+				fathers.push(tr->GetFatherEntity().get<fmc::CIdentity>().GetID());
 				tr = tr->GetFather();
 			}
 			fathers.push(e.first);
@@ -129,7 +130,7 @@ void GListEntities::_UpdateTree()
 			while (!fathers.empty())
 			{
 				bool found = false;
-				Entity::Id fatherID = fathers.top();
+				fm::GameObjectID_t fatherID = fathers.top();
 				fathers.pop();
 				auto& node = _order.Find(fatherID, found);
 				if (!found)
@@ -140,7 +141,7 @@ void GListEntities::_UpdateTree()
 			}
 		}
 
-		_order.Sort([&currentScene](std::unique_ptr<LinkedTreeGO::Node<Entity::Id>>& a, std::unique_ptr<LinkedTreeGO::Node<Entity::Id>>& b)
+		_order.Sort([&currentScene](std::unique_ptr<LinkedTreeGO::Node<fm::GameObjectID_t>>& a, std::unique_ptr<LinkedTreeGO::Node<fm::GameObjectID_t>>& b)
 			{
 				std::shared_ptr<fm::GameObject> oa = currentScene->GetGameObjectByID(a->value);
 				std::shared_ptr<fm::GameObject> ob = currentScene->GetGameObjectByID(b->value);
@@ -193,7 +194,7 @@ void GListEntities::_Update(float dt, Context &inContext)
 	}
 }
 
-void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
+void GListEntities::_IterateTree(LinkedTreeGO::Node<fm::GameObjectID_t>* node)
 {
 	size_t i = 0;
 	for (auto&& n : node->nodes)
@@ -263,7 +264,7 @@ void GListEntities::_IterateTree(LinkedTreeGO::Node<Entity::Id>* node)
 				}
 				else if (ImGui::MenuItem("Delete"))
 				{
-					Entity::Id id = go->getID();
+					fm::GameObjectID_t id = go->GetID();
 					std::string scene(_currentSceneName);
 					AddEvent([id, scene](gui::GWindow* window, std::optional<gui::Context> Context) {
 						std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(scene);
@@ -335,7 +336,7 @@ void GListEntities::CustomDraw()
 
 		if (ImGui::Button("Add Entity"))
 		{
-			_gameObjectSelected = currentScene->CreateGameObject(true)->getID();
+			_gameObjectSelected = currentScene->CreateGameObject(true)->GetID();
 		}
 	}
 }

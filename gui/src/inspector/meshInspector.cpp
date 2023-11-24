@@ -2,23 +2,17 @@
 #include <imgui/imgui.h>
 #include "Resource/ResourcesManager.h"
 #include "Rendering/Model.hpp"
-#include <ECS.h>
+#include "Core/GameObject.h"
+#include "Components/CMesh.h"
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Mesh, fmc::CMesh)
 
-void MeshInspector::_Init()
+
+void MeshInspector::Draw(bool *value, std::shared_ptr<fm::GameObject> inGameObject)
 {
-}
+	fmc::CMesh& inTarget = inGameObject->get<fmc::CMesh>();
 
-void MeshInspector::_DeInit()
-{
-}
-
-
-void MeshInspector::Draw(bool *value, const Entity& inEntity)
-{
     static const char *shapeNames[] = {"Quad", "Circle", "Cube"};
-	std::string name = _target->GetName() + "##" + std::to_string(inEntity.id().index());
+	std::string name = inTarget.GetName() + "##" + std::to_string(inGameObject->GetID());
 
     if(ImGui::CollapsingHeader(name.c_str(), value))
     {
@@ -26,7 +20,7 @@ void MeshInspector::Draw(bool *value, const Entity& inEntity)
         ImGui::PushItemWidth(120);
 		for (int i = 0; i < 3; ++i)
 		{
-			if (_target->GetModelPath().GetName(true) == shapeNames[i])
+			if (inTarget.GetModelPath().GetName(true) == shapeNames[i])
 			{
 				current = i;
 				break;
@@ -35,11 +29,11 @@ void MeshInspector::Draw(bool *value, const Entity& inEntity)
         ImGui::Combo("##Shape", &current, shapeNames, 3);
         ImGui::PopItemWidth();
 		//TODO: Improve to get any meshes
-		_target->SetModelPath(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, shapeNames[current]));
+		inTarget.SetModelPath(fm::FilePath(fm::LOCATION::INTERNAL_MODELS_LOCATION, shapeNames[current]));
     }
 }
 
-void MeshInspector::RemoveComponent(const Entity& inEntity)
+void MeshInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inEntity)
 {
-	EntityManager::get().removeComponent<fmc::CMesh>(inEntity.id());
+	inEntity->remove<fmc::CMesh>();
 }

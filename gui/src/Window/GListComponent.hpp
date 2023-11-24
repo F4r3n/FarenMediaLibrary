@@ -4,7 +4,8 @@
 #include <unordered_map>
 #include <optional>
 #include "Core/Observer.h"
-#include "Entity.h"
+#include <FML/Core/GameObjectType.hpp>
+
 namespace fm
 {
 	class GameObject;
@@ -14,7 +15,7 @@ class Inspector;
 
 namespace gui
 {
-	typedef std::unordered_map<uint64_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
+	typedef std::unordered_map<fm::GameObjectID_t, std::unordered_map<size_t, std::unique_ptr<Inspector>>> MapOfInspectors;
 
 	class GListComponent : public GWindow, public fm::Observer
 	{
@@ -36,8 +37,8 @@ namespace gui
 		virtual void _Update(float, Context &inContext) override;
 
 	private:
-		std::optional<Entity::Id>		_currentGameObjectSelected;
-		MapOfInspectors				_inspectorComponents;
+		std::optional<fm::GameObjectID_t>	_currentGameObjectSelected;
+		MapOfInspectors						_inspectorComponents;
 
 	};
 }

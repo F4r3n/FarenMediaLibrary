@@ -6,7 +6,6 @@
 #include "Core/Color.h"
 #include "Components/CMaterial.h"
 #include <chrono>
-#include "EntityManager.h"
 #include <cassert>
 #include "Components/CMesh.h"
 #include "Components/CSource.h"
@@ -22,22 +21,22 @@
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
 #include "Components/CScriptManager.h"
-GameObjectLua::GameObjectLua(const Entity& inEntity)
+GameObjectLua::GameObjectLua(entt::handle handle)
 {
-	_entity = inEntity;
+	_entity = handle;
 }
 
-fmc::CTransform* GameObjectLua::GetTransform()
+fmc::CTransform& GameObjectLua::GetTransform()
 {
 	return _entity.get<fmc::CTransform>();
 }
 
 const char* GameObjectLua::GetName()
 {
-	return _entity.get<fmc::CIdentity>()->GetNameEntity().c_str();
+	return _entity.get<fmc::CIdentity>().GetNameEntity().c_str();
 }
 
-fmc::CBody* GameObjectLua::GetBody()
+fmc::CBody& GameObjectLua::GetBody()
 {
 	return _entity.get<fmc::CBody>();
 }
@@ -48,9 +47,9 @@ GameObjectLua* CreateGameObject()
 	go->activate(false);
 	go->addComponent<fmc::CMaterial>();
 	go->addComponent<fmc::CMesh>();
-	auto scriptManager = go->addComponent<fmc::CScriptManager>();
-	scriptManager->init(EntityManager::get().GetEntity(go->getID()).id());
-	return scriptManager->GetGameObjectLua();
+	auto &scriptManager = go->addComponent<fmc::CScriptManager>();
+	scriptManager.init(go->GetEntity());
+	return scriptManager.GetGameObjectLua();
 }
 
 

@@ -71,10 +71,10 @@ target_link_directories(${LIB_NAME} PRIVATE ${sdl_BINARY_DIR})
 target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/json/include)
 
 
-#ECS
-FETCHCONTENT_GETPROPERTIES(ECS)
-target_include_directories(${LIB_NAME} PRIVATE ${ecs_SOURCE_DIR}/lib/include) 
-target_link_directories(${LIB_NAME} PRIVATE ${ecs_BINARY_DIR}/lib)
+#ENTT
+FETCHCONTENT_GETPROPERTIES(ENTT)
+target_include_directories(${LIB_NAME} PRIVATE ${entt_SOURCE_DIR}/src) 
+target_link_directories(${LIB_NAME} PRIVATE ${entt_BINARY_DIR}/lib)
 
 #FREETYPE
 target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${FML_EXTLIB}/freetype2/include)
@@ -97,11 +97,12 @@ set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
     
 target_link_libraries(${LIB_NAME} freetype)
-target_link_libraries(${LIB_NAME} ECS)
 target_link_libraries(${LIB_NAME} lua)
 target_link_libraries(${LIB_NAME} SDL3-static)
 target_link_libraries(${LIB_NAME} glew_s)
 target_link_libraries(${LIB_NAME} OpenGL::GL )
+target_link_libraries(${LIB_NAME} EnTT)
+
 if(ENABLE_PCH)
   target_precompile_headers(${LIB_NAME}
     PRIVATE

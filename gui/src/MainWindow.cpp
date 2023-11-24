@@ -113,15 +113,15 @@ void MainWindow::_AddEmptyScene()
 	std::shared_ptr<fm::Scene> currentScene = Editor::Get().GetScene(_context.currentSceneName);
 	//Add object
 	std::shared_ptr <fm::GameObject> go = currentScene->CreateGameObject(true);
-	fmc::CTransform* tr = go->get<fmc::CTransform>();
-	tr->SetPosition(fm::math::vec3(0, 0, -1));
+	fmc::CTransform& tr = go->get<fmc::CTransform>();
+	tr.SetPosition(fm::math::vec3(0, 0, -1));
 	go->addComponent<fmc::CMaterial>();
 	go->addComponent<fmc::CMesh>();
 
 	//Add camera
 	go = currentScene->CreateGameObject(true);
 	tr = go->get<fmc::CTransform>();
-	tr->SetPosition(fm::math::vec3(0, 0, 0));
+	tr.SetPosition(fm::math::vec3(0, 0, 0));
 	go->addComponent<fmc::CCamera>();
 	if (IsWindowAvailable(gui::WINDOWS::WIN_SCENE_VIEW))
 	{
@@ -145,7 +145,7 @@ void MainWindow::_InitEditorCamera()
 	_editorCamera = _editorScene->CreateGameObject(true);
 	_editorCamera->addComponent<fmc::CCamera>(size.x, size.y,
 		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
-	_editorCamera->get<fmc::CTransform>()->SetPosition(fm::math::vec3(0, 0, -1));
+	_editorCamera->get<fmc::CTransform>().SetPosition(fm::math::vec3(0, 0, -1));
 	_editorCamera->SetName("Camera");
 }
 
@@ -191,7 +191,7 @@ void MainWindow::_DrawMenu()
 				if (ImGui::MenuItem("Start"))
 				{
 					Editor::Get().Start();
-					_currentEntity.reset();
+					_currentGameObjectID.reset();
 				}
 				if (ImGui::MenuItem("Pause"))
 				{
@@ -200,7 +200,7 @@ void MainWindow::_DrawMenu()
 				if (ImGui::MenuItem("Stop"))
 				{
 					Editor::Get().Stop();
-					_currentEntity.reset();
+					_currentGameObjectID.reset();
 				}
 				ImGui::EndMenu();
 			}
@@ -331,7 +331,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentEntity = Editor::Get().GetScene(_context.currentSceneName)->CreateGameObject(true)->getID();
+				_currentGameObjectID = Editor::Get().GetScene(_context.currentSceneName)->CreateGameObject(true)->GetID();
 
 			}
 			if (ImGui::MenuItem("List entity"))
@@ -357,11 +357,11 @@ void MainWindow::_DrawMenu()
 
 void MainWindow::_Copy()
 {
-	if (_currentEntity.has_value())
+	if (_currentGameObjectID.has_value())
 	{
 		nlohmann::json j;
 		nlohmann::json json;
-		std::shared_ptr<fm::GameObject> go = Editor::Get().GetCurrentScene()->GetGameObjectByID(_currentEntity.value());
+		std::shared_ptr<fm::GameObject> go = Editor::Get().GetCurrentScene()->GetGameObjectByID(_currentGameObjectID.value());
 		go->Serialize(json);
 		j[JSON_KEY] = json;
 
@@ -419,7 +419,7 @@ void MainWindow::OnUpdate(bool hasFocus, bool force)
 	}
 	if (_context.currentGameObjectSelected.has_value())
 	{
-		_currentEntity = _context.currentGameObjectSelected;
+		_currentGameObjectID = _context.currentGameObjectSelected;
 	}
 
 	if (_context.currentWindowToDisplay.has_value())
@@ -595,7 +595,7 @@ void MainWindow::_ClearBeforeSceneChange()
 			});
 	}
 
-	_currentEntity.reset();
+	_currentGameObjectID.reset();
 	_context.currentGameObjectSelected.reset();
 	_context.currentSceneName = "";
 

@@ -15,9 +15,10 @@ class VertexBuffer;
 }
 
 class EntityManager;
-namespace fmc {
+namespace fmc
+{
 
-class CText : public FMComponent<CText>
+class CText
 {
 
     public:
@@ -32,9 +33,9 @@ class CText : public FMComponent<CText>
         CText();
         ~CText();
 
-		bool							Serialize(nlohmann::json& ioJson) const override;
-		bool							Read(const nlohmann::json& inJSON) override;
-		uint16_t						GetType() const override { return kText; }
+		bool							Serialize(nlohmann::json& ioJson) const;
+		bool							Read(const nlohmann::json& inJSON);
+		uint16_t						GetType() const { return kText; }
 
 		void							SetText(const std::string& inText);
 		const std::string&				GetText() const;
@@ -42,6 +43,7 @@ class CText : public FMComponent<CText>
 		fm::rendering::VertexBuffer*	GetVertexBuffer() const;
 		TEXT_RENDERING					GetTextType() const { return _rendering; }
 		const std::string&				GetFontName() const { return _fontName; }
+		std::string						GetName() const { return "Text"; }
 
     private:
 		TEXT_RENDERING									_rendering = TEXT_RENDERING::OVERLAY;
@@ -49,6 +51,8 @@ class CText : public FMComponent<CText>
 		std::string										_fontName = "dejavu";
 		std::string										_text = "";
 		bool											_isDirty = false;
+private:
+	std::string _name;
 
 };
 }

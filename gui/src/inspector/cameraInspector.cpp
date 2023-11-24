@@ -1,37 +1,32 @@
 #include "inspector/cameraInspector.hpp"
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
-#include <ECS.h>
+#include <FML/Core/GameObject.h>
+#include <FML/Components/CCamera.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Camera, fmc::CCamera)
 
-void CameraInspector::_Init()
+
+void CameraInspector::Draw(bool *value,  std::shared_ptr<fm::GameObject> inGameObject)
 {
-}
+	fmc::CCamera& inTarget = inGameObject->get<fmc::CCamera>();
 
-void CameraInspector::_DeInit()
-{
-}
+	std::string id = "##Camera " + std::to_string(inGameObject->GetID());
 
-void CameraInspector::Draw(bool *value, const Entity& e)
-{
-	std::string id = "##Camera " + std::to_string(_target->GetID());
-
-	std::string name = _target->GetName() + "##" + std::to_string(e.id().index());
+	std::string name = "Camera##" + std::to_string(inGameObject->GetID());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
-		float fov = _target->GetFOV();
-		float farPlane = _target->GetFarPlane();
-		float nearPlane = _target->GetNearPlane();
-		bool isOrtho = _target->IsOrthographic();
+		float fov = inTarget.GetFOV();
+		float farPlane = inTarget.GetFarPlane();
+		float nearPlane = inTarget.GetNearPlane();
+		bool isOrtho = inTarget.IsOrthographic();
 
 		bool isDirty = false;
 
 		if (ImGui::Checkbox("Orthographic", &isOrtho))
 		{
 			isDirty = true;
-			_target->SetOrthoGraphic(isOrtho);
+			inTarget.SetOrthoGraphic(isOrtho);
 		}
 
 		if (isOrtho)
@@ -43,19 +38,19 @@ void CameraInspector::Draw(bool *value, const Entity& e)
 		if (ImGui::DragFloat("FOV", &fov, 0.02f, -180, 180))
 		{
 			isDirty = true;
-			_target->SetFov(fov);
+			inTarget.SetFov(fov);
 		}
 
 		if (ImGui::DragFloat("Near Plane", &nearPlane, 0.02f, 0, FLT_MAX))
 		{
 			isDirty = true;
-			_target->SetNearPlane(nearPlane);
+			inTarget.SetNearPlane(nearPlane);
 		}
 
 		if (ImGui::DragFloat("Far plane", &farPlane, 0.02f, 0, FLT_MAX))
 		{
 			isDirty = true;
-			_target->SetFarPlane(farPlane);
+			inTarget.SetFarPlane(farPlane);
 		}
 
 		if (isOrtho)
@@ -67,14 +62,14 @@ void CameraInspector::Draw(bool *value, const Entity& e)
 
 		if (isDirty)
 		{
-			_target->UpdateProjectionMatrix();
+			inTarget.UpdateProjectionMatrix();
 		}
 
 	}
 }
 
-void CameraInspector::RemoveComponent(const Entity& inEntity)
+void CameraInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	EntityManager::get().removeComponent<fmc::CCamera>(inEntity.id());
+	inGameObject->remove<fmc::CCamera>();
 }
 

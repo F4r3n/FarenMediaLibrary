@@ -3,7 +3,6 @@
 #include <iomanip>      // std::setw
 #include <nlohmann/json.hpp>
 
-#include "SystemManager.h"
 #include "Engine.h"
 
 #include "Window.h"
@@ -13,6 +12,7 @@
 #include "Core/Debug.h"
 #include "Core/SceneManager.h"
 #include "Resource/ResourceLoader.h"
+
 using namespace fm;
 
 const std::string PROJECT_FILE_NAME_EXTENSION = ".fml";
@@ -65,12 +65,12 @@ bool Application::Serialize() const
 
 void Application::Start()
 {
-	_engine->Start();
+	_engine->Start(fm::Application::GetCurrentScene());
 }
 
 void Application::Stop()
 {
-	_engine->Stop();
+	_engine->Stop(fm::Application::GetCurrentScene());
 }
 
 
@@ -146,7 +146,8 @@ void Application::Update()
 	{
 		_window[GRAPHIC_API::VULKAN]->update(_currentConfig.fpsWanted);
 	}
-	_engine->Update(fm::Time::dt);
+	
+	_engine->Update(fm::Time::dt, fm::Application::GetCurrentScene());
 }
 
 
@@ -227,7 +228,7 @@ std::shared_ptr<fm::Scene> Application::GetCurrentScene() const
 
 bool Application::IsRunning() const
 {
-	return _engine->GetStatus() == SYSTEM_MANAGER_MODE::RUNNING;
+	return _engine->IsRunning();
 }
 
 

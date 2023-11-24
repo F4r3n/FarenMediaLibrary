@@ -2,7 +2,6 @@
 #include "Core/serializer.hpp"
 #include <Rendering/Shader.h>
 #include <Resource/ResourcesManager.h>
-#include <EntityManager.h>
 #include "Rendering/material.hpp"
 #include <nlohmann/json.hpp>
 using namespace fmc;

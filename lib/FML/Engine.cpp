@@ -1,4 +1,3 @@
-#include <ECS.h>
 #include "Engine.h"
 #include <Window.h>
 #include <TimeDef.h>
@@ -20,68 +19,63 @@
 #if WITH_VULKAN
 #include "Rendering/Vulkan/VkRenderingSystem.hpp"
 #endif
+#include "Core/System/SystemManager.hpp"
 using namespace fm;
-
-class GarbageCollector
-{
-public:
-	static void Collect()
-	{
-		for (auto && e : EntityManager::get().iterate<fmc::CEvent>())
-		{
-			fmc::CEvent* event = e.get<fmc::CEvent>();
-			event->Clear();
-		}
-	}
-};
+#include "Core/Scene.h"
+#include "Core/System/Event.h"
 
 
 Engine::Engine()
 {
-	_systems = std::unique_ptr<SystemManager>(new SystemManager());
 }
 
 Engine::~Engine()
 {
-	EntityManager::get().Free();
 }
 
 
 
-void Engine::Start()
-{
-	_systems->Start();
-}
-
-SYSTEM_MANAGER_MODE Engine::GetStatus() const 
-{
-	return _systems->GetStatus(); 
-}
 
 
 void Engine::Init(RENDERING_MODE inMode, std::array<std::shared_ptr<fm::Window>, (int)GRAPHIC_API::LAST> window)
 {
-    _systems->addSystem(new fms::SoundSystem());
-	_systems->addSystem(new fms::PhysicSystem());
+    _systems.emplace_back(new fms::SoundSystem());
+	_systems.emplace_back(new fms::PhysicSystem());
 
-    _systems->addSystem(new fms::ScriptManagerSystem());
+	_systems.emplace_back(new fms::ScriptManagerSystem());
 	if ((inMode & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
 	{
-		_systems->addSystem(new fms::OGLRenderingSystem(window[GRAPHIC_API::OPENGL]));
+		_systems.emplace_back(new fms::OGLRenderingSystem(window[GRAPHIC_API::OPENGL]));
 	}
 #if WITH_VULKAN
 	if ((inMode & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
 	{
-		_systems->addSystem(new fms::VkRenderingSystem(window[GRAPHIC_API::VULKAN]));
+		_systems.emplace_back(new fms::VkRenderingSystem(window[GRAPHIC_API::VULKAN]));
 	}
 #endif
 
-    _systems->init(EntityManager::get(), EventManager::Get());
+	for (const auto& system : _systems)
+	{
+		system->init(EventManager::Get());
+	}
 }
 
-void Engine::Stop()
+void Engine::Stop(std::shared_ptr<fm::Scene> inScene)
 {
-	_systems->Stop();
+	for (const auto& system : _systems)
+	{
+		system->Stop(inScene->GetRegistry());
+	}
+	_running = false;
+}
+
+void Engine::Start(std::shared_ptr<fm::Scene> inScene)
+{
+	_running = true;
+	for (const auto& system : _systems)
+	{
+		system->Start(inScene->GetRegistry());
+	}
 }
 
 void Engine::Resume()
@@ -91,23 +85,13 @@ void Engine::Resume()
 
 void Engine::Reset()
 {
-    _systems->addSystem(new fms::ScriptManagerSystem());
 }
 
-void Engine::Update(float dt)
+void Engine::Update(float dt, std::shared_ptr<fm::Scene> inScene)
 {
-    _systems->update(dt * Time::scale, EntityManager::get(), EventManager::Get());
-	GarbageCollector::Collect();
+	for (const auto& system : _systems)
+	{
+		system->update(dt * Time::scale, inScene->GetRegistry(), EventManager::Get());
+	}
 }
 
-bool fm::IsEntityActive(EntityManager& em, const Entity::Id& id)
-{
-	Entity e = em.GetEntity(id);
-	fmc::CIdentity* identity = e.get<fmc::CIdentity>();
-	if (identity != nullptr && identity->IsActive())
-		return true;
-	if (identity == nullptr)
-		return true;
-
-	return false;
-}

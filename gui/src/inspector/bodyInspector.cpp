@@ -1,36 +1,32 @@
 #include "inspector/bodyInspector.hpp"
-#include "Components/CBody.h"
 #include <imgui/imgui.h>
 #include <imgui_internal.h>
-#include <ECS.h>
+#include <FML/Core/GameObject.h>
+#include <FML/Components/CCollider.h>
+#include <FML/Components/CBody.h>
+
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Body, fmc::CBody)
 
-void BodyInspector::_Init()
-{
-}
 
-void BodyInspector::_DeInit()
+void BodyInspector::Draw(bool *value, std::shared_ptr<fm::GameObject> inGameObject)
 {
-}
+	fmc::CBody& inTarget = inGameObject->get<fmc::CBody>();
 
-void BodyInspector::Draw(bool *value, const Entity& inEntity)
-{
-	std::string id = "##BODY " + std::to_string(_target->GetID());
+	std::string id = "##BODY " + std::to_string(inGameObject->GetID());
 	static const char *shapeNames[] = { "CUBE", "SPHERE" };
-	std::string name = _target->GetName() + "##" + std::to_string(inEntity.id().index());
+	std::string name = inTarget.GetName() + "##" + std::to_string(inGameObject->GetID());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
-		float currentMass = _target->GetMass();
-		float currentRestitution = _target->GetRestitution();
-		float currentFriction = _target->GetFriction();
-		fm::math::vec3 currentAngularFactor = _target->GetAngularFactor();
-		fm::math::vec3 currentLinearFactor = _target->GetLinearFactor();
+		float currentMass = inTarget.GetMass();
+		float currentRestitution = inTarget.GetRestitution();
+		float currentFriction = inTarget.GetFriction();
+		fm::math::vec3 currentAngularFactor = inTarget.GetAngularFactor();
+		fm::math::vec3 currentLinearFactor = inTarget.GetLinearFactor();
 
 
-		bool currentGhost = _target->IsGhost();
-		fm::math::vec3 currentGravity = _target->GetGravity();
+		bool currentGhost = inTarget.IsGhost();
+		fm::math::vec3 currentGravity = inTarget.GetGravity();
 		if (currentGhost)
 		{
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -38,27 +34,28 @@ void BodyInspector::Draw(bool *value, const Entity& inEntity)
 		}
 		if (ImGui::DragFloat("Mass", &currentMass, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetMass(currentMass, inEntity.id());
+			fmc::CCollider* collider = inGameObject->try_get<fmc::CCollider>();
+			inTarget.SetMass(currentMass, collider);
 		}
 		if (ImGui::DragFloat("Restitution", &currentRestitution, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetRestitution(currentRestitution);
+			inTarget.SetRestitution(currentRestitution);
 		}
 		if (ImGui::DragFloat("Friction", &currentFriction, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetFriction(currentFriction);
+			inTarget.SetFriction(currentFriction);
 		}
 		if (ImGui::DragFloat3("Gravity", &currentGravity.x, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetGravity(currentGravity);
+			inTarget.SetGravity(currentGravity);
 		}
 		if (ImGui::DragFloat3("Angular Factor", &currentAngularFactor.x, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetAngularFactor(currentAngularFactor);
+			inTarget.SetAngularFactor(currentAngularFactor);
 		}
 		if (ImGui::DragFloat3("Linear factor", &currentLinearFactor.x, 0.001f, 0, FLT_MAX))
 		{
-			_target->SetLinearFactor(currentLinearFactor);
+			inTarget.SetLinearFactor(currentLinearFactor);
 		}
 		if (currentGhost)
 		{
@@ -67,14 +64,14 @@ void BodyInspector::Draw(bool *value, const Entity& inEntity)
 		}
 		if (ImGui::Checkbox("Ghost", &currentGhost))
 		{
-			_target->SetGhost(currentGhost);
+			inTarget.SetGhost(currentGhost);
 		}
 		
 	}
 }
 
 
-void BodyInspector::RemoveComponent(const Entity& inEntity)
+void BodyInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	EntityManager::get().removeComponent<fmc::CBody>(inEntity.id());
+	inGameObject->remove<fmc::CBody>();
 }

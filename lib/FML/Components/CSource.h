@@ -5,7 +5,7 @@
 namespace fmc {
 enum AUDIO_STATUS { INITIAL, PLAYING, PAUSED, STOPPED };
 
-class CSource : public FMComponent<CSource> {
+class CSource {
     public:
         CSource(const std::string& path);
         CSource();
@@ -21,6 +21,7 @@ class CSource : public FMComponent<CSource> {
 
         bool toUpdate = false;
 
-    private:
+private:
+	std::string _name;
 };
 }

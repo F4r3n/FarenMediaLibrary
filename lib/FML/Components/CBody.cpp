@@ -1,7 +1,6 @@
 #include "Components/CBody.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include <EntityManager.h>
 #include "Components/CTransform.h"
 #include "Components/CCollider.h"
 #include <nlohmann/json.hpp>
@@ -38,21 +37,21 @@ bool CBody::IsGhost() const
 	return _isGhost;
 }
 
-void CBody::SetMass(float inMass, Entity::Id inID)
+
+void CBody::SetMass(float inMass, fmc::CCollider* inCollider)
 {
 	_mass = inMass;
 	if (btRigidBody* body = _GetBody())
 	{
 		btVector3 localInertia(0, 0, 0);
 
-		fmc::CCollider* collider = EntityManager::get().GetEntity(inID).get<fmc::CCollider>();
-		if (collider != nullptr)
+		if (inCollider != nullptr)
 		{
-			btCollisionShape* shape = collider->GetCollisionShape();
+			btCollisionShape* shape = inCollider->GetCollisionShape();
 
 			shape->calculateLocalInertia(_mass, localInertia);
 		}
-		
+
 		body->setMassProps(_mass, localInertia);
 	}
 }
@@ -213,10 +212,10 @@ btGhostObject* CBody::_GetGhost() const
 }
 
 
-void CBody::Init(CCollider *inCollider, Entity::Id inID)
+void CBody::Init(CCollider *inCollider, const fmc::CTransform& inTransform, entt::handle inHandle)
 {
-	_entityID = inID;
-	const fm::Transform &&transform = EntityManager::get().GetEntity(inID).get<fmc::CTransform>()->GetTransform();
+	_entity = inHandle;
+	const fm::Transform &&transform = inTransform.GetTransform();
 
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (_mass != 0.f);

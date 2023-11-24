@@ -1,5 +1,5 @@
 #pragma once
-#include "ECS.h"
+#include "Core/System/System.hpp"
 
 class btDiscreteDynamicsWorld;
 class btDynamicsWorld;
@@ -14,16 +14,15 @@ namespace fms
 	class PhysicSystem : public System<PhysicSystem> {
 	public:
 		PhysicSystem();
-		void update(float dt, EntityManager& em, EventManager& event);
-		void over();
-		void init(EntityManager& em, EventManager& event);
-		void pre_update(EntityManager& em);
+		void update(float dt, entt::registry& registry, EventManager&) override;
+		void init(EventManager& event);
 		~PhysicSystem();
-		void Start();
-		void Stop();
+		void Start(entt::registry& registry) override;
+		void Stop(entt::registry& registry) override;
+		void over();
 
 	private:
-		void _InitAllBodies();
+		void _InitAllBodies(entt::registry& registry);
 		//void _CheckCollision(btDynamicsWorld *world, btScalar timeStep);
 		btDiscreteDynamicsWorld* _dynamicsWorld;
 		btGhostPairCallback* _ghostPairCallback;

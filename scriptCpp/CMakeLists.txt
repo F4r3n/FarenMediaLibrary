@@ -43,10 +43,6 @@ include_directories(${FML_EXTLIB}/stb)
 #JSON
 include_directories(${FML_EXTLIB}/json/include)
 
-#ECS
-include_directories(${FML_EXTLIB}/ECS/lib/include)
-link_directories(${FML_EXTLIB_LIB}/ECS/lib)
-
 #FREETYPE
 include_directories(${FML_EXTLIB}/freetype2/include)
 link_directories(${FML_EXTLIB_LIB}/freetype2/lib)
@@ -70,7 +66,7 @@ add_library(${LIB_NAME} SHARED
             ${Scripts_SRC} ${Scripts_HDR}
 
 )
-target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua ${GLEW_LIBRARIES} freetype ECS Box2D tinyobjloader ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} FarenMediaLibrary_s lua ${GLEW_LIBRARIES} freetype Box2D tinyobjloader ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} debug SDL2d optimized SDL2)
 
 

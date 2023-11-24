@@ -1,6 +1,5 @@
 #include "Components/CCamera.h"
 #include "Rendering/RenderTexture.hpp"
-#include <EntityManager.h>
 #include "Window.h"
 #include "Resource/ResourcesManager.h"
 #include "Rendering/OpenGL/OGLUniformbuffer.hpp"

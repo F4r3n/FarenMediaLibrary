@@ -1,28 +1,22 @@
 #include "inspector/colliderInspector.hpp"
 #include "Components/CCollider.h"
 #include <imgui/imgui.h>
-#include <ECS.h>
+#include <FML/Core/GameObject.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Collider, fmc::CCollider)
 
-void ColliderInspector::_Init()
-{
-}
 
-void ColliderInspector::_DeInit()
+void ColliderInspector::Draw(bool *value, std::shared_ptr<fm::GameObject> inGameObject)
 {
-}
+	fmc::CCollider& inTarget = inGameObject->get<fmc::CCollider>();
 
-void ColliderInspector::Draw(bool *value, const Entity& e)
-{
-	std::string id = "##Collider " + std::to_string(_target->GetID());
+	std::string id = "##Collider " + std::to_string(inGameObject->GetID());
 	static const char *shapeNames[] = { "BOX", "BOX2D", "SPHERE" };
-	std::string name = _target->GetName() + "##" + std::to_string(e.id().index());
+	std::string name = inTarget.GetName() + "##" + std::to_string(inGameObject->GetID());
 
 	if (ImGui::CollapsingHeader(name.c_str(), value))
 	{
-		fm::math::vec3 currentScale = _target->GetScale();
-		int currentShape = (int)_target->GetShape();
+		fm::math::vec3 currentScale = inTarget.GetScale();
+		int currentShape = (int)inTarget.GetShape();
 
 		bool hasChanged = false;
 		hasChanged |= ImGui::Combo(std::string("shape" + id).c_str(), &currentShape, shapeNames, (int)fmc::CCollider::SHAPE::LAST);
@@ -38,14 +32,14 @@ void ColliderInspector::Draw(bool *value, const Entity& e)
 
 		if (hasChanged)
 		{
-			_target->SetScale(currentScale);
-			_target->SetShape((fmc::CCollider::SHAPE)currentShape);
+			inTarget.SetScale(currentScale);
+			inTarget.SetShape((fmc::CCollider::SHAPE)currentShape);
 
 		}
 	}
 }
 
-void ColliderInspector::RemoveComponent(const Entity& inEntity)
+void ColliderInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	EntityManager::get().removeComponent<fmc::CCollider>(inEntity.id());
+	inGameObject->remove<fmc::CCollider>();
 }

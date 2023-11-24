@@ -1,41 +1,26 @@
 #include "inspector/materialInspector.hpp"
 #include <imgui/imgui.h>
 #include <Resource/ResourcesManager.h>
-#include <Rendering/Shader.h>
-#include <Core/Debug.h>
-#include <Rendering/material.hpp>
 #include "Window/GMaterialEditor.h"
-#include <ECS.h>
+#include <FML/Core/GameObject.h>
+#include <FML/Components/CMaterial.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Material, fmc::CMaterial)
 
 
-void MaterialInspector::_DeInit()
+MaterialInspector::MaterialInspector()
 {
-
 }
 
 
-void MaterialInspector::_Init()
+void MaterialInspector::Draw(bool *value,  std::shared_ptr<fm::GameObject> inGameObject)
 {
-    fm::Debug::get().LogError("InitMaterial");
-    std::map<std::string, std::shared_ptr<fm::Resource>> resources = fm::ResourcesManager::get().getAll<fm::Shader>();
-    for(auto &r : resources)
-    {
-        fm::Shader *s = static_cast<fm::Shader*>(r.second.get());
-        _valuesShader.push_back(s->GetName().c_str());
-    }
+	fmc::CMaterial& inTarget = inGameObject->get<fmc::CMaterial>();
 
-
-}
-
-void MaterialInspector::Draw(bool *value, const Entity& e)
-{
-	std::string name = _target->GetName() + "##" + std::to_string(e.id().index());
+	const std::string name = "Material##" + std::to_string(inGameObject->GetID());
 
     if(ImGui::CollapsingHeader(name.c_str(), value))
     {
-        for(auto &m :_target->GetAllMaterials())
+        for(auto &m : inTarget.GetAllMaterials())
         {
             std::string materialName = m->GetName() + "##Material";
 
@@ -51,7 +36,7 @@ void MaterialInspector::Draw(bool *value, const Entity& e)
     }
 }
 
-void MaterialInspector::RemoveComponent(const Entity& inEntity)
+void MaterialInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	EntityManager::get().removeComponent<fmc::CMaterial>(inEntity.id());
+	inGameObject->remove<fmc::CMaterial>();
 }

@@ -5,8 +5,7 @@
 #include <string>
 #include <Core/FilePath.h>
 #include <nlohmann/json_fwd.hpp>
-#include "Entity.h"
-class Entity;
+#include <entt/entt.hpp>
 
 namespace fm {
 class CppScript;
@@ -29,7 +28,7 @@ class Behaviour
 
 		fmc::CTransform* GetTransform() { return nullptr; }
     protected:
-        Entity entity;
+		entt::handle entity;
 };
 
 namespace fm {
@@ -52,7 +51,7 @@ public:
 	virtual bool init() = 0;
 	virtual void start() = 0;
 	virtual void update(float) = 0;
-	virtual void Stop(const Entity& e) = 0;
+	virtual void Stop(const entt::handle& e) = 0;
 	virtual bool Serialize(nlohmann::json &ioJson) const = 0;
 	virtual bool Read(const nlohmann::json &inJSON) = 0;
 

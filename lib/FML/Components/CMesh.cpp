@@ -2,7 +2,6 @@
 #include "Resource/ResourcesManager.h"
 #include <memory>
 #include "Core/Math/Functions.h"
-#include <EntityManager.h>
 #include "Rendering/Model.hpp"
 #include <nlohmann/json.hpp>
 using namespace fmc;

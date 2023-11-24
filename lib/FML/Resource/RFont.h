@@ -2,7 +2,6 @@
 #include <unordered_map>
 
 #include <Core/Config.h>
-#include <Component.h>
 #include "Core/Math/Vector2.h"
 #include "Resource/Resource.h"
 

@@ -17,7 +17,7 @@ ScriptManagerSystem::~ScriptManagerSystem()
 {
 }
 
-void ScriptManagerSystem::init(EntityManager&, EventManager&)
+void ScriptManagerSystem::init(EventManager&)
 {
 	LuaManager::get().openLibraries();
 	CPPManager::get().LoadPlugin();
@@ -28,49 +28,50 @@ void ScriptManagerSystem::init(EntityManager&, EventManager&)
 
 }
 
-void ScriptManagerSystem::Start()
+void ScriptManagerSystem::Start(entt::registry& registry)
 {
-
-	for (auto&& e : EntityManager::get().iterate<fmc::CScriptManager>())
+	auto view = registry.view<fmc::CScriptManager>();
+	for (auto e : view)
 	{
-		fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
-		scriptManager->init(e.id());
+		fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
+		scriptManager.init(entt::handle(registry, e));
 	}
 
-	for (auto &&e : EntityManager::get().iterate<fmc::CScriptManager>())
+	for (auto e : view)
 	{
-		fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
-		scriptManager->Start(e);
+		fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
+		scriptManager.Start(entt::handle(registry, e));
 	}
 }
 
-void ScriptManagerSystem::Stop()
+void ScriptManagerSystem::Stop(entt::registry& registry)
 {
 	
 }
 
 
-void ScriptManagerSystem::update(float dt, EntityManager& em, EventManager&)
+void ScriptManagerSystem::update(float dt, entt::registry& registry, EventManager&)
 {
-	for (auto &&e : em.iterate<fmc::CScriptManager, fmc::CEvent>(fm::IsEntityActive))
+	for (auto e : registry.view<fmc::CScriptManager, fmc::CEvent>())
 	{
-		fmc::CEvent *event = e.get<fmc::CEvent>();
-		fmc::Events &&events = event->GetEvents();
-		fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
+		fmc::CEvent &event = registry.get<fmc::CEvent>(e);
+		fmc::Events events = event.GetEvents();
+		fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
 
 		for (const auto &a : events)
 		{
 			for (const auto &b : a)
 			{
-				scriptManager->CallEvent(b);
+				scriptManager.CallEvent(registry, b);
 			}
 		}
+		event.Clear();
 	}
 
 
-    for(auto &&e : em.iterate<fmc::CScriptManager>(fm::IsEntityActive))
+    for(auto e : registry.view<fmc::CScriptManager>())
     {
-        fmc::CScriptManager* scriptManager = e.get<fmc::CScriptManager>();
-        scriptManager->update(e, dt);
+        fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
+        scriptManager.update(entt::handle(registry,e), dt);
     }
 }

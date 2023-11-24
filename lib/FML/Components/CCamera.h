@@ -9,12 +9,13 @@
 #include <functional>
 #include "Rendering/RenderQueueEvents.hpp"
 #include "Object.hpp"
+#include "Core/Color.h"
+#include "Rendering/commandBuffer.hpp"
 namespace fm
 {
 	class RenderTexture;
 	struct Transform;
 	class UniformBuffer;
-	class CommandBuffer;
 	class FrameBuffer;
 }
 
@@ -38,9 +39,14 @@ namespace fmc
 		fm::math::mat FM_PV;
 	};
 
+	struct Skybox
+	{
+		fm::Color _backgroundColor;
+	};
+
 	typedef std::unordered_map<fm::RENDER_QUEUE, std::queue<fm::CommandBuffer>> CameraCommandBuffer;
 
-	class CCamera : public FMComponent<CCamera>, public fm::Object<CCamera>
+	class CCamera : public fm::Object<CCamera>
 	{
 	public:
 
@@ -48,9 +54,9 @@ namespace fmc
 		CCamera(size_t width, size_t height, fmc::RENDER_MODE mode, bool ortho, bool isAuto = false, int multiSampled = 0);
 		~CCamera();
 
-		bool Serialize(nlohmann::json& ioJson) const override;
-		bool Read(const nlohmann::json& inJSON) override;
-		uint16_t GetType() const override { return kCamera; }
+		bool Serialize(nlohmann::json& ioJson) const;
+		bool Read(const nlohmann::json& inJSON);
+		uint16_t GetType() const { return kCamera; }
 
 		void SetNewProjection(int width, int height);
 		void UpdateRenderTexture();
@@ -128,5 +134,8 @@ namespace fmc
 		fm::math::mat			_viewMatrix;
 
 		size_t					_stamp = 0;
+		Skybox					_skyBox;
+	private:
+		std::string _name;
 	};
 }

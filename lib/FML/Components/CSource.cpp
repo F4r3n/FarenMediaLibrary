@@ -1,7 +1,4 @@
 #include "Components/CSource.h"
-//#include <sndfile.h> TODO replace by my own
-#include <EntityManager.h>
-#include <Core/Debug.h>
 
 using namespace fmc;
 

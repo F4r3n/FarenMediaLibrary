@@ -1,8 +1,5 @@
 #pragma once
-#include <System.h>
-#include <EntityManager.h>
-
-#include <Event.h>
+#include "Core/System/System.hpp"
 
 
 namespace fms {
@@ -11,15 +8,11 @@ class ScriptManagerSystem : public System<ScriptManagerSystem> {
 public:
     ScriptManagerSystem();
     ~ScriptManagerSystem();
-    void pre_update(EntityManager&) {
-    }
-    void update(float dt, EntityManager& em, EventManager& event);
-    void init(EntityManager& em, EventManager& event);
-    void over() {
-    }
+	virtual void update(float dt, entt::registry& registry, EventManager&) override;
+	virtual void init(EventManager& event) override;
 
-	void Start();
-	void Stop();
+	virtual void Start(entt::registry& registry) override;
+	virtual void Stop(entt::registry& registry) override;
 private:
 
     

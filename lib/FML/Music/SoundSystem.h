@@ -1,6 +1,5 @@
 #pragma once
-#include "System.h"
-#include <EntityManager.h>
+#include "Core/System/System.hpp"
 #include <memory>
 namespace fmc {
 class CTransform;
@@ -20,13 +19,11 @@ class SoundSystem : public System<SoundSystem> {
 public:
     SoundSystem();
     ~SoundSystem();
-    void pre_update(EntityManager& em);
 
-    void update(float dt, EntityManager& em, EventManager& event);
-    void init(EntityManager& em, EventManager& event);
-    void over();
-	void Start() {}
-	void Stop() {}
+    void update(float dt, entt::registry& em, EventManager& event) override;
+    void init(EventManager& event) override;
+	void Start(entt::registry&) override {}
+	void Stop(entt::registry&) override {}
 private:
     void _SetSettings(const fm::Transform& transform, fmc::CSource* sound);
 	std::unique_ptr<fm::Speaker> _speaker;

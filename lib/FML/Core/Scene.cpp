@@ -11,7 +11,6 @@ Scene::Scene(const fm::FilePath &inPath) : fm::Observable("Scene"),_name(inPath.
 }
 Scene::Scene(const std::string& inName) : fm::Observable("Scene"), _name(inName)
 {
-
 }
 
 Scene::~Scene()
@@ -52,17 +51,19 @@ void Scene::Destroy()
 std::shared_ptr<fm::GameObject> Scene::CreateGameObject(bool defaultValue)
 {
 	_UniqueIDScene++;
-
-	std::shared_ptr<fm::GameObject> o = std::make_shared<fm::GameObject>();
+	auto entity = _registry.create();
+	std::shared_ptr<fm::GameObject> o = std::make_shared<fm::GameObject>(entt::handle(_registry, entity));
 	o->SetOrder(_UniqueIDScene);
 	if (defaultValue)
 	{
 		o->addComponent<fmc::CTransform>(fm::math::Vector3f(0, 0, 0), fm::math::Vector3f(1, 1, 1), fm::math::vec3(0, 0, 0));
-		o->addComponent<fmc::CIdentity>();
-		o->get<fmc::CIdentity>()->SetNameEntity("GameObject");
 	}
-	Entity::Id id = o->getID();
-	_gos[o->getID()] = move(o);
+	fmc::CIdentity& identity = o->addComponent<fmc::CIdentity>();
+	identity.SetNameEntity("GameObject");
+	identity.SetID(o->GetID());
+
+	const size_t id = o->GetID();
+	_gos[id] = move(o);
 	_isDirty = true;
 	NotifyAll(fm::EventObserver((size_t)Event::CREATE_GAMEOBJECT, id));
 	return GetGameObjectByID(id);
@@ -110,7 +111,7 @@ void Scene::ResetStatusGo()
 	}
 }
 
-std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(Entity::Id inID)
+std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(size_t inID)
 {
 	auto it = _gos.find(inID);
 	if (it != _gos.end())
@@ -121,7 +122,7 @@ std::shared_ptr<fm::GameObject> Scene::GetGameObjectByID(Entity::Id inID)
 }
 
 
-void Scene::DeleteGameObjectByID(Entity::Id inID)
+void Scene::DeleteGameObjectByID(size_t inID)
 {
 	auto it = _gos.find(inID);
 	if (it != _gos.end())

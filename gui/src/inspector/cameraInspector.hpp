@@ -1,9 +1,24 @@
 #pragma once
 #include "inspector.hpp"
-#include <FML/Components/CCamera.h>
-#include "macroInspectorHelper.hpp"
 
-namespace gui {
-	DECLARE_INSPECTOR_CLASS(Camera, fmc::CCamera)
-};
+namespace fmc
+{
+	class CCamera;
+}
+
+namespace fm
+{
+	class GameObject;
+}
+
+namespace gui
+{
+
+	class CameraInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value, std::shared_ptr<fm::GameObject> inGameObject) override;
+			void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+	};
 }

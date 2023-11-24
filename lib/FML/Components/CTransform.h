@@ -6,16 +6,12 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Quaternion.h"
 #include <nlohmann/json_fwd.hpp>
-#include "Entity.h"
-class EntityManager;
-
-
-
+#include <entt/entt.hpp>
 namespace fmc {
 
 
 
-class CTransform : public FMComponent<CTransform>
+class CTransform
 {
     public:
         CTransform(const fm::math::Vector3f& position,
@@ -24,16 +20,16 @@ class CTransform : public FMComponent<CTransform>
         CTransform();
 		~CTransform();
 
-        bool						Serialize(nlohmann::json &ioJson) const override;
-        bool						Read(const nlohmann::json &inJSON) override;
-        const std::string&			GetName() const override;
-        virtual uint16_t			GetType() const override {return kTransform;}
+        bool						Serialize(nlohmann::json &ioJson) const;
+        bool						Read(const nlohmann::json &inJSON);
+        const std::string&			GetName() const;
+        virtual uint16_t			GetType() const {return kTransform;}
 		fm::Transform				GetTransform() const;
 		fm::math::mat				GetLocalMatrixModel(bool opposePosition = false) const;
 		void						From(const fmc::CTransform *inTransform);
+		void						From(const fmc::CTransform& inTransform);
 
-        void						setFather(Entity::Id id);
-        void						setFather(Entity* e);
+        void						setFather(entt::handle id);
 		void						RemoveFather();
 
 		void						SetRotation(const fm::math::Quaternion& inQuaternion);
@@ -58,14 +54,14 @@ class CTransform : public FMComponent<CTransform>
 		
 		CTransform*					GetFather() const;
 		bool						HasFather() const;
-		Entity::Id					GetFatherID() const;
+		entt::handle				GetFatherEntity() const;
 
 		static fm::math::mat CreateMatrixModel(const fm::math::vec3& pos, const fm::math::vec3& scale, const fm::math::Quaternion &q, bool ortho = true);
 
 private:
 	void _UpdateWorldMatrix() const;
 private:
-	Entity::Id							_idFather;
+	entt::handle					_fatherEntity;
 
 	fm::math::vec3					_position;
 	fm::math::vec3					_scale;
@@ -76,5 +72,7 @@ private:
 
 	mutable bool					_isDirty = false;
 	bool							_hasFather;
+private:
+	std::string _name;
 };
 }

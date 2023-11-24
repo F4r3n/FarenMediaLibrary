@@ -11,7 +11,6 @@
 #include "Components/CCamera.h"
 #include "VkModel.hpp"
 #include "VkMaterial.hpp"
-#include <ECS.h>
 #include "Components/CMesh.h"
 #include "Components/CMaterial.h"
 #include "Components/CTransform.h"
@@ -20,6 +19,7 @@
 #include "Rendering/material.hpp"
 #include "Engine.h"
 #include "VkCamera.hpp"
+#include <entt/entt.hpp>
 using namespace fms;
 
 VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
@@ -30,7 +30,7 @@ VkRenderingSystem::VkRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_type = SYSTEM_MODE::ALWAYS;
 }
 
-void VkRenderingSystem::init(EntityManager& manager, EventManager& event)
+void VkRenderingSystem::init(EventManager& event)
 {
 	_renderPass = _CreateRenderPass();
 	_SetupDescriptors();
@@ -307,9 +307,8 @@ std::shared_ptr<fm::VkShader> VkRenderingSystem::_FindOrCreateShader(const fm::S
 	return shader;
 }
 
-bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCamera, VkCommandBuffer commandBuffer, VkFramebuffer inFrameBuffer, VkRenderPass inRenderPass)
+bool VkRenderingSystem::_RecordCommandBuffer(entt::registry& registry, std::shared_ptr<fm::VkCamera> inCamera, VkCommandBuffer commandBuffer, VkFramebuffer inFrameBuffer, VkRenderPass inRenderPass)
 {
-	EntityManager &em = EntityManager::get();
 	VkCommandBufferBeginInfo beginInfo = vk_init::CreateCommandBufferBeginInfo(0);
 
 	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
@@ -356,18 +355,19 @@ bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCam
 	_vulkan->MapBuffer(_sceneParameterBuffer, &_sceneParameters, sizeof(GPUSceneData), offset);
 
 	uint32_t uniform_offset = static_cast<uint32_t>(offset);
+	auto view = registry.view<fmc::CMesh, fmc::CMaterial, fmc::CTransform, fmc::CIdentity>();
 
-	_vulkan->MapBuffer(_framesData[_currentFrame].objectBuffer, [&em](void** inData) {
+	_vulkan->MapBuffer(_framesData[_currentFrame].objectBuffer, [&registry, &view](void** inData) {
 		GPUObjectData* objectSSBO = (GPUObjectData*)(*inData);
 		size_t i = 0;
-		for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform, fmc::CIdentity>())
+		for (auto e : view)
 		{
-			fmc::CIdentity* identity = e.get<fmc::CIdentity>();
-			if (!(identity == nullptr || identity->IsActive()))
+			fmc::CIdentity& identity = registry.get<fmc::CIdentity>(e);
+			if (!identity.IsActive())
 				continue;
 
-			fmc::CTransform* tranform = e.get<fmc::CTransform>();
-			fm::math::mat model = tranform->GetWorldPosMatrix();
+			fmc::CTransform& tranform = registry.get<fmc::CTransform>(e);
+			fm::math::mat model = tranform.GetWorldPosMatrix();
 			objectSSBO[i].modelMatrix = model;
 			i++;
 		}
@@ -376,14 +376,14 @@ bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCam
 	uint32_t instanceIndex = 0;
 
 	//we can now draw the mesh
-	for (auto&& e : em.iterate<fmc::CMesh, fmc::CMaterial, fmc::CTransform, fmc::CIdentity>())
+	for (auto&& e : view)
 	{
-		fmc::CIdentity* identity = e.get<fmc::CIdentity>();
-		if (!(identity == nullptr || identity->IsActive()))
+		fmc::CIdentity& identity = registry.get<fmc::CIdentity>(e);
+		if (!identity.IsActive())
 			continue;
 
-		fmc::CMaterial* material = e.get<fmc::CMaterial>();
-		auto mainMaterial = material->GetMainMaterial();
+		fmc::CMaterial& material = registry.get<fmc::CMaterial>(e);
+		auto mainMaterial = material.GetMainMaterial();
 		//
 		auto itMaterial = _materials.find(mainMaterial->GetObjectID());
 		if (itMaterial != _materials.end())
@@ -421,11 +421,11 @@ bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCam
 		if (!_currentMaterial->IsReady())
 			continue;
 
-		fmc::CMesh* mesh = e.get<fmc::CMesh>();
+		fmc::CMesh& mesh = registry.get<fmc::CMesh>(e);
 
-		if (mesh->GetModel() == nullptr)
+		if (mesh.GetModel() == nullptr)
 			continue;
-		auto it = _staticModels.find(mesh->GetModel()->GetObjectID());
+		auto it = _staticModels.find(mesh.GetModel()->GetObjectID());
 
 		if (it != _staticModels.end())
 		{
@@ -433,11 +433,11 @@ bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCam
 		}
 		else
 		{
-			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan.get(), mesh->GetModel());
+			auto modelMesh = std::make_unique<fm::VkModel>(_vulkan.get(), mesh.GetModel());
 			_UploadMesh(modelMesh.get());
 			modelMesh->Draw(commandBuffer, instanceIndex);
 
-			_staticModels.emplace(mesh->GetModel()->GetObjectID(), std::move(modelMesh));
+			_staticModels.emplace(mesh.GetModel()->GetObjectID(), std::move(modelMesh));
 		}
 		instanceIndex++;
 	}
@@ -454,11 +454,7 @@ bool VkRenderingSystem::_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCam
 
 
 
-void VkRenderingSystem::pre_update(EntityManager& manager)
-{
-
-}
-void VkRenderingSystem::update(float dt, EntityManager& em, EventManager& event)
+void VkRenderingSystem::update(float dt, entt::registry& registry, EventManager& event)
 {
 	if (_window->IsMinimized())
 		return;
@@ -480,21 +476,22 @@ void VkRenderingSystem::update(float dt, EntityManager& em, EventManager& event)
 		return;
 	}
 	vkResetFences(device, 1, &_inFlightFences[_currentFrame]);
-	for (auto&& e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
+	 
+	for (auto e : registry.view<fmc::CCamera, fmc::CTransform>())
 	{
-		fmc::CCamera* cam = e.get<fmc::CCamera>();
-		if (!cam->Enabled)
-			continue;
+		fmc::CCamera& cam = registry.get<fmc::CCamera>(e);
+		//if (!cam->Enabled)
+		//	continue;
 
-		fmc::CTransform* transform = e.get<fmc::CTransform>();
-		cam->SetNewViewPort(0, 0, static_cast<size_t>(_vulkan->GetSwapChainExtent().width),
+		fmc::CTransform& transform = registry.get<fmc::CTransform>(e);
+		cam.SetNewViewPort(0, 0, static_cast<size_t>(_vulkan->GetSwapChainExtent().width),
 								  static_cast<size_t>(_vulkan->GetSwapChainExtent().height));
 
-		cam->UpdateViewMatrix(transform->GetTransform());
-		cam->UpdateProjectionMatrix();
+		cam.UpdateViewMatrix(transform.GetTransform());
+		cam.UpdateProjectionMatrix();
 		vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-		auto vkCamera = _cameraCache->FindOrCreate(cam);
-		_RecordCommandBuffer(vkCamera, _commandBuffers[_currentFrame], _vulkan->GetSwapChainFrameBuffer(imageIndex), _renderPass);
+		auto vkCamera = _cameraCache->FindOrCreate(registry.try_get<fmc::CCamera>(e));
+		_RecordCommandBuffer(registry, vkCamera, _commandBuffers[_currentFrame], _vulkan->GetSwapChainFrameBuffer(imageIndex), _renderPass);
 	}
 
 
@@ -558,15 +555,12 @@ void VkRenderingSystem::_ImmediateSubmit(std::function<void(VkCommandBuffer cmd)
 }
 
 
-void VkRenderingSystem::over()
+
+void VkRenderingSystem::Start(entt::registry& registry)
 {
 
 }
-void VkRenderingSystem::Start()
-{
-
-}
-void VkRenderingSystem::Stop()
+void VkRenderingSystem::Stop(entt::registry& registry)
 {
 
 }

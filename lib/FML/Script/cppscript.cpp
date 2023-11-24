@@ -1,6 +1,4 @@
 #include "Script/cppscript.hpp"
-#include <ECS.h>
-#include <Entity.h>
 #include "Script/cppmanager.hpp"
 #include "Core/Debug.h"
 
@@ -68,7 +66,7 @@ void CppScript::update(float dt)
     }
 }
 
-void CppScript::Stop(const Entity& e)
+void CppScript::Stop(const entt::handle& e)
 {
 
 }

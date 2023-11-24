@@ -6,27 +6,31 @@
 #include "Core/Transform.h"
 #include "Components/CSource.h"
 #include "Engine.h"
-
+#include <entt/entt.hpp>
 using namespace fms;
 SoundSystem::SoundSystem()
 {
 	_speaker = nullptr;
 	_listener = nullptr;
 }
-SoundSystem::~SoundSystem() {
-}
-void SoundSystem::pre_update(EntityManager&) {
+
+
+SoundSystem::~SoundSystem()
+{
 }
 
-void SoundSystem::update(float , EntityManager& em, EventManager& ) {
-    for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>(fm::IsEntityActive))
+
+void SoundSystem::update(float , entt::registry& registry, EventManager& )
+{
+	auto view = registry.view<fmc::CSource, fmc::CTransform>();
+    for(auto e : view)
 	{
 
-        fmc::CSource* sound = e.get<fmc::CSource>();
-        fmc::CTransform* transform = e.get<fmc::CTransform>();
-        if(sound->toUpdate) 
+        fmc::CSource& sound = view.get<fmc::CSource>(e);
+        fmc::CTransform& transform = view.get<fmc::CTransform>(e);
+        if(sound.toUpdate) 
 		{
-            _SetSettings(transform->GetTransform(), sound);
+            _SetSettings(transform.GetTransform(), &sound);
         }
     }
 }
@@ -39,18 +43,8 @@ void SoundSystem::_SetSettings(const fm::Transform &, fmc::CSource*) {
     //alSourcei(sound->source, AL_LOOPING, sound->isLooping);
 }
 
-void SoundSystem::init(EntityManager& em, EventManager&)
+void SoundSystem::init(EventManager&)
 {
 	_speaker = std::unique_ptr<fm::Speaker>(new fm::Speaker());
 	_listener = std::unique_ptr<fm::Listener>(new fm::Listener());
-
-    for(auto &&e : em.iterate<fmc::CTransform, fmc::CSource>(fm::IsEntityActive)) {
-        fmc::CSource* sound = e.get<fmc::CSource>();
-        fmc::CTransform* transform = e.get<fmc::CTransform>();
-       
-
-        _SetSettings(transform->GetTransform(), sound);
-    }
-}
-void SoundSystem::over() {
 }

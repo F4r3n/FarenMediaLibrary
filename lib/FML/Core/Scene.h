@@ -2,10 +2,10 @@
 #include <vector>
 #include <string>
 #include <nlohmann/json_fwd.hpp>
-#include <ECS.h>
 #include <memory>
 #include "Core/Observer.h"
 #include "FilePath.h"
+#include <entt/entt.hpp>
 namespace fm
 {
     class GameObject;
@@ -22,7 +22,7 @@ namespace fm {
 				CREATE_GAMEOBJECT,
 				DELETE_GAMEOBJECT
 			};
-			using MapOfGameObjects = std::map<Entity::Id, std::shared_ptr<fm::GameObject>>;
+			using MapOfGameObjects = std::map<size_t, std::shared_ptr<fm::GameObject>>;
 
             Scene(const fm::FilePath &inPath);
 			Scene(const std::string& inName);
@@ -39,18 +39,26 @@ namespace fm {
 			void							SetStatusToGo(bool inStatus);
 			void							ResetStatusGo();
 
-			std::shared_ptr<fm::GameObject> GetGameObjectByID(Entity::Id inID);
+			std::shared_ptr<fm::GameObject> GetGameObjectByID(size_t inID);
 
-			void							DeleteGameObjectByID(Entity::Id inID);
+			void							DeleteGameObjectByID(size_t inID);
 
 			void							Load();
 			void							Save();
 			const fm::FilePath&				GetPath() const { return _path; }
+			entt::registry& GetRegistry() { return _registry; }
+
+			void Start();
+			void Stop();
+			void Update(float dt);
+
         private:
 			MapOfGameObjects _gos;
 			size_t			 _UniqueIDScene = 0;
             std::string		 _name;
 			fm::FilePath	 _path;
 			bool			 _isDirty = false;
+			entt::registry	 _registry;
+
     };
 }

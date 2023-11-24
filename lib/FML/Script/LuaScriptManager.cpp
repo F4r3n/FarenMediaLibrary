@@ -1,6 +1,5 @@
 #include "Script/LuaScriptManager.h"
 #include "Script/LuaScript.h"
-#include <ECS.h>
 #include <nlohmann/json.hpp>
 #include "Core/FilePath.h"
 using namespace fm;
@@ -24,7 +23,7 @@ LuaScriptManager::~LuaScriptManager()
 
 }
 
-void LuaScriptManager::init(const Entity& e)
+void LuaScriptManager::init(entt::handle e)
 {
 	if (_go != nullptr) return;
 	sol::state *lua = (LuaManager::get().GetState());
@@ -66,7 +65,7 @@ void LuaScriptManager::RemoveScript(const std::string &name)
 
 
 
-void LuaScriptManager::update(const Entity&, float dt)
+void LuaScriptManager::update(entt::handle, float dt)
 {
 	for (auto &s : _scripts)
 	{
@@ -74,7 +73,7 @@ void LuaScriptManager::update(const Entity&, float dt)
 	}
 }
 
-void LuaScriptManager::Start(const Entity&)
+void LuaScriptManager::Start(entt::handle)
 {
 	for (auto &s : _scripts)
 	{
@@ -82,7 +81,7 @@ void LuaScriptManager::Start(const Entity&)
 	}
 }
 
-void LuaScriptManager::Stop(const Entity& e)
+void LuaScriptManager::Stop(entt::handle e)
 {
 	for (auto &s : _scripts)
 	{
@@ -160,11 +159,11 @@ void LuaScriptManager::ReloadScript( const std::string &inName)
 	}
 }
 
-void LuaScriptManager::CallEvent(fm::BaseEvent* inEvent)
+void LuaScriptManager::CallEvent(entt::registry& registry, fm::BaseEvent* inEvent)
 {
 	for (auto &s : _scripts)
 	{
-		s->CallEvent(inEvent, _table);
+		s->CallEvent(registry, inEvent, _table);
 	}
 }
 

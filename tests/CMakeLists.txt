@@ -28,10 +28,6 @@ include_directories(SYSTEM ${FML_EXTLIB}/sol2)
 #JSON
 include_directories(SYSTEM ${FML_EXTLIB}/json/include)
 
-#ECS
-FETCHCONTENT_GETPROPERTIES(ECS)
-include_directories(SYSTEM ${ecs_SOURCE_DIR}/lib/include)
-
 #FML
 include_directories(${FML_PATH}/lib)
 link_directories(${FML_LIB_PATH}/lib)

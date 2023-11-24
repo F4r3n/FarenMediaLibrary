@@ -17,7 +17,6 @@
 
 #include "Rendering/RenderingEvent.h"
 #include "Rendering/StandardShapes.h"
-#include "Event.h"
 #include "Window.h"
 #include "Core/Debug.h"
 #include <cassert>
@@ -30,7 +29,6 @@
 #include "OGLTexture.hpp"
 
 #include "Rendering/material.hpp"
-#include <EntityManager.h>
 
 #include "Rendering/commandBuffer.hpp"
 #include "Components/CCamera.h"
@@ -43,7 +41,7 @@
 #include "Rendering/Image.h"
 #include "Rendering/Texture.h"
 #include "Rendering/meshloader.hpp"
-
+#include <entt/entt.hpp>
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -69,7 +67,7 @@ OGLRenderingSystem::OGLRenderingSystem(std::shared_ptr<fm::Window> inWindow)
 	_type = SYSTEM_MODE::ALWAYS;
 
 }
-void OGLRenderingSystem::init(EntityManager& em, EventManager&)
+void OGLRenderingSystem::init(EventManager&)
 {
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
@@ -142,44 +140,38 @@ void OGLRenderingSystem::_InitStandardShapes()
 
 
 
-void OGLRenderingSystem::pre_update(EntityManager& em)
-{
-
-}
-
-
-void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
+void OGLRenderingSystem::update(float, entt::registry& registry, EventManager&)
 {
 	uint32_t instance = 0;
-
-	for (auto&& e : em.iterate<fmc::CCamera>(fm::IsEntityActive))
+	auto view = registry.view<fmc::CCamera, fmc::CTransform>();
+	for (auto&& e : view)
 	{
 		LOG_DEBUG;
-		fmc::CCamera* cam = e.get<fmc::CCamera>();
-		if (!cam->Enabled || (!cam->IsAuto() && cam->GetCommandBuffer().empty()))
+		fmc::CCamera& cam = registry.get<fmc::CCamera>(e);
+		if ((!cam.IsAuto() && cam.GetCommandBuffer().empty()))
 			continue;
 
-		if (cam->IsAuto() && !_running)
+		if (cam.IsAuto() && !_running)
 			continue;
-		fmc::CTransform* transform = e.get<fmc::CTransform>();
-		cam->UpdateViewMatrix(transform->GetTransform());
-		cam->UpdateProjectionMatrix();
+		fmc::CTransform& transform = registry.get<fmc::CTransform>(e);
+		cam.UpdateViewMatrix(transform.GetTransform());
+		cam.UpdateProjectionMatrix();
 
-		std::shared_ptr<fm::OGLCamera> camera = _camerasCache->FindOrCreateCamera(cam);
+		std::shared_ptr<fm::OGLCamera> camera = _camerasCache->FindOrCreateCamera(registry.try_get<fmc::CCamera>(e));
 		camera->CheckStamp();
-		cam->ExecuteStartRendering();
+		cam.ExecuteStartRendering();
 
-		if (cam->IsAuto())
+		if (cam.IsAuto())
 		{
 			camera->BindTarget(_graphics);
-			_graphics.SetViewPort(cam->GetViewport());
+			_graphics.SetViewPort(cam.GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);;
 
 			camera->BindPostProcess();
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 
 			camera->BindInternal();
-			_graphics.SetViewPort(cam->GetViewport());
+			_graphics.SetViewPort(cam.GetViewport());
 			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
 			_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
 
@@ -189,40 +181,40 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 		else
 		{
 			_graphics.Disable(fm::RENDERING_TYPE::BLEND);
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, cam, instance);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, &cam, instance);
 		}
 
 		LOG_DEBUG;
 
-		if (cam->IsAuto())
+		if (cam.IsAuto())
 		{
-			fm::RenderQueue queue = _FillQueue(cam, em);
+			fm::RenderQueue queue = _FillQueue(&cam, registry);
 			for (const fm::RenderQueue::Batch& batch : queue.Iterate())
 			{
-				_DrawMeshInstaned(cam, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
+				_DrawMeshInstaned(&cam, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
 			}
 			_currentMaterial = nullptr;
 			_currentCamera = nullptr;
 		}
 		else
 		{
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, cam, instance);
+			_ExecuteCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, &cam, instance);
 		}
 
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		//if (cam->_isAuto)
+		//if (cam._isAuto)
 		//{
 		camera->BindPostProcess();
 		_finalShader->Use();
-		_finalShader->setValue("screenSize", fm::math::vec2((float)cam->GetViewport().w, (float)cam->GetViewport().h));
-		_finalShader->setValue("viewPos", transform->GetWorldPosition());
+		_finalShader->setValue("screenSize", fm::math::vec2((float)cam.GetViewport().w, (float)cam.GetViewport().h));
+		_finalShader->setValue("viewPos", transform.GetWorldPosition());
 		_finalShader->setValue("screenTexture", 0);
 
 		fm::OGLRenderer::getInstance().postProcess(_graphics, *camera->GetInternal()->GetColorBufferTexture(0));
 
 
-		if (cam->HasTarget())
+		if (cam.HasTarget())
 		{
 			fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), *camera->GetTarget(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
 		}
@@ -233,14 +225,14 @@ void OGLRenderingSystem::update(float, EntityManager& em, EventManager&)
 		//}
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		_ExecuteCommandBuffer(fm::RENDER_QUEUE_AFTER_RENDERING, cam, instance);
+		_ExecuteCommandBuffer(fm::RENDER_QUEUE_AFTER_RENDERING, &cam, instance);
 		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
 
-		cam->ExecutePostRendering();
+		cam.ExecutePostRendering();
 
 		_graphics.BindFrameBuffer(0);
 
-		fmc::CameraCommandBuffer().swap(cam->GetCommandBuffer());
+		fmc::CameraCommandBuffer().swap(cam.GetCommandBuffer());
 	}
 }
 
@@ -250,12 +242,12 @@ bool OGLRenderingSystem::_HasCommandBuffer(fm::RENDER_QUEUE inRenderQueue, fmc::
 	return !currentCamera->GetCommandBuffer()[inRenderQueue].empty();
 }
 
-void OGLRenderingSystem::Start()
+void OGLRenderingSystem::Start(entt::registry& registry)
 {
 	_running = true;
 }
 
-void OGLRenderingSystem::Stop()
+void OGLRenderingSystem::Stop(entt::registry& registry)
 {
 	_running = false;
 }
@@ -460,21 +452,21 @@ void OGLRenderingSystem::_Draw(fmc::CCamera* cam)
 
 }
 
-fm::RenderQueue OGLRenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager& em)
+fm::RenderQueue OGLRenderingSystem::_FillQueue(fmc::CCamera* cam, entt::registry& registry)
 {
 	fm::RenderQueue queue;
-
-	for (auto&& e : em.iterate<fmc::CTransform>(fm::IsEntityActive))
+	auto view = registry.view<fmc::CTransform>();
+	for (auto&& e : view)
 	{
-		fmc::CTransform* transform = e.get<fmc::CTransform>();
+		fmc::CTransform* transform = registry.try_get<fmc::CTransform>(e);
 		fm::RenderNode node;
 		node.state = fm::RENDER_QUEUE_OPAQUE;
 		node.transform = transform->GetTransform();
-		node.text = e.get<fmc::CText>();
+		node.text = registry.try_get<fmc::CText>(e);
 
 
-		fmc::CMesh* mesh = e.get<fmc::CMesh>();
-		fmc::CMaterial* material = e.get<fmc::CMaterial>();
+		fmc::CMesh* mesh = registry.try_get<fmc::CMesh>(e);
+		fmc::CMaterial* material = registry.try_get<fmc::CMaterial>(e);
 		bool add = false;
 		if (mesh != nullptr && material != nullptr && mesh->GetModel() != nullptr)
 		{
@@ -503,12 +495,6 @@ fm::RenderQueue OGLRenderingSystem::_FillQueue(fmc::CCamera* cam, EntityManager&
 	}
 	return queue;
 }
-
-void OGLRenderingSystem::over()
-{
-	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-}
-
 
 
 void OGLRenderingSystem::_DrawText(fmc::CCamera* cam,

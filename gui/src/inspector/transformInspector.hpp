@@ -1,10 +1,24 @@
 #pragma once
 #include "inspector.hpp"
-#include <FML/Components/CTransform.h>
-#include "macroInspectorHelper.hpp"
-namespace gui {
-    
-    DECLARE_INSPECTOR_CLASS(Transform, fmc::CTransform)
+namespace fmc
+{
+	class CTransform;
+}
 
-};
+namespace fm
+{
+	class GameObject;
+}
+
+namespace gui
+{
+
+	class TransformInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value, std::shared_ptr<fm::GameObject> inGameObject) override;
+			void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+
+	};
 }

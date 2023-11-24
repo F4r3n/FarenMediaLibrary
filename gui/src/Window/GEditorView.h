@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
-#include <FML/Core/GameObject.h>
 #include <vector>
 #include "GWindow.h"
 #include <optional>
+#include "Core/GameObjectType.hpp"
 namespace fms
 {
 	class PickingSystem;
@@ -13,6 +13,7 @@ namespace fm
 {
 	class Scene;
 	class FrameBuffer;
+	class GameObject;
 }
 namespace gui
 {
@@ -21,7 +22,7 @@ namespace gui
 
 		struct CameraPreview
 		{
-			std::optional<Entity::Id> id;
+			std::optional<fm::GameObjectID_t> id;
 			std::shared_ptr<fm::FrameBuffer> renderTexture;
 		};
 
@@ -43,7 +44,7 @@ namespace gui
 		void _MoveCamera(float dt, const Context& inContext);
 
 		void _EditObject();
-		void _CallBackPickingSystem(Entity::Id inID);
+		void _CallBackPickingSystem(fm::GameObjectID_t inID);
 	private:
 		std::unique_ptr<fms::PickingSystem>		_pickingSystem;
 		CameraPreview							_editorView;
@@ -57,7 +58,7 @@ namespace gui
 		fm::math::vec2			_scrollPos;
 
 		bool					_resultPicking;
-		std::optional<Entity::Id>	_gameObjectSelectedByPicking;
+		std::optional<fm::GameObjectID_t>	_gameObjectSelectedByPicking;
 		gui::TRANSFORM_CONTEXT	_currentTransformContext;
 	};
 }

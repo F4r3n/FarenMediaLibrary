@@ -2,13 +2,14 @@
 #include <vector>
 #include <nlohmann/json_fwd.hpp>
 #include <sol2/sol.hpp>
-
+#include <entt/entt.hpp>
 class Entity;
 namespace fm
 {
 	class LuaScript;
 	class FilePath;
 	class BaseEvent;
+	class GameObject;
 }
 class GameObjectLua;
 
@@ -25,11 +26,11 @@ namespace fm
 		LuaScriptManager();
 		~LuaScriptManager();
 
-		void init(const Entity& e);
-		void update(const Entity& e, float dt);
-		void Start(const Entity& e);
-		void Stop(const Entity& e);
-		void CallEvent(fm::BaseEvent* inEvent);
+		void init(entt::handle e);
+		void update(entt::handle e, float dt);
+		void Start(entt::handle e);
+		void Stop(entt::handle e);
+		void CallEvent(entt::registry& registry, fm::BaseEvent* inEvent);
 		void addScriptLua(const fm::FilePath &inpath);
 		void ReloadScript(const std::string &inName);
 		void RemoveScript(const std::string &name);

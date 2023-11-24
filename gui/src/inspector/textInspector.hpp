@@ -1,10 +1,20 @@
 #pragma once
 #include "inspector.hpp"
-#include <FML/Components/CText.h>
-#include "macroInspectorHelper.hpp"
-namespace gui {
-    
-    DECLARE_INSPECTOR_CLASS(Text, fmc::CText)
 
-};
+namespace fm
+{
+	class GameObject;
+}
+
+namespace gui
+{
+
+	class TextInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value, std::shared_ptr<fm::GameObject> inGameObject) override;
+			void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+
+	};
 }

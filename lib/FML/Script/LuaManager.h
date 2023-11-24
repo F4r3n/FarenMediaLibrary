@@ -3,7 +3,11 @@
 #include <sol2/forward.hpp>
 
 class Entity;
-
+namespace fm
+{
+	class Scene;
+	class GameObject;
+}
 namespace sol
 {
 	class state;
@@ -18,12 +22,12 @@ namespace fmc
 class GameObjectLua
 {
 public:
-	GameObjectLua(const Entity& inEntity);
-	fmc::CTransform* GetTransform();
-	fmc::CBody* GetBody();
+	GameObjectLua(entt::handle handle);
+	fmc::CTransform& GetTransform();
+	fmc::CBody& GetBody();
 	const char* GetName();
 private:
-	Entity _entity;
+	entt::handle _entity;
 };
 
 

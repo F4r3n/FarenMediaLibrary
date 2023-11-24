@@ -1,15 +1,24 @@
-#ifndef POINTLIGHTINSPECTOR_H
-#define POINTLIGHTINSPECTOR_H
-
+#pragma once
 #include "inspector.hpp"
-#include <FML/Components/CPointLight.h>
-
-#include "macroInspectorHelper.hpp"
-
-namespace gui {
-    DECLARE_INSPECTOR_CLASS(PointLight, fmc::CPointLight)
-
-};
+namespace fmc
+{
+	class CPointLight;
 }
 
-#endif // POINTLIGHTINSPECTOR_H
+namespace fm
+{
+	class GameObject;
+}
+
+namespace gui
+{
+
+	class PointLightInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value,  std::shared_ptr<fm::GameObject> inGameObject) override;	
+			void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+
+	};
+}

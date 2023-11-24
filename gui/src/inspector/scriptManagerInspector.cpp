@@ -1,58 +1,27 @@
 #include "inspector/scriptManagerInspector.hpp"
-#include <Components/CScriptManager.h>
+#include <FML/Components/CScriptManager.h>
 #include <Script/LuaScript.h>
 #include <Script/cppscript.hpp>
 #include <imgui/imgui.h>
 #include "Core/FilePath.h"
 #include "Resource/ResourcesManager.h"
-#include <ECS.h>
+#include <FML/Core/GameObject.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(ScriptManager, fmc::CScriptManager)
 
-
-void ScriptManagerInspector::_Init()
+void ScriptManagerInspector::Draw(bool *value, std::shared_ptr<fm::GameObject> inGameObject)
 {
-}
+	fmc::CScriptManager& inTarget = inGameObject->get<fmc::CScriptManager>();
 
-bool DrawCombo(const char* inNameCombo, const std::vector<std::string> &inItems, int inCurrentIndex, int& outIndex)
-{
-	const char* item_current_char = inItems[inCurrentIndex].c_str();
-	std::string nameCombo = inNameCombo;
-	if (ImGui::BeginCombo(nameCombo.c_str(), item_current_char, 0))
-	{
-		for (size_t n = 0; n < inItems.size(); n++)
-		{
-			bool is_selected = (item_current_char == inItems[n]);
-			if (ImGui::Selectable(inItems[n].c_str(), is_selected))
-			{
-				outIndex = n;
-			}
-			if (is_selected)
-				ImGui::SetItemDefaultFocus();
-		}
-		ImGui::EndCombo();
-	}
-	return inCurrentIndex != outIndex;
-}
-
-
-void ScriptManagerInspector::_DeInit()
-{
-}
-
-
-void ScriptManagerInspector::Draw(bool *value, const Entity& e)
-{
     if(ImGui::CollapsingHeader("ScriptManagerInspector", value))
     {
 		ImGui::Indent(10.0f);
 
 		std::vector<std::string> scriptsToDelete;
 
-		fmc::LuaScripts &&scripts = _target->GetLuaScripts();
+		fmc::LuaScripts &&scripts = inTarget.GetLuaScripts();
 		for (auto &&script : scripts)
 		{
-			std::string scriptName = script->GetScriptName() + "##" + std::to_string(e.id().index());
+			std::string scriptName = script->GetScriptName() + "##" + std::to_string(inGameObject->GetID());
 			bool toKeep = true;
 			if (ImGui::CollapsingHeader(scriptName.c_str(), &toKeep))
 			{
@@ -65,7 +34,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 
 					ImGui::SameLine();
 
-					name = "##" + std::to_string(e.id().index()) + "value" + valueToStartWith.first;
+					name = "##" + std::to_string(inGameObject->GetID()) + "value" + valueToStartWith.first;
 
 					bool hasChanged = false;
 					std::any argValue = valueToStartWith.second.value;
@@ -99,7 +68,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 			}
 			if (ImGui::Button("Reload"))
 			{
-				_target->ReloadScript(script->GetScriptName());
+				inTarget.ReloadScript(script->GetScriptName());
 			}
 			if (!toKeep)
 			{
@@ -122,7 +91,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
 			std::string fileName = std::string(nameScript) + ".lua";
 			p.ToSub(fileName);
 			
-			_target->addScriptLua(p);
+			inTarget.addScriptLua(p);
 			
         }
 
@@ -130,7 +99,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
         {
             for(auto &s : scriptsToDelete)
             {
-                _target->RemoveScript(s);
+				inTarget.RemoveScript(s);
             }
         }
 
@@ -138,7 +107,7 @@ void ScriptManagerInspector::Draw(bool *value, const Entity& e)
     }
 }
 
-void ScriptManagerInspector::RemoveComponent(const Entity& inEntity)
+void ScriptManagerInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject)
 {
-	EntityManager::get().removeComponent<fmc::CScriptManager>(inEntity.id());
+	inGameObject->remove<fmc::CScriptManager>();
 }

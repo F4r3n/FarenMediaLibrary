@@ -13,7 +13,7 @@ namespace fm
 
 namespace fmc
 {
-	class CCollider : public FMComponent<CCollider>
+	class CCollider
 	{
 	public:
 		enum class SHAPE
@@ -26,10 +26,10 @@ namespace fmc
 
 		CCollider();
 		~CCollider();
-		bool Serialize(nlohmann::json &ioJson) const override;
-		bool Read(const nlohmann::json &inJSON) override;
-		const std::string& GetName() const override;
-		uint16_t GetType() const override { return kCollider; }
+		bool Serialize(nlohmann::json &ioJson) const;
+		bool Read(const nlohmann::json &inJSON);
+		const std::string& GetName() const;
+		uint16_t GetType() const { return kCollider; }
 
 		void Init(const fm::math::vec3& inScale);
 		bool IsInit();
@@ -46,6 +46,8 @@ namespace fmc
 
 		btCollisionShape *_collisionShape;
 		//TODO Position/Rotation relative to the entity
+	private:
+		std::string _name;
 
 	};
 }

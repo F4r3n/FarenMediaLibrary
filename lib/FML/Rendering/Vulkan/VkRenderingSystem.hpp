@@ -1,5 +1,4 @@
 #pragma once
-#include <System.h>
 #include <memory>
 #include <vector>
 #include "vulkan/vulkan.h"
@@ -15,6 +14,7 @@
 #include "Rendering/SubShader.hpp"
 #include "Rendering/Vulkan/VkTextureCache.hpp"
 #include "VkCameraCache.hpp"
+#include "Core/System/System.hpp"
 class Vulkan;
 
 namespace fm
@@ -52,19 +52,18 @@ namespace fms
 	public:
 
 		VkRenderingSystem(std::shared_ptr<fm::Window> inWindow);
-		virtual void pre_update(EntityManager& manager);
-		virtual void update(float dt, EntityManager& manager, EventManager& event);
-		virtual void init(EntityManager& manager, EventManager& event);
-		virtual void over();
-		virtual void Start();
-		virtual void Stop();
+		virtual void update(float dt, entt::registry& registry, EventManager&) override;
+		virtual void init(EventManager& event) override;
+
+		virtual void Start(entt::registry& registry) override;
+		virtual void Stop(entt::registry& registry) override;
 		~VkRenderingSystem();
 
 
 	private:
 		VkRenderPass				_CreateRenderPass();
 		std::vector<VkCommandBuffer>_CreateCommandBuffers(VkCommandPool inPool);
-		bool						_RecordCommandBuffer(std::shared_ptr<fm::VkCamera> inCamera, VkCommandBuffer inBuffer, VkFramebuffer inFrameBuffer,
+		bool						_RecordCommandBuffer(entt::registry& registry, std::shared_ptr<fm::VkCamera> inCamera, VkCommandBuffer inBuffer, VkFramebuffer inFrameBuffer,
 														VkRenderPass inRenderPass);
 		bool						_SetupSyncObjects();
 		bool						_SetupGlobalUniforms();

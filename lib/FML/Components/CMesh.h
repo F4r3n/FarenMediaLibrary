@@ -14,7 +14,8 @@ namespace fm
 namespace fmc {
 
 
-class CMesh : public FMComponent<CMesh> {
+class CMesh
+{
 
     public:
         CMesh(std::string type);
@@ -22,10 +23,10 @@ class CMesh : public FMComponent<CMesh> {
 
         ~CMesh();
 
-        bool Serialize(nlohmann::json &ioJson) const override;
-        bool Read(const nlohmann::json &inJSON) override;
-        const std::string& GetName() const override;
-		uint16_t GetType() const override {return KMesh;}
+        bool Serialize(nlohmann::json &ioJson) const;
+        bool Read(const nlohmann::json &inJSON);
+        const std::string& GetName() const;
+		uint16_t GetType() const {return KMesh;}
 
 		fm::FilePath GetModelPath() const { return _modelPath; }
 		void SetModelPath(const fm::FilePath& inPath);
@@ -33,5 +34,7 @@ class CMesh : public FMComponent<CMesh> {
     private:
 		fm::FilePath _modelPath;
 		std::shared_ptr<fm::Model> _model = nullptr;
+private:
+	std::string _name;
 };
 }

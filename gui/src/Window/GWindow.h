@@ -8,9 +8,9 @@
 #include <functional>
 #include <queue>
 #include <optional>
-#include "Entity.h"
 #include <FML/Core/FilePath.h>
-
+#include <entt/fwd.hpp>
+#include <FML/Core/GameObjectType.hpp>
 namespace fm
 {
 	class GameObject;
@@ -49,7 +49,7 @@ namespace gui
 
 	struct Context
 	{
-		std::optional<Entity::Id>		currentGameObjectSelected;
+		std::optional<fm::GameObjectID_t>			currentGameObjectSelected;
 		std::string						currentSceneName;
 		TRANSFORM_CONTEXT				currentTransformContext;
 		WINDOWS							currentWindowFocused;

@@ -1,12 +1,20 @@
-#ifndef SCRIPTMANAGERINSPECTOR_HPP
-#define SCRIPTMANAGERINSPECTOR_HPP
-#include "macroInspectorHelper.hpp"
-#include "inspector/inspector.hpp"
-#include <FML/Components/CScriptManager.h>
-namespace gui {
-    DECLARE_INSPECTOR_CLASS(ScriptManager, fmc::CScriptManager)
-private:
-};
-}
-#endif // SCRIPTMANAGERINSPECTOR_HPP
+#pragma once
+#include "inspector.hpp"
 
+namespace fm
+{
+	class GameObject;
+}
+
+namespace gui
+{
+
+	class ScriptManagerInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value, std::shared_ptr<fm::GameObject> inGameObject) override;
+			void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+
+	};
+}

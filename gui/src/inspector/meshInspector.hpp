@@ -1,11 +1,25 @@
 #pragma once
 #include "inspector.hpp"
-#include <FML/Components/CMesh.h>
 
-#include "macroInspectorHelper.hpp"
+namespace fmc
+{
+	class CMesh;
+}
 
-namespace gui {
-    DECLARE_INSPECTOR_CLASS(Mesh, fmc::CMesh)
+namespace fm
+{
+	class GameObject;
+}
 
-};
+namespace gui
+{
+
+	class MeshInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value, std::shared_ptr<fm::GameObject> inGameObject) override;
+		void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+
+	};
 }

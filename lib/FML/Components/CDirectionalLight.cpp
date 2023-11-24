@@ -1,11 +1,10 @@
 #include "Components/CDirectionalLight.h"
-#include <ECS.h>
 
 using namespace fmc;
 const std::string CDirectionalLight::name = "Directional Light";
 
 CDirectionalLight::CDirectionalLight() {
-    _name = "DirectionalLight";
+    _name = CDirectionalLight::name;
 }
 CDirectionalLight::CDirectionalLight(const fm::Color& color) {
     this->color = color;

@@ -1,5 +1,4 @@
 #pragma once
-#include <Component.h>
 #include "Core/serializer.hpp"
 
 namespace fmc
@@ -25,7 +24,7 @@ enum ComponentType
     kNone
 };
 
-
+/*
 template <class T>
 class FMComponent : public Component<T>
 {
@@ -39,6 +38,7 @@ protected:
 		virtual ~FMComponent() = default;
 		
 };
+*/
 
 }
 

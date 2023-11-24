@@ -1,23 +1,26 @@
 #pragma once
-#include "Entity.h"
-class BaseComponent;
-namespace fmc {
-class CTransform;
-class CMaterial;
-class Body2D;
-class CDirectionalLight;
-class CMesh;
-class CText;
+
+namespace fmc
+{
+	class CTransform;
+	class CMaterial;
+	class Body2D;
+	class CDirectionalLight;
+	class CMesh;
+	class CText;
 }
 
-class Inspector {
-   public:
-    Inspector();
-    virtual ~Inspector();
+namespace fm
+{
+	class GameObject;
+}
 
-    virtual void Draw(bool *, const Entity& inEntity) {}
-    virtual void SetTarget(BaseComponent* compo) {compo = _component;}
-	virtual void RemoveComponent(const Entity& e);
-    BaseComponent* _component = nullptr;
+
+class Inspector
+{
+public:
+	virtual ~Inspector() { ; }
+	virtual void Draw(bool*, std::shared_ptr<fm::GameObject> inGameObject) = 0;
+	virtual void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) = 0;
 
 };

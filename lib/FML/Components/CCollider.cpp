@@ -1,7 +1,6 @@
 #include "Components/CCollider.h"
 #include "btBulletCollisionCommon.h"
 #include "BulletCollision/CollisionShapes/btBox2dShape.h"
-#include "EntityManager.h"
 #include "Core/Transform.h"
 #include <nlohmann/json.hpp>
 

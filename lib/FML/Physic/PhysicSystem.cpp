@@ -5,6 +5,7 @@
 #include "Components/CCollider.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "Components/cevent.hpp"
+#include <entt/entt.hpp>
 using namespace fms;
 
 PhysicSystem::PhysicSystem()
@@ -14,7 +15,7 @@ PhysicSystem::PhysicSystem()
 
 
 
-void PhysicSystem::init(EntityManager&, EventManager&)
+void PhysicSystem::init(EventManager&)
 {
 }
 
@@ -38,39 +39,25 @@ void _CheckCollision(btDynamicsWorld* world, [[maybe_unused]] btScalar timeStep)
 				fmc::CBody* bodyA = static_cast<fmc::CBody*>(obA->getUserPointer());
 				fmc::CBody* bodyB = static_cast<fmc::CBody*>(obB->getUserPointer());
 
-				Entity entityA = EntityManager::get().GetEntity(bodyA->GetEntityID());
-				Entity entityB = EntityManager::get().GetEntity(bodyB->GetEntityID());
+				entt::handle entityA = bodyA->GetEntity();
+				entt::handle entityB = bodyB->GetEntity();
+
 				fm::math::vec3 normalB = fm::math::vec3(pt.m_normalWorldOnB.x(), pt.m_normalWorldOnB.y(), pt.m_normalWorldOnB.z());
 
-				if (entityA.Valid())
+				if (entityA.valid())
 				{
-					fmc::CEvent* eventA = nullptr;
-					if (!entityA.has<fmc::CEvent>())
-					{
-						eventA = entityA.addComponent<fmc::CEvent>();
-					}
-					else
-					{
-						eventA = entityA.get<fmc::CEvent>();
-					}
+					fmc::CEvent& event = entityA.get_or_emplace<fmc::CEvent>();
+
 					fm::math::vec3 worldPosA = fm::math::vec3(pt.m_positionWorldOnA.x(), pt.m_positionWorldOnA.y(), pt.m_positionWorldOnA.z());
-					eventA->AddEvent(new fm::CollisionEvent(entityB.id(), worldPosA, normalB));
+					event.AddEvent(new fm::CollisionEvent(entityB, worldPosA, normalB));
 					hasFoundOneCollision = true;
 				}
 
-				if (entityB.Valid())
+				if (entityB.valid())
 				{
-					fmc::CEvent* event = nullptr;
-					if (!entityB.has<fmc::CEvent>())
-					{
-						event = entityB.addComponent<fmc::CEvent>();
-					}
-					else
-					{
-						event = entityB.get<fmc::CEvent>();
-					}
+					fmc::CEvent& event = entityB.get_or_emplace<fmc::CEvent>();
 					fm::math::vec3 worldPosB = fm::math::vec3(pt.m_positionWorldOnB.x(), pt.m_positionWorldOnB.y(), pt.m_positionWorldOnB.z());
-					event->AddEvent(new fm::CollisionEvent(entityA.id(), worldPosB, normalB));
+					event.AddEvent(new fm::CollisionEvent(entityA, worldPosB, normalB));
 				}
 				if (hasFoundOneCollision)
 					break;
@@ -81,68 +68,65 @@ void _CheckCollision(btDynamicsWorld* world, [[maybe_unused]] btScalar timeStep)
 	}
 }
 
-void PhysicSystem::_InitAllBodies()
+void PhysicSystem::_InitAllBodies(entt::registry& registry)
 {
-	for (auto&& e : EntityManager::get().iterate<fmc::CTransform, fmc::CCollider, fmc::CBody>())
+	auto view = registry.view<fmc::CTransform, fmc::CBody, fmc::CCollider>();
+
+	for (auto e : view)
 	{
-		fmc::CCollider* collider = e.get<fmc::CCollider>();
-		fmc::CTransform* ctransform = e.get<fmc::CTransform>();
+		fmc::CCollider& collider = registry.get<fmc::CCollider>(e);
+		fmc::CTransform& ctransform = registry.get<fmc::CTransform>(e);
 
 
-		fm::Transform tr = ctransform->GetTransform();
-		if (collider != nullptr && !collider->IsInit())
+		fm::Transform tr = ctransform.GetTransform();
+		if (!collider.IsInit())
 		{
-			collider->Init(tr.worldTransform.Scale());
+			collider.Init(tr.worldTransform.Scale());
 		}
 
-		if (collider != nullptr && collider->IsInit())
+		if (collider.IsInit())
 		{
-			fmc::CBody* cbody = e.get<fmc::CBody>();
-			if (cbody != nullptr)
-			{
-				if (!cbody->IsInit())
-				{
-					cbody->Init(collider, e.id());
+			fmc::CBody& cbody = registry.get<fmc::CBody>(e);
 
-					cbody->SetPosition(tr.worldTransform.Position());
-					cbody->SetRotation(tr.worldRotation);
-					cbody->AddToWorld(_dynamicsWorld);
-				}
+			if (!cbody.IsInit())
+			{
+				cbody.Init(&collider, ctransform, entt::handle(registry, e));
+
+				cbody.SetPosition(tr.worldTransform.Position());
+				cbody.SetRotation(tr.worldRotation);
+				cbody.AddToWorld(_dynamicsWorld);
 			}
+			
 			//if(tr.position)
-			cbody->SetPosition(tr.worldTransform.Position());
-			cbody->SetRotation(tr.worldRotation);
+			cbody.SetPosition(tr.worldTransform.Position());
+			cbody.SetRotation(tr.worldRotation);
 		}
 	}
 }
 
 
-void PhysicSystem::pre_update(EntityManager&)
+void PhysicSystem::update(float dt, entt::registry& registry, EventManager&)
 {
-
-	_InitAllBodies();
-}
-
-void PhysicSystem::update(float dt, EntityManager& em, EventManager&)
-{
+	auto view = registry.view<fmc::CTransform, fmc::CBody, fmc::CCollider>();
+	_InitAllBodies(registry);
 	_dynamicsWorld->stepSimulation(dt, 10);
 
-	for (auto&& e : em.iterate<fmc::CTransform, fmc::CBody, fmc::CCollider>())
+	for (auto&& e : view)
 	{
-		fmc::CBody* cbody = e.get<fmc::CBody>();
-		fmc::CTransform* ctransform = e.get<fmc::CTransform>();
+		fmc::CBody& cbody = registry.get<fmc::CBody>(e);
+		fmc::CTransform& ctransform = registry.get<fmc::CTransform>(e);
 
 		fm::math::vec3 pos;
-		cbody->GetPosition(pos);
-		ctransform->SetWorldPosition(pos);
+		cbody.GetPosition(pos);
+		ctransform.SetWorldPosition(pos);
 
 		fm::math::Quaternion q;
-		cbody->GetRotation(q);
-		ctransform->SetWorldRotation(q);
+		cbody.GetRotation(q);
+		ctransform.SetWorldRotation(q);
 	}
 }
 
-void PhysicSystem::Start()
+void PhysicSystem::Start(entt::registry& registry)
 {
 	btDefaultCollisionConfiguration* config = new btDefaultCollisionConfiguration();
 
@@ -167,11 +151,11 @@ void PhysicSystem::Start()
 	_dynamicsWorld->setSynchronizeAllMotionStates(true);
 
 
-	_InitAllBodies();
+	_InitAllBodies(registry);
 
 }
 
-void PhysicSystem::Stop()
+void PhysicSystem::Stop(entt::registry&)
 {
 	if (!_dynamicsWorld) return;
 

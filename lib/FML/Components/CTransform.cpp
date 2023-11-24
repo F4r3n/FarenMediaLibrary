@@ -1,6 +1,4 @@
 #include "Components/CTransform.h"
-#include "Entity.h"
-#include <EntityManager.h>
 #include "Core/Math/Matrix44.h"
 #include "Core/Math/Functions.h"
 #include <nlohmann/json.hpp>
@@ -17,7 +15,7 @@ const std::string layer("layer");
 CTransform::CTransform()
 {
     _name = "Transform";
-	_idFather = Entity::INVALID;
+	//_idFather = Entity::INVALID;
 	_hasFather = false;
 
 	_position = { 0, 0, 0 };
@@ -34,7 +32,7 @@ CTransform::CTransform(const fm::math::Vector3f& inPosition,
 	SetRotation(_rotation.FromEulerAngles(inRotation));
 
     _name = "Transform";
-	_idFather = Entity::INVALID;
+	//_idFather = Entity::INVALID;
 	_hasFather = false;
 }
 
@@ -48,7 +46,7 @@ bool CTransform::Serialize(nlohmann::json &ioJson) const
     ioJson[Keys::position] = _position;
     ioJson[Keys::scale] = _scale;
     ioJson[Keys::rotation] = (fm::math::vec4)_rotation;
-    ioJson[Keys::father] = _idFather.index();
+    //ioJson[Keys::father] = _idFather.index();
 
     return true;
 }
@@ -60,7 +58,7 @@ bool CTransform::Read(const nlohmann::json &inJSON)
 	_scale = inJSON[Keys::scale];
 	fm::math::vec4 q = inJSON[Keys::rotation];
 	_rotation = fm::math::Quaternion(q);
-	_idFather = EntityManager::get().CreateID(inJSON[Keys::father]);
+	//_fatherEntity = EntityManager::get().CreateID(inJSON[Keys::father]);
 	_isDirty = true;
 	return true;
 }
@@ -72,7 +70,15 @@ void CTransform::From(const fmc::CTransform *inTransform)
 	_scale = inTransform->_scale;
 	_position = inTransform->_position;
 	_rotation = inTransform->_rotation;
-	_idFather = inTransform->_idFather;
+	_fatherEntity = inTransform->_fatherEntity;
+}
+
+void CTransform::From(const fmc::CTransform& inTransform)
+{
+	_scale = inTransform._scale;
+	_position = inTransform._position;
+	_rotation = inTransform._rotation;
+	_fatherEntity = inTransform._fatherEntity;
 }
 
 
@@ -133,22 +139,18 @@ fm::math::mat CTransform::GetLocalMatrixModel(bool opposePosition) const
 }
 
 
-void CTransform::setFather(Entity* e)
-{
-    setFather(e->id());
-}
+
 
 void CTransform::RemoveFather()
 {
 	_hasFather = false;
 	_isDirty = true;
-	_idFather = Entity::INVALID;
 }
 
 
-void CTransform::setFather(Entity::Id id)
+void CTransform::setFather(entt::handle id)
 {
-    _idFather = id;
+    _fatherEntity = id;
 	_hasFather = true;
 	_isDirty = true;
 }
@@ -282,18 +284,17 @@ bool CTransform::HasFather() const
 	return _hasFather;
 }
 
-Entity::Id	CTransform::GetFatherID() const
+entt::handle	CTransform::GetFatherEntity() const
 {
-	return _idFather;
+	return _fatherEntity;
 }
 
 
 CTransform* CTransform::GetFather() const
 {
-	if (_hasFather)
+	if (_fatherEntity.valid())
 	{
-		Entity e = EntityManager::get().GetEntity(_idFather);
-		return e.get<fmc::CTransform>();
+		return _fatherEntity.try_get<fmc::CTransform>();
 	}
 
 	return nullptr;

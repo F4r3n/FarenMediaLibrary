@@ -1,10 +1,10 @@
 #include "Components/CScriptManager.h"
 #include "Script/Script.h"
-#include <EntityManager.h>
 #include "Core/FilePath.h"
 #include "Script/LuaScript.h"
 #include <nlohmann/json.hpp>
 #include "Script/LuaScriptManager.h"
+#include "Core/GameObject.h"
 using namespace fmc;
 
 
@@ -20,9 +20,9 @@ CScriptManager::~CScriptManager()
 }
 
 
-void CScriptManager::init(const Entity::Id& e)
+void CScriptManager::init(entt::handle e)
 {
-	_luaScriptManager->init(EntityManager::get().GetEntity(e));
+	_luaScriptManager->init(e);
 }
 
 void CScriptManager::RemoveScript(const std::string &name)
@@ -32,17 +32,17 @@ void CScriptManager::RemoveScript(const std::string &name)
 
 
 
-void CScriptManager::update(const Entity& e, float dt)
+void CScriptManager::update(entt::handle e, float dt)
 {
 	_luaScriptManager->update(e, dt);
 }
 
-void CScriptManager::Start(const Entity& e)
+void CScriptManager::Start(entt::handle e)
 {
 	_luaScriptManager->Start(e);
 }
 
-void CScriptManager::Stop(const Entity& e)
+void CScriptManager::Stop(entt::handle e)
 {
 	_luaScriptManager->Stop(e);
 }
@@ -66,9 +66,9 @@ void CScriptManager::ReloadScript(const std::string &inName)
 	_luaScriptManager->ReloadScript(inName);
 }
 
-void CScriptManager::CallEvent(fm::BaseEvent* inEvent)
+void CScriptManager::CallEvent(entt::registry& registry, fm::BaseEvent* inEvent)
 {
-	_luaScriptManager->CallEvent(inEvent);
+	_luaScriptManager->CallEvent(registry, inEvent);
 }
 
 LuaScripts CScriptManager::GetLuaScripts() const

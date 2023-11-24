@@ -1,43 +1,38 @@
 #include "inspector/transformInspector.hpp"
 #include "Components/CTransform.h"
 #include <imgui/imgui.h>
-#include "ECS.h"
+#include <FML/Core/GameObject.h>
 using namespace gui;
-DEFINE_INSPECTOR_FUNCTIONS(Transform, fmc::CTransform)
 
-void TransformInspector::_Init()
+
+
+void TransformInspector::RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject)
 {
+	inGameObject->remove<fmc::CTransform>();
 }
 
-void TransformInspector::_DeInit()
+void TransformInspector::Draw(bool *, std::shared_ptr<fm::GameObject> inGameObject)
 {
-}
+	fmc::CTransform& inTarget = inGameObject->get<fmc::CTransform>();
 
-void TransformInspector::RemoveComponent(const Entity& inEntity)
-{
-	EntityManager::get().removeComponent<fmc::CTransform>(inEntity.id());
-}
-
-void TransformInspector::Draw(bool *, const Entity& inEntity)
-{
-	std::string name = _target->GetName() + "##" + std::to_string(inEntity.id().index());
+	std::string name = inTarget.GetName() + "##" + std::to_string(inGameObject->GetID());
 	if(ImGui::CollapsingHeader(name.c_str()))
     {
         ImGui::PushItemWidth(120);
-		fm::math::vec3 pos = _target->GetPosition();
-		fm::math::vec3 scale = _target->GetScale();
+		fm::math::vec3 pos = inTarget.GetPosition();
+		fm::math::vec3 scale = inTarget.GetScale();
 
 		if (ImGui::DragFloat3("Position", &pos.x, 0.02f, -FLT_MAX, FLT_MAX))
 		{
-			_target->SetPosition(pos);
+			inTarget.SetPosition(pos);
 		}
 
 		if (ImGui::DragFloat3("Size", &scale.x, 0.02f, -FLT_MAX, FLT_MAX))
 		{
-			_target->SetScale(scale);
+			inTarget.SetScale(scale);
 		}
 
-		const fm::math::Quaternion q = _target->GetRotation();
+		const fm::math::Quaternion q = inTarget.GetRotation();
 		fm::math::vec3 euler = q.GetEulerAngles();
 		if (ImGui::DragFloat3("Rotation", &euler.x, 1.0f, -FLT_MAX, FLT_MAX))
 		{
@@ -45,7 +40,7 @@ void TransformInspector::Draw(bool *, const Entity& inEntity)
 			const float y = std::max(std::min(euler.y, 89.9f), -89.9f);
 			const float z = std::max(std::min(euler.z, 89.9f), -89.9f);
 
-			_target->SetRotation(fm::math::Quaternion::FromEulerAngles(fm::math::vec3(pitch, y, z)));
+			inTarget.SetRotation(fm::math::Quaternion::FromEulerAngles(fm::math::vec3(pitch, y, z)));
 		}
 
         ImGui::PopItemWidth();

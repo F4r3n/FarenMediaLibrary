@@ -103,7 +103,7 @@ private:
 	gui::Context						_context;
 	std::shared_ptr<fm::Scene>			_editorScene;
 	MapOfWindows						_windows;
-    std::optional<Entity::Id>			_currentEntity;       
+    std::optional<size_t>				_currentGameObjectID;
     fm::ProjectSettings					_projectSettings;
 	std::shared_ptr <fm::GameObject>	_editorCamera;
 	bool								_needUpdate;

@@ -1,8 +1,24 @@
 #pragma once
 #include "inspector.hpp"
-#include <FML/Components/CBody.h>
-#include "macroInspectorHelper.hpp"
-namespace gui {
-	DECLARE_INSPECTOR_CLASS(Body, fmc::CBody)
-};
+
+namespace fmc
+{
+	class CBody;
+}
+
+namespace fm
+{
+	class GameObject;
+}
+
+namespace gui
+{
+
+	class BodyInspector : public Inspector
+	{
+	public:
+		virtual void Draw(bool* value, std::shared_ptr<fm::GameObject> inGameObject) override;
+		void RemoveComponent(std::shared_ptr<fm::GameObject> inGameObject) override;
+	private:
+	};
 }

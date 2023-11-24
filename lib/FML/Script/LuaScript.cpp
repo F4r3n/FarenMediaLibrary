@@ -7,7 +7,6 @@
 #include "Core/Debug.h"
 #include <Components/cevent.hpp>
 #include <Components/CBody.h>
-#include <ECS.h>
 #include <Components/CScriptManager.h>
 #include "LuaScriptManager.h"
 
@@ -167,7 +166,7 @@ void LuaScript::start()
 	}
 }
 
-void LuaScript::Stop(const Entity& e)
+void LuaScript::Stop(const entt::handle& e)
 {
 	_hasStarted = false;
 	_isInit = false;
@@ -262,15 +261,15 @@ bool LuaScript::init()
 }
 
 
-void LuaScript::CallEvent(fm::BaseEvent* inEvent, sol::table &inTable)
+void LuaScript::CallEvent(entt::registry& registry, fm::BaseEvent* inEvent, sol::table &inTable)
 {
 	if (inEvent->GetType() == EventKind::COLLISION)
 	{
 		fm::CollisionEvent* collisionEvent = dynamic_cast<fm::CollisionEvent*>(inEvent);
-		Entity other = EntityManager::get().GetEntity(collisionEvent->GetID());
-		if (other.Valid())
+		entt::handle other = collisionEvent->GetEntity();
+		if (other.valid())
 		{
-			fmc::CScriptManager* mgr = other.get<fmc::CScriptManager>();
+			fmc::CScriptManager* mgr = other.try_get<fmc::CScriptManager>();
 			sol::table t = inTable;
 			if (mgr != nullptr)
 			{

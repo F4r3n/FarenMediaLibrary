@@ -9,3 +9,5 @@
 #include "CCollider.h"
 #include "CCamera.h"
 #include "CMesh.h"
+#include "CText.h"
+#include "CScriptManager.h"
