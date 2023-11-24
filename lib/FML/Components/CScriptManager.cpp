@@ -22,7 +22,11 @@ CScriptManager::~CScriptManager()
 
 void CScriptManager::init(entt::handle e)
 {
-	_luaScriptManager->init(e);
+	if (!_hasBeenInitialized)
+	{
+		_luaScriptManager->init(e);
+	}
+	_hasBeenInitialized = true;
 }
 
 void CScriptManager::RemoveScript(const std::string &name)
@@ -39,7 +43,11 @@ void CScriptManager::update(entt::handle e, float dt)
 
 void CScriptManager::Start(entt::handle e)
 {
-	_luaScriptManager->Start(e);
+	if (!_hasStarted)
+	{
+		_luaScriptManager->Start(e);
+	}
+	_hasStarted = true;
 }
 
 void CScriptManager::Stop(entt::handle e)

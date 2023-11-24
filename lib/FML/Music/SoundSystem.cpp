@@ -7,6 +7,8 @@
 #include "Components/CSource.h"
 #include "Engine.h"
 #include <entt/entt.hpp>
+#include "Components/CIdentity.h"
+
 using namespace fms;
 SoundSystem::SoundSystem()
 {
@@ -22,9 +24,12 @@ SoundSystem::~SoundSystem()
 
 void SoundSystem::update(float , entt::registry& registry, EventManager& )
 {
-	auto view = registry.view<fmc::CSource, fmc::CTransform>();
+	auto view = registry.view<fmc::CSource, fmc::CTransform, fmc::CIdentity>();
     for(auto e : view)
 	{
+		const auto identity = registry.get<fmc::CIdentity>(e);
+		if (!identity.IsActive())
+			continue;
 
         fmc::CSource& sound = view.get<fmc::CSource>(e);
         fmc::CTransform& transform = view.get<fmc::CTransform>(e);

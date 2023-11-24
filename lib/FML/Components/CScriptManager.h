@@ -45,6 +45,8 @@ namespace fmc {
 
 	private:
 		std::unique_ptr<fm::LuaScriptManager> _luaScriptManager;
+		bool _hasStarted = false;
+		bool _hasBeenInitialized = false;
 	private:
 		std::string _name;
 	};

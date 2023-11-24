@@ -5,6 +5,7 @@
 #include "Components/CCollider.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "Components/cevent.hpp"
+#include "Components/CIdentity.h"
 #include <entt/entt.hpp>
 using namespace fms;
 
@@ -109,12 +110,16 @@ void PhysicSystem::update(float dt, entt::registry& registry, EventManager&)
 {
 	if (!_dynamicsWorld)
 		return;
-	auto view = registry.view<fmc::CTransform, fmc::CBody, fmc::CCollider>();
+	auto view = registry.view<fmc::CTransform, fmc::CBody, fmc::CCollider, fmc::CIdentity>();
 	_InitAllBodies(registry);
 	_dynamicsWorld->stepSimulation(dt, 10);
 
 	for (auto&& e : view)
 	{
+		const auto identity = registry.get<fmc::CIdentity>(e);
+		if (!identity.IsActive())
+			continue;
+
 		fmc::CBody& cbody = registry.get<fmc::CBody>(e);
 		fmc::CTransform& ctransform = registry.get<fmc::CTransform>(e);
 

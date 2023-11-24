@@ -6,6 +6,7 @@
 #include "Core/Debug.h"
 #include "Components/cevent.hpp"
 #include "Engine.h"
+#include "Components/CIdentity.h"
 using namespace fms;
 ScriptManagerSystem::ScriptManagerSystem()
 {
@@ -30,33 +31,51 @@ void ScriptManagerSystem::init(EventManager&)
 
 void ScriptManagerSystem::Start(entt::registry& registry)
 {
-	auto view = registry.view<fmc::CScriptManager>();
-	for (auto e : view)
-	{
-		fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
-		scriptManager.init(entt::handle(registry, e));
-	}
-
-	for (auto e : view)
-	{
-		fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
-		scriptManager.Start(entt::handle(registry, e));
-	}
+	_running = true;
 }
 
 void ScriptManagerSystem::Stop(entt::registry& registry)
 {
-	
+	_running = false;
 }
 
 
 void ScriptManagerSystem::update(float dt, entt::registry& registry, EventManager&)
 {
-	for (auto e : registry.view<fmc::CScriptManager, fmc::CEvent>())
+	if (_running)
+	{
+		auto view = registry.view<fmc::CScriptManager, fmc::CIdentity>();
+		for (auto e : view)
+		{
+			const auto identity = registry.get<fmc::CIdentity>(e);
+			if (!identity.IsActive())
+				continue;
+
+			fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
+			scriptManager.init(entt::handle(registry, e));
+		}
+
+		for (auto e : view)
+		{
+			const auto identity = registry.get<fmc::CIdentity>(e);
+			if (!identity.IsActive())
+				continue;
+
+			fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
+			scriptManager.Start(entt::handle(registry, e));
+		}
+	}
+
+
+
+	for (auto e : registry.view<fmc::CScriptManager, fmc::CEvent, fmc::CIdentity>())
 	{
 		fmc::CEvent &event = registry.get<fmc::CEvent>(e);
 		fmc::Events events = event.GetEvents();
 		fmc::CScriptManager& scriptManager = registry.get<fmc::CScriptManager>(e);
+		const auto identity = registry.get<fmc::CIdentity>(e);
+		if (!identity.IsActive())
+			continue;
 
 		for (const auto &a : events)
 		{

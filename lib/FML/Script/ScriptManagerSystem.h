@@ -14,7 +14,7 @@ public:
 	virtual void Start(entt::registry& registry) override;
 	virtual void Stop(entt::registry& registry) override;
 private:
-
+	bool _running = false;
     
 };
 }
