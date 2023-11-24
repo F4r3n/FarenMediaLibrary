@@ -24,7 +24,7 @@ namespace fms
 	private:
 		void _InitAllBodies(entt::registry& registry);
 		//void _CheckCollision(btDynamicsWorld *world, btScalar timeStep);
-		btDiscreteDynamicsWorld* _dynamicsWorld;
-		btGhostPairCallback* _ghostPairCallback;
+		btDiscreteDynamicsWorld* _dynamicsWorld = nullptr;
+		btGhostPairCallback* _ghostPairCallback = nullptr;
 	};
 }

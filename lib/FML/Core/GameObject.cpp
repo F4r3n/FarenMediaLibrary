@@ -30,52 +30,54 @@ void GameObject::Serialize(nlohmann::json &outResult) const
     for(size_t i = 0; i < fmc::ComponentType::kEND; ++i)
     {
 		nlohmann::json j;
-		bool ok = true;
+		bool ok = false;
 		switch (i)
 		{
 		case fmc::ComponentType::kTransform:
 			if(auto component = _entity.try_get<fmc::CTransform>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 			break;
 		case fmc::ComponentType::kMaterial:
 			if (auto component = _entity.try_get<fmc::CMaterial>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::KMesh:
 			if (auto component = _entity.try_get<fmc::CMesh>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kBody:
 			if (auto component = _entity.try_get<fmc::CBody>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kCollider:
 			if (auto component = _entity.try_get<fmc::CCollider>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kCamera:
 			if (auto component = _entity.try_get<fmc::CCamera>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kScriptManager:
 			if (auto component = _entity.try_get<fmc::CScriptManager>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kIdentity:
 			if (auto component = _entity.try_get<fmc::CIdentity>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kText:
 			if (auto component = _entity.try_get<fmc::CText>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
 		case fmc::ComponentType::kPointLight:
 			if (auto component = _entity.try_get<fmc::CPointLight>(); component != nullptr)
-				component->Serialize(j);
+				ok = component->Serialize(j);
 				break;
+		case fmc::ComponentType::kDirectionalLight:
+		case fmc::ComponentType::kSource:
+		case fmc::ComponentType::kEvent:
 		default:
 			ok = false;
-			assert(false);
 		}
 
 		if (ok)
@@ -128,13 +130,17 @@ bool GameObject::Read(const nlohmann::json &inJson)
 				add<fmc::CScriptManager>().Read(it.value());
 			break;
 			case fmc::ComponentType::kIdentity:
-				add<fmc::CIdentity>().Read(it.value());
+				emplaceOrReplace<fmc::CIdentity>().Read(it.value());
 			break;
 			case fmc::ComponentType::kText:
 				add<fmc::CText>().Read(it.value());
 			break;
 			case fmc::ComponentType::kPointLight:
 				add<fmc::CPointLight>().Read(it.value());
+			break;
+			case fmc::ComponentType::kDirectionalLight:
+			case fmc::ComponentType::kSource:
+			case fmc::ComponentType::kEvent:
 				break;
 			default:
 				assert(false);

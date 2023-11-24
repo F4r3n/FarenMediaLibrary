@@ -107,6 +107,8 @@ void PhysicSystem::_InitAllBodies(entt::registry& registry)
 
 void PhysicSystem::update(float dt, entt::registry& registry, EventManager&)
 {
+	if (!_dynamicsWorld)
+		return;
 	auto view = registry.view<fmc::CTransform, fmc::CBody, fmc::CCollider>();
 	_InitAllBodies(registry);
 	_dynamicsWorld->stepSimulation(dt, 10);
@@ -177,6 +179,8 @@ void PhysicSystem::Stop(entt::registry&)
 	delete _ghostPairCallback;
 	delete _dynamicsWorld->getBroadphase();
 	delete _dynamicsWorld;
+	_dynamicsWorld = nullptr;
+	_ghostPairCallback = nullptr;
 }
 
 void PhysicSystem::over()

@@ -42,6 +42,11 @@ namespace fm {
 			return _entity.emplace<T>();
 		}
 
+		template <typename T, typename ...Args> T& emplaceOrReplace(Args&&...args) const
+		{
+			return _entity.emplace_or_replace<T>(std::forward<Args>(args)...);
+		}
+
 		template <typename T> T& get() const
 		{
 			return _entity.get<T>();

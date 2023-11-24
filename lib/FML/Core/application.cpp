@@ -146,8 +146,19 @@ void Application::Update()
 	{
 		_window[GRAPHIC_API::VULKAN]->update(_currentConfig.fpsWanted);
 	}
-	
-	_engine->Update(fm::Time::dt, fm::Application::GetCurrentScene());
+	std::shared_ptr<fm::Scene> scene = GetCurrentScene();
+	if (scene != nullptr)
+	{
+		_engine->Update(fm::Time::dt, scene);
+	}
+}
+
+void Application::UpdateScene(std::shared_ptr<fm::Scene> inScene)
+{
+	if (inScene != nullptr)
+	{
+		_engine->Update(fm::Time::dt, inScene);
+	}
 }
 
 

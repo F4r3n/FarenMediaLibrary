@@ -24,7 +24,14 @@ std::shared_ptr<fm::Scene> Editor::CreateNewScene(const fm::FilePath& inScenePat
 
 std::shared_ptr<fm::Scene> Editor::CreateEditorScene()
 {
-	return fm::Application::Get().AddPrivateScene("_editor");
+	if(_editorScene == nullptr)
+		_editorScene = fm::Application::Get().AddPrivateScene("_editor");
+	return _editorScene;
+}
+
+std::shared_ptr<fm::Scene> Editor::GetEditorScene() const
+{
+	return _editorScene;
 }
 
 void Editor::Start()
@@ -107,6 +114,11 @@ void Editor::_SetUserDirectory(const fm::Folder& inPath)
 {
 	fm::Application::Get().SetUserDirectory(inPath);
 	_SaveLastProjectOpened(inPath.GetPath());
+}
+
+void Editor::Update()
+{
+	fm::Application::Get().UpdateScene(_editorScene);
 }
 
 

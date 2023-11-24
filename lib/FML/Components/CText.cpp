@@ -111,6 +111,8 @@ bool CText::Serialize(nlohmann::json& ioJson) const
 
 bool CText::Read(const nlohmann::json& inJSON)
 {
+	if (inJSON.is_null())
+		return false;
 	_text = inJSON["text"];
 	_fontName = inJSON["fontName"];
 	_rendering = (fmc::CText::TEXT_RENDERING)inJSON["rendering"];

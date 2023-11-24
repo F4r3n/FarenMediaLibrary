@@ -16,6 +16,7 @@
 #include "Rendering/OpenGL/OGLFrameBuffer.hpp"
 #include "Rendering/RenderTexture.hpp"
 #include "Core/GameObject.h"
+#include "Editor.h"
 using namespace gui;
 GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_ptr<fm::Scene> inScene) :
 	GWindow("Editor View", true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)

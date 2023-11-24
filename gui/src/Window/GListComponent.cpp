@@ -108,7 +108,26 @@ void GListComponent::_DrawComponents(std::shared_ptr<fm::GameObject> currentEnti
 
 	for (size_t i = 0; i < fmc::ComponentType::kEND; ++i)
 	{
-		uint16_t componentType = i;
+		if (i == fmc::ComponentType::kTransform && !currentEntity->has<fmc::CTransform>())
+			continue;
+		else if (i == fmc::ComponentType::kMaterial && !currentEntity->has<fmc::CMaterial>())
+			continue;
+		else if (i == fmc::ComponentType::KMesh && !currentEntity->has<fmc::CMesh>())
+			continue;
+		else if (i == fmc::ComponentType::kScriptManager && !currentEntity->has<fmc::CScriptManager>())
+			continue;
+		else if (i == fmc::ComponentType::kPointLight && !currentEntity->has<fmc::CPointLight>())
+			continue;
+		else if (i == fmc::ComponentType::kBody && !currentEntity->has<fmc::CBody>())
+			continue;
+		else if (i == fmc::ComponentType::kCollider && !currentEntity->has<fmc::CCollider>())
+			continue;
+		else if (i == fmc::ComponentType::kText && !currentEntity->has<fmc::CText>())
+			continue;
+		else if (i == fmc::ComponentType::kCamera && !currentEntity->has<fmc::CCamera>())
+			continue;
+
+		size_t componentType = i;
 		auto &compo = inspectorComponent[componentType];
 		if (compo == nullptr)
 		{

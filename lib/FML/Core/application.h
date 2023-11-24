@@ -114,6 +114,7 @@ namespace fm
 		void						DeInit();
 		void						LoadInternalResources();
 		void						Update();
+		void						UpdateScene(std::shared_ptr<fm::Scene> inScene);
 
 		fm::Window* GetWindow(GRAPHIC_API api = GRAPHIC_API::OPENGL) const;
 

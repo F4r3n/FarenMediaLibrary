@@ -39,7 +39,9 @@ public:
 	void						GetLastProjectsOpened(std::vector<fm::FilePath>& outPath) const;
 	void						Start();
 	void						Stop();
+	void						Update();
 	std::shared_ptr<fm::Scene>	GetCurrentScene() const;
+	std::shared_ptr<fm::Scene>	GetEditorScene() const;
 	const std::string&			GetCurrentSceneName() const;
 	std::shared_ptr<fm::Scene>	GetScene(const std::string& inName) const;
 	void						SerializeCurrentScene();
@@ -49,4 +51,5 @@ private:
 	void						_SetUserDirectory(const fm::Folder& inPath);
 	void						_SaveLastProjectOpened(const fm::FilePath& inFilePath);
 	std::string					_nameLastScene;
+	std::shared_ptr<fm::Scene>	_editorScene = nullptr;
 };

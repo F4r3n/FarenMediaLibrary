@@ -392,6 +392,7 @@ void MainWindow::_Paste()
 
 void MainWindow::OnUpdate(bool hasFocus, bool force)
 {
+	Editor::Get().Update();
 
 	if (!force)
 	{

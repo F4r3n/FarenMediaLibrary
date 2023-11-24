@@ -42,6 +42,7 @@
 #include "Rendering/Texture.h"
 #include "Rendering/meshloader.hpp"
 #include <entt/entt.hpp>
+#include "Components/CIdentity.h"
 #define LOG_DEBUG 	fm::Debug::logErrorExit(glGetError(), __FILE__, __LINE__);
 
 
@@ -143,7 +144,7 @@ void OGLRenderingSystem::_InitStandardShapes()
 void OGLRenderingSystem::update(float, entt::registry& registry, EventManager&)
 {
 	uint32_t instance = 0;
-	auto view = registry.view<fmc::CCamera, fmc::CTransform>();
+	auto view = registry.view<fmc::CCamera, fmc::CTransform, fmc::CIdentity>();
 	for (auto&& e : view)
 	{
 		LOG_DEBUG;
@@ -153,6 +154,10 @@ void OGLRenderingSystem::update(float, entt::registry& registry, EventManager&)
 
 		if (cam.IsAuto() && !_running)
 			continue;
+		const auto identity = registry.get<fmc::CIdentity>(e);
+		if (!identity.IsActive())
+			continue;
+
 		fmc::CTransform& transform = registry.get<fmc::CTransform>(e);
 		cam.UpdateViewMatrix(transform.GetTransform());
 		cam.UpdateProjectionMatrix();
@@ -455,9 +460,13 @@ void OGLRenderingSystem::_Draw(fmc::CCamera* cam)
 fm::RenderQueue OGLRenderingSystem::_FillQueue(fmc::CCamera* cam, entt::registry& registry)
 {
 	fm::RenderQueue queue;
-	auto view = registry.view<fmc::CTransform>();
+	const auto view = registry.view<fmc::CTransform, fmc::CIdentity>();
 	for (auto&& e : view)
 	{
+		const auto identity = registry.get<fmc::CIdentity>(e);
+		if (!identity.IsActive())
+			continue;
+
 		fmc::CTransform* transform = registry.try_get<fmc::CTransform>(e);
 		fm::RenderNode node;
 		node.state = fm::RENDER_QUEUE_OPAQUE;
