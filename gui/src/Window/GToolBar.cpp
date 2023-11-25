@@ -97,7 +97,7 @@ void GToolBar::_DrawStartStop()
 			if (ImGui::ImageButton("textureStart", ImTextureID((intptr_t)_textureStart->GetID()), ImVec2(25, 25)))
 			{
 				AddEvent([](GWindow*, std::optional<gui::Context> context) {
-					Editor::Get().Start();
+					context->editor->Start();
 					});
 			}
 		}
@@ -120,8 +120,8 @@ void GToolBar::_DrawStartStop()
 			if (ImGui::ImageButton("textureStop", ImTextureID((intptr_t)_textureStop->GetID()), ImVec2(25, 25)))
 			{
 
-				AddEvent([](GWindow*, std::optional<gui::Context> Context) {
-					Editor::Get().Stop();
+				AddEvent([](GWindow*, std::optional<gui::Context> context) {
+					context->editor->Stop();
 					});
 			}
 		}

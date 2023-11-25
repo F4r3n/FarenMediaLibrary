@@ -139,6 +139,89 @@ void OGLRenderingSystem::_InitStandardShapes()
 	fm::OGLRenderer::getInstance().SetQuadScreen(_models.find(quadFS->GetObjectID())->second.get());
 }
 
+void OGLRenderingSystem::Draw(fmc::CCamera* cam, fmc::CTransform& transform, entt::registry& registry)
+{
+	uint32_t instance = 0;
+
+	cam->UpdateViewMatrix(transform.GetTransform());
+	cam->UpdateProjectionMatrix();
+
+	std::shared_ptr<fm::OGLCamera> camera = _camerasCache->FindOrCreateCamera(cam);
+	cam->ExecuteStartRendering();
+
+	if (cam->IsAuto())
+	{
+		camera->BindTarget(_graphics);
+		_graphics.SetViewPort(cam->GetViewport());
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);;
+
+		camera->BindPostProcess();
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+
+		camera->BindInternal();
+		_graphics.SetViewPort(cam->GetViewport());
+		_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
+		_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
+
+		if (_graphics.Enable(fm::RENDERING_TYPE::BLEND))
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		_graphics.Disable(fm::RENDERING_TYPE::BLEND);
+		_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, cam, instance);
+	}
+
+	LOG_DEBUG;
+
+	if (cam->IsAuto())
+	{
+		fm::RenderQueue queue = _FillQueue(cam, registry);
+		for (const fm::RenderQueue::Batch& batch : queue.Iterate())
+		{
+			_DrawMeshInstaned(cam, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
+		}
+		_currentMaterial = nullptr;
+		_currentCamera = nullptr;
+	}
+	else
+	{
+		_ExecuteCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, cam, instance);
+	}
+
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+	//if (cam._isAuto)
+	//{
+	camera->BindPostProcess();
+	_finalShader->Use();
+	_finalShader->setValue("screenSize", fm::math::vec2((float)cam->GetViewport().w, (float)cam->GetViewport().h));
+	_finalShader->setValue("viewPos", transform.GetWorldPosition());
+	_finalShader->setValue("screenTexture", 0);
+
+	fm::OGLRenderer::getInstance().postProcess(_graphics, *camera->GetInternal()->GetColorBufferTexture(0));
+
+
+	if (cam->HasTarget())
+	{
+		fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), *camera->GetTarget(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+	}
+	else
+	{
+		fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
+	}
+
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+	_ExecuteCommandBuffer(fm::RENDER_QUEUE_AFTER_RENDERING, cam, instance);
+	fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
+
+	cam->ExecutePostRendering();
+
+	_graphics.BindFrameBuffer(0);
+
+	fmc::CameraCommandBuffer().swap(cam->GetCommandBuffer());
+}
 
 
 void OGLRenderingSystem::update(float, entt::registry& registry, EventManager&)
@@ -159,85 +242,8 @@ void OGLRenderingSystem::update(float, entt::registry& registry, EventManager&)
 			continue;
 
 		fmc::CTransform& transform = registry.get<fmc::CTransform>(e);
-		cam.UpdateViewMatrix(transform.GetTransform());
-		cam.UpdateProjectionMatrix();
 
-		std::shared_ptr<fm::OGLCamera> camera = _camerasCache->FindOrCreateCamera(registry.try_get<fmc::CCamera>(e));
-		camera->CheckStamp();
-		cam.ExecuteStartRendering();
-
-		if (cam.IsAuto())
-		{
-			camera->BindTarget(_graphics);
-			_graphics.SetViewPort(cam.GetViewport());
-			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);;
-
-			camera->BindPostProcess();
-			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-
-			camera->BindInternal();
-			_graphics.SetViewPort(cam.GetViewport());
-			_graphics.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-			_graphics.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
-
-			if (_graphics.Enable(fm::RENDERING_TYPE::BLEND))
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-		else
-		{
-			_graphics.Disable(fm::RENDERING_TYPE::BLEND);
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, &cam, instance);
-		}
-
-		LOG_DEBUG;
-
-		if (cam.IsAuto())
-		{
-			fm::RenderQueue queue = _FillQueue(&cam, registry);
-			for (const fm::RenderQueue::Batch& batch : queue.Iterate())
-			{
-				_DrawMeshInstaned(&cam, batch.node.transform, batch.node.model.lock(), batch.node.material.lock(), nullptr, batch.number, batch.baseInstance);
-			}
-			_currentMaterial = nullptr;
-			_currentCamera = nullptr;
-		}
-		else
-		{
-			_ExecuteCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, &cam, instance);
-		}
-
-		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
-		//if (cam._isAuto)
-		//{
-		camera->BindPostProcess();
-		_finalShader->Use();
-		_finalShader->setValue("screenSize", fm::math::vec2((float)cam.GetViewport().w, (float)cam.GetViewport().h));
-		_finalShader->setValue("viewPos", transform.GetWorldPosition());
-		_finalShader->setValue("screenTexture", 0);
-
-		fm::OGLRenderer::getInstance().postProcess(_graphics, *camera->GetInternal()->GetColorBufferTexture(0));
-
-
-		if (cam.HasTarget())
-		{
-			fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), *camera->GetTarget(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
-		}
-		else
-		{
-			fm::OGLRenderer::getInstance().blit(_graphics, *camera->GetPostProcess(), fm::BUFFER_BIT::COLOR_BUFFER_BIT);
-		}
-		//}
-		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
-		_ExecuteCommandBuffer(fm::RENDER_QUEUE_AFTER_RENDERING, &cam, instance);
-		fm::Debug::logErrorExit((int)glGetError(), __FILE__, __LINE__);
-
-		cam.ExecutePostRendering();
-
-		_graphics.BindFrameBuffer(0);
-
-		fmc::CameraCommandBuffer().swap(cam.GetCommandBuffer());
+		Draw(&cam, transform, registry);
 	}
 }
 
@@ -384,7 +390,6 @@ void OGLRenderingSystem::_PrepareShader(fmc::CCamera* cam, const fm::Transform& 
 	if (_currentCamera == nullptr || _currentCamera->GetID() != cam->GetObjectID())
 	{
 		_currentCamera = _camerasCache->FindOrCreateCamera(cam);
-		_currentCamera->CheckStamp();
 		fmc::Shader_data camData;
 		camData.FM_P = cam->GetProjectionMatrix();
 		camData.FM_V = cam->GetViewMatrix();

@@ -15,6 +15,8 @@ namespace fmc
     class CDirectionalLight;
 }
 
+class Editor;
+
 namespace fm
 {
 	class GameObject;
@@ -53,7 +55,7 @@ public:
 	};
 
 
-    MainWindow();
+    MainWindow(std::shared_ptr<Editor> inEditor);
     ~MainWindow();
 	void OnDraw();
 	void OnUpdate(bool hasFocus, bool force = false);
@@ -99,6 +101,7 @@ private:
 	void _SetWindowPosition(gui::GWindow* window, DOCK_ID inID);
 
 private:
+	std::shared_ptr<Editor>				_editor;
 	std::unordered_map<DOCK_ID, ImGuiID>_docks;
 	gui::Context						_context;
 	std::shared_ptr<fm::Scene>			_editorScene;

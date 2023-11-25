@@ -16,7 +16,7 @@ namespace fm
 	class GameObject;
 	class Scene;
 }
-
+class Editor;
 namespace gui
 {
 	enum class TRANSFORM_CONTEXT
@@ -56,6 +56,7 @@ namespace gui
 
 		std::optional<WINDOWS>			currentWindowToDisplay;
 		std::optional<fm::FilePath>		currentPathSelected;
+		Editor*							editor;
 	};
 
 	class IWidget

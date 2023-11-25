@@ -165,6 +165,7 @@ void Application::UpdateScene(std::shared_ptr<fm::Scene> inScene)
 void Application::DeInit()
 {
 	fm::ResourcesManager::get().PurgeAll();
+	_sceneManager.reset();
 	_engine.reset();
 }
 

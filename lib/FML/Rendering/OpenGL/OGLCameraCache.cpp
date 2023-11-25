@@ -8,6 +8,7 @@ std::shared_ptr<fm::OGLCamera> OGLCameraCache::FindOrCreateCamera(fmc::CCamera* 
 {
 	if (auto it = _cameras.find(inCamera->GetObjectID()); it != _cameras.end())
 	{
+		it->second->CheckStamp(inCamera);
 		return it->second;
 	}
 
@@ -26,6 +27,11 @@ std::shared_ptr<fm::OGLCamera> OGLCameraCache::FindOrCreateCamera(fmc::CCamera* 
 		assert(false);
 	}
 	return cam;
+}
+
+OGLCameraCache::~OGLCameraCache()
+{
+
 }
 
 void OGLCameraCache::Release(uint32_t inID)

@@ -37,13 +37,15 @@
 
 const std::string JSON_KEY = "FML";
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(std::shared_ptr<Editor> inEditor)
 {
+	_editor = inEditor;
+
 	fm::Debug::logWarning("Start init");
 	_ConfigureStyle();
 
 	_context.currentSceneName = "";
-	_editorScene = Editor::Get().CreateEditorScene();
+	_editorScene = _editor->CreateEditorScene();
 
 	_InitEditorCamera();
 
@@ -74,12 +76,14 @@ MainWindow::MainWindow()
 
 	fm::Debug::log("Init done");
 	_needUpdate = false;
+	_editor->Subscribe(this);
+	_context.editor = _editor.get();
 }
 
 
 void MainWindow::LoadProject(const fm::FilePath& inFilePath)
 {
-	Editor::Get().NewProject(inFilePath);
+	_editor->NewProject(inFilePath);
 
 	_windows[gui::WINDOWS::WIN_LIST_ENTITIES]->Start();
 	_windows[gui::WINDOWS::WIN_EDITOR_VIEW]->Start();
@@ -110,7 +114,7 @@ void MainWindow::_RefreshResources(const fm::FilePath& inPath)
 
 void MainWindow::_AddEmptyScene()
 {
-	std::shared_ptr<fm::Scene> currentScene = Editor::Get().GetScene(_context.currentSceneName);
+	std::shared_ptr<fm::Scene> currentScene = _editor->GetScene(_context.currentSceneName);
 	//Add object
 	std::shared_ptr <fm::GameObject> go = currentScene->CreateGameObject(true);
 	fmc::CTransform& tr = go->get<fmc::CTransform>();
@@ -151,11 +155,14 @@ void MainWindow::_InitEditorCamera()
 
 MainWindow::~MainWindow()
 {
+	_editor->Unsubscribe(this);
+	_windows.clear();
+	_editorScene.reset();
 }
 
 void MainWindow::_DisplayWindow_Create_Scene()
 {
-	auto scene = Editor::Get().GetCurrentScene();
+	auto scene = _editor->GetCurrentScene();
 	if (scene != nullptr)
 	{
 		scene->Save();
@@ -168,7 +175,7 @@ void MainWindow::_DisplayWindow_Create_Scene()
 	{
 		fm::FilePath result(resultFromDialog);
 
-		Editor::Get().CreateNewScene(result);
+		_editor->CreateNewScene(result);
 	}
 }
 
@@ -190,7 +197,7 @@ void MainWindow::_DrawMenu()
 			{
 				if (ImGui::MenuItem("Start"))
 				{
-					Editor::Get().Start();
+					_editor->Start();
 					_currentGameObjectID.reset();
 				}
 				if (ImGui::MenuItem("Pause"))
@@ -199,7 +206,7 @@ void MainWindow::_DrawMenu()
 				}
 				if (ImGui::MenuItem("Stop"))
 				{
-					Editor::Get().Stop();
+					_editor->Stop();
 					_currentGameObjectID.reset();
 				}
 				ImGui::EndMenu();
@@ -210,7 +217,7 @@ void MainWindow::_DrawMenu()
 
 				if (ImGui::MenuItem("Scene"))
 				{
-					auto scene = Editor::Get().GetCurrentScene();
+					auto scene = _editor->GetCurrentScene();
 
 					if (scene != nullptr && scene->GetName() == scene->GetPath().GetPath())
 					{
@@ -228,12 +235,12 @@ void MainWindow::_DrawMenu()
 							if (!relative.empty())
 								result = fm::FilePath(fm::LOCATION::USER_LOCATION, relative);
 
-							scene = Editor::Get().RenameScene(scene, result);
-							Editor::Get().SetCurrentScene(scene->GetName());
+							scene = _editor->RenameScene(scene, result);
+							_editor->SetCurrentScene(scene->GetName());
 						}
 					}
 
-					Editor::Get().SerializeCurrentScene();
+					_editor->SerializeCurrentScene();
 				}
 
 				ImGui::EndMenu();
@@ -268,11 +275,11 @@ void MainWindow::_DrawMenu()
 					if (!resultFromDialog.empty())
 					{
 						fm::FilePath result(resultFromDialog.front());
-						auto s = Editor::Get().LoadScene(result);
+						auto s = _editor->LoadScene(result);
 
 						if (s != nullptr)
 						{
-							Editor::Get().SetCurrentScene(s->GetName());
+							_editor->SetCurrentScene(s->GetName());
 						}
 					}
 				}
@@ -331,7 +338,7 @@ void MainWindow::_DrawMenu()
 		{
 			if (ImGui::MenuItem("Create"))
 			{
-				_currentGameObjectID = Editor::Get().GetScene(_context.currentSceneName)->CreateGameObject(true)->GetID();
+				_currentGameObjectID = _editor->GetScene(_context.currentSceneName)->CreateGameObject(true)->GetID();
 
 			}
 			if (ImGui::MenuItem("List entity"))
@@ -361,7 +368,7 @@ void MainWindow::_Copy()
 	{
 		nlohmann::json j;
 		nlohmann::json json;
-		std::shared_ptr<fm::GameObject> go = Editor::Get().GetCurrentScene()->GetGameObjectByID(_currentGameObjectID.value());
+		std::shared_ptr<fm::GameObject> go = _editor->GetCurrentScene()->GetGameObjectByID(_currentGameObjectID.value());
 		go->Serialize(json);
 		j[JSON_KEY] = json;
 
@@ -381,7 +388,7 @@ void MainWindow::_Paste()
 			nlohmann::json json = j[JSON_KEY];
 			if (json.is_object())
 			{
-				std::shared_ptr <fm::GameObject> go = Editor::Get().GetScene(_context.currentSceneName)->CreateGameObject(false);
+				std::shared_ptr <fm::GameObject> go = _editor->GetScene(_context.currentSceneName)->CreateGameObject(false);
 				go->Read(json);
 			}
 		}
@@ -392,7 +399,7 @@ void MainWindow::_Paste()
 
 void MainWindow::OnUpdate(bool hasFocus, bool force)
 {
-	Editor::Get().Update();
+	_editor->Update();
 
 	if (!force)
 	{
@@ -551,7 +558,7 @@ void MainWindow::OnDraw()
 		}
 		if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false))
 		{
-			Editor::Get().SerializeCurrentScene();
+			_editor->SerializeCurrentScene();
 		}
 	}
 
@@ -607,7 +614,7 @@ void MainWindow::_ClearBeforeSceneChange()
 
 void MainWindow::_InitGameView()
 {
-	std::shared_ptr<fm::Scene> currentScene = Editor::Get().GetScene(_context.currentSceneName);
+	std::shared_ptr<fm::Scene> currentScene = _editor->GetScene(_context.currentSceneName);
 
 	auto&& v = currentScene->GetAllGameObjects();
 	for (auto &&o : v)
@@ -687,7 +694,7 @@ void MainWindow::_OnAfterStart(const std::any& inAny)
 	_events.push([this, inAny]() {
 		if (inAny.has_value())
 			std::any_cast<std::function<void(void)>>(inAny)();
-		_context.currentSceneName = Editor::Get().GetCurrentSceneName();
+		_context.currentSceneName = _editor->GetCurrentSceneName();
 		_InitGameView();
 		_needUpdate = true;
 		std::string currentSceneName = _context.currentSceneName;
@@ -715,7 +722,7 @@ void MainWindow::_OnAfterStop(const std::any& inAny)
 	_events.push([this, inAny]() {
 		if (inAny.has_value())
 			std::any_cast<std::function<void(void)>>(inAny)();
-		_context.currentSceneName = Editor::Get().GetCurrentSceneName();
+		_context.currentSceneName = _editor->GetCurrentSceneName();
 		_InitGameView();
 		_needUpdate = true;
 		std::string currentSceneName = _context.currentSceneName;
@@ -741,7 +748,7 @@ void MainWindow::_OnPreLoad(const std::any& inAny)
 
 void MainWindow::_AfterLoad()
 {
-	_context.currentSceneName = Editor::Get().GetCurrentSceneName();
+	_context.currentSceneName = _editor->GetCurrentSceneName();
 	_InitGameView();
 
 	if (IsWindowAvailable(gui::WINDOWS::WIN_INSPECTOR))

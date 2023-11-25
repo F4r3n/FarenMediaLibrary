@@ -20,11 +20,7 @@ void GLauncher::OnInit()
 	SetPosition(ImVec2(viewPort->Pos.x + viewPort->Size.x/2 - width/2, viewPort->Pos.y + viewPort->Size.y/2 - height/2));
 	SetSize(ImVec2(width, height));
 
-	if (_listProjects.empty())
-	{
-		Editor::Get().GetLastProjectsOpened(_listProjects);
-		_projectSelected = -1;
-	}
+
 }
 
 
@@ -84,6 +80,11 @@ void GLauncher::AfterWindowCreation()
 
 void GLauncher::_Update(float dt, Context &inContext)
 {
+	if (_listProjects.empty())
+	{
+		inContext.editor->GetLastProjectsOpened(_listProjects);
+		_projectSelected = -1;
+	}
 }
 
 

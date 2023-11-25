@@ -61,6 +61,8 @@ namespace fms
 
 		virtual void Start(entt::registry& registry) override;
 		virtual void Stop(entt::registry& registry) override;
+
+		void Draw(fmc::CCamera* cam, fmc::CTransform& tranform, entt::registry& registry);
 	private:
 		void _InitStandardShapes();
 		fm::RenderQueue _FillQueue(fmc::CCamera* cam, entt::registry& registry);

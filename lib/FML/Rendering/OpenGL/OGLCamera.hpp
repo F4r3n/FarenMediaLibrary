@@ -21,7 +21,7 @@ namespace fm
 		void SetBuffer(void* inData, size_t inSize);
 		void BindBuffer();
 		void CreateRenderTexture();
-		void CheckStamp();
+		void CheckStamp(fmc::CCamera* inCamera);
 
 		void BindTarget(const fm::Graphics& inGraphics) const;
 		void BindPostProcess() const;
@@ -32,14 +32,15 @@ namespace fm
 	private:
 
 
-		void _CreateInternalRenderTexture();
+		void _CreateInternalRenderTexture(fmc::CCamera* inCamera);
 		fm::OGLUniformbuffer _shaderDataBuffer;
 		uint32_t _ID = 0;
+		uint32_t _cameraID = 0;
 		std::shared_ptr<fm::OGLFrameBuffer>	_postProcessRenderTexture;
 		std::shared_ptr<fm::OGLFrameBuffer>	_renderTexture;
 
 		std::shared_ptr<fm::OGLFrameBuffer>	_target = nullptr;
-		fmc::CCamera*			_camera = nullptr;
+		//fmc::CCamera*			_camera = nullptr;
 
 		size_t	_currentStamp = 0;
 	};

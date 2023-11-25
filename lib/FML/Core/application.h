@@ -141,12 +141,12 @@ namespace fm
 		void						SerializeCurrentScene(nlohmann::json& outjson);
 		void						SwapBuffers();
 	private:
+		std::unique_ptr<fm::SceneManager>	_sceneManager;
 
 		std::unique_ptr<fm::Engine>			_engine;
 		Windows								_window;
 		fm::Config							_currentConfig;
 		std::string							_nameLastScene;
-		std::unique_ptr<fm::SceneManager>	_sceneManager;
 	};
 
 }

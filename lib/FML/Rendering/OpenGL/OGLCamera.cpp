@@ -8,54 +8,55 @@ using namespace fm;
 
 OGLCamera::OGLCamera(fmc::CCamera* inCamera)
 {
-	_camera = inCamera;
-	_currentStamp = _camera->GetStamp();
+	//_camera = inCamera;
+	_cameraID = inCamera->GetObjectID();
+	_currentStamp = inCamera->GetStamp();
 	std::vector<fm::TextureFormat> formats{ fm::TextureFormat::RGBA, fm::TextureFormat::RGBA };
 	std::vector<fm::TextureType> types{ fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE };
 
-	_CreateInternalRenderTexture();
+	_CreateInternalRenderTexture(inCamera);
 
 	_postProcessRenderTexture = std::make_shared<fm::OGLFrameBuffer>(
-		_camera->GetWidth(), _camera->GetHeight(),
+		inCamera->GetWidth(), inCamera->GetHeight(),
 		formats,
 		types, 1);
 }
 
-void OGLCamera::_CreateInternalRenderTexture()
+void OGLCamera::_CreateInternalRenderTexture(fmc::CCamera* inCamera)
 {
 	std::vector<fm::TextureFormat> formats{ fm::TextureFormat::RGBA, fm::TextureFormat::RGBA };
 	std::vector<fm::TextureType> types{ fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE };
 
 	_renderTexture = std::make_shared<fm::OGLFrameBuffer>(
-		_camera->GetWidth(), _camera->GetHeight(),
-		formats, types, 24, _camera->GetMultiSampled());
+		inCamera->GetWidth(), inCamera->GetHeight(),
+		formats, types, 24, inCamera->GetMultiSampled());
 }
 
 
-void OGLCamera::CheckStamp()
+void OGLCamera::CheckStamp(fmc::CCamera* inCamera)
 {
-	if (_currentStamp != _camera->GetStamp())
+	if (_currentStamp != inCamera->GetStamp())
 	{
-		if (_camera->GetViewport().w != _renderTexture->GetWidth()
-			|| _camera->GetViewport().h != _renderTexture->GetHeight())
+		if (inCamera->GetViewport().w != _renderTexture->GetWidth()
+			|| inCamera->GetViewport().h != _renderTexture->GetHeight())
 		{
 			std::vector<fm::TextureFormat> formats = { fm::TextureFormat::RGBA, fm::TextureFormat::RGBA };
 			std::vector<fm::TextureType> types = { fm::TextureType::UNSIGNED_BYTE, fm::TextureType::UNSIGNED_BYTE };
 
 			_renderTexture = std::make_shared<fm::OGLFrameBuffer>(
-				_camera->GetWidth(), _camera->GetHeight(),
-				formats, types, 24, _camera->GetMultiSampled());
+				inCamera->GetWidth(), inCamera->GetHeight(),
+				formats, types, 24, inCamera->GetMultiSampled());
 		}
 	}
-	if (_target == nullptr && _camera->GetTarget() != nullptr)
+	if (_target == nullptr && inCamera->GetTarget() != nullptr)
 	{
-		_target = std::dynamic_pointer_cast<fm::OGLFrameBuffer>(_camera->GetTarget());
+		_target = std::dynamic_pointer_cast<fm::OGLFrameBuffer>(inCamera->GetTarget());
 		if (!_target->IsCreated())
 		{
 			_target->create();
 		}
 	}
-	_currentStamp = _camera->GetStamp();
+	_currentStamp = inCamera->GetStamp();
 }
 
 void OGLCamera::BindTarget(const fm::Graphics& inGraphics) const
@@ -96,7 +97,7 @@ std::shared_ptr<fm::OGLFrameBuffer> OGLCamera::GetPostProcess() const
 OGLCamera::~OGLCamera()
 {
 	_shaderDataBuffer.Free();
-	_camera->SetDestroyCallback(nullptr);
+	//_camera->SetDestroyCallback(nullptr);
 }
 
 
@@ -131,5 +132,5 @@ void OGLCamera::BindBuffer()
 
 uint32_t OGLCamera::GetID() const
 {
-	return _camera->GetObjectID();
+	return _cameraID;
 }

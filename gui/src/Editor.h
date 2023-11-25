@@ -24,11 +24,7 @@ public:
 		ON_AFTER_SCENE_LOAD
 	};
 	Editor();
-	inline static Editor& Get()
-	{
-		static Editor editor;
-		return editor;
-	}
+
 	std::shared_ptr<fm::Scene>	CreateNewScene(const fm::FilePath& inScenePath);
 	std::shared_ptr<fm::Scene>	CreateEditorScene();
 	std::shared_ptr<fm::Scene>	RenameScene(std::shared_ptr<fm::Scene> inCurrentScene, const fm::FilePath& inPath);

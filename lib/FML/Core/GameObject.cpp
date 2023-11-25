@@ -34,45 +34,65 @@ void GameObject::Serialize(nlohmann::json &outResult) const
 		switch (i)
 		{
 		case fmc::ComponentType::kTransform:
-			if(auto component = _entity.try_get<fmc::CTransform>(); component != nullptr)
+			if (auto component = _entity.try_get<fmc::CTransform>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
+			}
 			break;
 		case fmc::ComponentType::kMaterial:
 			if (auto component = _entity.try_get<fmc::CMaterial>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
+			}
 				break;
 		case fmc::ComponentType::KMesh:
 			if (auto component = _entity.try_get<fmc::CMesh>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kBody:
 			if (auto component = _entity.try_get<fmc::CBody>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kCollider:
 			if (auto component = _entity.try_get<fmc::CCollider>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kCamera:
 			if (auto component = _entity.try_get<fmc::CCamera>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kScriptManager:
 			if (auto component = _entity.try_get<fmc::CScriptManager>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kIdentity:
 			if (auto component = _entity.try_get<fmc::CIdentity>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kText:
 			if (auto component = _entity.try_get<fmc::CText>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kPointLight:
 			if (auto component = _entity.try_get<fmc::CPointLight>(); component != nullptr)
+			{
 				ok = component->Serialize(j);
-				break;
+			}
+			break;
 		case fmc::ComponentType::kDirectionalLight:
 		case fmc::ComponentType::kSource:
 		case fmc::ComponentType::kEvent:
