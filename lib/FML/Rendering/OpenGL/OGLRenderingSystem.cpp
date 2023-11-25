@@ -226,7 +226,6 @@ void OGLRenderingSystem::Draw(fmc::CCamera* cam, fmc::CTransform& transform, ent
 
 void OGLRenderingSystem::update(float, entt::registry& registry, EventManager&)
 {
-	uint32_t instance = 0;
 	auto view = registry.view<fmc::CCamera, fmc::CTransform, fmc::CIdentity>();
 	for (auto&& e : view)
 	{

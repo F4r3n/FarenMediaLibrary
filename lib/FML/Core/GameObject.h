@@ -89,13 +89,14 @@ namespace fm {
 
 		void SetOrder(size_t inOrder) { _order = inOrder; }
 		size_t GetOrder() const { return _order; }
-		GameObjectID_t GetID() const { return _ID; }
+		GameObjectID_t GetID() const { return _currentID; }
 	private:
 		bool _active = true;
 		fmc::CIdentity& _GetIdentity() const;
 		entt::handle _entity;
 		bool	_oldStatus;
 		size_t  _order = 0;
+		GameObjectID_t _currentID = 0;
 		static inline GameObjectID_t _ID = 0;
 
 	};

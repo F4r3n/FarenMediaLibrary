@@ -16,6 +16,12 @@ namespace fm
 	class FilePath;
 }
 
+namespace fmc
+{
+	class CCamera;
+	class CTransform;
+}
+
 namespace fm
 {
 	struct Config
@@ -115,6 +121,7 @@ namespace fm
 		void						LoadInternalResources();
 		void						Update();
 		void						UpdateScene(std::shared_ptr<fm::Scene> inScene);
+		void						DrawScene(std::shared_ptr<fm::Scene> inScene, fmc::CCamera& inCamera, fmc::CTransform& inTransform);
 
 		fm::Window* GetWindow(GRAPHIC_API api = GRAPHIC_API::OPENGL) const;
 

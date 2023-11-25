@@ -21,7 +21,7 @@ using namespace fm;
 GameObject::GameObject(entt::handle inHandle)
 {
 	_entity = inHandle;
-	++_ID;
+	_currentID = ++_ID;
 }
 
 void GameObject::Serialize(nlohmann::json &outResult) const

@@ -148,7 +148,7 @@ void MainWindow::_InitEditorCamera()
 	auto size = fm::Application::Get().GetWindow()->GetSize();
 	_editorCamera = _editorScene->CreateGameObject(true);
 	_editorCamera->addComponent<fmc::CCamera>(size.x, size.y,
-		fmc::RENDER_MODE::FORWARD, false /*ortho*/, false/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
+		fmc::RENDER_MODE::FORWARD, false /*ortho*/, true/*auto*/, fm::Application::Get().GetWindow()->GetMSAA());
 	_editorCamera->get<fmc::CTransform>().SetPosition(fm::math::vec3(0, 0, -1));
 	_editorCamera->SetName("Camera");
 }

@@ -45,12 +45,12 @@ void Engine::Init(RENDERING_MODE inMode, std::array<std::shared_ptr<fm::Window>,
 	_systems.emplace_back(new fms::ScriptManagerSystem());
 	if ((inMode & RENDERING_MODE_OPENGL) == RENDERING_MODE_OPENGL)
 	{
-		_systems.emplace_back(new fms::OGLRenderingSystem(window[GRAPHIC_API::OPENGL]));
+		_renderings[GRAPHIC_API::OPENGL] = _systems.emplace_back(new fms::OGLRenderingSystem(window[GRAPHIC_API::OPENGL])).get();
 	}
 #if WITH_VULKAN
 	if ((inMode & RENDERING_MODE_VULKAN) == RENDERING_MODE_VULKAN)
 	{
-		_systems.emplace_back(new fms::VkRenderingSystem(window[GRAPHIC_API::VULKAN]));
+		_renderings[GRAPHIC_API::VULKAN] = _systems.emplace_back(new fms::VkRenderingSystem(window[GRAPHIC_API::VULKAN])).get();
 	}
 #endif
 
@@ -94,4 +94,10 @@ void Engine::Update(float dt, std::shared_ptr<fm::Scene> inScene)
 		system->update(dt * Time::scale, inScene->GetRegistry(), EventManager::Get());
 	}
 }
+
+void Engine::DrawScene(std::shared_ptr<fm::Scene> inScene, fmc::CCamera& inCamera, fmc::CTransform& inTransform)
+{
+	dynamic_cast<fms::OGLRenderingSystem*>(_renderings[GRAPHIC_API::OPENGL])->Draw(&inCamera, inTransform, inScene->GetRegistry());
+}
+
 

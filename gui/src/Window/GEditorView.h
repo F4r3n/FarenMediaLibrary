@@ -46,6 +46,7 @@ namespace gui
 		void _EditObject();
 		void _CallBackPickingSystem(fm::GameObjectID_t inID);
 	private:
+		bool _IsInView(fm::math::vec2 inPos);
 		std::unique_ptr<fms::PickingSystem>		_pickingSystem;
 		CameraPreview							_editorView;
 		std::weak_ptr<fm::Scene>				_editorScene;

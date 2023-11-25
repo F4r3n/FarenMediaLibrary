@@ -30,7 +30,7 @@ GEditorView::GEditorView(std::shared_ptr<fm::GameObject> inCamera, std::shared_p
 	if (inCamera != nullptr)
 	{
 		_editorView.id = inCamera->GetID();
-		fmc::CCamera &camera = inCamera->get<fmc::CCamera>();
+		fmc::CCamera& camera = inCamera->get<fmc::CCamera>();
 		_editorView.renderTexture = std::make_shared<fm::OGLFrameBuffer>(*fm::CreateRenderTexture(camera.GetWidth(), camera.GetHeight(), 0));
 		camera.SetTarget(_editorView.renderTexture);
 	}
@@ -60,9 +60,9 @@ void GEditorView::_MoveCamera(float dt, const Context& inContext)
 				else
 					direction.x = 0;
 
-				const fm::math::Quaternion rotate = fm::math::Quaternion::FromEulerAngles(fm::math::vec3(direction.y, direction.x, 0)*dt*5.0f);
-				
-				transform.SetRotation(rotate* transform.GetRotation());
+				const fm::math::Quaternion rotate = fm::math::Quaternion::FromEulerAngles(fm::math::vec3(direction.y, direction.x, 0) * dt * 5.0f);
+
+				transform.SetRotation(rotate * transform.GetRotation());
 			}
 
 			if (ImGui::IsMouseDown(ImGuiMouseButton_Middle))
@@ -71,11 +71,11 @@ void GEditorView::_MoveCamera(float dt, const Context& inContext)
 				const fm::math::vec2 mousePos = ImGui::GetMousePos();
 				const fm::math::vec2 direction = _mousePos - mousePos;
 				const fm::math::mat rotation = transform.GetRotation().GetRotationMatrix();
-				position += rotation *(fm::math::vec3(direction.x, -direction.y, 0)) * dt * 1.0f;
+				position += rotation * (fm::math::vec3(direction.x, -direction.y, 0)) * dt * 1.0f;
 				transform.SetPosition(position);
 			}
 
-			if (ImGui::IsKeyDown(ImGuiKey_MouseWheelY))
+			if (ImGui::IsKeyDown(ImGuiKey_MouseWheelY) && _IsInView(GetPosition()))
 			{
 				fm::math::vec3 position = transform.GetPosition();
 				float wheelPos = ImGui::GetIO().MouseWheel;
@@ -89,53 +89,17 @@ void GEditorView::_MoveCamera(float dt, const Context& inContext)
 }
 
 
-void GEditorView::_DrawContentEditorCamera(Context &inContext)
+void GEditorView::_DrawContentEditorCamera(Context& inContext)
 {
 	if (!_editorView.id.has_value()) return;
 
 	if (auto&& editorScene = _editorScene.lock())
 	{
 		std::shared_ptr<fm::GameObject> camera = editorScene->GetGameObjectByID(_editorView.id.value());
-		std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetScene(inContext.currentSceneName);
+		std::shared_ptr<fm::Scene> currentScene = fm::Application::Get().GetCurrentScene();
 		if (camera != nullptr && camera->IsActive() && currentScene != nullptr)
 		{
-			fm::Scene::MapOfGameObjects gos = currentScene->GetAllGameObjects();
-			{
-				fm::CommandBuffer commandBuffer;
-				commandBuffer.Clear(fm::BUFFER_BIT::COLOR_BUFFER_BIT | fm::BUFFER_BIT::DEPTH_BUFFER_BIT);
-				camera->get<fmc::CCamera>().AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
-			}
-
-			{
-				fm::CommandBuffer commandBuffer;
-				commandBuffer.Enable(fm::RENDERING_TYPE::DEPTH_TEST);
-				camera->get<fmc::CCamera>().AddCommandBuffer(fm::RENDER_QUEUE_FIRST_STATE, commandBuffer);
-			}
-
-			std::vector<std::shared_ptr<fm::Model>> models;
-			std::vector<std::shared_ptr<fm::Material>> materials;
-			std::vector<fm::Transform> transforms;
-
-
-			for (auto&& o : gos)
-			{
-				std::shared_ptr<fm::GameObject> go = o.second;
-				if (!go->IsActive())
-					continue;
-				if (go->has<fmc::CTransform>() && go->has<fmc::CMesh>() && go->has<fmc::CMaterial>())
-				{
-					fmc::CMesh& mesh = go->get<fmc::CMesh>();
-					auto mat = go->get<fmc::CMaterial>();
-					materials.emplace_back(mat.GetMainMaterial());
-					models.emplace_back(mesh.GetModel());
-					transforms.emplace_back(go->get<fmc::CTransform>().GetTransform());
-				}
-			}
-
-			fm::CommandBuffer commandBuffer;
-			commandBuffer.DrawInstancedMesh(models, transforms, materials);
-			camera->get<fmc::CCamera>().AddCommandBuffer(fm::RENDER_QUEUE_BEFORE_RENDERING_FILL_QUEUE, commandBuffer);
-
+			fm::Application::Get().DrawScene(currentScene, camera->get<fmc::CCamera>(), camera->get<fmc::CTransform>());
 		}
 	}
 }
@@ -148,7 +112,7 @@ GEditorView::~GEditorView()
 void GEditorView::CustomDraw()
 {
 
-	if (auto & renderTexture = _editorView.renderTexture)
+	if (auto& renderTexture = _editorView.renderTexture)
 	{
 		if (renderTexture->IsCreated())
 		{
@@ -180,7 +144,7 @@ void GEditorView::CustomDraw()
 					std::string data(payload_n);
 					fm::FilePath path = fm::FilePath(data);
 					AddEvent([this, mPos, path](gui::GWindow*, std::optional<gui::Context> inContext)
-					{
+						{
 							_pickingSystem->PickGameObject(inContext->currentSceneName, _editorView.id.value(), mPos,
 							[this, path](fm::GameObjectID_t id) {
 									_resultPicking = true;
@@ -195,9 +159,9 @@ void GEditorView::CustomDraw()
 										}
 									}
 
-							});
+								});
 
-					});
+						});
 
 				}
 
@@ -205,7 +169,7 @@ void GEditorView::CustomDraw()
 			}
 		}
 	}
-    
+
 }
 
 void GEditorView::BeforeWindowCreation()
@@ -269,7 +233,7 @@ void GEditorView::_EditObject()
 			}
 		}
 	}
-		
+
 }
 
 
@@ -287,49 +251,67 @@ void GEditorView::SetPickingSystem(std::unique_ptr<fms::PickingSystem> inPicking
 	_pickingSystem->SetCallback(std::move(f));
 }
 
+bool GEditorView::_IsInView(fm::math::vec2 inPos)
+{
+	const fm::math::vec2 size = GetSize();
+	const fm::math::vec2 start = GetPosition();
 
-void GEditorView::_Update(float dt, Context &inContext)
+	fm::math::vec2 startCursorPos;
+	startCursorPos = _cursorPos;
+	startCursorPos.y += _startImagePos.y;
+	startCursorPos.x += _startImagePos.x;
+
+	fm::math::vec2 mousePos = ImGui::GetMousePos();
+
+	fm::Rectf rect;
+	rect.w = size.x;
+	rect.h = size.y;
+	rect.x = start.x;
+	rect.y = start.y;
+
+
+	if (rect.contains(mousePos))
+	{
+		return true;
+	}
+	
+
+	return false;
+}
+
+
+void GEditorView::_Update(float dt, Context& inContext)
 {
 	_DrawContentEditorCamera(inContext);
 
 	//assert(GImGui != nullptr && GImGui->CurrentWindow != nullptr);
 	if (auto& renderTexture = _editorView.renderTexture)
 	{
+		fm::math::vec2 start = GetPosition();
+		fm::math::vec2 size = GetSize();
+		fm::math::vec2 end(start.x + size.x, start.y + size.y);
+
+		_startImagePos.x = start.x;
+		_startImagePos.y = start.y;
+		_endImagePos = fm::math::vec2(end.x, end.y);
+		_cursorPos = fm::math::vec2(-(renderTexture->GetWidth() - size.x) * 0.5f,
+			-(renderTexture->GetHeight() - size.y) * 0.5f);
+
 		_MoveCamera(dt, inContext);
 		if (renderTexture->IsCreated() && HasBeenDrawn())
 		{
 
-			const float rapport = (float)renderTexture->GetWidth() / (float)renderTexture->GetHeight();
-
-			fm::math::vec2 start = GetPosition();
-			fm::math::vec2 size = GetSize();
-			fm::math::vec2 end(start.x + size.x, start.y + size.y);
-
-			_startImagePos.x = start.x;
-			_startImagePos.y = start.y;
-
-			_cursorPos = fm::math::vec2(-(renderTexture->GetWidth() - size.x) * 0.5f,
-				-(renderTexture->GetHeight() - size.y) * 0.5f);
-			fm::math::vec2 startCursorPos;
-			startCursorPos = _cursorPos;
-			startCursorPos.y += start.y;
-			startCursorPos.x += start.x;
-
-			_endImagePos = fm::math::vec2(end.x, end.y);
-
 			if (ImGui::IsMouseReleased(0) && !ImGuizmo::IsUsing())
 			{
+
 				fm::math::vec2 mousePos = ImGui::GetMousePos();
-
-				fm::Rectf rect;
-				rect.w = size.x;
-				rect.h = size.y;
-				rect.x = start.x;
-				rect.y = start.y;
-
-
-				if (rect.contains(mousePos))
+				if (_IsInView(mousePos))
 				{
+					fm::math::vec2 startCursorPos;
+					startCursorPos = _cursorPos;
+					startCursorPos.y += start.y;
+					startCursorPos.x += start.x;
+
 					fm::math::vec2 mPos(mousePos);
 					mPos.x -= startCursorPos.x - _scrollPos.x;
 					mPos.y -= startCursorPos.y - _scrollPos.y;
@@ -337,7 +319,6 @@ void GEditorView::_Update(float dt, Context &inContext)
 					_pickingSystem->PickGameObject(inContext.currentSceneName, _editorView.id.value(), mPos);
 				}
 			}
-
 
 			if (_resultPicking)
 			{

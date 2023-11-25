@@ -65,12 +65,12 @@ bool Application::Serialize() const
 
 void Application::Start()
 {
-	_engine->Start(fm::Application::GetCurrentScene());
+	_engine->Start(GetCurrentScene());
 }
 
 void Application::Stop()
 {
-	_engine->Stop(fm::Application::GetCurrentScene());
+	_engine->Stop(GetCurrentScene());
 }
 
 
@@ -301,4 +301,10 @@ std::shared_ptr<Scene>	Application::RenameScene(std::shared_ptr<Scene> inCurrent
 void Application::SerializeCurrentScene(nlohmann::json& outjson)
 {
 	return _sceneManager->SerializeCurrentScene(outjson);
+}
+
+
+void Application::DrawScene(std::shared_ptr<fm::Scene> inScene, fmc::CCamera& inCamera, fmc::CTransform& inTransform)
+{
+	_engine->DrawScene(inScene, inCamera, inTransform);
 }
