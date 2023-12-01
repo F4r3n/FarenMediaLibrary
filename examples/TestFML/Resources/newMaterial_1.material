@@ -1,0 +1,1 @@
+{"deps":{"path":"!5/Resources/newMaterial_1.material","timeStamp":133437625381892725},"params":{"materialValues":{"properties":[{"name":"MaterialBuffer[PLAIN]plain.mainColor","type":3,"value":[1.0,1.0,1.0,1.0]}],"uniforms":null},"name":"newMaterial_1","shader":"!3/default.shader","shaderKind":0}}
